@@ -547,17 +547,44 @@ class projects(models.Model):
                 vals['project_id'] = self.env['ir.sequence'].sudo().next_by_code('project_budget.projects')
         return super().create(vals_list)
 
-    def unlink(self):
-        """ dont delete.
-        Set specification_state to 'cancel'
-        """
-        for record in self:
-            if record.approve_state == 'need_approve_manager' :
-                record.write({
-                            'specification_state': "cancel"
-                        })
-            else:
-                raisetext = _("only in state 'need approve manager' project can be canceled")
-                raise ValidationError(raisetext)
+    # def unlink(self):
+    #     """ dont delete.
+    #     Set specification_state to 'cancel'
+    #     """
+    #     for record in self:
+    #         if record.approve_state == 'need_approve_manager' :
+    #             record.write({
+    #                         'specification_state': "cancel"
+    #                     })
+    #         else:
+    #             raisetext = _("only in state 'need approve manager' project can be canceled")
+    #             raise ValidationError(raisetext)
+    #
+    #     return False
 
-        return False
+    def unlink(self):
+        """
+        unlink if project is not in fixed budgets and not in 'need_approve_manager' status
+        """
+        print('unlink ')
+
+        for record in self:
+            print('record = ', record)
+            print('record.project_id = ', record.project_id)
+            print('record.id = ', record.id)
+
+            if record.approve_state != 'need_approve_manager':
+                raise_text = _("only project in 'need approve manager' can be deleted")
+                raise ValidationError(raise_text)
+
+            project_is_in_fixed_budgets = self.env['project_budget.projects'].search([('project_id', '=', record.project_id), ('id', '!=', record.id)], limit=1)
+            if project_is_in_fixed_budgets:
+                raise_text = _("only project not in fixed budget can be deleted")
+                raise ValidationError(raise_text)
+
+        res = super().unlink()
+
+        if res:  # use action to return to tree view after unlink
+            res = self.env["ir.actions.actions"]._for_xml_id("project_budget.show_comercial_budget_spec")
+            res['target'] = 'main'
+            return res

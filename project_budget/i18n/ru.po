@@ -1347,6 +1347,11 @@ msgid "Send to approve"
 msgstr "Отправить на утверждение"
 
 #. module: project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
+msgid "Delete"
+msgstr "Удалить"
+
+#. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budgets_form
 msgid "Specification"
 msgstr "Перечень проектов"
@@ -2411,14 +2416,28 @@ msgstr "Удаление этапа возможно только в текущ�
 #, python-format
 msgid "only in state 'need approve manager' project can be canceled"
 msgstr ""
-"Перевести в статус 'отменен' можно только при статусе = 'утверждение КАМ'"
+"Перевести в статус 'отменен' можно только в статусе 'Согласование КАМ'"
+
+#. module: project_budget
+#. odoo-python+
+#: code:addons/project_budget/models/projects.py:0
+#, python-format
+msgid "only project in 'need approve manager' can be deleted"
+msgstr "Удалить проект можно только в статусе 'Согласование КАМ'"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/projects.py:0
+#, python-format
+msgid "only project not in fixed budget can be deleted"
+msgstr "Удалить проект можно только если он не зафиксирован в бюджете"
 
 #. module: project_budget
 #. odoo-python
 #: code:addons/project_budget/models/project_steps.py:0
 #, python-format
 msgid "only in state 'need approve manager' project can be deleted"
-msgstr "Удаление этапа возможно только в статусе на согласовнии КАМ"
+msgstr "Удаление этапа возможно только в статусе 'Согласование КАМ'"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__other_expenses
