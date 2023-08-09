@@ -1,0 +1,7 @@
+.text_high {
+    height: 200px;
+}
+
+.text_high textarea {
+    height: 100%;
+}

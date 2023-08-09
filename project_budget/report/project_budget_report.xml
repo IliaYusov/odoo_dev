@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+<!--         <record id="report_project_budget" model = "ir.actions.report">-->
+<!--                 <field name="name">Budget</field>-->
+<!--                 <field name="model">project_budget.commercial_budget</field>-->
+<!--                 <field name="report_type">qweb-html</field>-->
+<!--                 <field name="report_name">project_budget.report_budget_html</field>-->
+<!--                 <field name="report_file">project_budget.report_budget_html</field>-->
+<!--                 <field name="binding_model_id" ref="model_project_budget_commercial_budget"/>-->
+<!--                 <field name="binding_type">report</field>-->
+<!--        </record>-->
+
+         <record id="report_project_budget_excel" model = "ir.actions.report">
+                 <field name="name">Export to EXCEL</field>
+                 <field name="model">project_budget.commercial_budget</field>
+                 <field name="report_type">xlsx</field>
+                 <field name="report_name">project_budget.report_budget_excel</field>
+                 <field name="report_file">project_budget.report_budget_excel</field>
+                 <field name="binding_model_id" ref="model_project_budget_commercial_budget"/>
+                 <field name="binding_type">report</field>
+        </record>
+
+        <record id="report_project_forecast_excel" model = "ir.actions.report">
+            <field name="name">Generate forecast (EXCEL)</field>
+            <field name="model">project_budget.commercial_budget</field>
+            <field name="report_type">xlsx</field>
+            <field name="report_name">project_budget.report_budget_forecast_excel</field>
+            <field name="report_file">project_budget.report_budget_forecast_excel</field>
+            <field name="binding_model_id" ref="model_project_budget_commercial_budget"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <record id="report_project_svod_excel" model = "ir.actions.report">
+                 <field name="name">Generate svod (EXCEL)</field>
+                 <field name="model">project_budget.commercial_budget</field>
+                 <field name="report_type">xlsx</field>
+                 <field name="report_name">project_budget.report_svod_excel</field>
+                 <field name="report_file">project_budget.report_svod_excel</field>
+                 <field name="binding_model_id" ref="model_project_budget_commercial_budget"/>
+                 <field name="binding_type">report</field>
+        </record>
+
+<!--         <record id="report_project_budget_excel_from_projects" model = "ir.actions.report">-->
+<!--                 <field name="name">Export to EXCEL</field>-->
+<!--                 <field name="model">project_budget.projects</field>-->
+<!--                 <field name="report_type">xlsx</field>-->
+<!--                 <field name="report_name">project_budget.report_budget_excel</field>-->
+<!--                 <field name="report_file">project_budget.report_budget_excel</field>-->
+<!--                 <field name="binding_model_id" ref="model_project_budget_projects"/>-->
+<!--                 <field name="binding_type">report</field>-->
+<!--        </record>-->
+
+
+<!--        <record id="report_project_budget_xls"  model = "ir.actions.report">>-->
+<!--                 <field name="name">Budget Excel</field>-->
+<!--                 <field name="model">project_budget.commercial_budget</field>-->
+<!--                 <field name="report_type">xlsx</field>-->
+<!--                 <field name="report_name">project_budget.report_budget_xls</field>-->
+<!--                 <field name="report_file">project_budget.report_budget_xls</field>-->
+<!--                 <field name="binding_model_id" ref="model_project_budget_commercial_budget"/>-->
+<!--                 <field name="binding_type">report</field>-->
+<!--        </record>-->
+    </data>
+</odoo>
+

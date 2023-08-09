@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="task_view_search" model="ir.ui.view">
+        <field name="name">task.task.search</field>
+        <field name="model">task.task</field>
+        <field name="arch" type="xml">
+            <search string="Tasks">
+                <field name="name" string="Task" filter_domain="['|', ('name', 'ilike', self), ('id', 'ilike', self)]"/>
+                <field name="user_id"
+                       filter_domain="[('user_id.name', 'ilike', self), ('user_id.active', 'in', [True, False])]"/>
+                <field name="parent_ref"/>
+                <field name="description"/>
+                <filter string="My Tasks" name="my_tasks" domain="[('user_id', '=', uid)]"/>
+                <filter string="Open Tasks" name="open_tasks" domain="[('is_closed', '=', False)]"/>
+                <filter string="Created by me" name="created_by_me" domain="[('create_uid', '=', uid)]"/>
+                <filter string="Unassigned" name="unassigned" domain="[('user_id', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="task_action_sub_task" model="ir.actions.act_window">
+        <field name="name">Sub-tasks</field>
+        <field name="res_model">task.task</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="task.task_view_search"/>
+        <field name="domain">[('id', 'child_of', active_id), ('id', '!=', active_id)]</field>
+        <field name="context">{
+            'show_parent_ref_update': False,
+            'default_parent_id': active_id}
+        </field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No tasks found. Let's create one!
+            </p>
+            <p>
+                Keep track of the progress of your tasks from creation to completion.
+                <br/>
+                Collaborate efficiently by chatting in real-time or via email.
+            </p>
+        </field>
+    </record>
+
+    <record id="task_view_form" model="ir.ui.view">
+        <field name="name">task.task.form</field>
+        <field name="model">task.task</field>
+        <field name="arch" type="xml">
+            <form string="Task">
+                <group invisible="1">
+                    <field name="id"/>
+                    <field name="stage_id"/>
+                    <field name="is_closed"/>
+                    <field name="parent_id"/>
+                    <field name="parent_ref_type"/>
+                    <field name="parent_ref_id"/>
+                </group>
+                <header>
+                    <div class="stages_wrapper">
+                        <field name="stage_routes" widget="stage_button_widget"/>
+                    </div>
+                    <field name="stage_id" widget="statusbar"
+                           attrs="{'readonly': True}"
+                           domain="[('id', '=', stage_id)]"/>
+                </header>
+                <sheet string="Task">
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" type="object" name="action_open_attachments"
+                                icon="fa-files-o">
+                            <field string="Attachments" name="attachment_count" widget="statinfo"/>
+                        </button>
+                        <button name="action_open_parent_task" type="object" class="oe_stat_button" icon="fa-tasks"
+                                string="Parent Task" attrs="{'invisible': [('parent_id', '=', False)]}"/>
+                        <button name="%(task_action_sub_task)d" type="action" class="oe_stat_button" icon="fa-tasks"
+                            attrs="{'invisible' : ['|', ('id', '=', False), ('subtask_count', '=', 0)]}" context="{'default_user_id': user_id}">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="subtask_count" widget="statinfo" nolabel="1"/>
+                                </span>
+                                <span class="o_stat_text">Sub-tasks</span>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <field name="code" readonly="1"/>
+                    </div>
+                    <div class="oe_title pe-0">
+                        <h1 class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex w-100">
+                                <field name="name" class="o_task_name text-truncate w-100 w-md-75 pe-2"
+                                       placeholder="Task Title..."/>
+                            </div>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="create_uid" readonly="1"/>
+                            <field name="type_id" attrs="{'readonly': [('id', '!=', False)]}"/>
+                            <field name="parent_ref"/>
+                        </group>
+                        <group>
+                            <field name="priority" widget="priority"/>
+                            <field name="user_id"
+                                   options="{'no_open': True, 'no_quick_create': True}"
+                                   widget="many2one_avatar_user"
+                                   domain="[('share', '=', False)]"/>
+                            <field name="date_deadline"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="description_page" string="Description">
+                            <field name="description" type="html" options="{'collaborative': true, 'resizable': false}"
+                                   placeholder="Task description..."/>
+                             <div class="task-separator task-separator-execution-result"
+                                 name="task_execution_result"
+                                 attrs="{'invisible': [('execution_result', '=', False)]}">
+                                <span class="task-separator-text">Execution result</span>
+                            </div>
+                            <field name="execution_result"
+                                   colspan="4"
+                                   readonly="1"
+                                   attrs="{'invisible': [('execution_result', '=', False)]}"/>
+                        </page>
+                        <page name="sub_tasks_page" string="Sub-tasks">
+                            <field name="child_ids"
+                                   context="{
+                                   'search_view_ref' : 'task.task_view_search',
+                                   'default_user_id': user_id, 'default_parent_id': id,
+                                   'default_parent_ref_type': parent_ref_type, 'default_parent_ref_id': parent_ref_id,
+                                   'search_default_parent_ref': parent_ref}"
+                                   widget="many2many"
+                                   domain="['!', ('id', 'parent_of', id)]">
+                                <tree editable="bottom">
+                                    <field name="name" optional="show"/>
+                                    <field name="user_id" widget="many2one_avatar_user" optional="show" domain="[('share', '=', False), ('active', '=', True)]"/>
+                                    <field name="date_deadline" optional="show"/>
+                                    <field name="stage_id" optional="show"/>
+                                    <button name="action_open_task" type="object" title="View Task" string="View Task" class="btn btn-link float-end"/>
+                                </tree>
+                            </field>
+                        </page>
+<!--                        <page name="report_page" string="Comment">-->
+<!--                            <field name="execution_result" type="html"-->
+<!--                                   options="{'collaborative': true, 'resizable': false}"-->
+<!--                                   placeholder="Comment..."/>-->
+<!--                        </page>-->
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="task_view_tree" model="ir.ui.view">
+        <field name="name">task.task.tree</field>
+        <field name="model">task.task</field>
+        <field name="arch" type="xml">
+            <tree string="Tasks" multi_edit="1" sample="1"
+                  decoration-warning="is_closed == False and date_deadline == current_date"
+                  decoration-success="is_closed == True"
+                  decoration-danger="is_closed == False and date_deadline &lt; current_date">
+                <field name="code" optional="show"/>
+                <field name="type_id" optional="show"/>
+                <field name="name" optional="show" widget="name_with_subtask_count"/>
+                <field name="description" optional="hide"/>
+                <field name="parent_ref" optional="hide"/>
+                <field name="user_id" optional="show" widget="many2one_avatar_user" options='{"no_quick_create": True}'/>
+                <field name="date_deadline" optional="show"/>
+                <field name="date_closed" optional="show"/>
+                <field name="stage_id" optional="show"/>
+                <field name="is_closed" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="task_view_calendar" model="ir.ui.view">
+        <field name="name">task.task.calendar</field>
+        <field name="model">task.task</field>
+        <field name="arch" type="xml">
+            <calendar date_start="date_deadline" string="Tasks" mode="month"
+                      event_limit="5" hide_time="true"
+                      event_open_popup="true" quick_add="false"
+                      scales="month,year">
+                <field name="parent_ref"/>
+                <field name="user_id" widget="many2one_avatar_user"/>
+                <field name="date_deadline"/>
+                <field name="stage_id"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="task_view_kanban" model="ir.ui.view">
+        <field name="name">task.task.kanban</field>
+        <field name="model">task.task</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="stage_id" examples="task" sample="1">
+                <field name="stage_id" options='{"group_by_tooltip": {"description": "Description"}}'/>
+                <field name="user_id"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title">
+                                                <field name="name" widget="name_with_subtask_count"/>
+                                        </strong>
+                                    </div>
+<!--                                    <div class="o_dropdown_kanban dropdown" t-if="!selection_mode">-->
+<!--                                        <a role="button" class="dropdown-toggle o-no-caret btn"-->
+<!--                                           data-bs-toggle="dropdown" data-bs-display="static" href="#"-->
+<!--                                           aria-label="Dropdown menu" title="Dropdown menu">-->
+<!--                                            <span class="fa fa-ellipsis-v"/>-->
+<!--                                        </a>-->
+<!--                                    </div>-->
+                                </div>
+                                <div class="o_kanban_record_body">
+                                    <div t-if="record.date_deadline.raw_value" name="date_deadline">
+                                        <field name="date_deadline" widget="remaining_days"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="action_view_task_id" model="ir.actions.act_window">
+        <field name="name">Tasks</field>
+        <field name="res_model">task.task</field>
+        <field name="view_mode">tree,calendar,form</field>
+        <field name="domain">[('parent_ref_id', '=', active_id), ('parent_id', '=', False)]</field>
+        <field name="context">{
+            'default_parent_ref': 'project_budget.projects,%s' % active_id,
+            'default_parent_ref_type': 'project_budget.projects',
+            'default_parent_ref_id': active_id}
+        </field>
+        <field name="help" type="html">
+            <p>
+                Task management allows you to manage the pipeline of your tasks efficiently. You can track
+                progress, discuss on tasks, attach documents, etc.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_view_all_task" model="ir.actions.act_window">
+        <field name="name">Tasks</field>
+        <field name="res_model">task.task</field>
+        <field name="view_mode">tree,kanban,calendar,form</field>
+        <field name="domain">[('parent_id', '=', False)]</field>
+        <field name="context">{'search_default_open_tasks': 1}</field>
+        <field name="search_view_id" ref="task.task_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No tasks found. Let's create one!
+            </p>
+            <p>
+                Organize your tasks by dispatching them across the pipeline.
+                <br/>
+                Collaborate efficiently by chatting in real-time or via email.
+            </p>
+        </field>
+    </record>
+</odoo>

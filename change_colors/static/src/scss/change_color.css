@@ -1,0 +1,53 @@
+.form-check-input {
+      border-color: #0F5F8B;
+      &:checked {
+        background-color: #0F5F8B;
+}}
+.o_main_navbar{
+       background-color: #0F5F8B !important;
+}
+.btn-primary {
+       background-color: #0F5F8B !important;
+       border-color: transparent !important;
+}
+.o_main_navbar .show .dropdown-toggle, o.main_navbar > ul > li > a:hover {
+       background-color: #0F5F8B !important;
+}
+.btn-secondary {
+       color: #0F5F8B !important;
+       border-color: #0F5F8B !important;
+}
+.o_external_button{
+      color: #0F5F8B !important;
+}
+
+.o_dropdown_button{
+      color: #0F5F8B !important;
+}
+
+.o_home_menu_background .o_main_navbar {
+       background-color: transparent !important;
+       border-color: transparent !important;
+}
+.o_home_menu_background .o_main_navbar .show .dropdown-toggle .o_home_menu_background{
+       background-color: transparent !important;
+}
+.o_searchview_facet .o_searchview_facet_label{
+      background-color: #0F5F8B !important;
+}
+.breadcrumb-item .o_back_button{
+      color: #0F5F8B !important;
+}
+.breadcrumb-item{
+      color: #0F5F8B !important;
+}
+.breadcrumb{
+      color: #0F5F8B !important;
+}
+.o_searchview_facet .o_facet_values{
+      border-color: #0F5F8B !important;
+}
+
+.o_ChatterTopbar_buttonSendMessage {
+      background-color: #0F5F8B !important;
+}

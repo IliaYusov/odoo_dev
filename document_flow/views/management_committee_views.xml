@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="management_committee_view_form" model="ir.ui.view">
+        <field name="name">document_flow.management_committee</field>
+        <field name="model">document_flow.management_committee</field>
+        <field name="arch" type="xml">
+            <form string="Management Committee">
+                <sheet string="Management Committee">
+                    <group>
+                        <field name="name"/>
+                        <field name="member_ids"
+                               options="{'no_open': True, 'no_quick_create': True}"
+                               widget="many2many_avatar_user"
+                               domain="[('share', '=', False)]"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

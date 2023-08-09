@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="seq_document_flow_process" model="ir.sequence">
+            <field name="name">Process Number</field>
+            <field name="code">document_flow.process</field>
+            <field name="prefix">NKK-</field>
+            <field name="padding">10</field>
+            <field name="company_id" eval="True"/>
+        </record>
+
+        <record id="task_type_review" model="task.type">
+            <field name="name">{""en_US"": ""Agreement"", ""ru_RU"": ""Согласование""}</field>
+            <field name="code">sys_df_review</field>
+            <field name="active">True</field>
+            <field name="color">rgba(85, 170, 255, 1)</field>
+<!--            <field name="model_id" ref="document_flow.process"/>-->
+            <field name="description">Workflow for tasks of the Document Flow module</field>
+        </record>
+
+        <record id="review_task_stage_to_do" model="task.stage">
+            <field name="name">To do</field>
+            <field name="code">to_do</field>
+            <field name="closed">False</field>
+            <field name="type_id" ref="task.task_stage_type_to_do"/>
+            <field name="task_type_id" ref="task_type_review"/>
+        </record>
+
+        <record id="review_task_stage_in_progress" model="task.stage">
+            <field name="name">In progress</field>
+            <field name="code">in_progress</field>
+            <field name="closed">False</field>
+            <field name="type_id" ref="task.task_stage_type_in_progress"/>
+            <field name="task_type_id" ref="task_type_review"/>
+        </record>
+
+        <record id="review_task_stage_reviewed" model="task.stage">
+            <field name="name">Reviewed</field>
+            <field name="code">reviewed</field>
+            <field name="closed">True</field>
+            <field name="type_id" ref="task.task_stage_type_done"/>
+            <field name="task_type_id" ref="task_type_review"/>
+        </record>
+
+        <record id="review_task_stage_route_to_do_in_progress" model="task.stage.route">
+            <field name="name">In progress</field>
+            <field name="sequence">2</field>
+            <field name="stage_from_id" ref="review_task_stage_to_do"/>
+            <field name="stage_to_id" ref="review_task_stage_in_progress"/>
+            <field name="task_type_id" ref="task_type_review"/>
+            <field name="require_comment">False</field>
+            <field name="button_style">primary</field>
+        </record>
+
+        <record id="review_task_stage_route_in_progress_reviewed" model="task.stage.route">
+            <field name="name">Reviewed</field>
+            <field name="sequence">1</field>
+            <field name="stage_from_id" ref="review_task_stage_in_progress"/>
+            <field name="stage_to_id" ref="review_task_stage_reviewed"/>
+            <field name="task_type_id" ref="task_type_review"/>
+            <field name="require_comment">False</field>
+            <field name="button_style">success</field>
+        </record>
+
+        <record id="review_task_stage_route_review_to_do" model="task.stage.route">
+            <field name="name">Reviewed</field>
+            <field name="sequence">3</field>
+            <field name="stage_from_id" ref="review_task_stage_to_do"/>
+            <field name="stage_to_id" ref="review_task_stage_reviewed"/>
+            <field name="task_type_id" ref="task_type_review"/>
+            <field name="require_comment">False</field>
+            <field name="button_style">success</field>
+        </record>
+
+        <record id="task_type_execution" model="task.type">
+            <field name="name">Execution</field>
+            <field name="code">sys_df_execution</field>
+            <field name="active">True</field>
+            <field name="color">rgba(85, 170, 255, 1)</field>
+<!--            <field name="model_id" ref="document_flow.process"/>-->
+            <field name="description">Workflow for tasks of the Document Flow module</field>
+        </record>
+
+        <record id="execution_task_stage_to_do" model="task.stage">
+            <field name="name">To do</field>
+            <field name="code">to_do</field>
+            <field name="closed">False</field>
+            <field name="type_id" ref="task.task_stage_type_to_do"/>
+            <field name="task_type_id" ref="task_type_execution"/>
+        </record>
+
+        <record id="execution_task_stage_in_progress" model="task.stage">
+            <field name="name">In progress</field>
+            <field name="code">in_progress</field>
+            <field name="closed">False</field>
+            <field name="type_id" ref="task.task_stage_type_in_progress"/>
+            <field name="task_type_id" ref="task_type_execution"/>
+        </record>
+
+        <record id="execution_task_stage_executed" model="task.stage">
+            <field name="name">Executed</field>
+            <field name="code">executed</field>
+            <field name="closed">True</field>
+            <field name="type_id" ref="task.task_stage_type_done"/>
+            <field name="task_type_id" ref="task_type_execution"/>
+        </record>
+
+        <record id="execution_task_stage_route_to_do_in_progress" model="task.stage.route">
+            <field name="name">In progress</field>
+            <field name="sequence">2</field>
+            <field name="stage_from_id" ref="execution_task_stage_to_do"/>
+            <field name="stage_to_id" ref="execution_task_stage_in_progress"/>
+            <field name="task_type_id" ref="task_type_execution"/>
+            <field name="require_comment">False</field>
+            <field name="button_style">primary</field>
+        </record>
+
+        <record id="execution_task_stage_route_in_progress_executed" model="task.stage.route">
+            <field name="name">Executed</field>
+            <field name="sequence">3</field>
+            <field name="stage_from_id" ref="execution_task_stage_in_progress"/>
+            <field name="stage_to_id" ref="execution_task_stage_executed"/>
+            <field name="task_type_id" ref="task_type_execution"/>
+            <field name="require_comment">False</field>
+            <field name="button_style">success</field>
+        </record>
+
+        <record id="execution_task_stage_route_to_do_executed" model="task.stage.route">
+            <field name="name">Executed</field>
+            <field name="sequence">1</field>
+            <field name="stage_from_id" ref="execution_task_stage_to_do"/>
+            <field name="stage_to_id" ref="execution_task_stage_executed"/>
+            <field name="task_type_id" ref="task_type_execution"/>
+            <field name="require_comment">False</field>
+            <field name="button_style">success</field>
+        </record>
+
+        <record id="task_type_agreement" model="task.type">
+            <field name="name">Agreement</field>
+            <field name="code">sys_df_agreement</field>
+            <field name="active">True</field>
+            <field name="color">rgba(85, 170, 255, 1)</field>
+<!--            <field name="model_id" ref="document_flow.process"/>-->
+            <field name="description">Workflow for tasks of the Document Flow module</field>
+        </record>
+
+        <record id="agreement_task_stage_to_do" model="task.stage">
+            <field name="name">To do</field>
+            <field name="code">to_do</field>
+            <field name="closed">False</field>
+            <field name="type_id" ref="task.task_stage_type_to_do"/>
+            <field name="task_type_id" ref="task_type_agreement"/>
+        </record>
+
+        <record id="agreement_task_stage_in_progress" model="task.stage">
+            <field name="name">In progress</field>
+            <field name="code">in_progress</field>
+            <field name="closed">False</field>
+            <field name="type_id" ref="task.task_stage_type_in_progress"/>
+            <field name="task_type_id" ref="task_type_agreement"/>
+        </record>
+
+        <record id="agreement_task_stage_agreed" model="task.stage">
+            <field name="name">Agreed</field>
+            <field name="code">agreed</field>
+            <field name="closed">True</field>
+            <field name="type_id" ref="task.task_stage_type_done"/>
+            <field name="task_type_id" ref="task_type_agreement"/>
+        </record>
+
+        <record id="agreement_task_stage_not_agreed" model="task.stage">
+            <field name="name">Not agreed</field>
+            <field name="code">not_agreed</field>
+            <field name="closed">True</field>
+            <field name="type_id" ref="task.task_stage_type_cancel"/>
+            <field name="task_type_id" ref="task_type_agreement"/>
+        </record>
+
+        <record id="agreement_task_stage_route_to_do_in_progress" model="task.stage.route">
+            <field name="name">In progress</field>
+            <field name="sequence">3</field>
+            <field name="stage_from_id" ref="agreement_task_stage_to_do"/>
+            <field name="stage_to_id" ref="agreement_task_stage_in_progress"/>
+            <field name="task_type_id" ref="task_type_agreement"/>
+            <field name="require_comment">False</field>
+            <field name="button_style">primary</field>
+        </record>
+
+        <record id="agreement_task_stage_route_in_progress_agreed" model="task.stage.route">
+            <field name="name">Agreed</field>
+            <field name="sequence">5</field>
+            <field name="stage_from_id" ref="agreement_task_stage_in_progress"/>
+            <field name="stage_to_id" ref="agreement_task_stage_agreed"/>
+            <field name="task_type_id" ref="task_type_agreement"/>
+            <field name="require_comment">False</field>
+            <field name="button_style">success</field>
+        </record>
+
+        <record id="agreement_task_stage_route_in_progress_not_agreed" model="task.stage.route">
+            <field name="name">Not agreed</field>
+            <field name="sequence">5</field>
+            <field name="stage_from_id" ref="agreement_task_stage_in_progress"/>
+            <field name="stage_to_id" ref="agreement_task_stage_not_agreed"/>
+            <field name="task_type_id" ref="task_type_agreement"/>
+            <field name="require_comment">True</field>
+            <field name="button_style">danger</field>
+        </record>
+
+        <record id="agreement_task_stage_route_to_do_agreed" model="task.stage.route">
+            <field name="name">Agreed</field>
+            <field name="sequence">2</field>
+            <field name="stage_from_id" ref="agreement_task_stage_to_do"/>
+            <field name="stage_to_id" ref="agreement_task_stage_agreed"/>
+            <field name="task_type_id" ref="task_type_agreement"/>
+            <field name="require_comment">False</field>
+            <field name="button_style">success</field>
+        </record>
+
+        <record id="agreement_task_stage_route_to_do_not_agreed" model="task.stage.route">
+            <field name="name">Not agreed</field>
+            <field name="sequence">3</field>
+            <field name="stage_from_id" ref="agreement_task_stage_to_do"/>
+            <field name="stage_to_id" ref="agreement_task_stage_not_agreed"/>
+            <field name="task_type_id" ref="task_type_agreement"/>
+            <field name="require_comment">True</field>
+            <field name="button_style">danger</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,92 @@
+<odoo>
+    <data>
+<!-- commercial_budget -->
+        <record id="show_comercial_budgets_tree" model="ir.ui.view">
+            <field name="name">project_budget.commercial_budget.tree</field>
+            <field name="model">project_budget.commercial_budget</field>
+            <field name="arch" type="xml">
+                <tree string="project_office">
+                    <field name="etalon_budget"/>
+                    <field name="budget_state"/>
+                    <field name="name"/>
+                    <field name="date_actual"/>
+                    <field name="year"/>
+                    <field name="currency_id"/>
+                    <field name="descr"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="show_comercial_budgets_form" model="ir.ui.view">
+            <field name="name">project_budget.commercial_budget.form</field>
+            <field name="model">project_budget.commercial_budget</field>
+            <field name="arch" type="xml">
+               <form string="Commercial budget" create="0">
+                <header>
+                    <!--The oe_highlight class gives the button a red color when it is saved.
+                    It is usually used to indicate the expected behaviour. -->
+                    <button string="Fix budget" type="object" name="set_budget_fixed" class="oe_highlight" attrs="{'invisible': [('budget_state', '=', 'fixed')]}"/>
+                    <button string="Return to work" type="object" name="set_budget_work" class="oe_highlight" attrs="{'invisible': [('budget_state', '!=', 'fixed')]}"/>
+                </header>
+                    <sheet>
+                        <group>
+                            <field name="etalon_budget" widget="boolean_toggle" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                        </group>
+                        <group col="4">
+                            <group>
+                                <field name="budget_state" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="currency_id" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                            </group>
+                            <group name="detail3">
+                                <field name="date_actual" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="year" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="name" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                            <field name="descr" colspan="2" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                        </group>
+
+                        <notebook>
+                           <page string="Specification" name="Specification">
+                            <field
+                                name="projects_ids"
+                                widget="section_and_note_one2many"
+                                mode="tree"
+                            >
+
+                            </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+<!--                    <div class="oe_chatter">-->
+<!--                        <field name="message_follower_ids" widget="mail_followers"/>-->
+<!--                        <field name="activity_ids" widget="mail_activity"/>-->
+<!--                        <field name="message_ids" widget="mail_thread"/>-->
+<!--                    </div>-->
+                </form>
+            </field>
+        </record>
+
+        <record id="show_comercial_budgets" model="ir.actions.act_window">
+            <field name="name">comercial_budgets</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">project_budget.commercial_budget</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'search_default_group_by_provider': True}</field>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a new commercial_budget
+              </p><p>
+                each commercial_budget have specifications
+              </p>
+            </field>
+        </record>
+<!-- end commercial_budget-->
+
+    </data>
+</odoo>

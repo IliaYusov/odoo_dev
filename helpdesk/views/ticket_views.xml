@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="helpdesk_ticket_view_search" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.search</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="arch" type="xml">
+            <search string="Tickets">
+                <field name="code"/>
+                <field name="name" string="Ticket" filter_domain="['|', ('name', 'ilike', self), ('id', 'ilike', self)]"/>
+                <field name="description"/>
+                <filter string="Open Tickets" name="open_tickets" domain="[('is_closed', '=', False)]"/>
+                <filter string="Created by me" name="created_by_me" domain="[('author_id', '=', uid)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_helpdesk_ticket_all_tickets" model="ir.actions.act_window">
+        <field name="name">Tickets</field>
+        <field name="res_model">helpdesk.ticket</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{'search_default_open_tickets': 1}</field>
+        <field name="search_view_id" ref="helpdesk_ticket_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No tickets found. Let's create one!
+            </p>
+        </field>
+    </record>
+
+    <record id="action_helpdesk_ticket_all_tasks" model="ir.actions.act_window">
+        <field name="name">Tasks</field>
+        <field name="res_model">task.task</field>
+        <field name="view_mode">tree,kanban,calendar,form</field>
+        <field name="domain">[
+                ('parent_ref_type', 'in', ['helpdesk.ticket'])
+            ]
+        </field>
+        <field name="context">{ 'search_default_open_tasks': 1}</field>
+        <field name="search_view_id" ref="task.task_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No tasks found. Let's create one!
+            </p>
+            <p>
+                Organize your tasks by dispatching them across the pipeline.
+                <br/>
+                Collaborate efficiently by chatting in real-time or via email.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_helpdesk_ticket_open_tasks" model="ir.actions.act_window">
+        <field name="name">Tasks</field>
+        <field name="res_model">task.task</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('parent_ref_type', '=', 'helpdesk.ticket'), ('parent_ref_id', '=', active_id)]</field>
+        <field name="context">{'default_parent_ref_type': 'helpdesk.ticket', 'default_parent_ref_id': active_id}</field>
+    </record>
+
+    <record id="helpdesk_ticket_view_form" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.form</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="arch" type="xml">
+            <form string="Ticket">
+                <group invisible="1">
+                    <field name="id"/>
+                    <field name="stage_id"/>
+                    <field name="is_closed"/>
+                </group>
+                <header>
+                    <div class="stages_wrapper" groups="helpdesk.group_admin,helpdesk.group_team_leader">
+                        <field name="stage_routes" widget="stage_button_widget"/>
+                    </div>
+                    <field name="stage_id" widget="statusbar"
+                           attrs="{'readonly': True}"
+                           domain="[('id', '=', stage_id)]"/>
+                </header>
+                <sheet string="Ticket">
+                    <div name="button_box" position="inside">
+                        <div class="oe_left button_box">
+                            <button string="Create Task" type="object" name="action_create_task" class="oe_highlight"
+                                    groups="helpdesk.group_admin,helpdesk.group_team_leader"
+                                    attrs="{'invisible': [('is_closed', '=', True)]}"/>
+                        </div>
+                        <button class="oe_stat_button" type="object" name="action_open_attachments"
+                                icon="fa-files-o">
+                            <field string="Attachments" name="attachment_count" widget="statinfo"/>
+                        </button>
+                        <button class="oe_stat_button" type="action" name="%(action_helpdesk_ticket_open_tasks)d"
+                                icon="fa-tasks" groups="helpdesk.group_admin,helpdesk.group_team_leader">
+                            <field string="Tasks" name="task_count" widget="statinfo"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <field name="code" readonly="1"/>
+                    </div>
+                    <h1>
+                        <field name="name" placeholder="Ticket Title..."/>
+                    </h1>
+                    <group col="2">
+                        <group>
+                            <field name="type_id" attrs="{'readonly': [('id', '!=', False)]}"/>
+                        </group>
+                        <group>
+                            <field name="priority" widget="priority"/>
+                        </group>
+                    </group>
+                    <group col="2">
+                        <group>
+                            <field name="team_id"/>
+                        </group>
+                        <group>
+                            <field name="module_id"/>
+                        </group>
+                    </group>
+                    <group col="3">
+                        <group>
+                            <field name="create_date"/>
+                        </group>
+                        <group>
+                            <field name="author_id" groups="helpdesk.group_admin"/>
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="description_page" string="Description">
+                            <field name="description" type="html" options="{'collaborative': true, 'resizable': false}"
+                                   placeholder="Ticket description..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="helpdesk_ticket_view_tree" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.tree</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="arch" type="xml">
+            <tree string="Tickets" multi_edit="1" sample="1">
+                <field name="company_id" invisible="1"/>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="description" optional="hide"/>
+                <field name="author_id" widget="many2one_avatar_user"/>
+                <field name="team_id"/>
+                <field name="create_date"/>
+                <field name="date_closed"/>
+                <field name="stage_id"/>
+            </tree>
+        </field>
+    </record>
+</odoo>

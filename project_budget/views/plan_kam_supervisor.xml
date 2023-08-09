@@ -1,0 +1,452 @@
+<odoo>
+    <data>
+        <!-- project_budget.budget_plan_skam-->
+        <record id="show_budget_plan_kam_tree" model="ir.ui.view">
+            <field name="name">project_budget.budget_plan_kam.tree</field>
+            <field name="model">project_budget.budget_plan_kam</field>
+            <field name="arch" type="xml">
+                <tree string="plan kam">
+                    <field name="supervisor_user_id" invisible="1"/>
+                    <field name="kam_user_id" invisible="1"/>
+                    <field name="company_id"/>
+                    <field name="year"/>
+                    <field name="company_id"/>
+                    <field name="project_office_id"/>
+                    <field name="supervisor_id" widget="many2one_avatar"/>
+                    <field name="kam_id" widget="many2one_avatar"/>
+                    <field name="currency_id"/>
+                    <field name="contracting_year_plan"/>
+                    <field name="cash_year_plan"/>
+                    <field name="acceptance_year_plan"/>
+                    <field name="margin_income_year_plan"/>
+                    <field name="margin3_income_year_plan"/>
+                    <field name="ebit_year_plan"/>
+                    <field name="net_profit_year_plan"/>
+                </tree>
+            </field>
+        </record>
+        <record id="show_budget_plan_kam_form" model="ir.ui.view">
+            <field name="name">project_budget.budget_plan_kam.form</field>
+            <field name="model">project_budget.budget_plan_kam</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet string="budget_plan_kam" >
+                        <field name="supervisor_user_id" invisible="1"/>
+                        <field name="kam_user_id" invisible="1"/>
+                        <h4>
+                            <group string="BUDGET PERFORMANCE PLAN" >\
+                                <field name="plan_supervisor_id" options="{'no_create': True}"/>
+                            </group>
+                        </h4>
+                        <group col="2">
+                            <group>
+                                <field name="year" invisible="True"/>
+                                <field name="project_office_id" invisible="True" options="{'no_create': True}"/>
+                                <field name="supervisor_id" options="{'no_create': True}" widget="many2one_avatar"/>
+                                <field name="company_id" options="{'no_create': True}"/>
+                            </group>
+                            <group>
+                                <field name="kam_id" options="{'no_create': True}" widget="many2one_avatar"/>
+                                <field name="currency_id" options="{'no_create': True}"/>
+                            </group>
+                        </group>
+                            <group col="1">
+                                <group string="Conclusion of new contracts, with VAT" />
+                            </group>
+                            <group col="5">
+                                 <group>
+                                    <field string="Q1" name="contracting_q1_plan"/>
+                                </group>
+                                <group>
+                                    <field string="Q2" name="contracting_q2_plan"/>
+                                </group>
+                                <group>
+                                    <field string="Q3" name="contracting_q3_plan"/>
+                               </group>
+                                <group>
+                                    <field string="Q4" name="contracting_q4_plan"/>
+                                </group>
+                                <group>
+                                    <field string="Year" name="contracting_year_plan" decoration-success="1"/>
+                                </group>
+                            </group>
+                            <group col="1">
+                                <group string="Cash, with VAT" />
+                            </group>
+                            <group col="5">
+                                <group>
+                                    <field string="Q1" name="cash_q1_plan"/>
+                                </group>
+                                <group>
+                                    <field string="Q2" name="cash_q2_plan"/>
+                                </group>
+                                <group>
+                                    <field string="Q3" name="cash_q3_plan"/>
+                                </group>
+                                <group>
+                                    <field string="Q4" name="cash_q4_plan"/>
+                                </group>
+                                <group>
+                                    <field string="Year" name="cash_year_plan" decoration-success="1"/>
+                                </group>
+                            </group>
+                            <group col = "1">
+                                <group string="Acceptance, without VAT" >
+                                </group>
+                            </group>
+                            <group col = "5">
+                                <group>
+                                    <field string="Q1" name="acceptance_q1_plan"/>
+                                </group>
+                                <group>
+                                    <field string="Q2" name="acceptance_q2_plan"/>
+                                </group>
+                                <group>
+                                    <field string="Q3" name="acceptance_q3_plan"/>
+                                </group>
+                                <group>
+                                    <field string="Q4" name="acceptance_q4_plan"/>
+                                </group>
+                                <group>
+                                    <field string="Year" name="acceptance_year_plan" decoration-success="1"/>
+                                </group>
+                            </group>
+                            <group col = "1">
+                                <group string="Margin income, without VAT" >
+                                </group>
+                            </group>
+                            <group col="5">
+                                <group>
+                                    <field string="Q1" name="margin_income_q1_plan"/>
+                                </group>
+                                <group>
+                                    <field string="Q2" name="margin_income_q2_plan"/>
+                                </group>
+                                <group>
+                                    <field string="Q3" name="margin_income_q3_plan"/>
+                                </group>
+                                <group>
+                                    <field string="Q4" name="margin_income_q4_plan"/>
+                                </group>
+                                <group>
+                                    <field string="Year" name="margin_income_year_plan" decoration-success="1"/>
+                                </group>
+                            </group>
+                            <group col ="1">
+                                <group string="Margin3 income" />
+                            </group>
+                            <group col="5">
+                                <group>
+                                    <field string="Q1" name="margin3_income_q1_plan"/>
+                                </group>
+                                <group>
+                                    <field string="Q2" name="margin3_income_q2_plan"/>
+                                </group>
+                                <group>
+                                    <field string="Q3" name="margin3_income_q3_plan"/>
+                                </group>
+                                <group>
+                                    <field string="Q4" name="margin3_income_q4_plan"/>
+                                </group>
+                                <group>
+                                    <field string="Year" name="margin3_income_year_plan" decoration-success="1"/>
+                                </group>
+                            </group>
+                            <group>
+                                <field name="is_use_ebit" widget="boolean_toggle" invisible="True"/>
+                            </group>
+                            <group col ="1">
+                                <group string="EBIT" attrs="{'invisible': [('is_use_ebit', '=', False)]}"/>
+                            </group>
+                            <group col="5">
+                                <group>
+                                    <field string="Q1" name="ebit_q1_plan" attrs="{'invisible': [('is_use_ebit', '=', False)]}"/>
+                                </group>
+                                <group>
+                                    <field string="Q2" name="ebit_q2_plan"  attrs="{'invisible': [('is_use_ebit', '=', False)]}"/>/>
+                                </group>
+                                <group>
+                                    <field string="Q3" name="ebit_q3_plan"  attrs="{'invisible': [('is_use_ebit', '=', False)]}"/>/>
+                                </group>
+                                <group>
+                                    <field string="Q4" name="ebit_q4_plan"  attrs="{'invisible': [('is_use_ebit', '=', False)]}"/>/>
+                                </group>
+                                <group>
+                                    <field string="Year" name="ebit_year_plan" decoration-success="1"  attrs="{'invisible': [('is_use_ebit', '=', False)]}"/>/>
+                                </group>
+                            </group>
+                            <group>
+                                <field name="is_use_net_profit" widget="boolean_toggle" invisible="True"/>
+                            </group>
+                            <group col="1">
+                                <group string="Net profit" attrs="{'invisible': [('is_use_net_profit', '=', False)]}"/>
+                            </group>
+                            <group col="5">
+                                <group>
+                                    <field string="Q1" name="net_profit_q1_plan" attrs="{'invisible': [('is_use_net_profit', '=', False)]}"/>
+                                </group>
+                                <group>
+                                    <field string="Q2" name="net_profit_q2_plan"  attrs="{'invisible': [('is_use_net_profit', '=', False)]}"/>/>
+                                </group>
+                                <group>
+                                    <field string="Q3" name="net_profit_q3_plan"  attrs="{'invisible': [('is_use_net_profit', '=', False)]}"/>/>
+                                </group>
+                                <group>
+                                    <field string="Q4" name="net_profit_q4_plan"  attrs="{'invisible': [('is_use_net_profit', '=', False)]}"/>/>
+                                </group>
+                                <group>
+                                    <field string="Year" name="net_profit_year_plan" decoration-success="1"  attrs="{'invisible': [('is_use_net_profit', '=', False)]}"/>/>
+                                </group>
+                            </group>
+                        </sheet>
+                            <div class="oe_chatter">
+                                <field name="message_follower_ids" widget="mail_followers"/>
+                                <field name="activity_ids" widget="mail_activity"/>
+                                <field name="message_ids" widget="mail_thread"/>
+                            </div>
+                    </form>
+                </field>
+            </record>
+
+            <record id="show_budget_plan_kam" model="ir.actions.act_window">
+                <field name="name">project_budget.budget_plan_kam</field>
+                <field name="type">ir.actions.act_window</field>
+                <field name="res_model">project_budget.budget_plan_kam</field>
+                <field name="view_mode">tree,form</field>
+                <field name="context">{'search_default_group_by_provider': True}</field>
+                <field name="help" type="html">
+                  <p class="o_view_nocontent_smiling_face">
+                    Create a new KAM's plan on year
+                  </p><p>
+                    each KAM have own plan on year
+                  </p>
+                </field>
+            </record>
+<!-- end project_budget.budget_plan_kam-->
+<!-- end project_budget.budget_plan_supervisor-->
+        <record id="show_budget_plan_supervisor_tree" model="ir.ui.view">
+            <field name="name">project_budget.budget_plan_supervisor.tree</field>
+            <field name="model">project_budget.budget_plan_supervisor</field>
+            <field name="arch" type="xml">
+                <tree string="plan supervisor">
+                    <field name="supervisor_user_id" invisible="1"/>
+                    <field name="company_id"/>
+                    <field name="year"/>
+                    <field name="company_id"/>
+                    <field name="project_office_id"/>
+                    <field name="supervisor_id" widget="many2one_avatar"/>
+                    <field name="currency_id"/>
+                    <field name="contracting_year_plan"/>
+                    <field name="cash_year_plan"/>
+                    <field name="acceptance_year_plan"/>
+                    <field name="margin_income_year_plan"/>
+                    <field name="margin3_income_year_plan"/>
+                    <field name="ebit_year_plan"/>
+                    <field name="net_profit_year_plan"/>
+                </tree>
+            </field>
+        </record>
+        <record id="show_budget_plan_supervisor_form" model="ir.ui.view">
+            <field name="name">project_budget.budget_plan_supervisor.form</field>
+            <field name="model">project_budget.budget_plan_supervisor</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet string="budget_plan_supervisor" >
+                        <notebook>
+                            <page string = "Supervisor's plan">
+                                <field name="supervisor_user_id" invisible="1"/>
+                                <h4>
+                                    <group string="BUDGET PERFORMANCE PLAN" >
+                                    </group>
+                                </h4>
+                                <group col="3">
+                                    <group>
+                                        <field name="year"/>
+                                        <field name="project_office_id" options="{'no_create': True}"/>
+                                         <field name="company_id" options="{'no_create': True}"/>
+                                    </group>
+                                    <group>
+                                        <field name="supervisor_id" options="{'no_create': True}" widget="many2one_avatar"/>
+                                        <field name="is_use_ebit" widget="boolean_toggle"/>
+                                    </group>
+                                    <group>
+                                        <field name="currency_id" options="{'no_create': True}"/>
+                                        <field name="is_use_net_profit" widget="boolean_toggle"/>
+                                    </group>
+                                </group>
+                                <group col="1">
+                                    <group string="Conclusion of new contracts, with VAT"/>
+                                </group>
+                                <group col="5">
+                                    <group>
+                                        <field string="Q1" name="contracting_q1_plan"/>
+                                    </group>
+                                    <group>
+                                        <field string="Q2" name="contracting_q2_plan"/>
+                                    </group>
+                                    <group>
+                                        <field string="Q3" name="contracting_q3_plan"/>
+                                   </group>
+                                    <group>
+                                        <field string="Q4" name="contracting_q4_plan"/>
+                                    </group>
+                                    <group>
+                                        <field string="Year" name="contracting_year_plan" decoration-success="1"/>
+                                    </group>
+                                </group>
+                                <group col="1">
+                                    <group string="Cash, with VAT" />
+                                </group>
+                                <group col="5">
+                                    <group>
+                                        <field string="Q1" name="cash_q1_plan"/>
+                                    </group>
+                                    <group>
+                                        <field string="Q2" name="cash_q2_plan"/>
+                                    </group>
+                                    <group>
+                                        <field string="Q3" name="cash_q3_plan"/>
+                                    </group>
+                                    <group>
+                                        <field string="Q4" name="cash_q4_plan"/>
+                                    </group>
+                                    <group>
+                                        <field string="Year" name="cash_year_plan" decoration-success="1"/>
+                                    </group>
+                                </group>
+                                <group col="1">
+                                    <group string="Acceptance, without VAT" />
+                                </group>
+                                <group col = "5">
+                                    <group>
+                                        <field string="Q1" name="acceptance_q1_plan"/>
+                                    </group>
+                                    <group>
+                                        <field string="Q2" name="acceptance_q2_plan"/>
+                                    </group>
+                                    <group>
+                                        <field string="Q3" name="acceptance_q3_plan"/>
+                                    </group>
+                                    <group>
+                                        <field string="Q4" name="acceptance_q4_plan"/>
+                                    </group>
+                                    <group>
+                                        <field string="Year" name="acceptance_year_plan" decoration-success="1"/>
+                                    </group>
+                                </group>
+                                <group col="1">
+                                    <group string="Margin income, without VAT" />
+                                </group>>
+                                <group col="5">
+                                    <group>
+                                        <field string="Q1" name="margin_income_q1_plan"/>
+                                    </group>
+                                    <group>
+                                        <field string="Q2" name="margin_income_q2_plan"/>
+                                    </group>
+                                    <group>
+                                        <field string="Q3" name="margin_income_q3_plan"/>
+                                    </group>
+                                    <group>
+                                        <field string="Q4" name="margin_income_q4_plan"/>
+                                    </group>
+                                    <group>
+                                        <field string="Year" name="margin_income_year_plan" decoration-success="1"/>
+                                    </group>
+                                </group>
+                                <group col ="1">
+                                    <group string="Margin3 income" />
+                                </group>
+                                <group col="5">
+                                    <group>
+                                        <field string="Q1" name="margin3_income_q1_plan"/>
+                                    </group>
+                                    <group>
+                                        <field string="Q2" name="margin3_income_q2_plan"/>
+                                    </group>
+                                    <group>
+                                        <field string="Q3" name="margin3_income_q3_plan"/>
+                                    </group>
+                                    <group>
+                                        <field string="Q4" name="margin3_income_q4_plan"/>
+                                    </group>
+                                    <group>
+                                        <field string="Year" name="margin3_income_year_plan" decoration-success="1"/>
+                                    </group>
+                                </group>
+                                <group col="1">
+                                    <group string="EBIT" attrs="{'invisible': [('is_use_ebit', '=', False)]}"/>
+                                </group>
+                                <group col="5">
+                                    <group>
+                                        <field string="Q1" name="ebit_q1_plan" attrs="{'invisible': [('is_use_ebit', '=', False)]}"/>
+                                    </group>
+                                    <group>
+                                        <field string="Q2" name="ebit_q2_plan"  attrs="{'invisible': [('is_use_ebit', '=', False)]}"/>/>
+                                    </group>
+                                    <group>
+                                        <field string="Q3" name="ebit_q3_plan"  attrs="{'invisible': [('is_use_ebit', '=', False)]}"/>/>
+                                    </group>
+                                    <group>
+                                        <field string="Q4" name="ebit_q4_plan"  attrs="{'invisible': [('is_use_ebit', '=', False)]}"/>/>
+                                    </group>
+                                    <group>
+                                        <field string="Year" name="ebit_year_plan" decoration-success="1"  attrs="{'invisible': [('is_use_ebit', '=', False)]}"/>/>
+                                    </group>
+                                </group>
+                                <group col = "1">
+                                    <group string="Net profit"  attrs="{'invisible': [('is_use_net_profit', '=', False)]}">
+                                    </group>
+                                </group>
+                                <group col="5">
+                                    <group>
+                                        <field string="Q1" name="net_profit_q1_plan" attrs="{'invisible': [('is_use_net_profit', '=', False)]}"/>
+                                    </group>
+                                    <group>
+                                        <field string="Q2" name="net_profit_q2_plan"  attrs="{'invisible': [('is_use_net_profit', '=', False)]}"/>/>
+                                    </group>
+                                    <group>
+                                        <field string="Q3" name="net_profit_q3_plan"  attrs="{'invisible': [('is_use_net_profit', '=', False)]}"/>/>
+                                    </group>
+                                    <group>
+                                        <field string="Q4" name="net_profit_q4_plan"  attrs="{'invisible': [('is_use_net_profit', '=', False)]}"/>/>
+                                    </group>
+                                    <group>
+                                        <field string="Year" name="net_profit_year_plan" decoration-success="1"  attrs="{'invisible': [('is_use_net_profit', '=', False)]}"/>/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string = "KAM's plans">
+                                 <field name="plan_kam_ids" widget="section_and_note_one2many"
+                                        mode="tree">
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                        <div class="oe_chatter">
+                            <field name="message_follower_ids" widget="mail_followers"/>
+                            <field name="activity_ids" widget="mail_activity"/>
+                            <field name="message_ids" widget="mail_thread"/>
+                        </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="show_budget_plan_supervisor" model="ir.actions.act_window">
+            <field name="name">project_budget.budget_plan_supervisor</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">project_budget.budget_plan_supervisor</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'search_default_group_by_provider': True}</field>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a new supervisors's plan on year
+              </p><p>
+                each supervisor have own plan on year
+              </p>
+            </field>
+        </record>
+<!-- end project_budget.budget_plan_supervisor-->
+
+    </data>
+</odoo>

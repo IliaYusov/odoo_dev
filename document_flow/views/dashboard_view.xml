@@ -1,0 +1,8 @@
+<odoo>
+    <data>
+        <record id="action_document_flow_dashboard" model="ir.actions.client">
+            <field name="name">Document Flow</field>
+            <field name="tag">document_flow_dashboard</field>
+        </record>
+    </data>
+</odoo>

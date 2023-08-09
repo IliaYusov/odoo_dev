@@ -1,0 +1,630 @@
+<odoo>
+    <data>
+        <record id="show_comercial_budget_spec_kanban" model="ir.ui.view">
+            <field name="name">project_budget.projects.kanban</field>
+            <field name="model">project_budget.projects</field>
+            <field name="arch" type="xml">
+                <kanban class="oe_background_grey o_kanban_dashboard o_emphasize_colors o_stock_kanban" create="0" group_create="false">
+                    <field name="project_manager_id"/>
+                    <field name="rukovoditel_project_id"/>
+                    <field name="essence_project" readonly="1"/>
+                    <field name="cost_price"/>
+                    <field name="budget_state"/>
+                    <field name="specification_state"/>
+                    <field name="customer_organization_id"/>
+                    <field name="legal_entity_signing_id"/>
+                    <field name="end_sale_project_quarter"/>
+                    <field name="end_presale_project_quarter"/>
+                    <field name="was_changes"/>
+                   <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_kanban_card oe_kanban_global_click">
+                                <div t-attf-class="o_kanban_card_header">
+                                    <div class="o_kanban_card_header_title">
+                                        <div class="o_primary">
+                                            <field name="approve_state" readonly="1"  widget="badge"
+                                                decoration-danger="approve_state=='need_approve_manager'"
+                                                decoration-warning="approve_state=='need_approve_supervisor'"
+                                                decoration-success="approve_state=='approved'"
+                                                decoration-muted="specification_state=='cancel'"
+                                                decoration-primary="specification_state=='done'"
+                                           />
+                                        </div>
+                                        <div class="col-12">
+                                           Contract: <field name="end_presale_project_quarter"/>
+                                        </div>
+                                        <div>
+                                           Last shipment: <field name="end_sale_project_quarter"/>
+                                        </div>
+                                        <div>
+                                           was changes: <field name="was_changes" widget="boolean_toggle"/>
+                                        </div>
+                                    </div>
+                                    <div class="o_kanban_image me-1">
+                                        <img t-att-src="kanban_image('project_budget.project_manager', 'avatar_128', record.project_manager_id.raw_value)" alt="manager" class="o_image_64_contain"/>
+                                    </div>
+                                    <div class="o_kanban_image me-1">
+                                        <img t-att-src="kanban_image('project_budget.rukovoditel_project', 'avatar_128', record.rukovoditel_project_id.raw_value)" alt="manager" class="o_image_64_contain"/>
+                                    </div>
+
+                                    <div >
+                                        <a>Revenue: <field name="total_amount_of_revenue"/></a>
+                                    </div>
+                                    <div>
+                                        <field name="customer_organization_id" widget="many2one_avatar"/>
+                                    </div>
+                                    <div>
+                                        <a>Legal sign: <field name="legal_entity_signing_id"/></a>
+                                    </div>
+                                    <div>
+                                        <field name="essence_project"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+
+        <record id="show_comercial_budget_spec_form" model="ir.ui.view">
+            <field name="name">project_budget.projects.form</field>
+            <field name="model">project_budget.projects</field>
+            <field name="arch" type="xml">
+                <form create="0" delete="0">
+                    <header>
+                        <!--The oe_highlight class gives the button a red color when it is saved.
+                        It is usually used to indicate the expected behaviour. -->
+                        <button string="Save" type="object" class="btn-primary" special="save"/>
+                        <button string="Cancel" class="btn btn-secondary" special="cancel" data-hotkey="z"/>
+                        <button string="Send to approve" type="object" name="set_approve_manager" class="oe_highlight" attrs="{'invisible': ['|',('approve_state', '!=', 'need_approve_manager'),('budget_state', '=', 'fixed')]}"/>
+                        <button string="Approve" type="object" name="set_approve_supervisor" class="oe_highlight" attrs="{'invisible': ['|',('approve_state', '!=', 'need_approve_supervisor'),('budget_state', '=', 'fixed')]}"/>
+                        <button string="Decline" type="object" name="cancel_approve" class="oe_highlight" attrs="{'invisible': ['|',('approve_state', 'not in', ('approved','need_approve_supervisor')),('budget_state', '=', 'fixed')]}"/>
+                        <field name="approve_state" widget="statusbar" statusbar_visible="need_approve_manager,need_approve_supervisor,approved"/>
+                    </header>
+                    <sheet string="Project">
+                        <field name="company_id" invisible="True"/>
+                        <field name="company_id" groups="base.group_multi_company"
+                                   options="{'no_create': True}"/>
+                        <field name="budget_state" invisible="1"/>
+                        <group col="5">
+                            <group>
+                                <field name="project_id" readonly="1"/>
+<!--                                <field name="was_changes" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>-->
+                            </group>
+                            <group>
+                                <field name="specification_state" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="estimated_probability_id" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                        decoration-bf="1" options="{'no_open': True,}"
+                                />
+                            </group>
+                            <group>
+                                <field name="project_have_steps" widget="boolean_toggle"
+                                        attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                    />
+                            </group>
+                            <group>
+                                <field name="is_framework" widget="boolean_toggle"
+                                       attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}" />
+                            </group>
+                        </group>
+                        <group col="2">
+                            <h4>
+                                <group>
+                                    <field name="essence_project" placeholder="type here essence of the project" colspan="1"
+                                                   attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
+                                </group>
+                            </h4>
+                            <group>
+                                <field name="end_presale_project_month"  attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}" />
+                                <field name="end_sale_project_month" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
+                            </group>
+                        </group>
+                        <h5>
+                            <group col="4">
+                                <group>
+                                     <field name="total_amount_of_revenue"
+                                        decoration-bf="1"
+                                        decoration-success="total_amount_of_revenue &gt; 0"
+                                    />
+                                </group>
+                                <group>
+                                     <field name="total_amount_of_revenue_with_vat"
+                                        decoration-bf="1"
+                                        decoration-success="total_amount_of_revenue_with_vat &gt; 0"
+                                    />
+                                </group>
+                                <group>
+                                    <field name="cost_price"
+                                        decoration-bf="1"
+                                        decoration-success="cost_price &gt; 0"
+                                        />
+                                </group>
+                                <group>
+                                    <field name="margin_income"
+                                        decoration-bf="1"
+                                        decoration-success="margin_income &gt; 0"
+                                        decoration-danger="margin_income &lt; 0"
+                                    />
+                                </group>
+                            </group>
+                        </h5>
+                        <group col="4">
+                            <h5>
+                                <group>
+                                    <field name="profitability" decoration-success="margin_income &gt; 0" decoration-danger="margin_income &lt; 0"
+                                    />
+                                </group>
+                            </h5>
+                            <group>
+                                <field name="currency_id" options="{'no_open': True}" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
+                            </group>
+                            <group>
+                                <field name="dogovor_number" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
+                            </group>
+                            <group>
+                                <field name="vat_attribute_id" placeholder="select vat attribute" options="{'no_open': True}"
+                                       attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')],
+                                              'invisible': [('project_have_steps', '=', True)],'required': [('project_have_steps', '=', False)]}"/>
+                            </group>
+                        </group>
+
+                        <notebook>
+                            <page string="General">
+                                <group col="1">
+                                    <field name="commercial_budget_id" required="1"
+                                          options="{'no_open': True}" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                          invisible="1"
+                                    />
+                                </group>
+                                <h5>
+                                    <group col="3">
+                                        <group>
+                                            <field class="text-break" name="step_project_number" placeholder="enter project code from AXAPTA"
+                                                    attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                                    decoration-bf="1"/>
+                                            <field class="text-break" name="project_office_id" placeholder="select project office" force_save="1" options="{'no_open': True,}"
+                                                    attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                                    decoration-bf="1"/>
+                                        </group>
+                                        <group>
+                                            <field name="isRukovoditel_required_in_project" invisible="True"/>
+                                            <field name="project_manager_id" widget="many2one_avatar" force_save="1" placeholder="select project manager" options="{'no_open': True,}"
+                                                    attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                                    decoration-bf="1"/>
+                                            <field name="rukovoditel_project_id" widget="many2one_avatar" force_save="1" placeholder="select rukovoditel_project" options="{'no_open': True,}"
+                                                    attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')], 'required': [('isRukovoditel_required_in_project', '=', True)]}"
+                                                    decoration-bf="1"/>
+                                            <field name="project_type_id" force_save="1" options="{'no_open': True,}" placeholder="select project type"
+                                                   attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
+                                        </group>
+                                        <group>
+                                            <field name="project_supervisor_id" widget="many2one_avatar" placeholder="select project supervisor" force_save="1" options="{'no_open': True,}"
+                                                    attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                                    decoration-bf="1"/>
+                                            <field name="technological_direction_id" force_save="1" options="{'no_open': True,}" placeholder="select technological direction"
+                                                   attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
+                                        </group>
+                                    </group>
+                                </h5>
+                                <h4>
+                                    <group string="Customer/Organization" >
+                                    </group>
+                                </h4>
+                                <group col="3">
+                                    <group>
+                                        <field name="customer_organization_id" force_save="1" widget="many2one_avatar" options="{'no_open': True,}" placeholder="select costomer/organization"
+                                               attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
+                                        <field name="customer_status_id" force_save="1" options="{'no_open': True,}" placeholder="select customer state"
+                                               attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
+                                    </group>
+                                    <group>
+                                        <field name="industry_id" force_save="1" options="{'no_open': True,}" placeholder="select industry"
+                                               attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
+                                    </group>
+                                    <group>
+                                        <field name="legal_entity_signing_id" force_save="1" options="{'no_open': True,}" placeholder="select legal entity signing"
+                                               attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
+                                        <field name="vgo" force_save="1" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
+                                    </group>
+                                </group>
+                                <h4>
+                                    <group string="Dates">
+                                    </group>
+                                </h4>
+                                <group col="2">
+                                    <group col="2">
+                                        <field name="end_sale_project_quarter"/>
+                                        <field name="end_presale_project_quarter"/>
+                                    </group>
+                                    <group col="2">
+                                        <field name="comments" placeholder="type comments for the project" colspan="1" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Financial indicators">
+                                    <field name="is_revenue_from_the_sale_of_works"  invisible="1"/>
+                                    <field name="is_revenue_from_the_sale_of_goods"  invisible="1"/>
+                                    <field name="is_cost_of_goods" invisible="1"/>
+                                    <field name="is_own_works_fot" invisible="1"/>
+                                    <field name="is_third_party_works" invisible="1"/>
+                                    <field name="is_awards_on_results_project" invisible="1"/>
+                                    <field name="is_transportation_expenses" invisible="1"/>
+                                    <field name="is_travel_expenses" invisible="1"/>
+                                    <field name="is_representation_expenses" invisible="1"/>
+                                    <field name="is_warranty_service_costs" invisible="1"/>
+                                    <field name="is_rko_other" invisible="1"/>
+                                    <field name="is_other_expenses" invisible="1"/>
+                                <h4>
+                                    <group col="2">
+                                        <group string="Revenue" >
+                                        </group>
+                                    </group>
+                                </h4>
+                                <group col="3">
+                                    <group>
+                                        <field name="revenue_from_the_sale_of_works"
+                                               attrs="{'readonly': ['|','|',('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
+                                               ,'invisible': [('is_revenue_from_the_sale_of_works', '=', False),('project_have_steps', '=', False)]}"/>
+                                    </group>
+                                    <group>
+                                        <field name="revenue_from_the_sale_of_goods"
+                                               attrs="{'readonly': ['|','|',('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
+                                               ,'invisible': [('is_revenue_from_the_sale_of_goods', '=', False),('project_have_steps', '=', False)]}"/>
+                                    </group>
+                                    <group>
+                                    </group>
+                                </group>
+                                 <h4>
+                                    <group string="Costs" >
+                                    </group>
+                                </h4>
+                                <group col="3">
+                                    <group>
+                                        <field name="cost_of_goods"
+                                               attrs="{'readonly': ['|','|',('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
+                                               ,'invisible': [('is_cost_of_goods', '=', False),('project_have_steps', '=', False)]}"/>
+                                        <field name="third_party_works"
+                                               attrs="{'readonly': ['|','|',('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
+                                               ,'invisible': [('is_third_party_works', '=', False),('project_have_steps', '=', False)]}"/>
+                                        <field name="transportation_expenses"
+                                               attrs="{'readonly': ['|','|',('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
+                                               ,'invisible': [('is_transportation_expenses', '=', False),('project_have_steps', '=', False)]}"/>
+                                        <field name="warranty_service_costs"
+                                               attrs="{'readonly': ['|','|',('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
+                                               ,'invisible': [('is_warranty_service_costs', '=', False),('project_have_steps', '=', False)]}"/>
+                                    </group>
+                                    <group>
+                                        <field name="travel_expenses"
+                                               attrs="{'readonly': ['|','|',('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
+                                               ,'invisible': [('is_travel_expenses', '=', False),('project_have_steps', '=', False)]}"/>
+                                        <field name="representation_expenses"
+                                               attrs="{'readonly': ['|','|',('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
+                                               ,'invisible': [('is_representation_expenses', '=', False),('project_have_steps', '=', False)]}"/>
+                                        <field name="rko_other"
+                                               attrs="{'readonly': ['|','|',('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
+                                               ,'invisible': [('is_rko_other', '=', False),('project_have_steps', '=', False)]}"/>
+                                        <field name="other_expenses"
+                                               attrs="{'readonly': ['|','|',('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
+                                               ,'invisible': [('is_other_expenses', '=', False),('project_have_steps', '=', False)]}"/>
+                                    </group>
+                                    <group>
+                                        <field name="own_works_fot"
+                                               attrs="{'readonly': ['|','|',('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
+                                                ,'invisible': [('is_own_works_fot', '=', False),('project_have_steps', '=', False)]}"/>
+                                        <field name="awards_on_results_project"
+                                               attrs="{'readonly': ['|','|',('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
+                                              ,'invisible': [('is_awards_on_results_project', '=', False),('project_have_steps', '=', False)]}"/>
+                                        <field name="taxes_fot_premiums"
+                                               attrs="{'invisible': [('is_own_works_fot', '=', False),('is_awards_on_results_project', '=', False),('project_have_steps', '=', False)]}"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="project steps" attrs="{'invisible': [('project_have_steps', '=', False)]}">
+                                <field name="project_steps_ids" widget="section_and_note_one2many"
+                                        mode="tree" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}">
+                                </field>
+                            </page>
+                            <page string="Forecast">
+                                <h4>
+                                <group>
+                                    <group  string="planned_acceptance_flow">
+                                    </group>
+                                    <group>
+                                        <field name="planned_acceptance_flow_sum"
+                                        decoration-bf="1"
+                                        decoration-success="total_amount_of_revenue_with_vat == planned_acceptance_flow_sum"
+                                        decoration-danger="total_amount_of_revenue_with_vat != planned_acceptance_flow_sum"
+                                        />
+                                    </group>
+                                </group>
+                                </h4>
+                                <field name="planned_acceptance_flow_ids"
+                                widget="section_and_note_one2many"
+                                mode="tree" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}">
+                                    <tree editable="bottom" default_order="date_cash">
+                                        <field name="acceptance_id"/>
+                                        <field name="project_have_steps" invisible="True"/>
+                                        <field name="date_cash" placeholder="enter planned cash flow date"/>
+                                        <field name="project_steps_id" options="{'no_open': True,}" placeholder="select project steps"
+                                                attrs="{'column_invisible': [('parent.project_have_steps', '=', False)], 'required': [('parent.project_have_steps', '=', True)]}"
+                                                domain="[('id', 'in', parent.project_steps_ids)]"
+                                        />
+<!-- #20230403 Вавилова Ирина сказла убрать...                                       <field name="doc_cash" placeholder="type docs description"/>-->
+                                        <field name="sum_cash_without_vat" placeholder="enter planned cash flow sum "/>
+                                        <field name="sum_cash" placeholder="enter planned cash flow sum "/>
+                                        <field name="distribution_sum_with_vat_ostatok"
+                                               decoration-success="distribution_sum_with_vat_ostatok == 0"
+                                               decoration-danger="distribution_sum_with_vat_ostatok &lt; 0"
+                                               decoration-warning="distribution_sum_with_vat_ostatok != 0"/>
+                                    </tree>
+                                </field>
+                                <h4>
+                                <group>
+                                    <group string="planned_cash_flow">
+                                    </group>
+                                    <group>
+                                        <field name="planned_cash_flow_sum"
+                                        decoration-bf="1"
+                                        decoration-success="total_amount_of_revenue_with_vat == planned_cash_flow_sum"
+                                        decoration-danger="total_amount_of_revenue_with_vat != planned_cash_flow_sum"
+                                        />
+                                    </group>
+                                </group>
+                                </h4>
+                                <field name="planned_cash_flow_ids"
+                                widget="section_and_note_one2many"
+                                mode="tree" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}">
+                                    <tree editable="bottom" default_order="date_cash">
+                                        <field name="project_have_steps" invisible="True"/>
+                                        <field name="cash_id" invisible="False"/>
+                                        <field name="date_cash" placeholder="enter planned cash flow date"/>
+                                        <field name="project_steps_id" options="{'no_open': True,}" placeholder="select project steps"
+                                               attrs="{'column_invisible': [('parent.project_have_steps', '=', False)], 'required': [('parent.project_have_steps', '=', True)]}"
+                                               domain="[('id', 'in', parent.project_steps_ids)]"
+                                        />
+<!--#20230403 Вавилова Ирина сказла убрать...                                        <field name="doc_cash" placeholder="type docs description"/>-->
+                                        <field name="sum_cash_without_vat" placeholder="enter planned cash flow sum "/>
+                                        <field name="sum_cash" placeholder="enter planned cash flow sum "/>
+                                        <field name="distribution_sum_with_vat_ostatok"
+                                               decoration-success="distribution_sum_with_vat_ostatok == 0"
+                                               decoration-danger="distribution_sum_with_vat_ostatok &lt; 0"
+                                               decoration-warning="distribution_sum_with_vat_ostatok != 0"/>
+                                    </tree>
+                                </field>
+
+                            </page>
+                            <page string="Fact">
+                                <h4>
+                                <group>
+                                    <group col="1" string="fact_acceptance_flow">
+                                    </group>
+                                    <group>
+                                        <field name="fact_acceptance_flow_sum"
+                                        decoration-bf="1"
+                                        decoration-success="total_amount_of_revenue_with_vat == fact_acceptance_flow_sum"
+                                        decoration-danger="total_amount_of_revenue_with_vat != fact_acceptance_flow_sum"
+                                        />
+                                    </group>
+                                </group>
+                                </h4>
+                                <field name="fact_acceptance_flow_ids"
+                                widget="section_and_note_one2many"
+                                mode="tree" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}">
+                                </field>
+                                <h4>
+                                <group>
+                                    <group string="fact_cash_flow">
+                                    </group>
+                                    <group>
+                                        <field name="fact_cash_flow_sum"
+                                        decoration-bf="1"
+                                        decoration-success="total_amount_of_revenue_with_vat == fact_cash_flow_sum"
+                                        decoration-danger="total_amount_of_revenue_with_vat != fact_cash_flow_sum"
+                                        />
+                                    </group>
+                                </group>
+                                </h4>
+                                <field name="fact_cash_flow_ids"
+                                widget="section_and_note_one2many"
+                                mode="tree" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}">
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+<!--                        <div class="o_attachment_preview"/>-->
+                        <div class="oe_chatter">
+                            <field name="message_follower_ids" widget="mail_followers"/>
+                            <field name="activity_ids" widget="mail_activity"/>
+                            <field name="message_ids" widget="mail_thread"/>
+                        </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="show_comercial_budget_spec_tree" model="ir.ui.view">
+            <field name="name">project_budget.projects.tree</field>
+            <field name="model">project_budget.projects</field>
+            <field name="arch" type="xml">
+<!--                      decoration-muted="specification_state=='cancel'"-->
+<!--                      decoration-danger="approve_state=='need_approve_manager'"-->
+<!--                      decoration-warning="approve_state=='need_approve_supervisor'"-->
+<!--                      decoration-success="approve_state=='approved'"-->
+<!--                     colors="red:approve_state=='need_approve_manager';-->
+<!--                            yellow:approve_state=='need_approve_supervisor';-->
+<!--                            green:approve_state=='approved';-->
+<!--                            gray:specification_state=='cancel'"-->
+
+
+                <tree delete="0" default_order="project_id desc"
+                      decoration-muted="specification_state=='cancel'"
+                      decoration-primary="specification_state=='done'"
+                      decoration-danger="approve_state=='need_approve_manager' and specification_state!='cancel'"
+                      decoration-warning="approve_state=='need_approve_supervisor' and specification_state!='cancel'"
+                      decoration-success="approve_state=='approved' and specification_state!='cancel'"
+
+                >
+<!--colors="blue:state == 'draft';gray:state in ('cancel','done');black:state == 'open'"-->
+
+                    <header>
+                        <!--The oe_highlight class gives the button a red color when it is saved.
+                        It is usually used to indicate the expected behaviour. -->
+<!--                        <button string="Print current budget" type="object" name="set_approve_manager" class="oe_highlight" />-->
+                        <button string="approve (manager)" type="object" name="set_approve_manager" class="oe_highlight" />
+                        <button string="approve (supervisor)" type="object" name="set_approve_supervisor" class="oe_highlight"/>
+                        <button string="cancel approve (supervisor)" type="object" name="cancel_approve" class="oe_highlight"/>
+                    </header>
+                    <control>
+                        <create name="add_specification_line" string="Add a line"/>
+                    </control>
+                    <!--<button name="open_record" type="object" class="oe_highlight"/>-->
+                    <field name="company_id" invisible="True"/>
+                    <field name="company_id" groups="base.group_multi_company"
+                                   options="{'no_create': True}"/>
+                    <field name="project_id" readonly="1"/>
+                    <field name="approve_state" readonly="1" optional="show"  widget="badge"
+                                        decoration-danger="approve_state=='need_approve_manager'"
+                                        decoration-warning="approve_state=='need_approve_supervisor'"
+                                        decoration-success="approve_state=='approved'"
+                                        decoration-muted="specification_state=='cancel'"
+                    />
+                    <field name="specification_state"   optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"
+                                        widget="badge"
+                                           decoration-muted="specification_state=='cancel'"
+                                           decoration-primary="specification_state=='done'"
+                                           decoration-warning ="specification_state=='prepare'"
+                                           decoration-success="specification_state=='production'"
+                    />
+                    <field name="date_actual" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                    <field name="project_have_steps" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                    <field name="is_framework" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                    <field name="was_changes" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                    <field name="vgo" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                    <field name="etalon_budget" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                    <field name="budget_state" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                    <field name="commercial_budget_id"   optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                    <field name="currency_id" invisible="1" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                    <field name="project_office_id" force_save="1" options="{'no_open': True,}" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                    <field name="project_supervisor_id" force_save="1" widget="many2one_avatar" options="{'no_open': True,}" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                    <field name="project_manager_id" force_save="1" widget="many2one_avatar" options="{'no_open': True,}" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                    <field name="rukovoditel_project_id" force_save="1" widget="many2one_avatar" options="{'no_open': True,}" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                    <field name="industry_id" force_save="1" options="{'no_open': True,}" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                    <field name="customer_status_id" force_save="1" options="{'no_open': True,}"  optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                    <field name="customer_organization_id" widget="many2one_avatar" force_save="1" options="{'no_open': True,}" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                    <field name="essence_project" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                    <field name="end_presale_project_quarter"  optional="show"/>
+                    <field name="end_sale_project_quarter"  optional="show"/>
+                    <field name="total_amount_of_revenue" optional="show"/>
+                    <field name="cost_price" optional="show"/>
+                    <field name="margin_income" optional="show"/>
+                    <field name="profitability" optional="hide"/>
+                    <field name="estimated_probability_id" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                    <field name="vat_attribute_id" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                    <field name="legal_entity_signing_id" force_save="1" options="{'no_open': True,}" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                    <field name="project_type_id" force_save="1" options="{'no_open': True,}" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                    <field name="comments" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                    <field name="technological_direction_id" force_save="1" options="{'no_open': True,}" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                 </tree>
+            </field>
+        </record>
+
+        <record id="show_project_budget_projects_graph" model ="ir.ui.view">
+            <field name="name">project_budget.projects.graph</field>
+            <field name="model">project_budget.projects</field>
+            <field name="arch" type="xml">
+                <graph string="Project list estimated probability">
+                    <field name="project_supervisor_id" type ="row"/>
+                    <field name="estimated_probability_id" type="row"/>
+<!--                    <field name="end_presale_project_month" interval="month" type="col"/>-->
+                    <field name="project_id" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+        <record id="show_comercial_budget_spec" model="ir.actions.act_window">
+            <field name="name">Projects</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">project_budget.projects</field>
+            <field name="view_mode">tree,form,pivot,graph</field>
+            <field name="search_view_id" ref="view_projects_search"></field>
+            <field name="domain">[('budget_state', '=', 'work')]</field>
+            <field name="context">{'search_default_group_by_provider': True}</field>
+<!--            <field name="context">{"search_default_budget_state_working":True}</field>-->
+        </record>
+
+
+
+        <record id="show_comercial_budget_spec_all" model="ir.actions.act_window">
+            <field name="name">Projects ALL</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">project_budget.projects</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_projects_search"></field>
+            <field name="context">{'search_default_group_by_provider': True}</field>
+<!--            <field name="context">{"search_default_budget_state_working":True}</field>-->
+        </record>
+
+        <record id="projects_kanban_action" model="ir.actions.act_window">
+            <field name="name">projects_kanban_action</field>
+            <field name="res_model">project_budget.projects</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_mode">kanban,form</field>
+        </record>
+
+        <record model="ir.ui.view" id="project_budget_projects_pivot">
+            <field name="name">project_budget.projects.pivot</field>
+            <field name="model">project_budget.projects</field>
+            <field name="arch" type="xml">
+                <pivot string="Inventory" sample="1">
+                    <field name="project_id" />
+                    <field name="approve_state"/>
+                    <field name="commercial_budget_id"/>
+                    <field name="budget_state"/>
+                    <field name="specification_state"/>
+                    <field name="currency_id"/>
+                    <field name="project_office_id"/>
+                    <field name="project_supervisor_id"/>
+                    <field name="project_manager_id"/>
+                    <field name="rukovoditel_project_id"/>
+                    <field name="industry_id"/>
+                    <field name="customer_status_id"/>
+                    <field name="customer_organization_id"/>
+                    <field name="essence_project"/>
+                    <field name="end_presale_project_quarter"/>
+                    <field name="end_sale_project_quarter" />
+                    <field name="total_amount_of_revenue" type="measure"/>
+                    <field name="cost_price" type="measure"/>
+                    <field name="margin_income" type="measure"/>
+                    <field name="profitability" type="measure"/>
+                    <field name="estimated_probability_id"/>
+                    <field name="vat_attribute_id"/>
+                    <field name="legal_entity_signing_id"/>
+                    <field name="project_type_id"/>
+                    <field name="comments"/>
+                    <field name="technological_direction_id"/>
+                </pivot>
+            </field>
+        </record>
+
+<!--        <record id="hr_work_entry_view_calendar" model="ir.ui.view">-->
+<!--            <field name="name">project_budget.projects.calendar</field>-->
+<!--            <field name="model">project_budget.projects</field>-->
+<!--            <field name="arch" type="xml">-->
+<!--                <calendar string="Projects"-->
+<!--                    date_start="end_presale_project_month"-->
+<!--                    date_stop="end_sale_project_month"-->
+<!--                    mode="month"-->
+<!--                    quick_add="False"-->
+<!--                    color="specification_state"-->
+<!--                    event_limit="5">-->
+<!--                    &lt;!&ndash; Sidebar favorites filters &ndash;&gt;-->
+<!--                    <field name="project_id"/>-->
+<!--                    <field name="essence_project"/>-->
+<!--                </calendar>-->
+<!--            </field>-->
+<!--        </record>-->
+    </data>
+</odoo>

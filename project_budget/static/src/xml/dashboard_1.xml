@@ -1,0 +1,61 @@
+<templates>
+        <t t-name="dashboard_1">
+            <div class="o_dashboards">
+                 <div class="container-fluid my-5 o_hr_dashboard"/>
+            </div>
+        </t>
+
+        <t t-name="MainSection">
+           <section class="dashboard_main" id="main_section">
+               <div class="col-sm-12 mb-4">
+                   <div class="row">
+                       <div class="col-12 col-sm-12 col-md-8">
+                           <h2 class="section-header">Dashboard</h2>
+                       </div>
+                       <div class="col-sm-12 mb-3">
+                           <div class="row">
+                               <div class="col-md-3 col-sm-5 all_products oh-data">
+                                   <div class="oh-card" style="width: 288px;">
+                                       <div class="oh-card-body">
+                                           <div class="stat-widget-one">
+                                               <div class="stat-icon" style="background:#ff4d94">
+                                                   <i class="fa fa-star"/>
+                                               </div>
+                                               <div class="stat-content">
+                                                   <div class="stat-head">Etalon project count</div>
+                                                   <div class="stat_count">
+                                                       <span id="templates">
+                                                           <div id="etalon_projects"/>
+                                                       </span>
+                                                   </div>
+                                               </div>
+                                           </div>
+                                       </div>
+                                   </div>
+                               </div>
+                               <div class="col-md-3 col-sm-5 product_variants oh-data">
+                                   <div class="oh-card" style="width: 288px;">
+                                       <div class="oh-card-body">
+                                           <div class="stat-widget-one">
+                                               <div class="stat-icon" style="background:#99e6ff">
+                                                   <i class="fa fa-star"/>
+                                               </div>
+                                               <div class="stat-content">
+                                                   <div class="stat-head">Current projects count</div>
+                                                   <div class="stat_count">
+                                                       <span id="count">
+                                                           <div id="current_projects"/>
+                                                       </span>
+                                                   </div>
+                                               </div>
+                                           </div>
+                                       </div>
+                                   </div>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+               </div>
+           </section>
+        </t>
+</templates>

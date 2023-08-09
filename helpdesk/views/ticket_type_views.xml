@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_helpdesk_ticket_type_all_types" model="ir.actions.act_window">
+        <field name="name">Types</field>
+        <field name="res_model">helpdesk.ticket.type</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="context">{'create_default_stages': True}</field>
+    </record>
+
+    <record id="helpdesk_ticket_type_view_kanban" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.type.view.kanban</field>
+        <field name="model">helpdesk.ticket.type</field>
+        <field name="arch" type="xml">
+            <kanban class="oe_background_grey o_ticket_dashboard_kanban">
+                <field name="name"/>
+                <field name="display_name"/>
+                <field name="code"/>
+                <field name="color"/>
+                <field name="stage_count"/>
+                <field name="route_count"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_global_click o_ticket_dashboard_kanban">
+                            <div t-attf-style="background-color: {{ record.color.raw_value }}"
+                                 class="o_ticket_dashboard_kanban_main">
+                                <div class="o_ticket_dashboard_content">
+                                    <div class="o_kanban_primary_left">
+                                        <div class="o_primary">
+                                            <span>
+                                                <t t-esc="record.display_name.raw_value"/>
+                                            </span>
+                                        </div>
+                                        <div t-if="record.code.raw_value" class="text-muted">
+                                            <span>
+                                                <t t-esc="record.code.raw_value"/>
+                                            </span>
+                                        </div>
+<!--                                        <div class="o_buttons">-->
+<!--                                            <a name="%(task.action_task_type_stages)d"-->
+<!--                                               type="action" title="Stages">-->
+<!--                                                <span class="fa fa-bars"/>-->
+<!--                                                <span>-->
+<!--                                                    <t t-esc="record.stage_count.raw_value"/>-->
+<!--                                                </span>-->
+<!--                                            </a>-->
+<!--                                            <a name="%(task.action_task_type_routes)d"-->
+<!--                                               type="action" title="Routes">-->
+<!--                                                <span class="fa fa-random"/>-->
+<!--                                                <span>-->
+<!--                                                    <t t-esc="record.route_count.raw_value"/>-->
+<!--                                                </span>-->
+<!--                                            </a>-->
+<!--                                            <a name="action_task_type_diagram"-->
+<!--                                               type="object" title="Diagram">-->
+<!--                                                <span class="fa fa-lg fa-code-fork"/>-->
+<!--                                            </a>-->
+<!--                                        </div>-->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="helpdesk_ticket_type_view_tree" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.type.view.tree</field>
+        <field name="model">helpdesk.ticket.type</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="active"/>
+                <field name="stage_count"/>
+                <field name="route_count"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="helpdesk_ticket_type_view_form" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.type.form</field>
+        <field name="model">helpdesk.ticket.type</field>
+        <field name="arch" type="xml">
+            <form string="Ticket Type">
+                <field name="id" invisible="1"/>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_ticket_type_diagram"
+                                type="object"
+                                string="View Flow"
+                                class="oe_stat_button"
+                                icon="fa-code-fork">
+                        </button>
+                        <button name="%(action_helpdesk_ticket_stage_route_form)d"
+                                type="action"
+                                class="oe_stat_button" icon="fa-random">
+                            <field string="Routes" name="route_count"
+                                   widget="statinfo"/>
+                        </button>
+                        <button name="%(action_helpdesk_ticket_stage_form)d"
+                                type="action"
+                                class="oe_stat_button" icon="fa-bars">
+                            <field string="Stages" name="stage_count"
+                                   widget="statinfo"/>
+                        </button>
+                    </div>
+                    <field name="active" invisible="1"/>
+                    <widget name="web_ribbon" title="Archived"
+                            bg_color="bg-danger"
+                            attrs="{'invisible': [('active', '=', True)]}"/>
+                    <div class="oe_title">
+                        <h1 name="header_type">
+                            <group>
+                                <field name="name" placeholder="Ticket type name..."/>
+                            </group>
+                        </h1>
+                    </div>
+                    <group>
+                        <field name="code" placeholder="Ticket type code..."/>
+                    </group>
+                    <group col="2">
+                        <group>
+                            <label for="start_stage_id"/>
+                            <div>
+                                <field name="start_stage_id"
+                                       attrs="{'invisible': [('start_stage_id', '=', False)]}"/>
+                                <button name="action_create_default_stage_and_routes"
+                                        type="object"
+                                        string="Create default"
+                                        attrs="{'invisible': ['|', ('start_stage_id', '!=', False), ('id', '=', False)]}"
+                                        class="btn-primary"
+                                        style="padding-top: 0; padding-bottom: 0;"/>
+                            </div>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="color" widget="color"/>
+                    </group>
+                    <notebook>
+                        <page name="description_page" string="Description">
+                            <field name="description" options="{'collaborative': true, 'resizable': false}"
+                                   placeholder="Description..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="helpdesk_ticket_type_view_diagram" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.type.view.diagram</field>
+        <field name="model">helpdesk.ticket.type</field>
+        <field name="type">diagram_plus</field>
+        <field name="arch" type="xml">
+            <diagram_plus auto_layout="false">
+                <node object="helpdesk.ticket.stage"
+                      bgcolor="gray:closed"
+                      bg_color_field="res_bg_color"
+                      d_position_field="diagram_position">
+                </node>
+                <arrow object="helpdesk.ticket.stage.route"
+                       source="stage_from_id"
+                       destination="stage_to_id"
+                       label="['name']">
+                </arrow>
+            </diagram_plus>
+        </field>
+    </record>
+</odoo>

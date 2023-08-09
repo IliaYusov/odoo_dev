@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates>
+    <t t-name="task.stage_button_widget" owl="1">
+        <t t-foreach="state.value_json.routes" t-as="route" t-key="route.id">
+            <button
+                    t-attf-class="btn btn-{{ route.btn_style = route.btn_style }}"
+                    t-on-click.prevent="() => this._onButtonClick(route.id)">
+                <t t-esc="route.name"/>
+            </button>
+        </t>
+    </t>
+</templates>

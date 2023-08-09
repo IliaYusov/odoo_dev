@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_view_all_event" model="ir.actions.act_window">
+        <field name="name">Events</field>
+        <field name="res_model">document_flow.event</field>
+        <field name="view_mode">tree,form,calendar</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No events found. Let's create one!
+            </p>
+        </field>
+    </record>
+
+    <record id="action_view_all_management_committee" model="ir.actions.act_window">
+        <field name="name">Management Committiees</field>
+        <field name="res_model">document_flow.management_committee</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No management committee found. Let's create one!
+            </p>
+        </field>
+    </record>
+
+    <record id="action_view_task_id" model="ir.actions.act_window">
+        <field name="name">Tasks</field>
+        <field name="res_model">task.task</field>
+        <field name="view_mode">tree,calendar,form</field>
+        <field name="domain">[
+            ('parent_ref_type', 'in', ('document_flow.event', 'document_flow.event.decision')),
+            '|', ('parent_ref_id', '=', active_id), ('parent_ref.id.event.id', '=', active_id),
+            ('parent_id', '=', False)]
+        </field>
+        <field name="context">{'search_default_parent_ref_type': 'document_flow.event', 'default_parent_ref_id': active_id}</field>
+        <field name="help" type="html">
+            <p>
+                Task management allows you to manage the pipeline of your tasks efficiently. You can track
+                progress, discuss on tasks, attach documents, etc.
+            </p>
+        </field>
+    </record>
+
+    <!--Необходимо перенести домен в action в task и понять как его передать в action-->
+    <record id="action_view_all_task" model="ir.actions.act_window">
+        <field name="name">Tasks</field>
+        <field name="res_model">task.task</field>
+        <field name="view_mode">tree,kanban,calendar,form</field>
+        <field name="domain">[
+            ('parent_ref_type', 'in', ['document_flow.event', 'document_flow.event.decision', 'document_flow.process'])]
+        </field>
+        <field name="context">{
+            'search_default_open_tasks': 1}
+        </field>
+        <field name="search_view_id" ref="task.task_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No tasks found. Let's create one!
+            </p>
+            <p>
+                Organize your tasks by dispatching them across the pipeline.
+                <br/>
+                Collaborate efficiently by chatting in real-time or via email.
+            </p>
+        </field>
+    </record>
+
+    <record id="event_view_tree" model="ir.ui.view">
+        <field name="name">document_flow.event.tree</field>
+        <field name="model">document_flow.event</field>
+        <field name="arch" type="xml">
+            <tree string="Events" multi_edit="1" sample="1">
+                <field name="name"/>
+                <field name="date_start" widget="date"/>
+                <field name="organizer_id" widget="many2one_avatar_user"/>
+                <field name="member_ids" widget="many2many_avatar_user" options='{"no_quick_create": True}'/>
+                <field name="company_ids" widget="many2many_tags" groups="base.group_multi_company"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="event_view_form" model="ir.ui.view">
+        <field name="name">document_flow.event.form</field>
+        <field name="model">document_flow.event</field>
+        <field name="arch" type="xml">
+            <form string="Event">
+                <header>
+                    <button string="Send for approve" type="object" name="action_send_for_approving" class="oe_highlight"
+                            attrs="{'invisible': [('is_process_started', '=', True)]}"
+                            context="{'active_model': active_model, 'active_id': active_id}"
+                            groups="document_flow.group_document_flow_manager"/>
+                    <field name="state" widget="statusbar" options="{'clickable': False, 'fold_field': 'fold'}"
+                           invisible="1"/>
+                </header>
+                <sheet string="Event">
+                    <div name="button_box" position="inside">
+                        <button class="oe_stat_button" type="object" name="action_open_attachments"
+                                icon="fa-files-o">
+                            <field string="Attachments" name="attachment_count" widget="statinfo"/>
+                        </button>
+                        <button class="oe_stat_button" type="object" name="action_open_tasks"
+                                icon="fa-tasks">
+                            <field string="Tasks" name="tasks_count" widget="statinfo"/>
+                        </button>
+                    </div>
+                    <div class="oe_title mb-3">
+                        <h1>
+                            <field name="name" placeholder="Event Title..."/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group attrs="{'invisible': 1}">
+                            <field name="is_process_started"/>
+                        </group>
+                        <group>
+                            <field name="management_committee_id"/>
+                            <field name="location"/>
+                            <field name="date_start" widget="date"/>
+                            <field name="date_end" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="organizer_id"/>
+                            <field name="agreed_id"/>
+                        </group>
+
+                    </group>
+                    <group>
+                        <field name="member_ids"
+                               options="{'no_open': True, 'no_quick_create': True}"
+                               widget="many2many_avatar_user"
+                               domain="[('share', '=', False)]"/>
+                    </group>
+                    <group>
+                        <field name="company_ids" widget="many2many_tags" groups="base.group_multi_company"/>
+<!--                        <field name="company_id" groups="base.group_multi_company"/>-->
+                    </group>
+                    <notebook>
+                        <page name="description_page" string="Description">
+                            <field name="description" type="html" options="{'collaborative': true, 'resizable': false}"
+                                   placeholder="Event description..."/>
+                        </page>
+                        <page name="question_page" string="Questions">
+                            <field name="question_ids" widget="section_and_note_one2many" mode="tree">
+                                <tree>
+                                    <field name="time_start" widget="float_time" width="10%"/>
+                                    <field name="time_end" widget="float_time" width="5%"/>
+                                    <field name="name" optional="show"/>
+                                    <field name="speaker_ids" optional="show" widget="many2many_avatar_user" options='{"no_quick_create": True}'/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page name="decisions_page" string="Decisions">
+                            <field name="decision_ids" widget="section_and_note_one2many" mode="tree">
+                                <tree>
+                                    <field name="num" widget="handle"/>
+                                    <field name="visible_num"/>
+                                    <field name="name"/>
+                                    <field name="responsible_id"/>
+                                    <field name="executor_ids" widget="many2many_avatar_user" options='{"no_quick_create": True}'/>
+                                    <field name="date_deadline"/>
+                                    <field name="process_id" optional="hide"/>
+                                    <field name="task_type" optional="hide"/>
+                                    <field name="date_execution"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page name="annexes_page" string="Annexes">
+                            <field name="annex_ids" widget="section_and_note_one2many" mode="tree">
+                                <tree>
+                                    <field name="num" widget="handle"/>
+                                    <field name="visible_num"/>
+                                    <field name="name"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="event_view_calendar" model="ir.ui.view">
+        <field name="name">document_flow.event.calendar</field>
+        <field name="model">document_flow.event</field>
+        <field name="arch" type="xml">
+            <calendar date_start="date_start" date_stop="date_end" string="Events" mode="month"
+                      event_limit="5" hide_time="true"
+                      event_open_popup="true" quick_add="false"
+                      delete="0" create="1"
+                      scales="month,year">
+                <field name="name"/>
+                <field name="member_ids" widget="many2many_avatar_user"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+            </calendar>
+        </field>
+    </record>
+</odoo>

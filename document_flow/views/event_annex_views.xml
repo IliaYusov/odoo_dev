@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="event_annex_view_form" model="ir.ui.view">
+        <field name="name">document_flow.event.annex.form</field>
+        <field name="model">document_flow.event.annex</field>
+        <field name="arch" type="xml">
+            <form string="Decision">
+                <sheet string="Decision">
+                    <group>
+                        <field name="num" optional="show"/>
+                    </group>
+                    <group>
+                        <field name="name" string="Description" type="html" class="text_high"
+                               options="{'collaborative': true, 'resizable': false}"
+                               placeholder="Annex..." force_save="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

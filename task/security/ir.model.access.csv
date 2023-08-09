@@ -1,0 +1,16 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_task_task,access_task_task,model_task_task,base.group_user,1,1,1,1
+
+access_task_type,access_task_type,model_task_type,base.group_user,1,0,0,0
+access_task_type_manager,access_task_type,model_task_type,task.group_task_manager,1,1,1,1
+
+access_task_stage,access_task_stage,model_task_stage,base.group_user,1,0,0,0
+access_task_stage_manager,access_task_stage,model_task_stage,task.group_task_manager,1,1,1,1
+
+access_task_stage_type,access_task_stage_type,model_task_stage_type,base.group_user,1,0,0,0
+access_task_stage_type_manager,access_task_stage_type,model_task_stage_type,task.group_task_manager,1,1,1,1
+
+access_task_stage_route,access_task_stage_route,model_task_stage_route,base.group_user,1,0,0,0
+access_task_stage_route_manager,access_task_stage_route,model_task_stage_route,task.group_task_manager,1,1,1,1
+
+access_task_wizard_done,access_task_wizard_done,model_task_wizard_done,base.group_user,1,1,1,1

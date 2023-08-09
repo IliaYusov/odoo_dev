@@ -1,0 +1,42 @@
+<odoo>
+    <data>
+        <record id="view_projects_search" model="ir.ui.view">
+            <field name="name">project_budget.projects.search</field>
+            <field name="model">project_budget.projects</field>
+            <field name="arch" type="xml">
+            <search string="Search projects">
+                <field name="project_id" filter_domain="[('project_id','ilike',self)]" string="project_id"/>
+                <field name="essence_project" filter_domain="[('essence_project','ilike',self)]" string="essence_project"/>
+                <field name="project_office_id" filter_domain="[('project_office_id.name','ilike',self)]" string="project_office"/>
+                <field name="project_supervisor_id" filter_domain="[('project_supervisor_id.name','ilike',self)]" string="project_supervisor"/>
+                <field name="project_manager_id" filter_domain="[('project_manager_id.name','ilike',self)]" string="project_manager"/>
+                <field name="customer_organization_id" filter_domain="[('customer_organization_id.name','ilike',self)]" string="customer_organization"/>
+                <field name="industry_id" filter_domain="[('industry_id.name','ilike',self)]" string="industry"/>
+                <field name="technological_direction_id" filter_domain="[('technological_direction_id.name','ilike',self)]" string="technological_direction"/>
+                <field name="comments" filter_domain="[('comments.name','ilike',self)]" string="comments"/>
+                <filter string="Отменен" domain="[('estimated_probability_id', '=', '0')]" name="estimated_probability_0"></filter>
+                <filter string="Вероятность 30%" domain="[('estimated_probability_id', '=', '30')]" name="estimated_probability_30"></filter>
+                <filter string="Вероятность 50%" domain="[('estimated_probability_id', '=', '50')]" name="estimated_probability_50"></filter>
+                <filter string="Вероятность 75%" domain="[('estimated_probability_id', '=', '75')]" name="estimated_probability_75"></filter>
+                <filter string="Вероятность 100%" domain="[('estimated_probability_id', '=', '100')]" name="estimated_probability_100"></filter>
+                <filter string="Исполнен" domain="[('estimated_probability_id', '=', '100(done)')]" name="estimated_probability_100done"></filter>
+                <group expand="0" string="Group By">
+                    <filter string="specification state" name="specification_state" context="{'group_by': 'specification_state'}"></filter>
+                    <filter string="project office" name="project_office_id" context="{'group_by': 'project_office_id'}"></filter>
+                    <filter string="project supervisor" name="project_office_id" context="{'group_by': 'project_supervisor_id'}"></filter>
+                </group>
+            </search>
+            </field>
+        </record>
+
+        <record id="show_comercial_budget_spec_new" model="ir.actions.act_window">
+            <field name="name">comercial_budgets</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">project_budget.projects</field>
+            <field name="view_mode">form,tree</field>
+            <field name="search_view_id" ref="view_projects_search"></field>
+            <field name="context">{'search_default_id': 1}</field>
+        </record>
+
+    </data>
+</odoo>

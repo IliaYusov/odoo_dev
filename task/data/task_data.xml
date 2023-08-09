@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="seq_task_task" model="ir.sequence">
+            <field name="name">Task Number</field>
+            <field name="code">task.task</field>
+            <field name="prefix">NKK-</field>
+            <field name="padding">10</field>
+            <field name="company_id" eval="True"/>
+        </record>
+
+        <record id="task_stage_type_to_do" model="task.stage.type">
+            <field name="name">To Do</field>
+            <field name="code">to_do</field>
+            <field name="bg_color">rgba(192, 192, 192, 1)</field>
+        </record>
+        <record id="task_stage_type_in_progress" model="task.stage.type">
+            <field name="name">In Progress</field>
+            <field name="code">in_progress</field>
+            <field name="bg_color">rgba(0, 128, 255, 1)</field>
+        </record>
+        <record id="task_stage_type_done" model="task.stage.type">
+            <field name="name">Done</field>
+            <field name="code">done</field>
+            <field name="bg_color">rgba(68, 170, 85, 1)</field>
+        </record>
+        <record id="task_stage_type_cancel" model="task.stage.type">
+            <field name="name">Cancel</field>
+            <field name="code">cancel</field>
+            <field name="bg_color">rgba(255, 70, 0, 1)</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,22 @@
+.o_form_view {
+    .task-separator {
+        margin-top: 15px;
+        margin-bottom: 30px;
+        border-bottom: 1px solid #d9d7d7;
+        text-align: center;
+        height: 10px;
+
+        &.task-separator-info {
+            margin-bottom: 10px;
+            margin-top: 2px;
+        }
+
+        .task-separator-text {
+            position: relative;
+            margin: 0 auto;
+            padding: 0 10px;
+            font-weight: bold;
+            background: white;
+        }
+    }
+}

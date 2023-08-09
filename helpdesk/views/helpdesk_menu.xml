@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <menuitem id="helpdesk_root_menu" name="Helpdesk" sequence="10"/>
+
+    <menuitem id="tickets_menu" parent="helpdesk_root_menu" sequence="10" name="Tickets"/>
+    <menuitem id="all_tickets_menu" parent="tickets_menu" action="action_helpdesk_ticket_all_tickets"/>
+
+    <menuitem id="tasks_menu" parent="helpdesk_root_menu" sequence="20" name="Tasks"
+              groups="helpdesk.group_admin,helpdesk.group_team_leader" action="action_helpdesk_ticket_all_tasks"/>
+
+    <menuitem id="helpdesk_configuration_menu" parent="helpdesk_root_menu" sequence="100" name="Configuration"
+              groups="helpdesk.group_admin"/>
+    <menuitem id="helpdesk_team_menu" parent="helpdesk_configuration_menu" action="action_helpdesk_team_all_teams"/>
+    <menuitem id="ticket_type_menu" parent="helpdesk_configuration_menu"
+              action="action_helpdesk_ticket_type_all_types"/>
+    <menuitem id="ticket_stage_type_menu" parent="helpdesk_configuration_menu"
+              action="action_helpdesk_ticket_stage_type_all_types"/>
+</odoo>

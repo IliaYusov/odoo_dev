@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates id="template" xml:space="preserve">
+  <t t-name="DocumentFlowDashboard">
+    <div class="document_flow_dashboards">
+      <div class="container-fluid document_flow_dashboard_main"/>
+    </div>
+  </t>
+    <t t-name="DashBoardDocumentFlow">
+    <link rel="stylesheet"
+          href="/document_flow/static/src/css/dashboard.css"/>
+        <div class="row main-section mt-5">
+          <h2 class="section-header" style="font-size: 2em; color:#0f5f8b;">My Tasks</h2>
+          <div class="col-sm-6 col-md-3-12 col-md-6 col-lg-3 helpdesk my_to_do_tasks">
+            <div class="dashboard_card" data-toggle="collapse">
+              <div class="dashboard_card-body panel panel-new">
+                <div class="stat-widget-one">
+                  <div class="stat-icon">
+                    <i class="fa fa-inbox"/>
+                  </div>
+                  <div class="stat-content">
+                    <div class="stat-text">Assigned To Me</div>
+                    <div class="stat-digit" id="my_to_do_count"/>
+                  </div>
+                </div>
+              </div>
+              <div class="panel-new-collapse collapse">
+                <div id="document_flow_my_to_do_tasks"
+                     style="border:none; font-size:14px; padding:0 15px 15px 15px;">
+                  <br/>
+                  <br/>
+                  <p style="font-style:italic; font-weight:700;"/>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-md-3-12 col-md-6 col-lg-3 salon_spa_orders helpdesk my_overdue_tasks">
+            <div class="dashboard_card" data-toggle="collapse">
+              <div class="dashboard_card-body panel panel-progress">
+                <div class="stat-widget-one">
+                  <div class="stat-icon">
+                    <i class="fa fa-fire"/>
+                  </div>
+                  <div class="stat-content">
+                    <div class="stat-text">Overdue</div>
+                    <div class="stat-digit" id="my_overdue_count"/>
+                  </div>
+                </div>
+              </div>
+              <div class="panel-progress-collapse collapse">
+                <div id="document_flow_my_overdue_tasks"
+                     style="border:none; font-size:14px; padding:0 15px 15px 15px;">
+                  <br/>
+                  <br/>
+                  <p style="font-style:italic; font-weight:700;"/>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-md-3-12 col-md-6 col-lg-3 helpdesk by_me_to_do_tasks">
+            <div class="dashboard_card" data-toggle="collapse">
+              <div class="dashboard_card-body panel panel-new">
+                <div class="stat-widget-one">
+                  <div class="stat-icon">
+                    <i class="fa fa-inbox"/>
+                  </div>
+                  <div class="stat-content">
+                    <div class="stat-text">Created By Me</div>
+                    <div class="stat-digit" id="by_me_to_do_count"/>
+                  </div>
+                </div>
+              </div>
+              <div class="panel-new-collapse collapse">
+                <div id="document_flow_my_to_do_tasks"
+                     style="border:none; font-size:14px; padding:0 15px 15px 15px;">
+                  <br/>
+                  <br/>
+                  <p style="font-style:italic; font-weight:700;"/>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-md-3-12 col-md-6 col-lg-3 salon_spa_orders helpdesk by_me_overdue_tasks">
+            <div class="dashboard_card" data-toggle="collapse">
+              <div class="dashboard_card-body panel panel-progress">
+                <div class="stat-widget-one">
+                  <div class="stat-icon">
+                    <i class="fa fa-fire"/>
+                  </div>
+                  <div class="stat-content">
+                    <div class="stat-text">Overdue</div>
+                    <div class="stat-digit" id="by_me_overdue_count"/>
+                  </div>
+                </div>
+              </div>
+              <div class="panel-progress-collapse collapse">
+                <div id="document_flow_my_overdue_tasks"
+                     style="border:none; font-size:14px; padding:0 15px 15px 15px;">
+                  <br/>
+                  <br/>
+                  <p style="font-style:italic; font-weight:700;"/>
+                </div>
+              </div>
+            </div>
+          </div>
+
+<!--          <div class="row task-section">-->
+<!--            <div class="col-12 col-sm-12 col-md-4 task_box chart-container card-shadow">-->
+<!--              <h2 class="tasks_head">To Do Tasks</h2>-->
+<!--              <hr/>-->
+<!--              <div class="col-xs-12 text-align">-->
+<!--                <div class="text-color">-->
+<!--                  <ul class="pending_tasks"/>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+
+<!--          <div class="col-12 col-sm-12 col-md-4">-->
+<!--            <div class="leads_month_pie_div half_chart chart-container card-shadow">-->
+<!--              <h2>Tasks</h2>-->
+<!--              <hr/>-->
+<!--              <div class="graph_canvas">-->
+<!--                <canvas class="task_done"/>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+
+<!--            <div class="col-12 col-sm-12 col-md-4">-->
+<!--              <div class="team_ticket_div half_chart chart-container card-shadow">-->
+<!--                <h2>Team - Tickets Count Ratio</h2>-->
+<!--                <hr/>-->
+<!--                <div class="graph_canvas">-->
+<!--                  <canvas class="team_ticket_count"/>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </div>-->
+
+<!--            <div class="col-12 col-sm-12 col-md-4">-->
+<!--              <div class="projects_ticket_div half_chart chart-container card-shadow">-->
+<!--                <h2>Tickets - Projects Ratio</h2>-->
+<!--                <hr/>-->
+<!--                <div class="graph_canvas">-->
+<!--                  <canvas class="projects_ticket" width="150" height="120"/>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </div>-->
+
+<!--            <div class="col-12 col-sm-12 col-md-4">-->
+<!--              <div class="billed_team_div half_chart chart-container card-shadow">-->
+<!--                <h2>Billed Task - Team ratio</h2>-->
+<!--                <hr/>-->
+<!--                <div class="graph_canvas">-->
+<!--                  <canvas class="billed_team" width="150" height="120"/>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </div>-->
+
+<!--            <div class="col-12 col-sm-12 col-md-4">-->
+<!--              <div class="team_ticket_div half_chart chart-container card-shadow">-->
+<!--                <h2>Team - Resolved Tickets</h2>-->
+<!--                <hr/>-->
+<!--                <div class="graph_canvas">-->
+<!--                  <canvas class="team_ticket_done"/>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+
+        </div>
+    </t>
+</templates>

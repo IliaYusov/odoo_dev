@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="task_stage_view_tree" model="ir.ui.view">
+        <field name="name">task.stage.view.tree</field>
+        <field name="model">task.stage</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="sequence" widget="handle"/>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="type_id"/>
+                <field name="res_bg_color" widget="color"/>
+                <field name="closed"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="task_stage_view_form" model="ir.ui.view">
+        <field name="name">task.stage.view.form</field>
+        <field name="model">task.stage</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <field name="active" invisible="1"/>
+                    <widget name="web_ribbon" title="Archived"
+                            bg_color="bg-danger"
+                            attrs="{'invisible': [('active', '=', True)]}"/>
+                    <div class="oe_title">
+                        <h1>
+                            <group>
+                                <field name="name"/>
+                            </group>
+                        </h1>
+                    </div>
+                    <group>
+                        <field name="task_type_id" readonly="1"/>
+                    </group>
+                    <group col="2">
+                        <group>
+                            <field name="code"/>
+                        </group>
+                        <group>
+                            <field name="type_id"/>
+                        </group>
+                    </group>
+                    <group col="3">
+                        <group>
+                            <field name="closed"/>
+                        </group>
+                        <group>
+                            <field name="result_type"/>
+                        </group>
+                        <group>
+                            <field name="use_custom_colors"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group attrs="{'invisible': [('use_custom_colors', '=', True)]}">
+                            <field name="res_bg_color" widget="color"/>
+                        </group>
+                        <group attrs="{'invisible': [('use_custom_colors', '=', False)]}">
+                            <field name="bg_color" widget="color"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="description_page" string="Description">
+                            <field name="description" options="{'collaborative': true, 'resizable': false}"
+                                   placeholder="Description..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

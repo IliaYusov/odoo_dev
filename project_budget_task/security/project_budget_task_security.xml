@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.rule" id="project_budget_task_admin_rule">
+            <field name="name">Project Budget Task: admin project budget tasks</field>
+            <field name="model_id" ref="model_task_task"/>
+            <field name="domain_force">[('parent_ref_type', 'in', ['project_budget.projects'])]</field>
+            <field name="groups" eval="[(4,ref('project_budget.project_budget_admin'))]"/>
+        </record>
+    </data>
+</odoo>

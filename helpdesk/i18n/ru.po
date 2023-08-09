@@ -1,0 +1,811 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* helpdesk
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-07-13 09:38+0000\n"
+"PO-Revision-Date: 2023-07-13 09:38+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__message_needaction
+msgid "Action Needed"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage__active
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage_type__active
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_type__active
+msgid "Active"
+msgstr "Активна"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__activity_ids
+msgid "Activities"
+msgstr "Активности"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__activity_state
+msgid "Activity State"
+msgstr "Статус активности"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "Иконка типа активности"
+
+#. module: helpdesk
+#. odoo-python
+#: code:addons/helpdesk/models/ticket.py:0
+#, python-format
+msgid "Add attachments for this ticket"
+msgstr "Добавьте вложения для этого обращения"
+
+#. module: helpdesk
+#: model:res.groups,name:helpdesk.group_admin
+msgid "Administrator"
+msgstr "Администратор"
+
+#. module: helpdesk
+#: model_terms:ir.ui.view,arch_db:helpdesk.helpdesk_ticket_stage_type_view_form
+#: model_terms:ir.ui.view,arch_db:helpdesk.helpdesk_ticket_stage_view_form
+#: model_terms:ir.ui.view,arch_db:helpdesk.helpdesk_ticket_type_view_form
+msgid "Archived"
+msgstr "В архиве"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__user_id
+msgid "Assigned"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__message_attachment_count
+msgid "Attachment Count"
+msgstr "Количество вложений"
+
+#. module: helpdesk
+#. odoo-python
+#: code:addons/helpdesk/models/ticket.py:0
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__attachment_count
+#: model_terms:ir.ui.view,arch_db:helpdesk.helpdesk_ticket_view_form
+#, python-format
+msgid "Attachments"
+msgstr "Вложения"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__author_id
+msgid "Author"
+msgstr "Инициатор"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage__bg_color
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage__res_bg_color
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage_type__bg_color
+msgid "Background Color"
+msgstr "Цвет фона"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage_route__button_style
+msgid "Button style"
+msgstr "Стиль кнопки"
+
+#. module: helpdesk
+#. odoo-python
+#: code:addons/helpdesk/models/ticket.py:0
+#, python-format
+msgid ""
+"Cannot create ticket of type '%(type_name)s': This type have no start stage "
+"defined!"
+msgstr ""
+"Невозможно создать обращение типа '%(type_name)s': Для этого типа не "
+"определен этап по умолчанию!"
+
+#. module: helpdesk
+#. odoo-python
+#: code:addons/helpdesk/models/ticket.py:0
+#, python-format
+msgid "Cannot move ticket (%(ticket)s) by this route (%(route)s)"
+msgstr ""
+"Невозможно переместить обращение (%(ticket)s) по указанному маршруту "
+"(%(route)s)"
+
+#. module: helpdesk
+#. odoo-python
+#: code:addons/helpdesk/models/ticket_stage_route.py:0
+#, python-format
+msgid ""
+"Cannot move ticket to this stage: no route.\n"
+"\tTicket: %(ticket)s\n"
+"\tTo stage id: %(to_stage_id)s\n"
+"\tTo stage name: %(to_stage_name)s\n"
+"\tFrom stage name: %(from_stage_name)s\n"
+msgstr ""
+"Невозможно переместить обращение в указанный этап, т.к. отсутствует маршрут.\n"
+"\tОбращение: %(ticket)s\n"
+"\tВ этап id: %(to_stage_id)s\n"
+"\tВ этап: %(to_stage_name)s\n"
+"\tИз этап: %(from_stage_name)s\n"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__is_closed
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage__closed
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage_route__close
+msgid "Closed"
+msgstr "Закрыта"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__code
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage__code
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage_type__code
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_type__code
+msgid "Code"
+msgstr "Код"
+
+#. module: helpdesk
+#: model:ir.model.constraint,message:helpdesk.constraint_helpdesk_ticket_type_code_uniq
+msgid "Code must be unique."
+msgstr "Код должен быть уникальным."
+
+#. module: helpdesk
+#: model_terms:ir.ui.view,arch_db:helpdesk.helpdesk_ticket_stage_type_view_form
+msgid "Code..."
+msgstr "Код..."
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_type__color
+msgid "Color"
+msgstr "Цвет"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__company_id
+msgid "Company"
+msgstr "Компания"
+
+#. module: helpdesk
+#: model:ir.ui.menu,name:helpdesk.helpdesk_configuration_menu
+msgid "Configuration"
+msgstr "Настройки"
+
+#. module: helpdesk
+#: model_terms:ir.ui.view,arch_db:helpdesk.helpdesk_ticket_view_form
+msgid "Create Task"
+msgstr "Создать задачу"
+
+#. module: helpdesk
+#: model_terms:ir.ui.view,arch_db:helpdesk.helpdesk_ticket_type_view_form
+msgid "Create default"
+msgstr "Заполнить по умолчанию"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_team__create_uid
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__create_uid
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage__create_uid
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage_route__create_uid
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage_type__create_uid
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_type__create_uid
+msgid "Created by"
+msgstr "Автор"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_team__create_date
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__create_date
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage__create_date
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage_route__create_date
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage_type__create_date
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_type__create_date
+msgid "Created on"
+msgstr "Создано"
+
+#. module: helpdesk
+#: model:ir.model.fields.selection,name:helpdesk.selection__helpdesk_ticket_stage_route__button_style__danger
+msgid "Danger"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields.selection,name:helpdesk.selection__helpdesk_ticket_stage_route__button_style__dark
+msgid "Dark"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__date_closed
+msgid "Date Closed"
+msgstr "Дата закрытия"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__description
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage__description
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_type__description
+#: model_terms:ir.ui.view,arch_db:helpdesk.helpdesk_ticket_stage_view_form
+#: model_terms:ir.ui.view,arch_db:helpdesk.helpdesk_ticket_type_view_form
+#: model_terms:ir.ui.view,arch_db:helpdesk.helpdesk_ticket_view_form
+msgid "Description"
+msgstr "Описание"
+
+#. module: helpdesk
+#: model_terms:ir.ui.view,arch_db:helpdesk.helpdesk_ticket_stage_view_form
+#: model_terms:ir.ui.view,arch_db:helpdesk.helpdesk_ticket_type_view_form
+msgid "Description..."
+msgstr "Описание..."
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage__diagram_position
+msgid "Diagram Position"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_team__display_name
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__display_name
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage__display_name
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage_route__display_name
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage_type__display_name
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_type__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: helpdesk
+#. odoo-python
+#: code:addons/helpdesk/models/ticket_type.py:0
+#: code:addons/helpdesk/models/ticket_type.py:0
+#: model:helpdesk.ticket.stage.type,name:helpdesk.ticket_stage_type_done
+#, python-format
+msgid "Done"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__email_cc
+msgid "Email cc"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__message_follower_ids
+msgid "Followers"
+msgstr "Подписчики"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__message_partner_ids
+msgid "Followers (Partners)"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,help:helpdesk.field_helpdesk_ticket__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage_route__stage_from_id
+msgid "From"
+msgstr "Из"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__has_message
+msgid "Has Message"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.module.category,name:helpdesk.module_category_helpdesk
+#: model:ir.ui.menu,name:helpdesk.helpdesk_root_menu
+msgid "Helpdesk"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model,name:helpdesk.model_helpdesk_team
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__team_id
+#: model_terms:ir.ui.view,arch_db:helpdesk.helpdesk_team_view_form
+msgid "Helpdesk Team"
+msgstr "Команда поддержки"
+
+#. module: helpdesk
+#: model:ir.model,name:helpdesk.model_helpdesk_ticket
+msgid "Helpdesk Ticket"
+msgstr "Обращение"
+
+#. module: helpdesk
+#: model_terms:ir.ui.view,arch_db:helpdesk.helpdesk_team_view_tree
+msgid "Helpdesk teams"
+msgstr "Команды поддержки"
+
+#. module: helpdesk
+#: model:ir.module.category,description:helpdesk.module_category_helpdesk
+msgid "Helps you manage tickets"
+msgstr "Помогает управлять Вашими обращениями"
+
+#. module: helpdesk
+#: model:ir.model.fields.selection,name:helpdesk.selection__helpdesk_ticket__priority__3
+msgid "High"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields.selection,name:helpdesk.selection__helpdesk_ticket__priority__4
+msgid "Highest"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_team__id
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__id
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage__id
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage_route__id
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage_type__id
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_type__id
+msgid "ID"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__activity_exception_icon
+msgid "Icon"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,help:helpdesk.field_helpdesk_ticket__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,help:helpdesk.field_helpdesk_ticket__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,help:helpdesk.field_helpdesk_ticket__message_has_error
+msgid "If checked, some messages have a delivery error."
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,help:helpdesk.field_helpdesk_ticket_stage_route__require_comment
+msgid "If set, then user will be asked for comment on this route"
+msgstr ""
+
+#. module: helpdesk
+#: model:helpdesk.ticket.stage.type,name:helpdesk.ticket_stage_type_in_progress
+msgid "In Progress"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage__route_in_ids
+msgid "Incoming Routes"
+msgstr "Входящие маршруты"
+
+#. module: helpdesk
+#: model:ir.model.fields.selection,name:helpdesk.selection__helpdesk_ticket_stage_route__button_style__info
+msgid "Info"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__message_is_follower
+msgid "Is Follower"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_team____last_update
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket____last_update
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage____last_update
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage_route____last_update
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage_type____last_update
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_type____last_update
+msgid "Last Modified on"
+msgstr "Дата последнего изменения"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_team__write_uid
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__write_uid
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage__write_uid
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage_route__write_uid
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage_type__write_uid
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_type__write_uid
+msgid "Last Updated by"
+msgstr "Автор последнего изменения"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_team__write_date
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__write_date
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage__write_date
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage_route__write_date
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage_type__write_date
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_type__write_date
+msgid "Last Updated on"
+msgstr "Дата последнего изменения"
+
+#. module: helpdesk
+#: model:ir.model.fields.selection,name:helpdesk.selection__helpdesk_ticket_stage_route__button_style__light
+msgid "Light"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields.selection,name:helpdesk.selection__helpdesk_ticket_stage_route__button_style__link
+msgid "Link"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields.selection,name:helpdesk.selection__helpdesk_ticket__priority__1
+msgid "Low"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields.selection,name:helpdesk.selection__helpdesk_ticket__priority__0
+msgid "Lowest"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__message_main_attachment_id
+msgid "Main Attachment"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields.selection,name:helpdesk.selection__helpdesk_ticket__priority__2
+msgid "Medium"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_team__member_ids
+msgid "Members"
+msgstr "Состав"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__message_has_error
+msgid "Message Delivery error"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__message_ids
+msgid "Messages"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__module_id
+msgid "Module"
+msgstr "Модуль"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_team__name
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__name
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage__name
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage_route__name
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage_type__name
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_type__name
+msgid "Name"
+msgstr "Наименование"
+
+#. module: helpdesk
+#: model_terms:ir.ui.view,arch_db:helpdesk.helpdesk_ticket_stage_route_view_form
+#: model_terms:ir.ui.view,arch_db:helpdesk.helpdesk_ticket_stage_type_view_form
+msgid "Name..."
+msgstr "Наименование..."
+
+#. module: helpdesk
+#. odoo-python
+#: code:addons/helpdesk/models/ticket.py:0
+#: code:addons/helpdesk/models/ticket.py:0
+#: code:addons/helpdesk/models/ticket.py:0
+#: code:addons/helpdesk/models/ticket.py:0
+#, python-format
+msgid "New"
+msgstr "Новое"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__activity_calendar_event_id
+msgid "Next Activity Calendar Event"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__activity_summary
+msgid "Next Activity Summary"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__activity_type_id
+msgid "Next Activity Type"
+msgstr ""
+
+#. module: helpdesk
+#: model_terms:ir.actions.act_window,help:helpdesk.action_helpdesk_ticket_all_tasks
+msgid "No tasks found. Let's create one!"
+msgstr "Задачи не найдены. Давайте создадим первую!"
+
+#. module: helpdesk
+#: model_terms:ir.actions.act_window,help:helpdesk.action_helpdesk_ticket_all_tickets
+msgid "No tickets found. Let's create one!"
+msgstr "Обращения не найдены. Давайте создадим первое!"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__message_needaction_counter
+msgid "Number of Actions"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__message_has_error_counter
+msgid "Number of errors"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,help:helpdesk.field_helpdesk_ticket__message_needaction_counter
+msgid "Number of messages which requires an action"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,help:helpdesk.field_helpdesk_ticket__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr ""
+
+#. module: helpdesk
+#: model_terms:ir.actions.act_window,help:helpdesk.action_helpdesk_ticket_all_tasks
+msgid ""
+"Organize your tasks by dispatching them across the pipeline.\n"
+"                <br>\n"
+"                Collaborate efficiently by chatting in real-time or via email."
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage__route_out_ids
+msgid "Outgoing Routes"
+msgstr "Исходящие маршруты"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage__previous_stage_ids
+msgid "Previous stages"
+msgstr "Предыдущие этапы"
+
+#. module: helpdesk
+#: model:ir.model.fields.selection,name:helpdesk.selection__helpdesk_ticket_stage_route__button_style__primary
+msgid "Primary"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__priority
+msgid "Priority"
+msgstr "Приоритет"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage_route__require_comment
+msgid "Require Comment"
+msgstr "Комментарий обязателен"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__activity_user_id
+msgid "Responsible User"
+msgstr "Ответственный пользователь"
+
+#. module: helpdesk
+#: model:ir.actions.act_window,name:helpdesk.action_helpdesk_ticket_stage_route_form
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_type__route_count
+#: model_terms:ir.ui.view,arch_db:helpdesk.helpdesk_ticket_type_view_form
+msgid "Routes"
+msgstr "Маршруты"
+
+#. module: helpdesk
+#: model:ir.model.fields.selection,name:helpdesk.selection__helpdesk_ticket_stage_route__button_style__secondary
+msgid "Secondary"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage__sequence
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage_route__sequence
+msgid "Sequence"
+msgstr "Последовательность"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__stage_id
+msgid "Stage"
+msgstr "Этап"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_type__stage_count
+msgid "Stage Count"
+msgstr "Количество этапов"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__stage_routes
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_type__route_ids
+msgid "Stage Routes"
+msgstr "Маршруты этапов"
+
+#. module: helpdesk
+#: model:ir.model,name:helpdesk.model_helpdesk_ticket_stage_type
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__stage_type_id
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage__type_id
+msgid "Stage Type"
+msgstr "Тип этапа"
+
+#. module: helpdesk
+#: model_terms:ir.ui.view,arch_db:helpdesk.helpdesk_ticket_stage_type_view_tree
+msgid "Stage Types"
+msgstr "Типы этапов"
+
+#. module: helpdesk
+#: model:ir.model.constraint,message:helpdesk.constraint_helpdesk_ticket_stage_stage_code_uniq
+msgid "Stage code must be uniq for ticket type"
+msgstr "Код этапа должен быть уникальным для типа обращения"
+
+#. module: helpdesk
+#: model:ir.model.constraint,message:helpdesk.constraint_helpdesk_ticket_stage_stage_name_uniq
+msgid "Stage name must be uniq for ticket type"
+msgstr "Наименование этапа должно быть уникально для типа обращения"
+
+#. module: helpdesk
+#: model:ir.actions.act_window,name:helpdesk.action_helpdesk_ticket_stage_form
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_type__stage_ids
+#: model_terms:ir.ui.view,arch_db:helpdesk.helpdesk_ticket_type_view_form
+msgid "Stages"
+msgstr "Этапы"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_type__start_stage_id
+msgid "Start Stage"
+msgstr "Начальный этап"
+
+#. module: helpdesk
+#: model:ir.model.fields,help:helpdesk.field_helpdesk_ticket__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"Статус, основанный на активностях\n"
+"Просрочено: срок оплаты уже прошел\n"
+"Сегодня: Дата активности - сегодня\n"
+"Запланировано: будущие мероприятия"
+
+#. module: helpdesk
+#: model:ir.model.fields.selection,name:helpdesk.selection__helpdesk_ticket_stage_route__button_style__success
+msgid "Success"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.constraint,message:helpdesk.constraint_helpdesk_ticket_stage_route_stage_stage_from_to_type_uniq
+msgid "Such route already present in this ticket type"
+msgstr "Такой маршрут уже присутствует в этом типе обращения"
+
+#. module: helpdesk
+#. odoo-python
+#: code:addons/helpdesk/models/ticket.py:0
+#: model:ir.model,name:helpdesk.model_task_task
+#, python-format
+msgid "Task"
+msgstr "Задача"
+
+#. module: helpdesk
+#: model:ir.actions.act_window,name:helpdesk.action_helpdesk_ticket_all_tasks
+#: model:ir.actions.act_window,name:helpdesk.action_helpdesk_ticket_open_tasks
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__task_count
+#: model:ir.ui.menu,name:helpdesk.tasks_menu
+#: model_terms:ir.ui.view,arch_db:helpdesk.helpdesk_ticket_view_form
+msgid "Tasks"
+msgstr "Задачи"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_team__team_lead_id
+#: model:res.groups,name:helpdesk.group_team_leader
+msgid "Team Leader"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.actions.act_window,name:helpdesk.action_helpdesk_team_all_teams
+#: model:ir.ui.menu,name:helpdesk.helpdesk_team_menu
+msgid "Teams"
+msgstr "Команды"
+
+#. module: helpdesk
+#. odoo-python
+#: code:addons/helpdesk/models/helpdesk_task.py:0
+#: model_terms:ir.ui.view,arch_db:helpdesk.helpdesk_ticket_view_form
+#, python-format
+msgid "Ticket"
+msgstr "Обращение"
+
+#. module: helpdesk
+#: model:ir.model,name:helpdesk.model_helpdesk_ticket_stage
+msgid "Ticket Stage"
+msgstr "Этап обращения"
+
+#. module: helpdesk
+#: model:ir.model,name:helpdesk.model_helpdesk_ticket_stage_route
+msgid "Ticket Stage Route"
+msgstr "Маршрут этапа обращения"
+
+#. module: helpdesk
+#: model:ir.actions.act_window,name:helpdesk.action_helpdesk_ticket_stage_type_all_types
+#: model:ir.ui.menu,name:helpdesk.ticket_stage_type_menu
+msgid "Ticket Stage Types"
+msgstr "Типы этапов обращений"
+
+#. module: helpdesk
+#: model_terms:ir.ui.view,arch_db:helpdesk.helpdesk_ticket_view_form
+msgid "Ticket Title..."
+msgstr "Тема обращения..."
+
+#. module: helpdesk
+#: model:ir.model,name:helpdesk.model_helpdesk_ticket_type
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage__ticket_type_id
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage_route__ticket_type_id
+#: model_terms:ir.ui.view,arch_db:helpdesk.helpdesk_ticket_type_view_form
+msgid "Ticket Type"
+msgstr "Тип"
+
+#. module: helpdesk
+#: model_terms:ir.ui.view,arch_db:helpdesk.helpdesk_ticket_view_form
+msgid "Ticket description..."
+msgstr "Описание обращения..."
+
+#. module: helpdesk
+#: model_terms:ir.ui.view,arch_db:helpdesk.helpdesk_ticket_type_view_form
+msgid "Ticket type code..."
+msgstr "Код типа..."
+
+#. module: helpdesk
+#: model_terms:ir.ui.view,arch_db:helpdesk.helpdesk_ticket_type_view_form
+msgid "Ticket type name..."
+msgstr "Наименование типа..."
+
+#. module: helpdesk
+#: model:ir.actions.act_window,name:helpdesk.action_helpdesk_ticket_all_tickets
+#: model:ir.ui.menu,name:helpdesk.all_tickets_menu
+#: model:ir.ui.menu,name:helpdesk.tickets_menu
+#: model_terms:ir.ui.view,arch_db:helpdesk.helpdesk_ticket_view_tree
+msgid "Tickets"
+msgstr "Обращения"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage_route__stage_to_id
+msgid "To"
+msgstr "В"
+
+#. module: helpdesk
+#. odoo-python
+#: code:addons/helpdesk/models/ticket_type.py:0
+#: model:helpdesk.ticket.stage.type,name:helpdesk.ticket_stage_type_to_do
+#, python-format
+msgid "To Do"
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket__type_id
+msgid "Type"
+msgstr "Тип"
+
+#. module: helpdesk
+#: model:ir.model.fields,help:helpdesk.field_helpdesk_ticket__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr ""
+
+#. module: helpdesk
+#: model:ir.actions.act_window,name:helpdesk.action_helpdesk_ticket_type_all_types
+#: model:ir.ui.menu,name:helpdesk.ticket_type_menu
+msgid "Types"
+msgstr "Типы обращений"
+
+#. module: helpdesk
+#: model:ir.model.fields,field_description:helpdesk.field_helpdesk_ticket_stage__use_custom_colors
+msgid "Use Custom Colors"
+msgstr "Пользовательский цвет"
+
+#. module: helpdesk
+#: model_terms:ir.ui.view,arch_db:helpdesk.helpdesk_ticket_type_view_form
+msgid "View Flow"
+msgstr "Диаграмма"
+
+#. module: helpdesk
+#: model:ir.model.fields.selection,name:helpdesk.selection__helpdesk_ticket_stage_route__button_style__warning
+msgid "Warning"
+msgstr ""

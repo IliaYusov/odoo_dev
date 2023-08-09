@@ -1,0 +1,28 @@
+.o_form_view {
+    .o_form_sheet_bg .o_form_sheet {
+        max-width: calc(100% - 50px);
+    }
+    .o_FormRenderer_chatterContainer {
+        max-width: none;
+    }
+}
+
+.modal-lg, .modal-xl {
+    max-width: 80%;
+  }
+
+/* decrease Chatter*/
+
+.o_FormRenderer_chatterContainer.o-aside {
+    width: 10%;
+/*    margin-bottom: 50px;*/
+}
+
+/* Move Chatter to bottom */
+/*
+.o_form_view.o_xxl_form_view {
+    -webkit-flex-flow: unset;
+    flex-flow: wrap;
+    height: auto! important;
+}
+*/

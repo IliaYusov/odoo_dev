@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="ir_rule_project_budget_access_supervisor_manager" model="ir.rule">
+            <field name="name">Access to project budget specification by supervisor anf manager access</field>
+            <field name="model_id" ref="model_project_budget_projects"/>
+            <field name="domain_force">["|","|","|",('project_supervisor_id.id','in', user.supervisor_rule.ids)
+                                           ,('project_manager_id.id','in', user.manager_rule.ids)
+                                           ,('rukovoditel_project_id.id','in', user.rukovoditel_project_rule.ids)
+                                           ,('project_office_id.user_id.id','=',user.id)
+                                       ]
+            </field>
+            <field name="groups" eval="[(4, ref('project_budget.project_budget_users'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <record id="ir_rule_project_budget_access_budget_plan_kam" model="ir.rule">
+            <field name="name">Access to budgeе plan kam</field>
+            <field name="model_id" ref="model_project_budget_budget_plan_kam"/>
+            <field name="domain_force">["|",('supervisor_user_id.id','=', user.id)
+                                           ,('kam_user_id.id','=', user.id)
+                                       ]
+            </field>
+            <field name="groups" eval="[(4, ref('project_budget.project_budget_users'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <record id="ir_rule_project_budget_access_budget_plan_supervisor" model="ir.rule">
+            <field name="name">Access to budgeе plan supervisor</field>
+            <field name="model_id" ref="model_project_budget_budget_plan_supervisor"/>
+            <field name="domain_force">[('supervisor_user_id.id','=', user.id)
+                                       ]
+            </field>
+            <field name="groups" eval="[(4, ref('project_budget.project_budget_users'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="record_restricted_company_rule" model="ir.rule" >
+            <field name="name">Budget projects Restricted Record: multi-company</field>
+            <field name="model_id" ref="model_project_budget_projects"/>
+            <field name="global" eval="True"/>
+<!--     так нельзя - правила группы складываютсякак OR, а вот глобальные права - AND       <field name="groups" eval="[(4, ref('project_budget.project_budget_users'))]"/>-->
+            <field name="domain_force">
+                [('company_id', 'in', company_ids)]
+            </field>
+        </record>
+
+        <record id="record_restricted_company_rule_project_supervisor" model="ir.rule" >
+            <field name="name">project_supervisor Restricted Record: multi-company</field>
+            <field name="model_id" ref="model_project_budget_project_supervisor"/>
+            <field name="global" eval="True"/>
+<!--     так нельзя - правила группы складываютсякак OR, а вот глобальные права - AND       <field name="groups" eval="[(4, ref('project_budget.project_budget_users'))]"/>-->
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+
+        <record id="record_restricted_company_rule_project_manager" model="ir.rule" >
+            <field name="name">project manager Restricted Record: multi-company</field>
+            <field name="model_id" ref="model_project_budget_project_manager"/>
+            <field name="global" eval="True"/>
+<!--     так нельзя - правила группы складываютсякак OR, а вот глобальные права - AND       <field name="groups" eval="[(4, ref('project_budget.project_budget_users'))]"/>-->
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+
+        <record id="record_restricted_company_rule_rukovoditel_project" model="ir.rule" >
+            <field name="name">rukovoditel project Restricted Record: multi-company</field>
+            <field name="model_id" ref="model_project_budget_rukovoditel_project"/>
+            <field name="global" eval="True"/>
+<!--     так нельзя - правила группы складываютсякак OR, а вот глобальные права - AND       <field name="groups" eval="[(4, ref('project_budget.project_budget_users'))]"/>-->
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+
+        <record id="record_restricted_company_rule_project_office" model="ir.rule" >
+            <field name="name">project office Restricted Record: multi-company</field>
+            <field name="model_id" ref="model_project_budget_project_office"/>
+            <field name="global" eval="True"/>
+<!--     так нельзя - правила группы складываютсякак OR, а вот глобальные права - AND       <field name="groups" eval="[(4, ref('project_budget.project_budget_users'))]"/>-->
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+
+
+    </data>
+</odoo>

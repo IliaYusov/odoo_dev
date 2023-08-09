@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_helpdesk_team_all_teams" model="ir.actions.act_window">
+        <field name="name">Teams</field>
+        <field name="res_model">helpdesk.team</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="helpdesk_team_view_form" model="ir.ui.view">
+        <field name="name">helpdesk.team.form</field>
+        <field name="model">helpdesk.team</field>
+        <field name="arch" type="xml">
+            <form string="Helpdesk Team">
+                <sheet string="Helpdesk Team">
+                    <group>
+                        <field name="name"/>
+                        <field name="team_lead_id" widget="many2one_avatar_user"/>
+                        <field name="member_ids"
+                               options="{'no_open': True, 'no_quick_create': True}"
+                               widget="many2many_avatar_user"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="helpdesk_team_view_tree" model="ir.ui.view">
+        <field name="name">helpdesk.team.tree</field>
+        <field name="model">helpdesk.team</field>
+        <field name="arch" type="xml">
+            <tree string="Helpdesk teams" multi_edit="1" sample="1">
+                <field name="name"/>
+                <field name="team_lead_id" widget="many2one_avatar_user"/>
+                <field name="member_ids" widget="many2many_avatar_user" options='{"no_quick_create": True}'/>
+            </tree>
+        </field>
+    </record>
+</odoo>

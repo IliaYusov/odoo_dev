@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="report_budget_html">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <h4>Name: <t t-esc="o.name"/>.</h4>
+                <div class="container">
+                     <table class="table table-bordered">
+                         <thead>
+                             <tr>
+                                <td>project_office</td>
+                                <td>project_supervisor</td>
+                             </tr>
+                         </thead>
+                         <tbody>
+                            <t t-foreach="o.projects_ids" t-as="ospec">
+                                  <tr>
+                                     <td><t t-esc="ospec.project_office_id.name"/></td>
+                                     <td><t t-esc="ospec.project_supervisor_id.name"/></td>
+                                  </tr>
+                             </t>
+                         </tbody>
+                     </table>
+                 </div>
+            </t>
+        </t>
+    </template>
+</odoo>

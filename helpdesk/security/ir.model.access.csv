@@ -1,0 +1,17 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_helpdesk_ticket,access_helpdesk_ticket,model_helpdesk_ticket,base.group_user,1,1,1,1
+
+access_helpdesk_team,access_helpdesk_team,model_helpdesk_team,base.group_user,1,0,0,0
+access_helpdesk_team_admin,access_helpdesk_team,model_helpdesk_team,helpdesk.group_admin,1,1,1,1
+
+access_helpdesk_ticket_type,access_helpdesk_ticket_type,model_helpdesk_ticket_type,base.group_user,1,0,0,0
+access_helpdesk_ticket_type_admin,access_helpdesk_ticket_type,model_helpdesk_ticket_type,helpdesk.group_admin,1,1,1,1
+
+access_helpdesk_ticket_stage,access_helpdesk_ticket_stage,model_helpdesk_ticket_stage,base.group_user,1,0,0,0
+access_helpdesk_ticket_stage_admin,access_helpdesk_ticket_stage,model_helpdesk_ticket_stage,helpdesk.group_admin,1,1,1,1
+
+access_helpdesk_ticket_stage_type,access_helpdesk_ticket_stage_type,model_helpdesk_ticket_stage_type,base.group_user,1,0,0,0
+access_helpdesk_ticket_stage_type_admin,access_helpdesk_ticket_stage_type,model_helpdesk_ticket_stage_type,helpdesk.group_admin,1,1,1,1
+
+access_helpdesk_ticket_stage_route,access_helpdesk_ticket_stage_route,model_helpdesk_ticket_stage_route,base.group_user,1,0,0,0
+access_helpdesk_ticket_stage_route_admin,access_helpdesk_ticket_stage_route,model_helpdesk_ticket_stage_route,helpdesk.group_admin,1,1,1,1

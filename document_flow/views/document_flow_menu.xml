@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <menuitem id="document_flow_menu" name="Document Flow" sequence="15"
+              groups="document_flow.group_document_flow_user,document_flow.group_document_flow_manager"/>
+
+    <menuitem id="document_flow_menu_dashboard" parent="document_flow.document_flow_menu" name="Dashboard" sequence="0"
+              action="action_document_flow_dashboard"/>
+
+    <menuitem id="menu_task_management" parent="document_flow_menu" name="Tasks" sequence="10"
+              action="action_view_all_task"/>
+
+    <menuitem id="document_flow_menu_process" parent="document_flow_menu" name="Processes" sequence="20"
+              action="action_view_all_process" groups="document_flow.group_document_flow_manager"/>
+
+    <menuitem id="document_flow_menu_event" parent="document_flow_menu" name="Events" sequence="30"
+              action="action_view_all_event"/>
+
+    <menuitem id="document_flow_menu_configuration" parent="document_flow_menu" sequence="100" name="Configuration"
+              groups="document_flow.group_document_flow_manager"/>
+    <menuitem id="document_flow_menu_process_template" parent="document_flow_menu_configuration"
+              name="Process Templates" sequence="0"
+              action="action_view_all_process_template"/>
+    <menuitem id="menu_management_committee" parent="document_flow_menu_configuration" sequence="10"
+              name="Management Committees"
+              action="action_view_all_management_committee"/>
+</odoo>
