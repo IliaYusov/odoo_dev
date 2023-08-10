@@ -1352,6 +1352,11 @@ msgid "Delete"
 msgstr "Удалить"
 
 #. module: project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
+msgid "Reopen"
+msgstr "Вернуть в работу"
+
+#. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budgets_form
 msgid "Specification"
 msgstr "Перечень проектов"
@@ -2431,6 +2436,27 @@ msgstr "Удалить проект можно только в статусе '�
 #, python-format
 msgid "only project not in fixed budget can be deleted"
 msgstr "Удалить проект можно только если он не зафиксирован в бюджете"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/projects.py:0
+#, python-format
+msgid "only project admin can reopen projects"
+msgstr "Только администратор может вернуть проект в работу"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/projects.py:0
+#, python-format
+msgid "only project in '-' status can be reopened"
+msgstr "Только проект в статусе '-' можно вернуть в работу"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/projects.py:0
+#, python-format
+msgid "only project not in fixed budget can be reopened"
+msgstr "Вернуть в работу проект можно только если он не зафиксирован в бюджете"
 
 #. module: project_budget
 #. odoo-python

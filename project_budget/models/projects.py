@@ -547,6 +547,27 @@ class projects(models.Model):
                 vals['project_id'] = self.env['ir.sequence'].sudo().next_by_code('project_budget.projects')
         return super().create(vals_list)
 
+    def reopen(self):
+        """
+        return not fixed project from '-' to 'need_approve_manager' status.
+        for admins only
+        """
+        for record in self:
+
+            if not record.env.user.has_group('project_budget.project_budget_admin'):
+                raise_text = _("only project admin can reopen projects")
+                raise ValidationError(raise_text)
+
+            if record.approve_state != '-':
+                raise_text = _("only project in '-' status can be reopened")
+                raise ValidationError(raise_text)
+
+            if record.budget_state == 'fixed':
+                raise_text = _("only project not in fixed budget can be reopened")
+                raise ValidationError(raise_text)
+
+            record.approve_state = 'need_approve_manager'
+
     # def unlink(self):
     #     """ dont delete.
     #     Set specification_state to 'cancel'
