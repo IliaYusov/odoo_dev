@@ -4,7 +4,7 @@
         background-color: #0F5F8B;
 }}
 .o_main_navbar{
-       background-color: #008800 !important;
+       background-color: #0F5F8B !important;
 }
 .btn-primary {
        background-color: #0F5F8B !important;
@@ -16,6 +16,11 @@
 .btn-secondary {
        color: #0F5F8B !important;
        border-color: #0F5F8B !important;
+}
+.btn-red {
+       color: #FFFFFF !important;
+       background-color: #DC3545 !important;
+       border-color: transparent !important;
 }
 .o_external_button{
       color: #0F5F8B !important;
