@@ -6,6 +6,7 @@ class Event(models.Model):
     _name = 'document_flow.event'
     _description = 'Event'
     _inherit = ['mail.thread.cc', 'mail.activity.mixin']
+    _order = 'date_start desc, id desc'
 
     name = fields.Char(string='Name', required=True, copy=True)
     company_ids = fields.Many2many('res.company', string='Companies', required=True,
@@ -147,6 +148,7 @@ class Event(models.Model):
         })
 
         reviews = self.decision_ids.search([
+            ('event_id', '=', self.id),
             ('task_type', '=', 'review'),
             ('date_deadline', '!=', False),
             ('executor_ids', '!=', False)
@@ -187,7 +189,8 @@ class Event(models.Model):
         if executions.ids:
             for decision in executions:
                 executors = list([executor.company_id.id for executor in decision.executor_ids])
-                executors.append(decision.responsible_id.company_id.id)
+                if decision.responsible_id:
+                    executors.append(decision.responsible_id.company_id.id)
                 c_ids = set(executors)
                 process_execution = self.env['document_flow.process'].create({
                     'company_ids': [(6, 0, c_ids)],
@@ -262,9 +265,9 @@ class Event(models.Model):
             ('process_id.state', '!=', 'break')
         ]).process_id
         if main_process:
-            for process in main_process.child_ids:
-                if process.sudo().task_ids:
-                    task_ids.extend(process.sudo().task_ids.ids)
+            for process in main_process.sudo().child_ids:
+                if process.task_ids:
+                    task_ids.extend(process.task_ids.ids)
         return {
             'name': _('Tasks'),
             'domain': [

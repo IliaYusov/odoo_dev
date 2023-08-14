@@ -72,15 +72,15 @@ odoo.define("document_flow_dashboard.dashboard_view", function (require) {
                 name: _t("Assigned To Me"),
                 type: 'ir.actions.act_window',
                 res_model: 'task.task',
-                view_mode: 'tree,form',
-                views: [[false, 'list'], [false, 'form']],
+                view_mode: 'kanban,tree,form',
+                views: [[false, 'kanban'], [false, 'list'], [false, 'form']],
                 domain: [
-                    ['parent_ref_type', '=', 'document_flow.process'],
+                    ['parent_ref_type', 'like', 'document_flow.%'],
                     ['is_closed', '=', false],
-                    ['user_id', '=', require('web.session').user_id],
+                    ['user_id', 'in', require('web.session').user_id],
                     ['date_deadline', '>=', new Date()]
                 ],
-                context: { default_state: 'to_do' },
+                context: {'default_parent_ref_type': 'document_flow.%'},
                 target: 'current'
             });
         },
@@ -93,15 +93,15 @@ odoo.define("document_flow_dashboard.dashboard_view", function (require) {
                 name: _t("Overdue"),
                 type: 'ir.actions.act_window',
                 res_model: 'task.task',
-                view_mode: 'tree,form',
-                views: [[false, 'list'], [false, 'form']],
+                view_mode: 'kanban,tree,form',
+                views: [[false, 'kanban'], [false, 'list'], [false, 'form']],
                 domain: [
-                    ['parent_ref_type', '=', 'document_flow.process'],
+                    ['parent_ref_type', 'like', 'document_flow.%'],
                     ['is_closed', '=', false],
-                    ['user_id', '=', require('web.session').user_id],
+                    ['user_id', 'in', require('web.session').user_id],
                     ['date_deadline', '<', new Date()]
                 ],
-                context: {create: false},
+                context: {'default_parent_ref_type': 'document_flow.%'},
                 target: 'current'
             });
         },
@@ -114,15 +114,15 @@ odoo.define("document_flow_dashboard.dashboard_view", function (require) {
                 name: _t("Created By Me"),
                 type: 'ir.actions.act_window',
                 res_model: 'task.task',
-                view_mode: 'tree,form',
-                views: [[false, 'list'], [false, 'form']],
+                view_mode: 'kanban,tree,form',
+                views: [[false, 'kanban'], [false, 'list'], [false, 'form']],
                 domain: [
-                    ['parent_ref_type', '=', 'document_flow.process'],
+                    ['parent_ref_type', 'like', 'document_flow.%'],
                     ['is_closed', '=', false],
-                    ['create_uid', '=', require('web.session').user_id],
+                    ['author_id', 'in', require('web.session').user_id],
                     ['date_deadline', '>=', new Date()]
                 ],
-                context: { default_state: 'to_do' },
+                context: {'default_parent_ref_type': 'document_flow.%'},
                 target: 'current'
             });
         },
@@ -135,15 +135,15 @@ odoo.define("document_flow_dashboard.dashboard_view", function (require) {
                 name: _t("Created By Me Overdue"),
                 type: 'ir.actions.act_window',
                 res_model: 'task.task',
-                view_mode: 'tree,form',
-                views: [[false, 'list'], [false, 'form']],
+                view_mode: 'kanban,tree,form',
+                views: [[false, 'kanban'], [false, 'list'], [false, 'form']],
                 domain: [
-                    ['parent_ref_type', '=', 'document_flow.process'],
+                    ['parent_ref_type', 'like', 'document_flow.%'],
                     ['is_closed', '=', false],
-                    ['create_uid', '=', require('web.session').user_id],
+                    ['author_id', 'in', require('web.session').user_id],
                     ['date_deadline', '<', new Date()]
                 ],
-                context: {create: false},
+                context: {'default_parent_ref_type': 'document_flow.%'},
                 target: 'current'
             });
         }

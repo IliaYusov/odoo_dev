@@ -1,6 +1,6 @@
 {
     'name': 'Task Management',
-    'version': '16.0.1.0.2',
+    'version': '16.0.1.0.3',
     'category': '',
     'depends': ['base', 'mail', 'crnd_web_diagram_plus'],
     'description': """
@@ -18,6 +18,7 @@
         ]
     },
     'data': [
+        'data/mail_template_data.xml',
         'data/task_data.xml',
         'security/task_security.xml',
         'security/ir.model.access.csv',

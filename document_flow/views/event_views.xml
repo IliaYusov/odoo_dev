@@ -40,15 +40,13 @@
         </field>
     </record>
 
-    <!--Необходимо перенести домен в action в task и понять как его передать в action-->
     <record id="action_view_all_task" model="ir.actions.act_window">
         <field name="name">Tasks</field>
         <field name="res_model">task.task</field>
-        <field name="view_mode">tree,kanban,calendar,form</field>
-        <field name="domain">[
-            ('parent_ref_type', 'in', ['document_flow.event', 'document_flow.event.decision', 'document_flow.process'])]
-        </field>
+        <field name="view_mode">kanban,tree,calendar,form</field>
+        <field name="domain">[('parent_ref_type', 'like', 'document_flow.')]</field>
         <field name="context">{
+            'default_parent_ref_type': 'document_flow.',
             'search_default_open_tasks': 1}
         </field>
         <field name="search_view_id" ref="task.task_view_search"/>

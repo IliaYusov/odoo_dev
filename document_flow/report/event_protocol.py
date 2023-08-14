@@ -1,8 +1,9 @@
 from odoo import _, models
-from odoo.tools import pytz
 from docx.shared import Pt, Mm
 from docx.enum.text import WD_BREAK
 from htmldocx import HtmlToDocx
+
+import pytz
 
 
 class EventProtocol(models.AbstractModel):

@@ -28,6 +28,9 @@ class TaskWizardDone(models.TransientModel):
         self.task_id.close_task(self.route_id.stage_to_id.result_type)
         self.task_id.stage_id = self.route_id.stage_to_id
 
+        if self.task_id.stage_id.mail_template_id:
+            self.task_id._send_message_notify(self.task_id.stage_id.mail_template_id)
+
         return None
 
     def _task_link_response_attachments(self, task_id):

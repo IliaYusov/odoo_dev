@@ -12,7 +12,7 @@
                     <group>
                         <field name="name" string="Description" type="html" class="text_high"
                                options="{'collaborative': true, 'resizable': false}"
-                               placeholder="Annex..." force_save="1"/>
+                               placeholder="Annex..."/>
                     </group>
                 </sheet>
             </form>

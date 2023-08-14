@@ -154,6 +154,27 @@
                             <field name="description" options="{'collaborative': true, 'resizable': false}"
                                    placeholder="Description..."/>
                         </page>
+<!--                        <page name="page_notifications" string="Notifications">-->
+<!--                            <div>-->
+<!--                                <table class="table table-bordered" name="table-notification-settings">-->
+<!--                                    <thead>-->
+<!--                                        <tr>-->
+<!--                                            <th class="text-center" colspan="2">Send Notification</th>-->
+<!--                                        </tr>-->
+<!--                                    </thead>-->
+<!--                                    <tbody class="text-center">-->
+<!--                                        <tr name="tr-notification-created">-->
+<!--                                            <td class="text-left">Created</td>-->
+<!--                                            <td><field name="send_created_notification" style="width: 25%"/></td>-->
+<!--                                        </tr>-->
+<!--                                        <tr name="tr-notification-closed">-->
+<!--                                            <td class="text-left">Closed</td>-->
+<!--                                            <td><field name="send_closed_notification" style="width: 25%"/></td>-->
+<!--                                        </tr>-->
+<!--                                    </tbody>-->
+<!--                                </table>-->
+<!--                            </div>-->
+<!--                        </page>-->
                     </notebook>
                 </sheet>
             </form>

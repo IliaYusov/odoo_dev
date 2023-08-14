@@ -21,6 +21,7 @@
                 <field name="type" readonly="1"/>
                 <field name="name" readonly="1"/>
                 <field name="date_start" widget="date" readonly="1"/>
+                <field name="date_end" widget="date" readonly="1"/>
             </tree>
         </field>
     </record>
@@ -58,7 +59,6 @@
                             <field name="template_id" attrs="{'readonly': [('state', '!=', 'on_registration')]}"/>
                         </group>
                         <group>
-<!--                            <field name="company_id" groups="base.group_multi_company"/>-->
                             <field name="company_ids" widget="many2many_tags" groups="base.group_multi_company"/>
                         </group>
                     </group>
@@ -85,6 +85,14 @@
                                placeholder="Description..."
                                attrs="{'readonly': [('state', '!=', 'on_registration')]}"/>
                     </group>
+<!--                    <div>-->
+<!--    <field name="bokeh_chart" widget="bokeh_chart" nolabel="1"/>-->
+<!--</div>-->
+                    <div id="o_process_right" class="col-lg-4 px-0 ps-lg-5">
+                        <separator string="Process Chart"/>
+                        <field name="child_ids" class="position-relative" widget="processing_chart" readonly="1"
+                               nolabel="1"/>
+                    </div>
                     <notebook>
                         <page name="executors_page" string="Executors" attrs="{'invisible': [('type', '=', 'complex')]}">
                             <group attrs="{'invisible': [('type', 'in', ('review'))]}">
@@ -100,6 +108,7 @@
                                     <field name="type_sequence"
                                            attrs="{'column_invisible': ['|', ('parent.type', 'in', ('review')), ('parent.task_sequence', '!=', 'mixed')]}"/>
                                     <field name="date_deadline"/>
+                                    <field name="period" optional="hide"/>
                                 </tree>
                             </field>
                         </page>

@@ -8,12 +8,25 @@
                 <field name="name" string="Task" filter_domain="['|', ('name', 'ilike', self), ('id', 'ilike', self)]"/>
                 <field name="user_id"
                        filter_domain="[('user_id.name', 'ilike', self), ('user_id.active', 'in', [True, False])]"/>
+                <field name="type_id"/>
                 <field name="parent_ref"/>
                 <field name="description"/>
                 <filter string="My Tasks" name="my_tasks" domain="[('user_id', '=', uid)]"/>
                 <filter string="Open Tasks" name="open_tasks" domain="[('is_closed', '=', False)]"/>
                 <filter string="Created by me" name="created_by_me" domain="[('create_uid', '=', uid)]"/>
                 <filter string="Unassigned" name="unassigned" domain="[('user_id', '=', False)]"/>
+
+                <group name="group_group_by" expand="0" string="Group by...">
+                    <filter name="filter_group_by_type"
+                            string="Type" context="{'group_by': 'type_id'}"/>
+                    <filter name="company"
+                            string="Company"
+                            context="{'group_by':'company_id'}"
+                            groups="base.group_multi_company"/>
+                </group>
+                <searchpanel>
+                    <field name="type_id" string="Type"/>
+                </searchpanel>
             </search>
         </field>
     </record>
@@ -55,7 +68,7 @@
                 </group>
                 <header>
                     <div class="stages_wrapper">
-                        <field name="stage_routes" widget="stage_button_widget"/>
+                        <field name="stage_routes" widget="stage_button_widget" attrs="{'invisible' : [('id', '=', False)]}"/>
                     </div>
                     <field name="stage_id" widget="statusbar"
                            attrs="{'readonly': True}"
@@ -92,9 +105,13 @@
                     </div>
                     <group>
                         <group>
-                            <field name="create_uid" readonly="1"/>
-                            <field name="type_id" attrs="{'readonly': [('id', '!=', False)]}"/>
-                            <field name="parent_ref"/>
+                            <field name="author_id"/>
+                            <field name="parent_ref" options="{'no_quick_create': True}"
+                                   attrs="{'invisible': [('parent_obj_ref', '!=', False)]}"/>
+                            <field name="parent_obj_ref" options="{'no_quick_create': True}"
+                                   attrs="{'invisible': [('parent_obj_ref', '=', False)]}"/>
+                            <field name="type_id" attrs="{'readonly': [('id', '!=', False)]}"
+                                   options="{'no_open': True, 'no_quick_create': True}"/>
                         </group>
                         <group>
                             <field name="priority" widget="priority"/>
@@ -129,19 +146,14 @@
                                    widget="many2many"
                                    domain="['!', ('id', 'parent_of', id)]">
                                 <tree editable="bottom">
-                                    <field name="name" optional="show"/>
+                                    <field name="name"/>
                                     <field name="user_id" widget="many2one_avatar_user" optional="show" domain="[('share', '=', False), ('active', '=', True)]"/>
                                     <field name="date_deadline" optional="show"/>
-                                    <field name="stage_id" optional="show"/>
+                                    <field name="stage_id"/>
                                     <button name="action_open_task" type="object" title="View Task" string="View Task" class="btn btn-link float-end"/>
                                 </tree>
                             </field>
                         </page>
-<!--                        <page name="report_page" string="Comment">-->
-<!--                            <field name="execution_result" type="html"-->
-<!--                                   options="{'collaborative': true, 'resizable': false}"-->
-<!--                                   placeholder="Comment..."/>-->
-<!--                        </page>-->
                     </notebook>
                 </sheet>
                 <div class="oe_chatter">
@@ -161,15 +173,16 @@
                   decoration-warning="is_closed == False and date_deadline == current_date"
                   decoration-success="is_closed == True"
                   decoration-danger="is_closed == False and date_deadline &lt; current_date">
-                <field name="code" optional="show"/>
-                <field name="type_id" optional="show"/>
-                <field name="name" optional="show" widget="name_with_subtask_count"/>
+                <field name="code"/>
+                <field name="type_id"/>
+                <field name="name" widget="name_with_subtask_count"/>
                 <field name="description" optional="hide"/>
                 <field name="parent_ref" optional="hide"/>
-                <field name="user_id" optional="show" widget="many2one_avatar_user" options='{"no_quick_create": True}'/>
-                <field name="date_deadline" optional="show"/>
-                <field name="date_closed" optional="show"/>
-                <field name="stage_id" optional="show"/>
+                <field name="parent_ref_type" invisible="1"/>
+                <field name="user_id" widget="many2one_avatar_user" options='{"no_quick_create": True}'/>
+                <field name="date_deadline"/>
+                <field name="date_closed"/>
+                <field name="stage_id"/>
                 <field name="is_closed" invisible="1"/>
             </tree>
         </field>
@@ -186,6 +199,7 @@
                 <field name="parent_ref"/>
                 <field name="user_id" widget="many2one_avatar_user"/>
                 <field name="date_deadline"/>
+                <field name="type_id"/>
                 <field name="stage_id"/>
             </calendar>
         </field>
@@ -229,6 +243,18 @@
             </kanban>
         </field>
     </record>
+
+<!--    <record id="task_view_searchpanel" model="ir.ui.view">-->
+<!--        <field name="model">task.task</field>-->
+<!--        <field name="inherit_id" ref="task_view_search"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <xpath expr="/search/group" position="before">-->
+<!--                <searchpanel>-->
+<!--                    <field name="type_id" string="Type"/>-->
+<!--                </searchpanel>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
 
     <record id="action_view_task_id" model="ir.actions.act_window">
         <field name="name">Tasks</field>

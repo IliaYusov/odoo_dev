@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-23 10:58+0000\n"
-"PO-Revision-Date: 2023-07-23 10:58+0000\n"
+"POT-Creation-Date: 2023-08-11 08:39+0000\n"
+"PO-Revision-Date: 2023-08-11 08:39+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -28,6 +28,71 @@ msgstr "(+ %(child_count) задач)"
 #, python-format
 msgid "(+ 1 task)"
 msgstr "(+ 1 задача)"
+
+#. module: task
+#: model:mail.template,body_html:task.mail_template_task_change_stage
+msgid ""
+"<img t-att-src=\"'/logo.png?company=%s' % object.company_id.id\" style=\"box-sizing:border-box;vertical-align:middle;padding: 0px; margin: 0px; height: auto; width: 80px;\" t-att-alt=\"'%s' % object.company_id.name\" width=\"80\">\n"
+"                <div style=\"margin: 16px 0px 16px 0px;\">\n"
+"                    <a t-att-href=\"(object._compute_url())\" style=\"box-sizing:border-box;background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;\">\n"
+"                        View Task\n"
+"                    </a>\n"
+"                </div>\n"
+"                <div style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"                    Dear <span t-field=\"object.create_uid.name\"></span>,\n"
+"                    <br>\n"
+"                    <br>\n"
+"                    <p>\n"
+"                        <span t-field=\"object.write_uid.name\"></span>\n"
+"                        changed the stage of task on:\n"
+"                        <ul>\n"
+"                            <li>Task: \"<t t-esc=\"object.name\"></t>\"\n"
+"                            </li>\n"
+"                            <li>Code:\n"
+"                                <span t-field=\"object.code\"></span>\n"
+"                            </li>\n"
+"                            <li>Stage:\n"
+"                                <span t-field=\"object.date_deadline\"></span>\n"
+"                            </li>\n"
+"                            <li>Deadline:\n"
+"                                <span t-field=\"object.date_deadline\"></span>\n"
+"                            </li>\n"
+"                        </ul>\n"
+"                    </p>\n"
+"                </div>\n"
+"            "
+msgstr ""
+
+#. module: task
+#: model:mail.template,body_html:task.mail_template_task_assigned_notify
+msgid ""
+"<img t-att-src=\"'/logo.png?company=%s' % object.company_id.id\" style=\"box-sizing:border-box;vertical-align:middle;padding: 0px; margin: 0px; height: auto; width: 80px;\" t-att-alt=\"'%s' % object.company_id.name\" width=\"80\">\n"
+"                <div style=\"margin: 16px 0px 16px 0px;\">\n"
+"                    <a t-att-href=\"(object._compute_url())\" style=\"box-sizing:border-box;background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;\">\n"
+"                        View Task\n"
+"                    </a>\n"
+"                </div>\n"
+"                <div style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"                    Dear <span t-field=\"object.user_id.name\"></span>,\n"
+"                    <br>\n"
+"                    <br>\n"
+"                    <p>\n"
+"                        <span t-field=\"object.write_uid.name\"></span>\n"
+"                        has just assigned you the following task:\n"
+"                        <ul>\n"
+"                            <li>Task: \"<t t-esc=\"object.name\"></t>\"\n"
+"                            </li>\n"
+"                            <li>Code:\n"
+"                                <span t-field=\"object.code\"></span>\n"
+"                            </li>\n"
+"                            <li>Deadline:\n"
+"                                <span t-field=\"object.date_deadline\"></span>\n"
+"                            </li>\n"
+"                        </ul>\n"
+"                    </p>\n"
+"                </div>\n"
+"            "
+msgstr ""
 
 #. module: task
 #: model_terms:ir.ui.view,arch_db:task.task_view_form
@@ -76,7 +141,7 @@ msgstr ""
 #: code:addons/task/models/task.py:0
 #, python-format
 msgid "Add attachments for this task"
-msgstr "Добавьте вложение для этой задачи"
+msgstr "Добавьте вложения для этой задачи"
 
 #. module: task
 #: model:res.groups,name:task.group_task_manager
@@ -93,7 +158,7 @@ msgstr "В архиве"
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_task__user_id
 msgid "Assigned"
-msgstr "Назначена"
+msgstr "Исполнитель"
 
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_task__message_attachment_count
@@ -109,6 +174,11 @@ msgstr "Количество вложений"
 #, python-format
 msgid "Attachments"
 msgstr "Документы"
+
+#. module: task
+#: model:ir.model.fields,field_description:task.field_task_task__author_id
+msgid "Author"
+msgstr "Автор"
 
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_stage__bg_color
@@ -219,6 +289,7 @@ msgstr "Комментарий"
 
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_task__company_id
+#: model_terms:ir.ui.view,arch_db:task.task_view_search
 msgid "Company"
 msgstr "Компания"
 
@@ -325,9 +396,9 @@ msgid "Done As"
 msgstr "Выполнено как"
 
 #. module: task
-#: model:ir.model.fields,field_description:task.field_task_task__email_cc
-msgid "Email cc"
-msgstr ""
+#: model:ir.model.fields,field_description:task.field_task_stage__mail_template_id
+msgid "Email Template"
+msgstr "Шаблон письма"
 
 #. module: task
 #. odoo-python
@@ -336,6 +407,13 @@ msgstr ""
 #, python-format
 msgid "Error"
 msgstr ""
+
+#. module: task
+#. odoo-python
+#: code:addons/task/models/task.py:0
+#, python-format
+msgid "Error! You cannot create a recursive hierarchy of tasks."
+msgstr "Ошибка! Вы не можете создать рекурсивную иерархию задач."
 
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_task__execution_result
@@ -348,6 +426,11 @@ msgstr "Результат выполнения"
 #, python-format
 msgid "Execution report"
 msgstr "Результат выполнения"
+
+#. module: task
+#: model:ir.model.fields,field_description:task.field_task_task__actual_executor_id
+msgid "Executor"
+msgstr "Фактический исполнитель"
 
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_task__message_follower_ids
@@ -368,6 +451,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:task.field_task_stage_route__stage_from_id
 msgid "From"
 msgstr "Из"
+
+#. module: task
+#: model_terms:ir.ui.view,arch_db:task.task_view_search
+msgid "Group by..."
+msgstr "Группировать по..."
 
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_task__has_message
@@ -418,6 +506,15 @@ msgstr "Если отмечено, то сообщения требуют Ваш
 #: model:ir.model.fields,help:task.field_task_task__message_has_error
 msgid "If checked, some messages have a delivery error."
 msgstr "Если отмечено, то есть ошибки доставки"
+
+#. module: task
+#: model:ir.model.fields,help:task.field_task_stage__mail_template_id
+msgid ""
+"If set, an email will be automatically sent to the customer when the task "
+"reaches this stage."
+msgstr ""
+"Если установлен, email будет отправлен автоматически отправлен получателю, когда задача "
+"перейдет в этот статус."
 
 #. module: task
 #: model:ir.model.fields,help:task.field_task_stage_route__require_comment
@@ -655,6 +752,11 @@ msgid "Parent Id"
 msgstr "Идентификатор родителя"
 
 #. module: task
+#: model:ir.model.fields,field_description:task.field_task_task__parent_obj_ref
+msgid "Parent Object"
+msgstr "Родитель"
+
+#. module: task
 #. odoo-python
 #: code:addons/task/models/task.py:0
 #: model:ir.model.fields,field_description:task.field_task_task__parent_id
@@ -719,6 +821,11 @@ msgid "Sequence"
 msgstr "Последовательность"
 
 #. module: task
+#: model:mail.template,description:task.mail_template_task_change_stage
+msgid "Set this template on a stage to automate email when tasks reach stages"
+msgstr "Установите этот шаблон для статуса задачи для автоматической отправки email"
+
+#. module: task
 #: model:ir.model.fields,field_description:task.field_task_task__stage_id
 msgid "Stage"
 msgstr "Статус"
@@ -757,11 +864,16 @@ msgid "Stage name must be uniq for task type"
 msgstr "Наименование этапа должно быть уникально для типа задачи"
 
 #. module: task
+#: model:mail.template,subject:task.mail_template_task_change_stage
+msgid "Stage of task {{ object.code }} {{ object.display_name }} was changed"
+msgstr ""
+
+#. module: task
 #: model:ir.actions.act_window,name:task.action_task_type_stages
 #: model:ir.model.fields,field_description:task.field_task_type__stage_ids
 #: model_terms:ir.ui.view,arch_db:task.task_type_view_form
 msgid "Stages"
-msgstr "Этапы"
+msgstr "Статусы"
 
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_type__start_stage_id
@@ -820,18 +932,18 @@ msgstr "Управление задачами"
 #. module: task
 #: model:ir.model,name:task.model_task_stage
 msgid "Task Stage"
-msgstr "Этап задачи"
+msgstr "Статус задачи"
 
 #. module: task
 #: model:ir.model,name:task.model_task_stage_route
 msgid "Task Stage Route"
-msgstr "Маршрут этапа задачи"
+msgstr "Маршрут статуса задачи"
 
 #. module: task
 #: model:ir.actions.act_window,name:task.task_stage_type_action_form
 #: model:ir.ui.menu,name:task.task_stage_type_menu
 msgid "Task Stage Types"
-msgstr "Типы этапов задачи"
+msgstr "Типы статусов задачи"
 
 #. module: task
 #: model_terms:ir.ui.view,arch_db:task.task_view_form
@@ -876,6 +988,21 @@ msgid "Task type name..."
 msgstr "Наименование типа задачи..."
 
 #. module: task
+#: model:mail.template,subject:task.mail_template_task_assigned_notify
+msgid "Task {{ object.code }} {{ object.display_name }} assigned to you"
+msgstr ""
+
+#. module: task
+#: model:mail.template,name:task.mail_template_task_assigned_notify
+msgid "Task: Assigned"
+msgstr "Задача: Назначена"
+
+#. module: task
+#: model:mail.template,name:task.mail_template_task_change_stage
+msgid "Task: Stage Changed"
+msgstr "Задача: Статус изменен"
+
+#. module: task
 #: model:ir.actions.act_window,name:task.action_view_all_task
 #: model:ir.actions.act_window,name:task.action_view_task_id
 #: model:ir.ui.menu,name:task.task_tasks_menu
@@ -885,6 +1012,11 @@ msgstr "Наименование типа задачи..."
 #: model_terms:ir.ui.view,arch_db:task.task_view_tree
 msgid "Tasks"
 msgstr "Мои задачи"
+
+#. module: task
+#: model:mail.template,description:task.mail_template_task_assigned_notify
+msgid "Template to automate email when tasks assigned to user"
+msgstr ""
 
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_task__name
@@ -906,6 +1038,7 @@ msgstr "К выполнению"
 
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_task__type_id
+#: model_terms:ir.ui.view,arch_db:task.task_view_search
 msgid "Type"
 msgstr "Тип"
 
@@ -924,6 +1057,11 @@ msgstr "Типы задач"
 #: model_terms:ir.ui.view,arch_db:task.task_view_search
 msgid "Unassigned"
 msgstr "Неназначенные"
+
+#. module: task
+#: model:ir.model.fields,field_description:task.field_task_task__url
+msgid "Url"
+msgstr ""
 
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_stage__use_custom_colors

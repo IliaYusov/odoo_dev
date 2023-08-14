@@ -21,44 +21,99 @@ RESULT_TYPES = [
 class Task(models.Model):
     _name = "task.task"
     _description = "Task"
-    _inherit = ['mail.thread.cc', 'mail.activity.mixin']
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
     @api.model
     def _selection_parent_model(self):
         return []
 
+    @api.model
+    def _selection_parent_obj_model(self):
+        return []
+
+    def _get_type_domain(self):
+        if self.parent_ref:
+            return [('model_id.model', '=', type(self.parent_ref).__name__)]
+        elif self.parent_ref_type:
+            return [('model_id.model', 'like', self.parent_ref_type + '%')]
+        else:
+            return [('model_id', '=', False)]
+
+    def _get_stage_domain(self):
+        return [('task_type_id', '=', self.type_id)]
+
     code = fields.Char(string='Code', required=True, readonly=True, default=lambda self: _('New'))
     name = fields.Char(string='Title', tracking=True, required=True, index='trigram')
     description = fields.Html(string='Description')
-
-    company_id = fields.Many2one('res.company', string='Company', required=True, default=lambda self: self.env.company)
     priority = fields.Selection(PRIORITIES, string='Priority', default='3', tracking=True)
+
+    author_id = fields.Many2one('res.users', string='Author', required=True, readonly=True,
+                                default=lambda self: self.env.user)
+    company_id = fields.Many2one('res.company', string='Company', required=True, default=lambda self: self.env.company)
     type_id = fields.Many2one('task.type', string='Type', ondelete='restrict', required=True, index=True, copy=True,
-                              tracking=True)
+                              tracking=True, domain=_get_type_domain)
     stage_id = fields.Many2one('task.stage', string='Stage', ondelete='restrict', required=True, index=True,
-                               tracking=True, copy=True)
+                               tracking=True, group_expand='_read_group_stage_ids', domain=_get_stage_domain)
     stage_type_id = fields.Many2one('task.stage.type', related="stage_id.type_id", string="Stage Type",
                                     index=True, readonly=True, store=True)
     stage_routes = fields.Char(compute='_compute_stage_routes', readonly=True)
     is_closed = fields.Boolean(related='stage_id.closed', store=True, index=True, readonly=True)
 
     user_id = fields.Many2one('res.users', string='Assigned', tracking=True)
+    actual_executor_id = fields.Many2one('res.users', string='Executor', readonly=True)
     parent_ref = fields.Reference(string='Parent', ondelete='restrict', selection="_selection_parent_model",
                                   compute="_compute_parent_ref", inverse='_inverse_parent_ref', store=True)
     parent_ref_id = fields.Integer(string="Parent Id", index=True, copy=False)
     parent_ref_type = fields.Char(string="Parent Type", index=True, copy=False)
+
+    parent_obj_ref = fields.Reference(string='Parent Object', selection='_selection_parent_obj_model',
+                                      compute='_compute_parent_obj', readonly=True)
 
     date_deadline = fields.Date(string='Deadline', required="True", index=True, copy=False, tracking=True)
     parent_id = fields.Many2one('task.task', string='Parent Task', copy=True, tracking=True)
     child_ids = fields.One2many('task.task', 'parent_id', string="Sub-tasks")
     subtask_count = fields.Integer("Sub-task Count", compute='_compute_subtask_count')
     child_text = fields.Char(compute="_compute_child_text")
-    date_closed = fields.Date(string='Date Closed', index=True, copy=False)
+    date_closed = fields.Datetime(string='Date Closed', index=True, copy=False)
     execution_result = fields.Html(string='Execution Result')
 
-    # attachment_ids = fields.One2many('ir.attachment', 'res_id', string='Attachments',
-    #                                  domain=[('res_model', '=', 'task.task')])
     attachment_count = fields.Integer(compute='_compute_attachment_count', string='Attachments')
+    url = fields.Char('Url', compute='_get_url')
+
+    @api.constrains('parent_id')
+    def _check_parent_id(self):
+        if not self._check_recursion():
+            raise ValidationError(_('Error! You cannot create a recursive hierarchy of tasks.'))
+
+    @api.model
+    def _read_group_stage_ids(self, stages, domain, order):
+        search_domain = []
+
+        if stages:
+            search_domain = ['task_type_id', 'in', list(set(stages.task_type_id.ids))]
+
+        return self.env['task.stage'].search([search_domain] if any(search_domain) else [], order=order)
+
+    # @api.model
+    # def get_view(self, view_id=None, view_type='form', **options):
+    #     if view_type == 'form' and 'edit' not in self.env.context['params']:
+    #         ctx = dict(self.env.context)
+    #         ctx['params']['edit'] = '0'
+    #         return super().with_context(ctx).get_view(view_id, view_type, **options)
+    #     return super().get_view(view_id, view_type, **options)
+
+    # @api.model
+    # def fields_get(self, allfields=None, attributes=None):
+    #     fields = super().fields_get(allfields=allfields, attributes=attributes)
+    #
+    #     public_fields = {field_name: description for field_name, description in fields.items()}
+    #
+    #     for field_name, description in public_fields.items():
+    #         if field_name == 'description' and not description.get('readonly', False):
+    #             # If the field is not in Writable fields and it is not readonly then we force the readonly to True
+    #             description['readonly'] = True
+    #
+    #     return public_fields
 
     @api.model
     def create(self, vals_list):
@@ -83,22 +138,61 @@ class Task(models.Model):
         # TODO: что-то тут не так
         if res.user_id:
             res.action_create_activity()
+            # res._send_message_notify(self.env.ref('task.mail_template_task_assigned_notify', raise_if_not_found=False))
 
         return res
 
     def write(self, vals):
         user_changed = vals.get('user_id', False) and self.user_id.id != vals['user_id']
-        res = super(Task, self).write(vals)
+        res = super(Task, self.with_context(mail_create_nolog=False)).write(vals)
         if user_changed:
             self.action_create_activity()
+            # self._send_message_notify(self.env.ref('task.mail_template_task_assigned_notify', raise_if_not_found=False))
         return res
 
     def _compute_attachment_count(self):
+        self.env.cr.execute(
+            """
+            WITH attachments AS (
+                SELECT res_id as id, count(*) as count
+                FROM ir_attachment
+                WHERE res_model = 'task.task' AND res_id IN %(task_ids)s
+                GROUP BY res_id                
+            )
+            SELECT id, sum(count)
+            FROM attachments
+            GROUP BY id
+            """,
+            {"task_ids": tuple(self.ids)}
+        )
+        attachments_count = dict(self.env.cr.fetchall())
         for task in self:
-            task.attachment_count = self.env['ir.attachment'].search_count([
-                ('res_model', '=', self._name),
-                ('res_id', '=', task.id)
-            ])
+            task.attachment_count = attachments_count.get(task.id, 0)
+
+    def _compute_url(self):
+        base_url = self.env['ir.config_parameter'].get_param('web.base.url')
+        base_url += '/web#id=%d&view_type=form&model=%s' % (self.id, self._name)
+        return base_url
+
+    def _compute_parent_obj(self):
+        for task in self:
+            task.parent_obj_ref = self.env['document_flow.process.parent_object'].search([
+                ('process_id', '=', task.parent_ref_id)
+            ], limit=1).parent_ref
+
+    def _message_auto_subscribe_followers(self, updated_values, default_subtype_ids):
+        return []
+
+    # @api.constrains('type_id', 'parent_ref', 'parent_ref_type')
+    # def _check_type_id(self):
+    #     for task in self:
+    #         if task.type_id:
+    #             if task.parent_ref:
+    #                 if type(task.parent_ref) != task.type_id.model_id:
+    #                     raise ValidationError(_("Type '%s' of task is incorrect.", task.type_id.name))
+    #             elif task.parent_ref_type:
+    #                 if task.type_id.model_id.name.startswith(task.parent_ref_type):
+    #                     raise ValidationError(_("Type '%s' of task is incorrect.", task.type_id.name))
 
     @api.depends('parent_ref_type', 'parent_ref_id')
     def _compute_parent_ref(self):
@@ -107,6 +201,7 @@ class Task(models.Model):
                 task.parent_ref = '%s,%s' % (task.parent_ref_type, task.parent_ref_id or 0)
             else:
                 task.parent_ref = None
+            return {'domain': {'type_id': task._get_type_domain()}}
 
     def _inverse_parent_ref(self):
         for task in self:
@@ -149,16 +244,21 @@ class Task(models.Model):
 
             task.stage_routes = json.dumps({'routes': routes})
 
-    def action_create_activity(self):
-        return self.env['mail.activity'].create({
-            'display_name': _('You have been assigned to task %s' % self.code),
-            'summary': self.name,
-            'date_deadline': self.date_deadline,
-            'user_id': self.user_id.id,
-            'res_id': self.id,
-            'res_model_id': self.env['ir.model'].search([('model', '=', self._name)]).id,
-            'activity_type_id': self.env.ref('mail.mail_activity_data_todo').id
-        })
+    @api.onchange('parent_ref')
+    def _onchange_parent_ref(self):
+        for task in self:
+            return {'domain': {'type_id': task._get_type_domain()}}
+
+    @api.onchange('type_id')
+    def _onchange_type_id(self):
+        for task in self:
+            if task.type_id and task.type_id.start_stage_id:
+                task.stage_id = task.type_id.start_stage_id
+
+    def _send_message_notify(self, template):
+        if not template:
+            return
+        template.send_mail(self.id, email_layout_xmlid='mail.mail_notification_layout', force_send=True)
 
     def _close_mail_activities(self):
         self.ensure_one()
@@ -171,14 +271,16 @@ class Task(models.Model):
         for activity in activities:
             activity.action_feedback(feedback=self.execution_result)
 
-    def close_task(self, result_type):
-        self.ensure_one()
-        self._close_mail_activities()
-        date_closed = datetime.today()
-        if self.parent_ref:
-            self.parent_ref.sudo().process_task_result(date_closed, result_type=result_type,
-                                                       feedback=self.execution_result)
-        self.write({'date_closed': date_closed})
+    def action_create_activity(self):
+        return self.env['mail.activity'].create({
+            'display_name': _('You have been assigned to task %s' % self.code),
+            'summary': self.name,
+            'date_deadline': self.date_deadline,
+            'user_id': self.user_id.id,
+            'res_id': self.id,
+            'res_model_id': self.env['ir.model'].search([('model', '=', self._name)]).id,
+            'activity_type_id': self.env.ref('mail.mail_activity_data_todo').id
+        })
 
     def action_move_task_along_route(self, route_id):
         self.ensure_one()
@@ -194,6 +296,9 @@ class Task(models.Model):
                     }
                 return action
             self.stage_id = route.stage_to_id.id
+
+            if self.stage_id.mail_template_id:
+                self._send_message_notify(self.stage_id.mail_template_id)
             return None
 
         raise exceptions.UserError(_('Cannot move task (%(task)s) by this route (%(route)s)') %
@@ -202,11 +307,14 @@ class Task(models.Model):
                                        'route': route.display_name
                                    })
 
-    @api.onchange('type_id')
-    def _onchange_type_id(self):
-        for task in self:
-            if task.type_id and task.type_id.start_stage_id:
-                task.stage_id = task.type_id.start_stage_id
+    def close_task(self, result_type):
+        self.ensure_one()
+        self._close_mail_activities()
+        date_closed = fields.Datetime.now()
+        if self.parent_ref:
+            self.parent_ref.sudo().process_task_result(date_closed, result_type=result_type,
+                                                       feedback=self.execution_result)
+        self.write({'date_closed': date_closed, 'actual_executor_id': self.env.user})
 
     def action_open_task(self):
         return {
