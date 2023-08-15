@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="document_flow.processing_chart_process" owl="1">
+        <t t-set="is_self" t-value="process.id == view_process_id"/>
+
+        <section t-if="process_type == 'self'"
+                 t-attf-class="o_process_chart_entry_self_container #{main_processes.length &gt; 0 ? 'o_process_chart_has_main_process' : ''}">
+            <div t-attf-class="o_process_chart_entry o_process_chart_entry_#{process_type} d-flex position-relative py-2 overflow-visible #{main_processes.length &gt; 0 ? 'o_treeEntry' : ''}">
+                <t t-call="document_flow.processing_chart_content">
+                    <t t-set="is_self" t-value="is_self"/>
+                </t>
+            </div>
+        </section>
+
+        <div t-else=""
+             t-attf-class="o_process_chart_entry o_process_chart_entry_#{process_type} o_treeEntry d-flex position-relative py-2 overflow-visible">
+            <t t-call="document_flow.processing_chart_content">
+                <t t-set="is_self" t-value="is_self"/>
+            </t>
+        </div>
+    </t>
+
+    <t t-name="document_flow.processing_chart_content" owl="1">
+        <div class="o_media_left position-relative">
+        <!-- NOTE: Since by the default on not squared images odoo add white borders,
+            use bg-images to get a clean and centred images -->
+            <a t-if="! is_self"
+               class="o_media_object d-block rounded-circle o_process_redirect"
+               t-att-alt="process.name"
+               t-att-data-process-id="process.id"/>
+            <div t-if="is_self"
+                 class="o_media_object d-block rounded-circle border border-info"/>
+        </div>
+
+        <div class="d-flex flex-grow-1 align-items-center justify-content-between position-relative px-3">
+            <a t-if="!is_self" t-att-href="process.link"
+               t-att-data-process-id="process.id">
+                <t t-if="process.date_end">
+                    <t t-set="style" t-value="'color:green'"/>
+                </t>
+                <t t-else="">
+                    <t t-set="style" t-value="'color:black'"/>
+                </t>
+                <b class="o_media_heading m-0 fs-6" t-att-style="style" t-esc="process.name"/>
+            </a>
+            <div t-if="is_self" class="d-flex flex-column">
+                <h5 class="o_media_heading m-0" t-esc="process.name"/>
+            </div>
+            <div t-if="process.tasks.length">
+                <t t-foreach="process.tasks" t-as="task" t-key="task_index">
+                    <t t-call="document_flow.task_chart_content"/>
+                </t>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="document_flow.task_chart_content" owl="1">
+        <div class="d-flex flex-grow-1 align-items-center justify-content-between position-relative px-3">
+            <a t-att-href="task.link" t-att-data-task-id="task.id">
+                <t t-if="task.is_closed">
+                    <t t-set="style" t-value="'color:green'"/>
+                </t>
+                <t t-else="">
+                    <t t-set="style" t-value="'color:black'"/>
+                </t>
+                <b class="o_media_heading m-0 fs-6" t-att-style="style" t-esc="task.name"/>
+                <small class="text-muted fw-bold" t-esc="task.actual_executor"/>
+            </a>
+        </div>
+    </t>
+
+    <t t-name="document_flow.processing_chart" owl="1">
+        <t t-set="process_count" t-value="0"/>
+<!--        <div t-if='main_processes.length &gt; 0' class="o_processing_chart_group_up position-relative">-->
+<!--            <t t-foreach="main_processes" t-as="process" t-key="process_index">-->
+<!--                <t t-set="process_count" t-value="process_count + 1"/>-->
+<!--                <t t-call="document_flow.processing_chart_process">-->
+<!--                    <t t-set="process_type" t-value="'main_process'"/>-->
+<!--                </t>-->
+<!--            </t>-->
+<!--        </div>-->
+
+<!--        <t t-if="sub_processes.length || main_processes.length" t-call="document_flow.processing_chart_process">-->
+<!--            <t t-set="process_type" t-value="'self'"/>-->
+<!--            <t t-set="process" t-value="self"/>-->
+<!--        </t>-->
+
+<!--        <t t-if="!sub_processes.length &amp;&amp; !main_processes.length">-->
+<!--            <div class="alert alert-info" role="alert">-->
+<!--                <p><b>No hierarchy position.</b></p>-->
+<!--                <p>This employee has no manager or subordinate.</p>-->
+<!--                <p>In order to get an organigram, set a manager and save the record.</p>-->
+<!--            </div>-->
+<!--        </t>-->
+
+        <div class="text-center" t-if="sub_processes.length"
+             t-attf-class="o_processing_chart_group_down position-relative">
+            <a class="process_heading" t-esc="process.name"/>
+            <t t-foreach="sub_processes" t-as="process" t-key="process_index">
+                <t t-set="process_count" t-value="process_count + 1"/>
+                <div id="processes" class="text-center">
+                    <div class="vl"></div>
+                    <a class="o_media_heading m-0 fs-6 process" t-esc="process.name"/>
+                    <div t-if="process.tasks.length"
+                        t-attf-class="o_task_chart_group_down position-relative">
+                        <t t-foreach="process.tasks" t-as="task" t-key="task_index">
+                            <div class="vl"></div>
+                            <div id="tasks" class="text-center task_container">
+                                <t t-set="class" t-value=""/>
+                                <t t-set="executor" t-value=""/>
+                                <t t-if="task.is_closed">
+                                    <t t-set="class" t-value="'task_closed'"/>
+                                    <t t-set="executor" t-value="task.actual_executor + ' ' + task.date_closed"/>
+                                    <div class="task_left"/>
+                                </t>
+                                <a class="o_media_heading m-0 fs-6 task" t-att-class="class" t-esc="task.name"/>
+                                <small class="text-muted fw-bold task_right" t-out="executor"/>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </t>
+        </div>
+
+<!--                <t t-if="process_count &lt; 20">-->
+<!--                    <t t-call="document_flow.processing_chart_process">-->
+<!--                        <t t-set="process_type" t-value="'sub'"/>-->
+<!--                    </t>-->
+<!--                </t>-->
+            </t>
+
+<!--            <t t-if="(children.length + managers.length) &gt; 19">-->
+<!--            <div class="o_org_chart_entry o_org_chart_more d-flex overflow-visible">-->
+<!--                <div class="o_media_left position-relative">-->
+<!--                    <a href="#"-->
+<!--                       t-att-data-employee-id="self.id"-->
+<!--                       t-att-data-employee-name="self.name"-->
+<!--                       class="o_org_chart_show_more o_employee_sub_redirect btn btn-link ps-2"-->
+<!--                       t-on-click.prevent="_onEmployeeSubRedirect">See All</a>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </t>-->
+        </div>
+    </t>
+
+<!--    <t t-name="hr_org_chart.hr_orgchart_emp_popover" owl="1">-->
+<!--        <div class="popover o_org_chart_popup" role="tooltip">-->
+<!--            <div class="tooltip-arrow">-->
+<!--            </div>-->
+<!--            <h3 class="popover-header">-->
+<!--            <div class="d-flex align-items-center">-->
+<!--                <span class="flex-shrink-0"-->
+<!--                      t-att-style='"background-image:url(\"/web/image/hr.employee.public/" + props.employee.id + "/avatar_1024/\")"'/>-->
+<!--                <b class="flew-grow-1"><t t-esc="props.employee.name"/></b>-->
+<!--                <a href="#" class="ms-auto o_employee_redirect" t-att-data-employee-id="props.employee.id"-->
+<!--                   t-on-click.prevent="() => this._onEmployeeRedirect(props.employee.id)"><i class="fa fa-external-link" role="img" aria-label='Redirect' title="Redirect"></i></a>-->
+<!--            </div>-->
+<!--        </h3>-->
+<!--            <div class="popover-body">-->
+<!--            <table class="table table-sm table-borderless mb-0">-->
+<!--                <tbody>-->
+<!--                    <tr>-->
+<!--                        <td class="text-end"><b t-esc="props.employee.direct_sub_count"/></td>-->
+<!--                        <td>-->
+<!--                            <a href="#" class="o_employee_sub_redirect" data-type='direct'-->
+<!--                               t-att-data-employee-name="props.employee.name" t-att-data-employee-id="props.employee.id"-->
+<!--                               t-on-click.prevent="_onEmployeeSubRedirect">-->
+<!--                                <b>Direct subordinates</b></a>-->
+<!--                        </td>-->
+<!--                    </tr>-->
+<!--                    <tr>-->
+<!--                        <td class="text-end">-->
+<!--                            <b t-esc="props.employee.indirect_sub_count - props.employee.direct_sub_count"/>-->
+<!--                        </td>-->
+<!--                        <td>-->
+<!--                            <a href="#" class="o_employee_sub_redirect" data-type='indirect'-->
+<!--                               t-att-data-employee-name="props.employee.name" t-att-data-employee-id="props.employee.id"-->
+<!--                               t-on-click.prevent="_onEmployeeSubRedirect">-->
+<!--                                Indirect subordinates</a>-->
+<!--                        </td>-->
+<!--                    </tr>-->
+<!--                    <tr>-->
+<!--                        <td class="text-end"><b t-esc="props.employee.indirect_sub_count"/></td>-->
+<!--                        <td>-->
+<!--                            <a href="#" class="o_employee_sub_redirect" data-type='total'-->
+<!--                               t-att-data-employee-name="props.employee.name" t-att-data-employee-id="props.employee.id"-->
+<!--                               t-on-click.prevent="_onEmployeeSubRedirect">-->
+<!--                                Total</a>-->
+<!--                        </td>-->
+<!--                    </tr>-->
+<!--                </tbody>-->
+<!--            </table>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</t>-->
+
+</templates>
