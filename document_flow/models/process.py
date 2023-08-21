@@ -4,6 +4,7 @@ import json
 from odoo import _, models, fields, api
 from odoo.exceptions import ValidationError
 from datetime import datetime, date, timedelta
+from lxml import etree
 
 ACTION_TYPES = [
     ('review', _('Review')),
@@ -77,6 +78,7 @@ def recompute_sequence_executors(processes):
 class Process(models.Model):
     _name = 'document_flow.process'
     _description = 'Process'
+    _order = 'tree_id'
 
     @api.model
     def _selection_executor_model(self):
@@ -106,6 +108,10 @@ class Process(models.Model):
                                    default=lambda self: self.env.company)
     template_id = fields.Many2one('document_flow.process.template', string='Template')
     parent_id = fields.Many2one('document_flow.process', string='Parent Process', ondelete='cascade', index=True)
+
+    tree_id = fields.Char(string='TreeId', compute='_compute_tree_id', store=True, readonly=False)
+    branch_depth = fields.Integer(string='BranchDepth', compute='_compute_branch_depth')
+
     executor_ids = fields.One2many('document_flow.process.executor', 'process_id', string='Executors')
 
     date_start = fields.Datetime(string='Date Start')
@@ -209,6 +215,29 @@ class Process(models.Model):
                 ('process_id', '=', process.id)
             ], limit=1).parent_ref
 
+    def _compute_tree_id(self):
+        for process in self:
+            if process.parent_id:
+                if process.parent_id.tree_id:
+                    print(process, process.parent_id, process.parent_id.tree_id, str(process.id).zfill(6))
+                    process.tree_id = process.parent_id.tree_id + str(process.id).zfill(6)
+                else:
+                    tree_id = ''
+                    parent = self.env['document_flow.process'].search([('id', '=', process.parent_id.id)], limit=1)
+                    while parent:
+                        tree_id = str(parent.id).zfill(6) + tree_id
+                        parent = self.env['document_flow.process'].search([('id', '=', parent.parent_id.id)], limit=1)
+                    process.tree_id = tree_id + str(process.id).zfill(6)
+            else:
+                process.tree_id = str(process.id).zfill(6)
+
+    def _compute_branch_depth(self):
+        for process in self:
+            if process.parent_id:
+                process.branch_depth = process.parent_id.branch_depth + 1
+            else:
+                process.branch_depth = 0
+
     @api.onchange('sequence')
     def _compute_sequence(self):
         for process in self:
@@ -292,6 +321,66 @@ class Process(models.Model):
                 'message': _("Tasks were created for the following user(s)"),
                 'next': {'type': 'ir.actions.act_window_close'}
             }
+        }
+
+    def line_0(self):
+        pass
+
+    def line_1(self):
+        pass
+
+    def line_2(self):
+        pass
+
+    def line_3(self):
+        pass
+
+    def line_4(self):
+        pass
+
+    def line_5(self):
+        pass
+
+    def action_expand(self):
+        open_list = self.env.context['open_list']
+        expanded_list = self.env.context['expanded_list']
+        print('begin', open_list, expanded_list)
+        if self.id in open_list:
+            open_list.remove(self.id)
+            if self.id in expanded_list:
+                expanded_list.remove(self.id)
+            remove_list = [child.id for child in self.child_ids]
+            while remove_list:
+                new_remove_list = []
+                for child_id in remove_list:
+                    if child_id in open_list:
+                        new_remove_list.extend(child.id for child in self.env['document_flow.process'].search([('id', '=', child_id)]).child_ids)
+                        open_list.remove(child_id)
+                remove_list = new_remove_list
+        else:
+            open_list.append(self.id)
+            if self.id not in expanded_list:
+                expanded_list.append(self.id)
+            add_list = [child.id for child in self.child_ids]
+            while add_list:
+                new_add_list = []
+                for child_id in add_list:
+                    if child_id not in open_list and self.env['document_flow.process'].search([('id', '=', child_id)]) in expanded_list:
+                        new_add_list.extend(child.id for child in self.env['document_flow.process'].search([('id', '=', child_id)]).child_ids)
+                        if self.env['document_flow.process'].search([('id', '=', child_id)]) in expanded_list:
+                            open_list.append(child_id)
+                add_list = new_add_list
+        print('end', open_list, expanded_list)
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Processes',
+            'res_model': 'document_flow.process',
+            'view_type': 'tree',
+            'view_mode': 'tree,form',
+            'limit': 150,
+            'domain': f"['|',('parent_id', '=', False),('parent_id.id', 'in', {open_list})]",
+            'context': {'open_list': open_list, 'expanded_list': expanded_list},
+            'target': 'main',
         }
 
     def start_review_process(self):
@@ -387,6 +476,25 @@ class Process(models.Model):
                     body=feedback,
                     message_type='comment',
                     subtype_xmlid='mail.mt_note')
+
+    @api.model
+    def get_view(self, view_id=None, view_type='form', **options):
+        expanded_list = self.env.context.get('expanded_list') or []
+        res = super().get_view(view_id, view_type, **options)
+        if view_type == 'tree':
+            doc = etree.XML(res['arch'])
+            button_right = doc.xpath("//button[@icon='fa-chevron-right']")
+            button_down = doc.xpath("//button[@icon='fa-chevron-down']")
+            attrs_right = '{' + f'"invisible": ["|", ["child_ids", "=", []], ["id", "in", {expanded_list}]]' + '}'
+            attrs_down = '{' + f'"invisible": ["|", ["child_ids", "=", []], ["id", "not in", {expanded_list}]]' + '}'
+            button_right[0].set('modifiers', attrs_right)
+            button_down[0].set('modifiers', attrs_down)
+            for n in range(6):
+                line = doc.xpath(f"//button[@name='line_{n}']")
+                line_attrs = '{' + f'"invisible": ["|", "&", ["child_ids", "=", []], ["id", "in", {expanded_list}], ["branch_depth", "<=", {n}]]' + '}'
+                line[0].set('modifiers', line_attrs)
+            res['arch'] = etree.tostring(doc, encoding='unicode')
+        return res
 
 
 class ProcessExecutor(models.Model):
