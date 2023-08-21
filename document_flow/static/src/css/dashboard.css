@@ -334,3 +334,8 @@
     margin: 0px;
     color: #0F5F8B;
 }
+
+/*=====================Expanded Tree===========================*/
+
+.table td {
+padding:0px 5px 0px 5px; }

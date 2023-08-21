@@ -15,7 +15,10 @@
     <menuitem id="document_flow_menu_process" parent="document_flow_menu" name="Processes" sequence="20"
               action="action_view_all_process" groups="document_flow.group_document_flow_manager"/>
 
-    <menuitem id="document_flow_menu_event" parent="document_flow_menu" name="Events" sequence="30"
+    <menuitem id="document_flow_menu_expanded_tree" parent="document_flow_menu" name="Expanded Tree" sequence="30"
+              action="action_view_all_expanded_tree"/>
+
+    <menuitem id="document_flow_menu_event" parent="document_flow_menu" name="Events" sequence="40"
               action="action_view_all_event"/>
 
     <menuitem id="document_flow_menu_configuration" parent="document_flow_menu" sequence="100" name="Configuration"
