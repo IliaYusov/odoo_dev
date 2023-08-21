@@ -23,7 +23,13 @@
     <menuitem id="document_flow_menu_process_template" parent="document_flow_menu_configuration"
               name="Process Templates" sequence="0"
               action="action_view_all_process_template"/>
-    <menuitem id="menu_management_committee" parent="document_flow_menu_configuration" sequence="10"
+    <menuitem id="menu_executor_role" parent="document_flow_menu_configuration" sequence="10"
+              name="Roles Of Executors"
+              action="action_document_flow_role_executor_all_roles"/>
+    <menuitem id="menu_replacement_employee" parent="document_flow_menu_configuration" sequence="11"
+              name="Replacements Of The Employees"
+              action="hr_replacement.action_hr_employee_replacement_all_replacements"/>
+    <menuitem id="menu_management_committee" parent="document_flow_menu_configuration" sequence="20"
               name="Management Committees"
               action="action_view_all_management_committee"/>
 </odoo>

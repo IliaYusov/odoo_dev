@@ -51,47 +51,46 @@
                             <field name="name" placeholder="Process Title..." attrs="{'readonly': [('state', '!=', 'on_registration')]}"/>
                         </h1>
                     </div>
-                    <group col="3">
-                        <group>
-                            <field name="type" attrs="{'readonly': [('state', '!=', 'on_registration')]}"/>
-                        </group>
-                        <group>
-                            <field name="template_id" attrs="{'readonly': [('state', '!=', 'on_registration')]}"/>
-                        </group>
-                        <group>
-                            <field name="company_ids" widget="many2many_tags" groups="base.group_multi_company"/>
-                        </group>
-                    </group>
-                    <group>
-                        <field name="parent_id" attrs="{'invisible': ['|', ('parent_id', '=', False), ('parent_obj_ref', '!=', False)], 'readonly': [('state', '!=', 'on_registration')]}"/>
-                    </group>
-                    <group>
-                        <field name="parent_obj_ref" attrs="{'invisible': [('parent_obj_ref', '=', False)]}"/>
-                    </group>
-                    <group col="2" attrs="{'invisible': [('type', '!=', 'execution')], 'readonly': [('state', '!=', 'on_registration')]}">
-                        <group>
-                            <field name="reviewer_ref"/>
-                        </group>
-                        <group>
-                            <field name="date_deadline" widget="date"/>
-                        </group>
-                    </group>
-                    <group attrs="{'invisible': [('type', '!=', 'complex')]}">
-                        <field name="controller_ref" attrs="{'readonly': [('state', '!=', 'on_registration')]}"/>
-                    </group>
-                    <group>
-                        <field name="description" string="Description" type="html" class="text_high"
-                               options="{'collaborative': true, 'resizable': false}"
-                               placeholder="Description..."
-                               attrs="{'readonly': [('state', '!=', 'on_registration')]}"/>
-                    </group>
-<!--                    <div>-->
-<!--    <field name="bokeh_chart" widget="bokeh_chart" nolabel="1"/>-->
-<!--</div>-->
-                    <div id="o_process_right" class="col-lg-4 px-0 ps-lg-5">
-                        <separator string="Process Chart"/>
-                        <field name="child_ids" class="position-relative" widget="processing_chart" readonly="1"
-                               nolabel="1"/>
+                    <div id="o_process_container" class="d-lg-flex">
+                        <div id="o_process_main" class="flex-grow-1">
+                            <group col="3">
+                                <group>
+                                    <field name="type" attrs="{'readonly': [('state', '!=', 'on_registration')]}"/>
+                                </group>
+                                <group>
+                                    <field name="template_id" attrs="{'readonly': [('state', '!=', 'on_registration')]}"/>
+                                </group>
+                                <group>
+                                    <field name="company_ids" widget="many2many_tags" groups="base.group_multi_company"/>
+                                </group>
+                            </group>
+                            <group>
+                                <field name="parent_id" attrs="{'invisible': ['|', ('parent_id', '=', False), ('parent_obj_ref', '!=', False)], 'readonly': [('state', '!=', 'on_registration')]}"/>
+                            </group>
+                            <group>
+                                <field name="parent_obj_ref" attrs="{'invisible': [('parent_obj_ref', '=', False)]}"/>
+                            </group>
+                            <group col="2" attrs="{'invisible': [('type', '!=', 'execution')], 'readonly': [('state', '!=', 'on_registration')]}">
+                                <group>
+                                    <field name="reviewer_ref"/>
+                                </group>
+                                <group>
+                                    <field name="date_deadline" widget="date"/>
+                                </group>
+                            </group>
+                            <group attrs="{'invisible': [('type', '!=', 'complex')]}">
+                                <field name="controller_ref" attrs="{'readonly': [('state', '!=', 'on_registration')]}"/>
+                            </group>
+                            <group>
+                                <field name="description" string="Description" type="html" class="text_high"
+                                       options="{'collaborative': true, 'resizable': false}"
+                                       placeholder="Description..."
+                                       attrs="{'readonly': [('state', '!=', 'on_registration')]}"/>
+                            </group>
+                        </div>
+                        <div id="o_process_right" class="col-lg-4 px-0 ps-lg-5 pe-lg-0" string="Processing Chart">
+                            <field name="child_ids" class="position-relative" widget="processing_chart" readonly="1" nolabel="1"/>
+                        </div>
                     </div>
                     <notebook>
                         <page name="executors_page" string="Executors" attrs="{'invisible': [('type', '=', 'complex')]}">

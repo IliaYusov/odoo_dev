@@ -241,13 +241,18 @@ class report_svod_excel(models.AbstractModel):
         if project_etalon:  # если эталона нет, то считаем, что и переноса нет - все в новое пойдет
             if (project_etalon.estimated_probability_id.name in ('50', '75', '100','100(done)')) and (
                     project.estimated_probability_id.name in ('50', '75', '100','100(done)')):  # только 50 и 75  смотрим
-                if project_etalon.end_presale_project_month.year == self.YEARint \
-                        and project.total_amount_of_revenue_with_vat == 0 \
-                        and project_etalon.total_amount_of_revenue_with_vat != 0:  # если эталон в этом году, то начинаем работать, далее только если 0 стало, а в эталоне не 0 считаем переносом
+                if project_etalon.end_presale_project_month.year == self.YEARint:
+
+                        #вот тут какая то муть была....
+                        # and project.total_amount_of_revenue_with_vat == 0 \
+                        # and project_etalon.total_amount_of_revenue_with_vat != 0:  # если эталон в этом году, то начинаем работать, далее только если 0 стало, а в эталоне не 0 считаем переносом
+                        #
+
                     if project_etalon.end_presale_project_month.year != project.end_presale_project_month.year:  # если поменялся год, то это перенос года
                         sum_year = project_etalon.total_amount_of_revenue_with_vat
 
-                    if project_etalon.end_presale_project_quarter != project.end_presale_project_quarter:  # перенесли квартал не важно куда
+                    if project_etalon.end_presale_project_month.year == project.end_presale_project_month.year and \
+                       project_etalon.end_presale_project_quarter != project.end_presale_project_quarter:  # перенесли квартал не важно куда
                         if project_etalon.end_presale_project_month.month in (
                         1, 2, 3):  # а вот смотрим месяц попадания по эталонному бюджету
                             sum_q1 += project_etalon.total_amount_of_revenue_with_vat
@@ -1165,7 +1170,7 @@ class report_svod_excel(models.AbstractModel):
                                                                            order='name')  # для сортировки так делаем
         project_managers = self.env['project_budget.project_manager'].search([],
                                                                              order='name')  # для сортировки так делаем
-        estimated_probabilitys = self.env['project_budget.estimated_probability'].search([],order='name desc')  # для сортировки так делаем
+        estimated_probabilitys = self.env['project_budget.estimated_probability'].search([('name','!=','10')],order='name desc')  # для сортировки так делаем
 
         isFoundProjects = False
         begRowProjectsByManager = 0
@@ -1345,5 +1350,11 @@ class report_svod_excel(models.AbstractModel):
         #     sheet.write_formula(row, colFormula, formula, row_format_number_itogo)
 
     def generate_xlsx_report(self, workbook, data, budgets):
-        for budget in budgets:
-            self.printworksheet(workbook, budget, 'Прогноз')
+        global strYEAR
+        strYEAR = data['year']
+        global YEARint
+        YEARint = int(strYEAR)
+        commercial_budget_id = data['commercial_budget_id']
+        budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
+
+        self.printworksheet(workbook, budget, 'Прогноз')

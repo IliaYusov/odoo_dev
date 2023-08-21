@@ -45,6 +45,8 @@ class project_steps(models.Model):
     is_warranty_service_costs = fields.Boolean(related='project_steps_type_id.is_warranty_service_costs', readonly=True)
     is_rko_other = fields.Boolean(related='project_steps_type_id.is_rko_other', readonly=True)
     is_other_expenses = fields.Boolean(related='project_steps_type_id.is_other_expenses', readonly=True)
+    legal_entity_signing_id = fields.Many2one(related='projects_id.legal_entity_signing_id', readonly=True)
+    is_percent_fot_manual = fields.Boolean(related='legal_entity_signing_id.is_percent_fot_manual', readonly=True)
 
     # vat_attribute_id = fields.Many2one('project_budget.vat_attribute', string='vat_attribute', copy=True, required=True
     #                                     ,default = lambda self: self.env['project_budget.vat_attribute'].search([],limit=1))
@@ -75,7 +77,8 @@ class project_steps(models.Model):
     transportation_expenses = fields.Monetary(string='transportation_expenses')
     travel_expenses = fields.Monetary(string='travel_expenses')
     representation_expenses = fields.Monetary(string='representation_expenses')
-    taxes_fot_premiums = fields.Monetary(string='taxes_FOT and premiums', compute='_compute_spec_totals', store=True,
+
+    taxes_fot_premiums = fields.Monetary(string='taxes_FOT and premiums',  store=True,
                                          tracking=True)
     warranty_service_costs = fields.Monetary(string='Warranty service costs')
     rko_other = fields.Monetary(string='rko_other')
@@ -117,17 +120,18 @@ class project_steps(models.Model):
     @api.depends("revenue_from_the_sale_of_works", 'revenue_from_the_sale_of_goods', 'cost_of_goods', 'own_works_fot',
                  'third_party_works', "awards_on_results_project", 'transportation_expenses', 'travel_expenses',
                  'representation_expenses',"warranty_service_costs", 'rko_other', 'other_expenses', 'vat_attribute_id',
-                 'projects_id.legal_entity_signing_id')
+                 'projects_id.legal_entity_signing_id', 'taxes_fot_premiums')
     def _compute_spec_totals(self):
         for budget_spec in self:
             budget_spec.total_amount_of_revenue = budget_spec.revenue_from_the_sale_of_works + budget_spec.revenue_from_the_sale_of_goods
-            budget_spec.taxes_fot_premiums = (
-                                                         budget_spec.awards_on_results_project + budget_spec.own_works_fot) * budget_spec.projects_id.legal_entity_signing_id.percent_fot / 100
+
             budget_spec.cost_price = budget_spec.cost_of_goods + budget_spec.own_works_fot + budget_spec.third_party_works + budget_spec.awards_on_results_project
             budget_spec.cost_price = budget_spec.cost_price + budget_spec.transportation_expenses + budget_spec.travel_expenses + budget_spec.representation_expenses
             budget_spec.cost_price = budget_spec.cost_price + budget_spec.warranty_service_costs + budget_spec.rko_other + budget_spec.other_expenses
-            budget_spec.cost_price = budget_spec.cost_price + (
-                        budget_spec.awards_on_results_project + budget_spec.own_works_fot) * budget_spec.projects_id.legal_entity_signing_id.percent_fot / 100
+            if budget_spec.is_percent_fot_manual == False:
+                budget_spec.taxes_fot_premiums = (budget_spec.awards_on_results_project + budget_spec.own_works_fot) * budget_spec.projects_id.legal_entity_signing_id.percent_fot / 100
+            budget_spec.cost_price = budget_spec.cost_price + budget_spec.taxes_fot_premiums
+
             budget_spec.margin_income = budget_spec.total_amount_of_revenue - budget_spec.cost_price
 
             budget_spec.total_amount_of_revenue_with_vat = (budget_spec.revenue_from_the_sale_of_works + budget_spec.revenue_from_the_sale_of_goods) * (1 + budget_spec.vat_attribute_id.percent / 100)

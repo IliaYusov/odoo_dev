@@ -3,7 +3,6 @@ from odoo.http import request
 
 
 class DocumentFlowTasks(http.Controller):
-
     @http.route(['/document_flow/tasks'], type="json", auth="user")
     def elearning_snippet(self):
         tasks = []

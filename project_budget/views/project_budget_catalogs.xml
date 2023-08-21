@@ -1,5 +1,97 @@
 <odoo>
     <data>
+
+<!-- tender_comments_type -->
+        <record id="show_project_tender_comments_type_tree" model="ir.ui.view">
+            <field name="name">project_budget.tender_comments_type.tree</field>
+            <field name="model">project_budget.tender_comments_type</field>
+            <field name="arch" type="xml">
+                <tree string="tender comments type">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="descr"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="show_project_tender_comments_type_form" model="ir.ui.view">
+            <field name="name">project_budget.tender_comments_type.form</field>
+            <field name="model">project_budget.tender_comments_type</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet string="tender comments type">
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                            <field name="descr" widget="html"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="show_project_tender_comments_type" model="ir.actions.act_window">
+            <field name="name">tender_comments_type</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">project_budget.tender_comments_type</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'search_default_group_by_provider': True}</field>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a new tender comments type
+              </p><p>
+                each tender have comments with type
+              </p>
+            </field>
+        </record>
+    <!-- end tender_comments_type-->
+    <!-- tender_current_status -->
+        <record id="show_project_tender_current_status_tree" model="ir.ui.view">
+            <field name="name">project_budget.tender_current_status.tree</field>
+            <field name="model">project_budget.tender_current_status</field>
+            <field name="arch" type="xml">
+                <tree string="tender_current_status">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="descr"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="show_project_tender_current_status_form" model="ir.ui.view">
+            <field name="name">project_budget.tender_current_status.form</field>
+            <field name="model">project_budget.tender_current_status</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet string="tender current status">
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                            <field name="descr" widget="html"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="show_project_tender_current_status" model="ir.actions.act_window">
+            <field name="name">tender_current_status</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">project_budget.tender_current_status</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'search_default_group_by_provider': True}</field>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a new tender current status
+              </p><p>
+                each tender have status
+              </p>
+            </field>
+        </record>
+<!-- end tender_current_status-->
+
+
+
         <!-- project_office -->
         <record id="show_project_office_tree" model="ir.ui.view">
             <field name="name">project_budget.project_office.tree</field>
@@ -17,6 +109,7 @@
                     <field name="receive_tasks_for_approve_project" widget="boolean_toggle"/>
                     <field name="isRukovoditel_required_in_project" widget="boolean_toggle"/>
                     <field name="print_rukovoditel_in_kb" widget="boolean_toggle"/>
+                    <field name="is_prohibit_selection" widget="boolean_toggle"/>
                 </tree>
             </field>
         </record>
@@ -39,6 +132,7 @@
                             <field name="receive_tasks_for_approve_project" widget="boolean_toggle"/>
                             <field name="isRukovoditel_required_in_project" widget="boolean_toggle"/>
                             <field name="print_rukovoditel_in_kb" widget="boolean_toggle"/>
+                            <field name="is_prohibit_selection" widget="boolean_toggle"/>
                         </group>
                     </sheet>
                 </form>
@@ -433,6 +527,7 @@
                     <field name="code"/>
                     <field name="percent_fot"/>
                     <field name="descr"/>
+                    <field name="is_percent_fot_manual" widget="boolean_toggle"/>
                 </tree>
             </field>
         </record>
@@ -443,14 +538,19 @@
             <field name="arch" type="xml">
                 <form>
                     <sheet string="legal_entity_signing">
-                            <group>
-                                    <field name="name"/>
-                                    <field name="code"/>
-                            </group>
-                            <group>
-                                <field name="percent_fot" placeholder="enter FOT percent. e.g. 25"/>
-                                <field name="descr" widget="html"/>
-                            </group>
+                        <group>
+                                <field name="name"/>
+                                <field name="code"/>
+                        </group>
+                        <group>
+                            <field name="is_percent_fot_manual" widget="boolean_toggle"/>
+                            <field name="percent_fot" placeholder="enter FOT percent. e.g. 25"
+                                   attrs="{'invisible': [('is_percent_fot_manual', '=', True)]}"
+                            />
+                        </group>
+                        <group>
+                            <field name="descr" widget="html"/>
+                        </group>
                     </sheet>
                 </form>
             </field>
@@ -657,26 +757,51 @@
                 <field name="sum_cost_price_total"/>
                 <templates>
                     <t t-name="kanban-box">
-                        <div t-if="['0', '30', '50','75','100','100(done)'].indexOf(record.name.raw_value) > -1" t-attf-class="#{!selection_mode ? kanban_color(record.color.raw_value) : ''}" name="estimated_probability">
+                        <div t-if="['0','10', '30', '50','75','100','100(done)'].indexOf(record.name.raw_value) > -1" t-attf-class="#{!selection_mode ? kanban_color(record.color.raw_value) : ''}" name="estimated_probability">
                             <div t-attf-class="o_kanban_card_header">
                                 <div class="o_kanban_card_header_title">
-                                    <div class="o_primary" t-if="['30', '50','75','100'].indexOf(record.name.raw_value) > -1">
-                                        <a>
-                                            probability
-                                            <field name="name"></field>
-                                        </a>
-                                    </div>
+<!--                                    <div class="o_primary" t-if="['30', '50','75','100'].indexOf(record.name.raw_value) > -1">-->
+<!--                                        <a>-->
+<!--                                            probability-->
+<!--                                            <field name="name"></field>-->
+<!--                                        </a>-->
+<!--                                    </div>-->
+
                                     <div class="o_primary" t-if="['0'].indexOf(record.name.raw_value) > -1">
                                         <a>
-                                            Canceled
+                                            Canceled, 0%
+                                        </a>
+                                    </div>
+                                    <div class="o_primary" t-if="['10'].indexOf(record.name.raw_value) > -1">
+                                        <a>
+                                            Potential, 10%
+                                        </a>
+                                    </div>
+                                    <div class="o_primary" t-if="['30'].indexOf(record.name.raw_value) > -1">
+                                        <a>
+                                            Opportunity, 30%
+                                        </a>
+                                    </div>
+                                    <div class="o_primary" t-if="['50'].indexOf(record.name.raw_value) > -1">
+                                        <a>
+                                            Reserve, 50%
+                                        </a>
+                                    </div>
+                                    <div class="o_primary" t-if="['75'].indexOf(record.name.raw_value) > -1">
+                                        <a>
+                                            Commitment, 75%
+                                        </a>
+                                    </div>
+                                    <div class="o_primary" t-if="['100'].indexOf(record.name.raw_value) > -1">
+                                        <a>
+                                            Execution, 100%
                                         </a>
                                     </div>
                                     <div class="o_primary" t-if="['100(done)'].indexOf(record.name.raw_value) > -1">
                                         <a>
-                                            Done
+                                            Done, 100(done)
                                         </a>
                                     </div>
-
                                 </div>
                                 <div class="o_kanban_manage_button_section" t-if="!selection_mode">
                                     <a class="o_kanban_manage_toggle_button" href="#"><i class="fa fa-ellipsis-v" role="img" aria-label="Manage" title="Manage"/></a>
@@ -689,6 +814,12 @@
                                             <span>Projects: <t t-esc="record.count_approve_state_total.value"/></span>
                                         </button>
                                     </div>
+                                    <div t-if="record.name.raw_value == '10'" class="col-6 o_kanban_primary_left">
+                                        <button class="btn btn-warning" name="get_action_projects_10" type="object">
+                                            <span>Projects: <t t-esc="record.count_approve_state_total.value"/></span>
+                                        </button>
+                                    </div>
+
                                     <div t-if="record.name.raw_value == '30'" class="col-6 o_kanban_primary_left">
                                         <button class="btn btn-primary" name="get_action_projects_30" type="object">
                                             <span>Projects: <t t-esc="record.count_approve_state_total.value"/></span>

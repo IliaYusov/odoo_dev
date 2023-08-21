@@ -10,33 +10,40 @@
             <field name="lang">{{ object.user_id.lang }}</field>
             <field name="auto_delete" eval="True"/>
             <field name="body_html" type="html">
-                <img t-att-src="'/logo.png?company=%s' % object.company_id.id"
-                     style="box-sizing:border-box;vertical-align:middle;padding: 0px; margin: 0px; height: auto; width: 80px;"
-                     t-att-alt="'%s' % object.company_id.name" width="80"/>
-                <div style="margin: 16px 0px 16px 0px;">
-                    <a t-att-href="(object._compute_url())"
-                       style="box-sizing:border-box;background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;">
-                        View Task
-                    </a>
-                </div>
+                <table cols="1" cellpadding="12"
+                       style="box-sizing:border-box;border-collapse:collapse;caption-side:bottom;">
+                    <tbody style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;border-left-color:inherit;border-bottom-color:inherit;border-right-color:inherit;border-top-color:inherit;">
+                        <tr style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;border-left-color:inherit;border-bottom-color:inherit;border-right-color:inherit;border-top-color:inherit;">
+                            <td align="center" bgcolor="0f5f8b"
+                                style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;border-left-color:inherit;border-bottom-color:inherit;border-right-color:inherit;border-top-color:inherit;">
+                                <a t-att-href="(object._compute_url())"
+                                   style="text-decoration:none;box-sizing:border-box;color: #fff; font-size:13px; font-family:sans-serif;">
+                                    <span style="text-transform:uppercase">View Task</span>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
                 <div style="margin: 0px; padding: 0px; font-size: 13px;">
-                    Dear <span t-field="object.user_id.name"/>,
+                    <br/>
+                    Dear <t t-out="object.user_id.name or ''">user</t>,
                     <br/>
                     <br/>
-                    <p>
-                        <span t-field="object.write_uid.name"/>
+                    <p style="margin:0px 0 12px 0;box-sizing:border-box;">
+                        <t t-out="object.author_id.name or ''">author</t>,
                         has just assigned you the following task:
-                        <ul>
-                            <li>Task: "<t t-esc="object.name"/>"
-                            </li>
-                            <li>Code:
-                                <span t-field="object.code"/>
-                            </li>
-                            <li>Deadline:
-                                <span t-field="object.date_deadline"/>
-                            </li>
-                        </ul>
                     </p>
+                    <ul style="padding:0 0 0 24px;margin:0px 0 12px 0;box-sizing:border-box;">
+                        <li>Subject: "<t t-esc="object.name">Task subject</t>"
+                        </li>
+                        <li>Priority: <t t-esc="object.priority">Medium</t>
+                        </li>
+                        <li>Deadline: <t t-esc="object.date_deadline">01.01.2023</t>
+                        </li>
+                        <li>Description: <t t-esc="object.description or ''">Description</t>
+                        </li>
+                    </ul>
+                    <p style="margin:0px 0 12px 0;box-sizing:border-box;"></p>
                 </div>
             </field>
         </record>
@@ -50,36 +57,40 @@
             <field name="lang">{{ object.create_uid.lang }}</field>
             <field name="auto_delete" eval="True"/>
             <field name="body_html" type="html">
-                <img t-att-src="'/logo.png?company=%s' % object.company_id.id"
-                     style="box-sizing:border-box;vertical-align:middle;padding: 0px; margin: 0px; height: auto; width: 80px;"
-                     t-att-alt="'%s' % object.company_id.name" width="80"/>
-                <div style="margin: 16px 0px 16px 0px;">
-                    <a t-att-href="(object._compute_url())"
-                       style="box-sizing:border-box;background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;">
-                        View Task
-                    </a>
-                </div>
+                <table cols="1" cellpadding="12"
+                       style="box-sizing:border-box;border-collapse:collapse;caption-side:bottom;">
+                    <tbody style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;border-left-color:inherit;border-bottom-color:inherit;border-right-color:inherit;border-top-color:inherit;">
+                        <tr style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;border-left-color:inherit;border-bottom-color:inherit;border-right-color:inherit;border-top-color:inherit;">
+                            <td align="center" bgcolor="0f5f8b"
+                                style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;border-left-color:inherit;border-bottom-color:inherit;border-right-color:inherit;border-top-color:inherit;">
+                                <a t-att-href="(object._compute_url())"
+                                   style="text-decoration:none;box-sizing:border-box;color: #fff; font-size:13px; font-family:sans-serif;">
+                                    <span style="text-transform:uppercase">View Task</span>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
                 <div style="margin: 0px; padding: 0px; font-size: 13px;">
-                    Dear <span t-field="object.create_uid.name"/>,
+                    <br/>
+                    Dear <t t-out="object.author_id.name or ''">author</t>,
                     <br/>
                     <br/>
-                    <p>
-                        <span t-field="object.write_uid.name"/>
-                        changed the stage of task on:
-                        <ul>
-                            <li>Task: "<t t-esc="object.name"/>"
-                            </li>
-                            <li>Code:
-                                <span t-field="object.code"/>
-                            </li>
-                            <li>Stage:
-                                <span t-field="object.date_deadline"/>
-                            </li>
-                            <li>Deadline:
-                                <span t-field="object.date_deadline"/>
-                            </li>
-                        </ul>
+                    <p style="margin:0px 0 12px 0;box-sizing:border-box;">
+                        <t t-out="object.write_uid.name or ''">user</t>,
+                        changed the stage of task on: <t t-out="object.stage_id.name or ''">In Progress</t>
                     </p>
+                    <ul style="padding:0 0 0 24px;margin:0px 0 12px 0;box-sizing:border-box;">
+                        <li>Subject: "<t t-esc="object.name">Task subject</t>"
+                        </li>
+                        <li>Priority: <t t-esc="object.priority">Medium</t>
+                        </li>
+                        <li>Deadline: <t t-esc="object.date_deadline">01.01.2023</t>
+                        </li>
+                        <li>Description: <t t-esc="object.description or ''">Description</t>
+                        </li>
+                    </ul>
+                    <p style="margin:0px 0 12px 0;box-sizing:border-box;"></p>
                 </div>
             </field>
         </record>

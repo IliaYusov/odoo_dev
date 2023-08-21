@@ -13,3 +13,4 @@ from . import distribution_acceptance
 from . import distribution_cash
 from . import budget_plan_supervisor
 from . import budget_plan_kam
+from . import tenders
