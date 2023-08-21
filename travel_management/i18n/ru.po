@@ -1,0 +1,216 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* travel_management
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0-20230218\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-02-25 13:27+0000\n"
+"PO-Revision-Date: 2023-02-25 13:27+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: travel_management
+#: model_terms:ir.ui.view,arch_db:travel_management.view_travel_form
+msgid "Add a line"
+msgstr "Добавить строку"
+
+#. module: travel_management
+#: model:ir.model.fields,field_description:travel_management.field_travel_lines__create_uid
+#: model:ir.model.fields,field_description:travel_management.field_travel_travel__create_uid
+msgid "Created by"
+msgstr "Создан пользователем"
+
+#. module: travel_management
+#: model:ir.model.fields,field_description:travel_management.field_travel_lines__create_date
+#: model:ir.model.fields,field_description:travel_management.field_travel_travel__create_date
+msgid "Created on"
+msgstr "Дата создания"
+
+#. module: travel_management
+#: model_terms:ir.actions.act_window,help:travel_management.action_travel
+msgid "Define a new delivery method"
+msgstr "Определите новый способ доставки"
+
+#. module: travel_management
+#: model:ir.model.fields,field_description:travel_management.field_travel_lines__product_id
+msgid "Delivery Product"
+msgstr "Продукт"
+
+#. module: travel_management
+#: model:ir.model.fields,field_description:travel_management.field_travel_lines__descr
+msgid "Description"
+msgstr "Описание"
+
+#. module: travel_management
+#: model:ir.model.fields,field_description:travel_management.field_travel_lines__display_name
+#: model:ir.model.fields,field_description:travel_management.field_travel_travel__display_name
+msgid "Display Name"
+msgstr "Отображаемое имя"
+
+#. module: travel_management
+#: model_terms:ir.ui.view,arch_db:travel_management.view_travel_tree
+msgid "Document"
+msgstr "Документ"
+
+#. module: travel_management
+#: model:ir.model.fields,field_description:travel_management.field_travel_travel__doc_date
+msgid "Document date"
+msgstr "Дата документа"
+
+#. module: travel_management
+#: model:ir.model.fields,field_description:travel_management.field_travel_travel__descr
+msgid "Document description"
+msgstr "Описание документа"
+
+#. module: travel_management
+#: model:ir.model.fields,field_description:travel_management.field_travel_travel__doc_number
+msgid "Document number"
+msgstr "Номер документа"
+
+#. module: travel_management
+#: model:ir.actions.act_window,name:travel_management.action_travel
+#: model:ir.ui.menu,name:travel_management.travel_records_menu
+#: model:ir.ui.menu,name:travel_management.travel_records_menu_2
+msgid "Documents"
+msgstr "Документы"
+
+#. module: travel_management
+#: model_terms:ir.actions.act_window,help:travel_management.action_travel
+msgid ""
+"Each carrier (e.g. UPS) can have several delivery methods (e.g.\n"
+"                UPS Express, UPS Standard) with a set of pricing rules attached\n"
+"                to each method."
+msgstr ""
+"Добавьте новый документ\n"
+"                ."
+
+#. module: travel_management
+#: model:ir.model.fields,field_description:travel_management.field_travel_lines__travel_id
+msgid "Head Travel"
+msgstr "Документ"
+
+#. module: travel_management
+#: model:ir.model.fields,field_description:travel_management.field_travel_lines__id
+#: model:ir.model.fields,field_description:travel_management.field_travel_travel__id
+msgid "ID"
+msgstr "ID"
+
+#. module: travel_management
+#: model:ir.model.fields,field_description:travel_management.field_travel_lines____last_update
+#: model:ir.model.fields,field_description:travel_management.field_travel_travel____last_update
+msgid "Last Modified on"
+msgstr "Дата последней модификации"
+
+#. module: travel_management
+#: model:ir.model.fields,field_description:travel_management.field_travel_lines__write_uid
+#: model:ir.model.fields,field_description:travel_management.field_travel_travel__write_uid
+msgid "Last Updated by"
+msgstr "Автор обновления"
+
+#. module: travel_management
+#: model:ir.model.fields,field_description:travel_management.field_travel_lines__write_date
+#: model:ir.model.fields,field_description:travel_management.field_travel_travel__write_date
+msgid "Last Updated on"
+msgstr "Дата последнего обновления"
+
+#. module: travel_management
+#: model:ir.model.fields,field_description:travel_management.field_travel_lines__npp
+msgid "Npp"
+msgstr "№ п/п"
+
+#. module: travel_management
+#: model:ir.model.fields,field_description:travel_management.field_travel_travel__travel_line_ids
+msgid "Order Lines"
+msgstr "Спецификация"
+
+#. module: travel_management
+#: model:ir.model.fields,field_description:travel_management.field_travel_lines__line_price
+msgid "Price"
+msgstr "Цена"
+
+#. module: travel_management
+#: model:ir.model.fields,field_description:travel_management.field_travel_lines__line_quantity
+msgid "Quantity"
+msgstr "Количество"
+
+#. module: travel_management
+#: model_terms:ir.ui.view,arch_db:travel_management.sale_order_line_view_form_readonly
+msgid "Sales Order Item"
+msgstr ""
+
+#. module: travel_management
+#: model_terms:ir.ui.view,arch_db:travel_management.view_travel_line_tree
+msgid "Sales Order Lines"
+msgstr ""
+
+#. module: travel_management
+#: model_terms:ir.ui.view,arch_db:travel_management.view_travel_form
+msgid "Sales travel Lines"
+msgstr ""
+
+#. module: travel_management
+#: model:ir.ui.menu,name:travel_management.travel_menu
+msgid "Test module"
+msgstr "Тестовый модуль"
+
+#. module: travel_management
+#: model_terms:ir.actions.act_window,help:travel_management.action_travel
+msgid ""
+"These methods allow to automatically compute the delivery price\n"
+"                according to your settings; on the sales order (based on the\n"
+"                quotation) or the invoice (based on the delivery orders)."
+msgstr ""
+"Работа с документами\n"
+"                quotation) or the invoice (based on the delivery orders)."
+
+#. module: travel_management
+#: model_terms:ir.ui.view,arch_db:travel_management.sale_order_line_view_form_readonly
+#: model_terms:ir.ui.view,arch_db:travel_management.view_travel_line_tree
+msgid "Total"
+msgstr "Итого"
+
+#. module: travel_management
+#: model:ir.model.fields,field_description:travel_management.field_travel_travel__total_sum
+msgid "Total document summa "
+msgstr "Итоговая сумма документа"
+
+#. module: travel_management
+#: model:ir.model.fields,field_description:travel_management.field_travel_travel__total_count
+msgid "Total product count"
+msgstr "Количество строк в документе"
+
+#. module: travel_management
+#: model_terms:ir.ui.view,arch_db:travel_management.view_travel_form
+msgid "Travel Lines"
+msgstr "Строки документа"
+
+#. module: travel_management
+#: model:ir.model.fields,field_description:travel_management.field_travel_travel__warehouse_id
+msgid "Warehouse to"
+msgstr "Склад куда"
+
+#. module: travel_management
+#: model:ir.model.fields,field_description:travel_management.field_travel_lines__line_sum
+msgid "line summa"
+msgstr "Сумма по позиции"
+
+#. module: travel_management
+#: model_terms:ir.ui.view,arch_db:travel_management.view_travel_form
+msgid "travel"
+msgstr "Документ"
+
+#. module: travel_management
+#: model:ir.model,name:travel_management.model_travel_lines
+msgid "travel.lines"
+msgstr "Строки документа"
+
+#. module: travel_management
+#: model:ir.model,name:travel_management.model_travel_travel
+msgid "travel.travel"
+msgstr "Документ"

@@ -1,0 +1,49 @@
+<odoo>
+    <data>
+        <record id="view_ierarchy_object_tree" model="ir.ui.view">
+            <field name="name">ierarchy.base.tree</field>
+            <field name="model">ierarchy.base</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="ierarchy object">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="description"/>
+                    <!-- <field name="parent_id" invisible="1"/> -->
+                    <!-- <field name="parent_id"/>-->
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_ierarchy_object_form" model="ir.ui.view">
+            <field name="name">ierarchy.base.form</field>
+            <field name="model">ierarchy.base</field>
+            <field name="arch" type="xml">
+                <form string="Warehouse orders">
+                        <group>
+                            <group name="Order_detail1">
+                                <field name="name"/>
+                                <field name="code"/>
+                            </group>
+                            <group name="Order_detail2">
+<!--                                <field name="parent_id"/> -->
+                            </group>
+                        </group>
+                        <group>
+                            <field name="description" widget="html"/>
+                        </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="catalog_ierarchy" model="ir.actions.act_window">
+            <field name="name">catalog_ierarchy</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">ierarchy.base</field>
+            <field name="context">{'search_default_group_by_provider': True}</field>
+            <!--<field name="domain">[('parent_id','=',False)]</field> -->
+            <field name="view_mode">tree,form</field>
+            <!--<field name="view_id" ref="view_ierarchy_object_tree"/> -->
+        </record>
+    </data>
+</odoo>

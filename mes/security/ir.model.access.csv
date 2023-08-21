@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_mes_device,mes.device,model_mes_device,base.group_erp_manager,1,1,1,1
+access_mes_item,mes.item,model_mes_item,base.group_erp_manager,1,1,1,1
+access_mes_channel,mes.channel,model_mes_channel,base.group_erp_manager,1,1,1,1

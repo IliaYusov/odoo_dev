@@ -1,0 +1,9 @@
+<odoo>
+    <data>
+        <menuitem id="avia_menu" name="Avia"/>
+        <menuitem id="avia_menu_catalogs" parent ="avia_menu" name = "Catalogs" />
+        <menuitem id="avia_menu_catalogs_planes" parent ="avia_menu_catalogs" name = "Planes" action="catalog_aircrafts" sequence="1"/>
+        <menuitem id="avia_menu_catalogs_plane_status" parent ="avia_menu_catalogs" name = "Planes status" action="catalog_aircraft_status" sequence="2"/>
+        <menuitem id="avia_menu_catalogs_plane_types" parent ="avia_menu_catalogs" name = "Planes type" action="catalog_aircraft_types" sequence="3"/>
+    </data>
+</odoo>

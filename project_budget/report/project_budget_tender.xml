@@ -1,0 +1,14 @@
+<!--<?xml version="1.0" encoding="UTF-8"?>-->
+<!--<odoo>-->
+<!--    <data>-->
+<!--         <record id="report_project_budget_tender_excel" model = "ir.actions.report">-->
+<!--                 <field name="name">Export to EXCEL</field>-->
+<!--                 <field name="model">project_budget.tenders</field>-->
+<!--                 <field name="report_type">xlsx</field>-->
+<!--                 <field name="report_name">project_budget.report_tender_excel</field>-->
+<!--                 <field name="report_file">project_budget.report_tender_excel</field>-->
+<!--                 <field name="binding_model_id" ref="model_project_budget_tenders"/>-->
+<!--                 <field name="binding_type">report</field>-->
+<!--        </record>-->
+<!--    </data>-->
+<!--</odoo>-->

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <template id="template_test_page" name="Tamplate test page">
+        <t t-call="website.layout">
+             <div class="container">
+                 <table class="table table-bordered">
+                     <thead>
+                         <tr>
+                            <td>Doc Number</td>
+                            <td>Doc date</td>
+                            <td>Status code</td>
+                         </tr>
+                     </thead>
+                     <tbody>
+                         <t t-foreach="documents" t-as="doc">
+                              <tr>
+                                 <td><t t-esc="doc.doc_number"/></td>
+                                 <td><t t-esc="doc.doc_date"/></td>
+                                 <td><t t-esc="doc.status_id.code"/></td>
+                              </tr>
+                         </t>
+                     </tbody>
+                 </table>
+             </div>
+        </t>
+    </template>
+</odoo>

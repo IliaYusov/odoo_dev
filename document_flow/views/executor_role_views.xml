@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_document_flow_role_executor_all_roles" model="ir.actions.act_window">
+        <field name="name">Roles of executors</field>
+        <field name="res_model">document_flow.role_executor</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{"active_test": False}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No roles of executors found. Let's create one!
+            </p>
+        </field>
+    </record>
+
+    <record id="role_executor_view_tree" model="ir.ui.view">
+        <field name="name">document_flow.role_executor.tree</field>
+        <field name="model">document_flow.role_executor</field>
+        <field name="arch" type="xml">
+            <tree string="Roles Of Executors">
+                <field name="name"/>
+                <field name="member_ids" widget="many2many_avatar_user" options='{"no_quick_create": True}'/>
+                <field name="active" widget="boolean_toggle"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="role_executor_view_form" model="ir.ui.view">
+        <field name="name">document_flow.role_executor.form</field>
+        <field name="model">document_flow.role_executor</field>
+        <field name="arch" type="xml">
+            <form string="Role Of Executors">
+                <sheet string="Role Of Executors">
+                    <group invisible="1">
+                        <field name="active"/>
+                    </group>
+                    <widget name="web_ribbon" title="Archived"
+                            bg_color="bg-danger"
+                            attrs="{'invisible': [('active', '=', True)]}"/>
+                    <group>
+                        <field name="name"/>
+                        <field name="member_ids"
+                               options="{'no_open': True, 'no_quick_create': True}"
+                               widget="many2many_avatar_user"
+                               domain="[('share', '=', False)]"/>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

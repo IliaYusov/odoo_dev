@@ -1,0 +1,7 @@
+<odoo>
+    <data>
+        <menuitem id="ierarchy_menu" name="ierarchy"/>
+        <menuitem id="ierarchy_menu_catalogs" parent ="ierarchy_menu" name = "object" />
+        <menuitem id="ierarchy_menu_catalogs_planes" parent ="ierarchy_menu_catalogs" name = "view" action="catalog_ierarchy" sequence="1"/>
+    </data>
+</odoo>

@@ -1,0 +1,7 @@
+<odoo>
+    <data>
+        <menuitem id="sklad_menu" name="Sklad"/>
+        <menuitem id="sklad_menu_docs" parent ="sklad_menu" name = "Documents" />
+        <menuitem id="sklad_menu_docs_order" parent ="sklad_menu_docs" name = "Warehouse orders" action="show_orders" sequence="5"/>
+    </data>
+</odoo>

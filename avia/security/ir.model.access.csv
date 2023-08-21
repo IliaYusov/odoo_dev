@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_avia_aircraft_types,access_avia_management_aircraft_types,model_avia_aircraft_types,base.group_erp_manager,1,1,1,1
+access_avia_aircraft_status,access_avia_management_aircraft_status,model_avia_aircraft_status,base.group_erp_manager,1,1,1,1
+access_avia_aircrafts,access_avia_management_aircrafts,model_avia_aircrafts,base.group_erp_manager,1,1,1,1

@@ -1,0 +1,101 @@
+<odoo>
+    <data>
+        <record id="view_order_tree" model="ir.ui.view">
+            <field name="name">sklad.order.tree</field>
+            <field name="model">sklad.order</field>
+            <field name="arch" type="xml">
+                <tree string="Incoming orders">
+                    <field name="typeorder"
+                           decoration-danger="typeorder == 'out'"
+                           decoration-success="typeorder == 'in'"
+                    />
+                    <field name="number"/>
+                    <field name="dord"/>
+                    <field name="descr"/>
+                    <field name="warehouse_id"/>
+                    <field name="mol_id"/>
+                    <field name="sum"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_order_form" model="ir.ui.view">
+            <field name="name">sklad.order.form</field>
+            <field name="model">sklad.order</field>
+            <field name="arch" type="xml">
+                <form string="Warehouse orders">
+                    <sheet>
+                        <group>
+                            <group name="Order_detail1">
+                                <field name="typeorder"
+                                       decoration-danger="typeorder != 'out'"
+                                       decoration-success="typeorder == 'in'"
+                                />
+                                <field name="number"/>
+                                <field name="dord"/>
+                            </group>
+                            <group name="Order_detail2">
+                                <field name="warehouse_id"/>
+                                <field name="mol_id"/>
+                                <field name="sum"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="descr" widget="html"/>
+                        </group>
+                        <notebook>
+                           <page string="Specification" name="order_specification_ids">
+                            <field
+                                name="order_specification_ids"
+                                widget="section_and_note_one2many"
+                                mode="tree"
+                            >
+                            <tree
+                                string="Specification"
+                                editable="bottom"
+                            >
+                                <control>
+                                    <create name="add_specification_line" string="Add a line"/>
+                                </control>
+                                <field name="product_id"
+                                    force_save="1"
+                                    options="{'no_open': True,}"
+                                    widget="sol_product_many2one"
+                                />
+                                <field name="party_id"
+                                    force_save="1"
+                                    options="{'no_open': True,}"
+                                    widget="sol_product_many2one"
+                                />
+                                <field name="quantity"/>
+                                <field name="price"/>
+                                <field name="sum"/>
+                                <field name="warehouse_id" invisible="1"/>
+                                <field name="mol_id" invisible="1"/>
+                                <field name="dord" invisible="1"/>
+                                <field name="typeorder" invisible="1"/>
+                              </tree>
+                            </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="show_orders" model="ir.actions.act_window">
+            <field name="name">Incoming warehouse orders</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">sklad.order</field>
+            <field name="view_mode">tree,kanban,form</field>
+            <field name="context">{'search_default_group_by_provider': True}</field>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Cteate a new order (incoming or expense)
+              </p><p>
+                each warehouse order changes the amount of the warehouse balance
+              </p>
+            </field>
+        </record>
+    </data>
+</odoo>

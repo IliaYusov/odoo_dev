@@ -1,0 +1,7 @@
+<odoo>
+    <data>
+        <menuitem id="menu_mes_root" name="MES"/>
+        <menuitem id="menu_mes_configuration" name="Configuration" parent="menu_mes_root"/>
+        <menuitem id="menu_mes_resources_config" name="Resources" parent="menu_mes_root" sequence="100"/>
+    </data>
+</odoo>
