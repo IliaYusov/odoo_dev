@@ -1,4 +1,7 @@
 import json
+
+from html2text import html2text
+
 from odoo import _, models, fields, api, exceptions
 from odoo.exceptions import ValidationError
 from datetime import datetime, date
@@ -16,6 +19,8 @@ RESULT_TYPES = [
     ('ok', _('Ok')),
     ('error', _('Error'))
 ]
+
+DESCRIPTION_KANBAN_MAX_LINES = 3
 
 
 class Task(models.Model):
@@ -45,6 +50,7 @@ class Task(models.Model):
     code = fields.Char(string='Code', required=True, readonly=True, default=lambda self: _('New'))
     name = fields.Char(string='Title', tracking=True, required=True, index='trigram')
     description = fields.Html(string='Description')
+    description_kanban = fields.Text(compute="_compute_description_kanban", string='Description')
     priority = fields.Selection(PRIORITIES, string='Priority', default='3', tracking=True)
 
     author_id = fields.Many2one('res.users', string='Author', required=True, readonly=True,
@@ -186,6 +192,20 @@ class Task(models.Model):
             task.parent_obj_ref = self.env['document_flow.process.parent_object'].search([
                 ('process_id', '=', task.parent_ref_id)
             ], limit=1).parent_ref
+
+    @api.depends('description')
+    def _compute_description_kanban(self):
+        for task in self:
+            result = []
+            if task.description:
+                lst = html2text(task.description).splitlines()
+                while len(result) <= DESCRIPTION_KANBAN_MAX_LINES and lst:
+                    line = lst.pop(0)
+                    line = line.lstrip('#').strip()
+                    if not line:
+                        continue
+                    result.append(line)
+            task.description_kanban = "\n".join(result)
 
     def _message_auto_subscribe_followers(self, updated_values, default_subtype_ids):
         return []

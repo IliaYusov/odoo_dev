@@ -24,5 +24,5 @@ class report_tender_wizard(models.TransientModel):
         datas['is_report_for_management'] = self.is_report_for_management
         print('data=',datas)
         report_name = 'Tender_list_'+self.date_from.strftime("%d-%m-%Y")+'_'+self.date_to.strftime("%d-%m-%Y")+'.xlsx'
-        self.env.ref('project_budget.action_tender_list_report_xlsx').report_file = report_name
+        # self.env.ref('project_budget.action_tender_list_report_xlsx').report_file = report_name
         return self.env.ref('project_budget.action_tender_list_report_xlsx').report_action(self, data=datas)

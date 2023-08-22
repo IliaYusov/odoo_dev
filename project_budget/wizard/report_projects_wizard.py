@@ -25,15 +25,15 @@ class report_projects_wizard(models.TransientModel):
         report_name = 'Project_list_' + str(self.year) + '_' + self.type_report + '.xlsx'
 
         if self.type_report == 'kb':
-            self.env.ref('project_budget.action_projects_list_report_xlsx_kb').report_file = report_name
+            # self.env.ref('project_budget.action_projects_list_report_xlsx_kb').report_file = report_name
             return self.env.ref('project_budget.action_projects_list_report_xlsx_kb').report_action(self, data=datas)
 
         if self.type_report == 'forecast':
-            self.env.ref('project_budget.action_projects_list_report_xlsx_forecast').report_file = report_name
+            # self.env.ref('project_budget.action_projects_list_report_xlsx_forecast').report_file = report_name
             return self.env.ref('project_budget.action_projects_list_report_xlsx_forecast').report_action(self, data=datas)
 
         if self.type_report == 'svod':
-            self.env.ref('project_budget.action_projects_list_report_xlsx_svod').report_file = report_name
+            # self.env.ref('project_budget.action_projects_list_report_xlsx_svod').report_file = report_name
             return self.env.ref('project_budget.action_projects_list_report_xlsx_svod').report_action(self, data=datas)
 
 
