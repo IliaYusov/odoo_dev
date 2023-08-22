@@ -38,7 +38,6 @@
         'views/dashboard_view.xml',
         'views/dashboard_templates.xml',
         'report/report.xml',
-        'views/expanded_tree_views.xml',
         'views/document_flow_menu.xml'
     ],
     'demo': [
