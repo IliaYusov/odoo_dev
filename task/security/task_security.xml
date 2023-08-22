@@ -20,16 +20,16 @@
             <field name="domain_force">['|', ('company_id','=',False), ('company_id', 'in', company_ids)]</field>
         </record>
 
-        <record model="ir.rule" id="task_user_rule">
-            <field name="name">Task: task user</field>
-            <field name="model_id" ref="model_task_task"/>
-            <field name="domain_force">['|', '|', '|',
-                ('create_uid', '=', user.id),
-                ('create_uid', 'in', user.employee_id.child_ids.user_id.ids),
-                ('user_id', '=', user.id),
-                ('user_id', 'in', user.employee_id.child_ids.user_id.ids)]</field>
-            <field name="groups" eval="[(4,ref('base.group_user'))]"/>
-        </record>
+<!--        <record model="ir.rule" id="task_user_rule">-->
+<!--            <field name="name">Task: task user</field>-->
+<!--            <field name="model_id" ref="model_task_task"/>-->
+<!--            <field name="domain_force">['|', '|', '|',-->
+<!--                ('create_uid', '=', user.id),-->
+<!--                ('create_uid', 'in', user.employee_id.child_ids.user_id.ids),-->
+<!--                ('user_id', '=', user.id),-->
+<!--                ('user_id', 'in', user.employee_id.child_ids.user_id.ids)]</field>-->
+<!--            <field name="groups" eval="[(4,ref('base.group_user'))]"/>-->
+<!--        </record>-->
 
         <record model="ir.rule" id="task_manager_rule">
             <field name="name">Task manager: see all</field>

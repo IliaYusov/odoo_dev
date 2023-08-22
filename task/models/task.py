@@ -157,7 +157,14 @@ class Task(models.Model):
                 SELECT res_id as id, count(*) as count
                 FROM ir_attachment
                 WHERE res_model = 'task.task' AND res_id IN %(task_ids)s
-                GROUP BY res_id                
+                GROUP BY res_id
+                UNION ALL
+                SELECT res_id as id, count(*) as count
+                FROM ir_attachment a
+                INNER JOIN task_task t ON t.id = a.res_id
+                INNER JOIN document_flow_process p ON p.id = t.parent_ref_id
+                WHERE a.res_model = 'document_flow.process' AND a.res_id IN %(task_ids)s
+                GROUP BY a.res_id                
             )
             SELECT id, sum(count)
             FROM attachments
@@ -291,11 +298,14 @@ class Task(models.Model):
                 action['name'] = _('Execution report')
                 action['display_name'] = _('Execution report')
                 action['context'] = {
-                        'default_task_id': self.id,
-                        'default_route_id': route_id
-                    }
+                    'default_task_id': self.id,
+                    'default_route_id': route_id
+                }
                 return action
             self.stage_id = route.stage_to_id.id
+
+            if not self.user_id:
+                self.write({'user_id': self.env.user})
 
             if self.stage_id.mail_template_id:
                 self._send_message_notify(self.stage_id.mail_template_id)

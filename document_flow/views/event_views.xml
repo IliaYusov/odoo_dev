@@ -11,17 +11,6 @@
         </field>
     </record>
 
-    <record id="action_view_all_management_committee" model="ir.actions.act_window">
-        <field name="name">Management Committiees</field>
-        <field name="res_model">document_flow.management_committee</field>
-        <field name="view_mode">tree,form</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                No management committee found. Let's create one!
-            </p>
-        </field>
-    </record>
-
     <record id="action_view_task_id" model="ir.actions.act_window">
         <field name="name">Tasks</field>
         <field name="res_model">task.task</field>
@@ -71,6 +60,7 @@
                 <field name="date_start" widget="date"/>
                 <field name="organizer_id" widget="many2one_avatar_user"/>
                 <field name="member_ids" widget="many2many_avatar_user" options='{"no_quick_create": True}'/>
+                <field name="state"/>
                 <field name="company_ids" widget="many2many_tags" groups="base.group_multi_company"/>
             </tree>
         </field>

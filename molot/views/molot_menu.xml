@@ -1,0 +1,19 @@
+<odoo>
+    <data>
+        <menuitem id="molot_menu" name="Molot"/>
+
+        <menuitem id="molot_tools" parent ="molot_menu" name = "Tools"/>
+        <menuitem id="molot_show_molot_cutting_tools" parent ="molot_tools" name = "cutting tools" action="show_molot_cutting_tools"/>
+
+
+        <menuitem id="molot_catalogs" parent ="molot_menu" name = "Catalogs"/>
+        <menuitem id="molot_show_molot_cutting_tool_parameters_base" parent ="molot_catalogs" name = "Cutting tool parameters" action="show_molot_cutting_tool_parameters_base"/>
+        <menuitem id="molot_show_molot_unit_of_measurement" parent ="molot_catalogs" name = "Units of measurement" action="show_molot_unit_of_measurement"/>
+
+        <menuitem id="molot_show_molot_type_of_use" parent ="molot_catalogs" name = "type of use" action="show_molot_type_of_use"/>
+        <menuitem id="molot_show_molot_alloy" parent ="molot_catalogs" name = "alloy" action="show_molot_alloy"/>
+        <menuitem id="molot_show_molot_mandrel" parent ="molot_catalogs" name = "mandrel" action="show_molot_mandrel"/>
+        <menuitem id="molot_show_molot_tool_class" parent ="molot_catalogs" name = "tool class" action="show_molot_tool_class"/>
+        <menuitem id="molot_show_molot_tool_group" parent ="molot_catalogs" name = "tool group" action="show_molot_tool_group"/>
+    </data>
+</odoo>

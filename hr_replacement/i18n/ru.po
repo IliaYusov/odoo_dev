@@ -1,0 +1,135 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* hr_replacement
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-08-20 17:10+0000\n"
+"PO-Revision-Date: 2023-08-20 17:10+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: hr_replacement
+#: model:ir.model.fields,field_description:hr_replacement.field_hr_employee_replacement__active
+msgid "Active"
+msgstr ""
+
+#. module: hr_replacement
+#: model_terms:ir.ui.view,arch_db:hr_replacement.hr_employee_replacement_view_search
+msgid "Actual Replacements"
+msgstr ""
+
+#. module: hr_replacement
+#: model_terms:ir.ui.view,arch_db:hr_replacement.hr_employee_replacement_view_form
+msgid "Archived"
+msgstr ""
+
+#. module: hr_replacement
+#: model:ir.model.fields,field_description:hr_replacement.field_hr_employee_replacement__comment
+#: model_terms:ir.ui.view,arch_db:hr_replacement.hr_employee_replacement_view_form
+msgid "Comment"
+msgstr "Комментарий"
+
+#. module: hr_replacement
+#: model_terms:ir.ui.view,arch_db:hr_replacement.hr_employee_replacement_view_form
+msgid "Comment..."
+msgstr "Комментарий..."
+
+#. module: hr_replacement
+#: model:ir.model.fields,field_description:hr_replacement.field_hr_employee_replacement__company_id
+msgid "Company"
+msgstr "Компания"
+
+#. module: hr_replacement
+#: model:ir.model.fields,field_description:hr_replacement.field_hr_employee_replacement__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: hr_replacement
+#: model:ir.model.fields,field_description:hr_replacement.field_hr_employee_replacement__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: hr_replacement
+#: model:ir.model.fields,field_description:hr_replacement.field_hr_employee_replacement__date_end
+msgid "Date End"
+msgstr "Дата окончания"
+
+#. module: hr_replacement
+#: model:ir.model.fields,field_description:hr_replacement.field_hr_employee_replacement__date_start
+msgid "Date Start"
+msgstr "Дата начала"
+
+#. module: hr_replacement
+#: model:ir.model.fields,field_description:hr_replacement.field_hr_employee_replacement__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: hr_replacement
+#: model:ir.model,name:hr_replacement.model_hr_employee
+msgid "Employee"
+msgstr "Сотрудник"
+
+#. module: hr_replacement
+#: model:ir.model.fields,field_description:hr_replacement.field_hr_employee_replacement__id
+msgid "ID"
+msgstr ""
+
+#. module: hr_replacement
+#: model:ir.model.fields,field_description:hr_replacement.field_hr_employee_replacement____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: hr_replacement
+#: model:ir.model.fields,field_description:hr_replacement.field_hr_employee_replacement__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: hr_replacement
+#: model:ir.model.fields,field_description:hr_replacement.field_hr_employee_replacement__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: hr_replacement
+#: model_terms:ir.actions.act_window,help:hr_replacement.action_hr_employee_replacement_all_replacements
+msgid "No replacements of the employees found. Let's create one!"
+msgstr "Замещения сотрудников не найдены. Давайте создадим первое!"
+
+#. module: hr_replacement
+#: model:ir.model.fields,field_description:hr_replacement.field_hr_employee_replacement__replaceable_employee_id
+msgid "Replaceable Employee"
+msgstr "Замещаемый сотрудник"
+
+#. module: hr_replacement
+#: model:ir.model.fields,field_description:hr_replacement.field_hr_employee__replaceable_employee_ids
+msgid "Replaceable Employees"
+msgstr "Замещаемые сотрудники"
+
+#. module: hr_replacement
+#: model:ir.model,name:hr_replacement.model_hr_employee_replacement
+#: model:ir.model.fields,field_description:hr_replacement.field_hr_employee_replacement__replacement_employee_id
+msgid "Replacement Employee"
+msgstr "Замещающий сотрудник"
+
+#. module: hr_replacement
+#: model:ir.model.fields,field_description:hr_replacement.field_hr_employee__replacement_employee_ids
+msgid "Replacement Employees"
+msgstr "Замещающие сотрудники"
+
+#. module: hr_replacement
+#: model_terms:ir.ui.view,arch_db:hr_replacement.hr_employee_replacement_view_form
+msgid "Replacement Of Employee"
+msgstr "Замещение сотрудника"
+
+#. module: hr_replacement
+#: model:ir.actions.act_window,name:hr_replacement.action_hr_employee_replacement_all_replacements
+#: model_terms:ir.ui.view,arch_db:hr_replacement.hr_employee_replacement_view_search
+#: model_terms:ir.ui.view,arch_db:hr_replacement.hr_employee_replacement_view_tree
+msgid "Replacements Of The Employees"
+msgstr "Замещения сотрудников"

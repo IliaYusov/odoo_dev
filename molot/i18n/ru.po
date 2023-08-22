@@ -1,0 +1,656 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* molot
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-03-12 16:40+0000\n"
+"PO-Revision-Date: 2023-03-12 16:40+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_assembling_spec__spec_number
+msgid " specification number"
+msgstr "Номер"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool__artikul
+msgid "Artikul"
+msgstr "Артикул"
+
+#. module: molot
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_cutting_tools_form
+msgid "Assembling specification"
+msgstr "Сборка. Спецификация"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool__cutting_tool_assembling_spec_ids
+msgid "Assembling specifications"
+msgstr "Сборка. Спецификация"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool__cad_number
+msgid "CAD number"
+msgstr "CAD номер"
+
+#. module: molot
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_cutting_tools_form
+msgid "Cancel"
+msgstr "Отмена"
+
+#. module: molot
+#: model:ir.ui.menu,name:molot.molot_catalogs
+msgid "Catalogs"
+msgstr "Каталоги"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_alloy__code
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_parameters_base__code
+#: model:ir.model.fields,field_description:molot.field_molot_mandrel__code
+#: model:ir.model.fields,field_description:molot.field_molot_manufacturer__code
+#: model:ir.model.fields,field_description:molot.field_molot_mol__code
+#: model:ir.model.fields,field_description:molot.field_molot_tool_class__code
+#: model:ir.model.fields,field_description:molot.field_molot_tool_group__code
+#: model:ir.model.fields,field_description:molot.field_molot_type_of_use__code
+#: model:ir.model.fields,field_description:molot.field_molot_unit_of_measurement__code
+#: model:ir.model.fields,field_description:molot.field_molot_workplace__code
+msgid "Code"
+msgstr "Код"
+
+#. module: molot
+#: model_terms:ir.actions.act_window,help:molot.show_molot_alloy
+msgid "Create a new alloy"
+msgstr "Создать сплав"
+
+#. module: molot
+#: model_terms:ir.actions.act_window,help:molot.show_molot_cutting_tools
+msgid "Create a new cutting tool"
+msgstr "Создат режущий инструмент"
+
+#. module: molot
+#: model_terms:ir.actions.act_window,help:molot.show_molot_cutting_tool_parameters_base
+msgid "Create a new cutting tool parameters"
+msgstr "Создать параметр режущего инструмента"
+
+#. module: molot
+#: model_terms:ir.actions.act_window,help:molot.show_molot_mandrel
+msgid "Create a new mandrel"
+msgstr "Создать оправку"
+
+#. module: molot
+#: model_terms:ir.actions.act_window,help:molot.show_molot_tool_class
+msgid "Create a new tool_class"
+msgstr "Создать класс режущего инструмента"
+
+#. module: molot
+#: model_terms:ir.actions.act_window,help:molot.show_molot_tool_group
+msgid "Create a new tool_group"
+msgstr "Создать группу режущего инструмента"
+
+#. module: molot
+#: model_terms:ir.actions.act_window,help:molot.show_molot_type_of_use
+msgid "Create a new type_of_use"
+msgstr "Создать тип использования"
+
+#. module: molot
+#: model_terms:ir.actions.act_window,help:molot.show_molot_unit_of_measurement
+msgid "Create a new unit of measurement"
+msgstr "Создать единицу измерения"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_alloy__create_uid
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool__create_uid
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_assembling_spec__create_uid
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_parameters__create_uid
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_parameters_base__create_uid
+#: model:ir.model.fields,field_description:molot.field_molot_mandrel__create_uid
+#: model:ir.model.fields,field_description:molot.field_molot_manufacturer__create_uid
+#: model:ir.model.fields,field_description:molot.field_molot_mol__create_uid
+#: model:ir.model.fields,field_description:molot.field_molot_tool_class__create_uid
+#: model:ir.model.fields,field_description:molot.field_molot_tool_group__create_uid
+#: model:ir.model.fields,field_description:molot.field_molot_tools_manufacturers__create_uid
+#: model:ir.model.fields,field_description:molot.field_molot_type_of_use__create_uid
+#: model:ir.model.fields,field_description:molot.field_molot_unit_of_measurement__create_uid
+#: model:ir.model.fields,field_description:molot.field_molot_workplace__create_uid
+msgid "Created by"
+msgstr "Создано кем"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_alloy__create_date
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool__create_date
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_assembling_spec__create_date
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_parameters__create_date
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_parameters_base__create_date
+#: model:ir.model.fields,field_description:molot.field_molot_mandrel__create_date
+#: model:ir.model.fields,field_description:molot.field_molot_manufacturer__create_date
+#: model:ir.model.fields,field_description:molot.field_molot_mol__create_date
+#: model:ir.model.fields,field_description:molot.field_molot_tool_class__create_date
+#: model:ir.model.fields,field_description:molot.field_molot_tool_group__create_date
+#: model:ir.model.fields,field_description:molot.field_molot_tools_manufacturers__create_date
+#: model:ir.model.fields,field_description:molot.field_molot_type_of_use__create_date
+#: model:ir.model.fields,field_description:molot.field_molot_unit_of_measurement__create_date
+#: model:ir.model.fields,field_description:molot.field_molot_workplace__create_date
+msgid "Created on"
+msgstr "Дата создания"
+
+#. module: molot
+#: model:ir.ui.menu,name:molot.molot_show_molot_cutting_tool_parameters_base
+msgid "Cutting tool parameters"
+msgstr "Параметры режущего инструмента"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool__descr
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_parameters_base__descr
+#: model:ir.model.fields,field_description:molot.field_molot_manufacturer__descr
+#: model:ir.model.fields,field_description:molot.field_molot_mol__descr
+#: model:ir.model.fields,field_description:molot.field_molot_tool_class__descr
+#: model:ir.model.fields,field_description:molot.field_molot_tool_group__descr
+#: model:ir.model.fields,field_description:molot.field_molot_tools_manufacturers__descr
+#: model:ir.model.fields,field_description:molot.field_molot_workplace__descr
+msgid "Description"
+msgstr "Описание"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_alloy__display_name
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool__display_name
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_assembling_spec__display_name
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_parameters__display_name
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_parameters_base__display_name
+#: model:ir.model.fields,field_description:molot.field_molot_mandrel__display_name
+#: model:ir.model.fields,field_description:molot.field_molot_manufacturer__display_name
+#: model:ir.model.fields,field_description:molot.field_molot_mol__display_name
+#: model:ir.model.fields,field_description:molot.field_molot_tool_class__display_name
+#: model:ir.model.fields,field_description:molot.field_molot_tool_group__display_name
+#: model:ir.model.fields,field_description:molot.field_molot_tools_manufacturers__display_name
+#: model:ir.model.fields,field_description:molot.field_molot_type_of_use__display_name
+#: model:ir.model.fields,field_description:molot.field_molot_unit_of_measurement__display_name
+#: model:ir.model.fields,field_description:molot.field_molot_workplace__display_name
+msgid "Display Name"
+msgstr "Отображаемое имя"
+
+#. module: molot
+#: model_terms:ir.actions.act_window,help:molot.show_molot_alloy
+msgid "Each cutting tool have alloy"
+msgstr "Каждый режущий инструмент имеет сплав"
+
+#. module: molot
+#: model_terms:ir.actions.act_window,help:molot.show_molot_mandrel
+msgid "Each cutting tool have mandrel"
+msgstr "Каждый режущий инструмент имеет оправку"
+
+#. module: molot
+#: model_terms:ir.actions.act_window,help:molot.show_molot_unit_of_measurement
+msgid "Each cutting tool have several parameters with unit of measurement"
+msgstr "Каждый режущий инструмент имеет параметры с единицами измерения"
+
+#. module: molot
+#: model_terms:ir.actions.act_window,help:molot.show_molot_tool_group
+msgid "Each cutting tool have tool group"
+msgstr "Каждый режущий инструмент имеет группу"
+
+#. module: molot
+#: model_terms:ir.actions.act_window,help:molot.show_molot_tool_class
+msgid "Each cutting tool have tool_class"
+msgstr "Каждый режущий инструмент имеет класс"
+
+#. module: molot
+#: model_terms:ir.actions.act_window,help:molot.show_molot_type_of_use
+msgid "Each cutting tool have type_of_use"
+msgstr "Каждый режущий инструмент имеет тип использования"
+
+#. module: molot
+#: model_terms:ir.actions.act_window,help:molot.show_molot_cutting_tools
+msgid "Each cutting tool will have several parameters"
+msgstr "Каждый режущий инструмент имеет несколько параметров"
+
+#. module: molot
+#: model_terms:ir.actions.act_window,help:molot.show_molot_cutting_tool_parameters_base
+msgid "Each cutting tool will have this parameters"
+msgstr "Каждый режущий инструмент имеет эти параметры"
+
+#. module: molot
+#: model:ir.model,name:molot.model_ir_http
+msgid "HTTP Routing"
+msgstr "Маршрутизация HTTP"
+
+#. module: molot
+#: model:ir.module.category,description:molot.module_category_services_molot
+msgid "Helps you manage your instrument in manufacturing"
+msgstr "Помогает учитывать инструмент в производстве"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_alloy__id
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool__id
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_assembling_spec__id
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_parameters__id
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_parameters_base__id
+#: model:ir.model.fields,field_description:molot.field_molot_mandrel__id
+#: model:ir.model.fields,field_description:molot.field_molot_manufacturer__id
+#: model:ir.model.fields,field_description:molot.field_molot_mol__id
+#: model:ir.model.fields,field_description:molot.field_molot_tool_class__id
+#: model:ir.model.fields,field_description:molot.field_molot_tool_group__id
+#: model:ir.model.fields,field_description:molot.field_molot_tools_manufacturers__id
+#: model:ir.model.fields,field_description:molot.field_molot_type_of_use__id
+#: model:ir.model.fields,field_description:molot.field_molot_unit_of_measurement__id
+#: model:ir.model.fields,field_description:molot.field_molot_workplace__id
+msgid "ID"
+msgstr ""
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_alloy____last_update
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool____last_update
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_assembling_spec____last_update
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_parameters____last_update
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_parameters_base____last_update
+#: model:ir.model.fields,field_description:molot.field_molot_mandrel____last_update
+#: model:ir.model.fields,field_description:molot.field_molot_manufacturer____last_update
+#: model:ir.model.fields,field_description:molot.field_molot_mol____last_update
+#: model:ir.model.fields,field_description:molot.field_molot_tool_class____last_update
+#: model:ir.model.fields,field_description:molot.field_molot_tool_group____last_update
+#: model:ir.model.fields,field_description:molot.field_molot_tools_manufacturers____last_update
+#: model:ir.model.fields,field_description:molot.field_molot_type_of_use____last_update
+#: model:ir.model.fields,field_description:molot.field_molot_unit_of_measurement____last_update
+#: model:ir.model.fields,field_description:molot.field_molot_workplace____last_update
+msgid "Last Modified on"
+msgstr "Дата последней модификации"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_alloy__write_uid
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool__write_uid
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_assembling_spec__write_uid
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_parameters__write_uid
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_parameters_base__write_uid
+#: model:ir.model.fields,field_description:molot.field_molot_mandrel__write_uid
+#: model:ir.model.fields,field_description:molot.field_molot_manufacturer__write_uid
+#: model:ir.model.fields,field_description:molot.field_molot_mol__write_uid
+#: model:ir.model.fields,field_description:molot.field_molot_tool_class__write_uid
+#: model:ir.model.fields,field_description:molot.field_molot_tool_group__write_uid
+#: model:ir.model.fields,field_description:molot.field_molot_tools_manufacturers__write_uid
+#: model:ir.model.fields,field_description:molot.field_molot_type_of_use__write_uid
+#: model:ir.model.fields,field_description:molot.field_molot_unit_of_measurement__write_uid
+#: model:ir.model.fields,field_description:molot.field_molot_workplace__write_uid
+msgid "Last Updated by"
+msgstr "Последний изменивший"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_alloy__write_date
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool__write_date
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_assembling_spec__write_date
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_parameters__write_date
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_parameters_base__write_date
+#: model:ir.model.fields,field_description:molot.field_molot_mandrel__write_date
+#: model:ir.model.fields,field_description:molot.field_molot_manufacturer__write_date
+#: model:ir.model.fields,field_description:molot.field_molot_mol__write_date
+#: model:ir.model.fields,field_description:molot.field_molot_tool_class__write_date
+#: model:ir.model.fields,field_description:molot.field_molot_tool_group__write_date
+#: model:ir.model.fields,field_description:molot.field_molot_tools_manufacturers__write_date
+#: model:ir.model.fields,field_description:molot.field_molot_type_of_use__write_date
+#: model:ir.model.fields,field_description:molot.field_molot_unit_of_measurement__write_date
+#: model:ir.model.fields,field_description:molot.field_molot_workplace__write_date
+msgid "Last Updated on"
+msgstr "Дата последнего изменения"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool__macro_name
+msgid "Macro name"
+msgstr "Макро имя"
+
+#. module: molot
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_cutting_tools_form
+msgid "Manufactures"
+msgstr "Производители"
+
+#. module: molot
+#: model:ir.ui.menu,name:molot.molot_menu
+msgid "Molot"
+msgstr "Инструмент (МОЛОТ)"
+
+#. module: molot
+#: model:res.groups,name:molot.molot_admin
+msgid "Molot Admin"
+msgstr "МОЛОТ. Администратор"
+
+#. module: molot
+#: model:res.groups,name:molot.molot_users
+msgid "Molot users"
+msgstr "Молот. Пользователи"
+
+#. module: molot
+#: model:ir.module.category,name:molot.module_category_services_molot
+msgid "Molot. Manufacturing instrument manage"
+msgstr "МОЛОТ. Управление инструментом в производстве"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_alloy__name
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool__name
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_parameters_base__name
+#: model:ir.model.fields,field_description:molot.field_molot_mandrel__name
+#: model:ir.model.fields,field_description:molot.field_molot_manufacturer__name
+#: model:ir.model.fields,field_description:molot.field_molot_mol__name
+#: model:ir.model.fields,field_description:molot.field_molot_tool_class__name
+#: model:ir.model.fields,field_description:molot.field_molot_tool_group__name
+#: model:ir.model.fields,field_description:molot.field_molot_type_of_use__name
+#: model:ir.model.fields,field_description:molot.field_molot_unit_of_measurement__name
+#: model:ir.model.fields,field_description:molot.field_molot_workplace__name
+msgid "Name"
+msgstr "Имя"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_assembling_spec__quantity
+msgid "Quantity"
+msgstr "Кол-во"
+
+#. module: molot
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_cutting_tools_form
+msgid "Save"
+msgstr "Сохранить"
+
+#. module: molot
+#: model:ir.ui.menu,name:molot.molot_tools
+msgid "Tools"
+msgstr "Инструмент"
+
+#. module: molot
+#: model:ir.ui.menu,name:molot.molot_show_molot_unit_of_measurement
+msgid "Units of measurement"
+msgstr "Ед. измерения"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_parameters__param_value
+msgid "Value parameter"
+msgstr "Значение параметра"
+
+#. module: molot
+#: model:ir.actions.act_window,name:molot.show_molot_alloy
+#: model:ir.model,name:molot.model_molot_alloy
+#: model:ir.ui.menu,name:molot.molot_show_molot_alloy
+msgid "alloy"
+msgstr "Сплав"
+
+#. module: molot
+#: model:ir.model.constraint,message:molot.constraint_molot_cutting_tool_unique_artikul
+msgid "artikul must be unique"
+msgstr "Артикул должен быть уникальным"
+
+#. module: molot
+#. odoo-python
+#: code:addons/molot/models/molot.py:0
+#, python-format
+msgid "assembling could not be from itself"
+msgstr "Сборка не может содержать сама себя"
+
+#. module: molot
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_cutting_tool_parameters_base_tree
+msgid "copy/check exists parameters in cutting tools"
+msgstr "Скопировать проверить параметры по всему списку инструмента"
+
+#. module: molot
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_mandrel_tree
+msgid "cutting mandrel"
+msgstr "Оправка"
+
+#. module: molot
+#: model:ir.model,name:molot.model_molot_cutting_tool
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_parameters__tool_id
+#: model:ir.model.fields,field_description:molot.field_molot_tools_manufacturers__tool_id
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_cutting_tools_form
+msgid "cutting tool"
+msgstr "Режущий инструмент"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_assembling_spec__maintool_id
+msgid "cutting tool (assembling)"
+msgstr "Режущий инструмент (сборка)"
+
+#. module: molot
+#: model:ir.model,name:molot.model_molot_cutting_tool_assembling_spec
+msgid "cutting tool assembling spec"
+msgstr "Состав сборки"
+
+#. module: molot
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_tool_class_tree
+msgid "cutting tool class"
+msgstr "Класс режущего инструмента"
+
+#. module: molot
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_tool_group_tree
+msgid "cutting tool group"
+msgstr "Группа режущего инструмента"
+
+#. module: molot
+#: model:ir.model,name:molot.model_molot_cutting_tool_parameters
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool__cutting_tool_parameters_ids
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_cutting_tool_parameters_base_tree
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_unit_of_measurement_tree
+msgid "cutting tool parameters"
+msgstr "Параметры режущего инструмента"
+
+#. module: molot
+#: model:ir.actions.act_window,name:molot.show_molot_cutting_tool_parameters_base
+#: model:ir.actions.act_window,name:molot.show_molot_tool_class
+#: model:ir.actions.act_window,name:molot.show_molot_tool_group
+#: model:ir.actions.act_window,name:molot.show_molot_unit_of_measurement
+#: model:ir.model,name:molot.model_molot_cutting_tool_parameters_base
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_cutting_tool_parameters_base_form
+msgid "cutting tool parameters base"
+msgstr "Основные параметры режущего инструмента"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_assembling_spec__specification_tool_id
+msgid "cutting tool specification"
+msgstr "Сборка. Спецификация"
+
+#. module: molot
+#: model:ir.actions.act_window,name:molot.show_molot_cutting_tools
+#: model:ir.ui.menu,name:molot.molot_show_molot_cutting_tools
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_cutting_tools_tree
+msgid "cutting tools"
+msgstr "Режущий инструмент"
+
+#. module: molot
+#: model:ir.model,name:molot.model_molot_tools_manufacturers
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool__tools_manufacturers_ids
+msgid "cutting tools manufacturers"
+msgstr "Производители"
+
+#. module: molot
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_cutting_tools_form
+msgid "enter CAD number"
+msgstr "Введите CAD номер"
+
+#. module: molot
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_cutting_tools_form
+msgid "enter macro name"
+msgstr "Введите макро имя"
+
+#. module: molot
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_cutting_tools_form
+msgid "enter manufacturer artikul"
+msgstr "Введите артикул производителя"
+
+#. module: molot
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_cutting_tools_form
+msgid "enter name"
+msgstr "Введите наименование"
+
+#. module: molot
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_cutting_tools_form
+msgid "enter unique artikul"
+msgstr "Введите уникальный артикул"
+
+#. module: molot
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_cutting_tools_form
+msgid "general"
+msgstr "Основные"
+
+#. module: molot
+#: model:ir.actions.act_window,name:molot.show_molot_mandrel
+#: model:ir.model,name:molot.model_molot_mandrel
+#: model:ir.ui.menu,name:molot.molot_show_molot_mandrel
+msgid "mandrel"
+msgstr "Оправка"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_tools_manufacturers__manufacturers_artikul
+msgid "manufacturers artikul"
+msgstr "Артикул производителя"
+
+#. module: molot
+#: model:ir.model,name:molot.model_molot_manufacturer
+msgid "molot manufacturer"
+msgstr "Производители"
+
+#. module: molot
+#: model:ir.model,name:molot.model_molot_mol
+#: model:ir.model,name:molot.model_molot_workplace
+msgid "molot mol"
+msgstr ""
+
+#. module: molot
+#: model:ir.model,name:molot.model_molot_tool_class
+msgid "molot tool class"
+msgstr "Класс инструмента"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool__number_of_cutting_edges
+msgid "number_of_cutting_edges"
+msgstr "Кол-во режущих граней"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool__number_of_steps
+msgid "number_of_steps"
+msgstr "Кол-во шагов"
+
+#. module: molot
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_cutting_tools_form
+msgid "select manufacturer"
+msgstr "Выберите производителя"
+
+#. module: molot
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_cutting_tools_form
+msgid "select tools alloy"
+msgstr "Выберите сплав"
+
+#. module: molot
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_cutting_tools_form
+msgid "select tools class"
+msgstr "Выберите класс"
+
+#. module: molot
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_cutting_tools_form
+msgid "select tools group"
+msgstr "Выберите группу"
+
+#. module: molot
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_cutting_tools_form
+msgid "select tools mandrel"
+msgstr "Выберите оправку"
+
+#. module: molot
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_cutting_tools_form
+msgid "select type of use"
+msgstr "Выберите тип использования"
+
+#. module: molot
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_cutting_tools_form
+msgid "select unit of measure"
+msgstr "Выберите единицу измерения"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool__type_of_use
+msgid "tool Type_of_use"
+msgstr "Тип использования"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool__alloy_id
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_alloy_tree
+msgid "tool alloy"
+msgstr "Сплав"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_assembling_spec__artikul
+msgid "tool artikul"
+msgstr "Артикул"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool__tool_class_id
+#: model:ir.ui.menu,name:molot.molot_show_molot_tool_class
+msgid "tool class"
+msgstr "Класс"
+
+#. module: molot
+#: model:ir.model,name:molot.model_molot_tool_group
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool__tool_group_id
+#: model:ir.ui.menu,name:molot.molot_show_molot_tool_group
+msgid "tool group"
+msgstr "Группа"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool__mandrel_id
+msgid "tool mandrel"
+msgstr "Оправка"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_tools_manufacturers__manufacturer_id
+msgid "tool manufacturer"
+msgstr "Производитель"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_parameters__parameter_id
+msgid "tool parameter"
+msgstr "Параметры"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_parameters__parameter_code
+msgid "tool parameter code"
+msgstr "Код"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_parameters__parameter_name
+msgid "tool parameter name"
+msgstr "Наименование"
+
+#. module: molot
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_type_of_use_tree
+msgid "tool type_of_use"
+msgstr "Тип использования"
+
+#. module: molot
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_cutting_tools_form
+msgid "type description"
+msgstr "Описание"
+
+#. module: molot
+#: model_terms:ir.ui.view,arch_db:molot.show_molot_cutting_tools_form
+msgid "type description of the tool"
+msgstr "Напишите описание инструмента"
+
+#. module: molot
+#: model:ir.model,name:molot.model_molot_type_of_use
+#: model:ir.ui.menu,name:molot.molot_show_molot_type_of_use
+msgid "type of use"
+msgstr "Тип использования"
+
+#. module: molot
+#: model:ir.actions.act_window,name:molot.show_molot_type_of_use
+msgid "type_of_use"
+msgstr "Тип использования"
+
+#. module: molot
+#: model:ir.model,name:molot.model_molot_unit_of_measurement
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool__unit_of_msrmnt_id
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool_parameters_base__unit_of_msrmnt_id
+msgid "unit of measurement"
+msgstr "Ед. измерения"
+
+#. module: molot
+#: model:ir.model.fields,field_description:molot.field_molot_cutting_tool__weight_kg
+msgid "weight_kg"
+msgstr "Вес (КГ)"

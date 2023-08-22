@@ -1,6 +1,6 @@
 {
     'name': 'Project Budget: Task',
-    'version': '16.0.1.0.0',
+    'version': '16.0.1.0.1',
     'category': '',
     'depends': ['base', 'task', 'project_budget'],
     'description': """

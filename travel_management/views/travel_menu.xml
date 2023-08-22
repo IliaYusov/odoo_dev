@@ -1,0 +1,7 @@
+<odoo>
+    <data>
+        <menuitem id="travel_menu" name="Test module"/>
+        <menuitem id="travel_records_menu" parent ="travel_menu" name = "Documents" />
+        <menuitem id="travel_records_menu_2" parent ="travel_records_menu" name = "Documents" action="action_travel" sequence="5"/>
+    </data>
+</odoo>

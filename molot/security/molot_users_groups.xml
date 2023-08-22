@@ -1,0 +1,23 @@
+<odoo>
+     <data>
+        <record id="molot.module_category_services_molot" model="ir.module.category">
+            <field name="name">Molot. Manufacturing instrument manage</field>
+            <field name="description">Helps you manage your instrument in manufacturing</field>
+            <field name="sequence">3</field>
+        </record>
+
+        <record id="molot_users" model="res.groups">
+            <field name="name">Molot users</field>
+            <field name="category_id" ref="molot.module_category_services_molot"/>
+<!--            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>-->
+<!--            <field name="category_id" ref="base.module_category_services_project"/>-->
+        </record>
+        <record id="molot_admin" model="res.groups">
+            <field name="name">Molot Admin</field>
+            <field name="category_id" ref="molot.module_category_services_molot"/>
+<!--            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>-->
+<!--            <field name="category_id" ref="base.module_category_services_project"/>-->
+        </record>
+
+    </data>
+</odoo>

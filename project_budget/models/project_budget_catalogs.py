@@ -59,6 +59,8 @@ class project_office(models.Model):
     isRukovoditel_required_in_project = fields.Boolean(string="mark rukovoditel required in prject", default=False)
     print_rukovoditel_in_kb = fields.Boolean(string="Print rukovoditel instead KAM in KB form",
                                                        default=False)
+    is_prohibit_selection = fields.Boolean(string="is prohibit selection in projects", default=False)
+
 
 class project_supervisor(models.Model):
     _name = 'project_budget.project_supervisor'
@@ -168,6 +170,7 @@ class legal_entity_signing(models.Model):
     name = fields.Char(string="legal_entity_signing name", required=True, translate=True)
     code = fields.Char(string="legal_entity_signing code", required=True)
     percent_fot = fields.Float(string="fot_percent", required=True, default=0)
+    is_percent_fot_manual = fields.Boolean(string="Manual fot_percent", default=0)
     descr = fields.Char(string="legal_entity_signing description", translate=True)
 
 class technological_direction(models.Model):
@@ -176,5 +179,22 @@ class technological_direction(models.Model):
     name = fields.Char(string="technological_direction name", required=True, translate=True)
     code = fields.Char(string="technological_direction code", required=True)
     descr = fields.Char(string="technological_direction description", translate=True)
+
+class tender_current_status(models.Model):
+    _name = 'project_budget.tender_current_status'
+    _description = "tender current status"
+    name = fields.Char(string="current status name", required=True, translate=True)
+    code = fields.Char(string="current status code", required=True)
+    descr = fields.Char(string="current status description", translate=True)
+
+class tender_comments_type(models.Model):
+    _name = 'project_budget.tender_comments_type'
+    _description = "tender comments type"
+    name = fields.Char(string="comment type name", required=True, translate=True)
+    code = fields.Char(string="comment type code", required=True)
+    descr = fields.Char(string="comment type description", translate=True)
+
+
+
 
 

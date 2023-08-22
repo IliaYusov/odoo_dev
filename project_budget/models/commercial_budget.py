@@ -7,6 +7,8 @@ class commercial_budget(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _name = 'project_budget.commercial_budget'
     _description = "project_commercial budget"
+    _rec_name = 'name_to_show'
+
     name = fields.Char(string="commercial_budget name", required=True)
     budget_state = fields.Selection([('work', 'Working'), ('fixed', 'Fixed')], required=True, index=True, default='work', copy = False, tracking=True)
     etalon_budget = fields.Boolean(string="etalon_budget", default = False)
@@ -14,11 +16,19 @@ class commercial_budget(models.Model):
     year = fields.Integer(string="Budget year", required=True, index=True,default=2023)
     currency_id = fields.Many2one('res.currency', string='Account Currency')
     descr = fields.Text( string='Description', default="")
+    name_to_show = fields.Char(string='name_to_show', compute='_get_name_to_show')
     projects_ids = fields.One2many(
         comodel_name='project_budget.projects',
         inverse_name='commercial_budget_id',
         string="commercial_budget specification",
         copy=True, auto_join=True)
+
+    def _get_name_to_show(self):
+        for commercial_budget in self:
+            if commercial_budget.date_actual:
+                commercial_budget.name_to_show = commercial_budget.name + ' (' + commercial_budget.budget_state + ' ' + commercial_budget.date_actual.strftime("%d-%m-%Y") + ')'
+            else:
+                commercial_budget.name_to_show = commercial_budget.name + ' (' + commercial_budget.budget_state+')'
 
     def isuseradmin(self):
         self.ensure_one()

@@ -41,7 +41,7 @@
                         <group col="2">
                             <group>
                                 <field name="year" invisible="True"/>
-                                <field name="project_office_id" invisible="True" options="{'no_create': True}"/>
+                                <field name="project_office_id"  options="{'no_create': True}"/>
                                 <field name="supervisor_id" options="{'no_create': True}" widget="many2one_avatar"/>
                                 <field name="company_id" options="{'no_create': True}"/>
                             </group>
@@ -51,7 +51,7 @@
                             </group>
                         </group>
                             <group col="1">
-                                <group string="Conclusion of new contracts, with VAT" />
+                                <group string="Conclusion of new contracts, with VAT"  style="background-color : #FFD966;" />
                             </group>
                             <group col="5">
                                  <group>
@@ -71,7 +71,7 @@
                                 </group>
                             </group>
                             <group col="1">
-                                <group string="Cash, with VAT" />
+                                <group string="Cash, with VAT"   style="background-color : #D096BF;" />
                             </group>
                             <group col="5">
                                 <group>
@@ -91,7 +91,7 @@
                                 </group>
                             </group>
                             <group col = "1">
-                                <group string="Acceptance, without VAT" >
+                                <group string="Acceptance, without VAT" style="background-color : #B4C6E7;">
                                 </group>
                             </group>
                             <group col = "5">
@@ -112,7 +112,7 @@
                                 </group>
                             </group>
                             <group col = "1">
-                                <group string="Margin income, without VAT" >
+                                <group string="Margin income, without VAT" style="background-color : #F4FD9F;">
                                 </group>
                             </group>
                             <group col="5">
@@ -236,10 +236,10 @@
                     <field name="project_office_id"/>
                     <field name="supervisor_id" widget="many2one_avatar"/>
                     <field name="currency_id"/>
-                    <field name="contracting_year_plan"/>
-                    <field name="cash_year_plan"/>
-                    <field name="acceptance_year_plan"/>
-                    <field name="margin_income_year_plan"/>
+                    <field name="contracting_year_plan" class ="clmn-contract-color"/>
+                    <field name="cash_year_plan" class="clmn-cash-color"/>
+                    <field name="acceptance_year_plan" class="clmn-acceptance-color"/>
+                    <field name="margin_income_year_plan" class="clmn-margin-color"/>
                     <field name="margin3_income_year_plan"/>
                     <field name="ebit_year_plan"/>
                     <field name="net_profit_year_plan"/>
@@ -275,7 +275,7 @@
                                     </group>
                                 </group>
                                 <group col="1">
-                                    <group string="Conclusion of new contracts, with VAT"/>
+                                    <group string="Conclusion of new contracts, with VAT" style="background-color : #FFD966;"/>
                                 </group>
                                 <group col="5">
                                     <group>
@@ -295,7 +295,7 @@
                                     </group>
                                 </group>
                                 <group col="1">
-                                    <group string="Cash, with VAT" />
+                                    <group string="Cash, with VAT" style="background-color : #D096BF;" />
                                 </group>
                                 <group col="5">
                                     <group>
@@ -315,7 +315,7 @@
                                     </group>
                                 </group>
                                 <group col="1">
-                                    <group string="Acceptance, without VAT" />
+                                    <group string="Acceptance, without VAT" style="background-color : #B4C6E7;"/>
                                 </group>
                                 <group col = "5">
                                     <group>
@@ -335,7 +335,7 @@
                                     </group>
                                 </group>
                                 <group col="1">
-                                    <group string="Margin income, without VAT" />
+                                    <group string="Margin income, without VAT" style="background-color : #F4FD9F;"/>
                                 </group>>
                                 <group col="5">
                                     <group>

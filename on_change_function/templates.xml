@@ -1,0 +1,17 @@
+<odoo>
+    <data>
+        <record id="view_product_form_inherit" model="ir.ui.view">
+            <field name="name">product.template.common.form.inherit</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='standard_price']" position="after">
+                    <group>
+                        <field name="CostPrice" optional="show"  widget='monetary'>CostPrice</field>
+		                <field name="ShippingCost"  widget='monetary'/>
+                    </group>
+		        </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

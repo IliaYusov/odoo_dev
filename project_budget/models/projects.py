@@ -71,7 +71,7 @@ class projects(models.Model):
     company_id = fields.Many2one('res.company', required=True, default=lambda self: self.env.company)
     project_id = fields.Char(string="Project_ID", required=True, index=True, copy=True, group_operator = 'count',
                              default='ID') #lambda self: self.env['ir.sequence'].sudo().next_by_code('project_budget.projects'))
-    specification_state = fields.Selection([('prepare', 'Prepare'), ('production', 'Production'), ('cancel','Canceled'),('done','Done')], required=True,
+    specification_state = fields.Selection([('prepare', 'Prepare'), ('production', 'Production'), ('cancel','Canceled'),('done','Done'),('lead','Lead')], required=True,
                                            index=True, default='prepare', store=True, copy=True, tracking=True, compute="_compute_specification_state")
     approve_state= fields.Selection([('need_approve_manager', 'need managers approve'), ('need_approve_supervisor'
                                      , 'need supervisors approve'), ('approved','approved'),('-','-')],
@@ -93,7 +93,7 @@ class projects(models.Model):
     budget_state = fields.Selection(related = 'commercial_budget_id.budget_state', readonly = True, index=True, store=True)
 
     project_office_id = fields.Many2one('project_budget.project_office', string='project_office', required=True,
-                                        copy=True,tracking=True,  check_company=True)
+                                        copy=True,tracking=True,  check_company=True, domain ="[('is_prohibit_selection','=', False)]")
     project_supervisor_id = fields.Many2one('project_budget.project_supervisor', string='project_supervisor',
                                             required=True, copy=True, domain=_get_supervisor_list, tracking=True, check_company=True)
     project_manager_id = fields.Many2one('project_budget.project_manager', string='project_manager', required=True,
@@ -127,7 +127,7 @@ class projects(models.Model):
     transportation_expenses = fields.Monetary(string='transportation_expenses',tracking=True)
     travel_expenses = fields.Monetary(string='travel_expenses',tracking=True)
     representation_expenses = fields.Monetary(string='representation_expenses',tracking=True)
-    taxes_fot_premiums = fields.Monetary(string='taxes_FOT and premiums', compute='_compute_spec_totals', store=True, tracking=True)
+    taxes_fot_premiums = fields.Monetary(string='taxes_FOT and premiums', store=True, tracking=True)
     warranty_service_costs = fields.Monetary(string='Warranty service costs',tracking=True)
     rko_other = fields.Monetary(string='rko_other',tracking=True)
     other_expenses = fields.Monetary(string='other_expenses',tracking=True)
@@ -164,6 +164,7 @@ class projects(models.Model):
     is_warranty_service_costs = fields.Boolean(related='project_type_id.is_warranty_service_costs', readonly=True)
     is_rko_other = fields.Boolean(related='project_type_id.is_rko_other', readonly=True)
     is_other_expenses = fields.Boolean(related='project_type_id.is_other_expenses', readonly=True)
+    is_percent_fot_manual = fields.Boolean(related='legal_entity_signing_id.is_percent_fot_manual', readonly=True)
 
     comments  = fields.Text(string='comments project', default = "")
     technological_direction_id = fields.Many2one('project_budget.technological_direction',
@@ -204,6 +205,23 @@ class projects(models.Model):
         string="project steps", auto_join=True,copy=True)
 
     name_to_show = fields.Char(string='name_to_show', compute='_get_name_to_show')
+    
+    attachment_count = fields.Integer(compute='_compute_attachment_count', string='Attachments')
+
+    tenders_count = fields.Integer(compute='_compute_tenders_count', string='Tenders')
+
+    def _compute_attachment_count(self):
+        for project in self:
+            project.attachment_count = self.env['ir.attachment'].search_count([
+                ('res_model', '=', self._name),
+                ('res_id', '=', project.id)
+            ])
+
+    def _compute_tenders_count(self):
+        for project in self:
+            project.tenders_count = self.env['project_budget.tenders'].search_count([
+                ('projects_id', '=', project.id)
+            ])
 
     @api.depends('project_id','step_project_number')
     def _get_name_to_show(self):
@@ -215,6 +233,8 @@ class projects(models.Model):
         for row in self:
             if row.estimated_probability_id.name == '0':
                 row.specification_state = 'cancel'
+            if row.estimated_probability_id.name == '10':
+                row.specification_state = 'lead'
             if row.estimated_probability_id.name == '30':
                 row.specification_state = 'prepare'
             if row.estimated_probability_id.name == '50':
@@ -233,7 +253,7 @@ class projects(models.Model):
                   'third_party_works','awards_on_results_project','transportation_expenses','travel_expenses','representation_expenses','taxes_fot_premiums','warranty_service_costs',
                   'rko_other','other_expenses','margin_income','profitability','estimated_probability_id','legal_entity_signing_id','project_type_id','comments','technological_direction_id',
                   'planned_cash_flow_sum','planned_cash_flow_ids','step_project_number','dogovor_number','planned_acceptance_flow_sum','planned_acceptance_flow_ids','fact_cash_flow_sum',
-                  'fact_cash_flow_ids','fact_acceptance_flow_sum','fact_acceptance_flow_ids','project_have_steps','project_steps_ids'
+                  'fact_cash_flow_ids','fact_acceptance_flow_sum','fact_acceptance_flow_ids','project_have_steps','project_steps_ids','taxes_fot_premiums'
                 )
     def _check_changes_project(self):
         print('_check_changes_project')
@@ -306,7 +326,7 @@ class projects(models.Model):
     @api.depends("project_steps_ids.revenue_from_the_sale_of_works", 'project_steps_ids.revenue_from_the_sale_of_goods', 'project_steps_ids.cost_of_goods', 'project_steps_ids.own_works_fot',
                  'project_steps_ids.third_party_works', "project_steps_ids.awards_on_results_project", 'project_steps_ids.transportation_expenses', 'project_steps_ids.travel_expenses',
                  'project_steps_ids.representation_expenses',"project_steps_ids.warranty_service_costs", 'project_steps_ids.rko_other', 'project_steps_ids.other_expenses',
-                 'project_steps_ids.vat_attribute_id'
+                 'project_steps_ids.vat_attribute_id','taxes_fot_premiums'
                  ,"revenue_from_the_sale_of_works", 'revenue_from_the_sale_of_goods', 'cost_of_goods', 'own_works_fot',
                  'third_party_works', "awards_on_results_project", 'transportation_expenses', 'travel_expenses', 'representation_expenses',
                  "warranty_service_costs", 'rko_other', 'other_expenses','vat_attribute_id','legal_entity_signing_id','project_have_steps',)
@@ -314,11 +334,14 @@ class projects(models.Model):
         for budget_spec in self:
             if budget_spec.project_have_steps == False :
                 budget_spec.total_amount_of_revenue = budget_spec.revenue_from_the_sale_of_works + budget_spec.revenue_from_the_sale_of_goods
-                budget_spec.taxes_fot_premiums = (budget_spec.awards_on_results_project + budget_spec.own_works_fot)*budget_spec.legal_entity_signing_id.percent_fot/100
+
                 budget_spec.cost_price = budget_spec.cost_of_goods + budget_spec.own_works_fot+ budget_spec.third_party_works +budget_spec.awards_on_results_project
                 budget_spec.cost_price = budget_spec.cost_price + budget_spec.transportation_expenses+budget_spec.travel_expenses+budget_spec.representation_expenses
                 budget_spec.cost_price = budget_spec.cost_price + budget_spec.warranty_service_costs+budget_spec.rko_other+budget_spec.other_expenses
-                budget_spec.cost_price = budget_spec.cost_price + (budget_spec.awards_on_results_project + budget_spec.own_works_fot) * budget_spec.legal_entity_signing_id.percent_fot / 100
+                if budget_spec.is_percent_fot_manual == False:
+                    budget_spec.taxes_fot_premiums = (budget_spec.awards_on_results_project + budget_spec.own_works_fot)*budget_spec.legal_entity_signing_id.percent_fot/100
+                budget_spec.cost_price = budget_spec.cost_price + budget_spec.taxes_fot_premiums
+
                 budget_spec.margin_income = budget_spec.total_amount_of_revenue - budget_spec.cost_price
                 budget_spec.total_amount_of_revenue_with_vat = (budget_spec.revenue_from_the_sale_of_works + budget_spec.revenue_from_the_sale_of_goods)*(1+budget_spec.vat_attribute_id.percent/100)
             else:
@@ -539,6 +562,38 @@ class projects(models.Model):
             'flags': {'initial_mode': 'edit'},
             'target': 'new',
         }
+        
+    def action_open_attachments(self):
+        self.ensure_one()
+        return {
+            'name': _('Attachments'),
+            'domain': [('res_model', '=', self._name), ('res_id', '=', self.id)],
+            'res_model': 'ir.attachment',
+            'type': 'ir.actions.act_window',
+            'view_mode': 'kanban,tree,form',
+            'context': "{'default_res_model': '%s','default_res_id': %d}" % (self._name, self.id),
+            'help': """
+                <p class="o_view_nocontent_smiling_face">%s</p>
+                """ % _("Add attachments for this project")
+        }
+
+    def action_open_tenders(self):
+        self.ensure_one()
+        return {
+            'name': _('Tenders'),
+            'domain': [('projects_id', '=', self.id)],
+            'res_model': 'project_budget.tenders',
+            'type': 'ir.actions.act_window',
+            'view_mode': 'tree,form',
+            'context': "{'default_projects_id': %d}" % (self.id),
+            'help': """
+                <p class="o_view_nocontent_smiling_face">%s</p>
+                """ % _("Add tenders for this project")
+        }
+
+
+    def process_task_result(self, date_closed, result_type='ok', feedback=False):
+        pass
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -553,9 +608,14 @@ class projects(models.Model):
         for admins only
         """
         for record in self:
+            user_id = False
+            if record.project_office_id.receive_tasks_for_approve_project:  # не только куратор может утвекрждать, но и руководитель проектного офиса надо
+                if record.project_office_id.user_id:  # вдруг просто галочка стоит, а пользователь не выбран
+                    user_id = record.project_office_id.user_id.id
 
-            if not record.env.user.has_group('project_budget.project_budget_admin'):
-                raise_text = _("only project admin can reopen projects")
+            if not (self.user_is_supervisor(record.project_supervisor_id.id) or self.user_has_groups(
+                'project_budget.project_budget_admin') or self.env.user.id == user_id):
+                raise_text = _("only project admin or supervisor or project office manager can reopen projects")
                 raise ValidationError(raise_text)
 
             if record.approve_state != '-':

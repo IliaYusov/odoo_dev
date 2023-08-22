@@ -1,0 +1,318 @@
+<odoo>
+    <data>
+
+        <record id="show_molot_type_of_use_tree" model="ir.ui.view">
+            <field name="name">molot.type_of_use.tree</field>
+            <field name="model">molot.type_of_use</field>
+            <field name="arch" type="xml">
+                <tree string="tool type_of_use" editable="bottom">
+                    <field name="name"/>
+                    <field name="code"/>
+                </tree>
+            </field>
+        </record>
+        <record id="show_molot_type_of_use" model="ir.actions.act_window">
+            <field name="name">type_of_use</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">molot.type_of_use</field>
+            <field name="view_mode">tree</field>
+            <field name="context">{'search_default_group_by_provider': True}</field>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a new type_of_use
+              </p><p>
+                Each cutting tool have type_of_use
+              </p>
+            </field>
+        </record>
+
+
+        <record id="show_molot_alloy_tree" model="ir.ui.view">
+            <field name="name">molot.alloy.tree</field>
+            <field name="model">molot.alloy</field>
+            <field name="arch" type="xml">
+                <tree string="tool alloy" editable="bottom">
+                    <field name="name"/>
+                    <field name="code"/>
+                </tree>
+            </field>
+        </record>
+        <record id="show_molot_alloy" model="ir.actions.act_window">
+            <field name="name">alloy</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">molot.alloy</field>
+            <field name="view_mode">tree</field>
+            <field name="context">{'search_default_group_by_provider': True}</field>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a new alloy
+              </p><p>
+                Each cutting tool have alloy
+              </p>
+            </field>
+        </record>
+
+
+        <record id="show_molot_mandrel_tree" model="ir.ui.view">
+            <field name="name">molot.mandrel.tree</field>
+            <field name="model">molot.mandrel</field>
+            <field name="arch" type="xml">
+                <tree string="cutting mandrel" editable="bottom">
+                    <field name="name"/>
+                    <field name="code"/>
+                </tree>
+            </field>
+        </record>
+        <record id="show_molot_mandrel" model="ir.actions.act_window">
+            <field name="name">mandrel</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">molot.mandrel</field>
+            <field name="view_mode">tree</field>
+            <field name="context">{'search_default_group_by_provider': True}</field>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a new mandrel
+              </p><p>
+                Each cutting tool have mandrel
+              </p>
+            </field>
+        </record>
+
+
+        <record id="show_molot_tool_class_tree" model="ir.ui.view">
+            <field name="name">molot.tool_class.tree</field>
+            <field name="model">molot.tool_class</field>
+            <field name="arch" type="xml">
+                <tree string="cutting tool class" editable="bottom">
+                    <field name="name"/>
+                    <field name="code"/>
+                </tree>
+            </field>
+        </record>
+        <record id="show_molot_tool_class" model="ir.actions.act_window">
+            <field name="name">cutting tool parameters base</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">molot.tool_class</field>
+            <field name="view_mode">tree</field>
+            <field name="context">{'search_default_group_by_provider': True}</field>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a new tool_class
+              </p><p>
+                Each cutting tool have tool_class
+              </p>
+            </field>
+        </record>
+
+        <record id="show_molot_tool_group_tree" model="ir.ui.view">
+            <field name="name">molot.tool_group.tree</field>
+            <field name="model">molot.tool_group</field>
+            <field name="arch" type="xml">
+                <tree string="cutting tool group" editable="bottom">
+                    <field name="name"/>
+                    <field name="code"/>
+                </tree>
+            </field>
+        </record>
+        <record id="show_molot_tool_group" model="ir.actions.act_window">
+            <field name="name">cutting tool parameters base</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">molot.tool_group</field>
+            <field name="view_mode">tree</field>
+            <field name="context">{'search_default_group_by_provider': True}</field>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a new tool_group
+              </p><p>
+                Each cutting tool have tool group
+              </p>
+            </field>
+        </record>
+
+        <!---->
+
+        <record id="show_molot_unit_of_measurement_tree" model="ir.ui.view">
+            <field name="name">molot.unit_of_measurement.tree</field>
+            <field name="model">molot.unit_of_measurement</field>
+            <field name="arch" type="xml">
+                <tree string="cutting tool parameters" editable="bottom">
+                    <field name="name"/>
+                    <field name="code"/>
+                </tree>
+            </field>
+        </record>
+        <record id="show_molot_unit_of_measurement" model="ir.actions.act_window">
+            <field name="name">cutting tool parameters base</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">molot.unit_of_measurement</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'search_default_group_by_provider': True}</field>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a new unit of measurement
+              </p><p>
+                Each cutting tool have several parameters with unit of measurement
+              </p>
+            </field>
+        </record>
+
+        <record id="show_molot_cutting_tool_parameters_base_tree" model="ir.ui.view">
+            <field name="name">molot.cutting_tool_parameters_base.tree</field>
+            <field name="model">molot.cutting_tool_parameters_base</field>
+            <field name="arch" type="xml">
+                <tree string="cutting tool parameters" editable="bottom">
+                    <header>
+                        <button name="copy_check_exist_parameters_to_all_tools" string="copy/check exists parameters in cutting tools" type="object" class="btn-primary"/>
+                    </header>
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="unit_of_msrmnt_id"/>
+                    <field name="descr"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="show_molot_cutting_tool_parameters_base_form" model="ir.ui.view">
+            <field name="name">molot.cutting_tool_parameters_base.form</field>
+            <field name="model">molot.cutting_tool_parameters_base</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet string="cutting tool parameters base">
+                            <group>
+                                <field name="name"/>
+                                <field name="code"/>
+                                <field name="unit_of_msrmnt_id"/>
+                            </group>
+                            <group>
+                                <field name="descr"/>
+                            </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="show_molot_cutting_tool_parameters_base" model="ir.actions.act_window">
+            <field name="name">cutting tool parameters base</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">molot.cutting_tool_parameters_base</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'search_default_group_by_provider': True}</field>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a new cutting tool parameters
+              </p><p>
+                Each cutting tool will have this parameters
+              </p>
+            </field>
+        </record>
+
+        <record id="show_molot_cutting_tools_tree" model="ir.ui.view">
+            <field name="name">molot.cutting_tool.tree</field>
+            <field name="model">molot.cutting_tool</field>
+            <field name="arch" type="xml">
+                <tree string="cutting tools">
+                    <field name="name"/>
+                    <field name="artikul"/>
+                    <field name="unit_of_msrmnt_id"/>
+                    <field name="descr"/>
+                    <field name="tool_group_id"/>
+                    <field name="tool_class_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="show_molot_cutting_tools_form" model="ir.ui.view">
+            <field name="name">molot.cutting_tool.form</field>
+            <field name="model">molot.cutting_tool</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button string="Save" type="object" class="btn-primary" special="save"/>
+                        <button string="Cancel" class="btn btn-secondary" special="cancel" data-hotkey="z"/>
+                    </header>
+                    <sheet string="cutting tool">
+                        <group>
+                            <group>
+                                <field name="name" placeholder="enter name"/>
+                                <field name="artikul" placeholder="enter unique artikul"/>
+                            </group>
+                            <group>
+                                <field name="unit_of_msrmnt_id" placeholder="select unit of measure"/>
+                                <field name="descr" placeholder="type description of the tool"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="general" >
+                                <group>
+                                    <group>
+                                        <field name="tool_group_id" placeholder="select tools group"/>
+                                        <field name="tool_class_id" placeholder="select tools class"/>
+                                        <field name="mandrel_id" placeholder="select tools mandrel"/>
+                                        <field name="alloy_id" placeholder="select tools alloy"/>
+                                        <field name="number_of_cutting_edges"/>
+                                        <field name="number_of_steps"/>
+                                        <field name="weight_kg"/>
+                                        <field name="type_of_use" placeholder="select type of use"/>
+                                        <field name="cad_number" placeholder="enter CAD number"/>
+                                        <field name="macro_name" placeholder="enter macro name"/>
+                                    </group>
+                                    <group>
+                                        <field
+                                            name="cutting_tool_parameters_ids"
+                                            widget="section_and_note_one2many"
+                                            mode="tree">
+                                            <tree delete="0" create="0" editable="bottom">
+                                                <field name="parameter_code"/>
+                                                <field name="param_value"/>
+                                                <field name="parameter_name"/>
+                                            </tree>
+                                            </field>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Manufactures" >
+                                <field name="tools_manufacturers_ids"
+                                widget="section_and_note_one2many"
+                                mode="tree">
+                                    <tree editable="bottom">
+                                        <field name="manufacturer_id" placeholder="select manufacturer" force_save="1" options="{'no_open': True,}"/>
+                                        <field name="manufacturers_artikul" placeholder="enter manufacturer artikul"/>
+                                        <field name="descr" placeholder="type description"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string ="Assembling specification">
+                                <field name="cutting_tool_assembling_spec_ids"
+                                       widget="section_and_note_one2many"
+                                       mode="tree">
+                                    <tree editable="bottom">
+                                        <field name ="spec_number"/>
+                                        <field name ="artikul"/>
+                                        <field name ="specification_tool_id" force_save="1" options="{'no_open': True,}"/>
+                                        <field name ="quantity"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="show_molot_cutting_tools" model="ir.actions.act_window">
+            <field name="name">cutting tools</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">molot.cutting_tool</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'search_default_group_by_provider': True}</field>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a new cutting tool
+              </p><p>
+                Each cutting tool will have several parameters
+              </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

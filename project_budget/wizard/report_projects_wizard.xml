@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="project_budget_projects_report_print_form" model="ir.ui.view">
+        <field name="name">project_budget.projects.report.wizard.form</field>
+        <field name="model">project_budget.projects.report.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="year"/>
+                        </group>
+                        <group>
+                            <field name="type_report"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="commercial_budget_id"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button string="Print" name="action_print_report" class="btn-success" type="object"/>
+                    <button string="Cancel" class="btn-danger" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_projects_print_report" model="ir.actions.act_window">
+        <field name="name">Projects report</field>
+        <field name="res_model">project_budget.projects.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <report id="action_projects_list_report_xlsx_kb"
+            string="Projects Report kb"
+            model="project_budget.projects.report.wizard"
+            report_type="xlsx"
+            name="project_budget.report_budget_excel"
+            menu="False"
+            file = "project_budget.report_budget_excel"
+    />
+
+    <report id="action_projects_list_report_xlsx_forecast"
+            string="Projects Report forecast"
+            model="project_budget.projects.report.wizard"
+            report_type="xlsx"
+            name="project_budget.report_budget_forecast_excel"
+            menu="False"
+            file = "project_budget.report_budget_forecast_excel"
+    />
+
+    <report id="action_projects_list_report_xlsx_svod"
+            string="Projects Report svod"
+            model="project_budget.projects.report.wizard"
+            report_type="xlsx"
+            name="project_budget.report_svod_excel"
+            menu="False"
+            file = "project_budget.report_svod_excel"
+    />
+
+
+
+
+
+</odoo>

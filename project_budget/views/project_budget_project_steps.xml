@@ -31,6 +31,7 @@
                     <sheet string="Step">
                         <field name="budget_state" invisible="1"/>
                         <field name="approve_state" invisible="1"/>
+                        <field name="is_percent_fot_manual" invisible="1"/>
                         <group>
                             <field name="step_id" readonly="1"/>
                         </group>
@@ -174,7 +175,8 @@
                                        attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
                                        ,'invisible': [('is_awards_on_results_project', '=', False)]}"/>
                                 <field name="taxes_fot_premiums"
-                                       attrs="{'invisible': [('is_own_works_fot', '=', False),('is_awards_on_results_project', '=', False)]}"/>
+                                       attrs="{'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager'),('is_percent_fot_manual','=',False)]
+                                       ,'invisible': [('is_own_works_fot', '=', False),('is_awards_on_results_project', '=', False)]}"/>
                             </group>
                         </group>
                     </sheet>

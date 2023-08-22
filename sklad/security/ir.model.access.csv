@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_sklad_party,access_sklad_party_management,model_sklad_party,base.group_erp_manager,1,1,1,1
+access_sklad_mol,access_sklad_mol_management,model_sklad_mol,base.group_erp_manager,1,1,1,1
+access_sklad_order_spec,access_sklad_spec_management,model_sklad_order_spec,base.group_erp_manager,1,1,1,1
+access_sklad,access_sklad_management,model_sklad_order,base.group_erp_manager,1,1,1,1

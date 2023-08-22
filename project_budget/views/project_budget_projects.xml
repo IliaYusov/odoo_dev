@@ -78,7 +78,7 @@
                         It is usually used to indicate the expected behaviour. -->
                         <button string="Save" type="object" class="btn-primary" special="save" attrs="{'invisible': ['|',('approve_state', '=', '-'),('budget_state', '=', 'fixed')]}"/>
                         <button string="Cancel" class="btn btn-secondary" special="cancel" data-hotkey="z" attrs="{'invisible': ['|',('approve_state', '=', '-'),('budget_state', '=', 'fixed')]}"/>
-                        <button string="Delete" type="object" class="btn-red" name="unlink" attrs="{'invisible': ['|','|',('approve_state', '!=', 'need_approve_manager'),('budget_state', '=', 'fixed'),('id', '=', False)]}"/>
+                        <button string="Delete" type="object" class="btn-danger" name="unlink" attrs="{'invisible': ['|','|',('approve_state', '!=', 'need_approve_manager'),('budget_state', '=', 'fixed'),('id', '=', False)]}"/>
                         <button string="Send to approve" type="object" name="set_approve_manager" class="oe_highlight" attrs="{'invisible': ['|',('approve_state', '!=', 'need_approve_manager'),('budget_state', '=', 'fixed')]}"/>
                         <button string="Approve" type="object" name="set_approve_supervisor" class="oe_highlight" attrs="{'invisible': ['|',('approve_state', '!=', 'need_approve_supervisor'),('budget_state', '=', 'fixed')]}"/>
                         <button string="Decline" type="object" name="cancel_approve" class="oe_highlight" attrs="{'invisible': ['|',('approve_state', 'not in', ('approved','need_approve_supervisor')),('budget_state', '=', 'fixed')]}"/>
@@ -86,6 +86,16 @@
                         <field name="approve_state" widget="statusbar" statusbar_visible="need_approve_manager,need_approve_supervisor,approved"/>
                     </header>
                     <sheet string="Project">
+						<div class="oe_button_box" name="button_box">
+                            <button class="oe_stat_button" type="object" name="action_open_attachments"
+                                    icon="fa-files-o">
+                                <field string="Attachments" name="attachment_count" widget="statinfo"/>
+                            </button>
+                            <button class="oe_stat_button" type="object" name="action_open_tenders"
+                                    icon="fa-gavel">
+                                <field string="Tenders" name="tenders_count" widget="statinfo"/>
+                            </button>
+                        </div>
                         <field name="company_id" invisible="True"/>
                         <field name="company_id" groups="base.group_multi_company"
                                    options="{'no_create': True}"/>
@@ -181,6 +191,7 @@
                                           options="{'no_open': True}" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
                                           invisible="1"
                                     />
+                                    <field name="is_percent_fot_manual" invisible="1"/>
                                 </group>
                                 <h5>
                                     <group col="3">
@@ -321,7 +332,8 @@
                                                attrs="{'readonly': ['|','|',('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
                                               ,'invisible': [('is_awards_on_results_project', '=', False),('project_have_steps', '=', False)]}"/>
                                         <field name="taxes_fot_premiums"
-                                               attrs="{'invisible': [('is_own_works_fot', '=', False),('is_awards_on_results_project', '=', False),('project_have_steps', '=', False)]}"/>
+                                               attrs="{'readonly': ['|','|','|',('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager'),('is_percent_fot_manual','=',False)]
+                                               ,'invisible': [('is_own_works_fot', '=', False),('is_awards_on_results_project', '=', False),('project_have_steps', '=', False)]}"/>
                                     </group>
                                 </group>
                             </page>
@@ -501,6 +513,7 @@
                                            decoration-success="specification_state=='production'"
                     />
                     <field name="date_actual" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                    <field name="step_project_number" optional="Show"/>
                     <field name="project_have_steps" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
                     <field name="is_framework" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
                     <field name="was_changes" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>

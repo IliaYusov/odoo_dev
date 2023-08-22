@@ -248,7 +248,6 @@
 }
 
 /*=====================Process Chart===========================*/
-
 .chart_container {
     display: grid;
     grid-template-columns: auto 110px;

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="project_budget_tender_report_print_form" model="ir.ui.view">
+        <field name="name">project_budget.tender.report.wizard.form</field>
+        <field name="model">project_budget.tender.report.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                        </group>
+                        <group>
+                            <field name="is_report_for_management"/>
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button string="Print" name="action_print_report" class="btn-success" type="object"/>
+                    <button string="Cancel" class="btn-danger" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_tender_print_report" model="ir.actions.act_window">
+        <field name="name">Tender report</field>
+        <field name="res_model">project_budget.tender.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <report id="action_tender_list_report_xlsx"
+            string="Tender Report"
+            model="project_budget.tender.report.wizard"
+            report_type="xlsx"
+            name="project_budget.report_tender_xlsx"
+            menu="False"
+            file = "project_budget.report_tender_xlsx"
+    />
+</odoo>

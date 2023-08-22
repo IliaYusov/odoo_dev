@@ -1,0 +1,248 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* avia
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0-20230218\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-02-27 19:12+0000\n"
+"PO-Revision-Date: 2023-02-27 19:12+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: avia
+#: model:ir.model.fields,field_description:avia.field_avia_aircrafts__board_number
+msgid " Board Number"
+msgstr "Номер борта"
+
+#. module: avia
+#: model:ir.model.fields,field_description:avia.field_avia_aircrafts__avatar
+msgid "Aircraft avatar"
+msgstr "Аватарка борта"
+
+#. module: avia
+#: model:ir.model.fields,field_description:avia.field_avia_aircrafts__description
+msgid "Aircraft description"
+msgstr "Описание борта"
+
+#. module: avia
+#: model:ir.model.fields,field_description:avia.field_avia_aircrafts__foto
+msgid "Aircraft photo"
+msgstr "Фото борта"
+
+#. module: avia
+#: model:ir.model.fields,field_description:avia.field_avia_aircrafts__status_id
+msgid "Aircraft status"
+msgstr "Статус борта"
+
+#. module: avia
+#: model:ir.model.fields,field_description:avia.field_avia_aircraft_status__code
+msgid "Aircraft status code"
+msgstr "Код статуса"
+
+#. module: avia
+#: model:ir.model.fields,field_description:avia.field_avia_aircraft_status__description
+msgid "Aircraft status description"
+msgstr "Описание статуса борта"
+
+#. module: avia
+#: model:ir.model.fields,field_description:avia.field_avia_aircraft_status__name
+msgid "Aircraft status name"
+msgstr "Наименование статуса"
+
+#. module: avia
+#: model:ir.model.fields,field_description:avia.field_avia_aircrafts__type_id
+msgid "Aircraft type"
+msgstr "Тип борта"
+
+#. module: avia
+#: model:ir.model.fields,field_description:avia.field_avia_aircraft_types__code
+msgid "Aircraft type code"
+msgstr "Код типа борта"
+
+#. module: avia
+#: model:ir.model.fields,field_description:avia.field_avia_aircraft_types__description
+msgid "Aircraft type description"
+msgstr "Описание типа"
+
+#. module: avia
+#: model:ir.model.fields,field_description:avia.field_avia_aircraft_types__name
+msgid "Aircraft type name"
+msgstr "Наименование типа борта"
+
+#. module: avia
+#: model_terms:ir.ui.view,arch_db:avia.view_aircraft_tree
+msgid "Aircrafts"
+msgstr "Борты"
+
+#. module: avia
+#: model:ir.actions.act_window,name:avia.catalog_aircrafts
+msgid "Aircrafts catalog"
+msgstr "Каталог бортов"
+
+#. module: avia
+#: model:ir.ui.menu,name:avia.avia_menu
+msgid "Avia"
+msgstr "Авиация"
+
+#. module: avia
+#: model_terms:ir.ui.view,arch_db:avia.view_aircraft_status_kanban
+msgid "Board:"
+msgstr "Борт:"
+
+#. module: avia
+#: model:ir.ui.menu,name:avia.avia_menu_catalogs
+msgid "Catalogs"
+msgstr "Каталоги"
+
+#. module: avia
+#: model_terms:ir.actions.act_window,help:avia.catalog_aircrafts
+msgid "Create a new aircraft"
+msgstr "Создать новый борт"
+
+#. module: avia
+#: model_terms:ir.actions.act_window,help:avia.catalog_aircraft_status
+msgid "Create a new status of aircraft"
+msgstr "Создать новый статус борта"
+
+#. module: avia
+#: model_terms:ir.actions.act_window,help:avia.catalog_aircraft_types
+msgid "Create a new type of aircraft"
+msgstr "Создать новый тип борта"
+
+#. module: avia
+#: model:ir.model.fields,field_description:avia.field_avia_aircraft_status__create_uid
+#: model:ir.model.fields,field_description:avia.field_avia_aircraft_types__create_uid
+#: model:ir.model.fields,field_description:avia.field_avia_aircrafts__create_uid
+msgid "Created by"
+msgstr "Автор"
+
+#. module: avia
+#: model:ir.model.fields,field_description:avia.field_avia_aircraft_status__create_date
+#: model:ir.model.fields,field_description:avia.field_avia_aircraft_types__create_date
+#: model:ir.model.fields,field_description:avia.field_avia_aircrafts__create_date
+msgid "Created on"
+msgstr "Дата создания"
+
+#. module: avia
+#: model:ir.model.fields,field_description:avia.field_avia_aircraft_status__display_name
+#: model:ir.model.fields,field_description:avia.field_avia_aircraft_types__display_name
+#: model:ir.model.fields,field_description:avia.field_avia_aircrafts__display_name
+msgid "Display Name"
+msgstr "Отображаемое имя"
+
+#. module: avia
+#: model:ir.model.fields,field_description:avia.field_avia_aircraft_status__id
+#: model:ir.model.fields,field_description:avia.field_avia_aircraft_types__id
+#: model:ir.model.fields,field_description:avia.field_avia_aircrafts__id
+msgid "ID"
+msgstr "ID"
+
+#. module: avia
+#: model:ir.model.fields,field_description:avia.field_avia_aircraft_status____last_update
+#: model:ir.model.fields,field_description:avia.field_avia_aircraft_types____last_update
+#: model:ir.model.fields,field_description:avia.field_avia_aircrafts____last_update
+msgid "Last Modified on"
+msgstr "Дата модификации"
+
+#. module: avia
+#: model:ir.model.fields,field_description:avia.field_avia_aircraft_status__write_uid
+#: model:ir.model.fields,field_description:avia.field_avia_aircraft_types__write_uid
+#: model:ir.model.fields,field_description:avia.field_avia_aircrafts__write_uid
+msgid "Last Updated by"
+msgstr "Последнее обновление автор"
+
+#. module: avia
+#: model:ir.model.fields,field_description:avia.field_avia_aircraft_status__write_date
+#: model:ir.model.fields,field_description:avia.field_avia_aircraft_types__write_date
+#: model:ir.model.fields,field_description:avia.field_avia_aircrafts__write_date
+msgid "Last Updated on"
+msgstr "Последнее обновление дата"
+
+#. module: avia
+#: model:ir.ui.menu,name:avia.avia_menu_catalogs_planes
+msgid "Planes"
+msgstr "Борты"
+
+#. module: avia
+#: model:ir.ui.menu,name:avia.avia_menu_catalogs_plane_status
+msgid "Planes status"
+msgstr "Статус бортов"
+
+#. module: avia
+#: model:ir.ui.menu,name:avia.avia_menu_catalogs_plane_types
+msgid "Planes type"
+msgstr "ТИпы бортов"
+
+#. module: avia
+#: model_terms:ir.ui.view,arch_db:avia.view_aircraft_status_kanban
+msgid "S/N"
+msgstr "С/Н"
+
+#. module: avia
+#: model:ir.model.fields,field_description:avia.field_avia_aircrafts__serial_number
+msgid "Serial board number"
+msgstr "Серийный номер борта"
+
+#. module: avia
+#: model_terms:ir.ui.view,arch_db:avia.view_aircraft_status_kanban
+msgid "Type"
+msgstr "Тип"
+
+#. module: avia
+#: model:ir.actions.act_window,name:avia.catalog_aircraft_types
+#: model_terms:ir.ui.view,arch_db:avia.view_aircraft_types_tree
+msgid "Types of aircraft"
+msgstr "Тип борта"
+
+#. module: avia
+#: model_terms:ir.ui.view,arch_db:avia.view_aircraft_status_form
+#: model_terms:ir.ui.view,arch_db:avia.view_aircraft_types_form
+msgid "Warehouse orders"
+msgstr ""
+
+#. module: avia
+#: model_terms:ir.ui.view,arch_db:avia.view_aircraft_status_kanban
+msgid "avia"
+msgstr ""
+
+#. module: avia
+#: model:ir.model,name:avia.model_avia_aircraft_status
+msgid "avia.aircraft_status"
+msgstr ""
+
+#. module: avia
+#: model:ir.model,name:avia.model_avia_aircraft_types
+msgid "avia.aircraft_types"
+msgstr ""
+
+#. module: avia
+#: model:ir.model,name:avia.model_avia_aircrafts
+msgid "avia.aircrafts"
+msgstr ""
+
+#. module: avia
+#: model_terms:ir.actions.act_window,help:avia.catalog_aircraft_status
+msgid "each aircraft have status"
+msgstr "Каждый борт имеет статус"
+
+#. module: avia
+#: model_terms:ir.actions.act_window,help:avia.catalog_aircrafts
+msgid "each aircraft have status and type"
+msgstr "каждый борт имеет статус и тип"
+
+#. module: avia
+#: model_terms:ir.actions.act_window,help:avia.catalog_aircraft_types
+msgid "each aircraft have type"
+msgstr "каждый борт имеет тип"
+
+#. module: avia
+#: model:ir.actions.act_window,name:avia.catalog_aircraft_status
+#: model_terms:ir.ui.view,arch_db:avia.view_aircraft_status_tree
+msgid "status of aircraft"
+msgstr "Статус борта"
