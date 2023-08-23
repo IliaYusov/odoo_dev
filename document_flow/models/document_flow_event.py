@@ -275,7 +275,7 @@ class Event(models.Model):
             ],
             'res_model': 'task.task',
             'type': 'ir.actions.act_window',
-            'view_mode': 'tree,form'
+            'view_mode': 'tree,form,pivot'
         }
 
 

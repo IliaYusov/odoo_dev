@@ -34,7 +34,7 @@
     <record id="task_action_sub_task" model="ir.actions.act_window">
         <field name="name">Sub-tasks</field>
         <field name="res_model">task.task</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,form,pivot</field>
         <field name="search_view_id" ref="task.task_view_search"/>
         <field name="domain">[('id', 'child_of', active_id), ('id', '!=', active_id)]</field>
         <field name="context">{
@@ -259,7 +259,7 @@
     <record id="action_view_task_id" model="ir.actions.act_window">
         <field name="name">Tasks</field>
         <field name="res_model">task.task</field>
-        <field name="view_mode">tree,calendar,form</field>
+        <field name="view_mode">tree,calendar,form,pivot</field>
         <field name="domain">[('parent_ref_id', '=', active_id), ('parent_id', '=', False)]</field>
         <field name="context">{
             'default_parent_ref': 'project_budget.projects,%s' % active_id,
@@ -277,7 +277,7 @@
     <record id="action_view_all_task" model="ir.actions.act_window">
         <field name="name">Tasks</field>
         <field name="res_model">task.task</field>
-        <field name="view_mode">tree,kanban,calendar,form</field>
+        <field name="view_mode">tree,kanban,calendar,form,pivot</field>
         <field name="domain">[('parent_id', '=', False)]</field>
         <field name="context">{'search_default_open_tasks': 1}</field>
         <field name="search_view_id" ref="task.task_view_search"/>
@@ -290,6 +290,18 @@
                 <br/>
                 Collaborate efficiently by chatting in real-time or via email.
             </p>
+        </field>
+    </record>
+
+    <record id="task_view_pivot" model="ir.ui.view">
+        <field name="name">Tasks</field>
+        <field name="model">task.task</field>
+        <field name="arch" type="xml">
+            <pivot string="Tasks">
+                <field name="name" type="row"/>
+                <field name="user_id" type="row"/>
+                <field name="stage_type_id" type="col"/>
+            </pivot>
         </field>
     </record>
 </odoo>

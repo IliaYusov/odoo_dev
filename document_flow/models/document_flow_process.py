@@ -389,7 +389,7 @@ class ProcessExecutor(models.Model):
             parent_ref_id=self.process_id.id,
             date_deadline=self.date_deadline
         )
-        if self.executor_ref_type == 'res.users':
+        if type(self.executor_ref).__name__ == 'res.users':
             task_data['user_id'] = self.executor_ref.id
         else:
             task_data['role_executor_id'] = self.executor_ref.id
