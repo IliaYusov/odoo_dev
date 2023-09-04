@@ -156,6 +156,9 @@
             <field name="model">project_budget.tenders</field>
             <field name="arch" type="xml">
                 <form>
+                    <header>
+                         <button string="Save" type="object" class="btn-primary" special="save"/>
+                    </header>
                     <sheet string="tender" >
 						<div class="oe_button_box" name="button_box">
                             <button class="oe_stat_button" type="object" name="action_open_attachments"

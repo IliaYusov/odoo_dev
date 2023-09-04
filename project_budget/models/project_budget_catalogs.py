@@ -194,6 +194,7 @@ class tender_current_status(models.Model):
     name = fields.Char(string="current status name", required=True, translate=True)
     code = fields.Char(string="current status code", required=True)
     descr = fields.Char(string="current status description", translate=True)
+    highlight = fields.Boolean(string="highlight", default=False)
 
 class tender_comments_type(models.Model):
     _name = 'project_budget.tender_comments_type'
@@ -201,8 +202,3 @@ class tender_comments_type(models.Model):
     name = fields.Char(string="comment type name", required=True, translate=True)
     code = fields.Char(string="comment type code", required=True)
     descr = fields.Char(string="comment type description", translate=True)
-
-
-
-
-

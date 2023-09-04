@@ -54,6 +54,7 @@
                     <field name="name"/>
                     <field name="code"/>
                     <field name="descr"/>
+                    <field name="highlight" widget="boolean_toggle"/>
                 </tree>
             </field>
         </record>
@@ -68,6 +69,7 @@
                             <field name="name"/>
                             <field name="code"/>
                             <field name="descr" widget="html"/>
+                            <field name="highlight" widget="boolean_toggle"/>
                         </group>
                     </sheet>
                 </form>

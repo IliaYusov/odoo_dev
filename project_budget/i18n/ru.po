@@ -1596,6 +1596,7 @@ msgstr "Правило для руководителя проекта"
 
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
+#: model_terms:ir.ui.view,arch_db:project_budget.show_projects_tenders_form
 msgid "Save"
 msgstr "Сохранить"
 
@@ -2127,6 +2128,13 @@ msgstr "Описание"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_current_status__name
 msgid "current status name"
 msgstr "Наименование"
+
+#. module: project_budget
+#: model:ir.model,name:project_budget.model_project_budget_tender_current_status
+#: model_terms:ir.ui.view,arch_db:project_budget.show_project_tender_current_status_form
+#: model_terms:ir.ui.view,arch_db:project_budget.show_project_tender_current_status_tree
+msgid "highlight"
+msgstr "Подсвечивать в отчете"
 
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.view_tender_search
@@ -3780,7 +3788,7 @@ msgstr ""
 #. module: project_budget
 #: model:ir.ui.menu,name:project_budget.project_budget_catalogs_tender_current_status
 msgid "tender status"
-msgstr "тендер. Текущий статус"
+msgstr "Tендер. Текущий статус"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__tender_sums_ids
