@@ -233,6 +233,8 @@ class projects(models.Model):
         for row in self:
             if row.estimated_probability_id.name == '0':
                 row.specification_state = 'cancel'
+                for step in row.project_steps_ids:
+                    step.estimated_probability_id = row.estimated_probability_id
             if row.estimated_probability_id.name == '10':
                 row.specification_state = 'lead'
             if row.estimated_probability_id.name == '30':

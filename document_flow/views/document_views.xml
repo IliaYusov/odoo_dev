@@ -27,43 +27,24 @@
         <field name="model">document_flow.document</field>
         <field name="arch" type="xml">
             <form string="Document">
-                <header>
-                    <button string="Start processing" type="object" name="action_start_processing" class="oe_highlight"
-                            attrs="{'invisible': [('is_processing_started', '=', True)]}"/>
-                </header>
                 <sheet string="Document">
                     <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" type="object" name="action_open_processing"
+                                icon="fa-spinner" string="Processing">
+                        </button>
                         <button class="oe_stat_button" type="object" name="action_open_attachments"
                                 icon="fa-files-o">
                             <field string="Attachments" name="attachment_count" widget="statinfo"/>
                         </button>
                     </div>
-                    <group attrs="{'invisible': 1}">
-                        <field name="is_processing_started"/>
-                    </group>
                     <div class="oe_title">
                         <h1 class="d-flex flex-row">
-                            <field name="name" class="o_text_overflow" placeholder="Document Title..."
-                                   attrs="{'readonly': [('is_processing_started', '=', True)]}"/>
+                            <field name="name" class="o_text_overflow" placeholder="Document Title..."/>
                         </h1>
                     </div>
                     <group>
-                        <field name="date" widget="date" attrs="{'readonly': [('is_processing_started', '=', True)]}"/>
+                        <field name="date" widget="date"/>
                     </group>
-                    <div col="2" class="o_row">
-                        <group>
-                            <field name="template_id" attrs="{'readonly': [('is_processing_started', '=', True)]}"/>
-                        </group>
-                        <button name="fill_by_template" type="object" class="btn btn-link" attrs="{'invisible': [('is_processing_started', '=', True)]}">
-                            <span class="fa fa-refresh"></span>
-                            <span>Fill by template</span>
-                        </button>
-                    </div>
-                    <notebook>
-                        <page name="actions_page" string="Actions">
-                            <field name="action_ids" widget="section_and_note_one2many" mode="tree" attrs="{'readonly': [('is_processing_started', '=', True)]}"/>
-                        </page>
-                    </notebook>
                 </sheet>
             </form>
         </field>

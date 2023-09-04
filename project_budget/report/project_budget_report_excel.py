@@ -14,6 +14,10 @@ class report_budget_excel(models.AbstractModel):
     probabitily_list_Otmena = ['0']
     array_col_itogi = [12, 13,14,15,16,17,18,19,20,21,22,23,24,252,6,27,28]
     def printworksheet(self,workbook,budget,namesheet,stateproject):
+        global strYEAR
+        global YEARint
+        print('YEARint=',YEARint)
+        print('strYEAR =', strYEAR)
         report_name = budget.name
             # One sheet by partner
         sheet = workbook.add_worksheet(namesheet)
@@ -274,13 +278,13 @@ class report_budget_excel(models.AbstractModel):
             isFoundProjectsByOffice = False
             begRowProjectsByoffice = 0
             for project_manager in project_managers:
-                print('project_manager = ', project_manager.name)
+                # print('project_manager = ', project_manager.name)
                 isFoundProjectsByManager = False
 
                 column = -1
 
                 for estimated_probability in estimated_probabilitys:
-                    print('estimated_probability.name = ', estimated_probability.name)
+                    # print('estimated_probability.name = ', estimated_probability.name)
                     cur_budget_projects = self.env['project_budget.projects'].search([('commercial_budget_id', '=', budget.id)
                                                                                      ,('project_office_id','=',project_office.id)
                                                                                      ,('project_manager_id','=',project_manager.id)
@@ -291,7 +295,7 @@ class report_budget_excel(models.AbstractModel):
                         if spec.project_have_steps == False: # or 20230707 Вавилова Ирина сказала не выводить рамку spec.is_framework == True: # рамку всегда выгружать
                             if spec.is_framework == True: continue # 20230718 Алина Козленко сказала не выгружать в принципе рамки
                             if (spec.estimated_probability_id.name in probabitily_list) and (
-                                        spec.end_presale_project_month.year >= self.YEARint or spec.end_sale_project_month.year >= self.YEARint):
+                                        spec.end_presale_project_month.year >= YEARint or spec.end_sale_project_month.year >= YEARint):
                                 row += 1
                                 isFoundProjectsByManager = True
                                 isFoundProjectsByOffice = True
@@ -385,7 +389,7 @@ class report_budget_excel(models.AbstractModel):
                         if spec.project_have_steps == True:
                             for step in spec.project_steps_ids:
                                 if (step.estimated_probability_id.name in probabitily_list) and (
-                                        step.end_presale_project_month.year >= self.YEARint or step.end_sale_project_month.year >= self.YEARint):
+                                        step.end_presale_project_month.year >= YEARint or step.end_sale_project_month.year >= YEARint):
                                     row += 1
                                     isFoundProjectsByManager = True
                                     isFoundProjectsByOffice = True
@@ -508,7 +512,7 @@ class report_budget_excel(models.AbstractModel):
             sheet.write_string(row, colFormula, '', row_format_itogo)
         for colFormula in range(13, 29):
             formula = formulaItogo.format(xl_col_to_name(colFormula))
-            print('formula = ',formula)
+            # print('formula = ',formula)
             sheet.write_formula(row, colFormula, formula, row_format_itogo)
 
     def generate_xlsx_report(self, workbook, data, budgets):
@@ -516,11 +520,14 @@ class report_budget_excel(models.AbstractModel):
         print('data = ',data)
 
         global strYEAR
-        strYEAR = data['year']
+        strYEAR = str(data['year'])
         global YEARint
         YEARint = int(strYEAR)
         commercial_budget_id = data['commercial_budget_id']
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
+
+        print('YEARint=',YEARint)
+        print('strYEAR =', strYEAR)
 
         self.printworksheet(workbook, budget, 'КБ', 'prepare')
         self.printworksheet(workbook, budget, 'ПБ', 'production')

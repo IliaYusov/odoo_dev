@@ -11,6 +11,8 @@ class tenders(models.Model):
     _check_company_auto = True
     # _rec_names_search = ['project_id', 'essence_project']
 
+    tender_id = fields.Char(string="Tender ID", required=True, index=True, copy=True, group_operator = 'count',
+                             default='ID') #lambda self: self.env['ir.sequence'].sudo().next_by_code('project_budget.projects'))
     company_id = fields.Many2one('res.company', required=True, default=lambda self: self.env.company)
     is_need_projects = fields.Boolean(string="is_need_projects", copy=True, default = False,tracking=True)
     projects_id = fields.Many2one('project_budget.projects', tracking=True, domain = "[('budget_state', '=', 'work')]")
@@ -44,7 +46,7 @@ class tenders(models.Model):
     project_manager_id = fields.Many2one(related='projects_id.project_manager_id', readonly=True)
     current_status = fields.Many2one('project_budget.tender_current_status', required=True, tracking=True)
 
-    responsible_ids = fields.Many2many('res.users', relation='tender_user_rel', column1='tender_id', column2='user_id', string='responsibles', required = True)
+    responsible_ids = fields.Many2many('hr.employee', relation='tender_employee_rel', column1='tender_id', column2='employee_id', string='responsibles', required = True)
 
     is_need_payment_for_the_victory = fields.Boolean(string="is_need_payment_for_the_victory", copy=True, default = False)
     is_need_site_payment  = fields.Boolean(string="is_need_site_payment", copy=True, default = False,tracking=True)
@@ -58,6 +60,14 @@ class tenders(models.Model):
     attachment_count = fields.Integer(compute='_compute_attachment_count', string='Attachments')
 
     name_to_show = fields.Char(string='name_to_show', compute='_get_name_to_show')
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if not vals.get('tender_id') or vals['tender_id'] == 'ID':
+                vals['tender_id'] = self.env['ir.sequence'].sudo().next_by_code('project_budget.tenders')
+        return super().create(vals_list)
+
 
     @api.depends('date_of_filling_in','customer_organization_id','name_of_the_purchase')
     def _get_name_to_show(self):

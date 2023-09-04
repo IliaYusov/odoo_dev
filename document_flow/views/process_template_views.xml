@@ -4,6 +4,7 @@
         <field name="name">Process Templates</field>
         <field name="res_model">document_flow.process.template</field>
         <field name="view_mode">tree,form</field>
+        <field name="context">{"active_test": False}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 No process templates found. Let's create one!
@@ -24,6 +25,8 @@
         <field name="arch" type="xml">
             <tree string="Process Templates" multi_edit="1" sample="1">
                 <field name="name"/>
+                <field name="model_id"/>
+                <field name="active" widget="boolean_toggle"/>
                 <field name="company_id" groups="base.group_multi_company"/>
             </tree>
         </field>
@@ -34,6 +37,9 @@
         <field name="model">document_flow.process.template</field>
         <field name="arch" type="xml">
             <form string="Process Template">
+                <group invisible="1">
+                    <field name="active"/>
+                </group>
                 <sheet string="Process Template">
                     <div name="button_box" position="inside">
                         <button class="oe_stat_button" type="action" name="%(action_document_flow_processes_from_template)d"
@@ -42,11 +48,17 @@
                             <field string="Processes" name="process_count" widget="statinfo"/>
                         </button>
                     </div>
+                    <widget name="web_ribbon" title="Archived"
+                            bg_color="bg-danger"
+                            attrs="{'invisible': [('active', '=', True)]}"/>
                     <div class="oe_title mb-3">
                         <h1>
                             <field name="name" placeholder="Process Template Title..."/>
                         </h1>
                     </div>
+                    <group>
+                        <field name="model_id"/>
+                    </group>
                     <group>
                         <field name="company_id" groups="base.group_multi_company"/>
                     </group>
@@ -59,14 +71,7 @@
                         <page name="actions_page" string="Actions">
                             <field name="action_ids" widget="section_and_note_one2many" mode="tree"
                                    context="{'default_sequence': len(action_ids), 'default_parent_ref_type': 'document_flow.process.template',
-                                   'default_parent_ref_id': active_id}">
-                                <tree>
-                                    <field name="sequence" widget="handle"/>
-                                    <field name="visible_sequence" optional="hide"/>
-                                    <field name="type"/>
-                                    <field name="name"/>
-                                </tree>
-                            </field>
+                                   'default_parent_ref_id': active_id}"/>
                         </page>
                     </notebook>
                 </sheet>
@@ -80,7 +85,7 @@
         <field name="arch" type="xml">
             <tree string="Actions">
                 <field name="sequence" widget="handle"/>
-                <field name="visible_sequence" width="5%"/>
+                <field name="visible_sequence" width="5%" optional="hide"/>
                 <field name="type"/>
                 <field name="name"/>
             </tree>

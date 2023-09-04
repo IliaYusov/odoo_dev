@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-18 14:05+0000\n"
-"PO-Revision-Date: 2023-08-18 14:05+0000\n"
+"POT-Creation-Date: 2023-09-02 13:03+0000\n"
+"PO-Revision-Date: 2023-09-02 13:03+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -714,11 +714,6 @@ msgid "Execution, 100%"
 msgstr "Исполнение, 100%"
 
 #. module: project_budget
-#: model:ir.actions.report,name:project_budget.report_project_budget_excel
-msgid "Export to EXCEL"
-msgstr "Экспорт в EXCEL"
-
-#. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
 msgid "Fact"
 msgstr "Факт"
@@ -798,17 +793,8 @@ msgid "General"
 msgstr "Общие"
 
 #. module: project_budget
-#: model:ir.actions.report,name:project_budget.report_project_forecast_excel
-msgid "Generate forecast (EXCEL)"
-msgstr "Прогноз (EXCEL)"
-
-#. module: project_budget
-#: model:ir.actions.report,name:project_budget.report_project_svod_excel
-msgid "Generate svod (EXCEL)"
-msgstr "Свод (EXCEL)"
-
-#. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.view_projects_search
+#: model_terms:ir.ui.view,arch_db:project_budget.view_tender_search
 msgid "Group By"
 msgstr "Группировать по"
 
@@ -986,7 +972,7 @@ msgstr "Руководитель ПО"
 #. module: project_budget
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_projects_report_wizard__type_report__kb
 msgid "KB"
-msgstr ""
+msgstr "КБ"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_kam____last_update
@@ -1215,11 +1201,6 @@ msgstr "Сообщения"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__my_activity_date_deadline
 msgid "My Activity Deadline"
 msgstr "Срок моей активности"
-
-#. module: project_budget
-#: model_terms:ir.ui.view,arch_db:project_budget.report_budget_html
-msgid "Name:"
-msgstr "Имя"
 
 #. module: project_budget
 #. odoo-python
@@ -1619,6 +1600,12 @@ msgid "Save"
 msgstr "Сохранить"
 
 #. module: project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.view_customer_organization_search
+#: model_terms:ir.ui.view,arch_db:project_budget.view_tender_search
+msgid "Search customer_organization"
+msgstr "Поиск организации"
+
+#. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.view_projects_search
 msgid "Search projects"
 msgstr "Поиск проектов"
@@ -1730,6 +1717,11 @@ msgid "Tax ID"
 msgstr "ИНН"
 
 #. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__tender_id
+msgid "Tender ID"
+msgstr ""
+
+#. module: project_budget
 #: model:ir.actions.report,name:project_budget.action_tender_list_report_xlsx
 msgid "Tender Report"
 msgstr "Tender_list_31-07-2023_02-09-2023.xlsx"
@@ -1752,7 +1744,7 @@ msgstr "Реестр тендеров"
 #. module: project_budget
 #: model:res.groups,name:project_budget.project_budget_tenders_user
 msgid "Tender user"
-msgstr "Тендер. Пользователь"
+msgstr "Тенжер. Пользователь"
 
 #. module: project_budget
 #. odoo-python
@@ -1931,6 +1923,7 @@ msgstr "Утверждено"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__auction_number
+#: model_terms:ir.ui.view,arch_db:project_budget.view_tender_search
 msgid "auction_number"
 msgstr "№ торгов"
 
@@ -2136,6 +2129,11 @@ msgid "current status name"
 msgstr "Наименование"
 
 #. module: project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.view_tender_search
+msgid "current_status"
+msgstr "Статус"
+
+#. module: project_budget
 #: model:ir.actions.act_window,name:project_budget.show_customer_organization
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__customer_organization_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__customer_organization_id
@@ -2165,6 +2163,11 @@ msgstr "Длинное наименование"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_customer_organization__name
 msgid "customer_organization name"
 msgstr "Наименование"
+
+#. module: project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.view_tender_search
+msgid "customer_organization_id"
+msgstr "Организация"
 
 #. module: project_budget
 #: model:ir.actions.act_window,name:project_budget.show_customer_status
@@ -2881,13 +2884,20 @@ msgid "name of the purchase from project"
 msgstr "Наименование закупки из проекта"
 
 #. module: project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.view_customer_organization_search
+msgid "name or code or inn"
+msgstr "Наименование/код/инн"
+
+#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__name_of_the_purchase
+#: model_terms:ir.ui.view,arch_db:project_budget.view_tender_search
 msgid "name_of_the_purchase"
 msgstr "Наименование закупки"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_supervisor__name_to_show
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_commercial_budget__name_to_show
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_customer_organization__name_to_show
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__name_to_show
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__name_to_show
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__name_to_show
@@ -2958,7 +2968,8 @@ msgid ""
 "only project admin or supervisor or project office manager can reopen "
 "projects"
 msgstr ""
-"только админ модуля, куратор или руководитель офиса могут вернуть проект в работу"
+"только админ модуля, куратор или руководитель офиса могут вернуть проект в "
+"работу"
 
 #. module: project_budget
 #. odoo-python
@@ -3000,6 +3011,11 @@ msgstr "Прочие расходы"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__own_works_fot
 msgid "own_works_fot"
 msgstr "Работы собственные (ФОТ)"
+
+#. module: project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.view_tender_search
+msgid "participant_id"
+msgstr "Заказчик"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__participants_offer
@@ -3095,6 +3111,7 @@ msgstr "Сумма ПДС"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__presale_number
+#: model_terms:ir.ui.view,arch_db:project_budget.view_tender_search
 msgid "presale_number"
 msgstr "Номер пресейла ОЗ"
 
@@ -3206,11 +3223,6 @@ msgid "project_budget_estimated_probability_action"
 msgstr "Обзор текущих сделок"
 
 #. module: project_budget
-#: model:ir.model,name:project_budget.model_project_budget_customer_status
-msgid "project_castomer status"
-msgstr "Статус заказчика"
-
-#. module: project_budget
 #: model:ir.model,name:project_budget.model_project_budget_commercial_budget
 msgid "project_commercial budget"
 msgstr "Коммерческий бюджет"
@@ -3219,6 +3231,11 @@ msgstr "Коммерческий бюджет"
 #: model:ir.model,name:project_budget.model_project_budget_customer_organization
 msgid "project_customer organization"
 msgstr "Заказчик/организация"
+
+#. module: project_budget
+#: model:ir.model,name:project_budget.model_project_budget_customer_status
+msgid "project_customer status"
+msgstr "Статус заказчика"
 
 #. module: project_budget
 #: model:ir.model,name:project_budget.model_project_budget_estimated_probability
@@ -3281,6 +3298,11 @@ msgid "project_manager_access"
 msgstr "Доступ пользователей по менеджерам проектов"
 
 #. module: project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.view_tender_search
+msgid "project_manager_id"
+msgstr "КАМ"
+
+#. module: project_budget
 #: model:ir.actions.act_window,name:project_budget.show_project_office
 #: model:ir.model,name:project_budget.model_project_budget_project_office
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_kam__project_office_id
@@ -3288,7 +3310,6 @@ msgstr "Доступ пользователей по менеджерам про
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__project_office_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__project_office_id
 #: model:ir.ui.menu,name:project_budget.project_budget_catalogs_project_office
-#: model_terms:ir.ui.view,arch_db:project_budget.report_budget_html
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budgets_tree
 #: model_terms:ir.ui.view,arch_db:project_budget.show_project_office_form
 #: model_terms:ir.ui.view,arch_db:project_budget.show_project_office_tree
@@ -3330,7 +3351,6 @@ msgstr "Этап проекта"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__project_supervisor_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__project_supervisor_id
 #: model:ir.ui.menu,name:project_budget.project_budget_catalogs_project_supervisor
-#: model_terms:ir.ui.view,arch_db:project_budget.report_budget_html
 #: model_terms:ir.ui.view,arch_db:project_budget.show_project_supervisor_form
 #: model_terms:ir.ui.view,arch_db:project_budget.show_project_supervisor_tree
 #: model_terms:ir.ui.view,arch_db:project_budget.view_projects_search
@@ -3781,6 +3801,11 @@ msgid "tender_current_status"
 msgstr "Текущий статус"
 
 #. module: project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.view_tender_search
+msgid "tender_id"
+msgstr ""
+
+#. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_projects_tenders_tree
 msgid "tenders"
 msgstr "Тендеры"
@@ -3859,7 +3884,7 @@ msgstr "введине наименование этапа, например п�
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__url_tender
 msgid "url of tender"
-msgstr "URL"
+msgstr "Ссылка"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_kam__kam_user_id
@@ -3877,7 +3902,7 @@ msgstr "Пользователь"
 #. module: project_budget
 #: model:ir.model,name:project_budget.model_res_users
 msgid "users budgets access"
-msgstr "Доступы пользователей бюджета"
+msgstr ""
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_kam__is_use_ebit

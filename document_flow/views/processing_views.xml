@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="document_flow_processing_view_form" model="ir.ui.view">
+        <field name="name">document_flow.processing.form</field>
+        <field name="model">document_flow.processing</field>
+        <field name="arch" type="xml">
+            <form string="Processing">
+                <header>
+                    <button string="Start processing" type="object" name="action_start_processing" class="oe_highlight"
+                            attrs="{'invisible': [('process_id', '!=', False)]}"/>
+                    <button string="Resume processing" type="object" name="resume_processing_from_last_stage" class="oe_highlight"
+                            attrs="{'invisible': [('process_id', '!=', False), ('state', '!=', 'break')]}"/>
+                </header>
+                <sheet string="Processing">
+                    <group attrs="{'invisible': 1}">
+                        <field name="process_id"/>
+                        <field name="state"/>
+                        <field name="parent_ref_type"/>
+                        <field name="parent_ref_id"/>
+                    </group>
+                    <div id="o_process_container" class="d-lg-flex">
+                        <div id="o_processing_main" class="flex-grow-1">
+                            <group>
+                                <field name="parent_ref"/>
+                            </group>
+                            <div col="2" class="o_row">
+                                <group>
+                                    <field name="template_id"/>
+                                </group>
+                                <button name="fill_by_template" type="object" class="btn btn-link">
+                                    <span class="fa fa-refresh"></span>
+                                    <span>Fill by template</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <notebook>
+                        <page name="actions_page" string="Actions">
+                            <field name="action_ids" widget="section_and_note_one2many" mode="tree"
+                                   context="{'default_parent_ref_type': 'document_flow.processing','default_parent_ref_id': active_id}"/>
+                        </page>
+                        <page name="processing_history_page" string="Processing History">
+                            <field name="task_history_ids" mode="tree" attrs="{'readonly': 1}"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

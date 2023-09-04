@@ -133,6 +133,9 @@ class Process(models.Model):
     parent_obj_ref = fields.Reference(string='Parent Object', selection='_selection_parent_model',
                                       compute='_compute_parent_obj', readonly=True)
 
+    task_history_ids = fields.One2many('document_flow.task.history', string='Task History',
+                                       compute='_compute_task_history_ids')
+
     @api.model
     def create(self, vals_list):
         if vals_list.get('code', _('New')) == _('New'):
@@ -164,7 +167,7 @@ class Process(models.Model):
     def _compute_reviewer_ref(self):
         for process in self:
             if process.reviewer_ref_type and process.reviewer_ref_type in self.env:
-                process.reviewer_ref = '%s,%s' % (process.reviewer_ref_type, process.reviewer_ref_id or 0)
+                process.reviewer_ref = '%s,%d' % (process.reviewer_ref_type, process.reviewer_ref_id or 0)
             else:
                 process.reviewer_ref = False
 
@@ -172,14 +175,26 @@ class Process(models.Model):
     def _compute_controller_ref(self):
         for process in self:
             if process.controller_ref_type and process.controller_ref_type in self.env:
-                process.controller_ref = '%s,%s' % (process.controller_ref_type, process.controller_ref_id or 0)
+                process.controller_ref = '%s,%d' % (process.controller_ref_type, process.controller_ref_id or 0)
             else:
                 process.controller_ref = False
+
+    def _compute_task_history_ids(self):
+        for process in self:
+            process.task_history_ids = self.env['document_flow.task.history'].search([
+                ('process_id', 'in', process.child_ids.ids if process.type == 'complex' else [process.id])
+            ]).ids
 
     @api.onchange('template_id')
     def _onchange_template(self):
         if self.template_id and not self.executor_ids:
             self.fill_process_by_template()
+
+    def _put_task_to_history(self, task):
+        return self.env['document_flow.task.history'].create({
+            'process_id': self.id,
+            'task_id': task.id
+        })
 
     def fill_process_by_template(self):
         if self.template_id:
@@ -219,6 +234,7 @@ class Process(models.Model):
                     })
 
     def action_start_process(self):
+        self.ensure_one()
         if self.state == 'on_registration':
             if self.type == 'complex':
                 self.start_complex_process()
@@ -272,13 +288,24 @@ class Process(models.Model):
                 executor.create_task_for_executor()
 
     def start_complex_process(self):
-        min_sequence = self.child_ids.search([
-            ('parent_id', '=', self.id)
-        ], order='sequence, id', limit=1).sequence or 0
-        [process.action_start_process() for process in self.child_ids.search([
-            ('parent_id', '=', self.id),
-            ('sequence', '=', min_sequence)
-        ], order='id')]
+        min_sequence = min(self.child_ids, key=lambda pr: pr.sequence).sequence or 0
+        [process.action_start_process() for process in
+         self.child_ids.filtered(lambda pr: pr.sequence == min_sequence).sorted(lambda pr: pr.id)]
+
+    def pause_processing(self):
+        pass
+
+    def resume_from_last_stage(self):
+        process = self.child_ids.filtered(lambda pr: pr.state == 'break')[0] if self.type == 'complex' else self
+        if process:
+            decline_tasks = process.task_ids.filtered(lambda t: t.active and t.stage_id.result_type == 'error')
+            for decline_task in decline_tasks:
+                task = self.env['task.task'].browse(decline_task.id).copy()
+                process._put_task_to_history(task)
+                decline_task.write({'active': False})
+            process.write({'state': 'started'})
+            if process.parent_id:
+                process.parent_id.write({'state': 'started'})
 
     def process_task_result(self, date_closed, result_type='ok', feedback=False):
         if result_type == 'ok':
@@ -295,7 +322,7 @@ class Process(models.Model):
                         ('sequence', '=', next_sequence)
                     ], order='id'):
                         executor.fill_date_deadline()
-                        executor.create_task_for_executor()
+                        task = executor.create_task_for_executor()
             else:
                 task_count = 1
                 if self.type == 'review':
@@ -323,6 +350,8 @@ class Process(models.Model):
                             ('sequence', '=', next_sequence)
                         ], order='id')]
                     self.write({'state': 'finished', 'date_end': date_closed})
+                    if self.parent_obj_ref:
+                        self.parent_obj_ref.write({'state': 'approved'})
         elif result_type == 'error':
             self.write({'state': 'break', 'date_end': date_closed})
             if self.parent_id:
@@ -393,7 +422,9 @@ class ProcessExecutor(models.Model):
             task_data['user_id'] = self.executor_ref.id
         else:
             task_data['role_executor_id'] = self.executor_ref.id
-        return self.env['task.task'].create(task_data)
+        res = self.env['task.task'].create(task_data)
+        self.process_id._put_task_to_history(res)
+        return res
 
 
 class ProcessTemplate(models.Model):
@@ -409,12 +440,14 @@ class ProcessTemplate(models.Model):
     description = fields.Html(string='Description')
     company_id = fields.Many2one('res.company', string='Company', required=True,
                                  default=lambda self: self.env.company)
+    model_id = fields.Many2one('ir.model', string='Model')
 
     action_ids = fields.One2many('document_flow.action', 'parent_ref_id', string='Actions',
                                  domain=lambda self: [('parent_ref_type', '=', self._name)])
 
     process_ids = fields.One2many('document_flow.process', 'template_id', string='Processes')
     process_count = fields.Integer(compute='_compute_process_count')
+    active = fields.Boolean(default=True, index=True)
 
     def write(self, vals):
         res = super(ProcessTemplate, self).write(vals)
@@ -439,7 +472,8 @@ class Action(models.Model):
     def _selection_parent_model(self):
         return [
             ('document_flow.process.template', _('Process Template')),
-            ('document_flow.document', _('Document'))
+            ('document_flow.document', _('Document')),
+            ('document_flow.processing', _('Processing'))
         ]
 
     @api.model

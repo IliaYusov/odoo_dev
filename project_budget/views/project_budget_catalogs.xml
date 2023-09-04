@@ -106,10 +106,10 @@
                     <field name="code"/>
                     <field name="descr"/>
                     <field name="user_id" widget="many2one_avatar_user"/>
-                    <field name="receive_tasks_for_approve_project" widget="boolean_toggle"/>
-                    <field name="isRukovoditel_required_in_project" widget="boolean_toggle"/>
-                    <field name="print_rukovoditel_in_kb" widget="boolean_toggle"/>
-                    <field name="is_prohibit_selection" widget="boolean_toggle"/>
+                    <field name="receive_tasks_for_approve_project" widget="boolean_toggle" groups="project_budget.project_budget_admin"/>
+                    <field name="isRukovoditel_required_in_project" widget="boolean_toggle" groups="project_budget.project_budget_admin"/>
+                    <field name="print_rukovoditel_in_kb" widget="boolean_toggle" groups="project_budget.project_budget_admin"/>
+                    <field name="is_prohibit_selection" widget="boolean_toggle" groups="project_budget.project_budget_admin"/>
                 </tree>
             </field>
         </record>
@@ -129,10 +129,10 @@
                             <field name="code"/>
                             <field name="descr" widget="html"/>
                             <field name="user_id" widget="many2one_avatar_user"/>
-                            <field name="receive_tasks_for_approve_project" widget="boolean_toggle"/>
-                            <field name="isRukovoditel_required_in_project" widget="boolean_toggle"/>
-                            <field name="print_rukovoditel_in_kb" widget="boolean_toggle"/>
-                            <field name="is_prohibit_selection" widget="boolean_toggle"/>
+                            <field name="receive_tasks_for_approve_project" widget="boolean_toggle" groups="project_budget.project_budget_admin"/>
+                            <field name="isRukovoditel_required_in_project" widget="boolean_toggle" groups="project_budget.project_budget_admin"/>
+                            <field name="print_rukovoditel_in_kb" widget="boolean_toggle" groups="project_budget.project_budget_admin"/>
+                            <field name="is_prohibit_selection" widget="boolean_toggle" groups="project_budget.project_budget_admin"/>
                         </group>
                     </sheet>
                 </form>
@@ -328,6 +328,7 @@
             <field name="model">project_budget.customer_organization</field>
             <field name="arch" type="xml">
                 <tree string="customer_organization">
+<!--                    <field name="name_to_show" invisible="False"/>-->
                     <field name="name"/>
                     <field name="longname"/>
                     <field name="inn"/>
@@ -367,7 +368,8 @@
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">project_budget.customer_organization</field>
             <field name="view_mode">tree,form</field>
-            <field name="context">{'search_default_group_by_provider': True}</field>
+            <field name="search_view_id" ref="view_customer_organization_search"></field>
+            <field name="context">{'search_default_id': 1}</field>
             <field name="help" type="html">
               <p class="o_view_nocontent_smiling_face">
                 Create a new customer_organization

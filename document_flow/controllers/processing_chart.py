@@ -4,7 +4,6 @@ from odoo.http import request
 
 
 class ProcessingChartController(http.Controller):
-
     def _prepare_process_data(self, process):
         return dict(
             id=process.id,
@@ -42,23 +41,27 @@ class ProcessingChartController(http.Controller):
         )
         return values
 
-    # @http.route('/hr/get_subordinates', type='json', auth='user')
-    # def get_subordinates(self, employee_id, subordinates_type=None, **kw):
-    #     """
-    #     Get employee subordinates.
-    #     Possible values for 'subordinates_type':
-    #         - 'indirect'
-    #         - 'direct'
-    #     """
-    #     employee = self._check_employee(employee_id, **kw)
-    #     if not employee:  # to check
-    #         return {}
-    #
-    #     if subordinates_type == 'direct':
-    #         res = (employee.child_ids - employee).ids
-    #     elif subordinates_type == 'indirect':
-    #         res = (employee.subordinate_ids - employee.child_ids).ids
-    #     else:
-    #         res = employee.subordinate_ids.ids
-    #
-    #     return res
+    @http.route('/document_flow/get_process_chart', type='json', auth='user')
+    def get_process_chart_new(self, process_id, **kw):
+        process = request.env['document_flow.process'].browse(process_id)
+        if not process:
+            return {
+                'sub_processes': []
+            }
+
+        values = dict(
+            self=self._prepare_process_data(process),
+            sub_processes=[self._prepare_process_data(child) for child in process.child_ids if child != process]
+        )
+        return values
+
+    @http.route('/employee/employee_panel', auth='user', type='json')
+    def get_panel_data(self):
+        htm_result = """<html><body>
+                    <div class="bg-info text-center p-2">
+                        <b> Document: XMLID (Dynamic Document name and XMLID) </b>
+                        </div>
+                    </body>
+                    </html>
+                    """
+        return {'html': htm_result}

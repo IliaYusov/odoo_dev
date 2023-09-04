@@ -28,6 +28,7 @@ class report_tender_excel(models.AbstractModel):
     is_report_for_management = False
 
     def printworksheet(self,workbook, tenders):
+        global is_report_for_management
         print('printworksheet is_report_for_management',is_report_for_management)
             # One sheet by partner
         sheet = workbook.add_worksheet('tenders')
@@ -50,7 +51,13 @@ class report_tender_excel(models.AbstractModel):
             'text_wrap': True,
             'font_name': 'Times New Roman'
         })
-
+        row_format_text_offer = workbook.add_format({
+            'border': 1,
+            'font_size': 9,
+            'text_wrap': True,
+            'font_name': 'Times New Roman'
+        })
+        row_format_text_offer.set_font_color('red')
 
         row_format_text_comments = workbook.add_format({
             'border': 1,
@@ -163,7 +170,7 @@ class report_tender_excel(models.AbstractModel):
                 sheet.write_string(row, column,sum_initial_maximum_contract_price,row_format_text)
             else : sheet.write_string(row, column,'НЕТ',row_format_text)
             column += 1
-            sheet.write_string(row, column, sum_participants_offer,row_format_text)
+            sheet.write_string(row, column, sum_participants_offer,row_format_text_offer)
             column += 1
             if tender.is_need_securing_the_application == True:
                 sheet.write_string(row, column,sum_securing_the_application,row_format_text)

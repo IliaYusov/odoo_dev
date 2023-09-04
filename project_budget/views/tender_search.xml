@@ -1,0 +1,24 @@
+<odoo>
+    <data>
+        <record id="view_tender_search" model="ir.ui.view">
+            <field name="name">project_budget.tenders.search</field>
+            <field name="model">project_budget.tenders</field>
+            <field name="arch" type="xml">
+            <search string="Search customer_organization">
+                <field name="name_of_the_purchase" filter_domain="[('name_of_the_purchase','ilike',self)]" string="name_of_the_purchase"/>
+                <field name="tender_id" filter_domain="[('tender_id','ilike',self)]" string="tender_id"/>
+                <field name="participant_id" filter_domain="[('participant_id','ilike',self)]" string="participant_id"/>
+                <field name="auction_number" filter_domain="[('auction_number','ilike',self)]" string="auction_number"/>
+                <field name="customer_organization_id" filter_domain="[('customer_organization_id','ilike',self)]" string="customer_organization_id"/>
+                <field name="project_manager_id" filter_domain="[('project_manager_id','ilike',self)]" string="project_manager_id"/>
+                <field name="current_status" filter_domain="[('current_status','ilike',self)]" string="current_status"/>
+                <field name="presale_number" filter_domain="[('presale_number','ilike',self)]" string="presale_number"/>
+                <group expand="0" string="Group By">
+                    <filter string="current_status" name="current_status" context="{'group_by': 'current_status'}"></filter>
+                    <filter string="customer_organization_id" name="customer_organization_id" context="{'group_by': 'customer_organization_id'}"></filter>
+                </group>
+            </search>
+            </field>
+        </record>
+    </data>
+</odoo>

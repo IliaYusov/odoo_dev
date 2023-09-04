@@ -1,0 +1,13 @@
+<odoo>
+    <data>
+        <record id="view_customer_organization_search" model="ir.ui.view">
+            <field name="name">project_budget.customer_organization.search</field>
+            <field name="model">project_budget.customer_organization</field>
+            <field name="arch" type="xml">
+            <search string="Search customer_organization">
+                <field name="name" filter_domain="['|','|',('name','ilike',self),('inn','ilike',self),('code','ilike',self)]" string="name or code or inn"/>
+            </search>
+            </field>
+        </record>
+    </data>
+</odoo>

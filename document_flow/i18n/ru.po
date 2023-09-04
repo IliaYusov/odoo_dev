@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-14 09:06+0000\n"
-"PO-Revision-Date: 2023-08-14 09:06+0000\n"
+"POT-Creation-Date: 2023-08-27 15:07+0000\n"
+"PO-Revision-Date: 2023-08-27 15:07+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -24,18 +24,19 @@ msgstr ""
 "'Протокол %s от %s' % (object.name, object.date_start.strftime('%d.%m.%Y'))"
 
 #. module: document_flow
-#: model_terms:ir.ui.view,arch_db:document_flow.document_view_form
+#: model_terms:ir.ui.view,arch_db:document_flow.document_flow_processing_view_form
 msgid ""
 "<span class=\"fa fa-refresh\"/>\n"
-"                            <span>Fill by template</span>"
+"                                    <span>Fill by template</span>"
 msgstr ""
 "<span class=\"fa fa-refresh\"/>\n"
-"                            <span>Заполнить по шаблону</span>"
+"                                    <span>Заполнить по шаблону</span>"
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/document_flow_task.py:0
-#: code:addons/document_flow/models/process.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
+#: code:addons/document_flow/models/document_flow_processing.py:0
+#: code:addons/document_flow/models/task_task.py:0
 #: model:ir.model,name:document_flow.model_document_flow_action
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_action_executor__action_id
 #: model_terms:ir.ui.view,arch_db:document_flow.action_view_form
@@ -59,13 +60,19 @@ msgid "Action Title..."
 msgstr "Заголовок..."
 
 #. module: document_flow
-#: model:ir.model.fields,field_description:document_flow.field_document_flow_document__action_ids
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_template__action_ids
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_processing__action_ids
 #: model_terms:ir.ui.view,arch_db:document_flow.action_view_tree
-#: model_terms:ir.ui.view,arch_db:document_flow.document_view_form
+#: model_terms:ir.ui.view,arch_db:document_flow.document_flow_processing_view_form
 #: model_terms:ir.ui.view,arch_db:document_flow.process_template_view_form
 msgid "Actions"
 msgstr "Действия"
+
+#. module: document_flow
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_process_template__active
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_role_executor__active
+msgid "Active"
+msgstr ""
 
 #. module: document_flow
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_event__activity_ids
@@ -89,14 +96,14 @@ msgstr "Иконка типа активности"
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/document.py:0
+#: code:addons/document_flow/models/document_flow_document.py:0
 #, python-format
 msgid "Add attachments for this document"
 msgstr "Добавьте вложения для данного документа"
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/event.py:0
+#: code:addons/document_flow/models/document_flow_event.py:0
 #, python-format
 msgid "Add attachments for this event"
 msgstr "Добавьте вложение для мероприятия"
@@ -114,7 +121,7 @@ msgstr "После решения"
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/process.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_action_executor__type_sequence__after_the_previous
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_process_executor__type_sequence__after_the_previous
 #, python-format
@@ -135,8 +142,8 @@ msgstr "Повестка:"
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/event.py:0
-#: code:addons/document_flow/models/event.py:0
+#: code:addons/document_flow/models/document_flow_event.py:0
+#: code:addons/document_flow/models/document_flow_event.py:0
 #, python-format
 msgid "Agree on a protocol of event \"%s\""
 msgstr "Согласуйте протокол мероприятия \"%s\""
@@ -151,8 +158,8 @@ msgstr "Согласовант"
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/process.py:0
-#: code:addons/document_flow/models/process.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_action__type__agreement
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_process__type__agreement
 #: model:task.type,name:document_flow.task_type_agreement
@@ -162,7 +169,7 @@ msgstr "Согласование"
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/process.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_action__task_sequence__all_at_once
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_process__task_sequence__all_at_once
 #, python-format
@@ -193,6 +200,17 @@ msgid "Approved"
 msgstr "Согласовано"
 
 #. module: document_flow
+#: model_terms:ir.ui.view,arch_db:document_flow.process_template_view_form
+#: model_terms:ir.ui.view,arch_db:document_flow.role_executor_view_form
+msgid "Archived"
+msgstr "В архиве"
+
+#. module: document_flow
+#: model:ir.model.fields,field_description:document_flow.field_task_task__role_executor_id
+msgid "Assigned"
+msgstr "Исполнитель"
+
+#. module: document_flow
 #. odoo-javascript
 #: code:addons/document_flow/static/src/js/dashboard_view.js:0
 #: code:addons/document_flow/static/src/xml/dashboard_view.xml:0
@@ -207,8 +225,8 @@ msgstr "Количество вложений"
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/document.py:0
-#: code:addons/document_flow/models/event.py:0
+#: code:addons/document_flow/models/document_flow_document.py:0
+#: code:addons/document_flow/models/document_flow_event.py:0
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_document__attachment_count
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_event__attachment_count
 #: model_terms:ir.ui.view,arch_db:document_flow.document_view_form
@@ -218,13 +236,8 @@ msgid "Attachments"
 msgstr "Вложения"
 
 #. module: document_flow
-#: model:ir.model.fields,field_description:document_flow.field_document_flow_process__bokeh_chart
-msgid "Bokeh Chart"
-msgstr ""
-
-#. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/process.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_process__state__break
 #, python-format
 msgid "Break"
@@ -236,6 +249,11 @@ msgid "Code"
 msgstr "Код"
 
 #. module: document_flow
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_task_history__comment
+msgid "Comment"
+msgstr "Комментарий"
+
+#. module: document_flow
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_event__company_ids
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process__company_ids
 msgid "Companies"
@@ -244,6 +262,7 @@ msgstr "Компании"
 #. module: document_flow
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_document__company_id
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_template__company_id
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_role_executor__company_id
 msgid "Company"
 msgstr "Компания"
 
@@ -254,7 +273,7 @@ msgstr "Завершено"
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/process.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_process__type__complex
 #, python-format
 msgid "Complex"
@@ -282,7 +301,7 @@ msgstr ""
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/event.py:0
+#: code:addons/document_flow/models/document_flow_event.py:0
 #, python-format
 msgid "Copy_%s"
 msgstr "Копия_%s"
@@ -316,6 +335,9 @@ msgstr "Созданные мной (просроченные)"
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_executor__create_uid
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_parent_object__create_uid
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_template__create_uid
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_processing__create_uid
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_role_executor__create_uid
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_task_history__create_uid
 msgid "Created by"
 msgstr "Автор"
 
@@ -333,6 +355,9 @@ msgstr "Автор"
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_executor__create_date
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_parent_object__create_date
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_template__create_date
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_processing__create_date
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_role_executor__create_date
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_task_history__create_date
 msgid "Created on"
 msgstr "Дата создания"
 
@@ -345,6 +370,16 @@ msgstr "Дашборды"
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_document__date
 msgid "Date"
 msgstr "Дата"
+
+#. module: document_flow
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_task_history__date_closed
+msgid "Date Closed"
+msgstr "Дата закрытия"
+
+#. module: document_flow
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_task_history__date_created
+msgid "Date Created"
+msgstr "Дата создания"
 
 #. module: document_flow
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process__date_deadline
@@ -384,8 +419,9 @@ msgstr "Решили..."
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/document_flow_task.py:0
-#: code:addons/document_flow/models/process.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
+#: code:addons/document_flow/models/document_flow_processing.py:0
+#: code:addons/document_flow/models/task_task.py:0
 #: model_terms:ir.ui.view,arch_db:document_flow.event_annex_view_form
 #: model_terms:ir.ui.view,arch_db:document_flow.event_decision_view_form
 #, python-format
@@ -438,14 +474,18 @@ msgstr "Описание..."
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_executor__display_name
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_parent_object__display_name
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_template__display_name
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_processing__display_name
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_role_executor__display_name
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_task_history__display_name
 msgid "Display Name"
 msgstr "Наименование"
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/document_flow_task.py:0
-#: code:addons/document_flow/models/process.py:0
-#: code:addons/document_flow/models/process.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
+#: code:addons/document_flow/models/document_flow_processing.py:0
+#: code:addons/document_flow/models/task_task.py:0
 #: model:ir.model,name:document_flow.model_document_flow_document
 #: model_terms:ir.ui.view,arch_db:document_flow.document_view_form
 #, python-format
@@ -506,8 +546,9 @@ msgstr "Дата окончания"
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/document_flow_task.py:0
-#: code:addons/document_flow/models/process.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
+#: code:addons/document_flow/models/document_flow_processing.py:0
+#: code:addons/document_flow/models/task_task.py:0
 #: model:ir.model,name:document_flow.model_document_flow_event
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_event_annex__event_id
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_event_decision__event_id
@@ -552,7 +593,7 @@ msgstr "Мероприятия"
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/event.py:0
+#: code:addons/document_flow/models/document_flow_event.py:0
 #, python-format
 msgid "Execute decision of event \"%s\""
 msgstr "Выполните решение мероприятия \"%s\""
@@ -566,8 +607,8 @@ msgstr ""
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/process.py:0
-#: code:addons/document_flow/models/process.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_action__type__execution
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_event_decision__task_type__execution
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_process__type__execution
@@ -584,6 +625,7 @@ msgstr "Дата исполнения"
 #. module: document_flow
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_action_executor__executor_ref
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_executor__executor_ref
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_task_history__executor_id
 #: model_terms:ir.ui.view,arch_db:document_flow.process_executor_view_form
 msgid "Executor"
 msgstr "Исполнитель"
@@ -618,7 +660,7 @@ msgstr "Исполнители: %s"
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/process.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_process__state__finished
 #, python-format
 msgid "Finished"
@@ -645,6 +687,11 @@ msgid "From"
 msgstr "С"
 
 #. module: document_flow
+#: model_terms:ir.ui.view,arch_db:document_flow.document_flow_task_history_view_search
+msgid "Group by..."
+msgstr "Группировать по..."
+
+#. module: document_flow
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_event__has_message
 msgid "Has Message"
 msgstr "Есть сообщения"
@@ -668,6 +715,9 @@ msgstr "Поможет управлять документами"
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_executor__id
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_parent_object__id
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_template__id
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_processing__id
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_role_executor__id
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_task_history__id
 msgid "ID"
 msgstr ""
 
@@ -688,6 +738,7 @@ msgstr "Если отмечено, то сообщения требуют Ваш
 
 #. module: document_flow
 #: model:ir.model.fields,help:document_flow.field_document_flow_event__message_has_error
+#: model:ir.model.fields,help:document_flow.field_document_flow_event__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
 msgstr "Если отмечено, то есть ошибки доставки"
 
@@ -712,11 +763,6 @@ msgid "Is Process Started"
 msgstr "Процесс запущен"
 
 #. module: document_flow
-#: model:ir.model.fields,field_description:document_flow.field_document_flow_document__is_processing_started
-msgid "Is Processing Started"
-msgstr ""
-
-#. module: document_flow
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_action____last_update
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_action_executor____last_update
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_document____last_update
@@ -730,6 +776,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_executor____last_update
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_parent_object____last_update
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_template____last_update
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_processing____last_update
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_role_executor____last_update
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_task_history____last_update
 msgid "Last Modified on"
 msgstr "Дата последнего изменения"
 
@@ -747,6 +796,9 @@ msgstr "Дата последнего изменения"
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_executor__write_uid
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_parent_object__write_uid
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_template__write_uid
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_processing__write_uid
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_role_executor__write_uid
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_task_history__write_uid
 msgid "Last Updated by"
 msgstr "Автор последнего изменения"
 
@@ -764,6 +816,9 @@ msgstr "Автор последнего изменения"
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_executor__write_date
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_parent_object__write_date
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_template__write_date
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_processing__write_date
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_role_executor__write_date
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_task_history__write_date
 msgid "Last Updated on"
 msgstr "Дата последнего изменения"
 
@@ -785,18 +840,16 @@ msgid "Management Committee"
 msgstr "Управляющий комитет"
 
 #. module: document_flow
-#: model:ir.ui.menu,name:document_flow.menu_management_committee
-msgid "Management Committees"
-msgstr "Управляющий комитет"
-
-#. module: document_flow
 #: model:ir.actions.act_window,name:document_flow.action_view_all_management_committee
-msgid "Management Committiees"
+#: model:ir.ui.menu,name:document_flow.menu_management_committee
+#: model_terms:ir.ui.view,arch_db:document_flow.management_committee_view_tree
+msgid "Management Committees"
 msgstr "Управляющие комитеты"
 
 #. module: document_flow
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_event__member_ids
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_management_committee__member_ids
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_role_executor__member_ids
 msgid "Members"
 msgstr "Участники"
 
@@ -812,12 +865,17 @@ msgstr "Сообщения"
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/process.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_action__task_sequence__mixed
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_process__task_sequence__mixed
 #, python-format
 msgid "Mixed"
 msgstr "Смешанно"
+
+#. module: document_flow
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_process_template__model_id
+msgid "Model"
+msgstr "Модель"
 
 #. module: document_flow
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_event_decision__repeat_interval__month
@@ -845,23 +903,19 @@ msgstr "Мои задачи"
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_management_committee__name
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process__name
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_template__name
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_role_executor__name
 msgid "Name"
 msgstr "Содержание"
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/process.py:0
-#: code:addons/document_flow/models/process.py:0
-#: code:addons/document_flow/models/process.py:0
-#: code:addons/document_flow/models/process.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
 #, python-format
 msgid "New"
 msgstr "Новый"
-
-#. module: document_flow
-#: model:ir.model.fields,field_description:document_flow.field_document_flow_event__activity_calendar_event_id
-msgid "Next Activity Calendar Event"
-msgstr ""
 
 #. module: document_flow
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_event__activity_date_deadline
@@ -904,6 +958,11 @@ msgid "No processes found. Let's create one!"
 msgstr "Процессы не найдены. Давайте создадим первый!"
 
 #. module: document_flow
+#: model_terms:ir.actions.act_window,help:document_flow.action_document_flow_role_executor_all_roles
+msgid "No roles of executors found. Let's create one!"
+msgstr "Роли исполнителей не найдены. Давайте создадим первую!"
+
+#. module: document_flow
 #: model_terms:ir.actions.act_window,help:document_flow.action_view_all_task
 msgid "No tasks found. Let's create one!"
 msgstr "Задачи не найдены. Давайте создадим"
@@ -942,7 +1001,7 @@ msgstr "На согласовании"
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/process.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_event__state__on_registration
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_process__state__on_registration
 #, python-format
@@ -977,12 +1036,14 @@ msgstr "Назначенные мне (просроченные)"
 #. module: document_flow
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_action__parent_ref
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_parent_object__parent_ref
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_processing__parent_ref
 msgid "Parent"
 msgstr "Родитель"
 
 #. module: document_flow
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_action__parent_ref_id
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_parent_object__parent_ref_id
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_processing__parent_ref_id
 msgid "Parent Id"
 msgstr ""
 
@@ -1004,6 +1065,7 @@ msgstr "Процесс-родитель"
 #. module: document_flow
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_action__parent_ref_type
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_parent_object__parent_ref_type
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_processing__parent_ref_type
 msgid "Parent Type"
 msgstr "Тип родителя"
 
@@ -1016,21 +1078,19 @@ msgstr "Срок (дней)"
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/document_flow_task.py:0
+#: code:addons/document_flow/models/task_task.py:0
 #: model:ir.model,name:document_flow.model_document_flow_process
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_action__process_id
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_event_decision__process_id
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_executor__process_id
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_parent_object__process_id
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_processing__process_id
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_task_history__process_id
+#: model_terms:ir.ui.view,arch_db:document_flow.document_flow_task_history_view_search
 #: model_terms:ir.ui.view,arch_db:document_flow.process_view_form
 #, python-format
 msgid "Process"
 msgstr "Процесс"
-
-#. module: document_flow
-#: model_terms:ir.ui.view,arch_db:document_flow.process_view_form
-msgid "Process Chart"
-msgstr ""
 
 #. module: document_flow
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_template__process_count
@@ -1044,7 +1104,7 @@ msgstr "Исполнитель процесса"
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/process.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
 #: model:ir.model,name:document_flow.model_document_flow_process_template
 #: model_terms:ir.ui.view,arch_db:document_flow.process_template_view_form
 #, python-format
@@ -1082,7 +1142,43 @@ msgstr "Процессы"
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/document.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
+#: code:addons/document_flow/models/document_flow_processing.py:0
+#: model:ir.model,name:document_flow.model_document_flow_processing
+#: model_terms:ir.ui.view,arch_db:document_flow.document_flow_processing_view_form
+#: model_terms:ir.ui.view,arch_db:document_flow.document_view_form
+#, python-format
+msgid "Processing"
+msgstr "Обработка"
+
+#. module: document_flow
+#: model_terms:ir.ui.view,arch_db:document_flow.process_view_form
+msgid "Processing Chart"
+msgstr ""
+
+#. module: document_flow
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_processing__task_history_ids
+#: model_terms:ir.ui.view,arch_db:document_flow.document_flow_processing_view_form
+#: model_terms:ir.ui.view,arch_db:document_flow.document_flow_task_history_view_search
+#: model_terms:ir.ui.view,arch_db:document_flow.document_flow_task_history_view_tree
+msgid "Processing History"
+msgstr "История обработки"
+
+#. module: document_flow
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_task_history__processing_result
+msgid "Processing Result"
+msgstr "Результат выполнения"
+
+#. module: document_flow
+#. odoo-python
+#: code:addons/document_flow/models/document_flow_processing.py:0
+#, python-format
+msgid "Processing was resumed"
+msgstr "Обработка возобновлена"
+
+#. module: document_flow
+#. odoo-python
+#: code:addons/document_flow/models/document_flow_processing.py:0
 #, python-format
 msgid "Processing was started"
 msgstr "Обработка запущена"
@@ -1126,6 +1222,11 @@ msgid "Repeat Interval"
 msgstr "Интервал повторения"
 
 #. module: document_flow
+#: model:ir.ui.menu,name:document_flow.menu_replacement_employee
+msgid "Replacements Of The Employees"
+msgstr "Замены сотрудников"
+
+#. module: document_flow
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_event_decision__responsible_id
 msgid "Responsible"
 msgstr "Ответственный"
@@ -1143,27 +1244,31 @@ msgid "Responsible: %s"
 msgstr "Ответственный: %s"
 
 #. module: document_flow
+#: model_terms:ir.ui.view,arch_db:document_flow.document_flow_processing_view_form
+msgid "Resume processing"
+msgstr "Возобновить обработку"
+
+#. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/process.py:0
-#: code:addons/document_flow/models/process.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_action__type__review
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_event_decision__task_type__review
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_process__type__review
-#: model:task.type,name:document_flow.task_type_review
 #, python-format
 msgid "Review"
 msgstr "Ознакомление"
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/event.py:0
+#: code:addons/document_flow/models/document_flow_event.py:0
 #, python-format
 msgid "Review a protocol of event \"%s\""
 msgstr "Ознакомьтесь с протоколом мероприятия \"%s\""
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/event.py:0
+#: code:addons/document_flow/models/document_flow_event.py:0
 #, python-format
 msgid "Review with decision of event \"%s\""
 msgstr "Ознакомьтесь с решением мероприятия \"%s\""
@@ -1194,6 +1299,39 @@ msgid "Reviewer Type"
 msgstr ""
 
 #. module: document_flow
+#. odoo-python
+#: code:addons/document_flow/models/document_flow_process.py:0
+#, python-format
+msgid "Role"
+msgstr "Роль"
+
+#. module: document_flow
+#: model:ir.model,name:document_flow.model_document_flow_role_executor
+msgid "Role Executor"
+msgstr "Роль исполнителя"
+
+#. module: document_flow
+#: model_terms:ir.ui.view,arch_db:document_flow.role_executor_view_form
+msgid "Role Of Executors"
+msgstr "Роль исполнителей"
+
+#. module: document_flow
+#: model:ir.ui.menu,name:document_flow.menu_executor_role
+#: model_terms:ir.ui.view,arch_db:document_flow.role_executor_view_tree
+msgid "Roles Of Executors"
+msgstr "Роли исполнителей"
+
+#. module: document_flow
+#: model:ir.actions.act_window,name:document_flow.action_document_flow_role_executor_all_roles
+msgid "Roles of executors"
+msgstr "Роли исполнителей"
+
+#. module: document_flow
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_event__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr ""
+
+#. module: document_flow
 #: model_terms:ir.ui.view,arch_db:document_flow.event_view_form
 msgid "Send for approve"
 msgstr "Отправить на согласование"
@@ -1212,7 +1350,7 @@ msgstr "Последовательность"
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/process.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_action__task_sequence__sequentially
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_process__task_sequence__sequentially
 #, python-format
@@ -1235,13 +1373,13 @@ msgid "Start process"
 msgstr "Запустить процесс"
 
 #. module: document_flow
-#: model_terms:ir.ui.view,arch_db:document_flow.document_view_form
+#: model_terms:ir.ui.view,arch_db:document_flow.document_flow_processing_view_form
 msgid "Start processing"
 msgstr "Запустить обработку"
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/process.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_process__state__started
 #, python-format
 msgid "Started"
@@ -1249,6 +1387,7 @@ msgstr "Запущен"
 
 #. module: document_flow
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process__state
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_processing__state
 msgid "State"
 msgstr "Статус"
 
@@ -1272,6 +1411,7 @@ msgstr ""
 
 #. module: document_flow
 #: model:ir.model,name:document_flow.model_task_task
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_task_history__task_id
 msgid "Task"
 msgstr "Задача"
 
@@ -1280,6 +1420,17 @@ msgstr "Задача"
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process__task_sequence
 msgid "Task Form Sequence"
 msgstr "Последовательность формирования задач"
+
+#. module: document_flow
+#: model:ir.model,name:document_flow.model_document_flow_task_history
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_process__task_history_ids
+msgid "Task History"
+msgstr "История обработки"
+
+#. module: document_flow
+#: model:res.groups,name:document_flow.group_document_flow_task_manager
+msgid "Task administrator"
+msgstr "Администратор задач"
 
 #. module: document_flow
 #: model_terms:ir.actions.act_window,help:document_flow.action_view_task_id
@@ -1292,7 +1443,7 @@ msgstr ""
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/event.py:0
+#: code:addons/document_flow/models/document_flow_event.py:0
 #: model:ir.actions.act_window,name:document_flow.action_view_all_task
 #: model:ir.actions.act_window,name:document_flow.action_view_task_id
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_event__tasks_count
@@ -1306,20 +1457,20 @@ msgstr "Задачи"
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/process.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
 #, python-format
 msgid "Tasks were created for the following user(s)"
 msgstr "Задачи были созданы для пользователя(-ей)"
 
 #. module: document_flow
-#: model:ir.model.fields,field_description:document_flow.field_document_flow_document__template_id
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process__template_id
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_processing__template_id
 msgid "Template"
 msgstr "Шаблон"
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/event.py:0
+#: code:addons/document_flow/models/document_flow_event.py:0
 #, python-format
 msgid "The process of agreement a protocol were started"
 msgstr "Процесс ознакомления с протоколом был запущен"
@@ -1343,7 +1494,7 @@ msgstr ""
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/process.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_action_executor__type_sequence__together_with_the_previous
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_process_executor__type_sequence__together_with_the_previous
 #, python-format
@@ -1364,11 +1515,21 @@ msgstr ""
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/process.py:0
+#: code:addons/document_flow/models/document_flow_process.py:0
 #: model:res.groups,name:document_flow.group_document_flow_user
 #, python-format
 msgid "User"
 msgstr "Пользователь"
+
+#. module: document_flow
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_event__website_message_ids
+msgid "Website Messages"
+msgstr ""
+
+#. module: document_flow
+#: model:ir.model.fields,help:document_flow.field_document_flow_event__website_message_ids
+msgid "Website communication history"
+msgstr ""
 
 #. module: document_flow
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_event_decision__repeat_interval__week
@@ -1396,3 +1557,8 @@ msgstr "Ежегодно"
 #: model:ir.model,name:document_flow.model_report_document_flow_event_protocol
 msgid "document_flow.event_protocol"
 msgstr ""
+
+#. module: document_flow
+#: model:task.type,name:document_flow.task_type_review
+msgid "{\"\"en_US\"\": \"\"Agreement\"\", \"\"ru_RU\"\": \"\"Согласование\"\"}"
+msgstr "Ознакомление"

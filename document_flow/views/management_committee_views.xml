@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="action_view_all_management_committee" model="ir.actions.act_window">
-        <field name="name">Management Committiees</field>
+        <field name="name">Management Committees</field>
         <field name="res_model">document_flow.management_committee</field>
         <field name="view_mode">tree,form</field>
         <field name="help" type="html">
@@ -26,6 +26,17 @@
                     </group>
                 </sheet>
             </form>
+        </field>
+    </record>
+
+    <record id="management_committee_view_tree" model="ir.ui.view">
+        <field name="name">document_flow.management_committee.tree</field>
+        <field name="model">document_flow.management_committee</field>
+        <field name="arch" type="xml">
+            <tree string="Management Committees">
+                <field name="name"/>
+                <field name="member_ids" widget="many2many_avatar_user" options='{"no_quick_create": True}'/>
+            </tree>
         </field>
     </record>
 </odoo>

@@ -37,5 +37,14 @@
             <field name="number_increment">1</field>
         </record>
 
+        <record id="tender_id_generate" model="ir.sequence">
+            <field name="name">Tender ID</field>
+            <field name="code">project_budget.tenders</field>
+            <field name="prefix">TND-%(year)s%(month)s-</field>
+            <field name="padding">6</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+        </record>
+
     </data>
 </odoo>

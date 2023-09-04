@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="document_flow_task_history_view_search" model="ir.ui.view">
+        <field name="name">document_flow.task.history.search</field>
+        <field name="model">document_flow.task.history</field>
+        <field name="arch" type="xml">
+            <search string="Processing History">
+                <group name="group_group_by" expand="1" string="Group by...">
+                    <filter name="group_by_process_id"
+                            string="Process" context="{'group_by': 'process_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="document_flow_task_history_view_tree" model="ir.ui.view">
+        <field name="name">document_flow.task.history.tree</field>
+        <field name="model">document_flow.task.history</field>
+        <field name="arch" type="xml">
+            <tree string="Processing History">
+                <button icon='/document_flow/static/description/icons/in_progress.png' readonly="1"
+                        name="state_in_progress"
+                        attrs="{'invisible': [('date_closed', '!=', False)]}"/>
+                <button icon='/document_flow/static/description/icons/done.png' readonly="1"
+                        name="state_done"
+                        attrs="{'invisible': ['|', ('date_closed', '=', False), ('processing_result', '=', 'error')]}"/>
+                <button icon='/document_flow/static/description/icons/decline.png' readonly="1"
+                        name="state_decline"
+                        attrs="{'invisible': ['|', ('date_closed', '=', False), ('processing_result', '=', 'ok')]}"/>
+                <field name="task_id"/>
+                <field name="executor_id" widget="many2one_avatar_user"/>
+                <field name="date_created"/>
+                <field name="date_closed"/>
+                <field name="comment"/>
+                <field name="processing_result" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+</odoo>

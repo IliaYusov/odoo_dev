@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-11 08:39+0000\n"
-"PO-Revision-Date: 2023-08-11 08:39+0000\n"
+"POT-Creation-Date: 2023-08-22 19:40+0000\n"
+"PO-Revision-Date: 2023-08-22 19:40+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -30,71 +30,6 @@ msgid "(+ 1 task)"
 msgstr "(+ 1 задача)"
 
 #. module: task
-#: model:mail.template,body_html:task.mail_template_task_change_stage
-msgid ""
-"<img t-att-src=\"'/logo.png?company=%s' % object.company_id.id\" style=\"box-sizing:border-box;vertical-align:middle;padding: 0px; margin: 0px; height: auto; width: 80px;\" t-att-alt=\"'%s' % object.company_id.name\" width=\"80\">\n"
-"                <div style=\"margin: 16px 0px 16px 0px;\">\n"
-"                    <a t-att-href=\"(object._compute_url())\" style=\"box-sizing:border-box;background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;\">\n"
-"                        View Task\n"
-"                    </a>\n"
-"                </div>\n"
-"                <div style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
-"                    Dear <span t-field=\"object.create_uid.name\"></span>,\n"
-"                    <br>\n"
-"                    <br>\n"
-"                    <p>\n"
-"                        <span t-field=\"object.write_uid.name\"></span>\n"
-"                        changed the stage of task on:\n"
-"                        <ul>\n"
-"                            <li>Task: \"<t t-esc=\"object.name\"></t>\"\n"
-"                            </li>\n"
-"                            <li>Code:\n"
-"                                <span t-field=\"object.code\"></span>\n"
-"                            </li>\n"
-"                            <li>Stage:\n"
-"                                <span t-field=\"object.date_deadline\"></span>\n"
-"                            </li>\n"
-"                            <li>Deadline:\n"
-"                                <span t-field=\"object.date_deadline\"></span>\n"
-"                            </li>\n"
-"                        </ul>\n"
-"                    </p>\n"
-"                </div>\n"
-"            "
-msgstr ""
-
-#. module: task
-#: model:mail.template,body_html:task.mail_template_task_assigned_notify
-msgid ""
-"<img t-att-src=\"'/logo.png?company=%s' % object.company_id.id\" style=\"box-sizing:border-box;vertical-align:middle;padding: 0px; margin: 0px; height: auto; width: 80px;\" t-att-alt=\"'%s' % object.company_id.name\" width=\"80\">\n"
-"                <div style=\"margin: 16px 0px 16px 0px;\">\n"
-"                    <a t-att-href=\"(object._compute_url())\" style=\"box-sizing:border-box;background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;\">\n"
-"                        View Task\n"
-"                    </a>\n"
-"                </div>\n"
-"                <div style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
-"                    Dear <span t-field=\"object.user_id.name\"></span>,\n"
-"                    <br>\n"
-"                    <br>\n"
-"                    <p>\n"
-"                        <span t-field=\"object.write_uid.name\"></span>\n"
-"                        has just assigned you the following task:\n"
-"                        <ul>\n"
-"                            <li>Task: \"<t t-esc=\"object.name\"></t>\"\n"
-"                            </li>\n"
-"                            <li>Code:\n"
-"                                <span t-field=\"object.code\"></span>\n"
-"                            </li>\n"
-"                            <li>Deadline:\n"
-"                                <span t-field=\"object.date_deadline\"></span>\n"
-"                            </li>\n"
-"                        </ul>\n"
-"                    </p>\n"
-"                </div>\n"
-"            "
-msgstr ""
-
-#. module: task
 #: model_terms:ir.ui.view,arch_db:task.task_view_form
 msgid "<span class=\"o_stat_text\">Sub-tasks</span>"
 msgstr "<span class=\"o_stat_text\">Подзадачи</span>"
@@ -105,6 +40,148 @@ msgid "<span class=\"task-separator-text\">Execution result</span>"
 msgstr "<span class=\"task-separator-text\">Результат выполнения</span>"
 
 #. module: task
+#: model:mail.template,body_html:task.mail_template_task_change_stage
+msgid ""
+"<table cols=\"1\" cellpadding=\"12\" style=\"box-sizing:border-box;border-collapse:collapse;caption-side:bottom;\">\n"
+"                    <tbody style=\"border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;border-left-color:inherit;border-bottom-color:inherit;border-right-color:inherit;border-top-color:inherit;\">\n"
+"                        <tr style=\"border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;border-left-color:inherit;border-bottom-color:inherit;border-right-color:inherit;border-top-color:inherit;\">\n"
+"                            <td align=\"center\" bgcolor=\"0f5f8b\" style=\"border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;border-left-color:inherit;border-bottom-color:inherit;border-right-color:inherit;border-top-color:inherit;\">\n"
+"                                <a t-att-href=\"(object._compute_url())\" style=\"text-decoration:none;box-sizing:border-box;color: #fff; font-size:13px; font-family:sans-serif;\">\n"
+"                                    <span style=\"text-transform:uppercase\">View Task</span>\n"
+"                                </a>\n"
+"                            </td>\n"
+"                        </tr>\n"
+"                    </tbody>\n"
+"                </table>\n"
+"                <div style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"                    <br>\n"
+"                    Dear <t t-out=\"object.author_id.name or ''\">author</t>,\n"
+"                    <br>\n"
+"                    <br>\n"
+"                    <p style=\"margin:0px 0 12px 0;box-sizing:border-box;\">\n"
+"                        <t t-out=\"object.write_uid.name or ''\">user</t>,\n"
+"                        changed the stage of task on: <t t-out=\"object.stage_id.name or ''\">In Progress</t>\n"
+"                    </p>\n"
+"                    <ul style=\"padding:0 0 0 24px;margin:0px 0 12px 0;box-sizing:border-box;\">\n"
+"                        <li>Subject: \"<t t-esc=\"object.name\">Task subject</t>\"\n"
+"                        </li>\n"
+"                        <li>Priority: <t t-esc=\"object.priority\">Medium</t>\n"
+"                        </li>\n"
+"                        <li>Deadline: <t t-esc=\"object.date_deadline\">01.01.2023</t>\n"
+"                        </li>\n"
+"                        <li>Description: <t t-esc=\"object.description or ''\">Description</t>\n"
+"                        </li>\n"
+"                    </ul>\n"
+"                    <p style=\"margin:0px 0 12px 0;box-sizing:border-box;\"></p>\n"
+"                </div>\n"
+"            "
+msgstr ""
+"<table cols=\"1\" cellpadding=\"12\" style=\"box-sizing:border-box;border-collapse:collapse;caption-side:bottom;\">\n"
+"                    <tbody style=\"border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;border-left-color:inherit;border-bottom-color:inherit;border-right-color:inherit;border-top-color:inherit;\">\n"
+"                        <tr style=\"border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;border-left-color:inherit;border-bottom-color:inherit;border-right-color:inherit;border-top-color:inherit;\">\n"
+"                            <td align=\"center\" bgcolor=\"0f5f8b\" style=\"border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;border-left-color:inherit;border-bottom-color:inherit;border-right-color:inherit;border-top-color:inherit;\">\n"
+"                                <a t-att-href=\"(object._compute_url())\" style=\"text-decoration:none;box-sizing:border-box;color: #fff; font-size:13px; font-family:sans-serif;\">\n"
+"                                    <span style=\"text-transform:uppercase\">Посмотреть задачу</span>\n"
+"                                </a>\n"
+"                            </td>\n"
+"                        </tr>\n"
+"                    </tbody>\n"
+"                </table>\n"
+"                <div style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"                    <br>\n"
+"                    Уважаемый(ая), <t t-out=\"object.author_id.name or ''\">автор</t>,\n"
+"                    <br>\n"
+"                    <br>\n"
+"                    <p style=\"margin:0px 0 12px 0;box-sizing:border-box;\">\n"
+"                        <t t-out=\"object.write_uid.name or ''\">Пользователь</t>,\n"
+"                        изменил статус задачи на: <t t-out=\"object.stage_id.name or ''\">В работе</t>\n"
+"                    </p>\n"
+"                    <ul style=\"padding:0 0 0 24px;margin:0px 0 12px 0;box-sizing:border-box;\">\n"
+"                        <li>Тема: \"<t t-esc=\"object.name\">Тема задачи</t>\"\n"
+"                        </li>\n"
+"                        <li>Приоритет: <t t-esc=\"object.priority\">Средний</t>\n"
+"                        </li>\n"
+"                        <li>Срок исполнения: <t t-esc=\"object.date_deadline\">01.01.2023</t>\n"
+"                        </li>\n"
+"                        <li>Описание: <t t-esc=\"object.description or ''\">Описание</t>\n"
+"                        </li>\n"
+"                    </ul>\n"
+"                    <p style=\"margin:0px 0 12px 0;box-sizing:border-box;\"></p>\n"
+"                </div>\n"
+"            "
+
+#. module: task
+#: model:mail.template,body_html:task.mail_template_task_assigned_notify
+msgid ""
+"<table cols=\"1\" cellpadding=\"12\" style=\"box-sizing:border-box;border-collapse:collapse;caption-side:bottom;\">\n"
+"                    <tbody style=\"border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;border-left-color:inherit;border-bottom-color:inherit;border-right-color:inherit;border-top-color:inherit;\">\n"
+"                        <tr style=\"border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;border-left-color:inherit;border-bottom-color:inherit;border-right-color:inherit;border-top-color:inherit;\">\n"
+"                            <td align=\"center\" bgcolor=\"0f5f8b\" style=\"border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;border-left-color:inherit;border-bottom-color:inherit;border-right-color:inherit;border-top-color:inherit;\">\n"
+"                                <a t-att-href=\"(object._compute_url())\" style=\"text-decoration:none;box-sizing:border-box;color: #fff; font-size:13px; font-family:sans-serif;\">\n"
+"                                    <span style=\"text-transform:uppercase\">View Task</span>\n"
+"                                </a>\n"
+"                            </td>\n"
+"                        </tr>\n"
+"                    </tbody>\n"
+"                </table>\n"
+"                <div style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"                    <br>\n"
+"                    Dear <t t-out=\"object.user_id.name or ''\">user</t>,\n"
+"                    <br>\n"
+"                    <br>\n"
+"                    <p style=\"margin:0px 0 12px 0;box-sizing:border-box;\">\n"
+"                        <t t-out=\"object.author_id.name or ''\">author</t>,\n"
+"                        has just assigned you the following task:\n"
+"                    </p>\n"
+"                    <ul style=\"padding:0 0 0 24px;margin:0px 0 12px 0;box-sizing:border-box;\">\n"
+"                        <li>Subject: \"<t t-esc=\"object.name\">Task subject</t>\"\n"
+"                        </li>\n"
+"                        <li>Priority: <t t-esc=\"object.priority\">Medium</t>\n"
+"                        </li>\n"
+"                        <li>Deadline: <t t-esc=\"object.date_deadline\">01.01.2023</t>\n"
+"                        </li>\n"
+"                        <li>Description: <t t-esc=\"object.description or ''\">Description</t>\n"
+"                        </li>\n"
+"                    </ul>\n"
+"                    <p style=\"margin:0px 0 12px 0;box-sizing:border-box;\"></p>\n"
+"                </div>\n"
+"            "
+msgstr ""
+"<table cols=\"1\" cellpadding=\"12\" style=\"box-sizing:border-box;border-collapse:collapse;caption-side:bottom;\">\n"
+"                    <tbody style=\"border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;border-left-color:inherit;border-bottom-color:inherit;border-right-color:inherit;border-top-color:inherit;\">\n"
+"                        <tr style=\"border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;border-left-color:inherit;border-bottom-color:inherit;border-right-color:inherit;border-top-color:inherit;\">\n"
+"                            <td align=\"center\" bgcolor=\"0f5f8b\" style=\"border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;border-left-color:inherit;border-bottom-color:inherit;border-right-color:inherit;border-top-color:inherit;\">\n"
+"                                <a t-att-href=\"(object._compute_url())\" style=\"text-decoration:none;box-sizing:border-box;color: #fff; font-size:13px; font-family:sans-serif;\">\n"
+"                                    <span style=\"text-transform:uppercase\">Посмотреть задачу</span>\n"
+"                                </a>\n"
+"                            </td>\n"
+"                        </tr>\n"
+"                    </tbody>\n"
+"                </table>\n"
+"                <div style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"                    <br>\n"
+"                    Уважаемый(ая), <t t-out=\"object.user_id.name or ''\">пользователь</t>,\n"
+"                    <br>\n"
+"                    <br>\n"
+"                    <p style=\"margin:0px 0 12px 0;box-sizing:border-box;\">\n"
+"                        <t t-out=\"object.author_id.name or ''\">автор</t>,\n"
+"                        назначил Вам следующую задачу:\n"
+"                    </p>\n"
+"                    <ul style=\"padding:0 0 0 24px;margin:0px 0 12px 0;box-sizing:border-box;\">\n"
+"                        <li>Тема: \"<t t-esc=\"object.name\">Тема задачи</t>\"\n"
+"                        </li>\n"
+"                        <li>Приоритет: <t t-esc=\"object.priority\">Средний</t>\n"
+"                        </li>\n"
+"                        <li>Срок исполнения: <t t-esc=\"object.date_deadline\">01.01.2023</t>\n"
+"                        </li>\n"
+"                        <li>Описание: <t t-esc=\"object.description or ''\">Описание</t>\n"
+"                        </li>\n"
+"                    </ul>\n"
+"                    <p style=\"margin:0px 0 12px 0;box-sizing:border-box;\"></p>\n"
+"                </div>\n"
+"            "
+
+#. module: task
 #: model:ir.model.fields,field_description:task.field_task_task__message_needaction
 msgid "Action Needed"
 msgstr ""
@@ -112,6 +189,7 @@ msgstr ""
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_stage__active
 #: model:ir.model.fields,field_description:task.field_task_stage_type__active
+#: model:ir.model.fields,field_description:task.field_task_task__active
 #: model:ir.model.fields,field_description:task.field_task_type__active
 msgid "Active"
 msgstr "Активна"
@@ -152,6 +230,7 @@ msgstr "Администратор"
 #: model_terms:ir.ui.view,arch_db:task.task_stage_type_view_form
 #: model_terms:ir.ui.view,arch_db:task.task_stage_view_form
 #: model_terms:ir.ui.view,arch_db:task.task_type_view_form
+#: model_terms:ir.ui.view,arch_db:task.task_view_form
 msgid "Archived"
 msgstr "В архиве"
 
@@ -173,7 +252,7 @@ msgstr "Количество вложений"
 #: model_terms:ir.ui.view,arch_db:task.task_view_form
 #, python-format
 msgid "Attachments"
-msgstr "Документы"
+msgstr "Вложения"
 
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_task__author_id
@@ -285,7 +364,7 @@ msgstr "Комментарий обязателен для заполнения!
 #. module: task
 #: model_terms:ir.ui.view,arch_db:task.task_wizard_done_view_form
 msgid "Comment..."
-msgstr "Комментарий"
+msgstr "Комментарий..."
 
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_task__company_id
@@ -351,6 +430,7 @@ msgstr "Срок исполнения"
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_stage__description
 #: model:ir.model.fields,field_description:task.field_task_task__description
+#: model:ir.model.fields,field_description:task.field_task_task__description_kanban
 #: model:ir.model.fields,field_description:task.field_task_type__description
 #: model_terms:ir.ui.view,arch_db:task.task_stage_view_form
 #: model_terms:ir.ui.view,arch_db:task.task_type_view_form
@@ -513,8 +593,8 @@ msgid ""
 "If set, an email will be automatically sent to the customer when the task "
 "reaches this stage."
 msgstr ""
-"Если установлен, email будет отправлен автоматически отправлен получателю, когда задача "
-"перейдет в этот статус."
+"Если установлен, email будет отправлен автоматически отправлен получателю, "
+"когда задача перейдет в этот статус."
 
 #. module: task
 #: model:ir.model.fields,help:task.field_task_stage_route__require_comment
@@ -823,7 +903,8 @@ msgstr "Последовательность"
 #. module: task
 #: model:mail.template,description:task.mail_template_task_change_stage
 msgid "Set this template on a stage to automate email when tasks reach stages"
-msgstr "Установите этот шаблон для статуса задачи для автоматической отправки email"
+msgstr ""
+"Установите этот шаблон для статуса задачи для автоматической отправки email"
 
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_task__stage_id
@@ -846,12 +927,12 @@ msgstr "Маршруты статусов"
 #: model:ir.model.fields,field_description:task.field_task_stage__type_id
 #: model:ir.model.fields,field_description:task.field_task_task__stage_type_id
 msgid "Stage Type"
-msgstr "Тип этапа"
+msgstr "Тип статуса"
 
 #. module: task
 #: model_terms:ir.ui.view,arch_db:task.task_stage_type_view_tree
 msgid "Stage Types"
-msgstr "Типы этапов"
+msgstr "Типы статусов"
 
 #. module: task
 #: model:ir.model.constraint,message:task.constraint_task_stage_stage_code_uniq
@@ -866,7 +947,7 @@ msgstr "Наименование этапа должно быть уникаль
 #. module: task
 #: model:mail.template,subject:task.mail_template_task_change_stage
 msgid "Stage of task {{ object.code }} {{ object.display_name }} was changed"
-msgstr ""
+msgstr "Статус задачи {{ object.code }} {{ object.display_name }} изменен"
 
 #. module: task
 #: model:ir.actions.act_window,name:task.action_task_type_stages
@@ -937,7 +1018,7 @@ msgstr "Статус задачи"
 #. module: task
 #: model:ir.model,name:task.model_task_stage_route
 msgid "Task Stage Route"
-msgstr "Маршрут статуса задачи"
+msgstr "Маршрут этапа задачи"
 
 #. module: task
 #: model:ir.actions.act_window,name:task.task_stage_type_action_form
@@ -990,7 +1071,7 @@ msgstr "Наименование типа задачи..."
 #. module: task
 #: model:mail.template,subject:task.mail_template_task_assigned_notify
 msgid "Task {{ object.code }} {{ object.display_name }} assigned to you"
-msgstr ""
+msgstr "Вам назначена задача {{ object.code }} {{ object.display_name }}"
 
 #. module: task
 #: model:mail.template,name:task.mail_template_task_assigned_notify
@@ -1016,7 +1097,7 @@ msgstr "Мои задачи"
 #. module: task
 #: model:mail.template,description:task.mail_template_task_assigned_notify
 msgid "Template to automate email when tasks assigned to user"
-msgstr ""
+msgstr "Шаблон сообщения при назначении задачи пользователю"
 
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_task__name

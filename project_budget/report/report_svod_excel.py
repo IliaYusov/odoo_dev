@@ -34,44 +34,50 @@ class report_svod_excel(models.AbstractModel):
     array_itogi_last_plan_office = [5, 10, 15, 22, 27, 32, 59,64,69,96,101,106,133,138,143] # колонки где надо  формулы итоговые по офису - послледний эталонный план
 
     def isStepinYear(self, project, step):
+        global strYEAR
+        global YEARint
+
         if project:
             if step:
-                if step.end_presale_project_month.year == self.YEARint or step.end_sale_project_month.year == self.YEARint:
+                if step.end_presale_project_month.year == YEARint or step.end_sale_project_month.year == YEARint:
                     return True
                 for pds in project.planned_cash_flow_ids:
                     if pds.project_steps_id.id == step.id:
-                        if pds.date_cash.year == self.YEARint:
+                        if pds.date_cash.year == YEARint:
                             return True
                 for pds in project.fact_cash_flow_ids:
                     if pds.project_steps_id.id == step.id:
-                        if pds.date_cash.year == self.YEARint:
+                        if pds.date_cash.year == YEARint:
                             return True
                 for act in project.planned_acceptance_flow_ids:
                     if act.project_steps_id.id == step.id:
-                        if act.date_cash.year == self.YEARint:
+                        if act.date_cash.year == YEARint:
                             return True
                 for act in project.fact_acceptance_flow_ids:
                     if act.project_steps_id.id == step.id:
-                        if act.date_cash.year == self.YEARint:
+                        if act.date_cash.year == YEARint:
                             return True
         return False
 
     def isProjectinYear(self, project):
+        global strYEAR
+        global YEARint
+
         if project:
             if project.project_have_steps == False:
-                if project.end_presale_project_month.year == self.YEARint or project.end_sale_project_month.year == self.YEARint:
+                if project.end_presale_project_month.year == YEARint or project.end_sale_project_month.year == YEARint:
                     return True
                 for pds in project.planned_cash_flow_ids:
-                    if pds.date_cash.year == self.YEARint:
+                    if pds.date_cash.year == YEARint:
                         return True
                 for pds in project.fact_cash_flow_ids:
-                    if pds.date_cash.year == self.YEARint:
+                    if pds.date_cash.year == YEARint:
                         return True
                 for act in project.planned_acceptance_flow_ids:
-                    if act.date_cash.year == self.YEARint:
+                    if act.date_cash.year == YEARint:
                         return True
                 for act in project.fact_acceptance_flow_ids:
-                    if act.date_cash.year == self.YEARint:
+                    if act.date_cash.year == YEARint:
                         return True
             else:
                 for step in project.project_steps_ids:
@@ -142,6 +148,9 @@ class report_svod_excel(models.AbstractModel):
         return column
 
     def print_head(self, workbook, sheet, row, column, YEAR, head_format_1, head_format_2, head_format_3):
+        global strYEAR
+        global YEARint
+
         for elementone in self.elements_list_head:
             element = elementone.replace('YEAR', YEAR)
             # print('element = ', element)
@@ -213,6 +222,9 @@ class report_svod_excel(models.AbstractModel):
                 column += 1
 
     def get_sum_contract(self, project):
+        global strYEAR
+        global YEARint
+
         sum_year = 0
         sum_q1 = 0
         sum_q2 = 0
@@ -220,7 +232,7 @@ class report_svod_excel(models.AbstractModel):
         sum_q4 = 0
         if project:
             if project.estimated_probability_id.name in ('50', '75','100','100(done)'): # смотрим сумму контрактования в эталоне и с учетом 100
-                if project.end_presale_project_month.year == self.YEARint:
+                if project.end_presale_project_month.year == YEARint:
                     sum_year = project.total_amount_of_revenue_with_vat
                     if project.end_presale_project_month.month in (1, 2, 3):
                         sum_q1 += project.total_amount_of_revenue_with_vat
@@ -233,6 +245,9 @@ class report_svod_excel(models.AbstractModel):
         return sum_year, sum_q1, sum_q2, sum_q3, sum_q4
 
     def get_sum_contract_move(self, project, project_etalon):
+        global strYEAR
+        global YEARint
+
         sum_year = 0
         sum_q1 = 0
         sum_q2 = 0
@@ -241,7 +256,7 @@ class report_svod_excel(models.AbstractModel):
         if project_etalon:  # если эталона нет, то считаем, что и переноса нет - все в новое пойдет
             if (project_etalon.estimated_probability_id.name in ('50', '75', '100','100(done)')) and (
                     project.estimated_probability_id.name in ('50', '75', '100','100(done)')):  # только 50 и 75  смотрим
-                if project_etalon.end_presale_project_month.year == self.YEARint:
+                if project_etalon.end_presale_project_month.year == YEARint:
 
                         #вот тут какая то муть была....
                         # and project.total_amount_of_revenue_with_vat == 0 \
@@ -268,6 +283,9 @@ class report_svod_excel(models.AbstractModel):
         return sum_year, sum_q1, sum_q2, sum_q3, sum_q4
 
     def get_sum_contract_new(self, project, project_etalon):
+        global strYEAR
+        global YEARint
+
         sum_year = 0
         sum_q1 = 0
         sum_q2 = 0
@@ -281,7 +299,7 @@ class report_svod_excel(models.AbstractModel):
         if project_etalon:
             if project_etalon.estimated_probability_id.name in (
             '50', '75', '100','100(done)'):  # если 30 или 0 то как будто нет ничего
-                if project_etalon.end_presale_project_month.year == self.YEARint:  # а если текущий год уже вперери.. то и показывать в отчете нечего
+                if project_etalon.end_presale_project_month.year == YEARint:  # а если текущий год уже вперери.. то и показывать в отчете нечего
                     sum_contract_etalon_year = project_etalon.total_amount_of_revenue_with_vat
                     if project_etalon.end_presale_project_month.month in (
                     1, 2, 3):  # сумма контракта эталона в квартал
@@ -297,7 +315,7 @@ class report_svod_excel(models.AbstractModel):
                         sum_contract_etalon_q4 = project_etalon.total_amount_of_revenue_with_vat
 
         if (project.estimated_probability_id.name in ('50', '75', '100','100(done)')):  # только 50 и 75 и 100 смотрим
-            if project.end_presale_project_month.year == self.YEARint:  # а если текущий год уже вперери.. то и показывать в отчете нечего
+            if project.end_presale_project_month.year == YEARint:  # а если текущий год уже вперери.. то и показывать в отчете нечего
                 if sum_contract_etalon_year == 0:  # сумма эталога в году 0
                     sum_year = project.total_amount_of_revenue_with_vat
                 if project.end_presale_project_month.month in (
@@ -324,6 +342,9 @@ class report_svod_excel(models.AbstractModel):
         return sum_year, sum_q1, sum_q2, sum_q3, sum_q4
 
     def get_sum_contract_fact(self, project):
+        global strYEAR
+        global YEARint
+
         sum_year = 0
         sum_q1 = 0
         sum_q2 = 0
@@ -333,7 +354,7 @@ class report_svod_excel(models.AbstractModel):
             return sum_year, sum_q1, sum_q2, sum_q3, sum_q4
         print('project.estimated_probability_id.name = ',project.estimated_probability_id.name)
         if project.estimated_probability_id.name in ('100','100(done)'):  # только 50 и 75  смотрим
-            if project.end_presale_project_month.year == self.YEARint:  # а если текущий год уже вперери.. то и показывать в отчете нечего
+            if project.end_presale_project_month.year == YEARint:  # а если текущий год уже вперери.. то и показывать в отчете нечего
                 sum_year = project.total_amount_of_revenue_with_vat
                 if project.end_presale_project_month.month in (
                 1, 2, 3):  # а вот смотрим месяц попадания по текущему бюджету
@@ -351,6 +372,9 @@ class report_svod_excel(models.AbstractModel):
         return sum_year, sum_q1, sum_q2, sum_q3, sum_q4
 
     def get_sum_pds(self, project_cur, step_cur, project, project_step):
+        global strYEAR
+        global YEARint
+
         sum_year = 0
         sum_q1 = 0
         sum_q2 = 0
@@ -362,7 +386,7 @@ class report_svod_excel(models.AbstractModel):
                     if step_cur.estimated_probability_id.name in ('50', '75', '100','100(done)'): # текущую вероятность сомтрим
                         for pds in project.planned_cash_flow_ids:
                             if pds.project_steps_id.id == project_step.id :
-                                if pds.date_cash.year == self.YEARint:
+                                if pds.date_cash.year == YEARint:
                                     sum_year += pds.sum_cash
                                     if pds.date_cash.month in (1, 2, 3):
                                         sum_q1 += pds.sum_cash
@@ -375,7 +399,7 @@ class report_svod_excel(models.AbstractModel):
             else:
                 if project_cur.estimated_probability_id.name in ('50', '75', '100','100(done)'): # вероятность по текущему проекту смотрим
                     for pds in project.planned_cash_flow_ids:
-                        if pds.date_cash.year == self.YEARint:
+                        if pds.date_cash.year == YEARint:
                             sum_year += pds.sum_cash
                             if pds.date_cash.month in (1, 2, 3):
                                 sum_q1 += pds.sum_cash
@@ -388,6 +412,9 @@ class report_svod_excel(models.AbstractModel):
         return sum_year, sum_q1, sum_q2, sum_q3, sum_q4
 
     def get_sum_pds_move(self, project, project_step, project_etalon, project_step_etalon):
+        global strYEAR
+        global YEARint
+
         sum_etalon_year =  sum_etalon_q1 =  sum_etalon_q2 =  sum_etalon_q3 =  sum_etalon_q4 = 0
         calcsum = False
         if project.project_have_steps == True:
@@ -410,6 +437,9 @@ class report_svod_excel(models.AbstractModel):
         return sum_etalon_year, sum_etalon_q1, sum_etalon_q2, sum_etalon_q3, sum_etalon_q4
 
     def get_sum_pds_new(self, project, project_step, project_etalon, project_step_etalon):
+        global strYEAR
+        global YEARint
+
         sum_etalon_year, sum_etalon_q1, sum_etalon_q2, sum_etalon_q3, sum_etalon_q4 = self.get_sum_pds(project,project_step, project_etalon, project_step_etalon)
         sum_year, sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_pds(project,project_step, project, project_step) # сумму нового сразу присваиваем текущему
         # а если в эталоне не 0 , то новый = 0
@@ -429,6 +459,9 @@ class report_svod_excel(models.AbstractModel):
         return sum_year, sum_q1, sum_q2, sum_q3, sum_q4
 
     def get_sum_pds_fact(self, project, project_step):
+        global strYEAR
+        global YEARint
+
         sum_year = 0
         sum_q1 = 0
         sum_q2 = 0
@@ -439,7 +472,7 @@ class report_svod_excel(models.AbstractModel):
                 if project_step:  # существует этап для суммирования
                     for pds in project.fact_cash_flow_ids:
                         if pds.project_steps_id.id == project_step.id:
-                            if pds.date_cash.year == self.YEARint:
+                            if pds.date_cash.year == YEARint:
                                 sum_year += pds.sum_cash
                                 if pds.date_cash.month in (1, 2, 3):
                                     sum_q1 += pds.sum_cash
@@ -451,7 +484,7 @@ class report_svod_excel(models.AbstractModel):
                                     sum_q4 += pds.sum_cash
             else:
                 for pds in project.fact_cash_flow_ids:
-                    if pds.date_cash.year == self.YEARint:
+                    if pds.date_cash.year == YEARint:
                         sum_year += pds.sum_cash
                         if pds.date_cash.month in (1, 2, 3):
                             sum_q1 += pds.sum_cash
@@ -465,6 +498,9 @@ class report_svod_excel(models.AbstractModel):
 
 
     def get_sum_acceptance(self, project_cur, step_cur, project, project_step):
+        global strYEAR
+        global YEARint
+
         sum_year = 0
         sum_q1 = 0
         sum_q2 = 0
@@ -476,7 +512,7 @@ class report_svod_excel(models.AbstractModel):
                     if step_cur.estimated_probability_id.name in ('50', '75', '100','100(done)'): # по текущему смотрим
                         for act in project.planned_acceptance_flow_ids:
                             if act.project_steps_id.id == project_step.id:
-                                if act.date_cash.year == self.YEARint:
+                                if act.date_cash.year == YEARint:
                                     sum_year += act.sum_cash_without_vat
                                     if act.date_cash.month in (1, 2, 3):
                                         sum_q1 += act.sum_cash_without_vat
@@ -489,7 +525,7 @@ class report_svod_excel(models.AbstractModel):
             else:
                 if project_cur.estimated_probability_id.name in ('50', '75', '100','100(done)'): # вероятность по текущему проекту смотрим
                     for act in project.planned_acceptance_flow_ids:
-                        if act.date_cash.year == self.YEARint:
+                        if act.date_cash.year == YEARint:
                             sum_year += act.sum_cash_without_vat
                             if act.date_cash.month in (1, 2, 3):
                                 sum_q1 += act.sum_cash_without_vat
@@ -504,6 +540,9 @@ class report_svod_excel(models.AbstractModel):
         return sum_year, sum_q1, sum_q2, sum_q3, sum_q4
 
     def get_sum_acceptance_move(self, project, project_step, project_etalon, project_step_etalon):
+        global strYEAR
+        global YEARint
+
         sum_etalon_year =  sum_etalon_q1 =  sum_etalon_q2 =  sum_etalon_q3 =  sum_etalon_q4 = 0
         calcsum = False
         if project.project_have_steps == True:
@@ -525,6 +564,9 @@ class report_svod_excel(models.AbstractModel):
         return sum_etalon_year, sum_etalon_q1, sum_etalon_q2, sum_etalon_q3, sum_etalon_q4
 
     def get_sum_acceptance_new(self, project, project_step, project_etalon, project_step_etalon):
+        global strYEAR
+        global YEARint
+
         sum_etalon_year, sum_etalon_q1, sum_etalon_q2, sum_etalon_q3, sum_etalon_q4 = self.get_sum_acceptance(project, project_step, project_etalon, project_step_etalon)
         sum_year, sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_acceptance(project, project_step, project, project_step) # новый сразу = текущему
         # а если в эталоне не 0 но новый сразу в 0
@@ -544,6 +586,9 @@ class report_svod_excel(models.AbstractModel):
         return sum_year, sum_q1, sum_q2, sum_q3, sum_q4
 
     def get_sum_acceptance_fact(self, project, project_step):
+        global strYEAR
+        global YEARint
+
         sum_year = 0
         sum_q1 = 0
         sum_q2 = 0
@@ -554,7 +599,7 @@ class report_svod_excel(models.AbstractModel):
                 if project_step:  # существует этап для суммирования
                     for act in project.fact_acceptance_flow_ids:
                         if act.project_steps_id.id == project_step.id:
-                            if act.date_cash.year == self.YEARint:
+                            if act.date_cash.year == YEARint:
                                 sum_year += act.sum_cash_without_vat
                                 if act.date_cash.month in (1, 2, 3):
                                     sum_q1 += act.sum_cash_without_vat
@@ -566,7 +611,7 @@ class report_svod_excel(models.AbstractModel):
                                     sum_q4 += act.sum_cash_without_vat
             else:
                 for act in project.fact_acceptance_flow_ids:
-                    if act.date_cash.year == self.YEARint:
+                    if act.date_cash.year == YEARint:
                         sum_year += act.sum_cash_without_vat
                         if act.date_cash.month in (1, 2, 3):
                             sum_q1 += act.sum_cash_without_vat
@@ -580,6 +625,9 @@ class report_svod_excel(models.AbstractModel):
         return sum_year, sum_q1, sum_q2, sum_q3, sum_q4
 
     def print_row_Values(self, workbook, sheet, row, column, project, step, row_format_number):
+        global strYEAR
+        global YEARint
+
         # row_format_number = workbook.add_format({
         #     'border': 1,
         #     'font_size': 9,
@@ -892,6 +940,9 @@ class report_svod_excel(models.AbstractModel):
         # end валовая выручка остаток
 
     def get_sum_contract_pds_act_budget(self, budget, project_office):
+        global strYEAR
+        global YEARint
+
         if project_office:
             projects = self.env['project_budget.projects'].search(
                 [('commercial_budget_id', '=', budget.id), ('project_office_id', '=', project_office.id)])
@@ -918,7 +969,7 @@ class report_svod_excel(models.AbstractModel):
                     if step.estimated_probability_id.name in ('100','100(done)', '75', '50'):
                         for pds in project.planned_cash_flow_ids:
                             if pds.project_steps_id.id == step.id:
-                                if pds.date_cash.year == self.YEARint:
+                                if pds.date_cash.year == YEARint:
                                     sum_pds_year += pds.sum_cash
                                     if pds.date_cash.month in (1, 2, 3):
                                         sum_pds_q1 += pds.sum_cash
@@ -930,7 +981,7 @@ class report_svod_excel(models.AbstractModel):
                                         sum_pds_q4 += pds.sum_cash
                         for act in project.planned_acceptance_flow_ids:
                             if act.project_steps_id.id == step.id:
-                                if act.date_cash.year == self.YEARint:
+                                if act.date_cash.year == YEARint:
                                     sum_act_year += act.sum_cash_without_vat
                                     if act.date_cash.month in (1, 2, 3):
                                         sum_act_q1 += act.sum_cash_without_vat
@@ -942,7 +993,7 @@ class report_svod_excel(models.AbstractModel):
                                         sum_act_q4 += act.sum_cash_without_vat
 
                     if step.estimated_probability_id.name in ('75', '50'):
-                        if step.end_presale_project_month.year == self.YEARint:
+                        if step.end_presale_project_month.year == YEARint:
                             sum_contract_year += step.total_amount_of_revenue_with_vat
                             if step.end_presale_project_month.month in (1, 2, 3):
                                 sum_contract_q1 += step.total_amount_of_revenue_with_vat
@@ -954,7 +1005,7 @@ class report_svod_excel(models.AbstractModel):
                                 sum_contract_q4 += step.total_amount_of_revenue_with_vat
             else:
                 if project.estimated_probability_id.name in ('75', '50','100','100(done)'):
-                    if project.end_presale_project_month.year == self.YEARint:
+                    if project.end_presale_project_month.year == YEARint:
                         sum_contract_year += project.total_amount_of_revenue_with_vat
                         if project.end_presale_project_month.month in (1, 2, 3):
                             sum_contract_q1 += project.total_amount_of_revenue_with_vat
@@ -966,7 +1017,7 @@ class report_svod_excel(models.AbstractModel):
                             sum_contract_q4 += project.total_amount_of_revenue_with_vat
                         if project.estimated_probability_id.name in ('100','100(done)', '75', '50'):
                             for pds in project.planned_cash_flow_ids:
-                                if pds.date_cash.year == self.YEARint:
+                                if pds.date_cash.year == YEARint:
                                     sum_pds_year += pds.sum_cash
                                     if pds.date_cash.month in (1, 2, 3):
                                         sum_pds_q1 += project.total_amount_of_revenue_with_vat
@@ -977,7 +1028,7 @@ class report_svod_excel(models.AbstractModel):
                                     if pds.date_cash.month in (10, 11, 12):
                                         sum_pds_q4 += project.total_amount_of_revenue_with_vat
                             for act in project.planned_acceptance_flow_ids:
-                                if act.date_cash.year == self.YEARint:
+                                if act.date_cash.year == YEARint:
                                     sum_act_year += act.sum_cash_without_vat
                                     if act.date_cash.month in (1, 2, 3):
                                         sum_act_q1 += act.sum_cash_without_vat
@@ -992,6 +1043,9 @@ class report_svod_excel(models.AbstractModel):
             sum_pds_q2, sum_act_q2, sum_contract_q3, sum_pds_q3, sum_act_q3, sum_contract_q4, sum_pds_q4, sum_act_q4
 
     def print_etalon_budgets_name(self, budget, project_office, sheet, row, cur_format):
+        global strYEAR
+        global YEARint
+
         last_etalon_budget = self.get_etalon_budget()
         # print('last_etalon_budget = ', last_etalon_budget)
         commercial_budgets = self.env['project_budget.commercial_budget'].search(
@@ -1045,6 +1099,9 @@ class report_svod_excel(models.AbstractModel):
         return row
 
     def printworksheet(self, workbook, budget, namesheet):
+        global strYEAR
+        global YEARint
+
         report_name = budget.name
         sheet = workbook.add_worksheet(namesheet)
         sheet.set_zoom(85)
@@ -1158,7 +1215,7 @@ class report_svod_excel(models.AbstractModel):
         column += 1
         sheet.merge_range(row, column, row + 1, column, "Вероятность реализации проекта, %", head_format_1)
         column += 1
-        column = self.print_head(workbook, sheet, row, column, self.strYEAR, head_format_1, head_format_2,
+        column = self.print_head(workbook, sheet, row, column, strYEAR, head_format_1, head_format_2,
                                  head_format_3)
         sheet.set_row(row, 50, None, None)
         row += 2
@@ -1351,7 +1408,7 @@ class report_svod_excel(models.AbstractModel):
 
     def generate_xlsx_report(self, workbook, data, budgets):
         global strYEAR
-        strYEAR = data['year']
+        strYEAR = str(data['year'])
         global YEARint
         YEARint = int(strYEAR)
         commercial_budget_id = data['commercial_budget_id']

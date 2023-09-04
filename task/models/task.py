@@ -47,10 +47,10 @@ class Task(models.Model):
     def _get_stage_domain(self):
         return [('task_type_id', '=', self.type_id)]
 
-    code = fields.Char(string='Code', required=True, readonly=True, default=lambda self: _('New'))
-    name = fields.Char(string='Title', tracking=True, required=True, index='trigram')
-    description = fields.Html(string='Description')
-    description_kanban = fields.Text(compute="_compute_description_kanban", string='Description')
+    code = fields.Char(string='Code', copy=False, required=True, readonly=True, default=lambda self: _('New'))
+    name = fields.Char(string='Title', copy=True, index='trigram', tracking=True, required=True)
+    description = fields.Html(string='Description', copy=True)
+    description_kanban = fields.Text(string='Description', copy=False, compute="_compute_description_kanban")
     priority = fields.Selection(PRIORITIES, string='Priority', default='3', tracking=True)
 
     author_id = fields.Many2one('res.users', string='Author', required=True, readonly=True,
@@ -58,32 +58,33 @@ class Task(models.Model):
     company_id = fields.Many2one('res.company', string='Company', required=True, default=lambda self: self.env.company)
     type_id = fields.Many2one('task.type', string='Type', ondelete='restrict', required=True, index=True, copy=True,
                               tracking=True, domain=_get_type_domain)
-    stage_id = fields.Many2one('task.stage', string='Stage', ondelete='restrict', required=True, index=True,
+    stage_id = fields.Many2one('task.stage', string='Stage', ondelete='restrict', copy=False, required=True, index=True,
                                tracking=True, group_expand='_read_group_stage_ids', domain=_get_stage_domain)
     stage_type_id = fields.Many2one('task.stage.type', related="stage_id.type_id", string="Stage Type",
                                     index=True, readonly=True, store=True)
     stage_routes = fields.Char(compute='_compute_stage_routes', readonly=True)
-    is_closed = fields.Boolean(related='stage_id.closed', store=True, index=True, readonly=True)
+    is_closed = fields.Boolean(related='stage_id.closed', copy=False, store=True, index=True, readonly=True)
 
-    user_id = fields.Many2one('res.users', string='Assigned', tracking=True)
-    actual_executor_id = fields.Many2one('res.users', string='Executor', readonly=True)
-    parent_ref = fields.Reference(string='Parent', ondelete='restrict', selection="_selection_parent_model",
-                                  compute="_compute_parent_ref", inverse='_inverse_parent_ref', store=True)
-    parent_ref_id = fields.Integer(string="Parent Id", index=True, copy=False)
-    parent_ref_type = fields.Char(string="Parent Type", index=True, copy=False)
+    user_id = fields.Many2one('res.users', string='Assigned', copy=True, tracking=True)
+    actual_executor_id = fields.Many2one('res.users', string='Executor', copy=False, readonly=True)
+    parent_ref = fields.Reference(string='Parent', selection="_selection_parent_model", ondelete='restrict',
+                                  copy=True, compute="_compute_parent_ref", inverse='_inverse_parent_ref', store=True)
+    parent_ref_id = fields.Integer(string='Parent Id', index=True, copy=True)
+    parent_ref_type = fields.Char(string='Parent Type', index=True, copy=True)
 
     parent_obj_ref = fields.Reference(string='Parent Object', selection='_selection_parent_obj_model',
                                       compute='_compute_parent_obj', readonly=True)
 
-    date_deadline = fields.Date(string='Deadline', required="True", index=True, copy=False, tracking=True)
+    date_deadline = fields.Date(string='Deadline', required="True", copy=True, index=True, tracking=True)
     parent_id = fields.Many2one('task.task', string='Parent Task', copy=True, tracking=True)
     child_ids = fields.One2many('task.task', 'parent_id', string="Sub-tasks")
-    subtask_count = fields.Integer("Sub-task Count", compute='_compute_subtask_count')
-    child_text = fields.Char(compute="_compute_child_text")
-    date_closed = fields.Datetime(string='Date Closed', index=True, copy=False)
-    execution_result = fields.Html(string='Execution Result')
+    subtask_count = fields.Integer('Sub-task Count', compute='_compute_subtask_count')
+    child_text = fields.Char(compute='_compute_child_text')
+    date_closed = fields.Datetime(string='Date Closed', copy=False, index=True)
+    execution_result = fields.Html(string='Execution Result', copy=False)
+    active = fields.Boolean(copy=False, default=True, index=True)
 
-    attachment_count = fields.Integer(compute='_compute_attachment_count', string='Attachments')
+    attachment_count = fields.Integer(string='Attachments', compute='_compute_attachment_count')
     url = fields.Char('Url', compute='_get_url')
 
     @api.constrains('parent_id')
@@ -191,7 +192,7 @@ class Task(models.Model):
         for task in self:
             task.parent_obj_ref = self.env['document_flow.process.parent_object'].search([
                 ('process_id', '=', task.parent_ref_id)
-            ], limit=1).parent_ref
+            ]).parent_ref
 
     @api.depends('description')
     def _compute_description_kanban(self):
@@ -225,7 +226,7 @@ class Task(models.Model):
     def _compute_parent_ref(self):
         for task in self:
             if task.parent_ref_type and task.parent_ref_type in self.env:
-                task.parent_ref = '%s,%s' % (task.parent_ref_type, task.parent_ref_id or 0)
+                task.parent_ref = '%s,%d' % (task.parent_ref_type, task.parent_ref_id or 0)
             else:
                 task.parent_ref = None
             return {'domain': {'type_id': task._get_type_domain()}}

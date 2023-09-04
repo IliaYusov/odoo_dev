@@ -172,7 +172,8 @@
                                 </group>
                             </h5>
                             <group>
-                                <field name="currency_id" options="{'no_open': True}" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
+<!--                                <field name="currency_id" options="{'no_open': True}" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>-->
+                                <field name="currency_id" attrs="{'readonly': True}" options="{'no_open': True}"/>
                             </group>
                             <group>
                                 <field name="dogovor_number" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>

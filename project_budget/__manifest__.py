@@ -25,6 +25,8 @@
         'views/project_sequence.xml',
         'views/plan_kam_supervisor.xml',
         'views/fact_cash_flow.xml',
+        'views/project_budget_organization_search.xml',
+        'views/tender_search.xml',
         'views/fact_acceptance_flow.xml',
         'views/project_budget_catalogs.xml',
         'views/project_budget_comercial_budget_access.xml',
