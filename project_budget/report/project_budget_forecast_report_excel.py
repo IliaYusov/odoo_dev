@@ -751,7 +751,6 @@ class report_budget_forecast_excel(models.AbstractModel):
         global strYEAR
         global YEARint
 
-
         row_format_number = workbook.add_format({
             'border': 1,
             'font_size': 10,
@@ -1167,6 +1166,14 @@ class report_budget_forecast_excel(models.AbstractModel):
         })
         row_format_office.set_num_format('#,##0')
 
+        row_format_probability = workbook.add_format({
+            'border': 1,
+            'font_size': 9,
+            "bold": True,
+            "fg_color": '#F2DCDB',
+            "num_format": '#,##0',
+        })
+
         row_format_date_month.set_num_format('mmm yyyy')
 
         row_format = workbook.add_format({
@@ -1235,13 +1242,16 @@ class report_budget_forecast_excel(models.AbstractModel):
 
             row = row0
 
-            formulaProjectOffice = '=sum(0,'
+            formulaProjectOffice = '=sum(0'
             for project_manager in project_managers:
                 #print('project_manager = ', project_manager.name)
                 isFoundProjectsByManager = False
                 begRowProjectsByManager = 0
+                formulaProjectManager = '=sum(0'
                 column = -1
                 for estimated_probability in estimated_probabilitys:
+                    isFoundProjectsByProbability = False
+                    begRowProjectsByProbability = 0
                     #print('estimated_probability.name = ', estimated_probability.name)
                     #print('estimated_probability.code = ', estimated_probability.code)
                     cur_budget_projects = self.env['project_budget.projects'].search([('commercial_budget_id', '=', budget.id)
@@ -1258,15 +1268,20 @@ class report_budget_forecast_excel(models.AbstractModel):
 
                             if begRowProjectsByManager == 0:
                                 begRowProjectsByManager = row
+
+                            if begRowProjectsByProbability == 0:
+                                begRowProjectsByProbability = row
+
                             if spec.project_have_steps:
                                 for step in spec.project_steps_ids:
                                     if self.isStepinYear( spec, step) == False:
                                         continue
                                     isFoundProjectsByManager = True
                                     isFoundProjectsByOffice = True
+                                    isFoundProjectsByProbability = True
 
                                     row += 1
-                                    sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
+                                    sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 2})
                                     print('setrow  row = ',row)
                                     print('setrow  level = ', level)
                                     cur_row_format = row_format
@@ -1307,7 +1322,8 @@ class report_budget_forecast_excel(models.AbstractModel):
                                 row += 1
                                 isFoundProjectsByManager = True
                                 isFoundProjectsByOffice = True
-                                sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
+                                isFoundProjectsByProbability = True
+                                sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 2})
                                 print('setrow  row = ', row)
                                 print('setrow  level = ', level)
 
@@ -1344,6 +1360,28 @@ class report_budget_forecast_excel(models.AbstractModel):
                                 sheet.write_string(row, column, '', head_format_1)
                                 self.print_row_Values(workbook, sheet, row, column,  strYEAR, spec, False)
 
+                    if isFoundProjectsByProbability:
+                        row += 1
+                        column = 2
+                        sheet.write_string(row, column, project_manager.name + ' ' + estimated_probability.name
+                                           + ' %', row_format_probability)
+                        sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 1})
+
+                        formulaProjectManager = formulaProjectManager + ',{0}' + str(row + 1)
+                        for colFormula in range(3, 12):
+                            sheet.write_string(row, colFormula, '', row_format_probability)
+                        for colFormula in range(12, 302):
+                            formula = '=sum({2}{0}:{2}{1})'.format(begRowProjectsByProbability + 2, row,
+                                                                   xl_col_to_name(colFormula))
+                            sheet.write_formula(row, colFormula, formula, row_format_probability)
+                        for col in self.array_col_itogi75:
+                            formula = '={1}{0} + {2}{0}'.format(row + 1, xl_col_to_name(col + 1),
+                                                                xl_col_to_name(col + 2))
+                            sheet.write_formula(row, col - 1, formula, head_format_month_itogo)
+                        for col in self.array_col_itogi75NoFormula:
+                            formula = '=0'
+                            sheet.write_formula(row, col - 1, formula, head_format_month_itogo)
+
                 if isFoundProjectsByManager:
                     row += 1
                     column = 1
@@ -1353,19 +1391,22 @@ class report_budget_forecast_excel(models.AbstractModel):
                     print('setrow manager level = ', level)
 
                     formulaProjectOffice = formulaProjectOffice + ',{0}'+str(row + 1)
+
                     for colFormula in range(2, 12):
                         sheet.write_string(row, colFormula, '', row_format_manager)
-                    for colFormula in range(12,302):
-                        formula = '=sum({2}{0}:{2}{1})'.format(begRowProjectsByManager + 2,row, xl_col_to_name(colFormula))
+
+                    for colFormula in range(12, 302):
+                        formula = formulaProjectManager.format(xl_col_to_name(colFormula)) + ')'
                         sheet.write_formula(row, colFormula, formula, row_format_manager)
+
                     # for col in self.array_col_itogi:
                     #     formula = '={1}{0} + {2}{0}'.format(row+1,xl_col_to_name(col),xl_col_to_name(col+ 1))
                     #     print('formula = ', formula)
                     #     sheet.write_formula(row, col -1, formula, head_format_month_itogo)
                     for col in self.array_col_itogi75:
-                        formula = '={1}{0} + {2}{0}'.format(row+1,xl_col_to_name(col+ 1),xl_col_to_name(col+ 2))
+                        formula = '={1}{0} + {2}{0}'.format(row+1,xl_col_to_name(col + 1),xl_col_to_name(col + 2))
                         # print('formula = ', formula)
-                        sheet.write_formula(row, col -1, formula, head_format_month_itogo)
+                        sheet.write_formula(row, col - 1, formula, head_format_month_itogo)
                     for col in self.array_col_itogi75NoFormula:
                         formula = '=0'
                         sheet.write_formula(row, col - 1, formula, head_format_month_itogo)
