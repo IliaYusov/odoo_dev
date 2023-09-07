@@ -1234,16 +1234,15 @@ class report_budget_forecast_excel(models.AbstractModel):
             ('commercial_budget_id', '=', budget.id),
         ])
 
-        cur_project_offices = project_offices.filtered(lambda r: r in cur_budget_projects.project_office_id)
         cur_project_managers = project_managers.filtered(lambda r: r in cur_budget_projects.project_manager_id)
         cur_estimated_probabilities = estimated_probabilitys.filtered(lambda r: r in cur_budget_projects.estimated_probability_id)
 
-        for project_office in cur_project_offices:
+        for project_office in project_offices:
             print('project_office.name = ', project_office.name)
             #print('level = ', level)
             #print('row = ', row)
             row0 = row
-            row0, formulaItogo = self.printrow( sheet, workbook, project_office.id, project_managers, estimated_probabilitys, budget, row, formulaItogo,level+1)
+            row0, formulaItogo = self.printrow(sheet, workbook, project_office.id, project_managers, estimated_probabilitys, budget, row, formulaItogo, level + 1)
 
             isFoundProjectsByOffice = False
             if row0 != row:
@@ -1306,7 +1305,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                         isFoundProjectsByProbability = True
 
                                         row += 1
-                                        sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 2})
+                                        sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
                                         print('setrow  row = ',row)
                                         print('setrow  level = ', level)
                                         cur_row_format = row_format
@@ -1351,7 +1350,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                     isFoundProjectsByManager = True
                                     isFoundProjectsByOffice = True
                                     isFoundProjectsByProbability = True
-                                    sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 2})
+                                    sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
                                     print('setrow  row = ', row)
                                     print('setrow  level = ', level)
 
@@ -1393,7 +1392,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                         column = 2
                         sheet.write_string(row, column, project_manager.name + ' ' + estimated_probability.name
                                            + ' %', row_format_probability)
-                        sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 1})
+                        sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
 
                         formulaProjectManager = formulaProjectManager + ',{0}' + str(row + 1)
                         for colFormula in range(3, 12):
