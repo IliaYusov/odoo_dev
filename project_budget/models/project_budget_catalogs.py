@@ -148,7 +148,9 @@ class customer_organization(models.Model):
     @api.depends('name','inn')
     def _get_name_to_show(self):
         for org in self:
-            org.name_to_show = org.name + '|'+ str(org.inn)
+            org.name_to_show = org.name
+            if org.inn:
+                org.name_to_show = org.name + '|'+ str(org.inn)
 
 class customer_status(models.Model):
     _name = 'project_budget.customer_status'

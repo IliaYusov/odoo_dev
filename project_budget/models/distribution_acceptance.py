@@ -44,10 +44,7 @@ class distribution_acceptance(models.Model):
     def _compute_sum(self):
         for row in self:
             if row.fact_acceptance_flow_id.project_steps_id:
-                row.write({
-                    'sum_cash': row.sum_cash_without_vat * (1+row.fact_acceptance_flow_id.project_steps_id.vat_attribute_id.percent / 100)
-                })
+                row.write({'sum_cash': row.sum_cash_without_vat * (1+row.fact_acceptance_flow_id.project_steps_id.vat_attribute_id.percent / 100)})
+
             else:
-                row.write({
-                    'sum_cash': row.sum_cash_without_vat * (1 + row.fact_acceptance_flow_id.projects_id.vat_attribute_id.percent / 100)
-                })
+                row.write({'sum_cash': row.sum_cash_without_vat * (1 + row.fact_acceptance_flow_id.projects_id.vat_attribute_id.percent / 100)})

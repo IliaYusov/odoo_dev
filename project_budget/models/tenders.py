@@ -104,8 +104,9 @@ class tenders(models.Model):
         for row in self:
             if row.is_need_projects == False:
                 row.projects_id = False
-            if row.date_of_filling_in != fields.datetime.now():
-                row.date_of_filling_in = fields.datetime.now()
+            # Федоренко сказала убрать - будут рками ставить
+            # if row.date_of_filling_in != fields.datetime.now():
+            #     row.date_of_filling_in = fields.datetime.now()
 
     @api.onchange('projects_id')
     def _check_customer_organization_id(self):
@@ -133,21 +134,40 @@ class tender_sums(models.Model):
 
     tenders_id = fields.Many2one('project_budget.tenders',string='tender id', required=True, copy=True, tracking=True, ondelete='cascade',)
     is_main_currency = fields.Boolean(string="is_main_currency", compute="_compute_is_main_currency", default = True)
-    currency_id = fields.Many2one('res.currency', string='Account Currency',  required = True, copy = True,
+    currency_id = fields.Many2one('res.currency', string='Currency',  copy = True,
                                   default=lambda self: self.tenders_id.currency_id,tracking=True)
     participants_offer = fields.Monetary(string='participants_offer', tracking=True, required=True)
+    participants_offer_currency_id = fields.Many2one('res.currency', string='participants_offer_ Currency',  required = True, copy = True,
+                                  default=lambda self: self.tenders_id.currency_id,tracking=True)
     participants_offer_descr = fields.Text(string='participants_offer description', tracking=True)
+    participants_offer_vat_attribute_id = fields.Many2one('project_budget.vat_attribute', string='participants_offer vat_attribute', copy=True, tracking=True,
+                                       required=True)
     initial_maximum_contract_price =fields.Monetary(string='initial_maximum_contract_price',tracking=True)
+    initial_maximum_contract_price_currency_id = fields.Many2one('res.currency', string='initial_maximum_contract_price Currency',   copy = True,
+                                  default=lambda self: self.tenders_id.currency_id,tracking=True)
     initial_maximum_contract_price_descr =fields.Text(string='initial_maximum_contract_price description',tracking=True)
+    initial_maximum_contract_price_vat_attribute_id = fields.Many2one('project_budget.vat_attribute',
+                                                          string='initial_maximum_contract_price vat_attribute', copy=True,
+                                                          tracking=True,)
     payment_for_the_victory = fields.Monetary(string="payment_for_the_victory", copy=True, default ="")
+    payment_for_the_victory_currency_id = fields.Many2one('res.currency', string='payment_for_the_victory Currency',   copy = True,
+                                  default=lambda self: self.tenders_id.currency_id,tracking=True)
     payment_for_the_victory_descr = fields.Text(string="payment_for_the_victory description", copy=True, default="")
     securing_the_application = fields.Monetary(string='securing_the_application', tracking=True)
+    securing_the_application_currency_id = fields.Many2one('res.currency', string='securing_the_application Currency', copy = True,
+                                  default=lambda self: self.tenders_id.currency_id,tracking=True)
     securing_the_application_descr = fields.Text(string='securing_the_application description', tracking=True)
     contract_security = fields.Monetary(string='contract_security',tracking=True)
+    contract_security_currency_id = fields.Many2one('res.currency', string='contract_security Currency', copy = True,
+                                  default=lambda self: self.tenders_id.currency_id,tracking=True)
     contract_security_descr = fields.Text(string='contract_security description', tracking=True)
     provision_of_GO = fields.Monetary(string='provision_of_GO',tracking=True)
+    provision_of_GO_currency_id = fields.Many2one('res.currency', string='provision_of_GO Currency', copy = True,
+                                  default=lambda self: self.tenders_id.currency_id,tracking=True)
     provision_of_GO_descr = fields.Text(string='provision_of_GO description', tracking=True)
     site_payment = fields.Monetary(string='site_payment',tracking=True)
+    site_payment_currency_id = fields.Many2one('res.currency', string='site_payment Currency', copy = True,
+                                  default=lambda self: self.tenders_id.currency_id,tracking=True)
     site_payment_descr = fields.Text(string='site_payment description', tracking=True)
 
     @api.depends('tenders_id.currency_id','currency_id')
@@ -158,15 +178,16 @@ class tender_sums(models.Model):
             else:
                 row.is_main_currency = False
 
-    @api.onchange('currency_id','participants_offer','participants_offer_descr','initial_maximum_contract_price'
-                 ,'initial_maximum_contract_price_descr','payment_for_the_victory','payment_for_the_victory_descr'
-                 ,'securing_the_application','securing_the_application_descr','contract_security','contract_security_descr'
-                 ,'provision_of_GO','provision_of_GO_descr','site_payment','site_payment_descr'
-                 )
-    def _check_changes_tender(self):
-        for row in self:
-            if row.tenders_id.date_of_filling_in != fields.datetime.now():
-                row.tenders_id.date_of_filling_in = fields.datetime.now()
+    # Федоренко сказала убрать - будут рками ставить
+    # @api.onchange('currency_id','participants_offer','participants_offer_descr','initial_maximum_contract_price'
+    #              ,'initial_maximum_contract_price_descr','payment_for_the_victory','payment_for_the_victory_descr'
+    #              ,'securing_the_application','securing_the_application_descr','contract_security','contract_security_descr'
+    #              ,'provision_of_GO','provision_of_GO_descr','site_payment','site_payment_descr'
+    #              )
+    # def _check_changes_tender(self):
+    #     for row in self:
+    #         if row.tenders_id.date_of_filling_in != fields.datetime.now():
+    #             row.tenders_id.date_of_filling_in = fields.datetime.now()
 
     # @api.onchange('is_main_currency')
     # def _check_changes_tender(self):
@@ -190,7 +211,7 @@ class tender_comments(models.Model):
     _name = 'project_budget.tender_comments'
     _description = "projects tender comments"
     _inherit = ['mail.thread', 'mail.activity.mixin']
-
+    _order = 'date_comment'
 
     tenders_id = fields.Many2one('project_budget.tenders',string='tender id', required=True, copy=True, tracking=True, ondelete='cascade',)
     date_comment = fields.Date(string='date of the comment', required=True, default=fields.datetime.now(), tracking=True)
@@ -198,10 +219,11 @@ class tender_comments(models.Model):
     type_comment_id = fields.Many2one('project_budget.tender_comments_type',string='tender comments type', copy=True, tracking=True)
     text_comment = fields.Text(string="text of the comment", copy=True, default ="")
 
-    @api.onchange('date_comment','type_comment_id','text_comment')
-    def _check_changes_tender(self):
-        for row in self:
-            if row.tenders_id.date_of_filling_in != fields.datetime.now():
-                row.tenders_id.date_of_filling_in = fields.datetime.now()
+    # Федоренко сказала убрать - будут рками ставить
+    # @api.onchange('date_comment','type_comment_id','text_comment')
+    # def _check_changes_tender(self):
+    #     for row in self:
+    #         if row.tenders_id.date_of_filling_in != fields.datetime.now():
+    #             row.tenders_id.date_of_filling_in = fields.datetime.now()
 
 

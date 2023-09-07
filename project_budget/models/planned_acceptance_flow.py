@@ -70,7 +70,7 @@ class planned_acceptance_flow(models.Model):
             else:
                 row.sum_cash = row.sum_cash_without_vat * (1 + row.projects_id.vat_attribute_id.percent / 100)
 
-    @api.onchange("distribution_acceptance_ids","distribution_acceptance_ids.sum_cash")
+    @api.onchange("distribution_acceptance_ids")
     def _compute_distribution_sum(self):
         self.compute_distribution_sum()
 

@@ -2,6 +2,7 @@ from odoo import _, models, fields, api
 from odoo.exceptions import ValidationError
 from odoo.tools import pytz
 from datetime import timedelta
+import datetime
 
 class projects(models.Model):
     _name = 'project_budget.projects'
@@ -79,6 +80,7 @@ class projects(models.Model):
     currency_id = fields.Many2one('res.currency', string='Account Currency',  required = True, copy = True,
                                   default=lambda self: self.env['res.currency'].search([('name', '=', 'RUB')], limit=1),tracking=True)
     etalon_budget = fields.Boolean(related='commercial_budget_id.etalon_budget', readonly=True)
+    date_actual = fields.Datetime(related='commercial_budget_id.date_actual', readonly=True, store=True)
     date_actual = fields.Datetime(related='commercial_budget_id.date_actual', readonly=True, store=True)
     isRukovoditel_required_in_project = fields.Boolean(related='project_office_id.isRukovoditel_required_in_project', readonly=True, store=True)
     commercial_budget_id = fields.Many2one('project_budget.commercial_budget', string='commercial_budget-',required=True, ondelete='cascade', index=True, copy=False
@@ -205,7 +207,7 @@ class projects(models.Model):
         string="project steps", auto_join=True,copy=True)
 
     name_to_show = fields.Char(string='name_to_show', compute='_get_name_to_show')
-    
+
     attachment_count = fields.Integer(compute='_compute_attachment_count', string='Attachments')
 
     tenders_count = fields.Integer(compute='_compute_tenders_count', string='Tenders')
@@ -424,6 +426,8 @@ class projects(models.Model):
                 fieldquarter.end_sale_project_quarter = 'NA'
 
 
+
+
     def user_is_supervisor(self,supervisor_id):
         supervisor_access = self.env['project_budget.project_supervisor_access'].search([('user_id.id', '=', self.env.user.id)
                                                                                         ,('project_supervisor_id.id', '=', supervisor_id)
@@ -432,11 +436,176 @@ class projects(models.Model):
             return False
         else: return True
 
+    def check_overdue_date(self, vals_list):
+        for project in self:
 
+            end_presale_project_month = project.end_presale_project_month
+            end_sale_project_month = project.end_sale_project_month
+            print('vals_list = ',vals_list)
+
+            estimated_probability_id_name = project.estimated_probability_id.name
+
+            if vals_list:
+                if 'end_presale_project_month' in vals_list:
+                    end_presale_project_month = datetime.datetime.strptime(vals_list['end_presale_project_month'], "%Y-%m-%d").date()
+                if 'end_sale_project_month' in vals_list:
+                    end_sale_project_month = datetime.datetime.strptime(vals_list['end_sale_project_month'], "%Y-%m-%d").date()
+                if 'estimated_probability_id' in vals_list:
+                    estimated_probability_id = int(vals_list['estimated_probability_id'])
+                    estimated_probability_id_obj = self.env['project_budget.estimated_probability'].search([('id', '=', estimated_probability_id)], limit=1)
+                    estimated_probability_id_name = estimated_probability_id_obj.name
+
+            if estimated_probability_id_name not in ('0', '100','100(done)'):
+                if end_presale_project_month < fields.datetime.now().date() :
+                    raisetext = _("DENIED. Project {0} have overdue end presale project month {1}")
+                    raisetext=raisetext.format(project.project_id,str(end_presale_project_month))
+                    return False, raisetext, {'end_presale_project_month':str(end_presale_project_month)}
+            if estimated_probability_id_name not in ('0', '100(done)'):
+                if end_sale_project_month < fields.datetime.now().date() :
+                    raisetext = _("DENIED. Project {0} have overdue end sale project month {1}")
+                    raisetext = raisetext.format(project.project_id, str(end_sale_project_month))
+                    return False, raisetext, {'end_sale_project_month':str(end_sale_project_month)}
+
+            vals_list_steps = False
+
+            dict_formula = {}
+
+            if project.project_have_steps:
+                for step in project.project_steps_ids:
+                    estimated_probability_id_name = step.estimated_probability_id.name
+                    end_presale_project_month = step.end_presale_project_month
+                    end_sale_project_month = step.end_sale_project_month
+
+                    if vals_list:
+                        if 'project_steps_ids' in vals_list:
+                            vals_list_steps = vals_list['project_steps_ids']
+                            if vals_list_steps:
+
+                                for vals_list_step in vals_list_steps:
+                                    print('vals_list_steps =', vals_list_step)
+                                    if step.id == vals_list_step[1]:
+
+                                        vals_one_step = vals_list_step[2]
+                                        print('vals_one_step = ', vals_one_step)
+                                        if vals_one_step:
+                                            if 'estimated_probability_id' in vals_one_step:
+                                                estimated_probability_id = int(
+                                                    vals_one_step['estimated_probability_id'])
+                                                estimated_probability_id_obj = self.env[
+                                                    'project_budget.estimated_probability'].search(
+                                                    [('id', '=', estimated_probability_id)], limit=1)
+                                                estimated_probability_id_name = estimated_probability_id_obj.name
+
+
+                                            if 'end_presale_project_month' in vals_one_step:
+                                                end_presale_project_month = datetime.datetime.strptime(
+                                                    vals_one_step['end_presale_project_month'], "%Y-%m-%d").date()
+                                            if 'end_sale_project_month' in vals_one_step:
+                                                end_sale_project_month = datetime.datetime.strptime(
+                                                    vals_one_step['end_sale_project_month'], "%Y-%m-%d").date()
+
+                    step_id_str = str(step.id)
+                    dict_formula[step_id_str] = estimated_probability_id_name
+
+                    if estimated_probability_id_name not in ('0', '100','100(done)'):
+                        print('step.id = ', step.id)
+                        if end_presale_project_month < fields.datetime.now().date():
+                            raisetext = _("DENIED. Project {0} step {1} have overdue end presale project month {2}" )
+                            raisetext = raisetext.format(project.project_id, step.step_id, str(end_presale_project_month))
+                            return False, raisetext, {'step_id':step.step_id,'end_presale_project_month':str(end_presale_project_month)}
+
+                    if estimated_probability_id_name not in ('0', '100(done)'):
+                        if end_sale_project_month < fields.datetime.now().date():
+                            raisetext = _("DENIED. Project {0} step {1} have overdue end sale project month {2}")
+                            raisetext = raisetext.format(project.project_id, step.step_id, str(end_sale_project_month))
+                            return False, raisetext, {'step_id':step.step_id,'end_sale_project_month':str(end_sale_project_month)}
+
+            if project.estimated_probability_id.name not in ('0', '100(done)'):
+               if project.project_have_steps == False:
+                   return True, "", {}
+
+            vals_list_planaccepts = False
+            if vals_list:
+                if 'planned_acceptance_flow_ids' in vals_list:
+                    vals_list_planaccepts = vals_list['planned_acceptance_flow_ids']
+
+            print('project.planned_acceptance_flow_ids = ', project.planned_acceptance_flow_ids)
+            print('dict_formula =', dict_formula)
+            for plan_accept in project.planned_acceptance_flow_ids:
+                date_cash = plan_accept.date_cash
+                step_id_str = str(plan_accept.project_steps_id.id)
+                print('step_id_str = ',step_id_str)
+                if step_id_str in dict_formula :
+                    if dict_formula[step_id_str] in ('0', '100(done)'):
+                        continue
+
+                if vals_list_planaccepts:
+                    for vals_list_planaccept in vals_list_planaccepts:
+                        print('vals_list_planaccept =', vals_list_planaccept)
+                        if plan_accept.id == vals_list_planaccept[1]:
+                            vals_one_accept = vals_list_planaccept[2]
+                            print('vals_one_accept = ', vals_one_accept)
+                            if vals_one_accept == False: # по идее это удаление, потому просто добавим день к дате, чтобы условие ниже прошло
+                                date_cash = fields.datetime.now().date() + datetime.timedelta(days=1)
+                            else:
+                                if 'date_cash' in vals_one_accept:
+                                    date_cash = datetime.datetime.strptime(
+                                        vals_one_accept['date_cash'], "%Y-%m-%d").date()
+
+                if date_cash < fields.datetime.now().date():
+                    if plan_accept.distribution_acceptance_ids:
+                        ok = True
+                    else:
+                        raisetext = _("DENIED. Project {0} have overdue planned acceptance flow  without fact {1}")
+                        raisetext = raisetext.format(project.project_id,str(date_cash))
+                        return False, raisetext, {'planned_acceptance_flow':str(date_cash)}
+
+
+            vals_list_plancashs = False
+            if vals_list:
+                if 'planned_cash_flow_ids' in vals_list:
+                    vals_list_plancashs = vals_list['planned_cash_flow_ids']
+
+            for plan_cash in project.planned_cash_flow_ids:
+                date_cash = plan_cash.date_cash
+
+                step_id_str = str(plan_cash.project_steps_id.id)
+                if step_id_str in dict_formula :
+                    if dict_formula[step_id_str] in ('0', '100(done)'):
+                        continue
+
+                if vals_list_plancashs:
+                    for vals_list_plancash in vals_list_plancashs:
+                        print('vals_list_planaccept =', vals_list_plancash)
+                        if plan_cash.id == vals_list_plancash[1]:
+                            vals_one_cash = vals_list_plancash[2]
+                            print('vals_one_cash = ', vals_one_cash)
+                            if vals_one_cash == False: # по идее это удаление, потому просто добавим день к дате, чтобы условие ниже прошло
+                                date_cash = fields.datetime.now().date() +  datetime.timedelta(days=1)
+                            else:
+                                if 'date_cash' in vals_one_cash:
+                                    date_cash = datetime.datetime.strptime(
+                                        vals_one_cash['date_cash'], "%Y-%m-%d").date()
+                if date_cash < fields.datetime.now().date():
+                    if plan_cash.distribution_cash_ids:
+                        ok = True
+                    else:
+                        raisetext = _("DENIED. Project {0} have overdue planned cash flow  without fact {1}" )
+                        raisetext = raisetext.format(project.project_id, str(date_cash))
+                        return False, raisetext, {'planned_cash_flow':str(date_cash)}
+
+        return True, "", {}
 
     def print_budget(self):
         for rows in self:
             print()
+
+    def write(self, vals_list):
+        isok, raisetext,emptydict = self.check_overdue_date(vals_list)
+        if isok == False:
+            raise ValidationError(raisetext)
+        res = res = super().write(vals_list)
+        return res
 
     def set_approve_manager(self):
         for rows in self:
@@ -449,10 +618,16 @@ class projects(models.Model):
             #         raisetext = _("DENIED. planned_cash_flow_sum <> total_amount_of_revenue_with_vat")
             #         raise ValidationError(raisetext)
 
+            isok, raisetext, emptydict =self.check_overdue_date(False)
+            if isok == False:
+                raise ValidationError(raisetext)
+
+            print('0_0')
             if rows.approve_state=="need_approve_manager" and rows.budget_state == 'work' and rows.specification_state !='cancel':
-                rows.write({
-                    'approve_state': "need_approve_supervisor"
-                })
+                print('before rows.id = ', rows.id)
+                rows.write({'approve_state': "need_approve_supervisor"})
+
+                # rows.approve_state = "need_approve_supervisor"
                 print('rows.id = ', rows.id)
 
                 # Get a reference to the mail.activity model
@@ -490,6 +665,10 @@ class projects(models.Model):
     def set_approve_supervisor(self):
         for rows in self:
             if rows.approve_state=="need_approve_supervisor" and rows.budget_state == 'work' and rows.specification_state !='cancel':
+
+                isok, raisetext,emptydict = self.check_overdue_date(False)
+                if isok == False:
+                    raise ValidationError(raisetext)
 
                 user_id = False
                 if rows.project_office_id.receive_tasks_for_approve_project: # не только куратор может утвекрждать, но и руководитель проектного офиса надо
@@ -564,7 +743,7 @@ class projects(models.Model):
             'flags': {'initial_mode': 'edit'},
             'target': 'new',
         }
-        
+
     def action_open_attachments(self):
         self.ensure_one()
         return {
@@ -629,7 +808,6 @@ class projects(models.Model):
                 raise ValidationError(raise_text)
 
             record.approve_state = 'need_approve_manager'
-
     # def unlink(self):
     #     """ dont delete.
     #     Set specification_state to 'cancel'

@@ -19,22 +19,36 @@
             <field name="model">project_budget.tender_sums</field>
             <field name="arch" type="xml">
                 <tree string="tender sums" >
-                    <field name="is_main_currency"/>
-                    <field name="currency_id"/>
-                    <field name="participants_offer"/>
-                    <field name="participants_offer_descr" optional="hide"/>
-                    <field name="initial_maximum_contract_price" attrs="{'column_invisible': [('parent.is_need_initial_maximum_contract_price', '=', False)]}"/>
+<!--                    <field name="is_main_currency"/>-->
+<!--                    <field name="currency_id"/>-->
+                    <field name="participants_offer_currency_id" invisible = "1"/>
+                    <field name="initial_maximum_contract_price" attrs="{'column_invisible': [('parent.is_need_initial_maximum_contract_price', '=', False)]}"
+                           widget="monetary" options="{'currency_field': 'initial_maximum_contract_price_currency_id'}"/>
+                    <field name="initial_maximum_contract_price_currency_id" invisible = "1"/>
                     <field name="initial_maximum_contract_price_descr" attrs="{'column_invisible': [('parent.is_need_initial_maximum_contract_price', '=', False)]}" optional="hide"/>
-                    <field name="provision_of_GO" attrs="{'column_invisible': [('parent.is_need_provision_of_GO', '=', False)]}" />
+                    <field name="participants_offer"
+                           widget="monetary" options="{'currency_field': 'participants_offer_currency_id'}" />
+                    <field name="provision_of_GO" attrs="{'column_invisible': [('parent.is_need_provision_of_GO', '=', False)]}"
+                           widget="monetary" options="{'currency_field': 'provision_of_GO_currency_id'}"/>
+                    <field name="provision_of_GO_currency_id" invisible = "1"/>
                     <field name="provision_of_GO_descr" attrs="{'column_invisible': [('parent.is_need_provision_of_GO', '=', False)]}" optional="hide"/>
-                    <field name="securing_the_application"  attrs="{'column_invisible': [('parent.is_need_securing_the_application', '=', False)]}"/>
+                    <field name="securing_the_application"  attrs="{'column_invisible': [('parent.is_need_securing_the_application', '=', False)]}"
+                           widget="monetary" options="{'currency_field': 'securing_the_application_currency_id'}"/>
+                    <field name="securing_the_application_currency_id" invisible = "1"/>
                     <field name="securing_the_application_descr"  attrs="{'column_invisible': [('parent.is_need_securing_the_application', '=', False)]}" optional="hide"/>
-                    <field name="payment_for_the_victory" attrs="{'column_invisible': [('parent.is_need_payment_for_the_victory', '=', False)]}"/>
+                    <field name="payment_for_the_victory" attrs="{'column_invisible': [('parent.is_need_payment_for_the_victory', '=', False)]}"
+                           widget="monetary" options="{'currency_field': 'payment_for_the_victory_currency_id'}"/>
+                    <field name="payment_for_the_victory_currency_id" invisible = "1"/>
                     <field name="payment_for_the_victory_descr" attrs="{'column_invisible': [('parent.is_need_payment_for_the_victory', '=', False)]}" optional="hide"/>
-                    <field name="contract_security" attrs="{'column_invisible': [('parent.is_need_contract_security', '=', False)]}"/>
+                    <field name="contract_security" attrs="{'column_invisible': [('parent.is_need_contract_security', '=', False)]}"
+                           widget="monetary" options="{'currency_field': 'contract_security_currency_id'}"/>
+                    <field name="contract_security_currency_id" invisible = "1"/>
                     <field name="contract_security_descr" attrs="{'column_invisible': [('parent.is_need_contract_security', '=', False)]}" optional="hide"/>
-                    <field name="site_payment" attrs="{'column_invisible': [('parent.is_need_site_payment', '=', False)]}"/>
+                    <field name="site_payment" attrs="{'column_invisible': [('parent.is_need_site_payment', '=', False)]}"
+                           widget="monetary" options="{'currency_field': 'site_payment_currency_id'}"/>
+                    <field name="site_payment_currency_id" invisible = "1"/>
                     <field name="site_payment_descr" attrs="{'column_invisible': [('parent.is_need_site_payment', '=', False)]}" optional="hide"/>
+                    <field name="participants_offer_descr" optional="Show"/>
                 </tree>
             </field>
         </record>
@@ -46,68 +60,115 @@
             <field name="arch" type="xml">
                 <form>
                     <sheet string="tender sums">
-                        <group>
+<!--                        <group>-->
+<!--                            <group>-->
+<!--                                <field name="is_main_currency" widget="boolean_toggle"/>-->
+<!--                            </group>-->
+<!--                        </group>-->
+                        <group string="participants_offer">
                             <group>
-                                <field name="is_main_currency" widget="boolean_toggle"/>
+                                <group>
+                                    <field string="currency" name="participants_offer_currency_id"/>
+                                </group>
+                                <group>
+                                    <field string="sum" name="participants_offer" widget="monetary" options="{'currency_field': 'participants_offer_currency_id'}"/>
+                                    <field string="vat" name="participants_offer_vat_attribute_id"/>
+                                </group>
                             </group>
                             <group>
-                                <field name="currency_id"/>
-                            </group>
-                        </group>
-                        <group>
-                            <group>
-                                <field name="participants_offer"/>
-                            </group>
-                            <group>
-                                <field name="participants_offer_descr"/>
-                            </group>
-                        </group>
-                        <group>
-                            <group>
-                                <field name="initial_maximum_contract_price" attrs="{'invisible': [('parent.is_need_initial_maximum_contract_price', '=', False)]}"/>
-                            </group>
-                            <group>
-                                <field name="initial_maximum_contract_price_descr" attrs="{'invisible': [('parent.is_need_initial_maximum_contract_price', '=', False)]}"/>
+                                <field string="descr" name="participants_offer_descr"/>
                             </group>
                         </group>
-                        <group>
+                        <group string="initial_maximum_contract_price" attrs="{'invisible': [('parent.is_need_initial_maximum_contract_price', '=', False)]}">
                             <group>
-                                <field name="provision_of_GO" attrs="{'invisible': [('parent.is_need_provision_of_GO', '=', False)]}"/>
+                                <group>
+                                    <field string="currency" name="initial_maximum_contract_price_currency_id" attrs="{'invisible': [('parent.is_need_initial_maximum_contract_price', '=', False)]
+                                                ,'required': [('parent.is_need_initial_maximum_contract_price', '=', True)]}"/>
+                                </group>
+                                <group>
+                                    <field string="sum"  name="initial_maximum_contract_price" attrs="{'invisible': [('parent.is_need_initial_maximum_contract_price', '=', False)]}"
+                                            widget="monetary" options="{'currency_field': 'initial_maximum_contract_price_currency_id'}"/>
+                                    <field string="vat" name="initial_maximum_contract_price_vat_attribute_id" attrs="{'invisible': [('parent.is_need_initial_maximum_contract_price', '=', False)],
+                                    'required': [('parent.is_need_initial_maximum_contract_price', '=', True)]}"/>
+                                </group>
                             </group>
                             <group>
-                                <field name="provision_of_GO_descr" attrs="{'invisible': [('parent.is_need_provision_of_GO', '=', False)]}"/>
-                            </group>
-                        </group>
-                        <group>
-                            <group>
-                                <field name="securing_the_application"  attrs="{'invisible': [('parent.is_need_securing_the_application', '=', False)]}"/>
-                            </group>
-                            <group>
-                                <field name="securing_the_application_descr"  attrs="{'invisible': [('parent.is_need_securing_the_application', '=', False)]}"/>
-                            </group>
-                        </group>
-                        <group>
-                            <group>
-                                <field name="payment_for_the_victory" attrs="{'invisible': [('parent.is_need_payment_for_the_victory', '=', False)]}"/>
-                            </group>
-                            <group>
-                                <field name="payment_for_the_victory_descr" attrs="{'invisible': [('parent.is_need_payment_for_the_victory', '=', False)]}"/>
+                                <field string="descr" name="initial_maximum_contract_price_descr" attrs="{'invisible': [('parent.is_need_initial_maximum_contract_price', '=', False)]}"/>
                             </group>
                         </group>
-                        <group>
+                        <group string="provision_of_GO" attrs="{'invisible': [('parent.is_need_provision_of_GO', '=', False)]}">
                             <group>
-                                <field name="contract_security" attrs="{'invisible': [('parent.is_need_contract_security', '=', False)]}"/>
+                                <group>
+                                    <field string="currency" name="provision_of_GO_currency_id" attrs="{'invisible': [('parent.is_need_provision_of_GO', '=', False)]
+                                    ,'required': [('parent.is_need_provision_of_GO', '=', True)]}"/>
+                                </group>
+                                <group>
+                                    <field string="sum" name="provision_of_GO" attrs="{'invisible': [('parent.is_need_provision_of_GO', '=', False)]}"
+                                                    widget="monetary" options="{'currency_field': 'provision_of_GO_currency_id'}"/>
+                                </group>
                             </group>
                             <group>
-                                <field name="contract_security_descr" attrs="{'invisible': [('parent.is_need_contract_security', '=', False)]}"/>
+                                <field string="descr" name="provision_of_GO_descr" attrs="{'invisible': [('parent.is_need_provision_of_GO', '=', False)]}"/>
                             </group>
                         </group>
-                        <group>
+                        <group string="securing_the_application" attrs="{'invisible': [('parent.is_need_securing_the_application', '=', False)]}">
                             <group>
-                                <field name="site_payment" attrs="{'invisible': [('parent.is_need_site_payment', '=', False)]}"/>
+                                <group>
+                                    <field string="currency" name="securing_the_application_currency_id" attrs="{'invisible': [('parent.is_need_securing_the_application', '=', False)]
+                                    ,'required': [('parent.is_need_securing_the_application', '=', True)]}"/>
+                                </group>
+                                <group>
+                                    <field string="sum" name="securing_the_application"  attrs="{'invisible': [('parent.is_need_securing_the_application', '=', False)]}"
+                                           widget="monetary" options="{'currency_field': 'securing_the_application_currency_id'}"/>
+                                </group>
                             </group>
                             <group>
-                                <field name="site_payment_descr" attrs="{'invisible': [('parent.is_need_site_payment', '=', False)]}"/>
+                                <field string="descr" name="securing_the_application_descr"  attrs="{'invisible': [('parent.is_need_securing_the_application', '=', False)]}"/>
+                            </group>
+                        </group>
+                        <group string ="payment_for_the_victory" attrs="{'invisible': [('parent.is_need_payment_for_the_victory', '=', False)]}">
+                            <group>
+                                <group>
+                                    <field string="currency" name="payment_for_the_victory_currency_id" attrs="{'invisible': [('parent.is_need_payment_for_the_victory', '=', False)]
+                                    ,'required': [('parent.is_need_payment_for_the_victory', '=', True)]}"/>
+                                </group>
+                                <group>
+                                    <field string="sum" name="payment_for_the_victory" attrs="{'invisible': [('parent.is_need_payment_for_the_victory', '=', False)]}"
+                                            widget="monetary" options="{'currency_field': 'payment_for_the_victory_currency_id'}"/>
+                                </group>
+                            </group>
+                            <group>
+                                <field string="descr" name="payment_for_the_victory_descr" attrs="{'invisible': [('parent.is_need_payment_for_the_victory', '=', False)]}"/>
+                            </group>
+                        </group>
+                        <group string="contract_security" attrs="{'invisible': [('parent.is_need_contract_security', '=', False)]}">
+                            <group>
+                                <group>
+                                    <field string="currency" name="contract_security_currency_id"  attrs="{'invisible': [('parent.is_need_contract_security', '=', False)]
+                                    ,'required': [('parent.is_need_contract_security', '=', True)]}"/>
+                                </group>
+                                <group>
+                                    <field string="sum" name="contract_security" attrs="{'invisible': [('parent.is_need_contract_security', '=', False)]}"
+                                                    widget="monetary" options="{'currency_field': 'contract_security_currency_id'}"/>
+                                </group>
+                            </group>
+                            <group>
+                                <field string="descr" name="contract_security_descr" attrs="{'invisible': [('parent.is_need_contract_security', '=', False)]}"/>
+                            </group>
+                        </group>
+                        <group string ="site_payment" attrs="{'invisible': [('parent.is_need_site_payment', '=', False)]}">
+                            <group>
+                                <group>
+                                    <field string="currency" name="site_payment_currency_id" attrs="{'invisible': [('parent.is_need_site_payment', '=', False)]
+                                    ,'required': [('parent.is_need_site_payment', '=', True)]}"/>
+                                </group>
+                                <group>
+                                    <field string="sum" name="site_payment" attrs="{'invisible': [('parent.is_need_site_payment', '=', False)]}"
+                                           widget="monetary" options="{'currency_field': 'site_payment_currency_id'}"/>
+                                </group>
+                            </group>
+                            <group>
+                                <field string="descr" name="site_payment_descr" attrs="{'invisible': [('parent.is_need_site_payment', '=', False)]}"/>
                             </group>
                         </group>
                     </sheet>
@@ -129,8 +190,8 @@
                     <field name="date_of_filling_in"/>
                     <field name="participant_id" optional="show"/>
                     <field name="auction_number" optional="show"/>
-                    <field name="url_tender" widget="html" optional="show"/>
-                    <field name="customer_organization_id" optional="show"/>
+                    <field name="url_tender" widget="html" optional="show" class="text-wrap"/>
+                    <field name="customer_organization_id" optional="show" class="text-wrap"/>
                     <field name="contact_information" optional="hide"/>
                     <field name="name_of_the_purchase" optional="show"/>
                     <field name="responsible_ids" widget="many2many_avatar_user" optional="show"/>

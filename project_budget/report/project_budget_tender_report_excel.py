@@ -90,6 +90,7 @@ class report_tender_excel(models.AbstractModel):
         })
 
         date_format = workbook.add_format({'num_format': 'd mmmm yyyy'})
+        sheet.freeze_panes(1, 1)
         row = 0
         column = 0
         sheet.write_string(row, column, 'Дата заполнения', head_format)
@@ -173,13 +174,13 @@ class report_tender_excel(models.AbstractModel):
             sum_site_payment = ''
             for tendersum in tender.tender_sums_ids:
 
-                sum_participants_offer += monetary_format(tendersum.currency_id.symbol, tendersum.participants_offer) + ' ' + (tendersum.participants_offer_descr or '') + '\n'
-                sum_initial_maximum_contract_price += monetary_format(tendersum.currency_id.symbol, tendersum.initial_maximum_contract_price) + ' ' + (tendersum.initial_maximum_contract_price_descr or '') + '\n'
-                sum_payment_for_the_victory += monetary_format(tendersum.currency_id.symbol, tendersum.payment_for_the_victory) + ' ' + (tendersum.payment_for_the_victory_descr or '') + '\n'
-                sum_securing_the_application += monetary_format(tendersum.currency_id.symbol, tendersum.securing_the_application) + ' ' + (tendersum.securing_the_application_descr or '') + '\n'
-                sum_contract_security += monetary_format(tendersum.currency_id.symbol, tendersum.contract_security) + ' ' + (tendersum.contract_security_descr or '') + '\n'
-                sum_provision_of_GO += monetary_format(tendersum.currency_id.symbol, tendersum.provision_of_GO) + ' ' + (tendersum.provision_of_GO_descr or '') + '\n'
-                sum_site_payment += monetary_format(tendersum.currency_id.symbol, tendersum.site_payment) + ' ' + (tendersum.site_payment_descr or '') + '\n'
+                sum_participants_offer += monetary_format(tendersum.participants_offer_currency_id.symbol, (tendersum.participants_offer  or 0)) + ' ' + (tendersum.participants_offer_descr or '') + '\n'
+                sum_initial_maximum_contract_price += monetary_format(tendersum.initial_maximum_contract_price_currency_id.symbol, (tendersum.initial_maximum_contract_price or 0)) + ' ' + (tendersum.initial_maximum_contract_price_descr or '') + '\n'
+                sum_payment_for_the_victory += monetary_format(tendersum.payment_for_the_victory_currency_id.symbol, (tendersum.payment_for_the_victory or 0)) + ' ' + (tendersum.payment_for_the_victory_descr or '') + '\n'
+                sum_securing_the_application += monetary_format(tendersum.securing_the_application_currency_id.symbol, (tendersum.securing_the_application or 0)) + ' ' + (tendersum.securing_the_application_descr or '') + '\n'
+                sum_contract_security += monetary_format(tendersum.contract_security_currency_id.symbol, (tendersum.contract_security or 0)) + ' ' + (tendersum.contract_security_descr or '') + '\n'
+                sum_provision_of_GO += monetary_format(tendersum.provision_of_GO_currency_id.symbol, (tendersum.provision_of_GO or 0)) + ' ' + (tendersum.provision_of_GO_descr or '') + '\n'
+                sum_site_payment += monetary_format(tendersum.site_payment_currency_id.symbol, (tendersum.site_payment or 0)) + ' ' + (tendersum.site_payment_descr or '') + '\n'
 
             if tender.is_need_initial_maximum_contract_price == True:
                 sheet.write_string(row, column, sum_initial_maximum_contract_price.strip(), row_format_text)
@@ -236,7 +237,9 @@ class report_tender_excel(models.AbstractModel):
 
 
 def monetary_format(currency_symbol, amount):
-    if currency_symbol == 'руб':
-        return '{:,.2f}'.format(amount).replace(',', ' ') + ' ' + currency_symbol
-    else:
-        return currency_symbol + ' ' + '{:,.2f}'.format(amount).replace(',', ' ')
+    if currency_symbol:
+        if currency_symbol == 'руб':
+            return '{:,.2f}'.format(amount).replace(',', ' ') + ' ' + currency_symbol
+        else:
+            return currency_symbol + ' ' + '{:,.2f}'.format(amount).replace(',', ' ')
+    else: return ""

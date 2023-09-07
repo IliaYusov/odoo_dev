@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-02 13:03+0000\n"
-"PO-Revision-Date: 2023-09-02 13:03+0000\n"
+"POT-Creation-Date: 2023-09-06 05:47+0000\n"
+"PO-Revision-Date: 2023-09-06 05:47+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -92,7 +92,6 @@ msgstr "Доступы"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__currency_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__currency_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__currency_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__currency_id
 msgid "Account Currency"
 msgstr "Валюта"
 
@@ -565,6 +564,11 @@ msgid "Created on"
 msgstr "Создано дата"
 
 #. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__currency_id
+msgid "Currency"
+msgstr "Валюта"
+
+#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__current_status
 msgid "Current Status"
 msgstr "Текущий статус"
@@ -580,6 +584,54 @@ msgstr "Количество текущих проектов"
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
 msgid "Customer/Organization"
 msgstr "Заказчик/Исполнитель"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/projects.py:0
+#, python-format
+msgid "DENIED. Project {0} have overdue end presale project month {1}"
+msgstr "ЗАПРЕЩЕНО!. Проект {0} имеет просроченную дату контрактования {1}"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/projects.py:0
+#, python-format
+msgid "DENIED. Project {0} have overdue end sale project month {1}"
+msgstr "ЗАПРЕЩЕНО!. Проект {0} имеет просроченную дату последней отгрузки {1}"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/projects.py:0
+#, python-format
+msgid ""
+"DENIED. Project {0} have overdue planned acceptance flow  without fact {1}"
+msgstr ""
+"ЗАПРЕЩЕНО!. Проект {0} имеет просроченную плановую дату актирования {1}"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/projects.py:0
+#, python-format
+msgid "DENIED. Project {0} have overdue planned cash flow  without fact {1}"
+msgstr "ЗАПРЕЩЕНО!. Проект {0} имеет просроченную плановую дату ПДС {1}"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/projects.py:0
+#, python-format
+msgid ""
+"DENIED. Project {0} step {1} have overdue end presale project month {2}"
+msgstr ""
+"ЗАПРЕЩЕНО!. Проект {0} этап {1} имеет просроченную дату контрактования {2}"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/projects.py:0
+#, python-format
+msgid "DENIED. Project {0} step {1} have overdue end sale project month {2}"
+msgstr ""
+"ЗАПРЕЩЕНО!. Проект {0} этап {1} имеет просроченную дату последней отгрузки "
+"{2}"
 
 #. module: project_budget
 #. odoo-javascript
@@ -1367,6 +1419,11 @@ msgid "Opportunity, 30%"
 msgstr "Возможность, 30%"
 
 #. module: project_budget
+#: model:ir.model.fields.selection,name:project_budget.selection__project_budget_projects_report_wizard__type_report__overdue
+msgid "Overdue"
+msgstr "Просроченные даты в проектах"
+
+#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_office__parent_id
 msgid "Parent project_office"
 msgstr "Вышестоящий проектный офис"
@@ -1489,6 +1546,16 @@ msgid "Projects Report kb"
 msgstr "КБ"
 
 #. module: project_budget
+#: model:ir.actions.report,name:project_budget.action_projects_list_report_xlsx_overdue
+msgid "Projects Report overdue"
+msgstr ""
+
+#. module: project_budget
+#: model:ir.actions.report,name:project_budget.action_projects_list_report_xlsx_raw_data
+msgid "Projects Report raw data"
+msgstr ""
+
+#. module: project_budget
 #: model:ir.actions.report,name:project_budget.action_projects_list_report_xlsx_svod
 msgid "Projects Report svod"
 msgstr "Свод"
@@ -1536,6 +1603,11 @@ msgstr "3кв."
 #: model_terms:ir.ui.view,arch_db:project_budget.show_budget_plan_supervisor_form
 msgid "Q4"
 msgstr "4кв."
+
+#. module: project_budget
+#: model:ir.model.fields.selection,name:project_budget.selection__project_budget_projects_report_wizard__type_report__raw_data
+msgid "Raw Data"
+msgstr ""
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_office__receive_tasks_for_approve_project
@@ -2029,8 +2101,14 @@ msgstr "Контактная информация"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__contract_security
+#: model_terms:ir.ui.view,arch_db:project_budget.show_projects_tenders_sums_form
 msgid "contract_security"
 msgstr "Обеспечение сделки"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__contract_security_currency_id
+msgid "contract_security Currency"
+msgstr "валюта"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__contract_security_descr
@@ -2115,6 +2193,11 @@ msgid "cost_price"
 msgstr "Себестоимость проекта"
 
 #. module: project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.show_projects_tenders_sums_form
+msgid "currency"
+msgstr "валюта"
+
+#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_current_status__code
 msgid "current status code"
 msgstr "Код"
@@ -2128,13 +2211,6 @@ msgstr "Описание"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_current_status__name
 msgid "current status name"
 msgstr "Наименование"
-
-#. module: project_budget
-#: model:ir.model,name:project_budget.model_project_budget_tender_current_status
-#: model_terms:ir.ui.view,arch_db:project_budget.show_project_tender_current_status_form
-#: model_terms:ir.ui.view,arch_db:project_budget.show_project_tender_current_status_tree
-msgid "highlight"
-msgstr "Подсвечивать в отчете"
 
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.view_tender_search
@@ -2222,6 +2298,11 @@ msgstr "Дата"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__date_of_filling_in
 msgid "date_of_filling_in tender"
 msgstr "Дата заполнения"
+
+#. module: project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.show_projects_tenders_sums_form
+msgid "descr"
+msgstr "Примечание"
 
 #. module: project_budget
 #: model:ir.model,name:project_budget.model_project_budget_distribution_acceptance
@@ -2575,6 +2656,11 @@ msgid "fot_percent"
 msgstr "Процент ФОТ"
 
 #. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_current_status__highlight
+msgid "highlight"
+msgstr "Красный шрифт в отчете"
+
+#. module: project_budget
 #: model:ir.actions.act_window,name:project_budget.show_industry
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__industry_id
 #: model:ir.ui.menu,name:project_budget.project_budget_catalogs_industry
@@ -2601,13 +2687,24 @@ msgstr "Наименование"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__initial_maximum_contract_price
+#: model_terms:ir.ui.view,arch_db:project_budget.show_projects_tenders_sums_form
 msgid "initial_maximum_contract_price"
 msgstr "НМЦК"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__initial_maximum_contract_price_currency_id
+msgid "initial_maximum_contract_price Currency"
+msgstr "валюта"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__initial_maximum_contract_price_descr
 msgid "initial_maximum_contract_price description"
 msgstr "НМЦК. Примечание"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__initial_maximum_contract_price_vat_attribute_id
+msgid "initial_maximum_contract_price vat_attribute"
+msgstr "НДС"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__is_need_type
@@ -3027,18 +3124,35 @@ msgstr "Заказчик"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__participants_offer
+#: model_terms:ir.ui.view,arch_db:project_budget.show_projects_tenders_sums_form
 msgid "participants_offer"
 msgstr "Предложение участника"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__participants_offer_descr
 msgid "participants_offer description"
-msgstr "Предложение участника. Примечание"
+msgstr "Примечание"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__participants_offer_vat_attribute_id
+msgid "participants_offer vat_attribute"
+msgstr "НДС"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__participants_offer_currency_id
+msgid "participants_offer_ Currency"
+msgstr "валюта"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__payment_for_the_victory
+#: model_terms:ir.ui.view,arch_db:project_budget.show_projects_tenders_sums_form
 msgid "payment_for_the_victory"
 msgstr "Плата за победу"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__payment_for_the_victory_currency_id
+msgid "payment_for_the_victory Currency"
+msgstr "валюта"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__payment_for_the_victory_descr
@@ -3209,6 +3323,16 @@ msgstr "отчет бюджета проектов в EXCEL"
 #: model:ir.model,name:project_budget.model_report_project_budget_report_budget_forecast_excel
 msgid "project_budget.report_budget_forecast_excel"
 msgstr "Прогноз (EXCEL)"
+
+#. module: project_budget
+#: model:ir.model,name:project_budget.model_report_project_budget_report_projects_overdue_excel
+msgid "project_budget.report_projects_overdue_excel"
+msgstr ""
+
+#. module: project_budget
+#: model:ir.model,name:project_budget.model_report_project_budget_report_projects_rawdata_excel
+msgid "project_budget.report_projects_rawdata_excel"
+msgstr ""
 
 #. module: project_budget
 #: model:ir.model,name:project_budget.model_report_project_budget_report_svod_excel
@@ -3456,8 +3580,14 @@ msgstr ""
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__provision_of_GO
+#: model_terms:ir.ui.view,arch_db:project_budget.show_projects_tenders_sums_form
 msgid "provision_of_GO"
 msgstr "Обеспечение ГО"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__provision_of_GO_currency_id
+msgid "provision_of_GO Currency"
+msgstr "валюта"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__provision_of_GO_descr
@@ -3549,8 +3679,14 @@ msgstr "Доступ пользователей по руководителям 
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__securing_the_application
+#: model_terms:ir.ui.view,arch_db:project_budget.show_projects_tenders_sums_form
 msgid "securing_the_application"
 msgstr "Обеспечение заявки"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__securing_the_application_currency_id
+msgid "securing_the_application Currency"
+msgstr ""
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__securing_the_application_descr
@@ -3634,8 +3770,14 @@ msgstr "Выберите признак НДС"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__site_payment
+#: model_terms:ir.ui.view,arch_db:project_budget.show_projects_tenders_sums_form
 msgid "site_payment"
 msgstr "Оплата площадки"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__site_payment_currency_id
+msgid "site_payment Currency"
+msgstr "валюта"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__site_payment_descr
@@ -3670,6 +3812,11 @@ msgstr "Номер этапа проекта"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__step_id
 msgid "step_id"
 msgstr ""
+
+#. module: project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.show_projects_tenders_sums_form
+msgid "sum"
+msgstr "Сумма"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_distribution_acceptance__sum_cash_plan
@@ -3788,7 +3935,7 @@ msgstr ""
 #. module: project_budget
 #: model:ir.ui.menu,name:project_budget.project_budget_catalogs_tender_current_status
 msgid "tender status"
-msgstr "Tендер. Текущий статус"
+msgstr "тендер. Текущий статус"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__tender_sums_ids
@@ -3923,6 +4070,11 @@ msgstr "Указать EBIT"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_supervisor__is_use_net_profit
 msgid "using Net Profit"
 msgstr "Указать чистую прибыль"
+
+#. module: project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.show_projects_tenders_sums_form
+msgid "vat"
+msgstr "НДС"
 
 #. module: project_budget
 #: model:ir.actions.act_window,name:project_budget.show_vat_attribute

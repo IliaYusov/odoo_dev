@@ -92,8 +92,8 @@ class project_steps(models.Model):
     @api.onchange('currency_id','essence_project','end_presale_project_month','end_sale_project_month','vat_attribute_id','total_amount_of_revenue',
                   'total_amount_of_revenue_with_vat','revenue_from_the_sale_of_works','revenue_from_the_sale_of_goods','cost_price','cost_of_goods','own_works_fot',
                   'third_party_works','awards_on_results_project','transportation_expenses','travel_expenses','representation_expenses','taxes_fot_premiums','warranty_service_costs',
-                  'rko_other','other_expenses','margin_income','profitability','estimated_probability_id','legal_entity_signing_id','project_steps_type_id','comments','technological_direction_id',
-                  'planned_cash_flow_sum','planned_cash_flow_ids','code','dogovor_number'
+                  'rko_other','other_expenses','margin_income','profitability','estimated_probability_id','legal_entity_signing_id','project_steps_type_id',
+                  'code','dogovor_number'
                 )
     def _check_changes_step(self):
         print('_check_changes_step')

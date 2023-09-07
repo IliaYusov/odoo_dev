@@ -7,15 +7,13 @@
             <form>
                 <sheet>
                     <group>
-                        <group>
-                            <field name="year"/>
-                        </group>
-                        <group>
-                            <field name="type_report"/>
-                        </group>
+                        <field name="type_report"/>
                     </group>
                     <group>
                         <field name="commercial_budget_id"/>
+                    </group>
+                    <group>
+                        <field name="year" attrs="{'invisible': [('type_report', 'in', ('raw_data','overdue'))]}"/>
                     </group>
                 </sheet>
                 <footer>
@@ -60,7 +58,23 @@
             file = "project_budget.report_svod_excel"
     />
 
+    <report id="action_projects_list_report_xlsx_raw_data"
+            string="Projects Report raw data"
+            model="project_budget.projects.report.wizard"
+            report_type="xlsx"
+            name="project_budget.report_projects_rawdata_excel"
+            menu="False"
+            file = "project_budget.report_projects_rawdata_excel"
+    />
 
+    <report id="action_projects_list_report_xlsx_overdue"
+            string="Projects Report overdue"
+            model="project_budget.projects.report.wizard"
+            report_type="xlsx"
+            name="project_budget.report_projects_overdue_excel"
+            menu="False"
+            file = "project_budget.report_projects_overdue_excel"
+    />
 
 
 
