@@ -769,7 +769,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         })
 
         if step:
-            if project.estimated_probability_id.name == '0':
+            if step.estimated_probability_id.name == '0':
                 row_format_number.set_font_color('red')
                 row_format_number_color_fact.set_font_color('red')
                 head_format_month_itogo.set_font_color('red')
@@ -1123,7 +1123,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             column += 4
         # end Валовая Выручка, без НДС
 
-    def printrow(self, sheet, workbook, office_parent_id, project_managers, estimated_probabilitys, budget, row, formulaItogo, level):
+    def printrow(self, sheet, workbook, project_offices, project_managers, estimated_probabilitys, budget, row, formulaItogo, level):
         global strYEAR
         global YEARint
         global dict_formula
@@ -1220,9 +1220,8 @@ class report_budget_forecast_excel(models.AbstractModel):
         })
         head_format_month_itogo.set_num_format('#,##0')
 
-        project_offices = self.env['project_budget.project_office'].search([('parent_id','=',office_parent_id)], order='name')  # для сортировки так делаем + берем сначала только верхние элементы
-        if isdebug:
-            logger.info(f' def printrow | office_parent_id = { office_parent_id }')
+        # if isdebug:
+        #     logger.info(f' def printrow | office_parent_id = { office_parent_id }')
 
         #project_offices = self.env['project_budget.project_office'].search([],order='name')  # для сортировки так делаем + берем сначала только верхние элементы
 
@@ -1234,15 +1233,19 @@ class report_budget_forecast_excel(models.AbstractModel):
             ('commercial_budget_id', '=', budget.id),
         ])
 
+        cur_project_offices = project_offices.filtered(lambda r: r in cur_budget_projects.project_office_id or r.parent_id != False)
         cur_project_managers = project_managers.filtered(lambda r: r in cur_budget_projects.project_manager_id)
         cur_estimated_probabilities = estimated_probabilitys.filtered(lambda r: r in cur_budget_projects.estimated_probability_id)
 
-        for project_office in project_offices:
+        for project_office in cur_project_offices:
             print('project_office.name = ', project_office.name)
             #print('level = ', level)
             #print('row = ', row)
             row0 = row
-            row0, formulaItogo = self.printrow(sheet, workbook, project_office.id, project_managers, estimated_probabilitys, budget, row, formulaItogo, level + 1)
+
+            child_project_offices = self.env['project_budget.project_office'].search([('parent_id', '=', project_office.id)], order='name')
+
+            row0, formulaItogo = self.printrow(sheet, workbook, child_project_offices, project_managers, estimated_probabilitys, budget, row, formulaItogo, level + 1)
 
             isFoundProjectsByOffice = False
             if row0 != row:
@@ -1637,12 +1640,13 @@ class report_budget_forecast_excel(models.AbstractModel):
         column = self.print_month_head_contract_pds(workbook, sheet, row, column,  strYEAR)
         column = self.print_month_head_revenue_margin(workbook, sheet, row, column,  strYEAR)
         row += 2
+        project_offices = self.env['project_budget.project_office'].search([('parent_id', '=', False)], order='name')  # для сортировки так делаем + берем сначала только верхние элементы
         project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
         estimated_probabilitys = self.env['project_budget.estimated_probability'].search([('name','!=','10')],order='code desc')  # для сортировки так делаем
 
         formulaItogo = '=sum(0'
 
-        row, formulaItogo = self.printrow( sheet, workbook, False, project_managers, estimated_probabilitys, budget, row, formulaItogo,1)
+        row, formulaItogo = self.printrow(sheet, workbook, project_offices, project_managers, estimated_probabilitys, budget, row, formulaItogo, 1)
 
         row += 2
         column = 0
