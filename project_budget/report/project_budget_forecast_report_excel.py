@@ -1233,7 +1233,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             ('commercial_budget_id', '=', budget.id),
         ])
 
-        cur_project_offices = project_offices.filtered(lambda r: r in cur_budget_projects.project_office_id or r.parent_id != False)
+        cur_project_offices = project_offices.filtered(lambda r: r in cur_budget_projects.project_office_id or r in {office.parent_id for office in cur_budget_projects.project_office_id if office.parent_id in project_offices})
         cur_project_managers = project_managers.filtered(lambda r: r in cur_budget_projects.project_manager_id)
         cur_estimated_probabilities = estimated_probabilitys.filtered(lambda r: r in cur_budget_projects.estimated_probability_id)
 
