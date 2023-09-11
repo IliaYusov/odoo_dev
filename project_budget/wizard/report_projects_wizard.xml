@@ -76,6 +76,12 @@
             file = "project_budget.report_projects_overdue_excel"
     />
 
-
-
+    <report id="action_projects_list_report_xlsx_management_committee"
+            string="Projects Report Management Committee"
+            model="project_budget.projects.report.wizard"
+            report_type="xlsx"
+            name="project_budget.report_management_committee_excel"
+            menu="False"
+            file="project_budget.report_management_committee_excel"
+    />
 </odoo>
