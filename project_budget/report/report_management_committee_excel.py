@@ -540,7 +540,7 @@ class report_management_committee_excel(models.AbstractModel):
 
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
-    def calculate_month_revenue(self, sheet, row, column, month, project, row_format_number,row_format_number_color_fact):
+    def calculate_month_revenue(self, sheet, row, column, month, project):
         global strYEAR
         global YEARint
 
@@ -657,7 +657,7 @@ class report_management_committee_excel(models.AbstractModel):
                         sum50tmp += sum
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
-    def calculate_month_pds(self, sheet, row, column, month, project, row_format_number, row_format_number_color_fact):
+    def calculate_month_pds(self, sheet, row, column, month, project):
         global strYEAR
         global YEARint
 
@@ -670,69 +670,73 @@ class report_management_committee_excel(models.AbstractModel):
                     step_etalon = self.get_etalon_step(step, self.get_quater_from_month(month))
                     sum = self.get_sum_plan_pds_project_step_month(project_etalon, step_etalon, month)
 
-                    if step and not step_etalon:  # есть этап сейчас, но нет в эталоне
+                    if not step_etalon:  # есть этап сейчас, но нет в эталоне
                         sum = 0
 
-                    estimated_probability_id_name = project_etalon.estimated_probability_id.name
-                    if step_etalon:
-                        estimated_probability_id_name = step_etalon.estimated_probability_id.name
+                    estimated_probability_id_name = step_etalon.estimated_probability_id.name
+
                     if sum != 0:
                         if estimated_probability_id_name in ('75', '100', '100(done)'):
-                            sheet.write_number(row, column + 0, sum, row_format_number)
+                            #  sheet.write_number(row, column + 0, sum, row_format_number)
                             sum75tmpetalon += sum
                         if estimated_probability_id_name == '50':
-                            sheet.write_number(row, column + 1, sum, row_format_number)
+                            #  sheet.write_number(row, column + 1, sum, row_format_number)
                             sum50tmpetalon += sum
 
-                    sum100tmp = self.get_sum_fact_pds_project_step_month(project, step, month)
-                    if sum100tmp:
-                        sheet.write_number(row, column + 2, sum100tmp, row_format_number_color_fact)
+                    sum100tmp_step = self.get_sum_fact_pds_project_step_month(project, step, month)
+
+                    sum100tmp += sum100tmp_step
+                    # if sum100tmp:
+                        #  sheet.write_number(row, column + 2, sum100tmp, row_format_number_color_fact)
 
                     sum = self.get_sum_plan_pds_project_step_month(project, step, month)
 
-                    if sum100tmp >= sum:
+                    if sum100tmp_step >= sum:
                         sum = 0
                     else:
-                        sum = sum - sum100tmp
+                        sum = sum - sum100tmp_step
                     # print('after: sum = ', sum)
                     # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                     sum_ostatok_pds = sum_distribution_pds = 0
                     for planned_cash_flow in project.planned_cash_flow_ids:
-                        if step:
-                            if planned_cash_flow.project_steps_id.id != step.id: continue
-                        if planned_cash_flow.date_cash.month == month and planned_cash_flow.date_cash.year == YEARint:
+                        if (planned_cash_flow.project_steps_id.id == step.id
+                                and planned_cash_flow.date_cash.month == month
+                                and planned_cash_flow.date_cash.year == YEARint):
                             sum_ostatok_pds += planned_cash_flow.distribution_sum_with_vat_ostatok
                             sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
+                            print('sum_ostatok_pds',sum_ostatok_pds,'sum_distribution_pds',sum_distribution_pds)
                     if sum_distribution_pds != 0 : # если есть распределение, то остаток = остатку распределения
                         sum = sum_ostatok_pds
-                        if sum < 0 : sum = 0
+                        if sum < 0: sum = 0
 
-                    estimated_probability_id_name = project.estimated_probability_id.name
-                    if step :
-                        estimated_probability_id_name = step.estimated_probability_id.name
+                    estimated_probability_id_name = step.estimated_probability_id.name
 
                     if sum != 0:
-                        if estimated_probability_id_name in('75','100','100(done)'):
-                            sheet.write_number(row, column + 3, sum,row_format_number)
+                        if estimated_probability_id_name in ('75', '100', '100(done)'):
+                            #  sheet.write_number(row, column + 3, sum,row_format_number)
                             sum75tmp += sum
                         if estimated_probability_id_name == '50':
-                            sheet.write_number(row, column + 4, sum, row_format_number)
+                            #  sheet.write_number(row, column + 4, sum, row_format_number)
                             sum50tmp += sum
             else:
                 project_etalon = self.get_etalon_project(project, self.get_quater_from_month(month))
+
+                sum = self.get_sum_plan_pds_project_step_month(project_etalon, False, month)
 
                 estimated_probability_id_name = project_etalon.estimated_probability_id.name
 
                 if sum != 0:
                     if estimated_probability_id_name in ('75', '100', '100(done)'):
-                        sheet.write_number(row, column + 0, sum, row_format_number)
+                        #  sheet.write_number(row, column + 0, sum, row_format_number)
                         sum75tmpetalon += sum
                     if estimated_probability_id_name == '50':
-                        sheet.write_number(row, column + 1, sum, row_format_number)
+                        #  sheet.write_number(row, column + 1, sum, row_format_number)
                         sum50tmpetalon += sum
 
-                if sum100tmp:
-                    sheet.write_number(row, column + 2, sum100tmp, row_format_number_color_fact)
+                sum100tmp = self.get_sum_fact_pds_project_step_month(project, False, month)
+                #  if sum100tmp:
+                    #  sheet.write_number(row, column + 2, sum100tmp, row_format_number_color_fact)
+                sum = self.get_sum_plan_pds_project_step_month(project, False, month)
 
                 if sum100tmp >= sum:
                     sum = 0
@@ -753,10 +757,10 @@ class report_management_committee_excel(models.AbstractModel):
 
                 if sum != 0:
                     if estimated_probability_id_name in ('75', '100', '100(done)'):
-                        sheet.write_number(row, column + 3, sum, row_format_number)
+                        #  sheet.write_number(row, column + 3, sum, row_format_number)
                         sum75tmp += sum
                     if estimated_probability_id_name == '50':
-                        sheet.write_number(row, column + 4, sum, row_format_number)
+                        #  sheet.write_number(row, column + 4, sum, row_format_number)
                         sum50tmp += sum
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
@@ -1323,8 +1327,7 @@ class report_management_committee_excel(models.AbstractModel):
 
             for project in projects:
                 sumM75tmpetalon, sumM50tmpetalon, sumM100tmp, sumM75tmp, sumM50tmp = self.calculate_month_revenue(
-                    sheet, row, column, self.get_month_number_rus(element), project,
-                    row_format_number, row_format_number_color_fact
+                    sheet, row, column, self.get_month_number_rus(element), project
                 )
                 sumM75etalon += sumM75tmpetalon
                 sumM50etalon += sumM50tmpetalon
@@ -1410,9 +1413,7 @@ class report_management_committee_excel(models.AbstractModel):
                     row,
                     column,
                     self.get_month_number_rus(element),
-                    project,
-                    row_format_number,
-                    row_format_number_color_fact
+                    project
                 )
 
                 sumM75etalon += sumM75tmpetalon
@@ -1426,6 +1427,20 @@ class report_management_committee_excel(models.AbstractModel):
             sumQ100 += sumM100
             sumQ75 += sumM75
             sumQ50 += sumM50
+
+            child_offices_rows = formula_offices.get('project_office_' + str(projects.project_office_id.id)) or ''
+
+            f_Q75etalon = 'sum(' + str(sumM75etalon) + child_offices_rows.format(xl_col_to_name(column)) + ')'
+            f_Q50etalon = 'sum(' + str(sumM50etalon) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')'
+            f_Q100 = 'sum(' + str(sumM100) + child_offices_rows.format(xl_col_to_name(column + 2)) + ')'
+            f_Q75 = 'sum(' + str(sumM75) + child_offices_rows.format(xl_col_to_name(column + 3)) + ')'
+            f_Q50 = 'sum(' + str(sumM50) + child_offices_rows.format(xl_col_to_name(column + 4)) + ')'
+
+            sheet.write_formula(row, column, f_Q75etalon, row_format_number)
+            sheet.write_formula(row, column + 1, f_Q50etalon, row_format_number)
+            sheet.write_formula(row, column + 2, f_Q100, row_format_number_color_fact)
+            sheet.write_formula(row, column + 3, f_Q75, row_format_number)
+            sheet.write_formula(row, column + 4, f_Q50, row_format_number)
 
             if element.find('Q') != -1:  # 'Q1 итого' 'Q2 итого' 'Q3 итого' 'Q4 итого'
                 if sumQ75etalon != 0: sheet.write_number(row, column + 0, sumQ75etalon, row_format_number)
@@ -1698,8 +1713,8 @@ class report_management_committee_excel(models.AbstractModel):
 
                                     row += 1
                                     sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level})
-                                    print('setrow  row = ',row)
-                                    print('setrow  level = ', level)
+                                    # print('setrow  row = ', row)
+                                    # print('setrow  level = ', level)
                                     cur_row_format = row_format
                                     cur_row_format_number = row_format_number
                                     if step.estimated_probability_id.name == '0':
@@ -1740,8 +1755,8 @@ class report_management_committee_excel(models.AbstractModel):
                                 isFoundProjectsByCompany = True
 
                                 sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level})
-                                print('setrow  row = ', row)
-                                print('setrow  level = ', level)
+                                # print('setrow  row = ', row)
+                                # print('setrow  level = ', level)
 
                                 cur_row_format = row_format
                                 cur_row_format_number = row_format_number
