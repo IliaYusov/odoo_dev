@@ -333,7 +333,7 @@ class report_management_committee_excel(models.AbstractModel):
                 'valign': 'vcenter',
                 "bold": False,
                 "fg_color": '#E2EFDA',
-                "font_size": 8,
+                "font_size": 9,
             })
             head_format_month_detail_fact = workbook.add_format({
                 'border': 1,
@@ -342,7 +342,7 @@ class report_management_committee_excel(models.AbstractModel):
                 'valign': 'vcenter',
                 "bold": True,
                 "fg_color": '#C6E0B4',
-                "font_size": 8,
+                "font_size": 9,
             })
 
             colbeg = column
@@ -1123,10 +1123,13 @@ class report_management_committee_excel(models.AbstractModel):
             column += 4
         # end Валовая Выручка, без НДС
 
-    def printrow(self, sheet, workbook, project_offices, project_managers, estimated_probabilitys, budget, row, formulaItogo, level):
+    def printrow(self, sheet, workbook, companies, project_offices, budget, row, formulaItogo, level):
         global strYEAR
         global YEARint
         global dict_formula
+        global max_level
+        max_level = max(level, max_level)
+
         head_format = workbook.add_format({
             'bold': True,
             'border': 1,
@@ -1143,7 +1146,7 @@ class report_management_committee_excel(models.AbstractModel):
             'valign': 'vcenter',
             "bold": False,
             "fg_color": '#C6E0B4',
-            "font_size": 8,
+            "font_size": 10,
         })
         row_format_date_month = workbook.add_format({
             'border': 1,
@@ -1160,30 +1163,31 @@ class report_management_committee_excel(models.AbstractModel):
 
         row_format_office = workbook.add_format({
             'border': 1,
-            'font_size': 9,
-            "bold": True,
+            'font_size': 10,
+            "bold": False,
             "fg_color": '#8497B0',
         })
         row_format_office.set_num_format('#,##0')
 
-        row_format_probability = workbook.add_format({
+        row_format_company = workbook.add_format({
             'border': 1,
-            'font_size': 9,
+            'font_size': 12,
             "bold": True,
-            "fg_color": '#F2DCDB',
+            "fg_color": '#999999',
             "num_format": '#,##0',
+            "bottom": 2,
         })
 
         row_format_date_month.set_num_format('mmm yyyy')
 
         row_format = workbook.add_format({
             'border': 1,
-            'font_size': 9
+            'font_size': 8
         })
 
         row_format_canceled_project = workbook.add_format({
             'border': 1,
-            'font_size': 9
+            'font_size': 8
         })
         row_format_canceled_project.set_font_color('red')
 
@@ -1202,7 +1206,7 @@ class report_management_committee_excel(models.AbstractModel):
 
         row_format_number_itogo = workbook.add_format({
             'border': 1,
-            'font_size': 9,
+            'font_size': 10,
             "bold": True,
             "fg_color": '#A9D08E',
 
@@ -1216,7 +1220,7 @@ class report_management_committee_excel(models.AbstractModel):
             'valign': 'vcenter',
             "bold": True,
             "fg_color": '#D9E1F2',
-            "font_size": 9,
+            "font_size": 10,
         })
         head_format_month_itogo.set_num_format('#,##0')
 
@@ -1227,75 +1231,80 @@ class report_management_committee_excel(models.AbstractModel):
 
         isFoundProjectsByOffice = False
         isFoundProjectsByManager = False
-        begRowProjectsByManager = 0
+        begRowProjectsByOffice = 0
 
         cur_budget_projects = self.env['project_budget.projects'].search([
             ('commercial_budget_id', '=', budget.id),
         ])
 
         cur_project_offices = project_offices.filtered(lambda r: r in cur_budget_projects.project_office_id or r in {office.parent_id for office in cur_budget_projects.project_office_id if office.parent_id in project_offices})
-        cur_project_managers = project_managers.filtered(lambda r: r in cur_budget_projects.project_manager_id)
+        # cur_project_managers = project_managers.filtered(lambda r: r in cur_budget_projects.project_manager_id)
+        cur_companies = companies.filtered(lambda r: r in cur_project_offices.company_id)
 
-        for project_office in cur_project_offices:
-            print('project_office.name = ', project_office.name)
-            row0 = row
+        for company in cur_companies:
+            print('company = ', company.name)
+            isFoundProjectsByCompany = False
+            formulaProjectCompany = '=sum(0'
 
-            child_project_offices = self.env['project_budget.project_office'].search([('parent_id', '=', project_office.id)], order='name')
+            for project_office in cur_project_offices:
+                print('project_office.name = ', project_office.name)
 
-            row0, formulaItogo = self.printrow(sheet, workbook, child_project_offices, project_managers, estimated_probabilitys, budget, row, formulaItogo, level + 1)
+                begRowProjectsByOffice = 0
 
-            isFoundProjectsByOffice = False
-            if row0 != row:
-                isFoundProjectsByOffice = True
+                row0 = row
 
-            row = row0
+                child_project_offices = self.env['project_budget.project_office'].search([('parent_id', '=', project_office.id)], order='name')
 
-            formulaProjectOffice = '=sum(0'
-            for project_manager in cur_project_managers:
-                isFoundProjectsByManager = False
-                begRowProjectsByManager = 0
-                formulaProjectManager = '=sum(0'
-                column = -1
-                # print('estimated_probability.name = ', estimated_probability.name)
-                # print('estimated_probability.code = ', estimated_probability.code)
+                row0, formulaItogo = self.printrow(sheet, workbook, company, child_project_offices, budget, row, formulaItogo, level + 1)
 
-                # cur_budget_projects = self.env['project_budget.projects'].search([
-                #     ('commercial_budget_id', '=', budget.id),
-                #     ('project_office_id', '=', project_office.id),
-                #     ('project_manager_id', '=', project_manager.id),
-                #     ('estimated_probability_id', '=', estimated_probability.id),
-                #     ('project_have_steps', '=', False),
-                #     ])
+                isFoundProjectsByOffice = False
+                if row0 != row:
+                    isFoundProjectsByOffice = True
 
-                # for project in cur_budget_projects_with_steps:
-                #     for step in project.project_steps_ids:
-                #         if step.estimated_probability_id.code == str(estimated_probability.id):
-                #             print('cur_budget_projects_1', cur_budget_projects, step)
-                #             cur_budget_projects = cur_budget_projects + self.env['project_budget.projects'].search([('id', '=', step)])
-                #             print('cur_budget_projects_2', cur_budget_projects, step)
+                row = row0
 
-                # row += 1
-                # sheet.write_string(row, column, project_office.name, row_format)
+                formulaProjectOffice = '=sum(0'
+                # for project_manager in cur_project_managers:
+                #     isFoundProjectsByManager = False
+                #     formulaProjectManager = '=sum(0'
+                #     column = -1
+
+                    # cur_budget_projects = self.env['project_budget.projects'].search([
+                    #     ('commercial_budget_id', '=', budget.id),
+                    #     ('project_office_id', '=', project_office.id),
+                    #     ('project_manager_id', '=', project_manager.id),
+                    #     ('estimated_probability_id', '=', estimated_probability.id),
+                    #     ('project_have_steps', '=', False),
+                    #     ])
+
+                    # for project in cur_budget_projects_with_steps:
+                    #     for step in project.project_steps_ids:
+                    #         if step.estimated_probability_id.code == str(estimated_probability.id):
+                    #             print('cur_budget_projects_1', cur_budget_projects, step)
+                    #             cur_budget_projects = cur_budget_projects + self.env['project_budget.projects'].search([('id', '=', step)])
+                    #             print('cur_budget_projects_2', cur_budget_projects, step)
+
+                    # row += 1
+                    # sheet.write_string(row, column, project_office.name, row_format)
 
                 for spec in cur_budget_projects:
-                    # if spec.estimated_probability_id.name != '0':
                     if spec.is_framework is True and spec.project_have_steps is False: continue # рамка без этапов - пропускаем
                     if spec.vgo == '-':
 
-                        if begRowProjectsByManager == 0:
-                            begRowProjectsByManager = row
+                        if begRowProjectsByOffice == 0:
+                            begRowProjectsByOffice = row
 
                         if spec.project_have_steps:
                             for step in spec.project_steps_ids:
-                                if (spec.project_manager_id == project_manager)\
-                                        and spec.project_office_id == project_office:
-                                    if self.isStepinYear( spec, step) == False:
+                                if spec.project_office_id == project_office and spec.company_id == company:
+                                    if self.isStepinYear(spec, step) is False or step.estimated_probability_id.name == '10':
                                         continue
-                                    isFoundProjectsByManager = True
+
                                     isFoundProjectsByOffice = True
+                                    isFoundProjectsByCompany = True
 
                                     row += 1
-                                    sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
+                                    sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level})
                                     print('setrow  row = ',row)
                                     print('setrow  level = ', level)
                                     cur_row_format = row_format
@@ -1329,22 +1338,21 @@ class report_management_committee_excel(models.AbstractModel):
                                     sheet.write_string(row, column, '', head_format_1)
                                     self.print_row_Values(workbook, sheet, row, column,  strYEAR, spec, step)
                         else:
-                            if (spec.project_manager_id == project_manager)\
-                                    and spec.project_office_id == project_office:
-                                if self.isProjectinYear(spec) == False:
+                            if spec.project_office_id == project_office and spec.company_id == company:
+                                if self.isProjectinYear(spec) is False or spec.estimated_probability_id.name == '10':
                                     continue
                                 row += 1
-                                isFoundProjectsByManager = True
-                                isFoundProjectsByOffice = True
 
-                                sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
+                                isFoundProjectsByOffice = True
+                                isFoundProjectsByCompany = True
+
+                                sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level})
                                 print('setrow  row = ', row)
                                 print('setrow  level = ', level)
 
                                 cur_row_format = row_format
                                 cur_row_format_number = row_format_number
                                 if spec.estimated_probability_id.name == '0':
-                                    # print('row_format_canceled_project')
                                     cur_row_format = row_format_canceled_project
                                     cur_row_format_number = row_format_number_canceled_project
                                 column = 0
@@ -1373,87 +1381,116 @@ class report_management_committee_excel(models.AbstractModel):
                                 sheet.write_string(row, column, '', head_format_1)
                                 self.print_row_Values(workbook, sheet, row, column,  strYEAR, spec, False)
 
-                # if isFoundProjectsByProbability:
-                #     row += 1
-                #     column = 2
-                #     sheet.write_string(row, column, project_manager.name + ' ' + estimated_probability.name
-                #                        + ' %', row_format_probability)
-                #     sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
-                #
-                #     formulaProjectManager = formulaProjectManager + ',{0}' + str(row + 1)
-                #     for colFormula in range(3, 12):
-                #         sheet.write_string(row, colFormula, '', row_format_probability)
-                #     for colFormula in range(12, 302):
-                #         formula = '=sum({2}{0}:{2}{1})'.format(begRowProjectsByProbability + 2, row,
-                #                                                xl_col_to_name(colFormula))
-                #         sheet.write_formula(row, colFormula, formula, row_format_probability)
-                #     for col in self.array_col_itogi75:
-                #         formula = '={1}{0} + {2}{0}'.format(row + 1, xl_col_to_name(col + 1),
-                #                                             xl_col_to_name(col + 2))
-                #         sheet.write_formula(row, col - 1, formula, head_format_month_itogo)
-                #     for col in self.array_col_itogi75NoFormula:
-                #         formula = '=0'
-                #         sheet.write_formula(row, col - 1, formula, head_format_month_itogo)
+                    # if isFoundProjectsByProbability:
+                    #     row += 1
+                    #     column = 2
+                    #     sheet.write_string(row, column, project_manager.name + ' ' + estimated_probability.name
+                    #                        + ' %', row_format_probability)
+                    #     sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
+                    #
+                    #     formulaProjectManager = formulaProjectManager + ',{0}' + str(row + 1)
+                    #     for colFormula in range(3, 12):
+                    #         sheet.write_string(row, colFormula, '', row_format_probability)
+                    #     for colFormula in range(12, 302):
+                    #         formula = '=sum({2}{0}:{2}{1})'.format(begRowProjectsByProbability + 2, row,
+                    #                                                xl_col_to_name(colFormula))
+                    #         sheet.write_formula(row, colFormula, formula, row_format_probability)
+                    #     for col in self.array_col_itogi75:
+                    #         formula = '={1}{0} + {2}{0}'.format(row + 1, xl_col_to_name(col + 1),
+                    #                                             xl_col_to_name(col + 2))
+                    #         sheet.write_formula(row, col - 1, formula, head_format_month_itogo)
+                    #     for col in self.array_col_itogi75NoFormula:
+                    #         formula = '=0'
+                    #         sheet.write_formula(row, col - 1, formula, head_format_month_itogo)
 
-                if isFoundProjectsByManager:
+                    # if isFoundProjectsByManager:
+                    #     row += 1
+                    #     column = 1
+                    #     sheet.write_string(row, column, 'ИТОГО ' + project_manager.name, row_format_manager)
+                    #     sheet.set_row(row, False, False, {'hidden': 1, 'level': 4})
+                    #     print('setrow manager  row = ', row)
+                    #     print('setrow manager level = ', level)
+                    #
+                    #     formulaProjectOffice = formulaProjectOffice + ',{0}'+str(row + 1)
+                    #
+                    #     for colFormula in range(2, 12):
+                    #         sheet.write_string(row, colFormula, '', row_format_manager)
+                    #
+                    #     for colFormula in range(12, 302):
+                    #         formula = '=sum({2}{0}:{2}{1})'.format(begRowProjectsByManager + 2, row,
+                    #                                                xl_col_to_name(colFormula))
+                    #         sheet.write_formula(row, colFormula, formula, row_format_manager)
+                    #
+                    #     for col in self.array_col_itogi75:
+                    #         formula = '={1}{0} + {2}{0}'.format(row+1,xl_col_to_name(col + 1),xl_col_to_name(col + 2))
+                    #         sheet.write_formula(row, col - 1, formula, head_format_month_itogo)
+                    #
+                    #     for col in self.array_col_itogi75NoFormula:
+                    #         formula = '=0'
+                    #         sheet.write_formula(row, col - 1, formula, head_format_month_itogo)
+
+                if project_office.parent_id:
+                    isFoundProjectsByCompany = False
+
+                if isFoundProjectsByOffice:
                     row += 1
-                    column = 1
-                    sheet.write_string(row, column, 'ИТОГО ' + project_manager.name, row_format_manager)
+                    column = 0
+                    # sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
+                    # print('setrow level1 row = ', row)
+                    sheet.write_string(row, column, '       ' * level + project_office.name, row_format_office)
                     sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
-                    print('setrow manager  row = ', row)
-                    print('setrow manager level = ', level)
 
-                    formulaProjectOffice = formulaProjectOffice + ',{0}'+str(row + 1)
+                    str_project_office_id = 'project_office_' + str(int(project_office.parent_id))
+                    if str_project_office_id in dict_formula:
+                        dict_formula[str_project_office_id] = dict_formula[str_project_office_id] + ',{0}' + str(row+1)
+                    else:
+                        dict_formula[str_project_office_id] = ',{0}'+str(row+1)
 
-                    for colFormula in range(2, 12):
-                        sheet.write_string(row, colFormula, '', row_format_manager)
+                    formulaProjectOffice += ',{0}' + f'{begRowProjectsByOffice + 2}' + ':{0}' + f'{row}'
+
+                    str_project_office_id = 'project_office_' + str(int(project_office.id))
+                    if str_project_office_id in dict_formula:
+                        formulaProjectOffice = formulaProjectOffice + dict_formula[str_project_office_id] + ')'
+                    else:
+                        formulaProjectOffice = formulaProjectOffice + ')'
+
+                    if level > 0:
+                        level_color = min(0x999999 + 0x202020 * level, 0xEEEEEE)
+                        row_format_office.set_fg_color(f'#{str(hex(level_color))[2:]}')
+
+                    for colFormula in range(1, 12):
+                        sheet.write_string(row, colFormula, '', row_format_office)
 
                     for colFormula in range(12, 302):
-                        formula = '=sum({2}{0}:{2}{1})'.format(begRowProjectsByManager + 2, row,
-                                                               xl_col_to_name(colFormula))
-                        sheet.write_formula(row, colFormula, formula, row_format_manager)
+                        formula = formulaProjectOffice.format(xl_col_to_name(colFormula))
+                        sheet.write_formula(row, colFormula, formula, row_format_office)
 
-                    # for col in self.array_col_itogi:
-                    #     formula = '={1}{0} + {2}{0}'.format(row+1,xl_col_to_name(col),xl_col_to_name(col+ 1))
-                    #     print('formula = ', formula)
-                    #     sheet.write_formula(row, col -1, formula, head_format_month_itogo)
                     for col in self.array_col_itogi75:
-                        formula = '={1}{0} + {2}{0}'.format(row+1,xl_col_to_name(col + 1),xl_col_to_name(col + 2))
-                        # print('formula = ', formula)
+                        formula = '={1}{0} + {2}{0}'.format(row+1, xl_col_to_name(col + 1), xl_col_to_name(col + 2))
                         sheet.write_formula(row, col - 1, formula, head_format_month_itogo)
+
                     for col in self.array_col_itogi75NoFormula:
                         formula = '=0'
                         sheet.write_formula(row, col - 1, formula, head_format_month_itogo)
 
-            if isFoundProjectsByOffice:
+                    if not project_office.parent_id:
+                        formulaProjectCompany += ',{0}' + f'{row + 1}'
+
+            if isFoundProjectsByCompany:
                 row += 1
                 column = 0
-                # sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
-                # print('setrow level1 row = ', row)
-                sheet.write_string(row, column, 'ИТОГО ' + project_office.name, row_format_office)
-                str_project_office_id = 'project_office_' + str(int(project_office.parent_id))
-                if str_project_office_id in dict_formula:
-                    dict_formula[str_project_office_id] = dict_formula[str_project_office_id] + ',{0}' + str(row+1)
-                else:
-                    dict_formula[str_project_office_id] = ',{0}'+str(row+1)
 
-                str_project_office_id = 'project_office_' + str(int(project_office.id))
+                sheet.write_string(row, column, company.name, row_format_company)
 
-                if str_project_office_id in dict_formula:
-                    formulaProjectOffice = formulaProjectOffice + dict_formula[str_project_office_id]+')'
-                else:
-                    formulaProjectOffice = formulaProjectOffice + ')'
+                dict_formula['companies'] = dict_formula.setdefault('companies', '') + ',{0}' + str(row + 1)
 
-                print('formulaProjectOffice = ', formulaProjectOffice)
-                formulaItogo = formulaItogo + ',{0}' + str(row + 1)
-                # print('formulaProjectOffice = ',formulaProjectOffice)
                 for colFormula in range(1, 12):
-                    sheet.write_string(row, colFormula, '', row_format_office)
+                    sheet.write_string(row, colFormula, '', row_format_company)
 
+                formulaProjectCompany += ')'
                 for colFormula in range(12, 302):
-                    formula = formulaProjectOffice.format(xl_col_to_name(colFormula))
-                    # print('formula = ', formula)
-                    sheet.write_formula(row, colFormula, formula, row_format_office)
+                    formula = formulaProjectCompany.format(xl_col_to_name(colFormula))
+                    sheet.write_formula(row, colFormula, formula, row_format_company)
 
         return row, formulaItogo
 
@@ -1484,7 +1521,7 @@ class report_management_committee_excel(models.AbstractModel):
             'valign': 'vcenter',
             "bold": False,
             "fg_color": '#C6E0B4',
-            "font_size": 8,
+            "font_size": 10,
         })
         row_format_date_month = workbook.add_format({
             'border': 1,
@@ -1575,7 +1612,7 @@ class report_management_committee_excel(models.AbstractModel):
         column += 1
         sheet.write_string(row, column, "", head_format)
         sheet.write_string(row+1, column, "Наименование Проекта", head_format_1)
-        # sheet.write_string(row + 2, column, "", head_format_1)
+        sheet.write_string(row + 2, column, "", head_format_1)
         sheet.set_column(column, column, 12.25)
         column += 1
         sheet.write_string(row, column, "", head_format)
@@ -1624,20 +1661,22 @@ class report_management_committee_excel(models.AbstractModel):
         column = self.print_month_head_contract_pds(workbook, sheet, row, column,  strYEAR)
         column = self.print_month_head_revenue_margin(workbook, sheet, row, column,  strYEAR)
         row += 2
+
+        companies = self.env['res.company'].search([], order='name')
         project_offices = self.env['project_budget.project_office'].search([('parent_id', '=', False)], order='name')  # для сортировки так делаем + берем сначала только верхние элементы
-        project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
-        estimated_probabilitys = self.env['project_budget.estimated_probability'].search([('name','!=','10')],order='code desc')  # для сортировки так делаем
+        # project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
+        # estimated_probabilitys = self.env['project_budget.estimated_probability'].search([('name','!=','10')],order='code desc')  # для сортировки так делаем
 
         formulaItogo = '=sum(0'
 
-        row, formulaItogo = self.printrow(sheet, workbook, project_offices, project_managers, estimated_probabilitys, budget, row, formulaItogo, 1)
+        row, formulaItogo = self.printrow(sheet, workbook, companies, project_offices, budget, row, formulaItogo, 1)
 
         row += 2
         column = 0
-        sheet.write_string(row, column, 'ИТОГО по отчету' , row_format_number_itogo)
+        sheet.write_string(row, column, 'ИТОГО по отчету', row_format_number_itogo)
         formulaItogo = formulaItogo + ')'
-        if 'project_office_0' in dict_formula:
-            formulaItogo = '=sum('+dict_formula['project_office_0'] + ')'
+        if 'companies' in dict_formula:
+            formulaItogo = '=sum('+dict_formula['companies'] + ')'
         for colFormula in range(1, 12):
             sheet.write_string(row, colFormula, '', row_format_number_itogo)
         for colFormula in range(12, 302):
@@ -1654,9 +1693,12 @@ class report_management_committee_excel(models.AbstractModel):
         YEARint = int(strYEAR)
         global dict_formula
         dict_formula = {}
+        global max_level
+        max_level = 1
         print('YEARint=',YEARint)
         print('strYEAR =', strYEAR)
 
         commercial_budget_id = data['commercial_budget_id']
+        print('commercial_budget_id', commercial_budget_id)
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
         self.printworksheet(workbook, budget, 'Прогноз')

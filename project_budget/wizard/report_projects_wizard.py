@@ -48,5 +48,4 @@ class report_projects_wizard(models.TransientModel):
             return self.env.ref('project_budget.action_projects_list_report_xlsx_overdue').report_action(self, data=datas)
 
         if self.type_report == 'management_committee':
-            print(self.env.ref('project_budget.action_projects_list_report_xlsx_management_committee'))
             return self.env.ref('project_budget.action_projects_list_report_xlsx_management_committee').report_action(self, data=datas)
