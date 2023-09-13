@@ -73,26 +73,15 @@ class report_management_committee_excel(models.AbstractModel):
 
         return False
 
-    month_rus_name_contract_pds = ['Q1 итого', 'Q2 итого', 'HY1/YEAR итого',
-                                    'Q3 итого', 'Q4 итого','HY2/YEAR итого', 'YEAR итого']
-
-    month_rus_name_revenue_margin = ['Q1', 'Q2', 'HY1/YEAR', 'Q3', 'Q4', 'HY2/YEAR', 'YEAR']
-
-    array_col_itogi = [28, 49, 55, 76, 97, 103, 109, 130, 151, 157, 178, 199, 205, 211, 217, 223, 229, 235, 241, 254, 260, 266, 272, 278, 284, 297,]
-
-    array_col_itogi75 = [247, 290,]
-
-    array_col_itogi75NoFormula = [248, 291,]
+    quarter_rus_name = ['Q1', 'Q2', 'HY1/YEAR', 'Q3', 'Q4', 'HY2/YEAR', 'YEAR', 'NEXT', 'AFTER NEXT']
 
     dict_formula = {}
+
     dict_contract_pds = {
         1: {'name': 'Контрактование, с НДС', 'color': '#FFD966'},
-        2: {'name': 'Поступление денежных средств, с НДС', 'color': '#D096BF'}
-    }
-
-    dict_revenue_margin= {
-        1: {'name': 'Валовая Выручка, без НДС', 'color': '#B4C6E7'},
-        2: {'name': 'Валовая прибыль (Маржа 1), без НДС', 'color': '#F4FD9F'}
+        2: {'name': 'Поступление денежных средств, с НДС', 'color': '#D096BF'},
+        3: {'name': 'Валовая Выручка, без НДС', 'color': '#B4C6E7'},
+        4: {'name': 'Валовая прибыль (Маржа 1), без НДС', 'color': '#F4FD9F'},
     }
 
     def get_estimated_probability_name_forecast(self, name):
@@ -158,22 +147,22 @@ class report_management_committee_excel(models.AbstractModel):
             logger.info(' self.env[project_budget.projects].search ')
             logger.info(f'          etalon_budget = True')
             logger.info(f'          budget_state = fixed')
-            logger.info(f'          project_id = { spec.project_id}')
-            logger.info(f'          date_actual >= { datesearch}')
+            logger.info(f'          project_id = {spec.project_id}')
+            logger.info(f'          date_actual >= {datesearch}')
             logger.info(f'          limit=1, order= date_actual')
 
         etalon_project = self.env['project_budget.projects'].search([('etalon_budget', '=', True),
-                                                                     ('budget_state','=','fixed'),
-                                                                     ('project_id','=',spec.project_id),
-                                                                     ('date_actual','>=',datesearch)
+                                                                     ('budget_state', '=', 'fixed'),
+                                                                     ('project_id', '=', spec.project_id),
+                                                                     ('date_actual', '>=', datesearch)
                                                                     ], limit=1, order='date_actual')
         if etalon_project:
             if isdebug: logger.info(f'   etalon_project found by date ')
         else: # если не нашли относительно даты, то поищем просто последний
             if isdebug: logger.info(f'   etalon_project NOT found by date ')
             etalon_project = self.env['project_budget.projects'].search([('etalon_budget', '=', True),
-                                                                     ('budget_state','=','fixed'),
-                                                                     ('project_id','=',spec.project_id)
+                                                                     ('budget_state', '=', 'fixed'),
+                                                                     ('project_id', '=', spec.project_id)
                                                                     ], limit=1, order='date_actual desc')
         if isdebug:
             logger.info(f'  etalon_project.id = { etalon_project.id}')
@@ -211,8 +200,8 @@ class report_management_committee_excel(models.AbstractModel):
             logger.info(f'           limit = 1, order = date_actual')
 
         etalon_step = self.env['project_budget.project_steps'].search([('etalon_budget', '=', True),
-                                                                       ('step_id','=',step.step_id),
-                                                                       ('id','!=',step.id),
+                                                                       ('step_id', '=', step.step_id),
+                                                                       ('id', '!=', step.id),
                                                                        ('date_actual', '>=', datesearch)
                                                                       ], limit=1, order='date_actual')
         if etalon_step:  # если не нашли относительно даты, то поищем просто последний
@@ -307,7 +296,7 @@ class report_management_committee_excel(models.AbstractModel):
 
 
 
-    def print_month_head_contract_pds(self,workbook,sheet,row,column,YEAR):
+    def print_quater_head(self,workbook,sheet,row,column,YEAR):
         global strYEAR
         global YEARint
 
@@ -318,9 +307,9 @@ class report_management_committee_excel(models.AbstractModel):
                 'text_wrap': True,
                 'align': 'center',
                 'valign': 'vcenter',
-                "bold" : True,
-                "fg_color" : y[1],
-                "font_size" : 11,
+                "bold": True,
+                "fg_color": y[1],
+                "font_size": 11,
             })
             head_format_month_itogo = workbook.add_format({
                 'border': 1,
@@ -329,6 +318,24 @@ class report_management_committee_excel(models.AbstractModel):
                 'valign': 'vcenter',
                 "bold": True,
                 "fg_color": '#D9E1F2',
+                "font_size": 12,
+            })
+            head_format_month_itogo_6_plus_6 = workbook.add_format({
+                'border': 1,
+                'text_wrap': True,
+                'align': 'center',
+                'valign': 'vcenter',
+                "bold": True,
+                "fg_color": '#00b0f0',
+                "font_size": 12,
+            })
+            head_format_month_itogo_percent = workbook.add_format({
+                'border': 1,
+                'text_wrap': True,
+                'align': 'center',
+                'valign': 'vcenter',
+                "bold": True,
+                "fg_color": '#ffff99',
                 "font_size": 12,
             })
             head_format_month_detail = workbook.add_format({
@@ -351,130 +358,176 @@ class report_management_committee_excel(models.AbstractModel):
             })
 
             colbeg = column
-            colbegQ= column
-            colbegH= column
-            colbegY= column
 
-            for elementone in self.month_rus_name_contract_pds:
+            for elementone in self.quarter_rus_name:
 
                 element = elementone.replace('YEAR', strYEAR)
-                if element.find('итого') != -1:
-                    if elementone.find('Q') != -1:
+
+                if 'NEXT' not in element:
+                    addcolumn = 0
+                    if 'HY2' in element or 'Q' in element:
+                        addcolumn = -1
+
+                    if 'Q' in elementone:
                         sheet.set_column(column, column + 5, False, False, {'hidden': 1, 'level': 2})
-                    if elementone.find('HY') != -1:
+                    if 'HY' in elementone:
                         sheet.set_column(column, column + 5, False, False, {'hidden': 1, 'level': 1})
-                    sheet.merge_range(row, column, row, column + 5, element, head_format_month)
-                    sheet.merge_range(row + 1, column, row + 2, column, "План "+element.replace('итого',''), head_format_month_itogo)
-                    column += 1
-                else:
-                    sheet.merge_range(row, column, row, column + 4, element, head_format_month)
-                    sheet.set_column(column, column+4, False, False, {'hidden': 1, 'level': 3})
-                sheet.merge_range(row+1, column, row+1, column + 1, 'Прогноз на начало периода (эталонный)', head_format_month_detail)
-                sheet.write_string(row+2, column, 'Обязательство', head_format_month_detail)
-                column += 1
-                sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail)
-                column += 1
-                sheet.merge_range(row+1, column, row+2, column, 'Факт', head_format_month_detail_fact)
-                column += 1
-                sheet.merge_range(row + 1, column, row + 1, column + 1, 'Прогноз до конца периода (на дату отчета)',head_format_month_detail)
-                sheet.write_string(row + 2, column, 'Обязательство', head_format_month_detail)
-                column += 1
-                sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail)
-                column += 1
-                if elementone.find('Q') != -1 or elementone.find('НY') != -1 or elementone.find('YEAR') != -1:
-                    colbegQ = column
 
-                if elementone.find('НY') != -1 or elementone.find('YEAR') != -1:
-                    colbegH = column
+                    sheet.merge_range(row, column, row, column + 5 + addcolumn, element, head_format_month)
+
+                    sheet.merge_range(row + 1, column, row + 2, column, "План " + element,
+                                      head_format_month_itogo)
+                    column += 1
+                    sheet.merge_range(row + 1, column, row + 2, column, "План " + element + " 6+6",
+                                      head_format_month_itogo_6_plus_6)
+
+                    column += 1
+                    sheet.merge_range(row+1, column, row+2, column, 'Факт', head_format_month_detail_fact)
+
+                    if 'HY1' in element:
+                        column += 1
+                        sheet.merge_range(row + 1, column, row + 2, column, "% исполнения плана 6+6 " + element,
+                                          head_format_month_itogo_percent)
+
+                    if element == YEAR:
+                        column += 1
+                        sheet.merge_range(row + 1, column, row + 2, column, "% исполнения плана 6+6 " + element,
+                                          head_format_month_itogo_percent)
+
+                    column += 1
+                    sheet.merge_range(row + 1, column, row + 1, column + 1, 'Прогноз до конца периода (на дату отчета)',head_format_month_detail)
+                    sheet.write_string(row + 2, column, 'Обязательство', head_format_month_detail)
+                    column += 1
+                    sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail)
+                    column += 1
+
+                elif element == 'NEXT':
+                    sheet.merge_range(row, column, row, column + 2, str(YEARint + 1), head_format_month)
+                    sheet.merge_range(row + 1, column, row + 1, column + 2, 'Прогноз ' + str(YEARint + 1),
+                                      head_format_month_detail)
+                    sheet.write_string(row + 2, column, 'Обязательство', head_format_month_detail)
+                    column += 1
+                    sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail)
+                    column += 1
+                    sheet.write_string(row + 2, column, 'Потенциал', head_format_month_detail)
+                    column += 1
+
+                elif element == 'AFTER NEXT':
+                    sheet.write_string(row, column, str(YEARint + 2), head_format_month)
+                    sheet.merge_range(row + 1, column, row + 2, column, 'Прогноз ' + str(YEARint + 2),
+                                      head_format_month_detail)
+                    column += 1
+
             sheet.merge_range(row-1, colbeg, row-1, column - 1, y[0], head_format_month)
 
         return column
 
-    def print_month_head_revenue_margin(self,workbook,sheet,row,column,YEAR):
-        global strYEAR
-        global YEARint
-
-        for x in self.dict_revenue_margin.items():
-            y = list(x[1].values())
-            head_format_month = workbook.add_format({
-                'border': 1,
-                'text_wrap': True,
-                'align': 'center',
-                'valign': 'vcenter',
-                "bold" : True,
-                "fg_color" : y[1],
-                "font_size" : 11,
-            })
-            head_format_month_itogo = workbook.add_format({
-                'border': 1,
-                'text_wrap': True,
-                'align': 'center',
-                'valign': 'vcenter',
-                "bold": True,
-                "fg_color": '#D9E1F2',
-                "font_size": 12,
-            })
-            head_format_month_detail = workbook.add_format({
-                'border': 1,
-                'text_wrap': True,
-                'align': 'center',
-                'valign': 'vcenter',
-                "bold": False,
-                "fg_color": '#E2EFDA',
-                "font_size": 8,
-            })
-            head_format_month_detail_fact = workbook.add_format({
-                'border': 1,
-                'text_wrap': True,
-                'align': 'center',
-                'valign': 'vcenter',
-                "bold": True,
-                "fg_color": '#C6E0B4',
-                "font_size": 8,
-            })
-
-            colbeg = column
-            for elementone in self.month_rus_name_revenue_margin:
-                element = elementone.replace('YEAR', YEAR)
-                addcolumn = 0
-                if element.find('HY2') != -1:
-                    addcolumn = 1
-
-                if elementone.find('Q') != -1:
-                    sheet.set_column(column, column + 5, False, False, {'hidden': 1, 'level': 2})
-
-                if elementone.find('HY') != -1:
-                    sheet.set_column(column, column + 5 + addcolumn, False, False, {'hidden': 1, 'level': 1})
-
-                sheet.merge_range(row, column, row, column + 5 + addcolumn, element, head_format_month)
-
-
-                sheet.merge_range(row + 1, column, row + 2, column, "План " + element.replace('итого', ''),
-                                  head_format_month_itogo)
-                column += 1
-
-                if element.find('HY2') != -1:
-                    sheet.merge_range(row + 1, column, row + 2, column, "План HY2/"+YEAR+ " 7+5"
-                                      , head_format_month_itogo)
-                    column += 1
-
-                sheet.merge_range(row + 1, column , row + 1, column + 1 , 'Прогноз на начало периода (эталонный)',
-                                  head_format_month_detail)
-
-                sheet.write_string(row + 2, column , 'Обязательство', head_format_month_detail)
-                column += 1
-                sheet.write_string(row + 2, column , 'Резерв', head_format_month_detail)
-                column += 1
-                sheet.merge_range(row + 1, column , row + 2, column , 'Факт', head_format_month_detail_fact)
-                column += 1
-                sheet.merge_range(row + 1, column , row + 1, column + 1 , 'Прогноз до конца периода (на дату отчета)',
-                                  head_format_month_detail)
-                sheet.write_string(row + 2, column , 'Обязательство', head_format_month_detail)
-                column += 1
-                sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail)
-                column += 1
-            sheet.merge_range(row-1, colbeg, row-1, column - 1, y[0], head_format_month)
-        return column
+    # def print_month_head_revenue_margin(self,workbook,sheet,row,column,YEAR):
+    #     global strYEAR
+    #     global YEARint
+    #
+    #     for x in self.dict_revenue_margin.items():
+    #         y = list(x[1].values())
+    #         head_format_month = workbook.add_format({
+    #             'border': 1,
+    #             'text_wrap': True,
+    #             'align': 'center',
+    #             'valign': 'vcenter',
+    #             "bold": True,
+    #             "fg_color": y[1],
+    #             "font_size": 11,
+    #         })
+    #         head_format_month_itogo = workbook.add_format({
+    #             'border': 1,
+    #             'text_wrap': True,
+    #             'align': 'center',
+    #             'valign': 'vcenter',
+    #             "bold": True,
+    #             "fg_color": '#D9E1F2',
+    #             "font_size": 12,
+    #         })
+    #         head_format_month_itogo_6_plus_6 = workbook.add_format({
+    #             'border': 1,
+    #             'text_wrap': True,
+    #             'align': 'center',
+    #             'valign': 'vcenter',
+    #             "bold": True,
+    #             "fg_color": '#00b0f0',
+    #             "font_size": 12,
+    #         })
+    #         head_format_month_itogo_percent = workbook.add_format({
+    #             'border': 1,
+    #             'text_wrap': True,
+    #             'align': 'center',
+    #             'valign': 'vcenter',
+    #             "bold": True,
+    #             "fg_color": '#ffff99',
+    #             "font_size": 12,
+    #         })
+    #         head_format_month_detail = workbook.add_format({
+    #             'border': 1,
+    #             'text_wrap': True,
+    #             'align': 'center',
+    #             'valign': 'vcenter',
+    #             "bold": False,
+    #             "fg_color": '#E2EFDA',
+    #             "font_size": 8,
+    #         })
+    #         head_format_month_detail_fact = workbook.add_format({
+    #             'border': 1,
+    #             'text_wrap': True,
+    #             'align': 'center',
+    #             'valign': 'vcenter',
+    #             "bold": True,
+    #             "fg_color": '#C6E0B4',
+    #             "font_size": 8,
+    #         })
+    #
+    #         colbeg = column
+    #         for elementone in self.quarter_rus_name:
+    #
+    #             element = elementone.replace('YEAR', YEAR)
+    #
+    #             addcolumn = 0
+    #             if 'HY2' in element or 'Q' in element:
+    #                 addcolumn = -1
+    #
+    #             if elementone.find('Q') != -1:
+    #                 sheet.set_column(column, column + 5, False, False, {'hidden': 1, 'level': 2})
+    #
+    #             if elementone.find('HY') != -1:
+    #                 sheet.set_column(column, column + 5 + addcolumn, False, False, {'hidden': 1, 'level': 1})
+    #
+    #             sheet.merge_range(row, column, row, column + 5 + addcolumn, element, head_format_month)
+    #
+    #
+    #             sheet.merge_range(row + 1, column, row + 2, column, "План " + element,
+    #                               head_format_month_itogo)
+    #             column += 1
+    #
+    #             sheet.merge_range(row + 1, column, row + 2, column, "План " + element + " 6+6",
+    #                               head_format_month_itogo_6_plus_6)
+    #             column += 1
+    #             sheet.merge_range(row + 1, column, row + 2, column, 'Факт', head_format_month_detail_fact)
+    #
+    #
+    #             if 'HY1' in element:
+    #                 column += 1
+    #                 sheet.merge_range(row + 1, column, row + 2, column, "% исполнения плана 6+6 " + element,
+    #                                   head_format_month_itogo_percent)
+    #             if element == YEAR:
+    #                 column += 1
+    #                 sheet.merge_range(row + 1, column, row + 2, column, "% исполнения плана 6+6 " + element,
+    #                                   head_format_month_itogo_percent)
+    #             column += 1
+    #             sheet.merge_range(row + 1, column, row + 1, column + 1, 'Прогноз до конца периода (на дату отчета)',
+    #                               head_format_month_detail)
+    #             sheet.write_string(row + 2, column, 'Обязательство', head_format_month_detail)
+    #             column += 1
+    #             sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail)
+    #             column += 1
+    #         sheet.merge_range(row-1, colbeg, row-1, column - 1, y[0], head_format_month)
+    #     return column
 
     # def print_month_revenue_project(self, sheet, row, column, month, project, step, row_format_number, row_format_number_color_fact):
     #     global strYEAR
@@ -1077,7 +1130,7 @@ class report_management_committee_excel(models.AbstractModel):
     #     sumYear75 = 0
     #     sumYear50 = 0
     #     # печать Контрактование, с НДС
-    #     for element in self.month_rus_name_contract_pds:
+    #     for element in self.quarter_rus_name:
     #         column += 1
     #         sumQ75tmpetalon = sumQ50tmpetalon = sumQ100tmp = sumQ75tmp = sumQ50tmp = 0
     #
@@ -1172,7 +1225,7 @@ class report_management_committee_excel(models.AbstractModel):
     #     sumQ100etalon = sumQ75etalon = sumQ50etalon = sumQ100 = sumQ75 = sumQ50 = 0
     #     sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
     #
-    #     for element in self.month_rus_name_contract_pds:
+    #     for element in self.quarter_rus_name:
     #         column += 1
     #         sumQ75tmpetalon = sumQ50tmpetalon = sumQ100tmp = sumQ75tmp = sumQ50tmp = 0
     #
@@ -1279,7 +1332,7 @@ class report_management_committee_excel(models.AbstractModel):
     #     else:
     #         profitability_etalon = step_etalon.profitability
     #
-    #     for element in self.month_rus_name_revenue_margin:
+    #     for element in self.quarter_rus_name:
     #         column += 1
     #         sheet.write_string(row, column, "", head_format_month_itogo)
     #         sheet.write_string(row, column + 43, "", head_format_month_itogo)
@@ -1412,40 +1465,39 @@ class report_management_committee_excel(models.AbstractModel):
     #         column += 4
     #     # end Валовая Выручка, без НДС
 
-    def print_row_values_office(self, workbook, sheet, row, column,  YEAR, projects, formula_offices):
+    def print_row_values_office(self, workbook, sheet, row, column, YEAR, projects, formula_offices):
         global strYEAR
         global YEARint
 
         row_format_number = workbook.add_format({
             'border': 1,
             'font_size': 10,
+            'num_format': '#,##0',
         })
-        row_format_number.set_num_format('#,##0')
         row_format_number_color_fact = workbook.add_format({
             "fg_color": '#C6E0B4',
             'border': 1,
             'font_size': 10,
+            'num_format': '#,##0',
         })
-        row_format_number_color_fact.set_num_format('#,##0')
+        row_format_number_color_percent = workbook.add_format({
+            "fg_color": '#ffff99',
+            'border': 1,
+            'font_size': 10,
+            'num_format': '#,##0',
+        })
         head_format_month_itogo = workbook.add_format({
             'border': 1,
             "fg_color": '#D9E1F2',
             'diag_type': 3
         })
 
-        sumQ100etalon = sumQ75etalon = sumQ50etalon = sumQ100 = sumQ75 = sumQ50 = 0
-        sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
-        sumYear100etalon = sumYear75etalon = sumYear50etalon = sumYear100 = sumYear75 = sumYear50 = 0
-
         # печать Контрактование, с НДС
-        for element in self.month_rus_name_contract_pds:
+        for element in self.quarter_rus_name:
             column += 1
 
             sumM75etalon = sumM50etalon = sumM100 = sumM75 = sumM50 = 0
 
-            if 'итого' in element:
-                sheet.write_string(row, column, "", head_format_month_itogo)
-                column += 1
             sheet.write_string(row, column + 0, "", row_format_number)
             sheet.write_string(row, column + 1, "", row_format_number)
             sheet.write_string(row, column + 2, "", row_format_number_color_fact)
@@ -1464,40 +1516,45 @@ class report_management_committee_excel(models.AbstractModel):
 
             child_offices_rows = formula_offices.get('project_office_' + str(projects.project_office_id.id)) or ''
 
-            f_Q75etalon = 'sum(' + str(sumM75etalon) + child_offices_rows.format(xl_col_to_name(column)) + ')'
-            f_Q50etalon = 'sum(' + str(sumM50etalon) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')'
+            # f_Q75etalon = 'sum(' + str(sumM75etalon) + child_offices_rows.format(xl_col_to_name(column)) + ')'
+            # f_Q50etalon = 'sum(' + str(sumM50etalon) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')'
             f_Q100 = 'sum(' + str(sumM100) + child_offices_rows.format(xl_col_to_name(column + 2)) + ')'
             f_Q75 = 'sum(' + str(sumM75) + child_offices_rows.format(xl_col_to_name(column + 3)) + ')'
             f_Q50 = 'sum(' + str(sumM50) + child_offices_rows.format(xl_col_to_name(column + 4)) + ')'
 
-            sheet.write_formula(row, column, f_Q75etalon, row_format_number)
-            sheet.write_formula(row, column + 1, f_Q50etalon, row_format_number)
+            # sheet.write_formula(row, column, f_Q75etalon, row_format_number)
+            # sheet.write_formula(row, column + 1, f_Q50etalon, row_format_number)
             sheet.write_formula(row, column + 2, f_Q100, row_format_number_color_fact)
             sheet.write_formula(row, column + 3, f_Q75, row_format_number)
             sheet.write_formula(row, column + 4, f_Q50, row_format_number)
 
-            if 'HY' in element:  # 'HY1/YEAR итого' 'HY2/YEAR итого'
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 12), xl_col_to_name(column - 6))
-                sheet.write_formula(row, column + 0, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 11), xl_col_to_name(column - 5))
-                sheet.write_formula(row, column + 1, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 10), xl_col_to_name(column - 4))
+            if 'HY' in element:  # 'HY1/YEAR' 'HY2/YEAR'
+                # formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 12), xl_col_to_name(column - 6))
+                # sheet.write_formula(row, column + 0, formula, row_format_number)
+                # formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 11), xl_col_to_name(column - 5))
+                # sheet.write_formula(row, column + 1, formula, row_format_number)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8), xl_col_to_name(column - 3))
                 sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 9), xl_col_to_name(column - 3))
+
+                if 'HY1' in element:  # 'HY1/YEAR''
+                    column += 1
+                    sheet.write_formula(row, column + 2, f_Q100, row_format_number_color_percent)
+
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 7), xl_col_to_name(column - 2))
                 sheet.write_formula(row, column + 3, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8), xl_col_to_name(column - 2))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 6), xl_col_to_name(column - 1))
                 sheet.write_formula(row, column + 4, formula, row_format_number)
 
-            if element == 'YEAR итого':  # 'YEAR итого'
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 23), xl_col_to_name(column - 6))
-                sheet.write_formula(row, column + 0, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 22), xl_col_to_name(column - 5))
-                sheet.write_formula(row, column + 1, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21), xl_col_to_name(column - 4))
+            if element == 'YEAR':  # 'YEAR'
+                # formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 23), xl_col_to_name(column - 6))
+                # sheet.write_formula(row, column + 0, formula, row_format_number)
+                # formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 22), xl_col_to_name(column - 5))
+                # sheet.write_formula(row, column + 1, formula, row_format_number)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 19), xl_col_to_name(column - 3))
                 sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 20), xl_col_to_name(column - 3))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 18), xl_col_to_name(column - 2))
                 sheet.write_formula(row, column + 3, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 19), xl_col_to_name(column - 2))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 17), xl_col_to_name(column - 1))
                 sheet.write_formula(row, column + 4, formula, row_format_number)
             column += 4
         #end печать Контрактование, с НДС
@@ -1507,14 +1564,11 @@ class report_management_committee_excel(models.AbstractModel):
         sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
         sumQ100etalon = sumQ75etalon = sumQ50etalon = sumQ100 = sumQ75 = sumQ50 = 0
 
-        for element in self.month_rus_name_contract_pds:
+        for element in self.quarter_rus_name:
             column += 1
 
             sumM100etalon = sumM75etalon = sumM50etalon = sumM100 = sumM75 = sumM50 = 0
 
-            if element.find('итого') != -1:
-                sheet.write_string(row, column, "", head_format_month_itogo)
-                column += 1
             sheet.write_string(row, column + 0, "", row_format_number)
             sheet.write_string(row, column + 1, "", row_format_number)
             sheet.write_string(row, column + 2, "", row_format_number_color_fact)
@@ -1591,7 +1645,7 @@ class report_management_committee_excel(models.AbstractModel):
             #                                                   xl_col_to_name(column - 2))
             #     sheet.write_formula(row, column + 4, formula, row_format_number)
 
-            if element.find('HY') != -1:  # 'HY1/YEAR итого' 'HY2/YEAR итого'
+            if element.find('HY') != -1:  # 'HY1/YEAR' 'HY2/YEAR'
                 if sumHY75etalon != 0: sheet.write_number(row, column + 0, sumHY75etalon, row_format_number)
                 if sumHY50etalon != 0: sheet.write_number(row, column + 1, sumHY50etalon, row_format_number)
                 if sumHY100 != 0:      sheet.write_number(row, column + 2, sumHY100, row_format_number_color_fact)
@@ -1620,7 +1674,7 @@ class report_management_committee_excel(models.AbstractModel):
                                                        xl_col_to_name(column - 2))
                 sheet.write_formula(row, column + 4, formula, row_format_number)
 
-            if element == 'YEAR итого':  # 'YEAR итого'
+            if element == 'YEAR':  # 'YEAR'
                 if sumYear75etalon != 0: sheet.write_number(row, column + 0, sumYear75etalon, row_format_number)
                 if sumYear50etalon != 0: sheet.write_number(row, column + 1, sumYear50etalon, row_format_number)
                 if sumYear100 != 0:      sheet.write_number(row, column + 2, sumYear100,
@@ -1649,7 +1703,7 @@ class report_management_committee_excel(models.AbstractModel):
         sumYear100etalon = sumYear75etalon = sumYear50etalon = sumYear100 = sumYear75 = sumYear50 = 0
         sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
 
-        for element in self.month_rus_name_revenue_margin:
+        for element in self.quarter_rus_name:
 
             sumQ100etalon = sumQ75etalon = sumQ50etalon = sumQ100 = sumQ75 = sumQ50 = 0
             profQ100etalon = profQ75etalon = profQ50etalon = profQ100 = profQ75 = profQ50 = 0
@@ -1762,7 +1816,7 @@ class report_management_committee_excel(models.AbstractModel):
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8 + 43 - addcolumn),  xl_col_to_name(column - 2 + 43 - addcolumn))
                 sheet.write_formula(row, column + 4 + 43, formula, row_format_number)
 
-            if element == 'YEAR':  # 'YEAR итого'
+            if element == 'YEAR':  # 'YEAR'
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 25), xl_col_to_name(column - 6))
                 sheet.write_formula(row, column + 0, formula, row_format_number)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 24), xl_col_to_name(column - 5))
@@ -1792,8 +1846,6 @@ class report_management_committee_excel(models.AbstractModel):
         global strYEAR
         global YEARint
         global dict_formula
-        global max_level
-        max_level = max(level, max_level)
 
         head_format = workbook.add_format({
             'bold': True,
@@ -1965,7 +2017,7 @@ class report_management_committee_excel(models.AbstractModel):
 
                                     # печатаем строки этапов проектов
                                     # row += 1
-                                    # sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level})
+                                    # sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
                                     # cur_row_format = row_format
                                     # cur_row_format_number = row_format_number
                                     # if step.estimated_probability_id.name == '0':
@@ -2006,7 +2058,7 @@ class report_management_committee_excel(models.AbstractModel):
 
                                 # печатаем строки проектов
                                 # row += 1
-                                # sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level})
+                                # sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
                                 # cur_row_format = row_format
                                 # cur_row_format_number = row_format_number
                                 # if spec.estimated_probability_id.name == '0':
@@ -2321,8 +2373,7 @@ class report_management_committee_excel(models.AbstractModel):
         #
         sheet.freeze_panes(9, 1)
         column += 1
-        column = self.print_month_head_contract_pds(workbook, sheet, row, column,  strYEAR)
-        column = self.print_month_head_revenue_margin(workbook, sheet, row, column,  strYEAR)
+        column = self.print_quater_head(workbook, sheet, row, column,  strYEAR)
         row += 2
 
         companies = self.env['res.company'].search([], order='name')
@@ -2353,9 +2404,7 @@ class report_management_committee_excel(models.AbstractModel):
         YEARint = int(strYEAR)
         global dict_formula
         dict_formula = {}
-        global max_level
-        max_level = 1
-        print('YEARint=',YEARint)
+        print('YEARint=', YEARint)
         print('strYEAR =', strYEAR)
 
         commercial_budget_id = data['commercial_budget_id']
