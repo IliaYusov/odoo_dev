@@ -105,7 +105,7 @@ class report_management_committee_excel(models.AbstractModel):
         if name == '100(done)': result = 'Исполнен/закрыт'
         return result
 
-    def get_quater_from_month(self,month):
+    def get_quarter_from_month(self,month):
         if month in (1,2,3):
             return 'Q1'
         if month in (4,5,6):
@@ -117,15 +117,15 @@ class report_management_committee_excel(models.AbstractModel):
         return False
 
 
-    def get_months_from_quater(self,quater_name):
+    def get_months_from_quarter(self,quarter_name):
         months = False;
-        if quater_name == 'Q1':
+        if quarter_name == 'Q1':
             months=(1,2,3)
-        if quater_name == 'Q2':
+        if quarter_name == 'Q2':
             months=(4,5,6)
-        if quater_name == 'Q3':
+        if quarter_name == 'Q3':
             months=(7,8,9)
-        if quater_name == 'Q4':
+        if quarter_name == 'Q4':
             months=(10,11,12)
         return months
 
@@ -141,18 +141,18 @@ class report_management_committee_excel(models.AbstractModel):
                                                                      ], limit=1, order='date_actual')
         return etalon_project
 
-    def get_etalon_project(self,spec, quater):
+    def get_etalon_project(self,spec, quarter):
         global strYEAR
         global YEARint
 
         datesearch = datetime.date(YEARint, 1, 1)
-        if quater == 'Q1':
+        if quarter == 'Q1':
             datesearch = datetime.date(YEARint, 1, 1) # будем искать первый утвержденный в году
-        if quater == 'Q2':
+        if quarter == 'Q2':
             datesearch = datetime.date(YEARint, 4, 1) # будем искать первый утвержденный после марта
-        if quater == 'Q3':
+        if quarter == 'Q3':
             datesearch = datetime.date(YEARint, 7, 1) # будем искать первый утвержденный после июня
-        if quater == 'Q4':
+        if quarter == 'Q4':
             datesearch = datetime.date(YEARint, 10, 1) # будем искать первый утвержденный после сентября
 
         if isdebug:
@@ -185,23 +185,23 @@ class report_management_committee_excel(models.AbstractModel):
         # print('etalon_project.date_actual = ',etalon_project.date_actual)
         return etalon_project
 
-    def get_etalon_step(self,step, quater):
+    def get_etalon_step(self,step, quarter):
         global strYEAR
         global YEARint
 
         if isdebug:
             logger.info(f' start get_etalon_step')
-            logger.info(f' quater = {quater}')
+            logger.info(f' quarter = {quarter}')
         if step == False:
             return False
         datesearch = datetime.date(YEARint, 1, 1)
-        if quater == 'Q1':
+        if quarter == 'Q1':
             datesearch = datetime.date(YEARint, 1, 1) # будем искать первый утвержденный в году
-        if quater == 'Q2':
+        if quarter == 'Q2':
             datesearch = datetime.date(YEARint, 4, 1) # будем искать первый утвержденный после марта
-        if quater == 'Q3':
+        if quarter == 'Q3':
             datesearch = datetime.date(YEARint, 7, 1) # будем искать первый утвержденный после июня
-        if quater == 'Q4':
+        if quarter == 'Q4':
             datesearch = datetime.date(YEARint, 10, 1) # будем искать первый утвержденный после сентября
         if isdebug:
             logger.info(f'   self.env[project_budget.projects].search ')
@@ -484,7 +484,7 @@ class report_management_committee_excel(models.AbstractModel):
         sum75tmp = 0
         sum50tmp = 0
         if month:
-            project_etalon = self.get_etalon_project(project, self.get_quater_from_month(month))
+            project_etalon = self.get_etalon_project(project, self.get_quarter_from_month(month))
             if step == False:
                 if project_etalon:
                     if month == project_etalon.end_presale_project_month.month and YEARint == project_etalon.end_presale_project_month.year:
@@ -506,7 +506,7 @@ class report_management_committee_excel(models.AbstractModel):
                         sheet.write_number(row, column + 4, project.total_amount_of_revenue_with_vat, row_format_number)
                         sum50tmp += project.total_amount_of_revenue_with_vat
             else:
-                step_etalon  = self.get_etalon_step(step, self.get_quater_from_month(month))
+                step_etalon  = self.get_etalon_step(step, self.get_quarter_from_month(month))
                 if step_etalon:
                     if month == step_etalon.end_presale_project_month.month and YEARint == step_etalon.end_presale_project_month.year:
                         if step_etalon.estimated_probability_id.name == '75':
@@ -551,7 +551,7 @@ class report_management_committee_excel(models.AbstractModel):
         sum50tmp = 0
 
         if month:
-            project_etalon = self.get_etalon_project(project, self.get_quater_from_month(month))
+            project_etalon = self.get_etalon_project(project, self.get_quarter_from_month(month))
             if not project.project_have_steps:
                 if project_etalon:
                     if month == project_etalon.end_presale_project_month.month and YEARint == project_etalon.end_presale_project_month.year:
@@ -569,7 +569,7 @@ class report_management_committee_excel(models.AbstractModel):
                         sum50tmp = project.total_amount_of_revenue_with_vat
             else:
                 for step in project.project_steps_ids:
-                    step_etalon = self.get_etalon_step(step, self.get_quater_from_month(month))
+                    step_etalon = self.get_etalon_step(step, self.get_quarter_from_month(month))
                     if step_etalon:
                         if month == step_etalon.end_presale_project_month.month and YEARint == step_etalon.end_presale_project_month.year:
                             if step_etalon.estimated_probability_id.name == '75':
@@ -600,8 +600,8 @@ class report_management_committee_excel(models.AbstractModel):
 
         sum75tmpetalon = sum50tmpetalon = sum100tmp = sum75tmp = sum50tmp = 0
         if month:
-                project_etalon = self.get_etalon_project(project, self.get_quater_from_month(month))
-                step_etalon = self.get_etalon_step(step, self.get_quater_from_month(month))
+                project_etalon = self.get_etalon_project(project, self.get_quarter_from_month(month))
+                step_etalon = self.get_etalon_step(step, self.get_quarter_from_month(month))
                 sum = 0
                 sum = self.get_sum_plan_pds_project_step_month(project_etalon, step_etalon, month)
 
@@ -666,8 +666,8 @@ class report_management_committee_excel(models.AbstractModel):
         if month:
             if project.project_have_steps:
                 for step in project.project_steps_ids:
-                    project_etalon = self.get_etalon_project(project, self.get_quater_from_month(month))
-                    step_etalon = self.get_etalon_step(step, self.get_quater_from_month(month))
+                    project_etalon = self.get_etalon_project(project, self.get_quarter_from_month(month))
+                    step_etalon = self.get_etalon_step(step, self.get_quarter_from_month(month))
                     sum = self.get_sum_plan_pds_project_step_month(project_etalon, step_etalon, month)
 
                     if not step_etalon:  # есть этап сейчас, но нет в эталоне
@@ -695,7 +695,6 @@ class report_management_committee_excel(models.AbstractModel):
                         sum = 0
                     else:
                         sum = sum - sum100tmp_step
-                    # print('after: sum = ', sum)
                     # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                     sum_ostatok_pds = sum_distribution_pds = 0
                     for planned_cash_flow in project.planned_cash_flow_ids:
@@ -704,7 +703,6 @@ class report_management_committee_excel(models.AbstractModel):
                                 and planned_cash_flow.date_cash.year == YEARint):
                             sum_ostatok_pds += planned_cash_flow.distribution_sum_with_vat_ostatok
                             sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
-                            print('sum_ostatok_pds',sum_ostatok_pds,'sum_distribution_pds',sum_distribution_pds)
                     if sum_distribution_pds != 0 : # если есть распределение, то остаток = остатку распределения
                         sum = sum_ostatok_pds
                         if sum < 0: sum = 0
@@ -719,7 +717,7 @@ class report_management_committee_excel(models.AbstractModel):
                             #  sheet.write_number(row, column + 4, sum, row_format_number)
                             sum50tmp += sum
             else:
-                project_etalon = self.get_etalon_project(project, self.get_quater_from_month(month))
+                project_etalon = self.get_etalon_project(project, self.get_quarter_from_month(month))
 
                 sum = self.get_sum_plan_pds_project_step_month(project_etalon, False, month)
 
@@ -764,12 +762,12 @@ class report_management_committee_excel(models.AbstractModel):
                         sum50tmp += sum
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
-    def get_sum_fact_acceptance_project_step_quater(self, project, step, element_name):
+    def get_sum_fact_acceptance_project_step_quarter(self, project, step, element_name):
         global strYEAR
         global YEARint
 
         sum_cash = 0
-        months = self.get_months_from_quater(element_name)
+        months = self.get_months_from_quarter(element_name)
         if months:
             acceptance_list = False
             # if step == False:
@@ -785,13 +783,13 @@ class report_management_committee_excel(models.AbstractModel):
                         sum_cash += acceptance.sum_cash_without_vat
         return sum_cash
 
-    def get_sum_planned_acceptance_project_step_quater(self, project, step, element_name):
+    def get_sum_planned_acceptance_project_step_quarter(self, project, step, element_name):
         global strYEAR
         global YEARint
 
         sum_acceptance = 0
 
-        months = self.get_months_from_quater(element_name)
+        months = self.get_months_from_quarter(element_name)
 
         if months:
             # if step == False:
@@ -810,7 +808,7 @@ class report_management_committee_excel(models.AbstractModel):
 
         return sum_acceptance
 
-    def print_quater_planned_acceptance_project(self, sheet, row, column, element_name, project, step, row_format_number, row_format_number_color_fact):
+    def print_quarter_planned_acceptance_project(self, sheet, row, column, element_name, project, step, row_format_number, row_format_number_color_fact):
         global strYEAR
         global YEARint
 
@@ -831,7 +829,7 @@ class report_management_committee_excel(models.AbstractModel):
 
 
             sum = 0
-            sum = self.get_sum_planned_acceptance_project_step_quater(project_etalon, step_etalon, element_name)
+            sum = self.get_sum_planned_acceptance_project_step_quarter(project_etalon, step_etalon, element_name)
             if (step ) and (not step_etalon):
                 sum = 0
 
@@ -849,7 +847,7 @@ class report_management_committee_excel(models.AbstractModel):
                     sheet.write_number(row, column + 1 + 43 , sum*profitability_etalon/100, row_format_number)
                     sum50tmpetalon += sum
 
-            sum100tmp = self.get_sum_fact_acceptance_project_step_quater(project, step, element_name)
+            sum100tmp = self.get_sum_fact_acceptance_project_step_quarter(project, step, element_name)
 
             if sum100tmp:
                 sheet.write_number(row, column + 2, sum100tmp, row_format_number_color_fact)
@@ -857,7 +855,7 @@ class report_management_committee_excel(models.AbstractModel):
 
 
             sum = 0
-            sum = self.get_sum_planned_acceptance_project_step_quater(project, step, element_name)
+            sum = self.get_sum_planned_acceptance_project_step_quarter(project, step, element_name)
             if sum100tmp >= sum:
                 sum = 0
             else:
@@ -865,7 +863,7 @@ class report_management_committee_excel(models.AbstractModel):
 
             # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
             sum_ostatok_acceptance = sum_distribution_acceptance = 0
-            months = self.get_months_from_quater(element_name)
+            months = self.get_months_from_quarter(element_name)
             for planned_acceptance_flow in project.planned_acceptance_flow_ids:
                 if step:
                     if planned_acceptance_flow.project_steps_id.id != step.id: continue
@@ -891,6 +889,157 @@ class report_management_committee_excel(models.AbstractModel):
                     sum50tmp += sum
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
+    def calculate_quarter_planned_acceptance(self, sheet, row, column, element_name, project):
+        global strYEAR
+        global YEARint
+
+        sum75tmpetalon = sum50tmpetalon = sum100tmp = sum75tmp = sum50tmp = 0
+        prof75tmpetalon = prof50tmpetalon = prof100tmp = prof75tmp = prof50tmp = 0
+
+        if element_name in ('Q1', 'Q2', 'Q3', 'Q4'):
+
+            if project.project_have_steps:
+                for step in project.project_steps_ids:
+
+                    project_etalon = self.get_etalon_project(project, element_name)
+                    step_etalon = self.get_etalon_step(step, element_name)
+                    profitability = step.profitability
+
+                    if not step_etalon:
+                        profitability_etalon = project_etalon.profitability
+                    else:
+                        profitability_etalon = step_etalon.profitability
+
+
+                    sum = self.get_sum_planned_acceptance_project_step_quarter(project_etalon, step_etalon, element_name)
+
+                    if not step_etalon:
+                        sum = 0
+
+                    estimated_probability_id_name = project_etalon.estimated_probability_id.name
+                    if step_etalon:
+                        estimated_probability_id_name = step_etalon.estimated_probability_id.name
+
+                    if sum != 0:
+                        if estimated_probability_id_name in ('75', '100', '100(done)'):
+                            # sheet.write_number(row, column + 0, sum, row_format_number)
+                            # sheet.write_number(row, column + 0 + 43, sum*profitability_etalon/100, row_format_number)
+                            sum75tmpetalon += sum
+                            prof75tmpetalon += sum * profitability_etalon / 100
+                        if estimated_probability_id_name == '50':
+                            # sheet.write_number(row, column + 1, sum, row_format_number)
+                            # sheet.write_number(row, column + 1 + 43, sum*profitability_etalon/100, row_format_number)
+                            sum50tmpetalon += sum
+                            prof75tmpetalon += sum * profitability_etalon / 100
+
+                    sum100tmp_step = self.get_sum_fact_acceptance_project_step_quarter(project, step, element_name)
+                    sum100tmp += sum100tmp_step
+                    prof100tmp += sum100tmp_step * profitability / 100
+
+                    # if sum100tmp:
+                    #     sheet.write_number(row, column + 2, sum100tmp, row_format_number_color_fact)
+                    #     sheet.write_number(row, column + 2 + 43, sum100tmp*profitability/100, row_format_number_color_fact)
+
+                    sum = self.get_sum_planned_acceptance_project_step_quarter(project, step, element_name)
+
+                    if sum100tmp_step >= sum:
+                        sum = 0
+                    else:
+                        sum = sum - sum100tmp_step
+
+                    # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
+                    sum_ostatok_acceptance = sum_distribution_acceptance = 0
+                    months = self.get_months_from_quarter(element_name)
+
+                    for planned_acceptance_flow in project.planned_acceptance_flow_ids:
+                        if (planned_acceptance_flow.project_steps_id.id == step.id
+                                and planned_acceptance_flow.date_cash.month in months
+                                and planned_acceptance_flow.date_cash.year == YEARint
+                        ):
+                            sum_ostatok_acceptance += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                            sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+
+                    if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
+                        sum = sum_ostatok_acceptance
+                        if sum <= 0: sum = 0
+
+                    estimated_probability_id_name = step.estimated_probability_id.name
+
+                    if sum != 0:
+                        if estimated_probability_id_name in ('75', '100', '100(done)'):
+                            # sheet.write_number(row, column + 3, sum, row_format_number)
+                            # sheet.write_number(row, column + 3 + 43, sum*profitability/100, row_format_number)
+                            sum75tmp += sum
+                            prof75tmp += sum * profitability / 100
+                        if estimated_probability_id_name == '50':
+                            # sheet.write_number(row, column + 4, sum, row_format_number)
+                            # sheet.write_number(row, column + 4 + 43, sum*profitability/100, row_format_number)
+                            sum50tmp += sum
+                            prof50tmp += sum * profitability / 100
+            else:
+                project_etalon = self.get_etalon_project(project, element_name)
+                profitability = project.profitability
+                profitability_etalon = project_etalon.profitability
+
+                sum = self.get_sum_planned_acceptance_project_step_quarter(project_etalon, False, element_name)
+
+                estimated_probability_id_name = project_etalon.estimated_probability_id.name
+
+                if sum != 0:
+                    if estimated_probability_id_name in ('75', '100', '100(done)'):
+                        # sheet.write_number(row, column + 0, sum, row_format_number)
+                        # sheet.write_number(row, column + 0 + 43, sum * profitability_etalon / 100, row_format_number)
+                        sum75tmpetalon += sum
+                        prof75tmpetalon += sum * profitability_etalon / 100
+                    if estimated_probability_id_name == '50':
+                        # sheet.write_number(row, column + 1, sum, row_format_number)
+                        # sheet.write_number(row, column + 1 + 43, sum * profitability_etalon / 100, row_format_number)
+                        sum50tmpetalon += sum
+                        prof50tmpetalon += sum * profitability_etalon / 100
+
+                sum100tmp_proj = self.get_sum_fact_acceptance_project_step_quarter(project, False, element_name)
+                sum100tmp += sum100tmp_proj
+                prof100tmp += sum100tmp_proj * profitability / 100
+
+                # if sum100tmp:
+                #     sheet.write_number(row, column + 2, sum100tmp, row_format_number_color_fact)
+                #     sheet.write_number(row, column + 2 + 43, sum100tmp * profitability / 100,
+                #                        row_format_number_color_fact)
+
+                sum = self.get_sum_planned_acceptance_project_step_quarter(project, False, element_name)
+
+                if sum100tmp >= sum:
+                    sum = 0
+                else:
+                    sum = sum - sum100tmp
+
+                # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
+                sum_ostatok_acceptance = sum_distribution_acceptance = 0
+                months = self.get_months_from_quarter(element_name)
+                for planned_acceptance_flow in project.planned_acceptance_flow_ids:
+                    if planned_acceptance_flow.date_cash.month in months and planned_acceptance_flow.date_cash.year == YEARint:
+                        sum_ostatok_acceptance += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                        sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+                if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
+                    sum = sum_ostatok_acceptance
+                    if sum <= 0: sum = 0
+
+                estimated_probability_id_name = project.estimated_probability_id.name
+
+                if sum != 0:
+                    if estimated_probability_id_name in ('75', '100', '100(done)'):
+                        # sheet.write_number(row, column + 3, sum, row_format_number)
+                        # sheet.write_number(row, column + 3 + 43, sum * profitability / 100, row_format_number)
+                        sum75tmp += sum
+                        prof75tmp += sum * profitability / 100
+                    if estimated_probability_id_name == '50':
+                        # sheet.write_number(row, column + 4, sum, row_format_number)
+                        # sheet.write_number(row, column + 4 + 43, sum * profitability / 100, row_format_number)
+                        sum50tmp += sum
+                        prof50tmp += sum * profitability / 100
+
+        return (sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp,
+                prof75tmpetalon, prof50tmpetalon, prof100tmp, prof75tmp, prof50tmp)
 
     def get_month_number_rus(self, monthNameRus):
         if monthNameRus == 'Январь': return 1
@@ -907,381 +1056,390 @@ class report_management_committee_excel(models.AbstractModel):
         if monthNameRus == 'Декабрь' : return 12
         return False
 
-    def print_row_Values(self, workbook, sheet, row, column,  YEAR, project, step):
-        global strYEAR
-        global YEARint
-
-        row_format_number = workbook.add_format({
-            'border': 1,
-            'font_size': 10,
-        })
-        row_format_number.set_num_format('#,##0')
-        row_format_number_color_fact = workbook.add_format({
-            "fg_color": '#C6E0B4',
-            'border': 1,
-            'font_size': 10,
-        })
-        row_format_number_color_fact.set_num_format('#,##0')
-        head_format_month_itogo = workbook.add_format({
-            'border': 1,
-            "fg_color": '#D9E1F2',
-            'diag_type': 3
-        })
-
-        if step:
-            if step.estimated_probability_id.name == '0':
-                row_format_number.set_font_color('red')
-                row_format_number_color_fact.set_font_color('red')
-                head_format_month_itogo.set_font_color('red')
-        else:
-            if project.estimated_probability_id.name == '0':
-                row_format_number.set_font_color('red')
-                row_format_number_color_fact.set_font_color('red')
-                head_format_month_itogo.set_font_color('red')
-        sumQ100etalon =0
-        sumQ75etalon = 0
-        sumQ50etalon = 0
-        sumQ100 =0
-        sumQ75 = 0
-        sumQ50 = 0
-        sumHY100etalon =0
-        sumHY75etalon = 0
-        sumHY50etalon = 0
-        sumHY100 =0
-        sumHY75 = 0
-        sumHY50 = 0
-        sumYear100etalon =0
-        sumYear75etalon = 0
-        sumYear50etalon = 0
-        sumYear100 =0
-        sumYear75 = 0
-        sumYear50 = 0
-        # печать Контрактование, с НДС
-        for element in self.month_rus_name_contract_pds:
-            column += 1
-            sumQ75tmpetalon = sumQ50tmpetalon = sumQ100tmp = sumQ75tmp = sumQ50tmp = 0
-
-            if element.find('итого') != -1:
-                sheet.write_string(row, column, "", head_format_month_itogo)
-                column += 1
-            sheet.write_string(row, column + 0, "", row_format_number)
-            sheet.write_string(row, column + 1, "", row_format_number)
-            sheet.write_string(row, column + 2, "", row_format_number_color_fact)
-            sheet.write_string(row, column + 3, "", row_format_number)
-            sheet.write_string(row, column + 4, "", row_format_number)
-
-            sumQ75tmpetalon, sumQ50tmpetalon, sumQ100tmp, sumQ75tmp, sumQ50tmp = self.print_month_revenue_project(sheet, row, column, self.get_month_number_rus(element),
-                                                                                    project,step, row_format_number,row_format_number_color_fact)
-            sumQ75etalon += sumQ75tmpetalon
-            sumQ50etalon += sumQ50tmpetalon
-            sumQ100 += sumQ100tmp
-            sumQ75 += sumQ75tmp
-            sumQ50 += sumQ50tmp
-            if element.find('Q') != -1: #'Q1 итого' 'Q2 итого' 'Q3 итого' 'Q4 итого'
-                # if sumQ75etalon != 0 : sheet.write_number(row, column + 0, sumQ75etalon, row_format_number)
-                # if sumQ50etalon != 0 : sheet.write_number(row, column + 1, sumQ50etalon, row_format_number)
-                # if sumQ100 != 0 :      sheet.write_number(row, column + 2, sumQ100, row_format_number_color_fact)
-                # if sumQ75 != 0 :       sheet.write_number(row, column + 3, sumQ75, row_format_number)
-                # if sumQ50 != 0 :       sheet.write_number(row, column + 4, sumQ50, row_format_number)
-
-                formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1,xl_col_to_name(column - 16),xl_col_to_name(column - 11),xl_col_to_name(column - 6))
-                sheet.write_formula(row, column + 0,formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1,xl_col_to_name(column - 15),xl_col_to_name(column - 10),xl_col_to_name(column - 5))
-                sheet.write_formula(row, column + 1,formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1,xl_col_to_name(column - 14),xl_col_to_name(column - 9),xl_col_to_name(column - 4))
-                sheet.write_formula(row, column + 2,formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1,xl_col_to_name(column - 13),xl_col_to_name(column - 8),xl_col_to_name(column - 3))
-                sheet.write_formula(row, column + 3,formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1,xl_col_to_name(column - 12),xl_col_to_name(column - 7),xl_col_to_name(column - 2))
-                sheet.write_formula(row, column + 4,formula, row_format_number)
-
-                sumHY100etalon += sumQ100etalon
-                sumHY75etalon += sumQ75etalon
-                sumHY50etalon += sumQ50etalon
-                sumHY100 += sumQ100
-                sumHY75 += sumQ75
-                sumHY50 += sumQ50
-                sumQ100etalon = sumQ75etalon = sumQ50etalon = sumQ100 = sumQ75  = sumQ50  = 0
-
-            if element.find('HY') != -1:  # 'HY1/YEAR итого' 'HY2/YEAR итого'
-                if sumHY75etalon != 0: sheet.write_number(row, column + 0, sumHY75etalon, row_format_number)
-                if sumHY50etalon != 0: sheet.write_number(row, column + 1, sumHY50etalon, row_format_number)
-                if sumHY100 != 0:      sheet.write_number(row, column + 2, sumHY100, row_format_number_color_fact)
-                if sumHY75 != 0:       sheet.write_number(row, column + 3, sumHY75, row_format_number)
-                if sumHY50 != 0:       sheet.write_number(row, column + 4, sumHY50, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 27),xl_col_to_name(column - 6))
-                sheet.write_formula(row, column + 0, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 26),xl_col_to_name(column - 5))
-                sheet.write_formula(row, column + 1, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 25),xl_col_to_name(column - 4))
-                sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 24),xl_col_to_name(column - 3))
-                sheet.write_formula(row, column + 3, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 23),xl_col_to_name(column - 2))
-                sheet.write_formula(row, column + 4, formula, row_format_number)
-
-
-                sumYear100etalon += sumHY100etalon
-                sumYear75etalon += sumHY75etalon
-                sumYear50etalon += sumHY50etalon
-                sumYear100 += sumHY100
-                sumYear75 += sumHY75
-                sumYear50 += sumHY50
-                sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
-
-            if element == 'YEAR итого':  # 'YEAR итого'
-                if sumYear75etalon != 0: sheet.write_number(row, column + 0, sumYear75etalon, row_format_number)
-                if sumYear50etalon != 0: sheet.write_number(row, column + 1, sumYear50etalon, row_format_number)
-                if sumYear100 != 0:      sheet.write_number(row, column + 2, sumYear100, row_format_number_color_fact)
-                if sumYear75 != 0:       sheet.write_number(row, column + 3, sumYear75, row_format_number)
-                if sumYear50 != 0:       sheet.write_number(row, column + 4, sumYear50, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 54), xl_col_to_name(column - 6))
-                sheet.write_formula(row, column + 0, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 53), xl_col_to_name(column - 5))
-                sheet.write_formula(row, column + 1, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 52), xl_col_to_name(column - 4))
-                sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 51), xl_col_to_name(column - 3))
-                sheet.write_formula(row, column + 3, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 50), xl_col_to_name(column - 2))
-                sheet.write_formula(row, column + 4, formula, row_format_number)
-            column += 4
-        #end печать Контрактование, с НДС
-        # Поступление денежных средсв, с НДС
-        sumYear100etalon = sumYear75etalon = sumYear50etalon = sumYear100 = sumYear75 = sumYear50 = 0
-        sumQ100etalon = sumQ75etalon = sumQ50etalon = sumQ100 = sumQ75 = sumQ50 = 0
-        sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
-
-        for element in self.month_rus_name_contract_pds:
-            column += 1
-            sumQ75tmpetalon = sumQ50tmpetalon = sumQ100tmp = sumQ75tmp = sumQ50tmp = 0
-
-            if element.find('итого') != -1:
-                sheet.write_string(row, column, "", head_format_month_itogo)
-                column += 1
-            sheet.write_string(row, column + 0, "", row_format_number)
-            sheet.write_string(row, column + 1, "", row_format_number)
-            sheet.write_string(row, column + 2, "", row_format_number_color_fact)
-            sheet.write_string(row, column + 3, "", row_format_number)
-            sheet.write_string(row, column + 4, "", row_format_number)
-
-
-            sumQ75tmpetalon, sumQ50tmpetalon, sumQ100tmp, sumQ75tmp, sumQ50tmp = self.print_month_pds_project(sheet, row, column, self.get_month_number_rus(element)
-                                                                                        ,project, step, row_format_number, row_format_number_color_fact)
-
-            sumQ75etalon += sumQ75tmpetalon
-            sumQ50etalon += sumQ50tmpetalon
-            sumQ100 += sumQ100tmp
-            sumQ75 += sumQ75tmp
-            sumQ50 += sumQ50tmp
-
-            if element.find('Q') != -1:  # 'Q1 итого' 'Q2 итого' 'Q3 итого' 'Q4 итого'
-                if sumQ75etalon != 0: sheet.write_number(row, column + 0, sumQ75etalon, row_format_number)
-                if sumQ50etalon != 0: sheet.write_number(row, column + 1, sumQ50etalon, row_format_number)
-                if sumQ100 != 0:      sheet.write_number(row, column + 2, sumQ100, row_format_number_color_fact)
-                if sumQ75 != 0:       sheet.write_number(row, column + 3, sumQ75, row_format_number)
-                if sumQ50 != 0:       sheet.write_number(row, column + 4, sumQ50, row_format_number)
-                sumHY100etalon += sumQ100etalon
-                sumHY75etalon += sumQ75etalon
-                sumHY50etalon += sumQ50etalon
-                sumHY100 += sumQ100
-                sumHY75 += sumQ75
-                sumHY50 += sumQ50
-                sumQ100etalon = sumQ75etalon = sumQ50etalon = sumQ100 = sumQ75 = sumQ50 = 0
-                formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1, xl_col_to_name(column - 16),xl_col_to_name(column - 11), xl_col_to_name(column - 6))
-                sheet.write_formula(row, column + 0, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1, xl_col_to_name(column - 15),xl_col_to_name(column - 10), xl_col_to_name(column - 5))
-                sheet.write_formula(row, column + 1, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1, xl_col_to_name(column - 14),xl_col_to_name(column - 9), xl_col_to_name(column - 4))
-                sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1, xl_col_to_name(column - 13),xl_col_to_name(column - 8), xl_col_to_name(column - 3))
-                sheet.write_formula(row, column + 3, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1, xl_col_to_name(column - 12),xl_col_to_name(column - 7), xl_col_to_name(column - 2))
-                sheet.write_formula(row, column + 4, formula, row_format_number)
-
-            if element.find('HY') != -1:  # 'HY1/YEAR итого' 'HY2/YEAR итого'
-                if sumHY75etalon != 0: sheet.write_number(row, column + 0, sumHY75etalon, row_format_number)
-                if sumHY50etalon != 0: sheet.write_number(row, column + 1, sumHY50etalon, row_format_number)
-                if sumHY100 != 0:      sheet.write_number(row, column + 2, sumHY100, row_format_number_color_fact)
-                if sumHY75 != 0:       sheet.write_number(row, column + 3, sumHY75, row_format_number)
-                if sumHY50 != 0:       sheet.write_number(row, column + 4, sumHY50, row_format_number)
-                sumYear100etalon += sumHY100etalon
-                sumYear75etalon += sumHY75etalon
-                sumYear50etalon += sumHY50etalon
-                sumYear100 += sumHY100
-                sumYear75 += sumHY75
-                sumYear50 += sumHY50
-                sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 27), xl_col_to_name(column - 6))
-                sheet.write_formula(row, column + 0, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 26), xl_col_to_name(column - 5))
-                sheet.write_formula(row, column + 1, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 25), xl_col_to_name(column - 4))
-                sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 24), xl_col_to_name(column - 3))
-                sheet.write_formula(row, column + 3, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 23), xl_col_to_name(column - 2))
-                sheet.write_formula(row, column + 4, formula, row_format_number)
-
-            if element == 'YEAR итого':  # 'YEAR итого'
-                if sumYear75etalon != 0: sheet.write_number(row, column + 0, sumYear75etalon, row_format_number)
-                if sumYear50etalon != 0: sheet.write_number(row, column + 1, sumYear50etalon, row_format_number)
-                if sumYear100 != 0:      sheet.write_number(row, column + 2, sumYear100, row_format_number_color_fact)
-                if sumYear75 != 0:       sheet.write_number(row, column + 3, sumYear75, row_format_number)
-                if sumYear50 != 0:       sheet.write_number(row, column + 4, sumYear50, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 54), xl_col_to_name(column - 6))
-                sheet.write_formula(row, column + 0, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 53), xl_col_to_name(column - 5))
-                sheet.write_formula(row, column + 1, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 52), xl_col_to_name(column - 4))
-                sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 51), xl_col_to_name(column - 3))
-                sheet.write_formula(row, column + 3, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 50), xl_col_to_name(column - 2))
-                sheet.write_formula(row, column + 4, formula, row_format_number)
-            column += 4
-        # end Поступление денежных средсв, с НДС
-
-        # Валовая Выручка, без НДС
-        sumYear100etalon = sumYear75etalon = sumYear50etalon = sumYear100 = sumYear75 = sumYear50 = 0
-        sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
-
-        if step == False:
-            profitability = project.profitability
-        else:
-            profitability = step.profitability
-
-        project_etalon = self.get_etalon_project(project, False)
-        step_etalon = self.get_etalon_step(step, False)
-
-        if step_etalon == False:
-            profitability_etalon = project_etalon.profitability
-        else:
-            profitability_etalon = step_etalon.profitability
-
-        for element in self.month_rus_name_revenue_margin:
-            column += 1
-            sheet.write_string(row, column, "", head_format_month_itogo)
-            sheet.write_string(row, column + 43, "", head_format_month_itogo)
-            if element.find('HY2') != -1:
-                addcolumn = 1
-                column += 1
-                sheet.write_string(row, column, "", head_format_month_itogo)
-                sheet.write_string(row, column + 43, "", head_format_month_itogo)
-            column += 1
-            sheet.write_string(row, column + 0, "", row_format_number)
-            sheet.write_string(row, column + 1, "", row_format_number)
-            sheet.write_string(row, column + 2, "", row_format_number_color_fact)
-            sheet.write_string(row, column + 3, "", row_format_number)
-            sheet.write_string(row, column + 4, "", row_format_number)
-            sheet.write_string(row, column + 0 + 43, "", row_format_number)
-            sheet.write_string(row, column + 1 + 43, "", row_format_number)
-            sheet.write_string(row, column + 2 + 43, "", row_format_number_color_fact)
-            sheet.write_string(row, column + 3 + 43, "", row_format_number)
-            sheet.write_string(row, column + 4 + 43, "", row_format_number)
-
-            sumQ75etalon, sumQ50etalon, sumQ100, sumQ75, sumQ50 = self.print_quater_planned_acceptance_project(sheet,row,column,element
-                                                                                                              ,project,step,row_format_number,row_format_number_color_fact)
-
-            sumHY100etalon += sumQ100etalon
-            sumHY75etalon += sumQ75etalon
-            sumHY50etalon += sumQ50etalon
-            sumHY100 += sumQ100
-            sumHY75 += sumQ75
-            sumHY50 += sumQ50
-
-            if element.find('HY') != -1:  # 'HY1/YEAR итого' 'HY2/YEAR итого'
-                # if sumHY75etalon != 0:
-                #     sheet.write_number(row, column + 0, sumHY75etalon, row_format_number)
-                #     sheet.write_number(row, column + 0 + 43, sumHY75etalon*profitability_etalon / 100, row_format_number)
-                # if sumHY50etalon != 0:
-                #     sheet.write_number(row, column + 1, sumHY50etalon, row_format_number)
-                #     sheet.write_number(row, column + 1 + 43, sumHY50etalon*profitability_etalon / 100, row_format_number)
-                # if sumHY100 != 0:
-                #     sheet.write_number(row, column + 2, sumHY100, row_format_number_color_fact)
-                #     sheet.write_number(row, column + 2 + 43, sumHY100*profitability / 100, row_format_number_color_fact)
-                # if sumHY75 != 0:
-                #     sheet.write_number(row, column + 3, sumHY75, row_format_number)
-                #     sheet.write_number(row, column + 3 + 43, sumHY75*profitability / 100, row_format_number)
-                # if sumHY50 != 0:
-                #     sheet.write_number(row, column + 4, sumHY50, row_format_number)
-                #     sheet.write_number(row, column + 4 + 43, sumHY50*profitability / 100, row_format_number)
-                addcolumn = 0
-                if element.find('HY2') != -1:
-                    addcolumn = 1
-
-                sumYear100etalon += sumHY100etalon
-                sumYear75etalon += sumHY75etalon
-                sumYear50etalon += sumHY50etalon
-                sumYear100 += sumHY100
-                sumYear75 += sumHY75
-                sumYear50 += sumHY50
-                sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
-
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 12 - addcolumn), xl_col_to_name(column - 6 - addcolumn))
-                sheet.write_formula(row, column + 0, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 11 - addcolumn), xl_col_to_name(column - 5 - addcolumn))
-                sheet.write_formula(row, column + 1, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 10 - addcolumn), xl_col_to_name(column - 4 - addcolumn))
-                sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 9 - addcolumn),  xl_col_to_name(column - 3 - addcolumn))
-                sheet.write_formula(row, column + 3, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8 - addcolumn),  xl_col_to_name(column - 2 - addcolumn))
-                sheet.write_formula(row, column + 4, formula, row_format_number)
-
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 12 + 43 - addcolumn), xl_col_to_name(column - 6 + 43 - addcolumn))
-                sheet.write_formula(row, column + 0 + 43, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 11 + 43 - addcolumn), xl_col_to_name(column - 5 + 43 - addcolumn))
-                sheet.write_formula(row, column + 1 + 43, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 10 + 43 - addcolumn), xl_col_to_name(column - 4 + 43 - addcolumn))
-                sheet.write_formula(row, column + 2 + 43, formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 9 + 43 - addcolumn),  xl_col_to_name(column - 3 + 43 - addcolumn))
-                sheet.write_formula(row, column + 3 + 43, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8 + 43 - addcolumn),  xl_col_to_name(column - 2 + 43 - addcolumn))
-                sheet.write_formula(row, column + 4 + 43, formula, row_format_number)
-
-
-
-            if element == 'YEAR':  # 'YEAR итого'
-                # if sumYear75etalon != 0:
-                #     sheet.write_number(row, column + 0, sumYear75etalon, row_format_number)
-                #     sheet.write_number(row, column + 0 + 43, sumYear75etalon*profitability / 100, row_format_number)
-                # if sumYear50etalon != 0:
-                #     sheet.write_number(row, column + 1, sumYear50etalon, row_format_number)
-                #     sheet.write_number(row, column + 1 + 43, sumYear50etalon*profitability / 100, row_format_number)
-                # if sumYear100 != 0:
-                #     sheet.write_number(row, column + 2, sumYear100, row_format_number_color_fact)
-                #     sheet.write_number(row, column + 2 + 43, sumYear100*profitability / 100, row_format_number_color_fact)
-                # if sumYear75 != 0:
-                #     sheet.write_number(row, column + 3, sumYear75, row_format_number)
-                #     sheet.write_number(row, column + 3 + 43, sumYear75*profitability / 100, row_format_number)
-                # if sumYear50 != 0:
-                #     sheet.write_number(row, column + 4, sumYear50, row_format_number)
-                #     sheet.write_number(row, column + 4 + 43, sumYear50*profitability / 100, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 25), xl_col_to_name(column - 6))
-                sheet.write_formula(row, column + 0, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 24), xl_col_to_name(column - 5))
-                sheet.write_formula(row, column + 1, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 23), xl_col_to_name(column - 4))
-                sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 22), xl_col_to_name(column - 3))
-                sheet.write_formula(row, column + 3, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21), xl_col_to_name(column - 2))
-                sheet.write_formula(row, column + 4, formula, row_format_number)
-
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 25 + 43), xl_col_to_name(column - 6 + 43))
-                sheet.write_formula(row, column + 0 + 43, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 24 + 43), xl_col_to_name(column - 5 + 43))
-                sheet.write_formula(row, column + 1 + 43, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 23 + 43), xl_col_to_name(column - 4 + 43))
-                sheet.write_formula(row, column + 2 + 43, formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 22 + 43), xl_col_to_name(column - 3 + 43))
-                sheet.write_formula(row, column + 3 + 43, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21 + 43), xl_col_to_name(column - 2 + 43))
-                sheet.write_formula(row, column + 4 + 43, formula, row_format_number)
-
-            column += 4
-        # end Валовая Выручка, без НДС
+    # def print_row_Values(self, workbook, sheet, row, column,  YEAR, project, step):
+    #     global strYEAR
+    #     global YEARint
+    #
+    #     row_format_number = workbook.add_format({
+    #         'border': 1,
+    #         'font_size': 10,
+    #     })
+    #     row_format_number.set_num_format('#,##0')
+    #     row_format_number_color_fact = workbook.add_format({
+    #         "fg_color": '#C6E0B4',
+    #         'border': 1,
+    #         'font_size': 10,
+    #     })
+    #     row_format_number_color_fact.set_num_format('#,##0')
+    #     head_format_month_itogo = workbook.add_format({
+    #         'border': 1,
+    #         "fg_color": '#D9E1F2',
+    #         'diag_type': 3
+    #     })
+    #
+    #     if step:
+    #         if step.estimated_probability_id.name == '0':
+    #             row_format_number.set_font_color('red')
+    #             row_format_number_color_fact.set_font_color('red')
+    #             head_format_month_itogo.set_font_color('red')
+    #     else:
+    #         if project.estimated_probability_id.name == '0':
+    #             row_format_number.set_font_color('red')
+    #             row_format_number_color_fact.set_font_color('red')
+    #             head_format_month_itogo.set_font_color('red')
+    #     sumQ100etalon =0
+    #     sumQ75etalon = 0
+    #     sumQ50etalon = 0
+    #     sumQ100 =0
+    #     sumQ75 = 0
+    #     sumQ50 = 0
+    #     sumHY100etalon =0
+    #     sumHY75etalon = 0
+    #     sumHY50etalon = 0
+    #     sumHY100 =0
+    #     sumHY75 = 0
+    #     sumHY50 = 0
+    #     sumYear100etalon =0
+    #     sumYear75etalon = 0
+    #     sumYear50etalon = 0
+    #     sumYear100 =0
+    #     sumYear75 = 0
+    #     sumYear50 = 0
+    #     # печать Контрактование, с НДС
+    #     for element in self.month_rus_name_contract_pds:
+    #         column += 1
+    #         sumQ75tmpetalon = sumQ50tmpetalon = sumQ100tmp = sumQ75tmp = sumQ50tmp = 0
+    #
+    #         if element.find('итого') != -1:
+    #             sheet.write_string(row, column, "", head_format_month_itogo)
+    #             column += 1
+    #         sheet.write_string(row, column + 0, "", row_format_number)
+    #         sheet.write_string(row, column + 1, "", row_format_number)
+    #         sheet.write_string(row, column + 2, "", row_format_number_color_fact)
+    #         sheet.write_string(row, column + 3, "", row_format_number)
+    #         sheet.write_string(row, column + 4, "", row_format_number)
+    #
+    #         sumQ75tmpetalon, sumQ50tmpetalon, sumQ100tmp, sumQ75tmp, sumQ50tmp = self.print_month_revenue_project(sheet, row, column, self.get_month_number_rus(element),
+    #                                                                                 project,step, row_format_number,row_format_number_color_fact)
+    #         sumQ75etalon += sumQ75tmpetalon
+    #         sumQ50etalon += sumQ50tmpetalon
+    #         sumQ100 += sumQ100tmp
+    #         sumQ75 += sumQ75tmp
+    #         sumQ50 += sumQ50tmp
+    #         if element.find('Q') != -1: #'Q1 итого' 'Q2 итого' 'Q3 итого' 'Q4 итого'
+    #             # if sumQ75etalon != 0 : sheet.write_number(row, column + 0, sumQ75etalon, row_format_number)
+    #             # if sumQ50etalon != 0 : sheet.write_number(row, column + 1, sumQ50etalon, row_format_number)
+    #             # if sumQ100 != 0 :      sheet.write_number(row, column + 2, sumQ100, row_format_number_color_fact)
+    #             # if sumQ75 != 0 :       sheet.write_number(row, column + 3, sumQ75, row_format_number)
+    #             # if sumQ50 != 0 :       sheet.write_number(row, column + 4, sumQ50, row_format_number)
+    #
+    #             formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1,xl_col_to_name(column - 16),xl_col_to_name(column - 11),xl_col_to_name(column - 6))
+    #             sheet.write_formula(row, column + 0,formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1,xl_col_to_name(column - 15),xl_col_to_name(column - 10),xl_col_to_name(column - 5))
+    #             sheet.write_formula(row, column + 1,formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1,xl_col_to_name(column - 14),xl_col_to_name(column - 9),xl_col_to_name(column - 4))
+    #             sheet.write_formula(row, column + 2,formula, row_format_number_color_fact)
+    #             formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1,xl_col_to_name(column - 13),xl_col_to_name(column - 8),xl_col_to_name(column - 3))
+    #             sheet.write_formula(row, column + 3,formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1,xl_col_to_name(column - 12),xl_col_to_name(column - 7),xl_col_to_name(column - 2))
+    #             sheet.write_formula(row, column + 4,formula, row_format_number)
+    #
+    #             sumHY100etalon += sumQ100etalon
+    #             sumHY75etalon += sumQ75etalon
+    #             sumHY50etalon += sumQ50etalon
+    #             sumHY100 += sumQ100
+    #             sumHY75 += sumQ75
+    #             sumHY50 += sumQ50
+    #             sumQ100etalon = sumQ75etalon = sumQ50etalon = sumQ100 = sumQ75  = sumQ50  = 0
+    #
+    #         if element.find('HY') != -1:  # 'HY1/YEAR итого' 'HY2/YEAR итого'
+    #             if sumHY75etalon != 0: sheet.write_number(row, column + 0, sumHY75etalon, row_format_number)
+    #             if sumHY50etalon != 0: sheet.write_number(row, column + 1, sumHY50etalon, row_format_number)
+    #             if sumHY100 != 0:      sheet.write_number(row, column + 2, sumHY100, row_format_number_color_fact)
+    #             if sumHY75 != 0:       sheet.write_number(row, column + 3, sumHY75, row_format_number)
+    #             if sumHY50 != 0:       sheet.write_number(row, column + 4, sumHY50, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 27),xl_col_to_name(column - 6))
+    #             sheet.write_formula(row, column + 0, formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 26),xl_col_to_name(column - 5))
+    #             sheet.write_formula(row, column + 1, formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 25),xl_col_to_name(column - 4))
+    #             sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 24),xl_col_to_name(column - 3))
+    #             sheet.write_formula(row, column + 3, formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 23),xl_col_to_name(column - 2))
+    #             sheet.write_formula(row, column + 4, formula, row_format_number)
+    #
+    #
+    #             sumYear100etalon += sumHY100etalon
+    #             sumYear75etalon += sumHY75etalon
+    #             sumYear50etalon += sumHY50etalon
+    #             sumYear100 += sumHY100
+    #             sumYear75 += sumHY75
+    #             sumYear50 += sumHY50
+    #             sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
+    #
+    #         if element == 'YEAR итого':  # 'YEAR итого'
+    #             if sumYear75etalon != 0: sheet.write_number(row, column + 0, sumYear75etalon, row_format_number)
+    #             if sumYear50etalon != 0: sheet.write_number(row, column + 1, sumYear50etalon, row_format_number)
+    #             if sumYear100 != 0:      sheet.write_number(row, column + 2, sumYear100, row_format_number_color_fact)
+    #             if sumYear75 != 0:       sheet.write_number(row, column + 3, sumYear75, row_format_number)
+    #             if sumYear50 != 0:       sheet.write_number(row, column + 4, sumYear50, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 54), xl_col_to_name(column - 6))
+    #             sheet.write_formula(row, column + 0, formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 53), xl_col_to_name(column - 5))
+    #             sheet.write_formula(row, column + 1, formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 52), xl_col_to_name(column - 4))
+    #             sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 51), xl_col_to_name(column - 3))
+    #             sheet.write_formula(row, column + 3, formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 50), xl_col_to_name(column - 2))
+    #             sheet.write_formula(row, column + 4, formula, row_format_number)
+    #         column += 4
+    #     #end печать Контрактование, с НДС
+    #     # Поступление денежных средсв, с НДС
+    #     sumYear100etalon = sumYear75etalon = sumYear50etalon = sumYear100 = sumYear75 = sumYear50 = 0
+    #     sumQ100etalon = sumQ75etalon = sumQ50etalon = sumQ100 = sumQ75 = sumQ50 = 0
+    #     sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
+    #
+    #     for element in self.month_rus_name_contract_pds:
+    #         column += 1
+    #         sumQ75tmpetalon = sumQ50tmpetalon = sumQ100tmp = sumQ75tmp = sumQ50tmp = 0
+    #
+    #         if element.find('итого') != -1:
+    #             sheet.write_string(row, column, "", head_format_month_itogo)
+    #             column += 1
+    #         sheet.write_string(row, column + 0, "", row_format_number)
+    #         sheet.write_string(row, column + 1, "", row_format_number)
+    #         sheet.write_string(row, column + 2, "", row_format_number_color_fact)
+    #         sheet.write_string(row, column + 3, "", row_format_number)
+    #         sheet.write_string(row, column + 4, "", row_format_number)
+    #
+    #
+    #         sumQ75tmpetalon, sumQ50tmpetalon, sumQ100tmp, sumQ75tmp, sumQ50tmp = self.print_month_pds_project(sheet, row, column, self.get_month_number_rus(element)
+    #                                                                                     ,project, step, row_format_number, row_format_number_color_fact)
+    #
+    #         sumQ75etalon += sumQ75tmpetalon
+    #         sumQ50etalon += sumQ50tmpetalon
+    #         sumQ100 += sumQ100tmp
+    #         sumQ75 += sumQ75tmp
+    #         sumQ50 += sumQ50tmp
+    #
+    #         if element.find('Q') != -1:  # 'Q1 итого' 'Q2 итого' 'Q3 итого' 'Q4 итого'
+    #             if sumQ75etalon != 0: sheet.write_number(row, column + 0, sumQ75etalon, row_format_number)
+    #             if sumQ50etalon != 0: sheet.write_number(row, column + 1, sumQ50etalon, row_format_number)
+    #             if sumQ100 != 0:      sheet.write_number(row, column + 2, sumQ100, row_format_number_color_fact)
+    #             if sumQ75 != 0:       sheet.write_number(row, column + 3, sumQ75, row_format_number)
+    #             if sumQ50 != 0:       sheet.write_number(row, column + 4, sumQ50, row_format_number)
+    #             sumHY100etalon += sumQ100etalon
+    #             sumHY75etalon += sumQ75etalon
+    #             sumHY50etalon += sumQ50etalon
+    #             sumHY100 += sumQ100
+    #             sumHY75 += sumQ75
+    #             sumHY50 += sumQ50
+    #             sumQ100etalon = sumQ75etalon = sumQ50etalon = sumQ100 = sumQ75 = sumQ50 = 0
+    #             formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1, xl_col_to_name(column - 16),xl_col_to_name(column - 11), xl_col_to_name(column - 6))
+    #             sheet.write_formula(row, column + 0, formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1, xl_col_to_name(column - 15),xl_col_to_name(column - 10), xl_col_to_name(column - 5))
+    #             sheet.write_formula(row, column + 1, formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1, xl_col_to_name(column - 14),xl_col_to_name(column - 9), xl_col_to_name(column - 4))
+    #             sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
+    #             formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1, xl_col_to_name(column - 13),xl_col_to_name(column - 8), xl_col_to_name(column - 3))
+    #             sheet.write_formula(row, column + 3, formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1, xl_col_to_name(column - 12),xl_col_to_name(column - 7), xl_col_to_name(column - 2))
+    #             sheet.write_formula(row, column + 4, formula, row_format_number)
+    #
+    #         if element.find('HY') != -1:  # 'HY1/YEAR итого' 'HY2/YEAR итого'
+    #             if sumHY75etalon != 0: sheet.write_number(row, column + 0, sumHY75etalon, row_format_number)
+    #             if sumHY50etalon != 0: sheet.write_number(row, column + 1, sumHY50etalon, row_format_number)
+    #             if sumHY100 != 0:      sheet.write_number(row, column + 2, sumHY100, row_format_number_color_fact)
+    #             if sumHY75 != 0:       sheet.write_number(row, column + 3, sumHY75, row_format_number)
+    #             if sumHY50 != 0:       sheet.write_number(row, column + 4, sumHY50, row_format_number)
+    #             sumYear100etalon += sumHY100etalon
+    #             sumYear75etalon += sumHY75etalon
+    #             sumYear50etalon += sumHY50etalon
+    #             sumYear100 += sumHY100
+    #             sumYear75 += sumHY75
+    #             sumYear50 += sumHY50
+    #             sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 27), xl_col_to_name(column - 6))
+    #             sheet.write_formula(row, column + 0, formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 26), xl_col_to_name(column - 5))
+    #             sheet.write_formula(row, column + 1, formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 25), xl_col_to_name(column - 4))
+    #             sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 24), xl_col_to_name(column - 3))
+    #             sheet.write_formula(row, column + 3, formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 23), xl_col_to_name(column - 2))
+    #             sheet.write_formula(row, column + 4, formula, row_format_number)
+    #
+    #         if element == 'YEAR итого':  # 'YEAR итого'
+    #             if sumYear75etalon != 0: sheet.write_number(row, column + 0, sumYear75etalon, row_format_number)
+    #             if sumYear50etalon != 0: sheet.write_number(row, column + 1, sumYear50etalon, row_format_number)
+    #             if sumYear100 != 0:      sheet.write_number(row, column + 2, sumYear100, row_format_number_color_fact)
+    #             if sumYear75 != 0:       sheet.write_number(row, column + 3, sumYear75, row_format_number)
+    #             if sumYear50 != 0:       sheet.write_number(row, column + 4, sumYear50, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 54), xl_col_to_name(column - 6))
+    #             sheet.write_formula(row, column + 0, formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 53), xl_col_to_name(column - 5))
+    #             sheet.write_formula(row, column + 1, formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 52), xl_col_to_name(column - 4))
+    #             sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 51), xl_col_to_name(column - 3))
+    #             sheet.write_formula(row, column + 3, formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 50), xl_col_to_name(column - 2))
+    #             sheet.write_formula(row, column + 4, formula, row_format_number)
+    #         column += 4
+    #     # end Поступление денежных средсв, с НДС
+    #
+    #     # Валовая Выручка, без НДС
+    #     sumYear100etalon = sumYear75etalon = sumYear50etalon = sumYear100 = sumYear75 = sumYear50 = 0
+    #     sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
+    #
+    #     if step == False:
+    #         profitability = project.profitability
+    #     else:
+    #         profitability = step.profitability
+    #
+    #     project_etalon = self.get_etalon_project(project, False)
+    #     step_etalon = self.get_etalon_step(step, False)
+    #
+    #     if step_etalon == False:
+    #         profitability_etalon = project_etalon.profitability
+    #     else:
+    #         profitability_etalon = step_etalon.profitability
+    #
+    #     for element in self.month_rus_name_revenue_margin:
+    #         column += 1
+    #         sheet.write_string(row, column, "", head_format_month_itogo)
+    #         sheet.write_string(row, column + 43, "", head_format_month_itogo)
+    #         if element.find('HY2') != -1:
+    #             addcolumn = 1
+    #             column += 1
+    #             sheet.write_string(row, column, "", head_format_month_itogo)
+    #             sheet.write_string(row, column + 43, "", head_format_month_itogo)
+    #         column += 1
+    #         sheet.write_string(row, column + 0, "", row_format_number)
+    #         sheet.write_string(row, column + 1, "", row_format_number)
+    #         sheet.write_string(row, column + 2, "", row_format_number_color_fact)
+    #         sheet.write_string(row, column + 3, "", row_format_number)
+    #         sheet.write_string(row, column + 4, "", row_format_number)
+    #         sheet.write_string(row, column + 0 + 43, "", row_format_number)
+    #         sheet.write_string(row, column + 1 + 43, "", row_format_number)
+    #         sheet.write_string(row, column + 2 + 43, "", row_format_number_color_fact)
+    #         sheet.write_string(row, column + 3 + 43, "", row_format_number)
+    #         sheet.write_string(row, column + 4 + 43, "", row_format_number)
+    #
+    #         (sumQ75etalon, sumQ50etalon,
+    #          sumQ100, sumQ75, sumQ50) = self.print_quarter_planned_acceptance_project(
+    #             sheet,
+    #             row,
+    #             column,
+    #             element,
+    #             project,
+    #             step,
+    #             row_format_number,
+    #             row_format_number_color_fact
+    #         )
+    #
+    #         sumHY100etalon += sumQ100etalon
+    #         sumHY75etalon += sumQ75etalon
+    #         sumHY50etalon += sumQ50etalon
+    #         sumHY100 += sumQ100
+    #         sumHY75 += sumQ75
+    #         sumHY50 += sumQ50
+    #
+    #         if element.find('HY') != -1:  # 'HY1/YEAR итого' 'HY2/YEAR итого'
+    #             # if sumHY75etalon != 0:
+    #             #     sheet.write_number(row, column + 0, sumHY75etalon, row_format_number)
+    #             #     sheet.write_number(row, column + 0 + 43, sumHY75etalon*profitability_etalon / 100, row_format_number)
+    #             # if sumHY50etalon != 0:
+    #             #     sheet.write_number(row, column + 1, sumHY50etalon, row_format_number)
+    #             #     sheet.write_number(row, column + 1 + 43, sumHY50etalon*profitability_etalon / 100, row_format_number)
+    #             # if sumHY100 != 0:
+    #             #     sheet.write_number(row, column + 2, sumHY100, row_format_number_color_fact)
+    #             #     sheet.write_number(row, column + 2 + 43, sumHY100*profitability / 100, row_format_number_color_fact)
+    #             # if sumHY75 != 0:
+    #             #     sheet.write_number(row, column + 3, sumHY75, row_format_number)
+    #             #     sheet.write_number(row, column + 3 + 43, sumHY75*profitability / 100, row_format_number)
+    #             # if sumHY50 != 0:
+    #             #     sheet.write_number(row, column + 4, sumHY50, row_format_number)
+    #             #     sheet.write_number(row, column + 4 + 43, sumHY50*profitability / 100, row_format_number)
+    #             addcolumn = 0
+    #             if element.find('HY2') != -1:
+    #                 addcolumn = 1
+    #
+    #             sumYear100etalon += sumHY100etalon
+    #             sumYear75etalon += sumHY75etalon
+    #             sumYear50etalon += sumHY50etalon
+    #             sumYear100 += sumHY100
+    #             sumYear75 += sumHY75
+    #             sumYear50 += sumHY50
+    #             sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
+    #
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 12 - addcolumn), xl_col_to_name(column - 6 - addcolumn))
+    #             sheet.write_formula(row, column + 0, formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 11 - addcolumn), xl_col_to_name(column - 5 - addcolumn))
+    #             sheet.write_formula(row, column + 1, formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 10 - addcolumn), xl_col_to_name(column - 4 - addcolumn))
+    #             sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 9 - addcolumn),  xl_col_to_name(column - 3 - addcolumn))
+    #             sheet.write_formula(row, column + 3, formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8 - addcolumn),  xl_col_to_name(column - 2 - addcolumn))
+    #             sheet.write_formula(row, column + 4, formula, row_format_number)
+    #
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 12 + 43 - addcolumn), xl_col_to_name(column - 6 + 43 - addcolumn))
+    #             sheet.write_formula(row, column + 0 + 43, formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 11 + 43 - addcolumn), xl_col_to_name(column - 5 + 43 - addcolumn))
+    #             sheet.write_formula(row, column + 1 + 43, formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 10 + 43 - addcolumn), xl_col_to_name(column - 4 + 43 - addcolumn))
+    #             sheet.write_formula(row, column + 2 + 43, formula, row_format_number_color_fact)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 9 + 43 - addcolumn),  xl_col_to_name(column - 3 + 43 - addcolumn))
+    #             sheet.write_formula(row, column + 3 + 43, formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8 + 43 - addcolumn),  xl_col_to_name(column - 2 + 43 - addcolumn))
+    #             sheet.write_formula(row, column + 4 + 43, formula, row_format_number)
+    #
+    #
+    #
+    #         if element == 'YEAR':  # 'YEAR итого'
+    #             # if sumYear75etalon != 0:
+    #             #     sheet.write_number(row, column + 0, sumYear75etalon, row_format_number)
+    #             #     sheet.write_number(row, column + 0 + 43, sumYear75etalon*profitability / 100, row_format_number)
+    #             # if sumYear50etalon != 0:
+    #             #     sheet.write_number(row, column + 1, sumYear50etalon, row_format_number)
+    #             #     sheet.write_number(row, column + 1 + 43, sumYear50etalon*profitability / 100, row_format_number)
+    #             # if sumYear100 != 0:
+    #             #     sheet.write_number(row, column + 2, sumYear100, row_format_number_color_fact)
+    #             #     sheet.write_number(row, column + 2 + 43, sumYear100*profitability / 100, row_format_number_color_fact)
+    #             # if sumYear75 != 0:
+    #             #     sheet.write_number(row, column + 3, sumYear75, row_format_number)
+    #             #     sheet.write_number(row, column + 3 + 43, sumYear75*profitability / 100, row_format_number)
+    #             # if sumYear50 != 0:
+    #             #     sheet.write_number(row, column + 4, sumYear50, row_format_number)
+    #             #     sheet.write_number(row, column + 4 + 43, sumYear50*profitability / 100, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 25), xl_col_to_name(column - 6))
+    #             sheet.write_formula(row, column + 0, formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 24), xl_col_to_name(column - 5))
+    #             sheet.write_formula(row, column + 1, formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 23), xl_col_to_name(column - 4))
+    #             sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 22), xl_col_to_name(column - 3))
+    #             sheet.write_formula(row, column + 3, formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21), xl_col_to_name(column - 2))
+    #             sheet.write_formula(row, column + 4, formula, row_format_number)
+    #
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 25 + 43), xl_col_to_name(column - 6 + 43))
+    #             sheet.write_formula(row, column + 0 + 43, formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 24 + 43), xl_col_to_name(column - 5 + 43))
+    #             sheet.write_formula(row, column + 1 + 43, formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 23 + 43), xl_col_to_name(column - 4 + 43))
+    #             sheet.write_formula(row, column + 2 + 43, formula, row_format_number_color_fact)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 22 + 43), xl_col_to_name(column - 3 + 43))
+    #             sheet.write_formula(row, column + 3 + 43, formula, row_format_number)
+    #             formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21 + 43), xl_col_to_name(column - 2 + 43))
+    #             sheet.write_formula(row, column + 4 + 43, formula, row_format_number)
+    #
+    #         column += 4
+    #     # end Валовая Выручка, без НДС
 
     def print_row_values_office(self, workbook, sheet, row, column,  YEAR, projects, formula_offices):
         global strYEAR
@@ -1443,18 +1601,22 @@ class report_management_committee_excel(models.AbstractModel):
             sheet.write_formula(row, column + 4, f_Q50, row_format_number)
 
             if element.find('Q') != -1:  # 'Q1 итого' 'Q2 итого' 'Q3 итого' 'Q4 итого'
+
                 if sumQ75etalon != 0: sheet.write_number(row, column + 0, sumQ75etalon, row_format_number)
                 if sumQ50etalon != 0: sheet.write_number(row, column + 1, sumQ50etalon, row_format_number)
                 if sumQ100 != 0:      sheet.write_number(row, column + 2, sumQ100, row_format_number_color_fact)
                 if sumQ75 != 0:       sheet.write_number(row, column + 3, sumQ75, row_format_number)
                 if sumQ50 != 0:       sheet.write_number(row, column + 4, sumQ50, row_format_number)
+
                 sumHY100etalon += sumQ100etalon
                 sumHY75etalon += sumQ75etalon
                 sumHY50etalon += sumQ50etalon
                 sumHY100 += sumQ100
                 sumHY75 += sumQ75
                 sumHY50 += sumQ50
+
                 sumQ100etalon = sumQ75etalon = sumQ50etalon = sumQ100 = sumQ75 = sumQ50 = 0
+
                 formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1, xl_col_to_name(column - 16),
                                                               xl_col_to_name(column - 11),
                                                               xl_col_to_name(column - 6))
@@ -1530,6 +1692,163 @@ class report_management_committee_excel(models.AbstractModel):
             column += 4
         # end Поступление денежных средсв, с НДС
 
+        # Валовая Выручка, без НДС
+        sumYear100etalon = sumYear75etalon = sumYear50etalon = sumYear100 = sumYear75 = sumYear50 = 0
+        sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
+
+        # if step == False:
+        #     profitability = project.profitability
+        # else:
+        #     profitability = step.profitability
+        #
+        # project_etalon = self.get_etalon_project(project, False)
+        # step_etalon = self.get_etalon_step(step, False)
+        #
+        # if step_etalon == False:
+        #     profitability_etalon = project_etalon.profitability
+        # else:
+        #     profitability_etalon = step_etalon.profitability
+
+        for element in self.month_rus_name_revenue_margin:
+
+            sumQ100etalon = sumQ75etalon = sumQ50etalon = sumQ100 = sumQ75 = sumQ50 = 0
+            profQ100etalon = profQ75etalon = profQ50etalon = profQ100 = profQ75 = profQ50 = 0
+
+            column += 1
+            sheet.write_string(row, column, "", head_format_month_itogo)
+            sheet.write_string(row, column + 43, "", head_format_month_itogo)
+            if element.find('HY2') != -1:
+                column += 1
+                sheet.write_string(row, column, "", head_format_month_itogo)
+                sheet.write_string(row, column + 43, "", head_format_month_itogo)
+            column += 1
+            sheet.write_string(row, column + 0, "", row_format_number)
+            sheet.write_string(row, column + 1, "", row_format_number)
+            sheet.write_string(row, column + 2, "", row_format_number_color_fact)
+            sheet.write_string(row, column + 3, "", row_format_number)
+            sheet.write_string(row, column + 4, "", row_format_number)
+            sheet.write_string(row, column + 0 + 43, "", row_format_number)
+            sheet.write_string(row, column + 1 + 43, "", row_format_number)
+            sheet.write_string(row, column + 2 + 43, "", row_format_number_color_fact)
+            sheet.write_string(row, column + 3 + 43, "", row_format_number)
+            sheet.write_string(row, column + 4 + 43, "", row_format_number)
+
+            for project in projects:
+
+                (sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp,
+                 prof75tmpetalon, prof50tmpetalon, prof100tmp, prof75tmp, prof50tmp) = self.calculate_quarter_planned_acceptance(
+                    sheet,
+                    row,
+                    column,
+                    element,
+                    project
+                )
+
+                sumQ75etalon += sum75tmpetalon
+                sumQ50etalon += sum50tmpetalon
+                sumQ100 += sum100tmp
+                sumQ75 += sum75tmp
+                sumQ50 += sum50tmp
+
+                profQ75etalon += prof75tmpetalon
+                profQ50etalon += prof50tmpetalon
+                profQ100 += prof100tmp
+                profQ75 += prof75tmp
+                profQ50 += prof50tmp
+
+            child_offices_rows = formula_offices.get('project_office_' + str(projects.project_office_id.id)) or ''
+
+            f_sumQ75etalon = 'sum(' + str(sumQ75etalon) + child_offices_rows.format(xl_col_to_name(column)) + ')'
+            f_sumQ50etalon = 'sum(' + str(sumQ50etalon) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')'
+            f_sumQ100 = 'sum(' + str(sumQ100) + child_offices_rows.format(xl_col_to_name(column + 2)) + ')'
+            f_sumQ75 = 'sum(' + str(sumQ75) + child_offices_rows.format(xl_col_to_name(column + 3)) + ')'
+            f_sumQ50 = 'sum(' + str(sumQ50) + child_offices_rows.format(xl_col_to_name(column + 4)) + ')'
+
+            f_profQ75etalon = 'sum(' + str(profQ75etalon) + child_offices_rows.format(xl_col_to_name(column + 43)) + ')'
+            f_profQ50etalon = 'sum(' + str(profQ50etalon) + child_offices_rows.format(xl_col_to_name(column + 44)) + ')'
+            f_profQ100 = 'sum(' + str(profQ100) + child_offices_rows.format(xl_col_to_name(column + 45)) + ')'
+            f_profQ75 = 'sum(' + str(profQ75) + child_offices_rows.format(xl_col_to_name(column + 46)) + ')'
+            f_profQ50 = 'sum(' + str(profQ50) + child_offices_rows.format(xl_col_to_name(column + 47)) + ')'
+
+            sheet.write_formula(row, column, f_sumQ75etalon, row_format_number)
+            sheet.write_formula(row, column + 43, f_profQ75etalon, row_format_number)
+            sheet.write_formula(row, column + 1, f_sumQ50etalon, row_format_number)
+            sheet.write_formula(row, column + 44, f_profQ50etalon, row_format_number)
+            sheet.write_formula(row, column + 2, f_sumQ100, row_format_number)
+            sheet.write_formula(row, column + 45, f_profQ100, row_format_number)
+            sheet.write_formula(row, column + 3, f_sumQ75, row_format_number)
+            sheet.write_formula(row, column + 46, f_profQ75, row_format_number)
+            sheet.write_formula(row, column + 4, f_sumQ50, row_format_number)
+            sheet.write_formula(row, column + 47, f_profQ50, row_format_number)
+
+            sumHY100etalon += sumQ100etalon
+            sumHY75etalon += sumQ75etalon
+            sumHY50etalon += sumQ50etalon
+            sumHY100 += sumQ100
+            sumHY75 += sumQ75
+            sumHY50 += sumQ50
+
+            if element.find('HY') != -1:  # 'HY1/YEAR итого' 'HY2/YEAR итого'
+                addcolumn = 0
+                if element.find('HY2') != -1:
+                    addcolumn = 1
+
+                sumYear100etalon += sumHY100etalon
+                sumYear75etalon += sumHY75etalon
+                sumYear50etalon += sumHY50etalon
+                sumYear100 += sumHY100
+                sumYear75 += sumHY75
+                sumYear50 += sumHY50
+
+                sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
+
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 12 - addcolumn), xl_col_to_name(column - 6 - addcolumn))
+                sheet.write_formula(row, column + 0, formula, row_format_number)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 11 - addcolumn), xl_col_to_name(column - 5 - addcolumn))
+                sheet.write_formula(row, column + 1, formula, row_format_number)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 10 - addcolumn), xl_col_to_name(column - 4 - addcolumn))
+                sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 9 - addcolumn),  xl_col_to_name(column - 3 - addcolumn))
+                sheet.write_formula(row, column + 3, formula, row_format_number)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8 - addcolumn),  xl_col_to_name(column - 2 - addcolumn))
+                sheet.write_formula(row, column + 4, formula, row_format_number)
+
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 12 + 43 - addcolumn), xl_col_to_name(column - 6 + 43 - addcolumn))
+                sheet.write_formula(row, column + 0 + 43, formula, row_format_number)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 11 + 43 - addcolumn), xl_col_to_name(column - 5 + 43 - addcolumn))
+                sheet.write_formula(row, column + 1 + 43, formula, row_format_number)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 10 + 43 - addcolumn), xl_col_to_name(column - 4 + 43 - addcolumn))
+                sheet.write_formula(row, column + 2 + 43, formula, row_format_number_color_fact)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 9 + 43 - addcolumn),  xl_col_to_name(column - 3 + 43 - addcolumn))
+                sheet.write_formula(row, column + 3 + 43, formula, row_format_number)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8 + 43 - addcolumn),  xl_col_to_name(column - 2 + 43 - addcolumn))
+                sheet.write_formula(row, column + 4 + 43, formula, row_format_number)
+
+            if element == 'YEAR':  # 'YEAR итого'
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 25), xl_col_to_name(column - 6))
+                sheet.write_formula(row, column + 0, formula, row_format_number)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 24), xl_col_to_name(column - 5))
+                sheet.write_formula(row, column + 1, formula, row_format_number)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 23), xl_col_to_name(column - 4))
+                sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 22), xl_col_to_name(column - 3))
+                sheet.write_formula(row, column + 3, formula, row_format_number)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21), xl_col_to_name(column - 2))
+                sheet.write_formula(row, column + 4, formula, row_format_number)
+
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 25 + 43), xl_col_to_name(column - 6 + 43))
+                sheet.write_formula(row, column + 0 + 43, formula, row_format_number)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 24 + 43), xl_col_to_name(column - 5 + 43))
+                sheet.write_formula(row, column + 1 + 43, formula, row_format_number)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 23 + 43), xl_col_to_name(column - 4 + 43))
+                sheet.write_formula(row, column + 2 + 43, formula, row_format_number_color_fact)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 22 + 43), xl_col_to_name(column - 3 + 43))
+                sheet.write_formula(row, column + 3 + 43, formula, row_format_number)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21 + 43), xl_col_to_name(column - 2 + 43))
+                sheet.write_formula(row, column + 4 + 43, formula, row_format_number)
+
+            column += 4
+        # end Валовая Выручка, без НДС
 
     def printrow(self, sheet, workbook, companies, project_offices, budget, row, formulaItogo, level):
         global strYEAR
@@ -1711,83 +2030,80 @@ class report_management_committee_excel(models.AbstractModel):
                                     isFoundProjectsByOffice = True
                                     isFoundProjectsByCompany = True
 
-                                    row += 1
-                                    sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level})
-                                    # print('setrow  row = ', row)
-                                    # print('setrow  level = ', level)
-                                    cur_row_format = row_format
-                                    cur_row_format_number = row_format_number
-                                    if step.estimated_probability_id.name == '0':
-                                        cur_row_format = row_format_canceled_project
-                                        cur_row_format_number = row_format_number_canceled_project
-                                    column = 0
-                                    sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
-                                    column += 1
-                                    sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
-                                    column += 1
-                                    sheet.write_string(row, column, spec.customer_organization_id.name, cur_row_format)
-                                    column += 1
-                                    sheet.write_string(row, column, step.essence_project, cur_row_format)
-                                    column += 1
-                                    sheet.write_string(row, column, (step.code or '') +' | '+ spec.project_id + " | "+step.step_id, cur_row_format)
-                                    column += 1
-                                    sheet.write_string(row, column, self.get_estimated_probability_name_forecast(step.estimated_probability_id.name), cur_row_format)
-                                    column += 1
-                                    sheet.write_number(row, column, step.total_amount_of_revenue_with_vat, cur_row_format_number)
-                                    column += 1
-                                    sheet.write_number(row, column, step.margin_income, cur_row_format_number)
-                                    column += 1
-                                    sheet.write_number(row, column, step.profitability, cur_row_format_number)
-                                    column += 1
-                                    sheet.write_string(row, column, step.dogovor_number or '', cur_row_format)
-                                    column += 1
-                                    sheet.write_string(row, column, step.vat_attribute_id.name, cur_row_format)
-                                    column += 1
-                                    sheet.write_string(row, column, '', head_format_1)
-                                    self.print_row_Values(workbook, sheet, row, column,  strYEAR, spec, step)
+                                    # печатаем строки этапов проектов
+                                    # row += 1
+                                    # sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level})
+                                    # cur_row_format = row_format
+                                    # cur_row_format_number = row_format_number
+                                    # if step.estimated_probability_id.name == '0':
+                                    #     cur_row_format = row_format_canceled_project
+                                    #     cur_row_format_number = row_format_number_canceled_project
+                                    # column = 0
+                                    # sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
+                                    # column += 1
+                                    # sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
+                                    # column += 1
+                                    # sheet.write_string(row, column, spec.customer_organization_id.name, cur_row_format)
+                                    # column += 1
+                                    # sheet.write_string(row, column, step.essence_project, cur_row_format)
+                                    # column += 1
+                                    # sheet.write_string(row, column, (step.code or '') +' | '+ spec.project_id + " | "+step.step_id, cur_row_format)
+                                    # column += 1
+                                    # sheet.write_string(row, column, self.get_estimated_probability_name_forecast(step.estimated_probability_id.name), cur_row_format)
+                                    # column += 1
+                                    # sheet.write_number(row, column, step.total_amount_of_revenue_with_vat, cur_row_format_number)
+                                    # column += 1
+                                    # sheet.write_number(row, column, step.margin_income, cur_row_format_number)
+                                    # column += 1
+                                    # sheet.write_number(row, column, step.profitability, cur_row_format_number)
+                                    # column += 1
+                                    # sheet.write_string(row, column, step.dogovor_number or '', cur_row_format)
+                                    # column += 1
+                                    # sheet.write_string(row, column, step.vat_attribute_id.name, cur_row_format)
+                                    # column += 1
+                                    # sheet.write_string(row, column, '', head_format_1)
+                                    # self.print_row_Values(workbook, sheet, row, column,  strYEAR, spec, step)
                         else:
                             if spec.project_office_id == project_office and spec.company_id == company:
                                 if self.isProjectinYear(spec) is False or spec.estimated_probability_id.name == '10':
                                     continue
-                                row += 1
 
                                 isFoundProjectsByOffice = True
                                 isFoundProjectsByCompany = True
 
-                                sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level})
-                                # print('setrow  row = ', row)
-                                # print('setrow  level = ', level)
-
-                                cur_row_format = row_format
-                                cur_row_format_number = row_format_number
-                                if spec.estimated_probability_id.name == '0':
-                                    cur_row_format = row_format_canceled_project
-                                    cur_row_format_number = row_format_number_canceled_project
-                                column = 0
-                                sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
-                                column += 1
-                                sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
-                                column += 1
-                                sheet.write_string(row, column, spec.customer_organization_id.name, cur_row_format)
-                                column += 1
-                                sheet.write_string(row, column, spec.essence_project, cur_row_format)
-                                column += 1
-                                sheet.write_string(row, column, (spec.step_project_number or '')+ ' | ' +(spec.project_id or ''), cur_row_format)
-                                column += 1
-                                sheet.write_string(row, column, self.get_estimated_probability_name_forecast(spec.estimated_probability_id.name), cur_row_format)
-                                column += 1
-                                sheet.write_number(row, column, spec.total_amount_of_revenue_with_vat, cur_row_format_number)
-                                column += 1
-                                sheet.write_number(row, column, spec.margin_income, cur_row_format_number)
-                                column += 1
-                                sheet.write_number(row, column, spec.profitability, cur_row_format_number)
-                                column += 1
-                                sheet.write_string(row, column, spec.dogovor_number or '', cur_row_format)
-                                column += 1
-                                sheet.write_string(row, column, spec.vat_attribute_id.name, cur_row_format)
-                                column += 1
-                                sheet.write_string(row, column, '', head_format_1)
-                                self.print_row_Values(workbook, sheet, row, column,  strYEAR, spec, False)
+                                # печатаем строки проектов
+                                # row += 1
+                                # sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level})
+                                # cur_row_format = row_format
+                                # cur_row_format_number = row_format_number
+                                # if spec.estimated_probability_id.name == '0':
+                                #     cur_row_format = row_format_canceled_project
+                                #     cur_row_format_number = row_format_number_canceled_project
+                                # column = 0
+                                # sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
+                                # column += 1
+                                # sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
+                                # column += 1
+                                # sheet.write_string(row, column, spec.customer_organization_id.name, cur_row_format)
+                                # column += 1
+                                # sheet.write_string(row, column, spec.essence_project, cur_row_format)
+                                # column += 1
+                                # sheet.write_string(row, column, (spec.step_project_number or '')+ ' | ' +(spec.project_id or ''), cur_row_format)
+                                # column += 1
+                                # sheet.write_string(row, column, self.get_estimated_probability_name_forecast(spec.estimated_probability_id.name), cur_row_format)
+                                # column += 1
+                                # sheet.write_number(row, column, spec.total_amount_of_revenue_with_vat, cur_row_format_number)
+                                # column += 1
+                                # sheet.write_number(row, column, spec.margin_income, cur_row_format_number)
+                                # column += 1
+                                # sheet.write_number(row, column, spec.profitability, cur_row_format_number)
+                                # column += 1
+                                # sheet.write_string(row, column, spec.dogovor_number or '', cur_row_format)
+                                # column += 1
+                                # sheet.write_string(row, column, spec.vat_attribute_id.name, cur_row_format)
+                                # column += 1
+                                # sheet.write_string(row, column, '', head_format_1)
+                                # self.print_row_Values(workbook, sheet, row, column,  strYEAR, spec, False)
 
                     # if isFoundProjectsByProbability:
                     #     row += 1
