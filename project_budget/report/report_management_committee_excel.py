@@ -2548,14 +2548,14 @@ class report_management_committee_excel(models.AbstractModel):
             'font_size': 12,
             "bold": True,
             "num_format": '#,##0',
-            "bottom": 2,
+            "top": 2,
         })
         row_format_company_forecast = workbook.add_format({
             'border': 1,
             'font_size': 12,
             "bold": True,
             "num_format": '#,##0',
-            "bottom": 2,
+            "top": 2,
             'fg_color': '#D9E1F2',
         })
         row_format_company_fact = workbook.add_format({
@@ -2563,7 +2563,7 @@ class report_management_committee_excel(models.AbstractModel):
             'font_size': 12,
             "bold": True,
             "num_format": '#,##0',
-            "bottom": 2,
+            "top": 2,
             "fg_color": '#C6E0B4',
         })
         row_format_company_percent = workbook.add_format({
@@ -2571,7 +2571,7 @@ class report_management_committee_excel(models.AbstractModel):
             'font_size': 12,
             "bold": True,
             "num_format": '0,00%',
-            "bottom": 2,
+            "top": 2,
             "fg_color": '#ffff99',
         })
         row_format_company_next = workbook.add_format({
@@ -2579,7 +2579,7 @@ class report_management_committee_excel(models.AbstractModel):
             'font_size': 12,
             "bold": True,
             "num_format": '#,##0',
-            "bottom": 2,
+            "top": 2,
             "fg_color": '#E2EFDA',
         })
 
@@ -2648,7 +2648,13 @@ class report_management_committee_excel(models.AbstractModel):
             isFoundProjectsByCompany = False
             formulaProjectCompany = '=sum(0'
 
-            for project_office in cur_project_offices:
+            dict_formula['office_ids_not_empty'] = {}
+
+            if company.id not in dict_formula['company_ids']:
+                row += 1
+                dict_formula['company_ids'][company.id] = row
+
+            for project_office in cur_project_offices.filtered(lambda r: r in (office for office in cur_budget_projects.project_office_id if office.company_id == company)):
                 print('project_office.name = ', project_office.name)
 
                 begRowProjectsByOffice = 0
@@ -2657,7 +2663,10 @@ class report_management_committee_excel(models.AbstractModel):
 
                 child_project_offices = self.env['project_budget.project_office'].search([('parent_id', '=', project_office.id)], order='name')
 
-                row0, formulaItogo = self.printrow(sheet, workbook, company, child_project_offices, budget, row, formulaItogo, level + 1)
+                if project_office.child_ids:
+                    row += 1
+                    dict_formula['office_ids'][project_office.id] = row
+                    row0, formulaItogo = self.printrow(sheet, workbook, company, child_project_offices, budget, row, formulaItogo, level + 1)
 
                 isFoundProjectsByOffice = False
                 if row0 != row:
@@ -2832,20 +2841,27 @@ class report_management_committee_excel(models.AbstractModel):
                     isFoundProjectsByCompany = False
 
                 if isFoundProjectsByOffice:
-                    row += 1
+
+                    dict_formula['office_ids_not_empty'][project_office.id] = row
+
                     column = 0
-                    # sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
-                    # print('setrow level1 row = ', row)
-                    sheet.write_string(row, column, '       ' * level + project_office.name, row_format_office)
-                    sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
+
+                    if child_project_offices:
+                        office_row = dict_formula['office_ids'].get(project_office.id)
+                    else:
+                        row += 1
+                        office_row = row
+
+                    sheet.write_string(office_row, column, '       ' * level + project_office.name, row_format_office)
+                    sheet.set_row(office_row, False, False, {'hidden': 1, 'level': level})
 
                     str_project_office_id = 'project_office_' + str(int(project_office.parent_id))
                     if str_project_office_id in dict_formula:
-                        dict_formula[str_project_office_id] = dict_formula[str_project_office_id] + ',{0}' + str(row+1)
+                        dict_formula[str_project_office_id] = dict_formula[str_project_office_id] + ',{0}' + str(office_row+1)
                     else:
-                        dict_formula[str_project_office_id] = ',{0}'+str(row+1)
+                        dict_formula[str_project_office_id] = ',{0}'+str(office_row+1)
 
-                    formulaProjectOffice += ',{0}' + f'{begRowProjectsByOffice + 2}' + ':{0}' + f'{row}'
+                    formulaProjectOffice += ',{0}' + f'{begRowProjectsByOffice + 2}' + ':{0}' + f'{office_row}'
 
                     str_project_office_id = 'project_office_' + str(int(project_office.id))
                     if str_project_office_id in dict_formula:
@@ -2857,11 +2873,10 @@ class report_management_committee_excel(models.AbstractModel):
                                                                            ('commercial_budget_id', '=', budget.id),
                                                                            ('project_office_id', '=', project_office.id)
                                                                            ])
-
                     self.print_row_values_office(
                         workbook,
                         sheet,
-                        row,
+                        office_row,
                         column,
                         strYEAR,
                         projects,
@@ -2881,18 +2896,18 @@ class report_management_committee_excel(models.AbstractModel):
                     #     sheet.write_formula(row, col - 1, formula, head_format_month_itogo)
 
                     if not project_office.parent_id:
-                        formulaProjectCompany += ',{0}' + f'{row + 1}'
+                        formulaProjectCompany += ',{0}' + f'{office_row + 1}'
+                else:
+                    if project_office.child_ids:
+                        if all(child.id not in dict_formula['office_ids_not_empty'] for child in project_office.child_ids):
+                            row -= 1
 
             if isFoundProjectsByCompany:
-                row += 1
                 column = 0
 
-                sheet.write_string(row, column, company.name, row_format_company)
+                company_row = dict_formula['company_ids'][company.id]
 
-                dict_formula['companies'] = dict_formula.setdefault('companies', '') + ',{0}' + str(row + 1)
-
-                # for colFormula in range(1, 12):
-                #     sheet.write_string(row, colFormula, '', row_format_company)
+                sheet.write_string(company_row, column, company.name, row_format_company)
 
                 formulaProjectCompany += ')'
 
@@ -2900,30 +2915,30 @@ class report_management_committee_excel(models.AbstractModel):
                 for i in range(0, 4):  # оформление строки Компания
                     for colFormula in range(0, 7):
                         formula = formulaProjectCompany.format(xl_col_to_name(i * 38 + colFormula * 5 + 1 + shift))
-                        sheet.write_formula(row, i * 38 + colFormula * 5 + 1 + shift, formula, row_format_company_forecast)
+                        sheet.write_formula(company_row, i * 38 + colFormula * 5 + 1 + shift, formula, row_format_company_forecast)
                         formula = formulaProjectCompany.format(xl_col_to_name(i * 38 + colFormula * 5 + 2 + shift))
-                        sheet.write_formula(row, i * 38 + colFormula * 5 + 2 + shift, formula, row_format_company_forecast)
+                        sheet.write_formula(company_row, i * 38 + colFormula * 5 + 2 + shift, formula, row_format_company_forecast)
                         formula = formulaProjectCompany.format(xl_col_to_name(i * 38 + colFormula * 5 + 3 + shift))
-                        sheet.write_formula(row, i * 38 + colFormula * 5 + 3 + shift, formula, row_format_company_fact)
+                        sheet.write_formula(company_row, i * 38 + colFormula * 5 + 3 + shift, formula, row_format_company_fact)
                         if colFormula in (2, 6):
                             formula = f'=IFERROR({xl_col_to_name(i * 38 + colFormula * 5 + 3 + shift)}{row + 1}/{xl_col_to_name(i * 38 + colFormula * 5 + 2 + shift)}{row + 1}," ")'
-                            sheet.write_formula(row, i * 38 + colFormula * 5 + 4 + shift, formula, row_format_company_percent)
+                            sheet.write_formula(company_row, i * 38 + colFormula * 5 + 4 + shift, formula, row_format_company_percent)
                             shift += 1
                         formula = formulaProjectCompany.format(xl_col_to_name(i * 38 + colFormula * 5 + 4 + shift))
-                        sheet.write_formula(row, i * 38 + colFormula * 5 + 4 + shift, formula, row_format_company)
+                        sheet.write_formula(company_row, i * 38 + colFormula * 5 + 4 + shift, formula, row_format_company)
                         formula = formulaProjectCompany.format(xl_col_to_name(i * 38 + colFormula * 5 + 5 + shift))
-                        sheet.write_formula(row, i * 38 + colFormula * 5 + 5 + shift, formula, row_format_company)
+                        sheet.write_formula(company_row, i * 38 + colFormula * 5 + 5 + shift, formula, row_format_company)
                     for x in range(4):
                         formula = formulaProjectCompany.format(xl_col_to_name((i + 1) * 38 + x + shift - 2))
-                        sheet.write_formula(row, (i + 1) * 38 + x + shift - 2, formula, row_format_company_next)
+                        sheet.write_formula(company_row, (i + 1) * 38 + x + shift - 2, formula, row_format_company_next)
                     shift += 1
 
         return row, formulaItogo
 
-    def printworksheet(self,workbook,budget,namesheet):
+    def printworksheet(self, workbook, budget, namesheet):
         global strYEAR
         global YEARint
-        print('YEARint=',YEARint)
+        print('YEARint=', YEARint)
         print('strYEAR =', strYEAR)
 
         report_name = budget.name
@@ -3020,8 +3035,8 @@ class report_management_committee_excel(models.AbstractModel):
 
         date_format = workbook.add_format({'num_format': 'd mmmm yyyy'})
         row = 0
-        sheet.merge_range(row, 0, row + 1, 0, budget.name, bold)
-        row = 6
+        sheet.write_string(row, 0, budget.name, bold)
+        row = 2
         column = 0
         sheet.merge_range(row - 1, 0, row, 0, "Прогноз", head_format)
         sheet.merge_range(row + 1, 0, row + 2, 0, "БЮ/Проектный офис", head_format_1)
@@ -3083,7 +3098,7 @@ class report_management_committee_excel(models.AbstractModel):
         # sheet.write_string(row + 2, column, "", head_format_1)
         # sheet.set_column(column, column, 2)
         #
-        sheet.freeze_panes(9, 1)
+        sheet.freeze_panes(5, 1)
         column += 1
         column = self.print_quater_head(workbook, sheet, row, column,  strYEAR)
         row += 2
@@ -3100,9 +3115,9 @@ class report_management_committee_excel(models.AbstractModel):
         row += 1
         column = 0
         sheet.write_string(row, column, 'ИТОГО по отчету', row_format_number_itogo)
+        for company_row in dict_formula['company_ids'].values():
+            formulaItogo += ',{0}' + str(company_row + 1)
         formulaItogo = formulaItogo + ')'
-        if 'companies' in dict_formula:
-            formulaItogo = '=sum('+dict_formula['companies'] + ')'
         for colFormula in range(1, 165):
             formula = formulaItogo.format(xl_col_to_name(colFormula))
             sheet.write_formula(row, colFormula, formula, row_format_number_itogo)
@@ -3115,7 +3130,7 @@ class report_management_committee_excel(models.AbstractModel):
         global YEARint
         YEARint = int(strYEAR)
         global dict_formula
-        dict_formula = {}
+        dict_formula = {'company_ids': {}, 'office_ids': {}, 'office_ids_not_empty': {}}
         print('YEARint=', YEARint)
         print('strYEAR =', strYEAR)
 
