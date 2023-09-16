@@ -38,7 +38,9 @@
                             bg_color="bg-danger"
                             attrs="{'invisible': [('active', '=', True)]}"/>
                     <group>
-                        <field name="name"/>
+                        <group>
+                            <field name="name"/>
+                        </group>
                         <field name="member_ids"
                                options="{'no_open': True, 'no_quick_create': True}"
                                widget="many2many_avatar_user"

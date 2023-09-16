@@ -1,6 +1,6 @@
 {
     'name' : 'Project_budget',
-    'version' : '16.0.1.1.1',
+    'version' : '16.0.1.1.2',
     'category': 'Project',
     'depends': ['base','mail','uom'],
     'description':"""
@@ -15,6 +15,8 @@
             'project_budget/static/src/js/dashboard_1.js',
             'project_budget/static/src/xml/dashboard_1.xml',
             'project_budget/static/src/scss/change_color.css',
+            'project_budget/static/src/js/dashboard_view.js',
+            'project_budget/static/src/xml/dashboard_view.xml'
         ],
         },
     'data': [
@@ -38,6 +40,7 @@
         'views/tenders.xml',
         'wizard/report_tender_wizard.xml',
         'wizard/report_projects_wizard.xml',
+        'views/dashboard_view.xml',
         'views/project_budget_menu.xml',
     ],
     'demo':[

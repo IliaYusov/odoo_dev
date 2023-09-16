@@ -5,6 +5,7 @@
             <field name="model">project_budget.project_steps</field>
             <field name="arch" type="xml">
                 <tree>
+                    <button name="action_copy_step" type="object" title="Copy step" string="Copy step" class="btn btn-link float-end"/>
                     <field name="step_id" readonly="1" optional="show"/>
                     <field name="project_steps_type_id" optional="show"  force_save="1" options="{'no_open': True,}"/>
                     <field name="code" optional="show" placeholder="type step code DAX e.g. 0001"/>

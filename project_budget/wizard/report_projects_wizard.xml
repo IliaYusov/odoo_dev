@@ -6,14 +6,31 @@
         <field name="arch" type="xml">
             <form>
                 <sheet>
-                    <group>
-                        <field name="type_report"/>
+                    <group col ="4">
+                        <group>
+                            <field name="type_report"/>
+                        </group>
+                        <group>
+                        </group>
+                        <group>
+                            <field name="use_koeff_reserve" attrs="{'invisible': [('type_report', '!=', 'forecast')]}"/>
+                        </group>
+                        <group>
+                            <field name="koeff_reserve" attrs="{'invisible': ['|',('type_report', '!=', 'forecast'),('use_koeff_reserve','=',False)]}"/>
+                        </group>
                     </group>
                     <group>
                         <field name="commercial_budget_id"/>
                     </group>
-                    <group>
-                        <field name="year" attrs="{'invisible': [('type_report', 'in', ('raw_data','overdue'))]}"/>
+                    <group col = "4" string="report period">
+                        <group>
+                            <field string="year from" name="year" attrs="{'invisible': [('type_report', 'in', ('raw_data','overdue'))]}"/>
+                        </group>
+                        <group>
+                            <field string="year to" name="year_end" attrs="{'invisible': [('type_report', 'in', ('raw_data','overdue'))]}"/>
+                        </group>
+                        <group></group>
+                        <group></group>
                     </group>
                 </sheet>
                 <footer>

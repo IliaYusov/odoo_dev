@@ -10,7 +10,8 @@ class ProcessingChartController(http.Controller):
             name=process.name,
             date_end=process.date_end,
             tasks=[self._prepare_task_data(task) for task in process.task_ids],
-            link='/mail/view?model=%s&res_id=%s' % ('document_flow.process', process.id)
+            link='/mail/view?model=%s&res_id=%s' % ('document_flow.process', process.id),
+            state='not_done' if not process.date_end else 'done'
         )
 
     def _prepare_task_data(self, task):
@@ -54,14 +55,3 @@ class ProcessingChartController(http.Controller):
             sub_processes=[self._prepare_process_data(child) for child in process.child_ids if child != process]
         )
         return values
-
-    @http.route('/employee/employee_panel', auth='user', type='json')
-    def get_panel_data(self):
-        htm_result = """<html><body>
-                    <div class="bg-info text-center p-2">
-                        <b> Document: XMLID (Dynamic Document name and XMLID) </b>
-                        </div>
-                    </body>
-                    </html>
-                    """
-        return {'html': htm_result}

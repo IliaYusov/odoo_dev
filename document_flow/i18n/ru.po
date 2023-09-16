@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-27 15:07+0000\n"
-"PO-Revision-Date: 2023-08-27 15:07+0000\n"
+"POT-Creation-Date: 2023-09-07 08:26+0000\n"
+"PO-Revision-Date: 2023-09-07 08:26+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -93,6 +93,11 @@ msgstr "Состояние активности"
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_event__activity_type_icon
 msgid "Activity Type Icon"
 msgstr "Иконка типа активности"
+
+#. module: document_flow
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_task_history__actual_executor_id
+msgid "Actual Executor"
+msgstr "Фактический исполнитель"
 
 #. module: document_flow
 #. odoo-python
@@ -206,14 +211,15 @@ msgid "Archived"
 msgstr "В архиве"
 
 #. module: document_flow
-#: model:ir.model.fields,field_description:document_flow.field_task_task__role_executor_id
-msgid "Assigned"
-msgstr "Исполнитель"
+#. odoo-javascript
+#: code:addons/document_flow/static/src/js/dashboard_view.js:0
+#, python-format
+msgid "Assigned To Group"
+msgstr "Назначенные на группу"
 
 #. module: document_flow
 #. odoo-javascript
 #: code:addons/document_flow/static/src/js/dashboard_view.js:0
-#: code:addons/document_flow/static/src/xml/dashboard_view.xml:0
 #, python-format
 msgid "Assigned To Me"
 msgstr "Назначенные мне"
@@ -280,6 +286,23 @@ msgid "Complex"
 msgstr "Комплексный"
 
 #. module: document_flow
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_action__compute_condition
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_process__compute_condition
+#: model_terms:ir.ui.view,arch_db:document_flow.action_view_form
+msgid "Compute Condition"
+msgstr ""
+
+#. module: document_flow
+#: model:ir.model.fields,help:document_flow.field_document_flow_action__compute_condition
+msgid "Conditions that will be checked before action will be started."
+msgstr ""
+
+#. module: document_flow
+#: model:ir.model.fields,help:document_flow.field_document_flow_process__compute_condition
+msgid "Conditions that will be checked before process will be started."
+msgstr ""
+
+#. module: document_flow
 #: model:ir.ui.menu,name:document_flow.document_flow_menu_configuration
 msgid "Configuration"
 msgstr "Настройки"
@@ -309,7 +332,6 @@ msgstr "Копия_%s"
 #. module: document_flow
 #. odoo-javascript
 #: code:addons/document_flow/static/src/js/dashboard_view.js:0
-#: code:addons/document_flow/static/src/xml/dashboard_view.xml:0
 #, python-format
 msgid "Created By Me"
 msgstr "Созданные мной"
@@ -320,6 +342,13 @@ msgstr "Созданные мной"
 #, python-format
 msgid "Created By Me Overdue"
 msgstr "Созданные мной (просроченные)"
+
+#. module: document_flow
+#. odoo-javascript
+#: code:addons/document_flow/static/src/xml/dashboard_view.xml:0
+#, python-format
+msgid "Created By Me:"
+msgstr "Созданные мной:"
 
 #. module: document_flow
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_action__create_uid
@@ -547,6 +576,13 @@ msgstr "Дата окончания"
 #. module: document_flow
 #. odoo-python
 #: code:addons/document_flow/models/document_flow_process.py:0
+#, python-format
+msgid "Error! You cannot create a recursive hierarchy of process."
+msgstr "Ошибка! Вы не можете создавать рекурсивную иерархию процессов."
+
+#. module: document_flow
+#. odoo-python
+#: code:addons/document_flow/models/document_flow_process.py:0
 #: code:addons/document_flow/models/document_flow_processing.py:0
 #: code:addons/document_flow/models/task_task.py:0
 #: model:ir.model,name:document_flow.model_document_flow_event
@@ -625,7 +661,7 @@ msgstr "Дата исполнения"
 #. module: document_flow
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_action_executor__executor_ref
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_executor__executor_ref
-#: model:ir.model.fields,field_description:document_flow.field_document_flow_task_history__executor_id
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_task_history__executor_ref
 #: model_terms:ir.ui.view,arch_db:document_flow.process_executor_view_form
 msgid "Executor"
 msgstr "Исполнитель"
@@ -685,6 +721,25 @@ msgstr "Шрифт для иконок"
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_event_question__time_start
 msgid "From"
 msgstr "С"
+
+#. module: document_flow
+#: model:ir.model.fields,field_description:document_flow.field_task_task__role_executor_id
+msgid "Group"
+msgstr "Исполнитель"
+
+#. module: document_flow
+#. odoo-javascript
+#: code:addons/document_flow/static/src/js/dashboard_view.js:0
+#, python-format
+msgid "Group Overdue"
+msgstr "Просроченные"
+
+#. module: document_flow
+#. odoo-javascript
+#: code:addons/document_flow/static/src/xml/dashboard_view.xml:0
+#, python-format
+msgid "Group Tasks:"
+msgstr "Назначенные на группу:"
 
 #. module: document_flow
 #: model_terms:ir.ui.view,arch_db:document_flow.document_flow_task_history_view_search
@@ -891,8 +946,8 @@ msgstr "Срок исполнения моей активности"
 #. odoo-javascript
 #: code:addons/document_flow/static/src/xml/dashboard_view.xml:0
 #, python-format
-msgid "My Tasks"
-msgstr "Мои задачи"
+msgid "My Tasks:"
+msgstr "Мои задачи:"
 
 #. module: document_flow
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_action__name
@@ -908,14 +963,18 @@ msgid "Name"
 msgstr "Содержание"
 
 #. module: document_flow
+#. odoo-javascript
 #. odoo-python
 #: code:addons/document_flow/models/document_flow_process.py:0
 #: code:addons/document_flow/models/document_flow_process.py:0
 #: code:addons/document_flow/models/document_flow_process.py:0
 #: code:addons/document_flow/models/document_flow_process.py:0
+#: code:addons/document_flow/static/src/xml/dashboard_view.xml:0
+#: code:addons/document_flow/static/src/xml/dashboard_view.xml:0
+#: code:addons/document_flow/static/src/xml/dashboard_view.xml:0
 #, python-format
 msgid "New"
-msgstr "Новый"
+msgstr "Новые"
 
 #. module: document_flow
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_event__activity_date_deadline
@@ -972,7 +1031,7 @@ msgstr "Задачи не найдены. Давайте создадим"
 #: model:task.stage.route,name:document_flow.agreement_task_stage_route_in_progress_not_agreed
 #: model:task.stage.route,name:document_flow.agreement_task_stage_route_to_do_not_agreed
 msgid "Not agreed"
-msgstr ""
+msgstr "Не согласовано"
 
 #. module: document_flow
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_event__message_needaction_counter
@@ -1027,6 +1086,7 @@ msgstr "Организатор"
 #. module: document_flow
 #. odoo-javascript
 #: code:addons/document_flow/static/src/js/dashboard_view.js:0
+#: code:addons/document_flow/static/src/xml/dashboard_view.xml:0
 #: code:addons/document_flow/static/src/xml/dashboard_view.xml:0
 #: code:addons/document_flow/static/src/xml/dashboard_view.xml:0
 #, python-format
@@ -1307,7 +1367,7 @@ msgstr "Роль"
 
 #. module: document_flow
 #: model:ir.model,name:document_flow.model_document_flow_role_executor
-msgid "Role Executor"
+msgid "Role Executors"
 msgstr "Роль исполнителя"
 
 #. module: document_flow

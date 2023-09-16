@@ -6,18 +6,17 @@ class report_budget_excel(models.AbstractModel):
     _description = 'project_budget.report_budget_excel'
     _inherit = 'report.report_xlsx.abstract'
 
-    strYEAR = '2023'
-    YEARint = int(strYEAR)
+    YEARint = 2023
+    year_end = 2023
 
     probabitily_list_KB = ['30','50','75']
     probabitily_list_PB = ['100','100(done)']
     probabitily_list_Otmena = ['0']
     array_col_itogi = [12, 13,14,15,16,17,18,19,20,21,22,23,24,252,6,27,28]
     def printworksheet(self,workbook,budget,namesheet,stateproject):
-        global strYEAR
         global YEARint
+        global year_end
         print('YEARint=',YEARint)
-        print('strYEAR =', strYEAR)
         report_name = budget.name
 
         total_amount_of_revenue = ''
@@ -319,7 +318,8 @@ class report_budget_excel(models.AbstractModel):
                         if spec.project_have_steps == False: # or 20230707 Вавилова Ирина сказала не выводить рамку spec.is_framework == True: # рамку всегда выгружать
                             if spec.is_framework == True: continue # 20230718 Алина Козленко сказала не выгружать в принципе рамки
                             if (spec.estimated_probability_id.name in probabitily_list) and (
-                                        spec.end_presale_project_month.year >= YEARint or spec.end_sale_project_month.year >= YEARint):
+                                    (spec.end_presale_project_month.year >= YEARint and spec.end_presale_project_month.year <= year_end)
+                                        or (spec.end_sale_project_month.year >= YEARint and spec.end_sale_project_month.year <= year_end)):
                                 row += 1
                                 isFoundProjectsByManager = True
                                 isFoundProjectsByOffice = True
@@ -417,7 +417,8 @@ class report_budget_excel(models.AbstractModel):
                         if spec.project_have_steps == True:
                             for step in spec.project_steps_ids:
                                 if (step.estimated_probability_id.name in probabitily_list) and (
-                                        step.end_presale_project_month.year >= YEARint or step.end_sale_project_month.year >= YEARint):
+                                        (step.end_presale_project_month.year >= YEARint and step.end_presale_project_month.year <= year_end)
+                                        or (step.end_sale_project_month.year >= YEARint and step.end_sale_project_month.year <= year_end)):
                                     row += 1
                                     isFoundProjectsByManager = True
                                     isFoundProjectsByOffice = True
@@ -560,15 +561,15 @@ class report_budget_excel(models.AbstractModel):
         print('report KB')
         print('data = ',data)
 
-        global strYEAR
-        strYEAR = str(data['year'])
         global YEARint
-        YEARint = int(strYEAR)
+        YEARint = data['year']
+        global year_end
+        year_end = data['year_end']
+
         commercial_budget_id = data['commercial_budget_id']
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
 
         print('YEARint=',YEARint)
-        print('strYEAR =', strYEAR)
 
         self.printworksheet(workbook, budget, 'КБ', 'prepare')
         self.printworksheet(workbook, budget, 'ПБ', 'production')

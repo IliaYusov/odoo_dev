@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="seq_project_budget_presale" model="ir.sequence">
+            <field name="name">Presale Number</field>
+            <field name="code">project_budget.presale</field>
+            <field name="prefix">PRS-%(year)s%(month)s-</field>
+            <field name="padding">6</field>
+        </record>
+    </data>
+</odoo>

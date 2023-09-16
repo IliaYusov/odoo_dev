@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates id="template" xml:space="preserve">
+    <t t-name="document_flow.processing_bar" owl="1">
+        <div t-att-class="'o_processing_main position-relative overflow-hidden ' + 'o_processing_blue'">
+            <div class="o_processing_container">
+                <div class="o_processing_wrap py-1">
+                    <div class="o_processing_steps d-flex">
+                        <t t-foreach="sub_processes" t-as="process" t-key="process_index">
+                            <t t-call="document_flow.processing_step"/>
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="document_flow.processing_step" owl="1">
+        <div class="o_processing_step position-relative d-flex flex-column align-items-center justify-content-start text-center" t-att-data-step-state="process.state">
+
+            <div class="o_processing_step_side d-flex pt-0 flex-grow-1">
+                <div class="o_processing_progress position-absolute"/>
+                <span t-attf-class="o_processing_dot fa fa-check d-inline-block rounded-circle small {{process.state != 'not_done' and 'o_processing_dot_isChecked' or ''}}"/>
+            </div>
+
+            <div class="o_processing_step_content flex-grow-1 d-flex flex-column align-items-center justify-content-around">
+                <div class="o_processing_step_content_info mb-1">
+                    <p class="text-black-75 m-0" t-out="process.name"/>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

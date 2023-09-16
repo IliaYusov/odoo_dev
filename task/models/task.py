@@ -188,11 +188,19 @@ class Task(models.Model):
         base_url += '/web#id=%d&view_type=form&model=%s' % (self.id, self._name)
         return base_url
 
+    # TODO: Принять решение об архитектуре предметов согласования
     def _compute_parent_obj(self):
         for task in self:
-            task.parent_obj_ref = self.env['document_flow.process.parent_object'].search([
-                ('process_id', '=', task.parent_ref_id)
+            parent_ref = self.env['document_flow.process.parent_object'].search([
+                ('process_id', '=', task.parent_ref.id)
             ]).parent_ref
+            if not parent_ref:
+                parent_ref = self.env['document_flow.processing'].search([
+                    '|',
+                    ('process_id', '=', task.parent_ref.id),
+                    ('process_id', '=', task.parent_ref.parent_id.id),
+                ]).parent_ref
+            task.parent_obj_ref = parent_ref
 
     @api.depends('description')
     def _compute_description_kanban(self):
@@ -240,7 +248,7 @@ class Task(models.Model):
     @api.depends('child_ids')
     def _compute_subtask_count(self):
         for task in self:
-            task.subtask_count = self.search_count([('parent_id', '=', self.id)])
+            task.subtask_count = self.search_count([('parent_id', '=', task.id)])
 
     @api.depends('child_ids')
     def _compute_child_text(self):
@@ -248,9 +256,9 @@ class Task(models.Model):
             if not task.subtask_count:
                 task.child_text = False
             elif task.subtask_count == 1:
-                task.child_text = _("(+ 1 task)")
+                task.child_text = _('(+ 1 task)')
             else:
-                task.child_text = _("(+ %(child_count)s tasks)", child_count=task.subtask_count)
+                task.child_text = _('(+ %(child_count)s tasks)', child_count=task.subtask_count)
 
     @api.depends('stage_id', 'type_id')
     def _compute_stage_routes(self):

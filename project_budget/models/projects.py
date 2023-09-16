@@ -10,7 +10,7 @@ class projects(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'name_to_show'
     _check_company_auto = True
-    # _rec_names_search = ['project_id', 'essence_project']
+    _rec_names_search = ['project_id', 'essence_project']
 
     def action_canban_view_group(self):
         data = self.env['project_budget.projects'].search()
@@ -188,7 +188,7 @@ class projects(models.Model):
         string="planned acceptance flow", auto_join=True,copy=True)
     fact_cash_flow_sum = fields.Monetary(string='fact_cash_flow_sum', compute='_compute_fact_cash_flow_sum', store=False
                                          , tracking=True)
-    fact_cash_flow_ids = fields.One2many(
+    fact_cash_flow_ids  = fields.One2many(
         comodel_name='project_budget.fact_cash_flow',
         inverse_name='projects_id',
         string="fact cash flow", auto_join=True, copy=True)
@@ -441,7 +441,7 @@ class projects(models.Model):
 
             end_presale_project_month = project.end_presale_project_month
             end_sale_project_month = project.end_sale_project_month
-            print('vals_list = ',vals_list)
+            # print('vals_list = ',vals_list)
 
             estimated_probability_id_name = project.estimated_probability_id.name
 
@@ -460,7 +460,7 @@ class projects(models.Model):
                     raisetext = _("DENIED. Project {0} have overdue end presale project month {1}")
                     raisetext=raisetext.format(project.project_id,str(end_presale_project_month))
                     return False, raisetext, {'end_presale_project_month':str(end_presale_project_month)}
-            if estimated_probability_id_name not in ('0', '100(done)'):
+            if estimated_probability_id_name not in ('0', '100', '100(done)'): # Алина сказала, что даже если на исполнение то не проверять даты контрактования
                 if end_sale_project_month < fields.datetime.now().date() :
                     raisetext = _("DENIED. Project {0} have overdue end sale project month {1}")
                     raisetext = raisetext.format(project.project_id, str(end_sale_project_month))
@@ -514,13 +514,13 @@ class projects(models.Model):
                             raisetext = raisetext.format(project.project_id, step.step_id, str(end_presale_project_month))
                             return False, raisetext, {'step_id':step.step_id,'end_presale_project_month':str(end_presale_project_month)}
 
-                    if estimated_probability_id_name not in ('0', '100(done)'):
+                    if estimated_probability_id_name not in ('0', '100','100(done)'):
                         if end_sale_project_month < fields.datetime.now().date():
                             raisetext = _("DENIED. Project {0} step {1} have overdue end sale project month {2}")
                             raisetext = raisetext.format(project.project_id, step.step_id, str(end_sale_project_month))
                             return False, raisetext, {'step_id':step.step_id,'end_sale_project_month':str(end_sale_project_month)}
 
-            if project.estimated_probability_id.name not in ('0', '100(done)'):
+            if project.estimated_probability_id.name in ('0', '100(done)'):
                if project.project_have_steps == False:
                    return True, "", {}
 
@@ -529,22 +529,22 @@ class projects(models.Model):
                 if 'planned_acceptance_flow_ids' in vals_list:
                     vals_list_planaccepts = vals_list['planned_acceptance_flow_ids']
 
-            print('project.planned_acceptance_flow_ids = ', project.planned_acceptance_flow_ids)
-            print('dict_formula =', dict_formula)
+            # print('project.planned_acceptance_flow_ids = ', project.planned_acceptance_flow_ids)
+            # print('dict_formula =', dict_formula)
             for plan_accept in project.planned_acceptance_flow_ids:
                 date_cash = plan_accept.date_cash
                 step_id_str = str(plan_accept.project_steps_id.id)
-                print('step_id_str = ',step_id_str)
+                # print('step_id_str = ',step_id_str)
                 if step_id_str in dict_formula :
                     if dict_formula[step_id_str] in ('0', '100(done)'):
                         continue
 
                 if vals_list_planaccepts:
                     for vals_list_planaccept in vals_list_planaccepts:
-                        print('vals_list_planaccept =', vals_list_planaccept)
+                        # print('vals_list_planaccept =', vals_list_planaccept)
                         if plan_accept.id == vals_list_planaccept[1]:
                             vals_one_accept = vals_list_planaccept[2]
-                            print('vals_one_accept = ', vals_one_accept)
+                            # print('vals_one_accept = ', vals_one_accept)
                             if vals_one_accept == False: # по идее это удаление, потому просто добавим день к дате, чтобы условие ниже прошло
                                 date_cash = fields.datetime.now().date() + datetime.timedelta(days=1)
                             else:
@@ -576,10 +576,10 @@ class projects(models.Model):
 
                 if vals_list_plancashs:
                     for vals_list_plancash in vals_list_plancashs:
-                        print('vals_list_planaccept =', vals_list_plancash)
+                        # print('vals_list_planaccept =', vals_list_plancash)
                         if plan_cash.id == vals_list_plancash[1]:
                             vals_one_cash = vals_list_plancash[2]
-                            print('vals_one_cash = ', vals_one_cash)
+                            # print('vals_one_cash = ', vals_one_cash)
                             if vals_one_cash == False: # по идее это удаление, потому просто добавим день к дате, чтобы условие ниже прошло
                                 date_cash = fields.datetime.now().date() +  datetime.timedelta(days=1)
                             else:
@@ -600,11 +600,44 @@ class projects(models.Model):
         for rows in self:
             print()
 
+
+    @api.returns('self', lambda value: value.id)
+    def copy(self, default=None):
+        self.ensure_one()
+        print('default = ',default)
+        if self.date_actual: # сделка в зафиксированном бюджете
+            raisetext = _("This project is in fixed budget. Copy deny")
+            raise (ValidationError(raisetext))
+
+        if default is None:
+            default = {}
+        if self.env.context.get('form_fix_budget'):
+            f =  1
+        else:
+            default['project_id'] = 'ID'
+            default['essence_project'] = '__КОПИЯ__ ' +self.project_id+ '__'+self.essence_project
+            default['planned_acceptance_flow_ids'] = []
+            default['planned_cash_flow_ids'] = []
+            default['fact_cash_flow_ids'] = []
+            default['fact_acceptance_flow_ids'] = []
+            print('2 default = ', default)
+        return super(projects, self).copy(default=default)
+
+
     def write(self, vals_list):
-        isok, raisetext,emptydict = self.check_overdue_date(vals_list)
-        if isok == False:
-            raise ValidationError(raisetext)
-        res = res = super().write(vals_list)
+        print('self.env.context = ',self.env.context)
+        print('vals_list = ',vals_list)
+        if self.env.context.get('form_fix_budget'):
+            # or self.env.context.get('form_view_projects'): ##из коммерческих бюджетов фиксация идет или  дублируем сделку из формы
+            f = 1
+            print('form_fix_budget')
+
+        else:
+            isok, raisetext,emptydict = self.check_overdue_date(vals_list)
+            if isok == False:
+                raise ValidationError(raisetext)
+
+        res = super().write(vals_list)
         return res
 
     def set_approve_manager(self):
@@ -775,6 +808,57 @@ class projects(models.Model):
 
     def process_task_result(self, date_closed, result_type='ok', feedback=False):
         pass
+
+    def _monetary_format(self, amount):
+        return '{:,.0f}'.format(amount).replace(',', ' ')
+
+    @api.model
+    def get_projects(self, allowed_company_ids):
+        work_projects = self.env['project_budget.projects'].search([
+            ('budget_state', '=', 'work'),
+            ('company_id', 'in', allowed_company_ids)
+        ])
+
+        projects_canceled = work_projects.filtered(lambda pr: pr.estimated_probability_id.code == '0')
+        projects_potential = work_projects.filtered(lambda pr: pr.estimated_probability_id.code == '1')
+        projects_opportunity = work_projects.filtered(lambda pr: pr.estimated_probability_id.code == '2')
+        projects_reserve = work_projects.filtered(lambda pr: pr.estimated_probability_id.code == '3')
+        projects_commitment = work_projects.filtered(lambda pr: pr.estimated_probability_id.code == '4')
+        projects_execution = work_projects.filtered(lambda pr: pr.estimated_probability_id.code == '5')
+        projects_done = work_projects.filtered(lambda pr: pr.estimated_probability_id.code == '6')
+
+        values = {
+            'canceled_count': len(projects_canceled),
+            'canceled_revenue': self._monetary_format(round(sum([pr.total_amount_of_revenue for pr in projects_canceled]), 2)),
+            'canceled_cost': self._monetary_format(round(sum([pr.cost_price for pr in projects_canceled]), 2)),
+            'canceled_margin': self._monetary_format(round(sum([pr.margin_income for pr in projects_canceled]), 2)),
+            'potential_count': len(projects_potential),
+            'potential_revenue': self._monetary_format(round(sum([pr.total_amount_of_revenue for pr in projects_potential]), 2)),
+            'potential_cost': self._monetary_format(round(sum([pr.cost_price for pr in projects_potential]), 2)),
+            'potential_margin': self._monetary_format(round(sum([pr.margin_income for pr in projects_potential]), 2)),
+            'opportunity_count': len(projects_opportunity),
+            'opportunity_revenue': self._monetary_format(round(sum([pr.total_amount_of_revenue for pr in projects_opportunity]), 2)),
+            'opportunity_cost': self._monetary_format(round(sum([pr.cost_price for pr in projects_opportunity]), 2)),
+            'opportunity_margin': self._monetary_format(round(sum([pr.margin_income for pr in projects_opportunity]), 2)),
+            'reserve_count': len(projects_reserve),
+            'reserve_revenue': self._monetary_format(round(sum([pr.total_amount_of_revenue for pr in projects_reserve]), 2)),
+            'reserve_cost': self._monetary_format(round(sum([pr.cost_price for pr in projects_reserve]), 2)),
+            'reserve_margin': self._monetary_format(round(sum([pr.margin_income for pr in projects_reserve]), 2)),
+            'commitment_count': len(projects_commitment),
+            'commitment_revenue': self._monetary_format(round(sum([pr.total_amount_of_revenue for pr in projects_commitment]), 2)),
+            'commitment_cost': self._monetary_format(round(sum([pr.cost_price for pr in projects_commitment]), 2)),
+            'commitment_margin': self._monetary_format(round(sum([pr.margin_income for pr in projects_commitment]), 2)),
+            'execution_count': len(projects_execution),
+            'execution_revenue': self._monetary_format(round(sum([pr.total_amount_of_revenue for pr in projects_execution]), 2)),
+            'execution_cost': self._monetary_format(round(sum([pr.cost_price for pr in projects_execution]), 2)),
+            'execution_margin': self._monetary_format(round(sum([pr.margin_income for pr in projects_execution]), 2)),
+            'done_count': len(projects_done),
+            'done_revenue': self._monetary_format(round(sum([pr.total_amount_of_revenue for pr in projects_done]), 2)),
+            'done_cost': self._monetary_format(round(sum([pr.cost_price for pr in projects_done]), 2)),
+            'done_margin': self._monetary_format(round(sum([pr.margin_income for pr in projects_done]), 2))
+        }
+
+        return values
 
     @api.model_create_multi
     def create(self, vals_list):

@@ -7,9 +7,10 @@
             <search string="Search customer_organization">
                 <field name="name_of_the_purchase" filter_domain="[('name_of_the_purchase','ilike',self)]" string="name_of_the_purchase"/>
                 <field name="tender_id" filter_domain="[('tender_id','ilike',self)]" string="tender_id"/>
-                <field name="participant_id" filter_domain="[('participant_id','ilike',self)]" string="participant_id"/>
+                <field name="participant_id" filter_domain="[('participant_id','ilike',self)]" string="legal_entity_signing"/>
                 <field name="auction_number" filter_domain="[('auction_number','ilike',self)]" string="auction_number"/>
-                <field name="customer_organization_id" filter_domain="[('customer_organization_id','ilike',self)]" string="customer_organization_id"/>
+                <field name="customer_organization_id" filter_domain="[('customer_organization_id','ilike',self)]" string="organization"/>
+                <field name="organizer_id" filter_domain="[('organizer_id','ilike',self)]" string="organizer"/>
                 <field name="project_manager_id" filter_domain="[('project_manager_id','ilike',self)]" string="project_manager_id"/>
                 <field name="current_status" filter_domain="[('current_status','ilike',self)]" string="current_status"/>
                 <field name="presale_number" filter_domain="[('presale_number','ilike',self)]" string="presale_number"/>

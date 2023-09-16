@@ -1,5 +1,6 @@
 from odoo import _, models, fields, api
 from odoo.exceptions import ValidationError
+from odoo.tools.safe_eval import test_python_expr
 from datetime import datetime, date, timedelta
 
 ACTION_TYPES = [
@@ -121,20 +122,31 @@ class Process(models.Model):
     controller_ref_type = fields.Char(string="Controller Type", index=True)
 
     child_ids = fields.One2many('document_flow.process', 'parent_id', string='Processes')
-    task_ids = fields.One2many('task.task', 'parent_ref_id', string='Tasks',
-                               domain=lambda self: [('parent_ref_type', '=', 'document_flow.process'),
-                                                    ('parent_id', '=', False)])
+    task_ids = fields.One2many('task.task', string='Tasks', compute='_compute_task_ids')
 
     task_sequence = fields.Selection(TASK_FORM_SEQUENCE, required=True, default='all_at_once',
                                      string='Task Form Sequence')
     sequence = fields.Integer(string='Sequence', default=0)
     visible_sequence = fields.Integer(string='Sequence', compute='_compute_sequence')
+    compute_condition = fields.Text(string='Compute Condition',
+                                    help='Conditions that will be checked before process will be started.')
 
     parent_obj_ref = fields.Reference(string='Parent Object', selection='_selection_parent_model',
                                       compute='_compute_parent_obj', readonly=True)
-
     task_history_ids = fields.One2many('document_flow.task.history', string='Task History',
                                        compute='_compute_task_history_ids')
+
+    @api.constrains('compute_condition')
+    def _check_compute_condition(self):
+        for process in self.filtered('compute_condition'):
+            msg = test_python_expr(expr=process.compute_condition.strip(), mode='exec')
+            if msg:
+                raise ValidationError(msg)
+
+    @api.constrains('parent_id')
+    def _check_parent_id(self):
+        if not self._check_recursion():
+            raise ValidationError(_('Error! You cannot create a recursive hierarchy of process.'))
 
     @api.model
     def create(self, vals_list):
@@ -179,11 +191,18 @@ class Process(models.Model):
             else:
                 process.controller_ref = False
 
+    def _compute_task_ids(self):
+        for process in self:
+            process.task_ids = self.env['task.task'].search([
+                ('parent_ref_type', '=', process._name),
+                ('parent_ref_id', 'in', process.child_ids.ids if process.type == 'complex' else [process.id])
+            ]).ids or False
+
     def _compute_task_history_ids(self):
         for process in self:
             process.task_history_ids = self.env['document_flow.task.history'].search([
                 ('process_id', 'in', process.child_ids.ids if process.type == 'complex' else [process.id])
-            ]).ids
+            ]).ids or False
 
     @api.onchange('template_id')
     def _onchange_template(self):
@@ -350,7 +369,7 @@ class Process(models.Model):
                             ('sequence', '=', next_sequence)
                         ], order='id')]
                     self.write({'state': 'finished', 'date_end': date_closed})
-                    if self.parent_obj_ref:
+                    if self.parent_obj_ref and type(self.parent_obj_ref).__name__ == 'document_flow.event':
                         self.parent_obj_ref.write({'state': 'approved'})
         elif result_type == 'error':
             self.write({'state': 'break', 'date_end': date_closed})
@@ -496,6 +515,8 @@ class Action(models.Model):
                                      string='Task Form Sequence')
     sequence = fields.Integer(string='Sequence', default=0)
     visible_sequence = fields.Integer(string='Sequence', compute='_compute_sequence')
+    compute_condition = fields.Text(string='Compute Condition',
+                                    help='Conditions that will be checked before action will be started.')
 
     process_id = fields.Many2one('document_flow.process', string='Process', compute='_compute_process_id')
 
@@ -503,6 +524,14 @@ class Action(models.Model):
         res = super(Action, self).write(vals)
         recompute_sequence_executors(self)
         return res
+
+    @api.constrains('compute_condition')
+    def _check_compute_condition(self):
+        print('compute_condition')
+        for action in self.filtered('compute_condition'):
+            msg = test_python_expr(expr=action.compute_condition.strip(), mode='exec')
+            if msg:
+                raise ValidationError(msg)
 
     @api.depends('reviewer_ref_type', 'reviewer_ref_id')
     def _compute_executor_ref(self):

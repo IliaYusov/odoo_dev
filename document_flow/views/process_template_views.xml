@@ -136,6 +136,9 @@
                                 </tree>
                             </field>
                         </page>
+                        <page name="compute_condition" string="Compute Condition">
+                            <field name="compute_condition" widget="ace" options="{'mode': 'python'}"/>
+                        </page>
                     </notebook>
                 </sheet>
             </form>

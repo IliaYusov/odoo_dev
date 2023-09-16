@@ -44,7 +44,8 @@ class Processing(models.Model):
                     'parent_ref_id': self.id,
                     'name': action.name,
                     'type': action.type,
-                    'sequence': action.sequence
+                    'sequence': action.sequence,
+                    'compute_condition': action.compute_condition
                 })
                 for executor in action.executor_ids:
                     self.env['document_flow.action.executor'].create({
@@ -73,7 +74,8 @@ class Processing(models.Model):
                 'parent_id': process.id,
                 'task_sequence': action.task_sequence,
                 'sequence': action.sequence,
-                'reviewer_ref': action.reviewer_ref
+                'reviewer_ref': action.reviewer_ref,
+                'compute_condition': action.compute_condition
             })
             for executor in action.executor_ids:
                 self.env['document_flow.process.executor'].create({

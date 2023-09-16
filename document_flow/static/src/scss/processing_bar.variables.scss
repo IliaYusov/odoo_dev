@@ -1,0 +1,10 @@
+$o-processing-base-time: 0.5s !default;
+$o-processing-dot-size: 20px !default;
+$o-processing-progress-size: 2px !default;
+
+$o-processing-colors: (
+    'blue': (
+        'bg': (#FFFFFF, #FFFFFF),
+        'ui': (#4187AE, #60ABC3),
+    )
+) !default;

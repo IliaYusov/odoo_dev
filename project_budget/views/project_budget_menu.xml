@@ -2,7 +2,9 @@
     <data>
         <menuitem id="project_budget_menu" name="Project budget" sequence="0"/>
         <menuitem id="project_budget_budgets" parent ="project_budget_menu" name = "Budgets/Projects"/>
-        <menuitem id="project_budget_budgets_comercial_budget_kandan" parent ="project_budget_budgets" name = "project_budget_estimated_probability_action" action="project_budget_estimated_probability_action" sequence="1"/>
+<!--        <menuitem id="project_budget_budgets_comercial_budget_kandan" parent ="project_budget_budgets" name = "project_budget_estimated_probability_action" action="project_budget_estimated_probability_action" sequence="1"/>-->
+        <menuitem id="project_budget_menu_dashboard" parent="project_budget.project_budget_menu" name="work place" sequence="1"
+              action="action_project_budget_dashboard"/>
         <menuitem id="project_budget_budgets_comercial_budget_spec" parent ="project_budget_budgets" name = "Projects" action="show_comercial_budget_spec" sequence="2"/>
         <menuitem id="project_budget_budgets_comercial_budget_spec_all" parent ="project_budget_budgets" name = "Projects all budgets" action="show_comercial_budget_spec_all" sequence="3" groups="project_budget.project_budget_admin"/>
         <menuitem id="project_budget_budgets_comercial_budget" parent ="project_budget_budgets" name = "Comercial budgets" action="show_comercial_budgets" sequence="5" groups="project_budget.project_budget_admin"/>
@@ -28,9 +30,6 @@
         <menuitem id="project_budget_catalogs_tender_current_status" parent ="project_budget_catalogs" name = "tender status" action="show_project_tender_current_status"/>
         <menuitem id="project_budget_catalogs_tender_comments_type" parent ="project_budget_catalogs" name = "tender comment types" action="show_project_tender_comments_type"/>
 
-        <menuitem id="project_budget_dashboards" parent ="project_budget_menu" name = "Dashboards"/>
-        <menuitem id="project_budget_dashboards_dashboard_1" parent ="project_budget_dashboards" name = "Dashboard 1" action = "dashboard_1"/>
-
         <menuitem id="project_budget_access" parent ="project_budget_menu" name = "Access"/>
         <menuitem id="project_budget_catalogs_project_supervisor_access" parent ="project_budget_access" name = "project_supervisor_access" action="show_comercial_budget_spec_supervisor_access" groups="project_budget.project_budget_admin"/>
         <menuitem id="project_budget_catalogs_project_manager_access" parent ="project_budget_access" name = "project_manager_access" action="show_comercial_budget_spec_manager_access" groups="project_budget.project_budget_admin"/>
@@ -42,6 +41,9 @@
 
         <menuitem id="project_budget_projects_report" parent ="project_budget_reports" name = "Projects" groups="project_budget_users,project_budget_admin,project_budget_users_readonly"/>
         <menuitem id="project_budget_projects_print_report" parent ="project_budget_projects_report" name = "Print projects" action="action_projects_print_report" groups="project_budget_users,project_budget_admin,project_budget_users_readonly"/>
+
+<!--        <menuitem id="project_budget_menu_dashboard" parent="project_budget.project_budget_menu" name="Dashboard" sequence="1"-->
+<!--              action="action_project_budget_dashboard"/>-->
 
 
     </data>

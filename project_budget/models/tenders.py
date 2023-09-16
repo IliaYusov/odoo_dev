@@ -9,6 +9,7 @@ class tenders(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'name_to_show'
     _check_company_auto = True
+    _order = 'date_of_filling_in'
     # _rec_names_search = ['project_id', 'essence_project']
 
     tender_id = fields.Char(string="Tender ID", required=True, index=True, copy=True, group_operator = 'count',
@@ -32,8 +33,12 @@ class tenders(models.Model):
                                               copy=True, tracking=True)
     auction_number = fields.Char(string='auction_number', default = "",tracking=True, required = True)
     url_tender = fields.Html(string='url of tender', default = "",tracking=True, required = True)
+    url_contract = fields.Html(string='url of contract', default="", tracking=True)
     customer_organization_id = fields.Many2one('project_budget.customer_organization', string='customer_organization',
-                                               required=True, copy=True,tracking=True)
+                                                copy=True,tracking=True)
+    organizer_id = fields.Many2one('project_budget.customer_organization', string='organizer',
+                                                copy=True, tracking=True)
+
     contact_information = fields.Text(string='contact_information', default = "",tracking=True)
     name_of_the_purchase = fields.Text(string='name_of_the_purchase', default = "",tracking=True, required = True)
     is_need_initial_maximum_contract_price = fields.Boolean(string="is_need_initial_maximum_contract_price", copy=True, default = False)
@@ -46,7 +51,7 @@ class tenders(models.Model):
     project_manager_id = fields.Many2one(related='projects_id.project_manager_id', readonly=True)
     current_status = fields.Many2one('project_budget.tender_current_status', required=True, tracking=True)
 
-    responsible_ids = fields.Many2many('hr.employee', relation='tender_employee_rel', column1='tender_id', column2='employee_id', string='responsibles', required = True)
+    responsible_ids = fields.Many2many('hr.employee', relation='tender_employee_rel', column1='tender_id', column2='employee_id', string='responsibles')
 
     is_need_payment_for_the_victory = fields.Boolean(string="is_need_payment_for_the_victory", copy=True, default = False)
     is_need_site_payment  = fields.Boolean(string="is_need_site_payment", copy=True, default = False,tracking=True)

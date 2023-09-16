@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="ProjectBudgetDashboard">
+        <div class="pb_dashboards">
+            <div class="container-fluid o_pb_dashboard"/>
+        </div>
+    </t>
+
+    <t t-name="ProjectDashboard">
+        <link rel="stylesheet" href="/project_budget/static/src/css/dashboard.css"/>
+        <div class="row row-cols-1 row-cols-md-5 g-4 mt-1">
+            <div class="col potential">
+                <div class="card text-dark">
+                    <div class="card-header">
+                        <h2 class="card-title">Potential, 10%</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-0">
+                            <div class="col-md-4 d-flex justify-content-center align-items-center">
+                                <button type="button" class="btn btn-primary">Projects: <small id="potential_count"/></button>
+                            </div>
+                            <div class="col-md-8 text-end">
+                                <p class="card-text">Revenue: <small id="potential_revenue"/></p>
+                                <p class="card-text">Cost: <small id="potential_cost"/></p>
+                                <p class="card-text">Margin: <small id="potential_margin"/></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col opportunity">
+                <div class="card text-dark">
+                    <div class="card-header">
+                        <h2 class="card-title">Opportunity, 30%</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-0">
+                            <div class="col-md-4 d-flex justify-content-center align-items-center">
+                                <button type="button" class="btn btn-primary">Projects: <small id="opportunity_count"/></button>
+                            </div>
+                            <div class="col-md-8 text-end">
+                                <p class="card-text">Revenue: <small id="opportunity_revenue"/></p>
+                                <p class="card-text">Cost: <small id="opportunity_cost"/></p>
+                                <p class="card-text">Margin: <small id="opportunity_margin"/></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col reserve">
+                <div class="card text-dark">
+                    <div class="card-header">
+                        <h2 class="card-title">Reserve, 50%</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-0">
+                            <div class="col-md-4 d-flex justify-content-center align-items-center">
+                                <button type="button" class="btn btn-primary">Projects: <small id="reserve_count"/></button>
+                            </div>
+                            <div class="col-md-8 text-end">
+                                <p class="card-text">Revenue: <small id="reserve_revenue"/></p>
+                                <p class="card-text">Cost: <small id="reserve_cost"/></p>
+                                <p class="card-text">Margin: <small id="reserve_margin"/></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col commitment">
+                <div class="card text-dark">
+                    <div class="card-header">
+                        <h2 class="card-title">Commitment, 75%</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-0">
+                            <div class="col-4 d-flex justify-content-center align-items-center">
+                                <button type="button" class="btn btn-primary">Projects: <small id="commitment_count"/></button>
+                            </div>
+                            <div class="col-8 text-end">
+                                <p class="card-text">Revenue: <small id="commitment_revenue"/></p>
+                                <p class="card-text">Cost: <small id="commitment_cost"/></p>
+                                <p class="card-text">Margin: <small id="commitment_margin"/></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col execution">
+                <div class="card text-dark">
+                    <div class="card-header">
+                        <h2 class="card-title">Execution, 100%</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-0">
+                            <div class="col-md-4 d-flex justify-content-center align-items-center">
+                                <button type="button" class="btn btn-primary">Projects: <small id="execution_count"/></button>
+                            </div>
+                            <div class="col-md-8 text-end">
+                                <p class="card-text">Revenue: <small id="execution_revenue"/></p>
+                                <p class="card-text">Cost: <small id="execution_cost"/></p>
+                                <p class="card-text">Margin: <small id="execution_margin"/></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row row-cols-1 row-cols-md-5 g-4 mt-1">
+            <div class="col canceled">
+                <div class="card text-dark">
+                    <div class="card-header" style="background-color: #dc3545; opacity: 50;">
+                        <h2 class="card-title text-white">Canceled</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-0">
+                            <div class="col-md-4 d-flex justify-content-center align-items-center">
+                                <button type="button" class="btn btn-primary">Projects: <small id="canceled_count"/></button>
+                            </div>
+                            <div class="col-md-8 text-end">
+                                <p class="card-text">Revenue: <small id="canceled_revenue"/></p>
+                                <p class="card-text">Cost: <small id="canceled_cost"/></p>
+                                <p class="card-text">Margin: <small id="canceled_margin"/></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col done">
+                <div class="card text-dark">
+                    <div class="card-header" style="background-color: #198754;">
+                        <h2 class="card-title text-white">Done</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-0">
+                            <div class="col-md-4 d-flex justify-content-center align-items-center">
+                                <button type="button" class="btn btn-primary">Projects: <small id="done_count"/></button>
+                            </div>
+                            <div class="col-md-8 text-end">
+                                <p class="card-text">Revenue: <small id="done_revenue"/></p>
+                                <p class="card-text">Cost: <small id="done_cost"/></p>
+                                <p class="card-text">Margin: <small id="done_margin"/></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

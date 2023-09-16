@@ -14,6 +14,8 @@ odoo.define("document_flow_dashboard.dashboard_view", function (require) {
             "click .my_overdue_tasks": "my_tasks_overdue",
             "click .by_me_to_do_tasks": "by_me_tasks_to_do",
             "click .by_me_overdue_tasks": "by_me_tasks_overdue",
+            "click .group_to_do_tasks": "group_tasks_to_do",
+            "click .group_overdue_tasks": "group_tasks_overdue"
         },
         init: function (parent, context) {
             this._super(parent, context);
@@ -39,6 +41,15 @@ odoo.define("document_flow_dashboard.dashboard_view", function (require) {
 
         },
 
+        _getRoles: function () {
+            var self = this;
+            return rpc.query({
+                model: "document_flow.role_executor",
+                method: "search",
+                args: [['member_ids', 'in', require('web.session').user_id], ['id']]
+            });
+        },
+
         render_dashboards: function () {
             var self = this;
             var templates = ['DashBoardDocumentFlow'];
@@ -52,10 +63,15 @@ odoo.define("document_flow_dashboard.dashboard_view", function (require) {
                 args: [],
             })
                 .then(function (result) {
+                    $("#my_tasks_count").append("<span class='stat-digit'>" + result.my_tasks_count + "</span>");
                     $("#my_to_do_count").append("<span class='stat-digit'>" + result.my_to_do_count + "</span>");
                     $("#my_overdue_count").append("<span class='stat-digit'>" + result.my_overdue_count + "</span>");
+                    $("#by_me_tasks_count").append("<span class='stat-digit'>" + result.by_me_tasks_count + "</span>");
                     $("#by_me_to_do_count").append("<span class='stat-digit'>" + result.by_me_to_do_count + "</span>");
                     $("#by_me_overdue_count").append("<span class='stat-digit'>" + result.by_me_overdue_count + "</span>");
+                    $("#group_tasks_count").append("<span class='stat-digit'>" + result.group_tasks_count + "</span>");
+                    $("#group_to_do_count").append("<span class='stat-digit'>" + result.group_to_do_count + "</span>");
+                    $("#group_overdue_count").append("<span class='stat-digit'>" + result.group_overdue_count + "</span>");
 
                     ajax.jsonRpc("/document_flow/tasks", "call", {}).then(function (values) {
                         $('.pending_tasks').append(values);
@@ -69,7 +85,7 @@ odoo.define("document_flow_dashboard.dashboard_view", function (require) {
             ev.stopPropagation();
             ev.preventDefault();
             this.do_action({
-                name: _t("Assigned To Me"),
+                name: _t('Assigned To Me'),
                 type: 'ir.actions.act_window',
                 res_model: 'task.task',
                 view_mode: 'kanban,tree,form',
@@ -80,7 +96,7 @@ odoo.define("document_flow_dashboard.dashboard_view", function (require) {
                     ['user_id', 'in', require('web.session').user_id],
                     ['date_deadline', '>=', new Date()]
                 ],
-                context: {'default_parent_ref_type': 'document_flow.%'},
+                context: {'default_parent_ref_type': 'document_flow.'},
                 target: 'current'
             });
         },
@@ -90,7 +106,7 @@ odoo.define("document_flow_dashboard.dashboard_view", function (require) {
             ev.stopPropagation();
             ev.preventDefault();
             this.do_action({
-                name: _t("Overdue"),
+                name: _t('Overdue'),
                 type: 'ir.actions.act_window',
                 res_model: 'task.task',
                 view_mode: 'kanban,tree,form',
@@ -101,7 +117,7 @@ odoo.define("document_flow_dashboard.dashboard_view", function (require) {
                     ['user_id', 'in', require('web.session').user_id],
                     ['date_deadline', '<', new Date()]
                 ],
-                context: {'default_parent_ref_type': 'document_flow.%'},
+                context: {'default_parent_ref_type': 'document_flow.'},
                 target: 'current'
             });
         },
@@ -111,7 +127,7 @@ odoo.define("document_flow_dashboard.dashboard_view", function (require) {
             ev.stopPropagation();
             ev.preventDefault();
             this.do_action({
-                name: _t("Created By Me"),
+                name: _t('Created By Me'),
                 type: 'ir.actions.act_window',
                 res_model: 'task.task',
                 view_mode: 'kanban,tree,form',
@@ -122,7 +138,7 @@ odoo.define("document_flow_dashboard.dashboard_view", function (require) {
                     ['author_id', 'in', require('web.session').user_id],
                     ['date_deadline', '>=', new Date()]
                 ],
-                context: {'default_parent_ref_type': 'document_flow.%'},
+                context: {'default_parent_ref_type': 'document_flow.'},
                 target: 'current'
             });
         },
@@ -132,7 +148,7 @@ odoo.define("document_flow_dashboard.dashboard_view", function (require) {
             ev.stopPropagation();
             ev.preventDefault();
             this.do_action({
-                name: _t("Created By Me Overdue"),
+                name: _t('Created By Me Overdue'),
                 type: 'ir.actions.act_window',
                 res_model: 'task.task',
                 view_mode: 'kanban,tree,form',
@@ -143,9 +159,66 @@ odoo.define("document_flow_dashboard.dashboard_view", function (require) {
                     ['author_id', 'in', require('web.session').user_id],
                     ['date_deadline', '<', new Date()]
                 ],
-                context: {'default_parent_ref_type': 'document_flow.%'},
+                context: {'default_parent_ref_type': 'document_flow.'},
                 target: 'current'
             });
+        },
+
+        group_tasks_to_do: function (ev) {
+            var self = this;
+            ev.stopPropagation();
+            ev.preventDefault();
+
+            rpc.query({
+                model: 'document_flow.role_executor',
+                method: 'search',
+                args: [[['member_ids', 'in', require('web.session').user_id]], []]
+            }).then(roles => {
+                this.do_action({
+                    name: _t('Assigned To Group'),
+                    type: 'ir.actions.act_window',
+                    res_model: 'task.task',
+                    view_mode: 'kanban,tree,form',
+                    views: [[false, 'kanban'], [false, 'list'], [false, 'form']],
+                    domain: [
+                        ['parent_ref_type', 'like', 'document_flow.%'],
+                        ['is_closed', '=', false],
+                        ['date_deadline', '>=', new Date()],
+                        ['user_id', '=', false],
+                        ['role_executor_id', 'in', roles]
+                    ],
+                    context: {'default_parent_ref_type': 'document_flow.'},
+                    target: 'current'
+                });
+            })
+        },
+
+        group_tasks_overdue: function (ev) {
+            var self = this;
+            ev.stopPropagation();
+            ev.preventDefault();
+            rpc.query({
+                model: 'document_flow.role_executor',
+                method: 'search',
+                args: [[['member_ids', 'in', require('web.session').user_id]], []]
+            }).then(roles => {
+                this.do_action({
+                    name: _t('Group Overdue'),
+                    type: 'ir.actions.act_window',
+                    res_model: 'task.task',
+                    view_mode: 'kanban,tree,form',
+                    views: [[false, 'kanban'], [false, 'list'], [false, 'form']],
+                    domain: [
+                        ['parent_ref_type', 'like', 'document_flow.%'],
+                        ['is_closed', '=', false],
+                        ['date_deadline', '<', new Date()],
+                        ['user_id', '=', false],
+                        ['role_executor_id', 'in', roles]
+                    ],
+                    context: {'default_parent_ref_type': 'document_flow.'},
+                    target: 'current'
+                });
+            })
         }
     });
 

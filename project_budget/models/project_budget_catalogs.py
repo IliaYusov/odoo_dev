@@ -135,7 +135,7 @@ class customer_organization(models.Model):
     _name = 'project_budget.customer_organization'
     _description = "project_customer organization"
     _rec_names_search = ['name', 'inn']
-    _rec_name = 'name_to_show'
+    # _rec_name = 'name_to_show'
     name = fields.Char(string="customer_organization name", required=True, translate=True)
     longname = fields.Char(string="customer_organization long name", translate=True)
     code = fields.Char(string="customer_organization code", )
@@ -143,14 +143,14 @@ class customer_organization(models.Model):
     avatar_128 = fields.Image(related='partner_id.avatar_128', readonly=True)
     partner_id = fields.Many2one('res.partner', string='Partner', copy=True, domain="[('is_company','=',True)]")
     descr = fields.Char(string="customer_organization description", translate=True)
-    name_to_show = fields.Char(string='name_to_show', compute='_get_name_to_show')
+    # name_to_show = fields.Char(string='name_to_show', compute='_get_name_to_show')
 
-    @api.depends('name','inn')
-    def _get_name_to_show(self):
-        for org in self:
-            org.name_to_show = org.name
-            if org.inn:
-                org.name_to_show = org.name + '|'+ str(org.inn)
+    # @api.depends('name','inn')
+    # def _get_name_to_show(self):
+    #     for org in self:
+    #         org.name_to_show = org.name
+    #         if org.inn:
+    #             org.name_to_show = org.name + '|'+ str(org.inn)
 
 class customer_status(models.Model):
     _name = 'project_budget.customer_status'

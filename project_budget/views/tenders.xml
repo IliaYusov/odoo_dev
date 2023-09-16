@@ -192,6 +192,7 @@
                     <field name="auction_number" optional="show"/>
                     <field name="url_tender" widget="html" optional="show" class="text-wrap"/>
                     <field name="customer_organization_id" optional="show" class="text-wrap"/>
+                    <field name="organizer_id" optional="show" class="text-wrap"/>
                     <field name="contact_information" optional="hide"/>
                     <field name="name_of_the_purchase" optional="show"/>
                     <field name="responsible_ids" widget="many2many_avatar_user" optional="show"/>
@@ -271,13 +272,19 @@
                         <group>
                             <group>
                                 <field name="customer_organization_id" options="{'no_open': True,}"/>
+                                <field name="organizer_id" options="{'no_open': True,}"/>
                             </group>
                             <group>
                                 <field name="contact_information"/>
                             </group>
                         </group>
                         <group>
-                            <field name="url_tender" widget="html"/>
+                            <group>
+                                <field name="url_tender" widget="html"/>
+                            </group>
+                            <group>
+                                <field name="url_contract" widget="html"/>
+                            </group>
                         </group>
                         <group>
                             <group>

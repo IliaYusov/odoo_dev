@@ -1,6 +1,6 @@
 {
     'name': 'Document Flow',
-    'version': '16.0.1.0.4',
+    'version': '16.0.1.0.5',
     'category': '',
     'depends': ['base', 'mail', 'task', 'hr_replacement'],
     'external_dependencies': {'python': ['htmldocx']},
@@ -19,7 +19,10 @@
             'document_flow/static/src/js/lib/Chart.bundle.js',
             'document_flow/static/src/xml/dashboard_view.xml',
             'document_flow/static/src/js/dashboard_view.js',
-            'document_flow/static/src/js/components/processing_chart_widget/*'
+            'document_flow/static/src/js/components/processing_chart_widget/*',
+            'document_flow/static/src/js/components/processing_bar_widget/*',
+            'document_flow/static/src/scss/processing_bar.variables.scss',
+            'document_flow/static/src/scss/processing_bar.scss'
         ]
     },
     'data': [
@@ -38,6 +41,7 @@
         'views/document_views.xml',
         'views/processing_views.xml',
         'views/task_history_views.xml',
+        'views/task_views.xml',
         'views/dashboard_view.xml',
         'views/dashboard_templates.xml',
         'report/report.xml',

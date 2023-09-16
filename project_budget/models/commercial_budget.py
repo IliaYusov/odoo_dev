@@ -71,9 +71,13 @@ class commercial_budget(models.Model):
             activity_model = self.env['mail.activity']
             for spec in self.sudo().projects_ids:
                 print('spec project_id = ', spec.project_id)
+                print('spec.with_context was_changes')
+
                 spec.was_changes = False
                 if spec.estimated_probability_id.name in ('0', '100(done)'):
-                    spec.approve_state = '-'
+                    print('spec.with_context spec.approve_state')
+                    spec.approve_state = "-"
+
                     # Use the search method to find the activities that need to be marked as done
                     activities = activity_model.sudo().search([('res_id', '=', spec.id),
                                                         ('activity_type_id', 'in', (activity_type_for_approval,activity_type_approve_supervisor))
@@ -93,7 +97,9 @@ class commercial_budget(models.Model):
                     for activitie in activities:
                         activitie.sudo().action_done()
 
+                    print('spec.with_context spec.approve_state')
                     spec.approve_state = 'need_approve_manager'
+
                     self.env['mail.activity'].sudo().create({
                         'display_name': _('Need send to supervisor for approval'),
                         'summary': _('You need send to supervisor for approval'),

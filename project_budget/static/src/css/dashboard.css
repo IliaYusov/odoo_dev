@@ -1,0 +1,22 @@
+.o_action_manager {
+    overflow: auto !important;
+}
+
+.card {
+    padding: 0px;
+    margin-bottom: 1.5rem;
+    border-radius: 0px;
+    box-shadow: none;
+    background: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    will-change: transform, box-shadow;
+    text-align: center;
+}
+
+.card:hover {
+    transform: translateY(-2px) translateZ(0) !important;
+}
+
+.card-header {
+    padding: 0.5px;
+}

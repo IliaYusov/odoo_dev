@@ -9,7 +9,7 @@
                     <button string="Start processing" type="object" name="action_start_processing" class="oe_highlight"
                             attrs="{'invisible': [('process_id', '!=', False)]}"/>
                     <button string="Resume processing" type="object" name="resume_processing_from_last_stage" class="oe_highlight"
-                            attrs="{'invisible': [('process_id', '!=', False), ('state', '!=', 'break')]}"/>
+                            attrs="{'invisible': ['|', ('process_id', '=', False), ('state', '!=', 'break')]}"/>
                 </header>
                 <sheet string="Processing">
                     <group attrs="{'invisible': 1}">

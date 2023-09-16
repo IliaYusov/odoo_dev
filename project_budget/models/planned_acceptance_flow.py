@@ -80,3 +80,13 @@ class planned_acceptance_flow(models.Model):
             if not vals.get('acceptance_id') or vals['acceptance_id'] == '-':
                 vals['acceptance_id'] = self.env['ir.sequence'].sudo().next_by_code('project_budget.planned_acceptance_flow')
         return super().create(vals_list)
+
+    # @api.returns('self', lambda value: value.id)
+    # def copy(self, default=None):
+    #     self.ensure_one()
+    #     print('planned_acceptance_flow self.env.context = ', self.env.context)
+    #
+    #     if self.env.context.get('form_fix_budget'):
+    #         return super(planned_acceptance_flow, self).copy()
+    #     else:
+    #         return False

@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-06 05:47+0000\n"
-"PO-Revision-Date: 2023-09-06 05:47+0000\n"
+"POT-Creation-Date: 2023-09-15 10:54+0000\n"
+"PO-Revision-Date: 2023-09-15 10:54+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -323,7 +323,11 @@ msgid "Cancel"
 msgstr "Отмена"
 
 #. module: project_budget
+#. odoo-javascript
+#: code:addons/project_budget/static/src/js/dashboard_view.js:0
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_projects__specification_state__cancel
+#, python-format
 msgid "Canceled"
 msgstr "Отменен"
 
@@ -359,7 +363,17 @@ msgid "Commercial budget"
 msgstr "Коммерческие бюджеты"
 
 #. module: project_budget
+#. odoo-javascript
+#: code:addons/project_budget/static/src/js/dashboard_view.js:0
+#, python-format
+msgid "Commitment"
+msgstr "Обязательство"
+
+#. module: project_budget
+#. odoo-javascript
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_estimated_probability_kanban
+#, python-format
 msgid "Commitment, 75%"
 msgstr "Обязательство, 75%"
 
@@ -385,6 +399,24 @@ msgstr "Заключение новых контрактов, с НДС"
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_kanban
 msgid "Contract:"
 msgstr "Контрактование:"
+
+#. module: project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_project_steps_tree
+msgid "Copy step"
+msgstr "Дублировать"
+
+#. module: project_budget
+#. odoo-javascript
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
+#, python-format
+msgid "Cost:"
+msgstr "Себестоимость"
 
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_project_steps_form
@@ -641,19 +673,9 @@ msgid "Dashboard"
 msgstr "Дашборды"
 
 #. module: project_budget
-#: model:ir.ui.menu,name:project_budget.project_budget_dashboards_dashboard_1
-msgid "Dashboard 1"
-msgstr ""
-
-#. module: project_budget
 #: model:ir.actions.client,name:project_budget.dashboard_1
 msgid "Dashboard1"
 msgstr ""
-
-#. module: project_budget
-#: model:ir.ui.menu,name:project_budget.project_budget_dashboards
-msgid "Dashboards"
-msgstr "Дашборды"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__end_presale_project_month
@@ -726,7 +748,11 @@ msgid "Dogovor number"
 msgstr "Номер договора"
 
 #. module: project_budget
+#. odoo-javascript
+#: code:addons/project_budget/static/src/js/dashboard_view.js:0
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_projects__specification_state__done
+#, python-format
 msgid "Done"
 msgstr "Исполнен"
 
@@ -761,7 +787,17 @@ msgid "Etalon project count"
 msgstr "Количество эталонных проектов"
 
 #. module: project_budget
+#. odoo-javascript
+#: code:addons/project_budget/static/src/js/dashboard_view.js:0
+#, python-format
+msgid "Execution"
+msgstr "Исполнение"
+
+#. module: project_budget
+#. odoo-javascript
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_estimated_probability_kanban
+#, python-format
 msgid "Execution, 100%"
 msgstr "Исполнение, 100%"
 
@@ -1207,6 +1243,19 @@ msgid "Margin3 income"
 msgstr "Маржа 3"
 
 #. module: project_budget
+#. odoo-javascript
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
+#, python-format
+msgid "Margin:"
+msgstr "Маржа"
+
+#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_kam__message_has_error
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_supervisor__message_has_error
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_commercial_budget__message_has_error
@@ -1414,7 +1463,17 @@ msgid "Only working budget can be duplicated"
 msgstr "Только бюджет в работе может быть скопирован"
 
 #. module: project_budget
+#. odoo-javascript
+#: code:addons/project_budget/static/src/js/dashboard_view.js:0
+#, python-format
+msgid "Opportunity"
+msgstr "Возможность"
+
+#. module: project_budget
+#. odoo-javascript
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_estimated_probability_kanban
+#, python-format
 msgid "Opportunity, 30%"
 msgstr "Возможность, 30%"
 
@@ -1439,7 +1498,17 @@ msgid "Plan Supervisor"
 msgstr "Вышестоящий план ПО"
 
 #. module: project_budget
+#. odoo-javascript
+#: code:addons/project_budget/static/src/js/dashboard_view.js:0
+#, python-format
+msgid "Potential"
+msgstr "Потенциал"
+
+#. module: project_budget
+#. odoo-javascript
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_estimated_probability_kanban
+#, python-format
 msgid "Potential, 10%"
 msgstr "Потенциал, 10%"
 
@@ -1491,6 +1560,11 @@ msgstr "Проект"
 #: model:res.groups,name:project_budget.project_budget_admin
 msgid "Project Admin"
 msgstr "Администратор бюджетов проектов"
+
+#. module: project_budget
+#: model:ir.actions.client,name:project_budget.action_project_budget_dashboard
+msgid "Project Budget"
+msgstr "Сделки"
 
 #. module: project_budget
 #: model:ir.ui.menu,name:project_budget.project_budget_menu
@@ -1563,7 +1637,7 @@ msgstr "Свод"
 #. module: project_budget
 #: model:ir.ui.menu,name:project_budget.project_budget_budgets_comercial_budget_spec_all
 msgid "Projects all budgets"
-msgstr "Проекты по всем бюджетам"
+msgstr "Сделки по всем бюджетам"
 
 #. module: project_budget
 #: model:ir.actions.act_window,name:project_budget.action_projects_print_report
@@ -1576,7 +1650,16 @@ msgid "Projects report Wizard"
 msgstr "Отчеты по сделкам"
 
 #. module: project_budget
+#. odoo-javascript
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_estimated_probability_kanban
+#, python-format
 msgid "Projects:"
 msgstr "Проекты:"
 
@@ -1625,7 +1708,17 @@ msgid "Reports"
 msgstr "Отчеты"
 
 #. module: project_budget
+#. odoo-javascript
+#: code:addons/project_budget/static/src/js/dashboard_view.js:0
+#, python-format
+msgid "Reserve"
+msgstr "Резерв"
+
+#. module: project_budget
+#. odoo-javascript
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_estimated_probability_kanban
+#, python-format
 msgid "Reserve, 50%"
 msgstr "Резерв, 50%"
 
@@ -1657,7 +1750,16 @@ msgid "Revenue"
 msgstr "Выручка"
 
 #. module: project_budget
+#. odoo-javascript
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
+#: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_kanban
+#, python-format
 msgid "Revenue:"
 msgstr "Выручка:"
 
@@ -1857,6 +1959,13 @@ msgstr "Последняя отгрузка"
 #, python-format
 msgid "The year must be between 2022-2030"
 msgstr "Год должен быть между 2022 и 2030"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/projects.py:0
+#, python-format
+msgid "This project is in fixed budget. Copy deny"
+msgstr "Копирование запрещено: этот проект в зафиксированном бюджете"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects_report_wizard__type_report
@@ -2495,6 +2604,11 @@ msgid "ebit_year_plan"
 msgstr "План. EBIT год"
 
 #. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects_report_wizard__year_end
+msgid "end Year of the report"
+msgstr "год конца периода отчета"
+
+#. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_legal_entity_signing_form
 msgid "enter FOT percent. e.g. 25"
 msgstr "Введите процент ФОТ, например 25"
@@ -2600,6 +2714,7 @@ msgstr "ПДС"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_distribution_acceptance__sum_cash
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_distribution_cash__sum_cash
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_acceptance_flow__sum_cash
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_cash_flow__sum_cash
 msgid "fact sum_cash"
 msgstr "Факт c НДС"
 
@@ -2607,6 +2722,7 @@ msgstr "Факт c НДС"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_distribution_acceptance__sum_cash_without_vat
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_distribution_cash__sum_cash_without_vat
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_acceptance_flow__sum_cash_without_vat
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_cash_flow__sum_cash_without_vat
 msgid "fact sum_cash_without_vat"
 msgstr "Факт без НДС"
 
@@ -2863,10 +2979,16 @@ msgid "is_travel_expenses"
 msgstr "Командировочные расходы"
 
 #. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects_report_wizard__koeff_reserve
+msgid "koefficient for reserve"
+msgstr "коэффициент"
+
+#. module: project_budget
 #: model:ir.actions.act_window,name:project_budget.show_legal_entity_signing
 #: model:ir.ui.menu,name:project_budget.project_budget_catalogs_legal_entity_signing
 #: model_terms:ir.ui.view,arch_db:project_budget.show_legal_entity_signing_form
 #: model_terms:ir.ui.view,arch_db:project_budget.show_legal_entity_signing_tree
+#: model_terms:ir.ui.view,arch_db:project_budget.view_tender_search
 msgid "legal_entity_signing"
 msgstr "Юрлицо, подписывающее договор"
 
@@ -3002,7 +3124,6 @@ msgstr "Наименование закупки"
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_supervisor__name_to_show
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_commercial_budget__name_to_show
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_customer_organization__name_to_show
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__name_to_show
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__name_to_show
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__name_to_show
@@ -3106,6 +3227,17 @@ msgstr ""
 "Вернуть в работу проект можно только если он не зафиксирован в бюджете"
 
 #. module: project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.view_tender_search
+msgid "organization"
+msgstr "Заказчик"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__organizer_id
+#: model_terms:ir.ui.view,arch_db:project_budget.view_tender_search
+msgid "organizer"
+msgstr "Организатор"
+
+#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__other_expenses
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__other_expenses
 msgid "other_expenses"
@@ -3118,11 +3250,6 @@ msgid "own_works_fot"
 msgstr "Работы собственные (ФОТ)"
 
 #. module: project_budget
-#: model_terms:ir.ui.view,arch_db:project_budget.view_tender_search
-msgid "participant_id"
-msgstr "Заказчик"
-
-#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__participants_offer
 #: model_terms:ir.ui.view,arch_db:project_budget.show_projects_tenders_sums_form
 msgid "participants_offer"
@@ -3131,7 +3258,7 @@ msgstr "Предложение участника"
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__participants_offer_descr
 msgid "participants_offer description"
-msgstr "Примечание"
+msgstr "Предложение участника. Примечание"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__participants_offer_vat_attribute_id
@@ -3163,16 +3290,6 @@ msgstr "Плата за победу. Примечание"
 #: model_terms:ir.ui.view,arch_db:project_budget.show_budget_plan_kam_tree
 msgid "plan kam"
 msgstr "План бюджетных показателей КАМ"
-
-#. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_cash_flow__sum_cash
-msgid "plan sum_cash"
-msgstr "План c НДС"
-
-#. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_cash_flow__sum_cash_without_vat
-msgid "plan sum_cash_without_vat"
-msgstr "План без НДС"
 
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_budget_plan_supervisor_tree
@@ -3348,11 +3465,6 @@ msgstr "отчет_тендеры_excel"
 #: model:ir.actions.act_window,name:project_budget.show_projects_tenders
 msgid "project_budget.tenders"
 msgstr "Тендеры"
-
-#. module: project_budget
-#: model:ir.ui.menu,name:project_budget.project_budget_budgets_comercial_budget_kandan
-msgid "project_budget_estimated_probability_action"
-msgstr "Обзор текущих сделок"
 
 #. module: project_budget
 #: model:ir.model,name:project_budget.model_project_budget_commercial_budget
@@ -3593,6 +3705,11 @@ msgstr "валюта"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__provision_of_GO_descr
 msgid "provision_of_GO description"
 msgstr "Обеспечение ГО. Примечание"
+
+#. module: project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_projects_report_print_form
+msgid "report period"
+msgstr "Период отчета"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__representation_expenses
@@ -4037,9 +4154,19 @@ msgid "type step name e.g. products recieve"
 msgstr "введине наименование этапа, например поставка"
 
 #. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__url_contract
+msgid "url of contract"
+msgstr "Ссылка на контракт"
+
+#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__url_tender
 msgid "url of tender"
-msgstr "Ссылка"
+msgstr "Ссылка на закупку"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects_report_wizard__use_koeff_reserve
+msgid "use koefficient for reserve"
+msgstr "Использовать коэффициент для резерва"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_kam__kam_user_id
@@ -4129,10 +4256,25 @@ msgid "was_changes"
 msgstr "Есть изменения"
 
 #. module: project_budget
+#: model:ir.ui.menu,name:project_budget.project_budget_menu_dashboard
+msgid "work place"
+msgstr "Рабочее место"
+
+#. module: project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_projects_report_print_form
+msgid "year from"
+msgstr "год с"
+
+#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_kam__year
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_supervisor__year
 msgid "year plan"
 msgstr "Год"
+
+#. module: project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_projects_report_print_form
+msgid "year to"
+msgstr "год по"
 
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.view_projects_search

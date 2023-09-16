@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_project_budget_presale_all_presales" model="ir.actions.act_window">
+        <field name="name">Presales</field>
+        <field name="res_model">project_budget.presale</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No presales found. Let's create one!
+            </p>
+        </field>
+    </record>
+
+    <record id="project_budget_presale_view_tree" model="ir.ui.view">
+        <field name="name">project_budget.presale.tree</field>
+        <field name="model">project_budget.presale</field>
+        <field name="arch" type="xml">
+            <tree string="Presales" multi_edit="1" sample="1">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="project_id"/>
+                <field name="customer_id"/>
+                <field name="sum"/>
+                <field name="description" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="project_budget_presale_view_form" model="ir.ui.view">
+        <field name="name">project_budget.presale.form</field>
+        <field name="model">project_budget.presale</field>
+        <field name="arch" type="xml">
+            <form string="Presale">
+                <sheet string="Presale">
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" type="object" name="action_open_processing"
+                                icon="fa-spinner" string="Processing">
+                        </button>
+                        <button class="oe_stat_button" type="object" name="action_open_attachments"
+                                icon="fa-files-o">
+                            <field string="Attachments" name="attachment_count" widget="statinfo"/>
+                        </button>
+                    </div>
+                    <group invisible="1">
+                        <field name="process_state"/>
+                    </group>
+                    <field name="process_id" class="position-relative" widget="processingbar" readonly="1" nolabel="1"
+                           style="width:100%" attrs="{'invisible': [('process_id', '=', False)]}"/>
+                    <div class="oe_title">
+                        <field name="code" readonly="1"/>
+                    </div>
+                    <div class="oe_title">
+                        <h1 class="d-flex flex-row">
+                            <field name="name" class="o_text_overflow" placeholder="Presale Title..."
+                                   attrs="{'readonly': [('process_id', '!=', False), ('process_state', 'not in', ('on_registration', 'break'))]}"/>
+                        </h1>
+                    </div>
+                    <group col="2">
+                        <group>
+                            <field name="project_id" attrs="{'readonly': [('process_id', '!=', False), ('process_state', 'not in', ('on_registration', 'break'))]}"/>
+                        </group>
+                        <group>
+                            <field name="customer_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="sum" attrs="{'readonly': [('process_id', '!=', False), ('process_state', 'not in', ('on_registration', 'break'))]}"/>
+                    </group>
+                    <group>
+                        <field name="company_id" groups="base.group_multi_company"
+                               attrs="{'readonly': [('process_id', '!=', False), ('process_state', 'not in', ('on_registration', 'break'))]}"/>
+                    </group>
+                    <notebook>
+                        <page name="description_page" string="Description">
+                            <field name="description" type="html" options="{'collaborative': true, 'resizable': false}"
+                                   placeholder="Presale description..."
+                                   attrs="{'readonly': [('process_id', '!=', False), ('process_state', 'not in', ('on_registration', 'break'))]}"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+</odoo>
