@@ -2480,9 +2480,9 @@ class report_management_committee_excel(models.AbstractModel):
                 sheet.write_formula(row, column, f_sum_next_75, row_format_number_color_next)
                 sheet.write_formula(row, column + 1, f_sum_next_50, row_format_number_color_next)
                 sheet.write_formula(row, column + 2, f_sum_next_30, row_format_number_color_next)
-                f_prof_next_75 = 'sum(' + str(prof_next_75) + child_offices_rows.format(xl_col_to_name(column)) + ')'
-                f_prof_next_50 = 'sum(' + str(prof_next_50) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')'
-                f_prof_next_30 = 'sum(' + str(prof_next_30) + child_offices_rows.format(xl_col_to_name(column + 2)) + ')'
+                f_prof_next_75 = 'sum(' + str(prof_next_75) + child_offices_rows.format(xl_col_to_name(column + 41)) + ')'
+                f_prof_next_50 = 'sum(' + str(prof_next_50) + child_offices_rows.format(xl_col_to_name(column + 1 + 41)) + ')'
+                f_prof_next_30 = 'sum(' + str(prof_next_30) + child_offices_rows.format(xl_col_to_name(column + 2 + 41)) + ')'
                 sheet.write_formula(row, column + 41, f_prof_next_75, row_format_number_color_next)
                 sheet.write_formula(row, column + 1 + 41, f_prof_next_50, row_format_number_color_next)
                 sheet.write_formula(row, column + 2 + 41, f_prof_next_30, row_format_number_color_next)
@@ -2493,7 +2493,7 @@ class report_management_committee_excel(models.AbstractModel):
                     xl_col_to_name(column)) + ')'
                 sheet.write_formula(row, column, f_sum_after_next, row_format_number_color_next)
                 f_prof_after_next = 'sum(' + str(prof_after_next) + child_offices_rows.format(
-                    xl_col_to_name(column)) + ')'
+                    xl_col_to_name(column + 41)) + ')'
                 sheet.write_formula(row, column + 41, f_prof_after_next, row_format_number_color_next)
                 column -= 4
 
@@ -2570,7 +2570,7 @@ class report_management_committee_excel(models.AbstractModel):
             'border': 1,
             'font_size': 12,
             "bold": True,
-            "num_format": '0,00%',
+            'num_format': '0.00%',
             "top": 2,
             "fg_color": '#ffff99',
         })
@@ -2921,7 +2921,7 @@ class report_management_committee_excel(models.AbstractModel):
                         formula = formulaProjectCompany.format(xl_col_to_name(i * 38 + colFormula * 5 + 3 + shift))
                         sheet.write_formula(company_row, i * 38 + colFormula * 5 + 3 + shift, formula, row_format_company_fact)
                         if colFormula in (2, 6):
-                            formula = f'=IFERROR({xl_col_to_name(i * 38 + colFormula * 5 + 3 + shift)}{row + 1}/{xl_col_to_name(i * 38 + colFormula * 5 + 2 + shift)}{row + 1}," ")'
+                            formula = f'=IFERROR({xl_col_to_name(i * 38 + colFormula * 5 + 3 + shift)}{company_row + 1}/{xl_col_to_name(i * 38 + colFormula * 5 + 2 + shift)}{company_row + 1}," ")'
                             sheet.write_formula(company_row, i * 38 + colFormula * 5 + 4 + shift, formula, row_format_company_percent)
                             shift += 1
                         formula = formulaProjectCompany.format(xl_col_to_name(i * 38 + colFormula * 5 + 4 + shift))
@@ -3021,7 +3021,16 @@ class report_management_committee_excel(models.AbstractModel):
             "fg_color": '#BFBFBF',
             "num_format": '#,##0',
         })
-
+        row_format_number_itogo_percent = workbook.add_format({
+            'top': 2,
+            'bottom': 2,
+            'left': 1,
+            'right': 1,
+            'font_size': 12,
+            "bold": True,
+            "fg_color": '#BFBFBF',
+            'num_format': '0.00%',
+        })
         head_format_month_itogo = workbook.add_format({
             'border': 1,
             'text_wrap': True,
@@ -3121,6 +3130,10 @@ class report_management_committee_excel(models.AbstractModel):
         for colFormula in range(1, 165):
             formula = formulaItogo.format(xl_col_to_name(colFormula))
             sheet.write_formula(row, colFormula, formula, row_format_number_itogo)
+        for i in range(4):  # формулы для процентов выполнения
+            for j in (14, 35):
+                formula = f'=IFERROR({xl_col_to_name(i * 41 + j - 1)}{row + 1}/{xl_col_to_name(i * 41 + j - 2)}{row + 1}, " ")'
+                sheet.write_formula(row, i * 41 + j, formula, row_format_number_itogo_percent)
         print('dict_formula = ', dict_formula)
 
     def generate_xlsx_report(self, workbook, data, budgets):
