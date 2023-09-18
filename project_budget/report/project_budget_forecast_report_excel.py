@@ -175,7 +175,8 @@ class report_budget_forecast_excel(models.AbstractModel):
             if isdebug: logger.info(f'   etalon_project NOT found by date ')
             etalon_project = self.env['project_budget.projects'].search([('etalon_budget', '=', True),
                                                                      ('budget_state','=','fixed'),
-                                                                     ('project_id','=',spec.project_id)
+                                                                     ('project_id','=',spec.project_id),
+                                                                     ('date_actual', '>=', datetime.date(YEARint, 1, 1)),
                                                                     ], limit=1, order='date_actual desc')
         if isdebug:
             logger.info(f'  etalon_project.id = { etalon_project.id}')
@@ -224,7 +225,8 @@ class report_budget_forecast_excel(models.AbstractModel):
                 logger.info(f'   etalon_step NOT found by date ')
             etalon_step = self.env['project_budget.project_steps'].search([('etalon_budget', '=', True),
                                                                        ('step_id','=',step.step_id),
-                                                                       ('id','!=',step.id)
+                                                                       ('id','!=',step.id),
+                                                                       ('date_actual', '>=', datetime.date(YEARint, 1, 1)),
                                                                       ], limit=1, order='date_actual desc')
         if isdebug:
             logger.info(f' step_id = {etalon_step.step_id}')
