@@ -108,6 +108,8 @@
                     <field name="code"/>
                     <field name="descr"/>
                     <field name="user_id" widget="many2one_avatar_user"/>
+                    <field name="report_name"/>
+                    <field name="report_sort"/>
                     <field name="receive_tasks_for_approve_project" widget="boolean_toggle" groups="project_budget.project_budget_admin"/>
                     <field name="isRukovoditel_required_in_project" widget="boolean_toggle" groups="project_budget.project_budget_admin"/>
                     <field name="print_rukovoditel_in_kb" widget="boolean_toggle" groups="project_budget.project_budget_admin"/>
@@ -131,6 +133,8 @@
                             <field name="code"/>
                             <field name="descr" widget="html"/>
                             <field name="user_id" widget="many2one_avatar_user"/>
+                            <field name="report_name"/>
+                            <field name="report_sort"/>
                             <field name="receive_tasks_for_approve_project" widget="boolean_toggle" groups="project_budget.project_budget_admin"/>
                             <field name="isRukovoditel_required_in_project" widget="boolean_toggle" groups="project_budget.project_budget_admin"/>
                             <field name="print_rukovoditel_in_kb" widget="boolean_toggle" groups="project_budget.project_budget_admin"/>

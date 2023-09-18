@@ -2854,7 +2854,12 @@ class report_management_committee_excel(models.AbstractModel):
                         row += 1
                         office_row = row
 
-                    sheet.write_string(office_row, column, '       ' * level + project_office.name, row_format_office)
+                    office_name = project_office.report_name or project_office.name
+
+
+                    print(office_name)
+
+                    sheet.write_string(office_row, column, '       ' * level + office_name, row_format_office)
                     sheet.set_row(office_row, False, False, {'hidden': 1, 'level': level})
 
                     str_project_office_id = 'project_office_' + str(int(project_office.parent_id))
@@ -3116,7 +3121,7 @@ class report_management_committee_excel(models.AbstractModel):
         row += 2
 
         companies = self.env['res.company'].search([], order='name')
-        project_offices = self.env['project_budget.project_office'].search([('parent_id', '=', False)], order='name')  # для сортировки так делаем + берем сначала только верхние элементы
+        project_offices = self.env['project_budget.project_office'].search([('parent_id', '=', False)], order='report_sort')  # для сортировки так делаем + берем сначала только верхние элементы
         # project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
         # estimated_probabilitys = self.env['project_budget.estimated_probability'].search([('name','!=','10')],order='code desc')  # для сортировки так делаем
 

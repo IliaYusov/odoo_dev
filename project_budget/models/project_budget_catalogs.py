@@ -60,6 +60,8 @@ class project_office(models.Model):
     print_rukovoditel_in_kb = fields.Boolean(string="Print rukovoditel instead KAM in KB form",
                                                        default=False)
     is_prohibit_selection = fields.Boolean(string="is prohibit selection in projects", default=False)
+    report_name = fields.Char(string="name for report")
+    report_sort = fields.Integer(string="sorting for report", default=0, required=True)
 
 
 class project_supervisor(models.Model):
