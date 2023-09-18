@@ -1884,7 +1884,7 @@ class report_management_committee_excel(models.AbstractModel):
     #         column += 4
     #     # end Валовая Выручка, без НДС
 
-    def print_row_values_office(self, workbook, sheet, row, column, YEAR, projects, formula_offices):
+    def print_row_values_office(self, workbook, sheet, row, column, YEAR, projects, project_office, formula_offices):
         global strYEAR
         global YEARint
 
@@ -1962,7 +1962,7 @@ class report_management_committee_excel(models.AbstractModel):
                 sum_next_30 += sum_next_30_tmp
                 sum_after_next += sum_after_next_tmp
 
-            child_offices_rows = formula_offices.get('project_office_' + str(projects.project_office_id.id)) or ''
+            child_offices_rows = formula_offices.get('project_office_' + str(project_office.id)) or ''
 
             addcolumn = 0
 
@@ -2119,7 +2119,7 @@ class report_management_committee_excel(models.AbstractModel):
             # sumQ75 += sumM75
             # sumQ50 += sumM50
 
-            child_offices_rows = formula_offices.get('project_office_' + str(projects.project_office_id.id)) or ''
+            child_offices_rows = formula_offices.get('project_office_' + str(project_office.id)) or ''
 
             addcolumn = 0
 
@@ -2316,7 +2316,7 @@ class report_management_committee_excel(models.AbstractModel):
                 prof_next_30 += prof_next_30_tmp
                 prof_after_next += prof_after_next_tmp
 
-            child_offices_rows = formula_offices.get('project_office_' + str(projects.project_office_id.id)) or ''
+            child_offices_rows = formula_offices.get('project_office_' + str(project_office.id)) or ''
 
             if 'Q' in element:
 
@@ -2654,7 +2654,9 @@ class report_management_committee_excel(models.AbstractModel):
                 row += 1
                 dict_formula['company_ids'][company.id] = row
 
-            for project_office in cur_project_offices.filtered(lambda r: r in (office for office in cur_budget_projects.project_office_id if office.company_id == company)):
+            for project_office in cur_project_offices.filtered(lambda r: r in (office for office in self.env[
+                'project_budget.project_office'].search([('company_id', '=', company.id), ]))):
+
                 print('project_office.name = ', project_office.name)
 
                 begRowProjectsByOffice = 0
@@ -2880,6 +2882,7 @@ class report_management_committee_excel(models.AbstractModel):
                         column,
                         strYEAR,
                         projects,
+                        project_office,
                         dict_formula,
                         )
 

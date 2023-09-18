@@ -1482,6 +1482,12 @@ msgstr "Возможность, 30%"
 msgid "Overdue"
 msgstr "Просроченные даты в проектах"
 
+
+#. module: project_budget
+#: model:ir.model.fields.selection,name:project_budget.selection__project_budget_projects_report_wizard__type_report__management_committee
+msgid "Management Committee"
+msgstr "Отчет для УК"
+
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_office__parent_id
 msgid "Parent project_office"
