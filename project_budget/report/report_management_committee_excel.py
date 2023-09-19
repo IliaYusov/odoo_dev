@@ -15,9 +15,6 @@ class report_management_committee_excel(models.AbstractModel):
     strYEAR = '2023'
     YEARint = int(strYEAR)
 
-    multiplier_50 = 0.6
-    multiplier_30 = 0.1
-
     def isStepinYear(self, project, step):
         global strYEAR
         global YEARint
@@ -448,14 +445,14 @@ class report_management_committee_excel(models.AbstractModel):
                                       head_format_month_detail)
                     sheet.write_string(row + 2, column, 'Обязательство', head_format_month_detail)
                     column += 1
-                    sheet.write_string(row + 2, column, 'Резерв (' + str(self.multiplier_50) + ')', head_format_month_detail)
+                    sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail)
                     column += 1
-                    sheet.write_string(row + 2, column, 'Потенциал (' + str(self.multiplier_30) + ')', head_format_month_detail)
+                    sheet.write_string(row + 2, column, 'Потенциал', head_format_month_detail)
                     column += 1
 
                 elif element == 'AFTER NEXT':
                     sheet.write_string(row, column, str(YEARint + 2), head_format_month)
-                    sheet.merge_range(row + 1, column, row + 2, column, 'Прогноз ' + str(YEARint + 2) + '(с коэффициентами)',
+                    sheet.merge_range(row + 1, column, row + 2, column, 'Прогноз ' + str(YEARint + 2),
                                       head_format_month_detail)
                     column += 1
 
@@ -636,7 +633,7 @@ class report_management_committee_excel(models.AbstractModel):
     #
     #     return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
-    def calculate_quarter_revenue(self, element, project):
+    def calculate_quarter_revenue(self, element, project, multipliers):
         global strYEAR
         global YEARint
 
@@ -702,16 +699,16 @@ class report_management_committee_excel(models.AbstractModel):
                     if project.estimated_probability_id.name in ('75', '100'):
                         sum_next_75_tmp = project.total_amount_of_revenue_with_vat
                     if project.estimated_probability_id.name == '50':
-                        sum_next_50_tmp = project.total_amount_of_revenue_with_vat * self.multiplier_50
+                        sum_next_50_tmp = project.total_amount_of_revenue_with_vat * multipliers['50']
                     if project.estimated_probability_id.name == '30':
-                        sum_next_30_tmp = project.total_amount_of_revenue_with_vat * self.multiplier_30
+                        sum_next_30_tmp = project.total_amount_of_revenue_with_vat * multipliers['30']
                 elif project.end_presale_project_month.year == YEARint + 2:
                     if project.estimated_probability_id.name in ('75', '100'):
                         sum_after_next_tmp = project.total_amount_of_revenue_with_vat
                     if project.estimated_probability_id.name == '50':
-                        sum_after_next_tmp = project.total_amount_of_revenue_with_vat * self.multiplier_50
+                        sum_after_next_tmp = project.total_amount_of_revenue_with_vat * multipliers['50']
                     if project.estimated_probability_id.name == '30':
-                        sum_after_next_tmp = project.total_amount_of_revenue_with_vat * self.multiplier_30
+                        sum_after_next_tmp = project.total_amount_of_revenue_with_vat * multipliers['30']
 
             else:
                 for step in project.project_steps_ids:
@@ -719,16 +716,16 @@ class report_management_committee_excel(models.AbstractModel):
                         if step.estimated_probability_id.name in ('75', '100'):
                             sum_next_75_tmp += step.total_amount_of_revenue_with_vat
                         if step.estimated_probability_id.name == '50':
-                            sum_next_50_tmp += step.total_amount_of_revenue_with_vat * self.multiplier_50
+                            sum_next_50_tmp += step.total_amount_of_revenue_with_vat * multipliers['50']
                         if step.estimated_probability_id.name == '30':
-                            sum_next_30_tmp += step.total_amount_of_revenue_with_vat * self.multiplier_30
+                            sum_next_30_tmp += step.total_amount_of_revenue_with_vat * multipliers['30']
                     elif step.end_presale_project_month.year == YEARint + 2:
                         if step.estimated_probability_id.name in ('75', '100'):
                             sum_after_next_tmp += step.total_amount_of_revenue_with_vat
                         if step.estimated_probability_id.name == '50':
-                            sum_after_next_tmp += step.total_amount_of_revenue_with_vat * self.multiplier_50
+                            sum_after_next_tmp += step.total_amount_of_revenue_with_vat * multipliers['50']
                         if step.estimated_probability_id.name == '30':
-                            sum_after_next_tmp += step.total_amount_of_revenue_with_vat * self.multiplier_30
+                            sum_after_next_tmp += step.total_amount_of_revenue_with_vat * multipliers['30']
 
         return (sum75tmpetalon, sum50tmpetalon,
                 sum100tmp, sum75tmp, sum50tmp,
@@ -798,7 +795,7 @@ class report_management_committee_excel(models.AbstractModel):
     #                     sum50tmp += sum
     #     return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
-    def calculate_quarter_pds(self, element, project):
+    def calculate_quarter_pds(self, element, project, multipliers):
         global strYEAR
         global YEARint
 
@@ -929,9 +926,9 @@ class report_management_committee_excel(models.AbstractModel):
                         if estimated_probability_id_name in ('75', '100'):
                             sum_next_75_tmp += sum
                         elif estimated_probability_id_name == '50':
-                            sum_next_50_tmp += sum * self.multiplier_50
+                            sum_next_50_tmp += sum * multipliers['50']
                         elif estimated_probability_id_name == '30':
-                            sum_next_30_tmp += sum * self.multiplier_30
+                            sum_next_30_tmp += sum * multipliers['30']
             else:
                 sum100tmp = self.get_sum_fact_pds_project_step_year(project, False, YEARint + 1)
                 sum = self.get_sum_plan_pds_project_step_year(project, False, YEARint + 1)
@@ -957,9 +954,9 @@ class report_management_committee_excel(models.AbstractModel):
                     if estimated_probability_id_name in ('75', '100'):
                         sum_next_75_tmp += sum
                     elif estimated_probability_id_name == '50':
-                        sum_next_50_tmp += sum * self.multiplier_50
+                        sum_next_50_tmp += sum * multipliers['50']
                     elif estimated_probability_id_name == '30':
-                        sum_next_30_tmp += sum * self.multiplier_30
+                        sum_next_30_tmp += sum * multipliers['30']
 
         elif element == 'AFTER NEXT':
             if project.project_have_steps:
@@ -989,9 +986,9 @@ class report_management_committee_excel(models.AbstractModel):
                         if estimated_probability_id_name in ('75', '100'):
                             sum_after_next_tmp += sum
                         elif estimated_probability_id_name == '50':
-                            sum_after_next_tmp += sum * self.multiplier_50
+                            sum_after_next_tmp += sum * multipliers['50']
                         elif estimated_probability_id_name == '30':
-                            sum_after_next_tmp += sum * self.multiplier_30
+                            sum_after_next_tmp += sum * multipliers['30']
 
             else:
                 sum100tmp = self.get_sum_fact_pds_project_step_year(project, False, YEARint + 2)
@@ -1018,9 +1015,9 @@ class report_management_committee_excel(models.AbstractModel):
                     if estimated_probability_id_name in ('75', '100'):
                         sum_after_next_tmp += sum
                     elif estimated_probability_id_name == '50':
-                        sum_after_next_tmp += sum * self.multiplier_50
+                        sum_after_next_tmp += sum * multipliers['50']
                     elif estimated_probability_id_name == '30':
-                        sum_after_next_tmp += sum * self.multiplier_30
+                        sum_after_next_tmp += sum * multipliers['30']
 
         return (sum75tmpetalon, sum50tmpetalon,
                 sum100tmp, sum75tmp, sum50tmp,
@@ -1180,7 +1177,7 @@ class report_management_committee_excel(models.AbstractModel):
     #                 sum50tmp += sum
     #     return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
-    def calculate_quarter_planned_acceptance(self, element, project):
+    def calculate_quarter_planned_acceptance(self, element, project, multipliers):
         global strYEAR
         global YEARint
 
@@ -1354,11 +1351,11 @@ class report_management_committee_excel(models.AbstractModel):
                             sum_next_75_tmp += sum
                             prof_next_75_tmp += sum * profitability / 100
                         elif estimated_probability_id_name == '50':
-                            sum_next_50_tmp += sum * self.multiplier_50
-                            prof_next_50_tmp += sum * self.multiplier_50 * profitability / 100
+                            sum_next_50_tmp += sum * multipliers['50']
+                            prof_next_50_tmp += sum * multipliers['50'] * profitability / 100
                         elif estimated_probability_id_name == '30':
-                            sum_next_30_tmp += sum * self.multiplier_30
-                            prof_next_30_tmp += sum * self.multiplier_30 * profitability / 100
+                            sum_next_30_tmp += sum * multipliers['30']
+                            prof_next_30_tmp += sum * multipliers['30'] * profitability / 100
             else:
                 profitability = project.profitability
 
@@ -1395,11 +1392,11 @@ class report_management_committee_excel(models.AbstractModel):
                         sum_next_75_tmp += sum
                         prof_next_75_tmp += sum * profitability / 100
                     elif estimated_probability_id_name == '50':
-                        sum_next_50_tmp += sum * self.multiplier_50
-                        prof_next_50_tmp += sum * self.multiplier_50 * profitability / 100
+                        sum_next_50_tmp += sum * multipliers['50']
+                        prof_next_50_tmp += sum * multipliers['50'] * profitability / 100
                     elif estimated_probability_id_name == '30':
-                        sum_next_30_tmp += sum * self.multiplier_30
-                        prof_next_30_tmp += sum * self.multiplier_30 * profitability / 100
+                        sum_next_30_tmp += sum * multipliers['30']
+                        prof_next_30_tmp += sum * multipliers['30'] * profitability / 100
 
         elif element == 'AFTER NEXT':
             if project.project_have_steps:
@@ -1443,11 +1440,11 @@ class report_management_committee_excel(models.AbstractModel):
                             sum_after_next_tmp += sum
                             prof_after_next_tmp += sum * profitability / 100
                         elif estimated_probability_id_name == '50':
-                            sum_after_next_tmp += sum * self.multiplier_50
-                            prof_after_next_tmp += sum * self.multiplier_50 * profitability / 100
+                            sum_after_next_tmp += sum * multipliers['50']
+                            prof_after_next_tmp += sum * multipliers['50'] * profitability / 100
                         elif estimated_probability_id_name == '30':
-                            sum_after_next_tmp += sum * self.multiplier_30
-                            prof_after_next_tmp += sum * self.multiplier_30 * profitability / 100
+                            sum_after_next_tmp += sum * multipliers['30']
+                            prof_after_next_tmp += sum * multipliers['30'] * profitability / 100
             else:
                 profitability = project.profitability
 
@@ -1484,11 +1481,11 @@ class report_management_committee_excel(models.AbstractModel):
                         sum_after_next_tmp += sum
                         prof_after_next_tmp += sum * profitability / 100
                     elif estimated_probability_id_name == '50':
-                        sum_after_next_tmp += sum * self.multiplier_50
-                        prof_after_next_tmp += sum * self.multiplier_50 * profitability / 100
+                        sum_after_next_tmp += sum * multipliers['50']
+                        prof_after_next_tmp += sum * multipliers['50'] * profitability / 100
                     elif estimated_probability_id_name == '30':
-                        sum_after_next_tmp += sum * self.multiplier_30
-                        prof_after_next_tmp += sum * self.multiplier_30 * profitability / 100
+                        sum_after_next_tmp += sum * multipliers['30']
+                        prof_after_next_tmp += sum * multipliers['30'] * profitability / 100
         return (
             sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp,
             prof75tmpetalon, prof50tmpetalon, prof100tmp, prof75tmp, prof50tmp,
@@ -1896,7 +1893,7 @@ class report_management_committee_excel(models.AbstractModel):
     #         column += 4
     #     # end Валовая Выручка, без НДС
 
-    def print_row_values_office(self, workbook, sheet, row, column, YEAR, projects, project_office, formula_offices):
+    def print_row_values_office(self, workbook, sheet, row, column, YEAR, projects, project_office, formula_offices, multipliers):
         global strYEAR
         global YEARint
 
@@ -1962,7 +1959,7 @@ class report_management_committee_excel(models.AbstractModel):
                 (sumM75tmpetalon, sumM50tmpetalon,
                  sumM100tmp, sumM75tmp, sumM50tmp,
                  sum_next_75_tmp, sum_next_50_tmp, sum_next_30_tmp,
-                 sum_after_next_tmp) = self.calculate_quarter_revenue(element, project)
+                 sum_after_next_tmp) = self.calculate_quarter_revenue(element, project, multipliers)
 
                 sumM75etalon += sumM75tmpetalon
                 sumM50etalon += sumM50tmpetalon
@@ -2113,7 +2110,7 @@ class report_management_committee_excel(models.AbstractModel):
                 (sumM75tmpetalon, sumM50tmpetalon,
                  sumM100tmp, sumM75tmp, sumM50tmp,
                  sum_next_75_tmp, sum_next_50_tmp, sum_next_30_tmp,
-                 sum_after_next_tmp) = self.calculate_quarter_pds(element, project)
+                 sum_after_next_tmp) = self.calculate_quarter_pds(element, project, multipliers)
 
                 sumM75etalon += sumM75tmpetalon
                 sumM50etalon += sumM50tmpetalon
@@ -2306,7 +2303,7 @@ class report_management_committee_excel(models.AbstractModel):
                 prof75tmpetalon, prof50tmpetalon, prof100tmp, prof75tmp, prof50tmp,
                 sum_next_75_tmp, sum_next_50_tmp, sum_next_30_tmp, sum_after_next_tmp,
                 prof_next_75_tmp, prof_next_50_tmp, prof_next_30_tmp, prof_after_next_tmp
-                ) = self.calculate_quarter_planned_acceptance(element, project)
+                ) = self.calculate_quarter_planned_acceptance(element, project, multipliers)
 
                 sumQ75etalon += sum75tmpetalon
                 sumQ50etalon += sum50tmpetalon
@@ -2512,7 +2509,7 @@ class report_management_committee_excel(models.AbstractModel):
             column += 4
         # end Валовая Выручка, без НДС
 
-    def printrow(self, sheet, workbook, companies, project_offices, budget, row, formulaItogo, level):
+    def printrow(self, sheet, workbook, companies, project_offices, budget, row, formulaItogo, level, multipliers):
         global strYEAR
         global YEARint
         global dict_formula
@@ -2680,7 +2677,7 @@ class report_management_committee_excel(models.AbstractModel):
                 if project_office.child_ids:
                     row += 1
                     dict_formula['office_ids'][project_office.id] = row
-                    row0, formulaItogo = self.printrow(sheet, workbook, company, child_project_offices, budget, row, formulaItogo, level + 1)
+                    row0, formulaItogo = self.printrow(sheet, workbook, company, child_project_offices, budget, row, formulaItogo, level + 1, multipliers)
 
                 isFoundProjectsByOffice = False
                 if row0 != row:
@@ -2898,6 +2895,7 @@ class report_management_committee_excel(models.AbstractModel):
                         projects,
                         project_office,
                         dict_formula,
+                        multipliers,
                         )
 
                     # for colFormula in range(12, 302):
@@ -2952,7 +2950,7 @@ class report_management_committee_excel(models.AbstractModel):
 
         return row, formulaItogo
 
-    def printworksheet(self, workbook, budget, namesheet):
+    def printworksheet(self, workbook, budget, namesheet, multipliers):
         global strYEAR
         global YEARint
         print('YEARint=', YEARint)
@@ -3136,7 +3134,7 @@ class report_management_committee_excel(models.AbstractModel):
 
         formulaItogo = '=sum(0'
 
-        row, formulaItogo = self.printrow(sheet, workbook, companies, project_offices, budget, row, formulaItogo, 1)
+        row, formulaItogo = self.printrow(sheet, workbook, companies, project_offices, budget, row, formulaItogo, 1, multipliers)
 
         row += 1
         column = 0
@@ -3163,8 +3161,10 @@ class report_management_committee_excel(models.AbstractModel):
         dict_formula = {'company_ids': {}, 'office_ids': {}, 'office_ids_not_empty': {}}
         print('YEARint=', YEARint)
         print('strYEAR =', strYEAR)
+        
+        multipliers = {'50': 1, '30': 1}
 
         commercial_budget_id = data['commercial_budget_id']
         print('commercial_budget_id', commercial_budget_id)
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
-        self.printworksheet(workbook, budget, 'Прогноз')
+        self.printworksheet(workbook, budget, 'Прогноз', multipliers)
