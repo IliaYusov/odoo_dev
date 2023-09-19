@@ -1324,13 +1324,13 @@ class report_management_committee_excel(models.AbstractModel):
 
                     sum = self.get_sum_planned_acceptance_project_step_year(project, step, YEARint + 1)
 
-                    # if sum == 0 and step.end_sale_project_month.year == YEARint + 1:
-                    #     sum = step.total_amount_of_revenue
-
                     if sum100tmp_step >= sum:
                         sum = 0
                     else:
                         sum = sum - sum100tmp_step
+
+                    if sum == 0 and step.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
+                        sum = step.total_amount_of_revenue
 
                     # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                     sum_ostatok_acceptance = sum_distribution_acceptance = 0
@@ -1368,13 +1368,13 @@ class report_management_committee_excel(models.AbstractModel):
 
                 sum = self.get_sum_planned_acceptance_project_step_year(project, False, YEARint + 1)
 
-                # if sum == 0 and project.end_sale_project_month.year == YEARint + 1:
-                #     sum = project.total_amount_of_revenue
-
                 if sum100tmp >= sum:
                     sum = 0
                 else:
                     sum = sum - sum100tmp
+
+                if sum == 0 and project.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
+                    sum = project.total_amount_of_revenue
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                 sum_ostatok_acceptance = sum_distribution_acceptance = 0
@@ -1413,13 +1413,13 @@ class report_management_committee_excel(models.AbstractModel):
 
                     sum = self.get_sum_planned_acceptance_project_step_year(project, step, YEARint + 2)
 
-                    # if sum == 0 and step.end_sale_project_month.year == YEARint + 2:
-                    #     sum = step.total_amount_of_revenue
-
                     if sum100tmp_step >= sum:
                         sum = 0
                     else:
                         sum = sum - sum100tmp_step
+
+                    if sum == 0 and step.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
+                        sum = step.total_amount_of_revenue
 
                     # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                     sum_ostatok_acceptance = sum_distribution_acceptance = 0
@@ -1457,13 +1457,13 @@ class report_management_committee_excel(models.AbstractModel):
 
                 sum = self.get_sum_planned_acceptance_project_step_year(project, False, YEARint + 2)
 
-                # if sum == 0 and project.end_sale_project_month.year == YEARint + 2:
-                #     sum = project.total_amount_of_revenue
-
                 if sum100tmp >= sum:
                     sum = 0
                 else:
                     sum = sum - sum100tmp
+
+                if sum == 0 and project.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
+                    sum = project.total_amount_of_revenue
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                 sum_ostatok_acceptance = sum_distribution_acceptance = 0
