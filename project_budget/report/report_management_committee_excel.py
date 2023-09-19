@@ -699,14 +699,14 @@ class report_management_committee_excel(models.AbstractModel):
         elif 'NEXT' in element:
             if not project.project_have_steps:
                 if project.end_presale_project_month.year == YEARint + 1:
-                    if project.estimated_probability_id.name == '75':
+                    if project.estimated_probability_id.name in ('75', '100'):
                         sum_next_75_tmp = project.total_amount_of_revenue_with_vat
                     if project.estimated_probability_id.name == '50':
                         sum_next_50_tmp = project.total_amount_of_revenue_with_vat * self.multiplier_50
                     if project.estimated_probability_id.name == '30':
                         sum_next_30_tmp = project.total_amount_of_revenue_with_vat * self.multiplier_30
                 elif project.end_presale_project_month.year == YEARint + 2:
-                    if project.estimated_probability_id.name == '75':
+                    if project.estimated_probability_id.name in ('75', '100'):
                         sum_after_next_tmp = project.total_amount_of_revenue_with_vat
                     if project.estimated_probability_id.name == '50':
                         sum_after_next_tmp = project.total_amount_of_revenue_with_vat * self.multiplier_50
@@ -716,14 +716,14 @@ class report_management_committee_excel(models.AbstractModel):
             else:
                 for step in project.project_steps_ids:
                     if step.end_presale_project_month.year == YEARint + 1:
-                        if step.estimated_probability_id.name == '75':
+                        if step.estimated_probability_id.name in ('75', '100'):
                             sum_next_75_tmp += step.total_amount_of_revenue_with_vat
                         if step.estimated_probability_id.name == '50':
                             sum_next_50_tmp += step.total_amount_of_revenue_with_vat * self.multiplier_50
                         if step.estimated_probability_id.name == '30':
                             sum_next_30_tmp += step.total_amount_of_revenue_with_vat * self.multiplier_30
                     elif step.end_presale_project_month.year == YEARint + 2:
-                        if step.estimated_probability_id.name == '75':
+                        if step.estimated_probability_id.name in ('75', '100'):
                             sum_after_next_tmp += step.total_amount_of_revenue_with_vat
                         if step.estimated_probability_id.name == '50':
                             sum_after_next_tmp += step.total_amount_of_revenue_with_vat * self.multiplier_50
@@ -922,16 +922,16 @@ class report_management_committee_excel(models.AbstractModel):
                         if planned_cash_flow.project_steps_id.id == step.id and planned_cash_flow.date_cash.year == YEARint + 1:
                             sum_ostatok_pds += planned_cash_flow.distribution_sum_with_vat_ostatok
                             sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
-                            if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
-                                sum = sum_ostatok_pds
-                                if sum < 0: sum = 0
-                            if sum != 0:
-                                if estimated_probability_id_name == '75':
-                                    sum_next_75_tmp += sum
-                                elif estimated_probability_id_name == '50':
-                                    sum_next_50_tmp += sum * self.multiplier_50
-                                elif estimated_probability_id_name == '30':
-                                    sum_next_30_tmp += sum * self.multiplier_30
+                    if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
+                        sum = sum_ostatok_pds
+                        if sum < 0: sum = 0
+                    if sum != 0:
+                        if estimated_probability_id_name in ('75', '100'):
+                            sum_next_75_tmp += sum
+                        elif estimated_probability_id_name == '50':
+                            sum_next_50_tmp += sum * self.multiplier_50
+                        elif estimated_probability_id_name == '30':
+                            sum_next_30_tmp += sum * self.multiplier_30
             else:
                 sum100tmp = self.get_sum_fact_pds_project_step_year(project, False, YEARint + 1)
                 sum = self.get_sum_plan_pds_project_step_year(project, False, YEARint + 1)
@@ -950,16 +950,16 @@ class report_management_committee_excel(models.AbstractModel):
                     if planned_cash_flow.date_cash.year == YEARint + 1:
                         sum_ostatok_pds += planned_cash_flow.distribution_sum_with_vat_ostatok
                         sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
-                        if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
-                            sum = sum_ostatok_pds
-                            if sum < 0: sum = 0
-                        if sum != 0:
-                            if estimated_probability_id_name == '75':
-                                sum_next_75_tmp += sum
-                            elif estimated_probability_id_name == '50':
-                                sum_next_50_tmp += sum * self.multiplier_50
-                            elif estimated_probability_id_name == '30':
-                                sum_next_30_tmp += sum * self.multiplier_30
+                if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
+                    sum = sum_ostatok_pds
+                    if sum < 0: sum = 0
+                if sum != 0:
+                    if estimated_probability_id_name in ('75', '100'):
+                        sum_next_75_tmp += sum
+                    elif estimated_probability_id_name == '50':
+                        sum_next_50_tmp += sum * self.multiplier_50
+                    elif estimated_probability_id_name == '30':
+                        sum_next_30_tmp += sum * self.multiplier_30
 
         elif element == 'AFTER NEXT':
             if project.project_have_steps:
@@ -982,16 +982,16 @@ class report_management_committee_excel(models.AbstractModel):
                         if planned_cash_flow.project_steps_id.id == step.id and planned_cash_flow.date_cash.year == YEARint + 2:
                             sum_ostatok_pds += planned_cash_flow.distribution_sum_with_vat_ostatok
                             sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
-                            if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
-                                sum = sum_ostatok_pds
-                                if sum < 0: sum = 0
-                            if sum != 0:
-                                if estimated_probability_id_name == '75':
-                                    sum_after_next_tmp += sum
-                                elif estimated_probability_id_name == '50':
-                                    sum_after_next_tmp += sum * self.multiplier_50
-                                elif estimated_probability_id_name == '30':
-                                    sum_after_next_tmp += sum * self.multiplier_30
+                    if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
+                        sum = sum_ostatok_pds
+                        if sum < 0: sum = 0
+                    if sum != 0:
+                        if estimated_probability_id_name in ('75', '100'):
+                            sum_after_next_tmp += sum
+                        elif estimated_probability_id_name == '50':
+                            sum_after_next_tmp += sum * self.multiplier_50
+                        elif estimated_probability_id_name == '30':
+                            sum_after_next_tmp += sum * self.multiplier_30
 
             else:
                 sum100tmp = self.get_sum_fact_pds_project_step_year(project, False, YEARint + 2)
@@ -1011,16 +1011,16 @@ class report_management_committee_excel(models.AbstractModel):
                     if planned_cash_flow.date_cash.year == YEARint + 2:
                         sum_ostatok_pds += planned_cash_flow.distribution_sum_with_vat_ostatok
                         sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
-                        if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
-                            sum = sum_ostatok_pds
-                            if sum < 0: sum = 0
-                        if sum != 0:
-                            if estimated_probability_id_name == '75':
-                                sum_after_next_tmp += sum
-                            elif estimated_probability_id_name == '50':
-                                sum_after_next_tmp += sum * self.multiplier_50
-                            elif estimated_probability_id_name == '30':
-                                sum_after_next_tmp += sum * self.multiplier_30
+                if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
+                    sum = sum_ostatok_pds
+                    if sum < 0: sum = 0
+                if sum != 0:
+                    if estimated_probability_id_name in ('75', '100'):
+                        sum_after_next_tmp += sum
+                    elif estimated_probability_id_name == '50':
+                        sum_after_next_tmp += sum * self.multiplier_50
+                    elif estimated_probability_id_name == '30':
+                        sum_after_next_tmp += sum * self.multiplier_30
 
         return (sum75tmpetalon, sum50tmpetalon,
                 sum100tmp, sum75tmp, sum50tmp,
@@ -1324,6 +1324,9 @@ class report_management_committee_excel(models.AbstractModel):
 
                     sum = self.get_sum_planned_acceptance_project_step_year(project, step, YEARint + 1)
 
+                    # if sum == 0 and step.end_sale_project_month.year == YEARint + 1:
+                    #     sum = step.total_amount_of_revenue
+
                     if sum100tmp_step >= sum:
                         sum = 0
                     else:
@@ -1347,7 +1350,7 @@ class report_management_committee_excel(models.AbstractModel):
                     estimated_probability_id_name = step.estimated_probability_id.name
 
                     if sum != 0:
-                        if estimated_probability_id_name == '75':
+                        if estimated_probability_id_name in ('75', '100'):
                             sum_next_75_tmp += sum
                             prof_next_75_tmp += sum * profitability / 100
                         elif estimated_probability_id_name == '50':
@@ -1364,6 +1367,9 @@ class report_management_committee_excel(models.AbstractModel):
                 prof100tmp += sum100tmp_proj * profitability / 100
 
                 sum = self.get_sum_planned_acceptance_project_step_year(project, False, YEARint + 1)
+
+                # if sum == 0 and project.end_sale_project_month.year == YEARint + 1:
+                #     sum = project.total_amount_of_revenue
 
                 if sum100tmp >= sum:
                     sum = 0
@@ -1385,7 +1391,7 @@ class report_management_committee_excel(models.AbstractModel):
                 estimated_probability_id_name = project.estimated_probability_id.name
 
                 if sum != 0:
-                    if estimated_probability_id_name == '75':
+                    if estimated_probability_id_name in ('75', '100'):
                         sum_next_75_tmp += sum
                         prof_next_75_tmp += sum * profitability / 100
                     elif estimated_probability_id_name == '50':
@@ -1406,6 +1412,9 @@ class report_management_committee_excel(models.AbstractModel):
                     prof100tmp += sum100tmp_step * profitability / 100
 
                     sum = self.get_sum_planned_acceptance_project_step_year(project, step, YEARint + 2)
+
+                    # if sum == 0 and step.end_sale_project_month.year == YEARint + 2:
+                    #     sum = step.total_amount_of_revenue
 
                     if sum100tmp_step >= sum:
                         sum = 0
@@ -1430,7 +1439,7 @@ class report_management_committee_excel(models.AbstractModel):
                     estimated_probability_id_name = step.estimated_probability_id.name
 
                     if sum != 0:
-                        if estimated_probability_id_name == '75':
+                        if estimated_probability_id_name in ('75', '100'):
                             sum_after_next_tmp += sum
                             prof_after_next_tmp += sum * profitability / 100
                         elif estimated_probability_id_name == '50':
@@ -1447,6 +1456,9 @@ class report_management_committee_excel(models.AbstractModel):
                 prof100tmp += sum100tmp_proj * profitability / 100
 
                 sum = self.get_sum_planned_acceptance_project_step_year(project, False, YEARint + 2)
+
+                # if sum == 0 and project.end_sale_project_month.year == YEARint + 2:
+                #     sum = project.total_amount_of_revenue
 
                 if sum100tmp >= sum:
                     sum = 0
@@ -1468,7 +1480,7 @@ class report_management_committee_excel(models.AbstractModel):
                 estimated_probability_id_name = project.estimated_probability_id.name
 
                 if sum != 0:
-                    if estimated_probability_id_name == '75':
+                    if estimated_probability_id_name in ('75', '100'):
                         sum_after_next_tmp += sum
                         prof_after_next_tmp += sum * profitability / 100
                     elif estimated_probability_id_name == '50':
@@ -2855,9 +2867,6 @@ class report_management_committee_excel(models.AbstractModel):
                         office_row = row
 
                     office_name = project_office.report_name or project_office.name
-
-
-                    print(office_name)
 
                     sheet.write_string(office_row, column, '       ' * level + office_name, row_format_office)
                     sheet.set_row(office_row, False, False, {'hidden': 1, 'level': level})
