@@ -3162,7 +3162,7 @@ class report_management_committee_excel(models.AbstractModel):
         print('YEARint=', YEARint)
         print('strYEAR =', strYEAR)
         
-        multipliers = {'50': 1, '30': 1}
+        multipliers = {'50': data['koeff_reserve'], '30': data['koeff_potential']}
 
         commercial_budget_id = data['commercial_budget_id']
         print('commercial_budget_id', commercial_budget_id)

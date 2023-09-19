@@ -21,7 +21,8 @@ class report_projects_wizard(models.TransientModel):
                                            ,default=lambda self: self.env['project_budget.commercial_budget'].search([('budget_state', '=', 'work')], limit=1)
                                           )
     use_koeff_reserve = fields.Boolean(string='use koefficient for reserve', default = False)
-    koeff_reserve = fields.Float(string='koefficient for reserve', default = 0.6)
+    koeff_reserve = fields.Float(string='koefficient for reserve', default=0.6)
+    koeff_potential = fields.Float(string='koefficient for potential', default=0.1)
 
 
     def action_print_report(self):
@@ -34,6 +35,7 @@ class report_projects_wizard(models.TransientModel):
         datas['year_end']= self.year_end
         datas['commercial_budget_id'] = self.commercial_budget_id.id
         datas['koeff_reserve'] = 1 if not self.use_koeff_reserve else self.koeff_reserve
+        datas['koeff_potential'] = 1 if not self.use_koeff_reserve else self.koeff_potential
 
         print('data=',datas)
         report_name = 'Project_list_' + str(self.year) + '_' + self.type_report + '.xlsx'

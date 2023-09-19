@@ -2987,7 +2987,12 @@ msgstr "Командировочные расходы"
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects_report_wizard__koeff_reserve
 msgid "koefficient for reserve"
-msgstr "коэффициент"
+msgstr "Коэффициент для Резерва"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects_report_wizard__koeff_potential
+msgid "koefficient for reserve"
+msgstr "Коэффициент для Потенциала"
 
 #. module: project_budget
 #: model:ir.actions.act_window,name:project_budget.show_legal_entity_signing
@@ -4172,7 +4177,7 @@ msgstr "Ссылка на закупку"
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects_report_wizard__use_koeff_reserve
 msgid "use koefficient for reserve"
-msgstr "Использовать коэффициент для резерва"
+msgstr "Использовать коэффициенты"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_kam__kam_user_id

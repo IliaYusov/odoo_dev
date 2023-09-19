@@ -13,10 +13,11 @@
                         <group>
                         </group>
                         <group>
-                            <field name="use_koeff_reserve" attrs="{'invisible': [('type_report', '!=', 'forecast')]}"/>
+                            <field name="use_koeff_reserve" attrs="{'invisible': [('type_report', 'not in', ('forecast', 'management_committee'))]}"/>
                         </group>
                         <group>
-                            <field name="koeff_reserve" attrs="{'invisible': ['|',('type_report', '!=', 'forecast'),('use_koeff_reserve','=',False)]}"/>
+                            <field name="koeff_reserve" attrs="{'invisible': ['|',('type_report', 'not in', ('forecast', 'management_committee')),('use_koeff_reserve','=',False)]}"/>
+                            <field name="koeff_potential" attrs="{'invisible': ['|',('type_report', '!=', 'management_committee'),('use_koeff_reserve','=',False)]}"/>
                         </group>
                     </group>
                     <group>
