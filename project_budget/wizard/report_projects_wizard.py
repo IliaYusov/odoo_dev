@@ -15,6 +15,7 @@ class report_projects_wizard(models.TransientModel):
         ('raw_data', 'Raw Data'),
         ('overdue', 'Overdue'),
         ('management_committee', 'Management Committee'),
+        ('pds_acceptance_by_date', 'PDS, Acceptance'),
     ],
         required=True, default='kb')
     commercial_budget_id = fields.Many2one('project_budget.commercial_budget', string='commercial_budget-',required=True
@@ -23,6 +24,9 @@ class report_projects_wizard(models.TransientModel):
     use_koeff_reserve = fields.Boolean(string='use koefficient for reserve', default = False)
     koeff_reserve = fields.Float(string='koefficient for reserve', default=0.6)
     koeff_potential = fields.Float(string='koefficient for potential', default=0.1)
+    date_start = fields.Date(string='start of report', default=date.today(), required=True)
+    date_end = fields.Date(string='end of report', required=True)
+    pds_accept = fields.Selection([('pds', 'PDS'), ('accept', 'Acceptance')], string='PDS Accept', required=True)
 
 
     def action_print_report(self):
@@ -33,9 +37,12 @@ class report_projects_wizard(models.TransientModel):
         # datas['report_file'] = 'project_budget.report_tender_excel'
         datas['year']= self.year
         datas['year_end']= self.year_end
+        datas['date_start']= self.date_start
+        datas['date_end']= self.date_end
         datas['commercial_budget_id'] = self.commercial_budget_id.id
         datas['koeff_reserve'] = 1 if not self.use_koeff_reserve else self.koeff_reserve
         datas['koeff_potential'] = 1 if not self.use_koeff_reserve else self.koeff_potential
+        datas['pds_accept'] = self.pds_accept
 
         print('data=',datas)
         report_name = 'Project_list_' + str(self.year) + '_' + self.type_report + '.xlsx'
@@ -59,3 +66,6 @@ class report_projects_wizard(models.TransientModel):
 
         if self.type_report == 'management_committee':
             return self.env.ref('project_budget.action_projects_list_report_xlsx_management_committee').report_action(self, data=datas)
+
+        if self.type_report == 'pds_acceptance_by_date':
+            return self.env.ref('project_budget.action_projects_list_report_xlsx_pds_acceptance_by_date').report_action(self, data=datas)
