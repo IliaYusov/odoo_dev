@@ -161,10 +161,10 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                 for step in project.project_steps_ids:
 
                     if pds_accept == 'pds':
-                        if step.id not in (pds.project_steps_id.id for pds in project.planned_cash_flow_ids):
+                        if step.id not in (pds.project_steps_id.id for pds in project.planned_cash_flow_ids if date_start <= pds.date_cash <= date_end):
                             continue
                     else:
-                        if step.id not in (pds.project_steps_id.id for pds in project.planned_acceptance_flow_ids):
+                        if step.id not in (acc.project_steps_id.id for acc in project.planned_acceptance_flow_ids if date_start <= acc.date_cash <= date_end):
                             continue
 
                     row += 1
