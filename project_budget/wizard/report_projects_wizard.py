@@ -1,7 +1,7 @@
 from odoo import models, fields, _
 from odoo.exceptions import UserError
 from io import BytesIO
-from datetime import date
+from datetime import date, timedelta
 
 class report_projects_wizard(models.TransientModel):
     _name = 'project_budget.projects.report.wizard'
@@ -24,9 +24,10 @@ class report_projects_wizard(models.TransientModel):
     use_koeff_reserve = fields.Boolean(string='use koefficient for reserve', default = False)
     koeff_reserve = fields.Float(string='koefficient for reserve', default=0.6)
     koeff_potential = fields.Float(string='koefficient for potential', default=0.1)
+    delta = timedelta(days=7)
     date_start = fields.Date(string='start of report', default=date.today(), required=True)
-    date_end = fields.Date(string='end of report', required=True)
-    pds_accept = fields.Selection([('pds', 'PDS'), ('accept', 'Acceptance')], string='PDS Accept', required=True)
+    date_end = fields.Date(string='end of report', default=date.today() + delta, required=True)
+    pds_accept = fields.Selection([('pds', 'PDS'), ('accept', 'Acceptance')], string='PDS Accept', default='pds', required=True)
 
 
     def action_print_report(self):
