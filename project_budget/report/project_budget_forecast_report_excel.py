@@ -1315,7 +1315,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                     # row += 1
                     # sheet.write_string(row, column, project_office.name, row_format)
 
-                    for spec in cur_budget_projects:
+                    for spec in cur_budget_projects.filtered(lambda x: x.project_office_id == project_office and x.project_manager_id == project_manager):
                         # if spec.estimated_probability_id.name != '0':
                         if spec.is_framework == True and spec.project_have_steps == False: continue # рамка без этапов - пропускаем
                         if spec.vgo == '-':
@@ -1328,9 +1328,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
                             if spec.project_have_steps:
                                 for step in spec.project_steps_ids:
-                                    if (step.estimated_probability_id == estimated_probability
-                                            and spec.project_manager_id == project_manager)\
-                                            and spec.project_office_id == project_office:
+                                    if step.estimated_probability_id == estimated_probability:
                                         if self.isStepinYear( spec, step) == False:
                                             continue
                                         isFoundProjectsByManager = True
@@ -1374,9 +1372,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                         sheet.write_string(row, column, '', head_format_1)
                                         self.print_row_Values(workbook, sheet, row, column,  spec, step)
                             else:
-                                if (spec.estimated_probability_id == estimated_probability
-                                        and spec.project_manager_id == project_manager)\
-                                        and spec.project_office_id == project_office:
+                                if spec.estimated_probability_id == estimated_probability:
                                     if self.isProjectinYear(spec) == False:
                                         continue
                                     row += 1
