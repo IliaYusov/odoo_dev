@@ -98,7 +98,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
         row = 0
         column = 0
 
-        sheet.merge_range(row, column, row, column + 7, 'Прогноз: ' + self.pds_accept_str[pds_accept] + ' (' +
+        sheet.merge_range(row, column, row, column + 9, 'Прогноз: ' + self.pds_accept_str[pds_accept] + ' (' +
                           date.strftime(date_start, '%d.%m.%y') + '-' +
                           date.strftime(date_end, '%d.%m.%y') + ')', head_format)
 
@@ -117,6 +117,12 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
         sheet.set_column(column, column, 23)
         column += 1
         sheet.write_string(row, column, 'Заказчик', title_format)
+        sheet.set_column(column, column, 23)
+        column += 1
+        sheet.write_string(row, column, 'ID проекта', title_format)
+        sheet.set_column(column, column, 23)
+        column += 1
+        sheet.write_string(row, column, 'ID этапа проекта', title_format)
         sheet.set_column(column, column, 23)
         column += 1
         sheet.write_string(row, column, 'Наименование сделки', title_format)
@@ -147,7 +153,6 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                  ]
             )
 
-
         for project in cur_budget_projects:
             if project.project_steps_ids:
                 for step in project.project_steps_ids:
@@ -164,7 +169,11 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                     column += 1
                     sheet.write_string(row, column, project.customer_organization_id.name, row_format)
                     column += 1
-                    sheet.write_string(row, column, step.essence_project + '|' + step.code, row_format)
+                    sheet.write_string(row, column, project.project_id, row_format)
+                    column += 1
+                    sheet.write_string(row, column, step.code, row_format)
+                    column += 1
+                    sheet.write_string(row, column, step.essence_project , row_format)
                     column += 1
                     sheet.write_string(row, column, step.legal_entity_signing_id.name, row_format)
                     column += 1
@@ -190,6 +199,10 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                 column += 1
                 sheet.write_string(row, column, project.customer_organization_id.name, row_format)
                 column += 1
+                sheet.write_string(row, column, project.project_id, row_format)
+                column += 1
+                sheet.write_string(row, column, '', row_format)
+                column += 1
                 sheet.write_string(row, column, project.essence_project, row_format)
                 column += 1
                 sheet.write_string(row, column, project.legal_entity_signing_id.name, row_format)
@@ -204,7 +217,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                                        row_format)
 
         row += 1
-        sheet.merge_range(row, 0, row, 6, 'ИТОГО', total_format)
+        sheet.merge_range(row, 0, row, 8, 'ИТОГО', total_format)
         sheet.write_formula(row, column, '=sum({0}{1}:{0}{2})'.format(xl_col_to_name(column), 3, row - 1), total_num_format)
 
     def generate_xlsx_report(self, workbook, data, budgets):
