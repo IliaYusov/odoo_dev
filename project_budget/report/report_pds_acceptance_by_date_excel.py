@@ -161,11 +161,12 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                 for step in project.project_steps_ids:
 
                     if pds_accept == 'pds':
-                        if step.id not in (pds.project_steps_id.id for pds in project.planned_cash_flow_ids if date_start <= pds.date_cash <= date_end):
-                            continue
+                        summ = self.get_sum_plan_pds_project_step(project, step, date_start, date_end)
                     else:
-                        if step.id not in (acc.project_steps_id.id for acc in project.planned_acceptance_flow_ids if date_start <= acc.date_cash <= date_end):
-                            continue
+                        summ = self.get_sum_plan_acceptance_project_step(project, step, date_start,date_end)
+
+                    if summ == 0:
+                        continue
 
                     row += 1
                     column = 0
@@ -190,15 +191,17 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                     column += 1
                     sheet.write_string(row, column, step.legal_entity_signing_id.name, row_format)
                     column += 1
-                    if pds_accept == 'pds':
-                        sheet.write_number(row, column,
-                                           self.get_sum_plan_pds_project_step(project, step, date_start, date_end),
-                                           row_format)
-                    else:
-                        sheet.write_number(row, column,
-                                           self.get_sum_plan_acceptance_project_step(project, step, date_start, date_end),
-                                           row_format)
+                    sheet.write_number(row, column, summ, row_format)
+
             else:
+                if pds_accept == 'pds':
+                    summ = self.get_sum_plan_pds_project_step(project, False, date_start, date_end)
+                else:
+                    summ = self.get_sum_plan_acceptance_project_step(project, False, date_start, date_end)
+
+                if summ == 0:
+                    continue
+
                 row += 1
                 column = 0
 
@@ -222,14 +225,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                 column += 1
                 sheet.write_string(row, column, project.legal_entity_signing_id.name, row_format)
                 column += 1
-                if pds_accept == 'pds':
-                    sheet.write_number(row, column,
-                                       self.get_sum_plan_pds_project_step(project, False, date_start, date_end),
-                                       row_format)
-                else:
-                    sheet.write_number(row, column,
-                                       self.get_sum_plan_acceptance_project_step(project, False, date_start, date_end),
-                                       row_format)
+                sheet.write_number(row, column, summ, row_format)
 
         row += 1
         sheet.merge_range(row, 0, row, 9, 'ИТОГО', total_format)
