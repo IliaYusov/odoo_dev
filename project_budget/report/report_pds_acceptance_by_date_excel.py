@@ -22,7 +22,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                     if pds.project_steps_id.id != step.id:
                         continue
                 if date_start <= pds.date_cash <= date_end:
-                    sum_cash += pds.sum_cash
+                    sum_cash += pds.distribution_sum_with_vat_ostatok
 
         return sum_cash
 
@@ -38,7 +38,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                     if acceptance.project_steps_id.id != step.id:
                         continue
                 if date_start <= acceptance.date_cash <= date_end:
-                    sum_cash += acceptance.sum_cash_without_vat
+                    sum_cash += acceptance.distribution_sum_without_vat_ostatok
 
         return sum_cash
 
