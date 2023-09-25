@@ -72,6 +72,12 @@ class report_projects_overdue_excel(models.AbstractModel):
         sheet.write_string(row, column, 'Step_id', head_format)
         sheet.set_column(column, column, 13)
         column += 1
+        sheet.write_string(row, column, 'Заказчик', head_format)
+        sheet.set_column(column, column, 13)
+        column += 1
+        sheet.write_string(row, column, 'Наименование сделки', head_format)
+        sheet.set_column(column, column, 13)
+        column += 1
         sheet.write_string(row, column, 'Поле', head_format)
         sheet.set_column(column, column, 31)
         column += 1
@@ -120,6 +126,11 @@ class report_projects_overdue_excel(models.AbstractModel):
                 sheet.write_string(row, column, dictvalues['step_id'], row_format)
             else:
                 sheet.write_string(row, column, "", row_format)
+            column += 1
+
+            sheet.write_string(row, column, (spec.customer_organization_id.name or '') , row_format)
+            column += 1
+            sheet.write_string(row, column, (spec.essence_project or ''), row_format)
             column += 1
             if 'end_presale_project_month' in dictvalues:
                 sheet.write_string(row, column, 'Дата контрактования', row_format)

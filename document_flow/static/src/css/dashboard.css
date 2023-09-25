@@ -2,7 +2,7 @@
     overflow: auto !important;
 }
 
-.dashboard-card {
+.card {
     padding: 0px;
     margin-bottom: 1.5rem;
     border-radius: 0px;
@@ -13,87 +13,41 @@
     text-align: center;
 }
 
-.dashboard-card:hover {
+.card:hover {
     transform: translateY(-2px) translateZ(0) !important;
 }
 
-/*    Widget One
----------------------------*/
-.stat-content {
+.card-header {
+    padding: 0.5px;
+}
+
+.card .card-icon {
+    font-size: 30px;
+    font-weight: 900;
     display: inline-block;
-    width: 66%;
 }
 
-.stat-widget-one .stat-text {
-    font-size: 11px;
-    color: #0f5f8b;
-    font-weight: bold;
-    text-align: center;
-}
-
-.stat-widget-one .stat-digit {
-    font-size: 24px;
-    color: #0f5f8b;
-    text-align: center;
-}
-
-.stat-count {
-    font-size: 20px;
-    text-align: center;
+.my_to_do_tasks {
     color: #0f5f8b;
 }
 
-.stat-title {
-    font-size: 17px;
-    text-align: center;
-    color: #0f5f8b;
-}
-
-.my_to_do_tasks .stat-widget-one .stat-text {
-    color: #0f5f8b;
-}
-
-.my_to_do_tasks .stat-widget-one .stat-digit {
-    color: #0f5f8b;
-}
-
-.my_overdue_tasks .stat-widget-one .stat-text {
+.my_overdue_tasks {
     color: #dc3545;
 }
 
-.my_overdue_tasks .stat-widget-one .stat-digit {
-    color: #dc3545;
-}
-
-.by_me_to_do_tasks .stat-widget-one .stat-text {
+.by_me_to_do_tasks {
     color: #0f5f8b;
 }
 
-.by_me_to_do_tasks .stat-widget-one .stat-digit {
-    color: #0f5f8b;
-}
-
-.by_me_overdue_tasks .stat-widget-one .stat-text {
+.by_me_overdue_tasks {
     color: #dc3545;
 }
 
-.by_me_overdue_tasks .stat-widget-one .stat-digit {
-    color: #dc3545;
-}
-
-.group_to_do_tasks .stat-widget-one .stat-text {
+.group_to_do_tasks {
     color: #0f5f8b;
 }
 
-.group_to_do_tasks .stat-widget-one .stat-digit {
-    color: #0f5f8b;
-}
-
-.group_overdue_tasks .stat-widget-one .stat-text {
-    color: #dc3545;
-}
-
-.group_overdue_tasks .stat-widget-one .stat-digit {
+.group_overdue_tasks {
     color: #dc3545;
 }
 

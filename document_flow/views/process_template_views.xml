@@ -25,7 +25,7 @@
         <field name="arch" type="xml">
             <tree string="Process Templates" multi_edit="1" sample="1">
                 <field name="name"/>
-                <field name="model_id"/>
+                <field name="document_type_id"/>
                 <field name="active" widget="boolean_toggle"/>
                 <field name="company_id" groups="base.group_multi_company"/>
             </tree>
@@ -57,7 +57,7 @@
                         </h1>
                     </div>
                     <group>
-                        <field name="model_id"/>
+                        <field name="document_type_id"/>
                     </group>
                     <group>
                         <field name="company_id" groups="base.group_multi_company"/>
@@ -88,6 +88,7 @@
                 <field name="visible_sequence" width="5%" optional="hide"/>
                 <field name="type"/>
                 <field name="name"/>
+                <field name="type_sequence"/>
             </tree>
         </field>
     </record>
@@ -110,6 +111,9 @@
                     <group>
                         <field name="type"/>
                     </group>
+                    <group>
+                        <field name="type_sequence"/>
+                    </group>
                     <group col="2" attrs="{'invisible': [('type', '!=', 'execution')]}">
                         <group>
                             <field name="reviewer_ref"/>
@@ -119,16 +123,15 @@
                         </group>
                     </group>
                     <notebook>
-                        <page name="executors_page" string="Executors">
+                        <page name="executors_page" string="Executors" attrs="{'invisible': [('type', '=', 'complex')]}">
                             <group attrs="{'invisible': [('type', 'in', ('review'))]}">
                                 <field name="task_sequence"/>
                             </group>
                             <field name="executor_ids" mode="tree">
                                 <tree editable="bottom">
-                                    <field name="num" widget="handle"
+                                    <field name="sequence" widget="handle"
                                            attrs="{'column_invisible': ['|', ('parent.type', 'in', ('review')), ('parent.task_sequence', '=', 'all_at_once')]}"/>
-                                    <field name="sequence" optional="hide"
-                                           attrs="{'column_invisible': ['|', ('parent.type', 'in', ('review')), ('parent.task_sequence', '=', 'all_at_once')]}"/>
+                                    <field name="visible_sequence" width="5%" optional="hide"/>
                                     <field name="executor_ref"/>
                                     <field name="type_sequence"
                                            attrs="{'column_invisible': ['|', ('parent.type', 'in', ('review')), ('parent.task_sequence', '!=', 'mixed')]}"/>
@@ -136,8 +139,11 @@
                                 </tree>
                             </field>
                         </page>
-                        <page name="compute_condition" string="Compute Condition">
-                            <field name="compute_condition" widget="ace" options="{'mode': 'python'}"/>
+                        <page name="child_page" string="Actions" attrs="{'invisible': [('type', 'not in', ('complex'))]}">
+                            <field name="child_ids" widget="section_and_note_one2many" mode="tree" context="{'default_sequence': len(child_ids)}"/>
+                        </page>
+                        <page name="start_condition" string="Start Condition">
+                            <field name="start_condition" widget="ace" options="{'mode': 'python'}"/>
                         </page>
                     </notebook>
                 </sheet>

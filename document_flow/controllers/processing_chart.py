@@ -52,6 +52,7 @@ class ProcessingChartController(http.Controller):
 
         values = dict(
             self=self._prepare_process_data(process),
-            sub_processes=[self._prepare_process_data(child) for child in process.child_ids if child != process]
+            sub_processes=[self._prepare_process_data(child) for child in
+                           process.child_ids.filtered(lambda pr: pr.state != 'skipped') if child != process]
         )
         return values

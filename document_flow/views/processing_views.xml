@@ -8,6 +8,8 @@
                 <header>
                     <button string="Start processing" type="object" name="action_start_processing" class="oe_highlight"
                             attrs="{'invisible': [('process_id', '!=', False)]}"/>
+                    <button string="Break processing" type="object" name="break_processing" class="oe_highlight"
+                            attrs="{'invisible': ['|', ('process_id', '=', False), ('state', '!=', 'started')]}"/>
                     <button string="Resume processing" type="object" name="resume_processing_from_last_stage" class="oe_highlight"
                             attrs="{'invisible': ['|', ('process_id', '=', False), ('state', '!=', 'break')]}"/>
                 </header>
@@ -17,6 +19,7 @@
                         <field name="state"/>
                         <field name="parent_ref_type"/>
                         <field name="parent_ref_id"/>
+                        <field name="document_type_id"/>
                     </group>
                     <div id="o_process_container" class="d-lg-flex">
                         <div id="o_processing_main" class="flex-grow-1">
@@ -25,9 +28,10 @@
                             </group>
                             <div col="2" class="o_row">
                                 <group>
-                                    <field name="template_id"/>
+                                    <field name="template_id" attrs="{'readonly': [('process_id', '!=', False)]}"/>
                                 </group>
-                                <button name="fill_by_template" type="object" class="btn btn-link">
+                                <button name="fill_by_template" type="object" class="btn btn-link"
+                                        attrs="{'invisible': [('process_id', '!=', False)]}">
                                     <span class="fa fa-refresh"></span>
                                     <span>Fill by template</span>
                                 </button>
@@ -37,6 +41,7 @@
                     <notebook>
                         <page name="actions_page" string="Actions">
                             <field name="action_ids" widget="section_and_note_one2many" mode="tree"
+                                   attrs="{'readonly': [('process_id', '!=', False)]}"
                                    context="{'default_parent_ref_type': 'document_flow.processing','default_parent_ref_id': active_id}"/>
                         </page>
                         <page name="processing_history_page" string="Processing History">

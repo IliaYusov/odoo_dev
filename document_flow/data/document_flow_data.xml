@@ -9,8 +9,16 @@
             <field name="company_id" eval="True"/>
         </record>
 
+        <record id="seq_document_flow_document" model="ir.sequence">
+            <field name="name">Document Number</field>
+            <field name="code">document_flow.document</field>
+            <field name="prefix">DOC-%(year)s%(month)s-</field>
+            <field name="padding">6</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
         <record id="task_type_review" model="task.type">
-            <field name="name">{""en_US"": ""Agreement"", ""ru_RU"": ""Согласование""}</field>
+            <field name="name">Agreement</field>
             <field name="code">sys_df_review</field>
             <field name="active">True</field>
             <field name="color">rgba(85, 170, 255, 1)</field>

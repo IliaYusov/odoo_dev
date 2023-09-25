@@ -9,28 +9,44 @@
 
     <t t-name="DashBoardDocumentFlow">
         <link rel="stylesheet" href="/document_flow/static/src/css/dashboard.css"/>
-        <div class="row main-section mt-5">
-            <div class="col-sm-6 col-md-3-12 col-md-6 col-lg-3 df my_tasks">
-                <div class="card card_my_tasks">
-                    <div class="dashboard-card">
-                        <div class="card-header">
-                            <h2 class="card-title">My Tasks: <small id="my_tasks_count"/></h2>
-                        </div>
-                        <div class="card-body">
-                            <div class="row tasks-section mt-1">
-                                <div class="col-sm-6 col-lg-6 df my_to_do_tasks">
-                                    <div class="stat-widget-one">
-                                        <div class="stat-content">
-                                            <div class="stat-digit" id="my_to_do_count"/>
-                                            <div class="stat-text">New</div>
+        <div class="row row-cols-1 row-cols-md-4 g-4 mt-1">
+            <div class="col my_tasks">
+                <div class="card">
+                    <div class="card-header justify-content-center align-items-center">
+                        <h2 class="card-title">My Tasks: <small id="my_tasks_count"/></h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row row-cols-2">
+                            <div class="col-md-6">
+                                <div class="card my_to_do_tasks">
+                                    <div class="row justify-content-center align-items-center g-0">
+                                        <div class="col-4">
+                                            <div class="card-icon">
+                                                <i class="fa fa-inbox"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body text-info">
+                                                <p class="card-text" id="my_to_do_count"/>
+                                                <p class="card-text">New</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-6 col-lg-6 df my_overdue_tasks">
-                                    <div class="stat-widget-one">
-                                        <div class="stat-content">
-                                            <div class="stat-digit" id="my_overdue_count"/>
-                                            <div class="stat-text">Overdue</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card my_overdue_tasks">
+                                    <div class="row justify-content-center align-items-center g-0">
+                                        <div class="col-4">
+                                            <div class="card-icon">
+                                                <i class="fa fa-fire"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body text-danger">
+                                                <p class="card-text" id="my_overdue_count"/>
+                                                <p class="card-text">Overdue</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -39,28 +55,43 @@
                     </div>
                 </div>
             </div>
-
-            <div class="col-sm-6 col-md-3-12 col-md-6 col-lg-3 df by_me_tasks">
-                <div class="card card_by_me_tasks">
-                    <div class="dashboard-card">
-                        <div class="card-header">
-                            <h2 class="card-title">Created By Me: <small id="by_me_tasks_count"/></h2>
-                        </div>
-                        <div class="card-body">
-                            <div class="row tasks-section mt-1">
-                                <div class="col-sm-6 col-lg-6 df by_me_to_do_tasks">
-                                    <div class="stat-widget-one">
-                                        <div class="stat-content">
-                                            <div class="stat-digit" id="by_me_to_do_count"/>
-                                            <div class="stat-text">New</div>
+            <div class="col by_me_tasks">
+                <div class="card">
+                    <div class="card-header justify-content-center align-items-center">
+                        <h2 class="card-title">Created By Me: <small id="by_me_tasks_count"/></h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row row-cols-2">
+                            <div class="col-md-6">
+                                <div class="card by_me_to_do_tasks">
+                                    <div class="row justify-content-center align-items-center g-0">
+                                        <div class="col-4">
+                                            <div class="card-icon">
+                                                <i class="fa fa-inbox"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body text-info">
+                                                <p class="card-text" id="by_me_to_do_count"/>
+                                                <p class="card-text">New</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-6 col-lg-6 df by_me_overdue_tasks">
-                                    <div class="stat-widget-one">
-                                        <div class="stat-content">
-                                            <div class="stat-digit" id="by_me_overdue_count"/>
-                                            <div class="stat-text">Overdue</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card by_me_overdue_tasks">
+                                    <div class="row justify-content-center align-items-center g-0">
+                                        <div class="col-4">
+                                            <div class="card-icon">
+                                                <i class="fa fa-fire"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body text-danger">
+                                                <p class="card-text" id="by_me_overdue_count"/>
+                                                <p class="card-text">Overdue</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -69,28 +100,43 @@
                     </div>
                 </div>
             </div>
-
-            <div class="col-sm-6 col-md-3-12 col-md-6 col-lg-3 df my_group_tasks">
-                <div class="card card_group_tasks">
-                    <div class="dashboard-card">
-                        <div class="card-header">
-                            <h2 class="card-title">Group Tasks: <small id="group_tasks_count"/></h2>
-                        </div>
-                        <div class="card-body">
-                            <div class="row tasks-section mt-1">
-                                <div class="col-sm-6 col-lg-6 df group_to_do_tasks">
-                                    <div class="stat-widget-one">
-                                        <div class="stat-content">
-                                            <div class="stat-digit" id="group_to_do_count"/>
-                                            <div class="stat-text">New</div>
+            <div class="col group_tasks">
+                <div class="card">
+                    <div class="card-header justify-content-center align-items-center">
+                        <h2 class="card-title">Group Tasks: <small id="group_tasks_count"/></h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row row-cols-2">
+                            <div class="col-md-6">
+                                <div class="card group_to_do_tasks">
+                                    <div class="row justify-content-center align-items-center g-0">
+                                        <div class="col-4">
+                                            <div class="card-icon">
+                                                <i class="fa fa-inbox"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body text-info">
+                                                <p class="card-text" id="group_to_do_count"/>
+                                                <p class="card-text">New</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-6 col-lg-6 df group_overdue_tasks">
-                                    <div class="stat-widget-one">
-                                        <div class="stat-content">
-                                            <div class="stat-digit" id="group_overdue_count"/>
-                                            <div class="stat-text">Overdue</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card group_overdue_tasks">
+                                    <div class="row justify-content-center align-items-center g-0">
+                                        <div class="col-4">
+                                            <div class="card-icon">
+                                                <i class="fa fa-fire"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body text-danger">
+                                                <p class="card-text" id="group_overdue_count"/>
+                                                <p class="card-text">Overdue</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

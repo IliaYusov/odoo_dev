@@ -6,7 +6,15 @@
         <field name="inherit_id" ref="task.task_view_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='user_id']" position="before">
-                <field name="role_executor_id" attrs="{'invisible': [('role_executor_id', '=', False)]}"/>
+                <field name="role_executor_id" options="{'no_quick_create': True}"
+                       attrs="{'invisible': [('role_executor_id', '=', False)]}"/>
+            </xpath>
+            <xpath expr="//field[@name='parent_ref']" position="attributes">
+                    <attribute name="attrs">{'invisible': [('parent_obj_ref', '!=', False)]}</attribute>
+                </xpath>
+            <xpath expr="//field[@name='type_id']" position="before">
+                <field name="parent_obj_ref" options="{'no_quick_create': True}"
+                       attrs="{'invisible': [('parent_obj_ref', '=', False)]}"/>
             </xpath>
         </field>
     </record>

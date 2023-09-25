@@ -4,7 +4,6 @@ from html2text import html2text
 
 from odoo import _, models, fields, api, exceptions
 from odoo.exceptions import ValidationError
-from datetime import datetime, date
 
 PRIORITIES = [
     ('0', 'Not set'),
@@ -30,10 +29,6 @@ class Task(models.Model):
 
     @api.model
     def _selection_parent_model(self):
-        return []
-
-    @api.model
-    def _selection_parent_obj_model(self):
         return []
 
     def _get_type_domain(self):
@@ -187,20 +182,6 @@ class Task(models.Model):
         base_url = self.env['ir.config_parameter'].get_param('web.base.url')
         base_url += '/web#id=%d&view_type=form&model=%s' % (self.id, self._name)
         return base_url
-
-    # TODO: Принять решение об архитектуре предметов согласования
-    def _compute_parent_obj(self):
-        for task in self:
-            parent_ref = self.env['document_flow.process.parent_object'].search([
-                ('process_id', '=', task.parent_ref.id)
-            ]).parent_ref
-            if not parent_ref:
-                parent_ref = self.env['document_flow.processing'].search([
-                    '|',
-                    ('process_id', '=', task.parent_ref.id),
-                    ('process_id', '=', task.parent_ref.parent_id.id),
-                ]).parent_ref
-            task.parent_obj_ref = parent_ref
 
     @api.depends('description')
     def _compute_description_kanban(self):

@@ -240,6 +240,13 @@ class Event(models.Model):
             }
         }
 
+    def action_renumber_decisions(self):
+        for event in self:
+            num = 1
+            for decision in event.decision_ids:
+                decision.num = num
+                num += 1
+
     def action_open_attachments(self):
         self.ensure_one()
         return {
@@ -296,8 +303,8 @@ class EventDecision(models.Model):
     _description = 'Event Decision'
     _order = 'num, id'
 
-    num = fields.Integer(string='№', required=True, copy=True, default=1)
-    visible_num = fields.Integer(string='№', compute='_compute_num')
+    num = fields.Integer(string='№', copy=True, required=True, default=1)
+    visible_num = fields.Integer(string='№', compute='_compute_num', copy=False)
     name = fields.Html(string='Decided', required=True, copy=True)
     event_id = fields.Many2one('document_flow.event', string='Event', ondelete='cascade', index=True, required=True)
     task_type = fields.Selection([
@@ -334,7 +341,7 @@ class EventDecision(models.Model):
             decisions.append((decision.id, name))
         return decisions
 
-    @api.onchange('num')
+    @api.depends('num')
     def _compute_num(self):
         for decision in self:
             decision.visible_num = decision.num

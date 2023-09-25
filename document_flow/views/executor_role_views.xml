@@ -34,17 +34,16 @@
                     <group invisible="1">
                         <field name="active"/>
                     </group>
-                    <widget name="web_ribbon" title="Archived"
-                            bg_color="bg-danger"
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger"
                             attrs="{'invisible': [('active', '=', True)]}"/>
                     <group>
-                        <group>
-                            <field name="name"/>
-                        </group>
-                        <field name="member_ids"
-                               options="{'no_open': True, 'no_quick_create': True}"
-                               widget="many2many_avatar_user"
-                               domain="[('share', '=', False)]"/>
+                        <field name="name"/>
+                    </group>
+                    <group>
+                        <field name="member_ids" options="{'no_open': True, 'no_quick_create': True}"
+                               widget="many2many_avatar_user" domain="[('share', '=', False)]"/>
+                    </group>
+                    <group>
                         <field name="company_id" groups="base.group_multi_company"/>
                     </group>
                 </sheet>

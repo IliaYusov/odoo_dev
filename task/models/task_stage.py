@@ -1,4 +1,4 @@
-from odoo import models, fields, api, exceptions, _
+from odoo import models, fields, api, _
 
 DEFAULT_BG_COLOR = 'rgba(120,120,120,1)'
 
@@ -19,7 +19,7 @@ class TaskStage(models.Model):
     type_id = fields.Many2one('task.stage.type', string="Stage Type", required=True, index=True, ondelete="restrict")
     task_type_id = fields.Many2one('task.type', string='Task Type', ondelete='cascade', required=True, index=True)
     mail_template_id = fields.Many2one('mail.template', string='Email Template', domain=[('model', '=', 'task.task')],
-                                       help="If set, an email will be automatically sent to the customer when the task reaches this stage.")
+                                       help='If set, an email will be automatically sent to the customer when the task reaches this stage.')
 
     active = fields.Boolean(default=True, index=True)
     sequence = fields.Integer(default=5, index=True)

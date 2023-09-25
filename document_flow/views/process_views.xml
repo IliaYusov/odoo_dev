@@ -121,9 +121,8 @@
                                 </tree>
                             </field>
                         </page>
-                        <page name="tasks_page" string="Tasks"
-                              attrs="{'invisible': ['|', ('type', '=', 'complex'), ('state', '=', 'on_registration')]}">
-                            <field name="task_ids" mode="tree">
+                        <page name="tasks_page" string="Tasks" attrs="{'invisible': [('state', '=', 'on_registration')]}">
+                            <field name="active_task_ids" mode="tree">
                                 <tree create="0" delete="0">
                                     <field name="name"/>
                                     <field name="user_id" widget="many2one_avatar_user"/>

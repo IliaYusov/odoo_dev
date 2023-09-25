@@ -1,10 +1,9 @@
 from odoo import _, models, fields, api
+from .document_flow_process import selection_parent_model
 
 
 class Task(models.Model):
     _inherit = 'task.task'
-
-    role_executor_id = fields.Many2one('document_flow.role_executor', string='Group', tracking=True)
 
     @api.model
     def _selection_parent_model(self):
@@ -12,15 +11,26 @@ class Task(models.Model):
         types.append(('document_flow.process', _('Process')))
         return types
 
-    # TODO: Связать с определением в самой модели
     @api.model
     def _selection_parent_obj_model(self):
-        types = super(Task, self)._selection_parent_obj_model()
-        types.append(('document_flow.event', _('Event')))
-        types.append(('document_flow.event.decision', _('Decision')))
-        types.append(('document_flow.action', _('Action')))
-        types.append(('document_flow.document', _('Document')))
-        return types
+        return selection_parent_model()
+
+    parent_obj_ref = fields.Reference(string='Parent Object', selection='_selection_parent_obj_model',
+                                      compute='_compute_parent_obj', readonly=True)
+    role_executor_id = fields.Many2one('document_flow.role_executor', string='Group', tracking=True)
+
+    # TODO: Принять решение об архитектуре предметов согласования
+    def _compute_parent_obj(self):
+        for task in self:
+            if task.parent_ref:
+                parent_ref = self.env['document_flow.process.parent_object'].search([
+                    ('process_id', '=', task.parent_ref.id)
+                ]).parent_ref
+                if not parent_ref:
+                    parent_ref = self.env['document_flow.processing'].search([
+                        ('process_id', '=', task.parent_ref._get_mainprocess_id_by_process_id().get(task.parent_ref.id, None))
+                    ]).parent_ref
+                task.parent_obj_ref = parent_ref
 
     @api.model
     def check_user_group(self):

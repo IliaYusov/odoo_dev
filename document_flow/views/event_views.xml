@@ -92,7 +92,7 @@
                     </div>
                     <div class="oe_title mb-3">
                         <h1>
-                            <field name="name" placeholder="Event Title..."/>
+                            <field name="name" placeholder="Event Title..." attrs="{'readonly': [('state', '!=', 'on_registration')]}"/>
                         </h1>
                     </div>
                     <group>
@@ -100,34 +100,30 @@
                             <field name="is_process_started"/>
                         </group>
                         <group>
-                            <field name="management_committee_id"/>
-                            <field name="location"/>
-                            <field name="date_start" widget="date"/>
+                            <field name="management_committee_id" attrs="{'readonly': [('state', '!=', 'on_registration')]}"/>
+                            <field name="location" attrs="{'readonly': [('state', '!=', 'on_registration')]}"/>
+                            <field name="date_start" widget="date" attrs="{'readonly': [('state', '!=', 'on_registration')]}"/>
                             <field name="date_end" invisible="1"/>
                         </group>
                         <group>
-                            <field name="organizer_id"/>
-                            <field name="agreed_id"/>
+                            <field name="organizer_id" attrs="{'readonly': [('state', '!=', 'on_registration')]}"/>
+                            <field name="agreed_id" attrs="{'readonly': [('state', '!=', 'on_registration')]}"/>
                         </group>
-
                     </group>
                     <group>
-                        <field name="member_ids"
-                               options="{'no_open': True, 'no_quick_create': True}"
-                               widget="many2many_avatar_user"
-                               domain="[('share', '=', False)]"/>
+                        <field name="member_ids" options="{'no_open': True, 'no_quick_create': True}"
+                               widget="many2many_avatar_user" domain="[('share', '=', False)]" attrs="{'readonly': [('state', '!=', 'on_registration')]}"/>
                     </group>
                     <group>
-                        <field name="company_ids" widget="many2many_tags" groups="base.group_multi_company"/>
-<!--                        <field name="company_id" groups="base.group_multi_company"/>-->
+                        <field name="company_ids" widget="many2many_tags" groups="base.group_multi_company" attrs="{'readonly': [('state', '!=', 'on_registration')]}"/>
                     </group>
                     <notebook>
                         <page name="description_page" string="Description">
                             <field name="description" type="html" options="{'collaborative': true, 'resizable': false}"
-                                   placeholder="Event description..."/>
+                                   placeholder="Event description..." attrs="{'readonly': [('state', '!=', 'on_registration')]}"/>
                         </page>
                         <page name="question_page" string="Questions">
-                            <field name="question_ids" widget="section_and_note_one2many" mode="tree">
+                            <field name="question_ids" widget="section_and_note_one2many" mode="tree" attrs="{'readonly': [('state', '!=', 'on_registration')]}">
                                 <tree>
                                     <field name="time_start" widget="float_time" width="10%"/>
                                     <field name="time_end" widget="float_time" width="5%"/>
@@ -137,7 +133,9 @@
                             </field>
                         </page>
                         <page name="decisions_page" string="Decisions">
-                            <field name="decision_ids" widget="section_and_note_one2many" mode="tree">
+                            <button string="Renumber Decisions" class="btn btn-primary" type="object"
+                                    name="action_renumber_decisions" icon="fa-sort-numeric-asc" attrs="{'invisible': [('state', '!=', 'on_registration')]}"/>
+                            <field name="decision_ids" widget="section_and_note_one2many" mode="tree" attrs="{'readonly': [('state', '!=', 'on_registration')]}">
                                 <tree>
                                     <field name="num" widget="handle"/>
                                     <field name="visible_num"/>
@@ -152,7 +150,7 @@
                             </field>
                         </page>
                         <page name="annexes_page" string="Annexes">
-                            <field name="annex_ids" widget="section_and_note_one2many" mode="tree">
+                            <field name="annex_ids" widget="section_and_note_one2many" mode="tree" attrs="{'readonly': [('state', '!=', 'on_registration')]}">
                                 <tree>
                                     <field name="num" widget="handle"/>
                                     <field name="visible_num"/>

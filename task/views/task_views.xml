@@ -71,8 +71,7 @@
                     <div class="stages_wrapper">
                         <field name="stage_routes" widget="stage_button_widget" attrs="{'invisible' : [('id', '=', False)]}"/>
                     </div>
-                    <field name="stage_id" widget="statusbar"
-                           attrs="{'readonly': True}"
+                    <field name="stage_id" widget="statusbar" attrs="{'readonly': True}"
                            domain="[('id', '=', stage_id)]"/>
                 </header>
                 <sheet string="Task">
@@ -99,30 +98,20 @@
                     <div class="oe_title">
                         <field name="code" readonly="1"/>
                     </div>
-                    <div class="oe_title pe-0">
-                        <h1 class="d-flex justify-content-between align-items-center">
-                            <div class="d-flex w-100">
-                                <field name="name" class="o_task_name text-truncate w-100 w-md-75 pe-2"
-                                       placeholder="Task Title..."/>
-                            </div>
-                        </h1>
-                    </div>
+                    <h2>
+                        <field name="name" style="width:100%" placeholder="Task Title..."/>
+                    </h2>
                     <group>
                         <group>
                             <field name="author_id"/>
-                            <field name="parent_ref" options="{'no_quick_create': True}"
-                                   attrs="{'invisible': [('parent_obj_ref', '!=', False)]}"/>
-                            <field name="parent_obj_ref" options="{'no_quick_create': True}"
-                                   attrs="{'invisible': [('parent_obj_ref', '=', False)]}"/>
+                            <field name="parent_ref" options="{'no_quick_create': True}"/>
                             <field name="type_id" attrs="{'readonly': [('id', '!=', False)]}"
                                    options="{'no_open': True, 'no_quick_create': True}"/>
                         </group>
                         <group>
                             <field name="priority" widget="priority"/>
-                            <field name="user_id"
-                                   options="{'no_open': True, 'no_quick_create': True}"
-                                   widget="many2one_avatar_user"
-                                   domain="[('share', '=', False)]"/>
+                            <field name="user_id" options="{'no_open': True, 'no_quick_create': True}"
+                                   widget="many2one_avatar_user" domain="[('share', '=', False)]"/>
                             <field name="date_deadline"/>
                         </group>
                     </group>
@@ -130,14 +119,11 @@
                         <page name="description_page" string="Description">
                             <field name="description" type="html" options="{'collaborative': true, 'resizable': false}"
                                    placeholder="Task description..."/>
-                             <div class="task-separator task-separator-execution-result"
-                                 name="task_execution_result"
+                            <div class="task-separator task-separator-execution-result" name="task_execution_result"
                                  attrs="{'invisible': [('execution_result', '=', False)]}">
                                 <span class="task-separator-text">Execution result</span>
                             </div>
-                            <field name="execution_result"
-                                   colspan="4"
-                                   readonly="1"
+                            <field name="execution_result" colspan="4" readonly="1"
                                    attrs="{'invisible': [('execution_result', '=', False)]}"/>
                         </page>
                         <page name="sub_tasks_page" string="Sub-tasks">
@@ -147,8 +133,7 @@
                                         'default_user_id': user_id, 'default_parent_id': id,
                                         'default_parent_ref_type': parent_ref_type, 'default_parent_ref_id': parent_ref_id,
                                         'search_default_parent_ref': parent_ref}"
-                                   widget="many2many"
-                                   domain="['!', ('id', 'parent_of', id)]">
+                                   widget="many2many" domain="['!', ('id', 'parent_of', id)]">
                                 <tree editable="bottom">
                                     <field name="name"/>
                                     <field name="user_id" widget="many2one_avatar_user" optional="show" domain="[('share', '=', False), ('active', '=', True)]"/>
