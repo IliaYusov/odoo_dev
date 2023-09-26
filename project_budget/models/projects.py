@@ -525,24 +525,47 @@ class projects(models.Model):
                    return True, "", {}
 
             vals_list_planaccepts = False
-            vals_list_factaccepts = False
-            vals_list_distribution_acceptance = False
+            buffer_new_distr_plan_accept_ids = set()
+            buffer_del_distr_accept_ids = set()
+            buffer_new_distr_accept_ids = set()
+
             if vals_list:
                 if 'planned_acceptance_flow_ids' in vals_list:
                     vals_list_planaccepts = vals_list['planned_acceptance_flow_ids']
-                # if 'fact_acceptance_flow_ids' in vals_list:
-                #     vals_list_factaccepts = vals_list['fact_acceptance_flow_ids']
-                #     vals_list_factaccepts = vals_list_factaccepts[0]
-                #     print('vals_list_factaccepts[0] = ', vals_list_factaccepts[0])
-                #     print('vals_list_factaccepts[1] = ', vals_list_factaccepts[1])
-                #     print('vals_list_factaccepts[2] = ', vals_list_factaccepts[2])
-                # if 'distribution_acceptance_ids' in vals_list_factaccepts:
-                #         vals_list_distribution_acceptance = vals_list_factaccepts['distribution_acceptance_ids']
 
-            print('vals_list_factaccepts = ', vals_list_factaccepts)
-            print('vals_list_distribution_acceptance = ', vals_list_distribution_acceptance)
-            # print('project.planned_acceptance_flow_ids = ', project.planned_acceptance_flow_ids)
-            # print('dict_formula =', dict_formula)
+                if 'fact_acceptance_flow_ids' in vals_list:  # проверяем Факт Акты в буфере
+                    for fact_acceptance_flow_id in vals_list['fact_acceptance_flow_ids']:
+                        if fact_acceptance_flow_id[0] == 0:  # создание Факт Акта
+                            if 'distribution_acceptance_ids' in fact_acceptance_flow_id[2]:
+                                for distribution_acceptance_id in fact_acceptance_flow_id[2]['distribution_acceptance_ids']:
+                                    if distribution_acceptance_id[0] == 0:  # создание распределения
+                                        if distribution_acceptance_id[2]['sum_cash'] > 0:
+                                            buffer_new_distr_plan_accept_ids.add(distribution_acceptance_id[2]['planned_acceptance_flow_id'])
+                        elif fact_acceptance_flow_id[0] == 1:  # изменение Факт Акта
+                            if 'distribution_acceptance_ids' in fact_acceptance_flow_id[2]:
+                                for distribution_acceptance_id in fact_acceptance_flow_id[2]['distribution_acceptance_ids']:
+                                    if distribution_acceptance_id[0] == 0:  # создание распределения
+                                        if distribution_acceptance_id[2]['sum_cash'] > 0:
+                                            buffer_new_distr_plan_accept_ids.add(distribution_acceptance_id[2]['planned_acceptance_flow_id'])
+                                    elif distribution_acceptance_id[0] == 1:  # изменение распределения
+                                        if 'planned_acceptance_flow_id' in distribution_acceptance_id[2]:  # если поменялся Прогноз для распределения
+                                            if ('sum_cash' not in distribution_acceptance_id[2] or distribution_acceptance_id[2]['sum_cash'] != 0):
+                                                buffer_new_distr_plan_accept_ids.add(distribution_acceptance_id[2]['planned_acceptance_flow_id'])
+                                            buffer_del_distr_accept_ids.add(distribution_acceptance_id[1])
+                                        elif 'sum_cash' in distribution_acceptance_id[2]: # если поменялась сумма распределения
+                                            if distribution_acceptance_id[2]['sum_cash'] == 0:
+                                                buffer_del_distr_accept_ids.add(distribution_acceptance_id[1])
+                                            else:
+                                                buffer_new_distr_accept_ids.add(distribution_acceptance_id[1])
+                                    elif distribution_acceptance_id[0] == 2:  # удаление распределения
+                                        buffer_del_distr_accept_ids.add(distribution_acceptance_id[1])
+                        elif fact_acceptance_flow_id[0] == 2:  # удаление Факт Акта
+                            for fact_acceptance in project.fact_acceptance_flow_ids:
+                                if fact_acceptance.id == fact_acceptance_flow_id[1]:
+                                    buffer_del_distr_accept_ids.update(fact_acceptance.distribution_acceptance_ids.ids)
+
+                # print('buffer_new_distr_plan_accept_ids-', buffer_new_distr_plan_accept_ids, 'buffer_del_distr_accept_ids-', buffer_del_distr_accept_ids, 'buffer_new_distr_accept_ids', buffer_new_distr_accept_ids)
+
             for plan_accept in project.planned_acceptance_flow_ids:
                 date_cash = plan_accept.date_cash
                 step_id_str = str(plan_accept.project_steps_id.id)
@@ -565,18 +588,54 @@ class projects(models.Model):
                                         vals_one_accept['date_cash'], "%Y-%m-%d").date()
 
                 if date_cash < fields.datetime.now().date():
-                    if plan_accept.distribution_acceptance_ids:
+                    # print('plan_accept.distribution_acceptance_ids =', plan_accept.distribution_acceptance_ids, 'plan_accept.id =', plan_accept.id)
+                    if (any(distribution.id not in buffer_del_distr_accept_ids for distribution in plan_accept.distribution_acceptance_ids if (distribution.sum_cash_without_vat > 0 or distribution.id in buffer_new_distr_accept_ids))
+                            or plan_accept.id in buffer_new_distr_plan_accept_ids):
                         ok = True
                     else:
                         raisetext = _("DENIED. Project {0} have overdue planned acceptance flow  without fact {1}")
-                        raisetext = raisetext.format(project.project_id,str(date_cash))
-                        return False, raisetext, {'planned_acceptance_flow':str(date_cash)}
-
+                        raisetext = raisetext.format(project.project_id, str(date_cash))
+                        return False, raisetext, {'planned_acceptance_flow': str(date_cash)}
 
             vals_list_plancashs = False
+            buffer_new_distr_plan_cash_ids = set()
+            buffer_del_distr_cash_ids = set()
+            buffer_new_distr_cash_ids = set()
+
             if vals_list:
                 if 'planned_cash_flow_ids' in vals_list:
                     vals_list_plancashs = vals_list['planned_cash_flow_ids']
+
+                if 'fact_cash_flow_ids' in vals_list:  # проверяем Факт ПДС в буфере
+                    for fact_cash_flow_id in vals_list['fact_cash_flow_ids']:
+                        if fact_cash_flow_id[0] == 0:  # создание Факт ПДС
+                            if 'distribution_cash_ids' in fact_cash_flow_id[2]:
+                                for distribution_cash_flow_id in fact_cash_flow_id[2]['distribution_cash_ids']:
+                                    if distribution_cash_flow_id[0] == 0:  # создание распределения
+                                        if distribution_cash_flow_id[2]['sum_cash'] > 0:
+                                            buffer_new_distr_plan_cash_ids.add(distribution_cash_flow_id[2]['planned_cash_flow_id'])
+                        elif fact_cash_flow_id[0] == 1:  # изменение Факт ПДС
+                            if 'distribution_cash_ids' in fact_cash_flow_id[2]:
+                                for distribution_cash_flow_id in fact_cash_flow_id[2]['distribution_cash_ids']:
+                                    if distribution_cash_flow_id[0] == 0:  # создание распределения
+                                        if distribution_cash_flow_id[2]['sum_cash'] > 0:
+                                            buffer_new_distr_plan_cash_ids.add(distribution_cash_flow_id[2]['planned_cash_flow_id'])
+                                    elif distribution_cash_flow_id[0] == 1:  # изменение распределения
+                                        if 'planned_cash_flow_id' in distribution_cash_flow_id[2]:  # если поменялся Прогноз для распределения
+                                            if ('sum_cash' not in distribution_cash_flow_id[2] or distribution_cash_flow_id[2]['sum_cash'] != 0):
+                                                buffer_new_distr_plan_cash_ids.add(distribution_cash_flow_id[2]['planned_cash_flow_id'])
+                                            buffer_del_distr_cash_ids.add(distribution_cash_flow_id[1])
+                                        elif 'sum_cash' in distribution_cash_flow_id[2]: # если поменялась сумма распределения
+                                            if distribution_cash_flow_id[2]['sum_cash'] == 0:
+                                                buffer_del_distr_cash_ids.add(distribution_cash_flow_id[1])
+                                            else:
+                                                buffer_new_distr_cash_ids.add(distribution_cash_flow_id[1])
+                                    elif distribution_cash_flow_id[0] == 2:  # удаление распределения
+                                        buffer_del_distr_cash_ids.add(distribution_cash_flow_id[1])
+                        elif fact_cash_flow_id[0] == 2:  # удаление Факт ПДС
+                            for fact_cash in project.fact_cash_flow_ids:
+                                if fact_cash.id == fact_cash_flow_id[1]:
+                                    buffer_del_distr_cash_ids.update(fact_cash.distribution_cash_ids.ids)
 
             for plan_cash in project.planned_cash_flow_ids:
                 date_cash = plan_cash.date_cash
@@ -599,12 +658,15 @@ class projects(models.Model):
                                     date_cash = datetime.datetime.strptime(
                                         vals_one_cash['date_cash'], "%Y-%m-%d").date()
                 if date_cash < fields.datetime.now().date():
-                    if plan_cash.distribution_cash_ids:
+                    if (any(distribution.id not in buffer_del_distr_cash_ids for distribution in
+                            plan_cash.distribution_cash_ids if
+                            (distribution.sum_cash_without_vat > 0 or distribution.id in buffer_new_distr_cash_ids))
+                            or plan_cash.id in buffer_new_distr_plan_cash_ids):
                         ok = True
                     else:
                         raisetext = _("DENIED. Project {0} have overdue planned cash flow  without fact {1}" )
                         raisetext = raisetext.format(project.project_id, str(date_cash))
-                        return False, raisetext, {'planned_cash_flow':str(date_cash)}
+                        return False, raisetext, {'planned_cash_flow': str(date_cash)}
 
         return True, "", {}
 
