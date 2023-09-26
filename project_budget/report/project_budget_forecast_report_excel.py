@@ -22,8 +22,9 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         if project:
             if step:
-                if (step.end_presale_project_month.year >= YEARint and step.end_presale_project_month.year <= year_end ) \
-                        or (step.end_sale_project_month.year >= YEARint and step.end_sale_project_month.year <= year_end ):
+                if (step.end_presale_project_month.year >= YEARint and step.end_presale_project_month.year <= year_end)\
+                        or (step.end_sale_project_month.year >= YEARint and step.end_sale_project_month.year <= year_end)\
+                        or (step.end_presale_project_month.year <= YEARint and step.end_sale_project_month.year >= year_end):
                     return True
                 for pds in project.planned_cash_flow_ids:
                     if pds.project_steps_id.id == step.id:
@@ -48,8 +49,9 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         if project:
             if project.project_have_steps == False:
-                if (project.end_presale_project_month.year >= YEARint and project.end_presale_project_month.year <= year_end ) \
-                        or (project.end_sale_project_month.year >= YEARint and project.end_sale_project_month.year <= year_end):
+                if (project.end_presale_project_month.year >= YEARint and project.end_presale_project_month.year <= year_end)\
+                        or (project.end_sale_project_month.year >= YEARint and project.end_sale_project_month.year <= year_end)\
+                        or (project.end_presale_project_month.year <= YEARint and project.end_sale_project_month.year >= year_end):
                     return True
                 for pds in project.planned_cash_flow_ids:
                     if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end:
