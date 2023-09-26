@@ -319,7 +319,8 @@ class report_budget_excel(models.AbstractModel):
                             if spec.is_framework == True: continue # 20230718 Алина Козленко сказала не выгружать в принципе рамки
                             if (spec.estimated_probability_id.name in probabitily_list) and (
                                     (spec.end_presale_project_month.year >= YEARint and spec.end_presale_project_month.year <= year_end)
-                                        or (spec.end_sale_project_month.year >= YEARint and spec.end_sale_project_month.year <= year_end)):
+                                        or (spec.end_sale_project_month.year >= YEARint and spec.end_sale_project_month.year <= year_end)
+                                        or (spec.end_presale_project_month.year <= YEARint and spec.end_sale_project_month.year >= year_end)):
                                 row += 1
                                 isFoundProjectsByManager = True
                                 isFoundProjectsByOffice = True
@@ -418,7 +419,8 @@ class report_budget_excel(models.AbstractModel):
                             for step in spec.project_steps_ids:
                                 if (step.estimated_probability_id.name in probabitily_list) and (
                                         (step.end_presale_project_month.year >= YEARint and step.end_presale_project_month.year <= year_end)
-                                        or (step.end_sale_project_month.year >= YEARint and step.end_sale_project_month.year <= year_end)):
+                                        or (step.end_sale_project_month.year >= YEARint and step.end_sale_project_month.year <= year_end)
+                                        or (step.end_presale_project_month.year <= YEARint and step.end_sale_project_month.year >= year_end)):
                                     row += 1
                                     isFoundProjectsByManager = True
                                     isFoundProjectsByOffice = True
