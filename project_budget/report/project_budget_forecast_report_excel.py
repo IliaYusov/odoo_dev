@@ -722,18 +722,18 @@ class report_budget_forecast_excel(models.AbstractModel):
             if sum != 0:
                 if estimated_probability_id_name in('75','100','100(done)'):
                     sheet.write_number(row, column + 0, sum, row_format_number)
-                    sheet.write_number(row, column + 0 + 43, sum*profitability_etalon/100, row_format_number)
+                    sheet.write_number(row, column + 0 + 44, sum*profitability_etalon/100, row_format_number)
                     sum75tmpetalon += sum
                 if estimated_probability_id_name == '50':
                     sheet.write_number(row, column + 1, sum * koeff_reserve, row_format_number)
-                    sheet.write_number(row, column + 1 + 43 , sum*profitability_etalon* koeff_reserve/100, row_format_number)
+                    sheet.write_number(row, column + 1 + 44 , sum*profitability_etalon* koeff_reserve/100, row_format_number)
                     sum50tmpetalon += sum* koeff_reserve
 
             sum100tmp = self.get_sum_fact_acceptance_project_step_quater(project, step, element_name)
 
             if sum100tmp:
                 sheet.write_number(row, column + 2, sum100tmp, row_format_number_color_fact)
-                sheet.write_number(row, column + 2 + 43, sum100tmp*profitability/100, row_format_number_color_fact)
+                sheet.write_number(row, column + 2 + 44, sum100tmp*profitability/100, row_format_number_color_fact)
 
 
             sum = 0
@@ -765,11 +765,11 @@ class report_budget_forecast_excel(models.AbstractModel):
             if sum != 0:
                 if estimated_probability_id_name in('75','100','100(done)'):
                     sheet.write_number(row, column + 3, sum, row_format_number)
-                    sheet.write_number(row, column + 3 + 43, sum*profitability/100, row_format_number)
+                    sheet.write_number(row, column + 3 + 44, sum*profitability/100, row_format_number)
                     sum75tmp += sum
                 if estimated_probability_id_name == '50':
                     sheet.write_number(row, column + 4, sum* koeff_reserve, row_format_number)
-                    sheet.write_number(row, column + 4 + 43, sum*profitability* koeff_reserve/100, row_format_number)
+                    sheet.write_number(row, column + 4 + 44, sum*profitability* koeff_reserve/100, row_format_number)
                     sum50tmp += sum* koeff_reserve
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
@@ -1044,23 +1044,23 @@ class report_budget_forecast_excel(models.AbstractModel):
         for element in self.month_rus_name_revenue_margin:
             column += 1
             sheet.write_string(row, column, "", head_format_month_itogo)
-            sheet.write_string(row, column + 43, "", head_format_month_itogo)
+            sheet.write_string(row, column + 44, "", head_format_month_itogo)
             if element.find('HY2') != -1:
                 addcolumn = 1
                 column += 1
                 sheet.write_string(row, column, "", head_format_month_itogo)
-                sheet.write_string(row, column + 43, "", head_format_month_itogo)
+                sheet.write_string(row, column + 44, "", head_format_month_itogo)
             column += 1
             sheet.write_string(row, column + 0, "", row_format_number)
             sheet.write_string(row, column + 1, "", row_format_number)
             sheet.write_string(row, column + 2, "", row_format_number_color_fact)
             sheet.write_string(row, column + 3, "", row_format_number)
             sheet.write_string(row, column + 4, "", row_format_number)
-            sheet.write_string(row, column + 0 + 43, "", row_format_number)
-            sheet.write_string(row, column + 1 + 43, "", row_format_number)
-            sheet.write_string(row, column + 2 + 43, "", row_format_number_color_fact)
-            sheet.write_string(row, column + 3 + 43, "", row_format_number)
-            sheet.write_string(row, column + 4 + 43, "", row_format_number)
+            sheet.write_string(row, column + 0 + 44, "", row_format_number)
+            sheet.write_string(row, column + 1 + 44, "", row_format_number)
+            sheet.write_string(row, column + 2 + 44, "", row_format_number_color_fact)
+            sheet.write_string(row, column + 3 + 44, "", row_format_number)
+            sheet.write_string(row, column + 4 + 44, "", row_format_number)
 
             sumQ75etalon, sumQ50etalon, sumQ100, sumQ75, sumQ50 = self.print_quater_planned_acceptance_project(sheet,row,column,element
                                                                                                               ,project,step,row_format_number,row_format_number_color_fact)
@@ -1075,19 +1075,19 @@ class report_budget_forecast_excel(models.AbstractModel):
             if element.find('HY') != -1:  # 'HY1/YEAR итого' 'HY2/YEAR итого'
                 # if sumHY75etalon != 0:
                 #     sheet.write_number(row, column + 0, sumHY75etalon, row_format_number)
-                #     sheet.write_number(row, column + 0 + 43, sumHY75etalon*profitability_etalon / 100, row_format_number)
+                #     sheet.write_number(row, column + 0 + 44, sumHY75etalon*profitability_etalon / 100, row_format_number)
                 # if sumHY50etalon != 0:
                 #     sheet.write_number(row, column + 1, sumHY50etalon, row_format_number)
-                #     sheet.write_number(row, column + 1 + 43, sumHY50etalon*profitability_etalon / 100, row_format_number)
+                #     sheet.write_number(row, column + 1 + 44, sumHY50etalon*profitability_etalon / 100, row_format_number)
                 # if sumHY100 != 0:
                 #     sheet.write_number(row, column + 2, sumHY100, row_format_number_color_fact)
-                #     sheet.write_number(row, column + 2 + 43, sumHY100*profitability / 100, row_format_number_color_fact)
+                #     sheet.write_number(row, column + 2 + 44, sumHY100*profitability / 100, row_format_number_color_fact)
                 # if sumHY75 != 0:
                 #     sheet.write_number(row, column + 3, sumHY75, row_format_number)
-                #     sheet.write_number(row, column + 3 + 43, sumHY75*profitability / 100, row_format_number)
+                #     sheet.write_number(row, column + 3 + 44, sumHY75*profitability / 100, row_format_number)
                 # if sumHY50 != 0:
                 #     sheet.write_number(row, column + 4, sumHY50, row_format_number)
-                #     sheet.write_number(row, column + 4 + 43, sumHY50*profitability / 100, row_format_number)
+                #     sheet.write_number(row, column + 4 + 44, sumHY50*profitability / 100, row_format_number)
                 addcolumn = 0
                 if element.find('HY2') != -1:
                     addcolumn = 1
@@ -1111,35 +1111,35 @@ class report_budget_forecast_excel(models.AbstractModel):
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8 - addcolumn),  xl_col_to_name(column - 2 - addcolumn))
                 sheet.write_formula(row, column + 4, formula, row_format_number)
 
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 12 + 43 - addcolumn), xl_col_to_name(column - 6 + 43 - addcolumn))
-                sheet.write_formula(row, column + 0 + 43, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 11 + 43 - addcolumn), xl_col_to_name(column - 5 + 43 - addcolumn))
-                sheet.write_formula(row, column + 1 + 43, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 10 + 43 - addcolumn), xl_col_to_name(column - 4 + 43 - addcolumn))
-                sheet.write_formula(row, column + 2 + 43, formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 9 + 43 - addcolumn),  xl_col_to_name(column - 3 + 43 - addcolumn))
-                sheet.write_formula(row, column + 3 + 43, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8 + 43 - addcolumn),  xl_col_to_name(column - 2 + 43 - addcolumn))
-                sheet.write_formula(row, column + 4 + 43, formula, row_format_number)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 12 + 44 - addcolumn), xl_col_to_name(column - 6 + 44 - addcolumn))
+                sheet.write_formula(row, column + 0 + 44, formula, row_format_number)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 11 + 44 - addcolumn), xl_col_to_name(column - 5 + 44 - addcolumn))
+                sheet.write_formula(row, column + 1 + 44, formula, row_format_number)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 10 + 44 - addcolumn), xl_col_to_name(column - 4 + 44 - addcolumn))
+                sheet.write_formula(row, column + 2 + 44, formula, row_format_number_color_fact)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 9 + 44 - addcolumn),  xl_col_to_name(column - 3 + 44 - addcolumn))
+                sheet.write_formula(row, column + 3 + 44, formula, row_format_number)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8 + 44 - addcolumn),  xl_col_to_name(column - 2 + 44 - addcolumn))
+                sheet.write_formula(row, column + 4 + 44, formula, row_format_number)
 
 
 
             if element == 'YEAR':  # 'YEAR итого'
                 # if sumYear75etalon != 0:
                 #     sheet.write_number(row, column + 0, sumYear75etalon, row_format_number)
-                #     sheet.write_number(row, column + 0 + 43, sumYear75etalon*profitability / 100, row_format_number)
+                #     sheet.write_number(row, column + 0 + 44, sumYear75etalon*profitability / 100, row_format_number)
                 # if sumYear50etalon != 0:
                 #     sheet.write_number(row, column + 1, sumYear50etalon, row_format_number)
-                #     sheet.write_number(row, column + 1 + 43, sumYear50etalon*profitability / 100, row_format_number)
+                #     sheet.write_number(row, column + 1 + 44, sumYear50etalon*profitability / 100, row_format_number)
                 # if sumYear100 != 0:
                 #     sheet.write_number(row, column + 2, sumYear100, row_format_number_color_fact)
-                #     sheet.write_number(row, column + 2 + 43, sumYear100*profitability / 100, row_format_number_color_fact)
+                #     sheet.write_number(row, column + 2 + 44, sumYear100*profitability / 100, row_format_number_color_fact)
                 # if sumYear75 != 0:
                 #     sheet.write_number(row, column + 3, sumYear75, row_format_number)
-                #     sheet.write_number(row, column + 3 + 43, sumYear75*profitability / 100, row_format_number)
+                #     sheet.write_number(row, column + 3 + 44, sumYear75*profitability / 100, row_format_number)
                 # if sumYear50 != 0:
                 #     sheet.write_number(row, column + 4, sumYear50, row_format_number)
-                #     sheet.write_number(row, column + 4 + 43, sumYear50*profitability / 100, row_format_number)
+                #     sheet.write_number(row, column + 4 + 44, sumYear50*profitability / 100, row_format_number)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 25), xl_col_to_name(column - 6))
                 sheet.write_formula(row, column + 0, formula, row_format_number)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 24), xl_col_to_name(column - 5))
@@ -1163,18 +1163,17 @@ class report_budget_forecast_excel(models.AbstractModel):
                     year_acceptance_30 = 0
 
                 sheet.write_number(row, column + 5, year_acceptance_30, row_format_number)
-                column += 1
 
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 25 + 43), xl_col_to_name(column - 6 + 43))
-                sheet.write_formula(row, column + 0 + 43, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 24 + 43), xl_col_to_name(column - 5 + 43))
-                sheet.write_formula(row, column + 1 + 43, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 23 + 43), xl_col_to_name(column - 4 + 43))
-                sheet.write_formula(row, column + 2 + 43, formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 22 + 43), xl_col_to_name(column - 3 + 43))
-                sheet.write_formula(row, column + 3 + 43, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21 + 43), xl_col_to_name(column - 2 + 43))
-                sheet.write_formula(row, column + 4 + 43, formula, row_format_number)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 25 + 44), xl_col_to_name(column - 6 + 44))
+                sheet.write_formula(row, column + 0 + 44, formula, row_format_number)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 24 + 44), xl_col_to_name(column - 5 + 44))
+                sheet.write_formula(row, column + 1 + 44, formula, row_format_number)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 23 + 44), xl_col_to_name(column - 4 + 44))
+                sheet.write_formula(row, column + 2 + 44, formula, row_format_number_color_fact)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 22 + 44), xl_col_to_name(column - 3 + 44))
+                sheet.write_formula(row, column + 3 + 44, formula, row_format_number)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21 + 44), xl_col_to_name(column - 2 + 44))
+                sheet.write_formula(row, column + 4 + 44, formula, row_format_number)
 
             column += 4
         # end Валовая Выручка, без НДС
