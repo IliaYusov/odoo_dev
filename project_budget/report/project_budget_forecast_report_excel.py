@@ -85,9 +85,9 @@ class report_budget_forecast_excel(models.AbstractModel):
 
     array_col_itogi = [28, 49, 55, 76, 97, 103, 109, 130, 151, 157, 178, 199, 205, 211, 217, 223, 229, 235, 241, 254, 260, 266, 272, 278, 284, 297,]
 
-    array_col_itogi75 = [247, 290,]
+    array_col_itogi75 = [247, 291,]
 
-    array_col_itogi75NoFormula = [248, 291,]
+    array_col_itogi75NoFormula = [248, 292,]
 
     dict_formula = {}
     dict_contract_pds = {
