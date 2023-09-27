@@ -442,9 +442,12 @@ class report_budget_forecast_excel(models.AbstractModel):
             colbeg = column
             for elementone in self.month_rus_name_revenue_margin:
                 element = elementone.replace('YEAR', strYEARprint)
-                addcolumn = 0
+
+                addcolumn = potential_column = 0
                 if element.find('HY2') != -1:
                     addcolumn = 1
+                elif element == strYEARprint and x[0] == 1:
+                    potential_column = 1
 
                 if elementone.find('Q') != -1:
                     sheet.set_column(column, column + 5, False, False, {'hidden': 1, 'level': 2})
@@ -452,7 +455,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 if elementone.find('HY') != -1:
                     sheet.set_column(column, column + 5 + addcolumn, False, False, {'hidden': 1, 'level': 1})
 
-                sheet.merge_range(row, column, row, column + 5 + addcolumn, element, head_format_month)
+                sheet.merge_range(row, column, row, column + 5 + addcolumn + potential_column, element, head_format_month)
 
 
                 sheet.merge_range(row + 1, column, row + 2, column, "План " + element.replace('итого', ''),
@@ -473,12 +476,26 @@ class report_budget_forecast_excel(models.AbstractModel):
                 column += 1
                 sheet.merge_range(row + 1, column , row + 2, column , 'Факт', head_format_month_detail_fact)
                 column += 1
-                sheet.merge_range(row + 1, column , row + 1, column + 1 , 'Прогноз до конца периода (на дату отчета)',
-                                  head_format_month_detail)
-                sheet.write_string(row + 2, column , 'Обязательство', head_format_month_detail)
-                column += 1
-                sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail)
-                column += 1
+
+                if element == strYEARprint and x[0] == 1:
+                    sheet.merge_range(row + 1, column, row + 1, column + 2,
+                                      'Прогноз до конца периода (на дату отчета)',
+                                      head_format_month_detail)
+                    sheet.write_string(row + 2, column, 'Обязательство', head_format_month_detail)
+                    column += 1
+                    sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail)
+                    column += 1
+                    sheet.write_string(row + 2, column, 'Потенциал', head_format_month_detail)
+                    column += 1
+                else:
+                    sheet.merge_range(row + 1, column, row + 1, column + 1,
+                                      'Прогноз до конца периода (на дату отчета)',
+                                      head_format_month_detail)
+                    sheet.write_string(row + 2, column, 'Обязательство', head_format_month_detail)
+                    column += 1
+                    sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail)
+                    column += 1
+
             sheet.merge_range(row-1, colbeg, row-1, column - 1, y[0], head_format_month)
         return column
 
@@ -1134,6 +1151,20 @@ class report_budget_forecast_excel(models.AbstractModel):
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21), xl_col_to_name(column - 2))
                 sheet.write_formula(row, column + 4, formula, row_format_number)
 
+                if (step
+                        and step.estimated_probability_id.name == '30'
+                        and YEARint <= step.end_sale_project_month.year <= year_end):
+                    year_acceptance_30 = step.total_amount_of_revenue
+                elif (not step
+                      and project.estimated_probability_id.name == '30'
+                      and YEARint <= project.end_sale_project_month.year <= year_end):
+                    year_acceptance_30 = project.total_amount_of_revenue
+                else:
+                    year_acceptance_30 = 0
+
+                sheet.write_number(row, column + 5, year_acceptance_30, row_format_number)
+                column += 1
+
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 25 + 43), xl_col_to_name(column - 6 + 43))
                 sheet.write_formula(row, column + 0 + 43, formula, row_format_number)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 24 + 43), xl_col_to_name(column - 5 + 43))
@@ -1428,7 +1459,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                         formulaProjectManager = formulaProjectManager + ',{0}' + str(row + 1)
                         for colFormula in range(3, 12):
                             sheet.write_string(row, colFormula, '', row_format_probability)
-                        for colFormula in range(12, 302):
+                        for colFormula in range(12, 303):
                             formula = '=sum({2}{0}:{2}{1})'.format(begRowProjectsByProbability + 2, row,
                                                                    xl_col_to_name(colFormula))
                             sheet.write_formula(row, colFormula, formula, row_format_probability)
@@ -1453,7 +1484,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                     for colFormula in range(2, 12):
                         sheet.write_string(row, colFormula, '', row_format_manager)
 
-                    for colFormula in range(12, 302):
+                    for colFormula in range(12, 303):
                         formula = formulaProjectManager.format(xl_col_to_name(colFormula)) + ')'
                         sheet.write_formula(row, colFormula, formula, row_format_manager)
 
@@ -1494,7 +1525,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 for colFormula in range(1, 12):
                     sheet.write_string(row, colFormula, '', row_format_office)
 
-                for colFormula in range(12, 302):
+                for colFormula in range(12, 303):
                     formula = formulaProjectOffice.format(xl_col_to_name(colFormula))
                     # print('formula = ', formula)
                     sheet.write_formula(row, colFormula, formula, row_format_office)
@@ -1683,7 +1714,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             formulaItogo = '=sum('+dict_formula['project_office_0'] + ')'
         for colFormula in range(1, 12):
             sheet.write_string(row, colFormula, '', row_format_number_itogo)
-        for colFormula in range(12, 302):
+        for colFormula in range(12, 303):
             formula = formulaItogo.format(xl_col_to_name(colFormula))
             # print('formula = ', formula)
             sheet.write_formula(row, colFormula, formula, row_format_number_itogo)
