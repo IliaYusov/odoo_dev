@@ -10,6 +10,7 @@ class report_projects_wizard(models.TransientModel):
     year_end = fields.Integer(string='end Year of the report', required=True, default=date.today().year)
     type_report = fields.Selection([
         ('kb', 'KB'),
+        ('kb_fin', 'KB fin'),
         ('forecast', 'Forecast'),
         ('svod', 'Svod'),
         ('raw_data', 'Raw Data'),
@@ -50,6 +51,9 @@ class report_projects_wizard(models.TransientModel):
 
         if self.type_report == 'kb':
             return self.env.ref('project_budget.action_projects_list_report_xlsx_kb').report_action(self, data=datas)
+
+        if self.type_report == 'kb_fin':
+            return self.env.ref('project_budget.action_projects_list_report_xlsx_kb_fin').report_action(self, data=datas)
 
         if self.type_report == 'forecast':
             return self.env.ref('project_budget.action_projects_list_report_xlsx_forecast').report_action(self, data=datas)
