@@ -1450,13 +1450,13 @@ class report_budget_forecast_excel(models.AbstractModel):
 
                     if isFoundProjectsByProbability:
                         row += 1
-                        column = 2
+                        column = 0
                         sheet.write_string(row, column, project_manager.name + ' ' + estimated_probability.name
                                            + ' %', row_format_probability)
                         sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
 
                         formulaProjectManager = formulaProjectManager + ',{0}' + str(row + 1)
-                        for colFormula in range(3, 12):
+                        for colFormula in range(1, 12):
                             sheet.write_string(row, colFormula, '', row_format_probability)
                         for colFormula in range(12, 303):
                             formula = '=sum({2}{0}:{2}{1})'.format(begRowProjectsByProbability + 2, row,
@@ -1472,7 +1472,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
                 if isFoundProjectsByManager:
                     row += 1
-                    column = 1
+                    column = 0
                     sheet.write_string(row, column, 'ИТОГО ' + project_manager.name, row_format_manager)
                     sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
                     # print('setrow manager  row = ', row)
@@ -1480,7 +1480,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
                     formulaProjectOffice = formulaProjectOffice + ',{0}'+str(row + 1)
 
-                    for colFormula in range(2, 12):
+                    for colFormula in range(1, 12):
                         sheet.write_string(row, colFormula, '', row_format_manager)
 
                     for colFormula in range(12, 303):
