@@ -43,8 +43,8 @@ class fact_acceptance_flow(models.Model):
     distribution_sum_without_vat_ostatok = fields.Monetary(string="distribution_sum_without_vat_ostatok", compute='_compute_distribution_sum')
     distribution_sum_with_vat_ostatok = fields.Monetary(string="distribution_sum_with_vat_ostatok", compute='_compute_distribution_sum')
 
-    margin = fields.Monetary(string='margin', compute='_compute_margin')
-    margin_manual_input = fields.Boolean(string='manual input of margin')
+    margin = fields.Monetary(string='Margin', compute='_compute_margin', inverse='_inverse_margin', store=True)
+    margin_manual_input = fields.Boolean(string='Manual input of margin', default=False)
 
     @ api.depends('projects_id.currency_id')
     def _compute_reference(self):
@@ -66,16 +66,18 @@ class fact_acceptance_flow(models.Model):
             for distribution_acceptance in row.distribution_acceptance_ids:
                 row.distribution_sum_with_vat += distribution_acceptance.sum_cash
                 row.distribution_sum_without_vat += distribution_acceptance.sum_cash_without_vat
-            row.distribution_sum_with_vat_ostatok =row.sum_cash - row.distribution_sum_with_vat
+            row.distribution_sum_with_vat_ostatok = row.sum_cash - row.distribution_sum_with_vat
             row.distribution_sum_without_vat_ostatok = row.sum_cash_without_vat - row.distribution_sum_without_vat
 
-    @api.onchange("sum_cash_without_vat")
+    @api.depends("sum_cash_without_vat", "project_steps_id.profitability", "projects_id.profitability", "margin_manual_input")
+    @api.onchange("sum_cash_without_vat", "margin_manual_input")
     def _compute_margin(self):
         for row in self:
-            if row.project_have_steps:
-                row.margin = row.sum_cash_without_vat * self.env['project_budget.project_steps'].search(
-                    [('id', '=', row.project_steps_id)]).profitability / 100
-            else:
-                print(row.projects_id)
-                row.margin = row.sum_cash_without_vat * self.env['project_budget.projects'].search(
-                    [('id', '=', row.projects_id)]).profitability / 100
+            if not row.margin_manual_input:
+                if row.project_have_steps:
+                    row.margin = row.sum_cash_without_vat * row.project_steps_id.profitability / 100
+                else:
+                    row.margin = row.sum_cash_without_vat * row.projects_id.profitability / 100
+
+    def _inverse_margin(self):
+        pass

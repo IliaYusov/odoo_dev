@@ -39,8 +39,8 @@
                                 />
                             </group>
                             <group>
-                                <field name="margin" placeholder="enter margin sum"/>
-                                <field name="margin_manual_input" placeholder="manual input of margin" widget="boolean_toggle"/>
+                                <field name="margin" placeholder="enter margin sum" attrs="{'readonly': [('margin_manual_input', '=', False)]}"/>
+                                <field name="margin_manual_input" placeholder="manual input of margin"/>
                             </group>
                         </group>
                             <field name="distribution_acceptance_ids"
