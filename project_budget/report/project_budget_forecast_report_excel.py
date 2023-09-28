@@ -1531,7 +1531,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         return row, formulaItogo
 
-    def printworksheet(self,workbook,budget,namesheet):
+    def printworksheet(self,workbook,budget,namesheet, estimated_probabilities):
         global YEARint
         global year_end
         print('YEARint=',YEARint)
@@ -1699,11 +1699,10 @@ class report_budget_forecast_excel(models.AbstractModel):
         row += 2
         project_offices = self.env['project_budget.project_office'].search([('parent_id', '=', False)], order='name')  # для сортировки так делаем + берем сначала только верхние элементы
         project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
-        estimated_probabilitys = self.env['project_budget.estimated_probability'].search([('name','!=','10')],order='code desc')  # для сортировки так делаем
 
         formulaItogo = '=sum(0'
 
-        row, formulaItogo = self.printrow(sheet, workbook, project_offices, project_managers, estimated_probabilitys, budget, row, formulaItogo, 1)
+        row, formulaItogo = self.printrow(sheet, workbook, project_offices, project_managers, estimated_probabilities, budget, row, formulaItogo, 1)
 
         row += 2
         column = 0
@@ -1727,7 +1726,6 @@ class report_budget_forecast_excel(models.AbstractModel):
         year_end = data['year_end']
 
         global dict_formula
-        dict_formula = {}
         global koeff_reserve
         koeff_reserve = data['koeff_reserve']
 
@@ -1735,5 +1733,10 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         commercial_budget_id = data['commercial_budget_id']
 
+        dict_formula = {}
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
-        self.printworksheet(workbook, budget, 'Прогноз')
+        estimated_probabilities = self.env['project_budget.estimated_probability'].search([('name', '!=', '10')], order='code desc')  # для сортировки так делаем
+        self.printworksheet(workbook, budget, 'Прогноз', estimated_probabilities)
+        dict_formula = {}
+        estimated_probabilities = self.env['project_budget.estimated_probability'].search([('name', '=', '10')], order='code desc')  # для сортировки так делаем
+        self.printworksheet(workbook, budget, '10%', estimated_probabilities)
