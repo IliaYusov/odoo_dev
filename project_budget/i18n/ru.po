@@ -1063,6 +1063,11 @@ msgid "KB"
 msgstr "КБ"
 
 #. module: project_budget
+#: model:ir.model.fields.selection,name:project_budget.selection__project_budget_projects_report_wizard__type_report__kb_fin
+msgid "KB fin"
+msgstr "КБ в финуправление"
+
+#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_kam____last_update
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_supervisor____last_update
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_commercial_budget____last_update
