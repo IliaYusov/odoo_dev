@@ -1337,6 +1337,11 @@ msgid "Protocol (docx)"
 msgstr "Протокол (docx)"
 
 #. module: document_flow
+#: model:ir.actions.report,name:document_flow.decisions_list
+msgid "Decisions list (xlsx)"
+msgstr "Задачи (xlsx)"
+
+#. module: document_flow
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_event_decision__repeat_interval__quarter
 msgid "Quarter"
 msgstr "Ежеквартально"

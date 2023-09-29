@@ -11,8 +11,8 @@
         <field name="binding_type">report</field>
     </record>
 
-    <record id="report_decisions_list" model="ir.actions.report">
-        <field name="name">Decisions list (XLSX)</field>
+    <record id="document_flow.decisions_list" model="ir.actions.report">
+        <field name="name">Decisions list (xlsx)</field>
         <field name="model">document_flow.event</field>
         <field name="report_type">xlsx</field>
         <field name="report_name">document_flow.decisions_list</field>
