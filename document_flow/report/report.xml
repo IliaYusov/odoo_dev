@@ -10,4 +10,14 @@
         <field name="binding_model_id" ref="model_document_flow_event"/>
         <field name="binding_type">report</field>
     </record>
+
+    <record id="report_decisions_list" model="ir.actions.report">
+        <field name="name">Decisions list (XLSX)</field>
+        <field name="model">document_flow.event</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">document_flow.decisions_list</field>
+        <field name="report_file">document_flow.decisions_list</field>
+        <field name="binding_model_id" ref="model_document_flow_event"/>
+        <field name="binding_type">report</field>
+    </record>
 </odoo>

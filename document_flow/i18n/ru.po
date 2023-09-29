@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-18 06:31+0000\n"
-"PO-Revision-Date: 2023-09-18 06:31+0000\n"
+"POT-Creation-Date: 2023-09-25 07:49+0000\n"
+"PO-Revision-Date: 2023-09-25 07:49+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -35,8 +35,6 @@ msgstr ""
 #. module: document_flow
 #. odoo-python
 #: code:addons/document_flow/models/document_flow_process.py:0
-#: code:addons/document_flow/models/document_flow_processing.py:0
-#: code:addons/document_flow/models/task_task.py:0
 #: model:ir.model,name:document_flow.model_document_flow_action
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_action_executor__action_id
 #: model_terms:ir.ui.view,arch_db:document_flow.action_view_form
@@ -172,7 +170,6 @@ msgstr "Согласовант"
 #. module: document_flow
 #. odoo-python
 #: code:addons/document_flow/models/document_flow_process.py:0
-#: code:addons/document_flow/models/document_flow_process.py:0
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_action__type__agreement
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_process__type__agreement
 #: model:task.type,name:document_flow.task_type_agreement
@@ -303,19 +300,12 @@ msgid "Complex"
 msgstr "Комплексный"
 
 #. module: document_flow
-#: model:ir.model.fields,field_description:document_flow.field_document_flow_action__compute_condition
-#: model:ir.model.fields,field_description:document_flow.field_document_flow_process__compute_condition
-#: model_terms:ir.ui.view,arch_db:document_flow.action_view_form
-msgid "Compute Condition"
-msgstr ""
-
-#. module: document_flow
-#: model:ir.model.fields,help:document_flow.field_document_flow_action__compute_condition
+#: model:ir.model.fields,help:document_flow.field_document_flow_action__start_condition
 msgid "Conditions that will be checked before action will be started."
 msgstr ""
 
 #. module: document_flow
-#: model:ir.model.fields,help:document_flow.field_document_flow_process__compute_condition
+#: model:ir.model.fields,help:document_flow.field_document_flow_process__start_condition
 msgid "Conditions that will be checked before process will be started."
 msgstr ""
 
@@ -476,8 +466,6 @@ msgstr "Решили..."
 #. module: document_flow
 #. odoo-python
 #: code:addons/document_flow/models/document_flow_process.py:0
-#: code:addons/document_flow/models/document_flow_processing.py:0
-#: code:addons/document_flow/models/task_task.py:0
 #: model_terms:ir.ui.view,arch_db:document_flow.event_annex_view_form
 #: model_terms:ir.ui.view,arch_db:document_flow.event_decision_view_form
 #, python-format
@@ -541,8 +529,6 @@ msgstr "Наименование"
 #. module: document_flow
 #. odoo-python
 #: code:addons/document_flow/models/document_flow_process.py:0
-#: code:addons/document_flow/models/document_flow_processing.py:0
-#: code:addons/document_flow/models/task_task.py:0
 #: model:ir.model,name:document_flow.model_document_flow_document
 #: model_terms:ir.ui.view,arch_db:document_flow.document_view_form
 #, python-format
@@ -636,8 +622,6 @@ msgstr "Ошибка! Вы не можете создавать рекурсив
 #. module: document_flow
 #. odoo-python
 #: code:addons/document_flow/models/document_flow_process.py:0
-#: code:addons/document_flow/models/document_flow_processing.py:0
-#: code:addons/document_flow/models/task_task.py:0
 #: model:ir.model,name:document_flow.model_document_flow_event
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_event_annex__event_id
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_event_decision__event_id
@@ -696,7 +680,6 @@ msgstr ""
 
 #. module: document_flow
 #. odoo-python
-#: code:addons/document_flow/models/document_flow_process.py:0
 #: code:addons/document_flow/models/document_flow_process.py:0
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_action__type__execution
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_event_decision__task_type__execution
@@ -1123,7 +1106,7 @@ msgstr "Количество ошибок"
 #. module: document_flow
 #: model:ir.model.fields,help:document_flow.field_document_flow_document__message_needaction_counter
 #: model:ir.model.fields,help:document_flow.field_document_flow_event__message_needaction_counter
-msgid "Number of messages which requires an action"
+msgid "Number of messages requiring action"
 msgstr ""
 
 #. module: document_flow
@@ -1193,6 +1176,7 @@ msgstr ""
 
 #. module: document_flow
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process__parent_obj_ref
+#: model:ir.model.fields,field_description:document_flow.field_task_task__parent_obj_ref
 msgid "Parent Object"
 msgstr "Родительский объект"
 
@@ -1414,7 +1398,6 @@ msgstr "Возобновить обработку"
 #. module: document_flow
 #. odoo-python
 #: code:addons/document_flow/models/document_flow_process.py:0
-#: code:addons/document_flow/models/document_flow_process.py:0
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_action__type__review
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_event_decision__task_type__review
 #: model:ir.model.fields.selection,name:document_flow.selection__document_flow_process__type__review
@@ -1506,6 +1489,7 @@ msgstr "Отправить на согласование"
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_action__visible_sequence
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_action_executor__sequence
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_action_executor__type_sequence
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_action_executor__visible_sequence
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process__sequence
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process__visible_sequence
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process_executor__sequence
@@ -1523,9 +1507,24 @@ msgid "Sequentially"
 msgstr "Последовательно"
 
 #. module: document_flow
+#. odoo-python
+#: code:addons/document_flow/models/document_flow_process.py:0
+#: model:ir.model.fields.selection,name:document_flow.selection__document_flow_process__state__skipped
+#, python-format
+msgid "Skipped"
+msgstr "Пропущен"
+
+#. module: document_flow
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_event_question__speaker_ids
 msgid "Speakers"
 msgstr "Докладчики"
+
+#. module: document_flow
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_action__start_condition
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_process__start_condition
+#: model_terms:ir.ui.view,arch_db:document_flow.action_view_form
+msgid "Start Condition"
+msgstr "Условие запуска"
 
 #. module: document_flow
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_event__date_start
@@ -1615,10 +1614,18 @@ msgstr ""
 
 #. module: document_flow
 #. odoo-python
+#: code:addons/document_flow/models/document_flow_process.py:0
+#, python-format
+msgid "Task was canceled by the initiator."
+msgstr "Задача была отменена инициатором."
+
+#. module: document_flow
+#. odoo-python
 #: code:addons/document_flow/models/document_flow_event.py:0
 #: model:ir.actions.act_window,name:document_flow.action_view_all_task
 #: model:ir.actions.act_window,name:document_flow.action_view_task_id
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_event__tasks_count
+#: model:ir.model.fields,field_description:document_flow.field_document_flow_process__active_task_ids
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_process__task_ids
 #: model:ir.ui.menu,name:document_flow.menu_task_management
 #: model_terms:ir.ui.view,arch_db:document_flow.event_view_form
@@ -1639,6 +1646,13 @@ msgstr "Задачи были созданы для пользователя(-е
 #: model:ir.model.fields,field_description:document_flow.field_document_flow_processing__template_id
 msgid "Template"
 msgstr "Шаблон"
+
+#. module: document_flow
+#. odoo-python
+#: code:addons/document_flow/models/document_flow_processing.py:0
+#, python-format
+msgid "Template is not set."
+msgstr "Не задан шаблон."
 
 #. module: document_flow
 #. odoo-python

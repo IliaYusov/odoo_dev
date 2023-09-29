@@ -29,8 +29,9 @@ class EventProtocol(models.AbstractModel):
             run = paragraph.runs[0]
             run.font.italic = True
             run.font.italic = True
-            for member in event.member_ids:
-                doc.add_paragraph(member.name + ' - %s' % member.partner_id.function if member.partner_id else '')
+            doc.add_paragraph(', '.join(member.name for member in event.member_ids))
+            #for member in event.member_ids:
+                #doc.add_paragraph(member.name + ' - %s' % member.partner_id.function if member.partner_id else '')
             html_parser = HtmlToDocx()
             if event.question_ids:
                 paragraph = doc.add_paragraph(_('Agenda of the event:'))

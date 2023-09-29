@@ -85,7 +85,8 @@ def recompute_sequence_executors(model, task_sequence, executors):
                 line_vals = dict()
             line_vals['sequence'] = sequence
 
-            executors[i][2] = line_vals
+            if not executors[i][2]:
+                executors[i][2] = line_vals
             i += 1
 
 
@@ -111,7 +112,8 @@ def recompute_sequence_actions(model, actions):
                 line_vals = dict()
             line_vals['sequence'] = sequence
 
-            actions[i][2] = line_vals
+            if not actions[i][2]:
+                actions[i][2] = line_vals
             i += 1
 
 
@@ -169,7 +171,7 @@ class Process(models.Model):
                                      string='Task Form Sequence')
     sequence = fields.Integer(string='Sequence', default=0)
     visible_sequence = fields.Integer(string='Sequence', compute='_compute_sequence')
-    start_condition = fields.Text(string='Compute Condition',
+    start_condition = fields.Text(string='Start Condition',
                                   help='Conditions that will be checked before process will be started.')
 
     parent_obj_ref = fields.Reference(string='Parent Object', selection='_selection_parent_model',
@@ -178,7 +180,7 @@ class Process(models.Model):
                                        compute='_compute_task_history_ids')
 
     @api.constrains('start_condition')
-    def _check_start_condition(self):
+    def _verify_start_condition(self):
         for process in self.filtered('start_condition'):
             msg = test_python_expr(expr=process.start_condition.strip(), mode='exec')
             if msg:
@@ -639,20 +641,27 @@ class Action(models.Model):
                                      default='together_with_the_previous')
     sequence = fields.Integer(string='Sequence', copy=True, default=0)
     visible_sequence = fields.Integer(string='Sequence', compute='_compute_sequence')
-    start_condition = fields.Text(string='Compute Condition', copy=True,
+    start_condition = fields.Text(string='Start Condition', copy=True,
                                   help='Conditions that will be checked before action will be started.')
 
     process_id = fields.Many2one('document_flow.process', string='Process', compute='_compute_process_id')
 
     @api.model
     def create(self, vals_list):
+        if any(vals_list.get('child_ids', [])):
+            recompute_sequence_actions(self.env['document_flow.action'], vals_list.get('child_ids'))
+
         if any(vals_list.get('executor_ids', [])):
             recompute_sequence_executors(self.env['document_flow.action.executor'], vals_list.get('task_sequence'),
                                          vals_list.get('executor_ids'))
+
         res = super(Action, self).create(vals_list)
         return res
 
     def write(self, vals):
+        if any(vals.get('child_ids', [])):
+            recompute_sequence_actions(self.env['document_flow.action'], vals.get('child_ids'))
+
         if vals.get('task_sequence') or any(vals.get('executor_ids', [])):
             task_seq = self.task_sequence if not vals.get('task_sequence', False) else vals.get('task_sequence')
             if not vals.get('executor_ids', False):
@@ -661,11 +670,12 @@ class Action(models.Model):
                     executors.append(list((1, executor.id, dict())))
                 vals['executor_ids'] = executors
             recompute_sequence_executors(self.env['document_flow.action.executor'], task_seq, vals.get('executor_ids'))
+
         res = super(Action, self).write(vals)
         return res
 
     @api.constrains('start_condition')
-    def _check_start_condition(self):
+    def _verify_start_condition(self):
         for action in self.filtered('start_condition'):
             msg = test_python_expr(expr=action.start_condition.strip(), mode='exec')
             if msg:
