@@ -122,6 +122,17 @@ class report_svod_excel(models.AbstractModel):
         # print('etalon_project.date_actual = ',etalon_project.date_actual)
         return etalon_project
 
+    def get_etalon_project_first(self,spec):
+        global YEARint
+
+        datesearch = datetime.date(YEARint, 1, 1)  # будем искать первый утвержденный в году
+        etalon_project = self.env['project_budget.projects'].search([('etalon_budget', '=', True),
+                                                                     ('budget_state', '=', 'fixed'),
+                                                                     ('project_id', '=', spec.project_id),
+                                                                     ('date_actual', '>=', datesearch)
+                                                                     ], limit=1, order='date_actual')
+        return etalon_project
+
     def get_etalon_step(self, step):
         if not step:
             return False
