@@ -1661,8 +1661,8 @@ msgstr "Отчет для УК"
 
 #. module: project_budget
 #: model:ir.actions.report,name:project_budget.action_projects_list_report_xlsx_pds_acceptance_by_date
-msgid "Прогноз ПДС Валовая выручка"
-msgstr "ПДС по неделям"
+msgid "Projects Report PDS, Acceptance"
+msgstr "Прогноз ПДС Валовая выручка"
 
 #. module: project_budget
 #: model:ir.actions.report,name:project_budget.action_projects_list_report_xlsx_pds_weekly
