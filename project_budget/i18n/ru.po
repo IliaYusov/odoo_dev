@@ -1498,6 +1498,11 @@ msgid "pds_acceptance_by_date"
 msgstr "Прогноз ПДС/валовая выручка"
 
 #. module: project_budget
+#: model:ir.model.fields.selection,name:project_budget.selection__project_budget_projects_report_wizard__type_report__pds_weekly
+msgid "PDS weekly"
+msgstr "ПДС по неделям"
+
+#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_office__parent_id
 msgid "Parent project_office"
 msgstr "Вышестоящий проектный офис"
@@ -1648,6 +1653,21 @@ msgstr ""
 #: model:ir.actions.report,name:project_budget.action_projects_list_report_xlsx_svod
 msgid "Projects Report svod"
 msgstr "Свод"
+
+#. module: project_budget
+#: model:ir.actions.report,name:project_budget.action_projects_list_report_xlsx_management_committee
+msgid "Projects Report Management Committee"
+msgstr "Отчет для УК"
+
+#. module: project_budget
+#: model:ir.actions.report,name:project_budget.action_projects_list_report_xlsx_pds_acceptance_by_date
+msgid "Прогноз ПДС Валовая выручка"
+msgstr "ПДС по неделям"
+
+#. module: project_budget
+#: model:ir.actions.report,name:project_budget.action_projects_list_report_xlsx_pds_weekly
+msgid "Projects Report PDS by week"
+msgstr "ПДС по неделям"
 
 #. module: project_budget
 #: model:ir.ui.menu,name:project_budget.project_budget_budgets_comercial_budget_spec_all

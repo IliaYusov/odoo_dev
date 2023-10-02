@@ -7,9 +7,9 @@ import logging
 isdebug = False
 logger = logging.getLogger("*___forecast_report___*")
 
-class report_management_committee_excel(models.AbstractModel):
-    _name = 'report.project_budget.report_management_committee_excel'
-    _description = 'project_budget.report_management_committee_excel'
+class report_pds_weekly_excel(models.AbstractModel):
+    _name = 'report.project_budget.report_pds_weekly_excel'
+    _description = 'project_budget.report_pds_weekly_excel'
     _inherit = 'report.report_xlsx.abstract'
 
     strYEAR = '2023'
@@ -130,17 +130,17 @@ class report_management_committee_excel(models.AbstractModel):
 
     def get_dates_from_week(self, week_number):
         global YEARint
-        for day in range(1, 7):
+
+        first_day_of_year = date(YEARint, 1, 1)
+
+        for day in range(1, 8):
             day_of_year = date(YEARint, 1, day)
             if day_of_year.weekday() == 5:  # четверг
                 first_day_of_year = day_of_year
-        first_week_begin = first_day_of_year  - timedelta(days=first_day_of_year.weekday())
+        first_week_begin = first_day_of_year - timedelta(days=first_day_of_year.weekday())
         first_week_end = first_week_begin + timedelta(days=6)
         delta = timedelta(days=(week_number - 1) * 7)
         return first_week_begin + delta, first_week_end + delta
-
-start = dt - timedelta(days=dt.weekday())
-end = start + timedelta(days=6)
 
     def get_etalon_project_first(self,spec):
         global strYEAR
@@ -481,9 +481,9 @@ end = start + timedelta(days=6)
                                   'WEEK ' +
                                   str(week_number) +
                                   '\n(' +
-                                  str(week_begin) +
+                                  week_begin.strftime('%d.%m.%Y') +
                                   ' - ' +
-                                  str(week_end) +
+                                  week_end.strftime('%d.%m.%Y') +
                                   ')',
                                   str_format)
 
@@ -1980,7 +1980,7 @@ end = start + timedelta(days=6)
             'diag_type': 3
         })
 
-        column += 2
+        column += 11
 
 # печать Контрактование, с НДС
 
@@ -2622,10 +2622,11 @@ end = start + timedelta(days=6)
                                 if (spec.project_office_id == project_office
                                     and spec.company_id == company
                                     and step.estimated_probability_id.name in ['100done', '100', '75', '50']
+                                    and self.isStepinYear(spec, step)
+                                    and (self.env['project_budget.fact_cash_flow'].search([('project_steps_id', '=', step.id)])
+                                         or self.env['project_budget.planned_cash_flow'].search([('project_steps_id', '=', step.id)])
+                                        )
                                 ):
-                                    if self.isStepinYear(spec, step) is False:
-                                        continue
-
                                     isFoundProjectsByOffice = True
                                     isFoundProjectsByCompany = True
 
@@ -2638,36 +2639,37 @@ end = start + timedelta(days=6)
                                         cur_row_format = row_format_canceled_project
                                         cur_row_format_number = row_format_number_canceled_project
                                     column = 0
+                                    sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
+                                    column += 1
                                     sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
                                     column += 1
                                     sheet.write_string(row, column, spec.customer_organization_id.name, cur_row_format)
                                     column += 1
                                     sheet.write_string(row, column, step.essence_project, cur_row_format)
                                     column += 1
-                                    # sheet.write_string(row, column, (step.code or '') +' | '+ spec.project_id + " | "+step.step_id, cur_row_format)
-                                    # column += 1
-                                    # sheet.write_string(row, column, self.get_estimated_probability_name_forecast(step.estimated_probability_id.name), cur_row_format)
-                                    # column += 1
-                                    # sheet.write_number(row, column, step.total_amount_of_revenue_with_vat, cur_row_format_number)
-                                    # column += 1
-                                    # sheet.write_number(row, column, step.margin_income, cur_row_format_number)
-                                    # column += 1
-                                    # sheet.write_number(row, column, step.profitability, cur_row_format_number)
-                                    # column += 1
-                                    # sheet.write_string(row, column, step.dogovor_number or '', cur_row_format)
-                                    # column += 1
-                                    # sheet.write_string(row, column, step.vat_attribute_id.name, cur_row_format)
-                                    # column += 1
-                                    # sheet.write_string(row, column, '', head_format_1)
+                                    sheet.write_string(row, column, (step.code or '') + ' | ' + spec.project_id + " | " + step.step_id, cur_row_format)
+                                    column += 1
+                                    sheet.write_string(row, column, self.get_estimated_probability_name_forecast(step.estimated_probability_id.name), cur_row_format)
+                                    column += 1
+                                    sheet.write_number(row, column, step.total_amount_of_revenue_with_vat, cur_row_format_number)
+                                    column += 1
+                                    sheet.write_number(row, column, step.margin_income, cur_row_format_number)
+                                    column += 1
+                                    sheet.write_number(row, column, step.profitability, cur_row_format_number)
+                                    column += 1
+                                    sheet.write_string(row, column, step.dogovor_number or '', cur_row_format)
+                                    column += 1
+                                    sheet.write_string(row, column, step.vat_attribute_id.name, cur_row_format)
+                                    column += 1
+                                    sheet.write_string(row, column, '', cur_row_format)
+                                    column += 1
                                     self.print_row_Values(workbook, sheet, row, column,  strYEAR, spec, step)
                         else:
                             if (spec.project_office_id == project_office
                                 and spec.company_id == company
                                 and spec.estimated_probability_id.name in ['100done', '100', '75', '50']
+                                and self.isProjectinYear(spec)
                             ):
-                                if self.isProjectinYear(spec) is False:
-                                    continue
-
                                 isFoundProjectsByOffice = True
                                 isFoundProjectsByCompany = True
 
@@ -2680,27 +2682,30 @@ end = start + timedelta(days=6)
                                     cur_row_format = row_format_canceled_project
                                     cur_row_format_number = row_format_number_canceled_project
                                 column = 0
+                                sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
+                                column += 1
                                 sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
                                 column += 1
                                 sheet.write_string(row, column, spec.customer_organization_id.name, cur_row_format)
                                 column += 1
                                 sheet.write_string(row, column, spec.essence_project, cur_row_format)
                                 column += 1
-                                # sheet.write_string(row, column, (spec.step_project_number or '')+ ' | ' +(spec.project_id or ''), cur_row_format)
-                                # column += 1
-                                # sheet.write_string(row, column, self.get_estimated_probability_name_forecast(spec.estimated_probability_id.name), cur_row_format)
-                                # column += 1
-                                # sheet.write_number(row, column, spec.total_amount_of_revenue_with_vat, cur_row_format_number)
-                                # column += 1
-                                # sheet.write_number(row, column, spec.margin_income, cur_row_format_number)
-                                # column += 1
-                                # sheet.write_number(row, column, spec.profitability, cur_row_format_number)
-                                # column += 1
-                                # sheet.write_string(row, column, spec.dogovor_number or '', cur_row_format)
-                                # column += 1
-                                # sheet.write_string(row, column, spec.vat_attribute_id.name, cur_row_format)
-                                # column += 1
-                                # sheet.write_string(row, column, '', head_format_1)
+                                sheet.write_string(row, column, (spec.step_project_number or '') + ' | ' + (spec.project_id or ''), cur_row_format)
+                                column += 1
+                                sheet.write_string(row, column, self.get_estimated_probability_name_forecast(spec.estimated_probability_id.name), cur_row_format)
+                                column += 1
+                                sheet.write_number(row, column, spec.total_amount_of_revenue_with_vat, cur_row_format_number)
+                                column += 1
+                                sheet.write_number(row, column, spec.margin_income, cur_row_format_number)
+                                column += 1
+                                sheet.write_number(row, column, spec.profitability, cur_row_format_number)
+                                column += 1
+                                sheet.write_string(row, column, spec.dogovor_number or '', cur_row_format)
+                                column += 1
+                                sheet.write_string(row, column, spec.vat_attribute_id.name, cur_row_format)
+                                column += 1
+                                sheet.write_string(row, column, '', cur_row_format)
+                                column += 1
                                 self.print_row_Values(workbook, sheet, row, column,  strYEAR, spec, False)
 
                     # if isFoundProjectsByProbability:
@@ -2764,7 +2769,7 @@ end = start + timedelta(days=6)
 
                     office_name = project_office.report_name or project_office.name
 
-                    sheet.merge_range(office_row, column, office_row, column + 2, '       ' * level + office_name, row_format_office)
+                    sheet.merge_range(office_row, column, office_row, column + 11, '       ' * level + office_name, row_format_office)
 
                     sheet.set_row(office_row, False, False, {'hidden': 1, 'level': level})
 
@@ -2821,9 +2826,9 @@ end = start + timedelta(days=6)
 
                 company_row = dict_formula['company_ids'][company.id]
 
-                sheet.merge_range(company_row, column, company_row, column + 2, company.name, row_format_company)
+                sheet.merge_range(company_row, column, company_row, column + 11, company.name, row_format_company)
 
-                column += 2
+                column += 11
 
                 formulaProjectCompany += ')'
 
@@ -2920,7 +2925,7 @@ end = start + timedelta(days=6)
             'right': 1,
             'font_size': 12,
             "bold": True,
-            "fg_color": '#BFBFBF',
+            "fg_color": '#95B3D7',
             "num_format": '#,##0',
         })
         row_format_number_itogo_percent = workbook.add_format({
@@ -2949,14 +2954,13 @@ end = start + timedelta(days=6)
         sheet.write_string(row, 0, budget.name + ' ' + str(date.today()), bold)
         row = 2
         column = 0
-        sheet.merge_range(row - 1, 0, row, 2, "Прогноз", head_format)
-        sheet.merge_range(row + 1, 0, row + 2, 0, "БЮ/КАМ", head_format_1)
-        sheet.set_column(column, column, 17)
-        # column += 1
-        # sheet.write_string(row, column, "", head_format)
-        # sheet.write_string(row+1, column, "КАМ", head_format_1)
-        # sheet.write_string(row + 2, column, "", head_format_1)
-        # sheet.set_column(column, column, 19.75)
+        sheet.merge_range(row - 1, 0, row, 11, "Прогноз", head_format)
+        sheet.merge_range(row + 1, 0, row + 2, 0, "БЮ/Проектный офис", head_format_1)
+        sheet.set_column(column, column, 16)
+        column += 1
+        sheet.write_string(row, column, "", head_format)
+        sheet.merge_range(row + 1, column, row + 2, column, "КАМ", head_format_1)
+        sheet.set_column(column, column, 16)
         column += 1
         sheet.write_string(row, column, "", head_format)
         sheet.merge_range(row + 1, column, row + 2, column, "Заказчик", head_format_1)
@@ -2964,50 +2968,41 @@ end = start + timedelta(days=6)
         column += 1
         sheet.write_string(row, column, "", head_format)
         sheet.merge_range(row + 1, column, row + 2, column, "Наименование Проекта", head_format_1)
-        sheet.set_column(column, column, 25)
-        # column += 1
-        # sheet.write_string(row, column, "", head_format)
-        # sheet.write_string(row+1, column, "Номер этапа проекта", head_format_1)
-        # sheet.write_string(row + 2, column, "", head_format_1)
-        # # sheet.set_column(column, column, 15)
-        # column += 1
-        # sheet.write_string(row, column, "", head_format)
-        # sheet.write_string(row+1, column, "Стадия продажи", head_format_1)
-        # sheet.write_string(row + 2, column, "", head_format_1)
-        # # sheet.set_column(column, column, 16.88)
-        # column += 1
-        # sheet.write_string(row, column, "", head_format)
-        # sheet.write_string(row+1, column, "Сумма проекта, вруб", head_format_1)
-        # sheet.write_string(row + 2, column, "", head_format_1)
-        # # sheet.set_column(column, column, 14)
-        # column += 1
-        # sheet.write_string(row, column, "", head_format)
-        # sheet.write_string(row+1, column, "Валовая прибыль экспертно, в руб", head_format_1)
-        # sheet.write_string(row + 2, column, "", head_format_1)
-        # # sheet.set_column(column, column, 14)
-        # column += 1
-        # sheet.write_string(row, column, "", head_format)
-        # sheet.write_string(row+1, column, "Прибыльность, экспертно, %", head_format_1)
-        # sheet.write_string(row + 2, column, "", head_format_1)
-        # # sheet.set_column(column, column, 9)
-        # column += 1
-        # sheet.write_string(row, column, "", head_format)
-        # sheet.write_string(row+1, column, "Номер договора", head_format_1)
-        # sheet.write_string(row + 2, column, "", head_format_1)
-        # # sheet.set_column(column, column, 11.88)
-        # column += 1
-        # sheet.write_string(row, column, "", head_format)
-        # sheet.write_string(row+1, column, "НДС", head_format_1)
-        # sheet.write_string(row + 2, column, "", head_format_1)
-        # # sheet.set_column(column, column, 7)
-        # sheet.set_column(4, 10, False, False, {'hidden': 1, 'level': 4})
-        # column += 1
-        # sheet.write_string(row, column, "", head_format)
-        # sheet.write_string(row+1, column, "", head_format_1)
-        # sheet.write_string(row + 2, column, "", head_format_1)
-        # sheet.set_column(column, column, 2)
-        #
-        sheet.freeze_panes(5, 3)
+        sheet.set_column(column, column, 25, False, {'hidden': 1, 'level': 2})
+        column += 1
+        sheet.write_string(row, column, "", head_format)
+        sheet.merge_range(row + 1, column, row + 2, column, "Номер этапа проекта", head_format_1)
+        sheet.set_column(column, column, 16, False, {'hidden': 1, 'level': 2})
+        column += 1
+        sheet.write_string(row, column, "", head_format)
+        sheet.merge_range(row + 1, column, row + 2, column, "Стадия продажи", head_format_1)
+        sheet.set_column(column, column, 10, False, {'hidden': 1, 'level': 2})
+        column += 1
+        sheet.write_string(row, column, "", head_format)
+        sheet.merge_range(row + 1, column, row + 2, column, "Сумма проекта, руб.", head_format_1)
+        sheet.set_column(column, column, 14, False, {'hidden': 1, 'level': 2})
+        column += 1
+        sheet.write_string(row, column, "", head_format)
+        sheet.merge_range(row + 1, column, row + 2, column, "Валовая прибыль экспертно, руб.", head_format_1)
+        sheet.set_column(column, column, 14, False, {'hidden': 1, 'level': 2})
+        column += 1
+        sheet.write_string(row, column, "", head_format)
+        sheet.merge_range(row + 1, column, row + 2, column, "Прибыльность экспертно, %", head_format_1)
+        sheet.set_column(column, column, 9, False, {'hidden': 1, 'level': 2})
+        column += 1
+        sheet.write_string(row, column, "", head_format)
+        sheet.merge_range(row + 1, column, row + 2, column, "Номер договора", head_format_1)
+        sheet.set_column(column, column, 11.88, False, {'hidden': 1, 'level': 2})
+        column += 1
+        sheet.write_string(row, column, "", head_format)
+        sheet.merge_range(row + 1, column, row + 2, column, "НДС", head_format_1)
+        sheet.set_column(column, column, 4, False, {'hidden': 1, 'level': 2})
+        column += 1
+        sheet.write_string(row, column, "", head_format)
+        sheet.merge_range(row + 1, column, row + 2, column, "", head_format_1)
+        sheet.set_column(column, column, 2)
+
+        sheet.freeze_panes(5, 12)
         column += 1
         column = self.print_week_head(workbook, sheet, row, column,  strYEAR)
         row += 2
@@ -3023,11 +3018,11 @@ end = start + timedelta(days=6)
 
         row += 1
         column = 0
-        sheet.write_string(row, column, 'ИТОГО по отчету', row_format_number_itogo)
+        sheet.merge_range(row, column, row, column + 11, 'ИТОГО по отчету', row_format_number_itogo)
         for company_row in dict_formula['company_ids'].values():
             formulaItogo += ',{0}' + str(company_row + 1)
         formulaItogo = formulaItogo + ')'
-        for colFormula in range(1, date(YEARint, 12, 28).isocalendar()[1] * 3 + 3):
+        for colFormula in range(12, date(YEARint, 12, 28).isocalendar()[1] * 3 + 12):
             formula = formulaItogo.format(xl_col_to_name(colFormula))
             sheet.write_formula(row, colFormula, formula, row_format_number_itogo)
         # for i in range(4):  # формулы для процентов выполнения
@@ -3052,10 +3047,9 @@ end = start + timedelta(days=6)
         print('YEARint=', YEARint)
         print('strYEAR =', strYEAR)
 
-        # TODO check multipliers
-        multipliers = {'50': 1, '30': 1}
+        multipliers = {'50': data['koeff_reserve'], '30': data['koeff_potential']}
 
         commercial_budget_id = data['commercial_budget_id']
         print('commercial_budget_id', commercial_budget_id)
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
-        self.printworksheet(workbook, budget, 'Прогноз', multipliers)
+        self.printworksheet(workbook, budget, 'ПДС', multipliers)
