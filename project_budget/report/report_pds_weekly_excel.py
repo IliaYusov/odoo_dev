@@ -1,5 +1,5 @@
 from odoo import models
-from datetime import date
+from datetime import date, timedelta
 import xlsxwriter
 from xlsxwriter.utility import xl_col_to_name
 import logging
@@ -127,6 +127,20 @@ class report_management_committee_excel(models.AbstractModel):
         if 'Q4' in quarter_name:
             months = (10, 11, 12)
         return months
+
+    def get_dates_from_week(self, week_number):
+        global YEARint
+        for day in range(1, 7):
+            day_of_year = date(YEARint, 1, day)
+            if day_of_year.weekday() == 5:  # четверг
+                first_day_of_year = day_of_year
+        first_week_begin = first_day_of_year  - timedelta(days=first_day_of_year.weekday())
+        first_week_end = first_week_begin + timedelta(days=6)
+        delta = timedelta(days=(week_number - 1) * 7)
+        return first_week_begin + delta, first_week_end + delta
+
+start = dt - timedelta(days=dt.weekday())
+end = start + timedelta(days=6)
 
     def get_etalon_project_first(self,spec):
         global strYEAR
@@ -461,13 +475,15 @@ class report_management_committee_excel(models.AbstractModel):
                     str_format = head_format_month
                     sheet.set_column(column, column + 2, False, False, {'hidden': 1, 'level': 1})
 
+                week_begin, week_end = self.get_dates_from_week(week_number)
+
                 sheet.merge_range(row, column, row, column + 2,
                                   'WEEK ' +
                                   str(week_number) +
                                   '\n(' +
-                                  str(date.fromisocalendar(YEARint, week_number, 1)) +
+                                  str(week_begin) +
                                   ' - ' +
-                                  str(date.fromisocalendar(YEARint, week_number, 7)) +
+                                  str(week_end) +
                                   ')',
                                   str_format)
 
