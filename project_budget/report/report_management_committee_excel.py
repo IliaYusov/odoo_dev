@@ -1045,6 +1045,22 @@ class report_management_committee_excel(models.AbstractModel):
                         sum_cash += acceptance.sum_cash_without_vat
         return sum_cash
 
+    def get_sum_fact_margin_project_step_quarter(self, project, step, element_name):
+        global strYEAR
+        global YEARint
+
+        sum_cash = 0
+        months = self.get_months_from_quarter(element_name)
+        if months:
+            acceptance_list = project.fact_acceptance_flow_ids
+            if acceptance_list:
+                for acceptance in acceptance_list:
+                    if step:
+                        if acceptance.project_steps_id.id != step.id: continue
+                    if acceptance.date_cash.month in months and acceptance.date_cash.year == YEARint:
+                        sum_cash += acceptance.margin
+        return sum_cash
+
     def get_sum_fact_acceptance_project_step_year(self, project, step, year):
         sum_cash = 0
 
@@ -1055,6 +1071,19 @@ class report_management_committee_excel(models.AbstractModel):
                     if acceptance.project_steps_id.id != step.id: continue
                 if acceptance.date_cash.year == year:
                     sum_cash += acceptance.sum_cash_without_vat
+
+        return sum_cash
+
+    def get_sum_fact_margin_project_step_year(self, project, step, year):
+        sum_cash = 0
+
+        acceptance_list = project.fact_acceptance_flow_ids
+        if acceptance_list:
+            for acceptance in acceptance_list:
+                if step:
+                    if acceptance.project_steps_id.id != step.id: continue
+                if acceptance.date_cash.year == year:
+                    sum_cash += acceptance.margin
 
         return sum_cash
 
@@ -1225,8 +1254,10 @@ class report_management_committee_excel(models.AbstractModel):
                             prof75tmpetalon += sum * profitability_etalon / 100
 
                     sum100tmp_step = self.get_sum_fact_acceptance_project_step_quarter(project, step, element)
+                    prof100tmp_step = self.get_sum_fact_margin_project_step_quarter(project, step, element)
+
                     sum100tmp += sum100tmp_step
-                    prof100tmp += sum100tmp_step * profitability / 100
+                    prof100tmp += prof100tmp_step
 
                     sum = self.get_sum_planned_acceptance_project_step_quarter(project, step, element)
 
@@ -1278,8 +1309,10 @@ class report_management_committee_excel(models.AbstractModel):
                         prof50tmpetalon += sum * profitability_etalon / 100
 
                 sum100tmp_proj = self.get_sum_fact_acceptance_project_step_quarter(project, False, element)
+                prof100tmp_proj = self.get_sum_fact_margin_project_step_quarter(project, False, element)
+
                 sum100tmp += sum100tmp_proj
-                prof100tmp += sum100tmp_proj * profitability / 100
+                prof100tmp += prof100tmp_proj
 
                 sum = self.get_sum_planned_acceptance_project_step_quarter(project, False, element)
 
@@ -1316,8 +1349,10 @@ class report_management_committee_excel(models.AbstractModel):
                     profitability = step.profitability
 
                     sum100tmp_step = self.get_sum_fact_acceptance_project_step_year(project, step, YEARint + 1)
+                    prof100tmp_step = self.get_sum_fact_margin_project_step_year(project, step, YEARint + 1)
+
                     sum100tmp += sum100tmp_step
-                    prof100tmp += sum100tmp_step * profitability / 100
+                    prof100tmp += prof100tmp_step
 
                     sum = self.get_sum_planned_acceptance_project_step_year(project, step, YEARint + 1)
 
@@ -1360,8 +1395,10 @@ class report_management_committee_excel(models.AbstractModel):
                 profitability = project.profitability
 
                 sum100tmp_proj = self.get_sum_fact_acceptance_project_step_year(project, False, YEARint + 1)
+                prof100tmp_proj = self.get_sum_fact_margin_project_step_year(project, False, YEARint + 1)
+
                 sum100tmp += sum100tmp_proj
-                prof100tmp += sum100tmp_proj * profitability / 100
+                prof100tmp += prof100tmp_proj
 
                 sum = self.get_sum_planned_acceptance_project_step_year(project, False, YEARint + 1)
 
@@ -1405,8 +1442,10 @@ class report_management_committee_excel(models.AbstractModel):
                     profitability = step.profitability
 
                     sum100tmp_step = self.get_sum_fact_acceptance_project_step_year(project, step, YEARint + 2)
+                    prof100tmp_step = self.get_sum_fact_margin_project_step_year(project, step, YEARint + 2)
+
                     sum100tmp += sum100tmp_step
-                    prof100tmp += sum100tmp_step * profitability / 100
+                    prof100tmp += prof100tmp_step
 
                     sum = self.get_sum_planned_acceptance_project_step_year(project, step, YEARint + 2)
 
@@ -1449,8 +1488,10 @@ class report_management_committee_excel(models.AbstractModel):
                 profitability = project.profitability
 
                 sum100tmp_proj = self.get_sum_fact_acceptance_project_step_year(project, False, YEARint + 2)
+                prof100tmp_proj = self.get_sum_fact_margin_project_step_year(project, False, YEARint + 2)
+
                 sum100tmp += sum100tmp_proj
-                prof100tmp += sum100tmp_proj * profitability / 100
+                prof100tmp += prof100tmp_proj
 
                 sum = self.get_sum_planned_acceptance_project_step_year(project, False, YEARint + 2)
 

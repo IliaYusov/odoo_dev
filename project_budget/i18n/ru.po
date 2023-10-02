@@ -2491,6 +2491,16 @@ msgid "distribution_sum_without_vat_ostatok"
 msgstr "Остаток для распред-ия без НДС"
 
 #. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_acceptance_flow__margin
+msgid "Margin"
+msgstr "Маржа 1"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_acceptance_flow__margin_manual_input
+msgid "Manual input of margin"
+msgstr "Ввести маржу вручную"
+
+#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_acceptance_flow__doc_cash
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_cash_flow__doc_cash
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__doc_cash

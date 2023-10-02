@@ -664,6 +664,23 @@ class report_budget_forecast_excel(models.AbstractModel):
                         sum_cash += acceptance.sum_cash_without_vat
         return sum_cash
 
+    def get_sum_fact_margin_project_step_quarter(self, project, step, element_name):
+        global YEARint
+        global year_end
+        sum_cash = 0
+        months = self.get_months_from_quater(element_name)
+        if months:
+            acceptance_list = project.fact_acceptance_flow_ids
+            if acceptance_list:
+                for acceptance in acceptance_list:
+                    if step:
+                        if acceptance.project_steps_id.id != step.id: continue
+                    if acceptance.date_cash.month in months \
+                            and acceptance.date_cash.year >= YEARint\
+                            and acceptance.date_cash.year <= year_end:
+                        sum_cash += acceptance.margin
+        return sum_cash
+
     def get_sum_planned_acceptance_project_step_quater(self, project, step, element_name):
         global YEARint
         global year_end
@@ -730,13 +747,14 @@ class report_budget_forecast_excel(models.AbstractModel):
                     sum50tmpetalon += sum* koeff_reserve
 
             sum100tmp = self.get_sum_fact_acceptance_project_step_quater(project, step, element_name)
+            margin100tmp = self.get_sum_fact_margin_project_step_quarter(project, step, element_name)
 
             if sum100tmp:
                 sheet.write_number(row, column + 2, sum100tmp, row_format_number_color_fact)
-                sheet.write_number(row, column + 2 + 44, sum100tmp*profitability/100, row_format_number_color_fact)
 
+            if margin100tmp:
+                sheet.write_number(row, column + 2 + 44, margin100tmp, row_format_number_color_fact)
 
-            sum = 0
             sum = self.get_sum_planned_acceptance_project_step_quater(project, step, element_name)
             if sum100tmp >= sum:
                 sum = 0
@@ -763,14 +781,14 @@ class report_budget_forecast_excel(models.AbstractModel):
                 estimated_probability_id_name = step.estimated_probability_id.name
 
             if sum != 0:
-                if estimated_probability_id_name in('75','100','100(done)'):
+                if estimated_probability_id_name in ('75', '100', '100(done)'):
                     sheet.write_number(row, column + 3, sum, row_format_number)
                     sheet.write_number(row, column + 3 + 44, sum*profitability/100, row_format_number)
                     sum75tmp += sum
                 if estimated_probability_id_name == '50':
-                    sheet.write_number(row, column + 4, sum* koeff_reserve, row_format_number)
-                    sheet.write_number(row, column + 4 + 44, sum*profitability* koeff_reserve/100, row_format_number)
-                    sum50tmp += sum* koeff_reserve
+                    sheet.write_number(row, column + 4, sum * koeff_reserve, row_format_number)
+                    sheet.write_number(row, column + 4 + 44, sum * profitability * koeff_reserve / 100, row_format_number)
+                    sum50tmp += sum * koeff_reserve
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
 
