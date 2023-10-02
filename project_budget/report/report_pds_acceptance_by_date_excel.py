@@ -1,6 +1,6 @@
 from odoo import models
 from xlsxwriter.utility import xl_col_to_name
-from datetime import date, datetime
+import datetime
 
 
 class report_pds_acceptance_by_date_excel(models.AbstractModel):
@@ -99,8 +99,8 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
         column = 0
 
         sheet.merge_range(row, column, row, column + 10, 'Прогноз: ' + self.pds_accept_str[pds_accept] + ' (' +
-                          date.strftime(date_start, '%d.%m.%y') + '-' +
-                          date.strftime(date_end, '%d.%m.%y') + ')', head_format)
+                          datetime.date.strftime(date_start, '%d.%m.%y') + '-' +
+                          datetime.date.strftime(date_end, '%d.%m.%y') + ')', head_format)
 
         row += 1
 
@@ -234,8 +234,8 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
     def generate_xlsx_report(self, workbook, data, budgets):
 
         commercial_budget_id = data['commercial_budget_id']
-        date_start = datetime.strptime(data['date_start'], '%Y-%m-%d').date()
-        date_end = datetime.strptime(data['date_end'], '%Y-%m-%d').date()
+        date_start = datetime.datetime.strptime(data['date_start'], '%Y-%m-%d').date()
+        date_end = datetime.datetime.strptime(data['date_end'], '%Y-%m-%d').date()
         pds_accept = data['pds_accept']
 
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
