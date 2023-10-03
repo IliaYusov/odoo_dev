@@ -1,7 +1,7 @@
 from odoo import _, models, fields, api
 from odoo.exceptions import ValidationError
 from odoo.tools import pytz
-from datetime import timedelta
+from datetime import date
 
 class fact_acceptance_flow(models.Model):
 
@@ -81,3 +81,13 @@ class fact_acceptance_flow(models.Model):
 
     def _inverse_margin(self):
         pass
+
+    def action_copy_fact_acceptance(self):
+        self.ensure_one()
+        if self.projects_id.budget_state == 'fixed':  # сделка в зафиксированном бюджете
+            raise_text = _("This project is in fixed budget. Copy deny")
+            raise (ValidationError(raise_text))
+        elif self.date_cash < date.today():
+            raise_text = _("This acceptance flow is overdue. Copy denied")  # просрочено
+            raise (ValidationError(raise_text))
+        self.env['project_budget.fact_acceptance_flow'].browse(self.id).copy({'id': '-', 'distribution_acceptance_ids': None})

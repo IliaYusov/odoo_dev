@@ -1,7 +1,7 @@
 from odoo import _, models, fields, api
 from odoo.exceptions import ValidationError
 from odoo.tools import pytz
-from datetime import timedelta
+from datetime import date
 
 class fact_cash_flow(models.Model):
     _name = 'project_budget.fact_cash_flow'
@@ -53,3 +53,13 @@ class fact_cash_flow(models.Model):
                 row.distribution_sum_without_vat += distribution_cash.sum_cash_without_vat
             row.distribution_sum_with_vat_ostatok =row.sum_cash - row.distribution_sum_with_vat
             row.distribution_sum_without_vat_ostatok = row.sum_cash_without_vat - row.distribution_sum_without_vat
+
+    def action_copy_fact_cash(self):
+        self.ensure_one()
+        if self.projects_id.budget_state == 'fixed':  # сделка в зафиксированном бюджете
+            raise_text = _("This project is in fixed budget. Copy deny")
+            raise (ValidationError(raise_text))
+        elif self.date_cash < date.today():
+            raise_text = _("This acceptance flow is overdue. Copy denied")  # просрочено
+            raise (ValidationError(raise_text))
+        self.env['project_budget.fact_cash_flow'].browse(self.id).copy({'id': '-', 'distribution_cash_ids': None})

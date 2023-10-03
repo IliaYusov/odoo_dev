@@ -1,7 +1,7 @@
 from odoo import _, models, fields, api
 from odoo.exceptions import ValidationError
 from odoo.tools import pytz
-from datetime import timedelta
+from datetime import date
 
 class planned_acceptance_flow(models.Model):
 
@@ -80,6 +80,16 @@ class planned_acceptance_flow(models.Model):
             if not vals.get('acceptance_id') or vals['acceptance_id'] == '-':
                 vals['acceptance_id'] = self.env['ir.sequence'].sudo().next_by_code('project_budget.planned_acceptance_flow')
         return super().create(vals_list)
+
+    def action_copy_planned_acceptance(self):
+        self.ensure_one()
+        if self.projects_id.budget_state == 'fixed':  # сделка в зафиксированном бюджете
+            raise_text = _("This project is in fixed budget. Copy deny")
+            raise (ValidationError(raise_text))
+        elif self.date_cash < date.today():
+            raise_text = _("This acceptance flow is overdue. Copy denied")  # просрочено
+            raise (ValidationError(raise_text))
+        self.env['project_budget.planned_acceptance_flow'].browse(self.id).copy({'acceptance_id': '-'})
 
     # @api.returns('self', lambda value: value.id)
     # def copy(self, default=None):
