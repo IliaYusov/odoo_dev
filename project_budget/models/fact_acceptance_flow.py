@@ -87,7 +87,4 @@ class fact_acceptance_flow(models.Model):
         if self.projects_id.budget_state == 'fixed':  # сделка в зафиксированном бюджете
             raise_text = _("This project is in fixed budget. Copy deny")
             raise (ValidationError(raise_text))
-        elif self.date_cash < date.today():
-            raise_text = _("This acceptance flow is overdue. Copy denied")  # просрочено
-            raise (ValidationError(raise_text))
         self.env['project_budget.fact_acceptance_flow'].browse(self.id).copy({'id': '-', 'distribution_acceptance_ids': None})

@@ -2015,20 +2015,6 @@ msgid "This project is in fixed budget. Copy deny"
 msgstr "Копирование запрещено: этот проект в зафиксированном бюджете"
 
 #. module: project_budget
-#. odoo-python
-#: code:addons/project_budget/models/projects.py:0
-#, python-format
-msgid "This acceptance flow is overdue. Copy denied"
-msgstr "Копирование запрещено: просроченная дата актирования"
-
-#. module: project_budget
-#. odoo-python
-#: code:addons/project_budget/models/projects.py:0
-#, python-format
-msgid "This cash flow is overdue. Copy denied"
-msgstr "Копирование запрещено: просроченная дата ПДС"
-
-#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects_report_wizard__type_report
 msgid "Type Report"
 msgstr "Тип отчета"
