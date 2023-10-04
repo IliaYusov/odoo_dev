@@ -7,11 +7,11 @@
                 <tree>
                     <button name="action_copy_step" type="object" title="Copy step" string="Copy step" class="btn btn-link float-end"/>
                     <field name="step_id" readonly="1" optional="show"/>
-                    <field name="project_steps_type_id" optional="show"  force_save="1" options="{'no_open': True,}"/>
+                    <field name="project_step_type_id" optional="show"  force_save="1" options="{'no_open': True, 'no_create': True}"/>
                     <field name="code" optional="show" placeholder="type step code DAX e.g. 0001"/>
                     <field name="dogovor_number" optional="hide" />
                     <field name="estimated_probability_id" optional="hide" />
-                    <field name="project_steps_type_id" optional="hide" />
+                    <field name="project_step_type_id" optional="hide" />
                     <field name="essence_project" optional="show" placeholder="type step name e.g. products recieve"/>
                     <field name="end_presale_project_month" optional="show" />
                     <field name="end_sale_project_month" optional="show" />
@@ -41,7 +41,7 @@
                                 <field name="code" placeholder="type step code e.g. 0001" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
                             </group>
                             <group>
-                                <field name="project_steps_type_id" force_save="1" options="{'no_open': True,}"/>
+                                <field name="project_step_type_id" force_save="1" options="{'no_open': True, 'no_create': True}"/>
                             </group>
                             <group>
                                 <field name="vat_attribute_id" placeholder="select vat attribute"

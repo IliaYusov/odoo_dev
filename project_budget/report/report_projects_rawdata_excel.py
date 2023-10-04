@@ -120,7 +120,7 @@ class report_projects_rawdata_excel(models.AbstractModel):
 
         sheet.write_string(row, column, "step_id", row_format)  # step_id)
         column += 1
-        sheet.write_string(row, column, "Тип этапа", row_format)  # project_steps_type_id)
+        sheet.write_string(row, column, "Тип этапа", row_format)  # project_step_type_id)
         column += 1
         sheet.write_string(row, column, "Валюта", row_format)  # currency_id
         column += 1
@@ -234,7 +234,7 @@ class report_projects_rawdata_excel(models.AbstractModel):
 
                     sheet.write_string(row, column, "", row_format) #step_id)
                     column += 1
-                    sheet.write_string(row, column, "", row_format) #project_steps_type_id)
+                    sheet.write_string(row, column, "", row_format) #project_step_type_id)
                     column += 1
                     sheet.write_string(row, column, "", row_format) #currency_id
                     column += 1
@@ -346,7 +346,7 @@ class report_projects_rawdata_excel(models.AbstractModel):
 
                         sheet.write_string(row, column, step.step_id, row_format)  # step_id)
                         column += 1
-                        sheet.write_string(row, column, step.project_steps_type_id.name, row_format)  # project_steps_type_id)
+                        sheet.write_string(row, column, step.project_step_type_id.name, row_format)  # project_step_type_id)
                         column += 1
                         sheet.write_string(row, column, step.currency_id.name, row_format)  # currency_id
                         column += 1
