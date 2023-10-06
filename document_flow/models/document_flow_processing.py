@@ -21,7 +21,7 @@ class Processing(models.Model):
     parent_ref_id = fields.Integer(string='Parent Id', index=True)
     parent_ref_type = fields.Char(string='Parent Type', index=True)
 
-    document_type_id = fields.Many2one('document_flow.document.type', string='Document Type', required=True)
+    document_type_id = fields.Many2one('document_flow.document.type', string='Document Type')
 
     template_id = fields.Many2one('document_flow.process.template', string='Template',
                                   domain="[('document_type_id', '=', document_type_id)]")
@@ -70,7 +70,7 @@ class Processing(models.Model):
         process = self.env['document_flow.process'].create(dict(
             name=_('Processing') + ' ' + self.parent_ref.name,
             template_id=self.template_id.id,
-            company_ids=self.parent_ref.company_id,
+            company_ids=self.parent_ref.company_id if not self.parent_ref._fields.get('company_ids', False) else self.parent_ref.company_ids,
             type='complex'
         ))
         for action in self.action_ids:
@@ -81,7 +81,8 @@ class Processing(models.Model):
                 'task_sequence': action.task_sequence,
                 'sequence': action.sequence,
                 'reviewer_ref': action.reviewer_ref,
-                'start_condition': action.start_condition
+                'start_condition': action.start_condition,
+                'description': action.description
             })
             for child in action.child_ids:
                 pr = self.env['document_flow.process'].create({
@@ -91,7 +92,8 @@ class Processing(models.Model):
                     'task_sequence': child.task_sequence,
                     'sequence': child.sequence,
                     'reviewer_ref': child.reviewer_ref,
-                    'start_condition': child.start_condition
+                    'start_condition': child.start_condition,
+                    'description': child.description
                 })
                 for executor in child.executor_ids:
                     self.env['document_flow.process.executor'].create({

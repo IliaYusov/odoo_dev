@@ -213,7 +213,7 @@
                                             <field name="rukovoditel_project_id" widget="many2one_avatar" force_save="1" placeholder="select rukovoditel_project" options="{'no_open': True,}"
                                                     attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')], 'required': [('isRukovoditel_required_in_project', '=', True)]}"
                                                     decoration-bf="1"/>
-                                            <field name="project_type_id" force_save="1" options="{'no_open': True, 'no_create': True}" placeholder="select project type"
+                                            <field name="project_type_id" force_save="1" options="{'no_open': True,}" placeholder="select project type"
                                                    attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
                                         </group>
                                         <group>
@@ -543,7 +543,7 @@
                     <field name="estimated_probability_id" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
                     <field name="vat_attribute_id" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
                     <field name="legal_entity_signing_id" force_save="1" options="{'no_open': True,}" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
-                    <field name="project_type_id" force_save="1" options="{'no_open': True, 'no_create': True}" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                    <field name="project_type_id" force_save="1" options="{'no_open': True,}" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
                     <field name="comments" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
                     <field name="technological_direction_id" force_save="1" options="{'no_open': True,}" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
                  </tree>

@@ -27,6 +27,14 @@
     display: inline-block;
 }
 
+.card .tasks-title {
+    font-size: 10px;
+}
+
+.card .tasks-count {
+    font-size: 20px;
+}
+
 .my_to_do_tasks {
     color: #0f5f8b;
 }

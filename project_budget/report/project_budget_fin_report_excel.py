@@ -511,7 +511,7 @@ class report_budget_excel(models.AbstractModel):
                                     column += 1
                                     sheet.write(row, column, spec.legal_entity_signing_id.name, row_format)
                                     column += 1
-                                    sheet.write_string(row, column, step.project_step_type_id.name, row_format)
+                                    sheet.write_string(row, column, step.project_steps_type_id.name, row_format)
                                     column += 1
                                     sheet.write_string(row, column, spec.comments or "", row_format)
                                     column += 1

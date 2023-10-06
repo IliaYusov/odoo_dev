@@ -5,7 +5,7 @@
         <field name="model">task.task</field>
         <field name="inherit_id" ref="task.task_view_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='user_id']" position="before">
+            <xpath expr="//field[@name='user_ids']" position="before">
                 <field name="role_executor_id" options="{'no_quick_create': True}"
                        attrs="{'invisible': [('role_executor_id', '=', False)]}"/>
             </xpath>

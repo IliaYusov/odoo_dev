@@ -1,0 +1,12 @@
+<odoo>
+    <data>
+        <menuitem id="jrn_menu" name="JRN"/>
+
+        <menuitem id="jrn_jrn" parent ="jrn_menu" name = "JRN" action="show_jrn"/>
+
+
+        <menuitem id="jrn_settings" parent ="jrn_menu" name = "settings"/>
+        <menuitem id="jrn_settings_tables" parent ="jrn_settings" name = "Tables" action="show_jrn_tables"/>
+
+    </data>
+</odoo>

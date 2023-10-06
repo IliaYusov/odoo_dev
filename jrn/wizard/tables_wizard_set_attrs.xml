@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="task_wizard_done_view_form" model="ir.ui.view">
+        <field name="name">jrn.wizard.set_table_attrs.form</field>
+        <field name="model">jrn.wizard.set_table_attrs</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="check_changes" widget="boolean_toggle"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button string="Done" name="action_set_attrs" class="btn-success" type="object"/>
+                    <button string="Cancel" class="btn-danger" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_tables_wizard_set_attrs" model="ir.actions.act_window">
+        <field name="name">Done</field>
+        <field name="res_model">jrn.wizard.set_table_attrs</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

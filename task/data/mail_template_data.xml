@@ -5,7 +5,7 @@
             <field name="name">Task: Assigned</field>
             <field name="model_id" ref="task.model_task_task"/>
             <field name="subject">Task {{ object.code }} {{ object.display_name }} assigned to you</field>
-            <field name="description">Template to automate email when tasks assigned to user</field>
+            <field name="description">Template to automate email when tasks assigned to users</field>
             <field name="email_to">{{object.user_id.email}}</field>
             <field name="lang">{{ object.user_id.lang }}</field>
             <field name="auto_delete" eval="True"/>

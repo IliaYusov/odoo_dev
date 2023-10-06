@@ -335,12 +335,13 @@
             <field name="arch" type="xml">
                 <tree string="customer_organization">
 <!--                    <field name="name_to_show" invisible="False"/>-->
+<!--                    <field name="avatar_128" widget="image" class="oe_avatar"/>-->
                     <field name="name"/>
                     <field name="longname"/>
                     <field name="inn"/>
                     <field name="code"/>
                     <field name="descr"/>
-                    <field name="partner_id"/>
+                    <field name="partner_id" widget="many2one_avatar"/>
                 </tree>
             </field>
         </record>
@@ -487,6 +488,7 @@
                     <field name="code"/>
                     <field name="percent"/>
                     <field name="descr"/>
+                    <field name="is_prohibit_selection" widget="boolean_toggle"/>
                 </tree>
             </field>
         </record>
@@ -503,6 +505,7 @@
                             </group>
                             <group>
                                 <field name="percent"/>
+                                <field name="is_prohibit_selection" widget="boolean_toggle"/>
                                 <field name="descr" widget="html"/>
                             </group>
                     </sheet>
@@ -588,7 +591,6 @@
                     <field name="name"/>
                     <field name="code"/>
                     <field name="descr"/>
-                    <field name="forbidden_in_steps" widget="boolean_toggle"/>
                 </tree>
             </field>
         </record>
@@ -602,7 +604,6 @@
                             <group>
                                     <field name="name"/>
                                     <field name="code"/>
-                                    <field name="forbidden_in_steps" widget="boolean_toggle"/>
                             </group>
                             <group>
                                 <field name="descr" widget="html"/>
@@ -680,6 +681,72 @@
             </field>
         </record>
 <!-- end technological_direction-->
+
+<!-- project_budget.project_steps_type -->
+        <record id="show_project_steps_type_tree" model="ir.ui.view">
+            <field name="name">project_budget.project_steps_type.tree</field>
+            <field name="model">project_budget.project_steps_type</field>
+            <field name="arch" type="xml">
+                <tree string="technological_direction">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+   <record id="show_project_steps_type_form" model="ir.ui.view">
+            <field name="name">project_budget.project_steps_type.form</field>
+            <field name="model">project_budget.project_steps_type</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet string="project_type">
+                            <group>
+                                <field name="name"/>
+                            </group>
+                            <h4>
+                                <group string="Visible fields in step" >
+                                </group>
+                            </h4>
+                            <group>
+                                <group>
+                                    <field name="is_revenue_from_the_sale_of_works" widget="boolean_toggle"/>
+                                    <field name="is_revenue_from_the_sale_of_goods" widget="boolean_toggle"/>
+                                    <field name="is_cost_of_goods" widget="boolean_toggle"/>
+                                    <field name="is_own_works_fot" widget="boolean_toggle"/>
+                                    <field name="is_third_party_works" widget="boolean_toggle"/>
+                                    <field name="is_awards_on_results_project" widget="boolean_toggle"/>
+                                </group>
+                                <group>
+                                    <field name="is_transportation_expenses" widget="boolean_toggle"/>
+                                    <field name="is_travel_expenses" widget="boolean_toggle"/>
+                                    <field name="is_representation_expenses" widget="boolean_toggle"/>
+                                    <field name="is_warranty_service_costs" widget="boolean_toggle"/>
+                                    <field name="is_rko_other" widget="boolean_toggle"/>
+                                    <field name="is_other_expenses" widget="boolean_toggle"/>
+                                </group>
+                            </group>
+
+
+
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="show_project_steps_type" model="ir.actions.act_window">
+            <field name="name">project_budget.project_steps_type</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">project_budget.project_steps_type</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'search_default_group_by_provider': True}</field>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a new project_steps_type
+              </p><p>
+                each project step have type
+              </p>
+            </field>
+        </record>
+<!-- end project_budget.project_steps_type-->
 
     <record id="project_budget_estimated_probability_action" model="ir.actions.act_window">
         <field name="name">Projects Overview</field>

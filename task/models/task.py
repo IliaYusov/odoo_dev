@@ -1,7 +1,6 @@
 import json
 
 from html2text import html2text
-
 from odoo import _, models, fields, api, exceptions
 from odoo.exceptions import ValidationError
 
@@ -51,6 +50,8 @@ class Task(models.Model):
     author_id = fields.Many2one('res.users', string='Author', required=True, readonly=True,
                                 default=lambda self: self.env.user)
     company_id = fields.Many2one('res.company', string='Company', required=True, default=lambda self: self.env.company)
+    company_ids = fields.Many2many('res.company', string='Companies', required=True,
+                                   default=lambda self: self.env.company)
     type_id = fields.Many2one('task.type', string='Type', ondelete='restrict', required=True, index=True, copy=True,
                               tracking=True, domain=_get_type_domain)
     stage_id = fields.Many2one('task.stage', string='Stage', ondelete='restrict', copy=False, required=True, index=True,
@@ -61,14 +62,14 @@ class Task(models.Model):
     is_closed = fields.Boolean(related='stage_id.closed', copy=False, store=True, index=True, readonly=True)
 
     user_id = fields.Many2one('res.users', string='Assigned', copy=True, tracking=True)
+    user_ids = fields.Many2many('res.users', relation='task_user_rel', column1='task_id', column2='user_id',
+                                string='Assignees', copy=True, context={'active_test': False}, tracking=True,
+                                domain="['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]")
     actual_executor_id = fields.Many2one('res.users', string='Executor', copy=False, readonly=True)
     parent_ref = fields.Reference(string='Parent', selection="_selection_parent_model", ondelete='restrict',
                                   copy=True, compute="_compute_parent_ref", inverse='_inverse_parent_ref', store=True)
     parent_ref_id = fields.Integer(string='Parent Id', index=True, copy=True)
     parent_ref_type = fields.Char(string='Parent Type', index=True, copy=True)
-
-    parent_obj_ref = fields.Reference(string='Parent Object', selection='_selection_parent_obj_model',
-                                      compute='_compute_parent_obj', readonly=True)
 
     date_deadline = fields.Date(string='Deadline', required="True", copy=True, index=True, tracking=True)
     parent_id = fields.Many2one('task.task', string='Parent Task', copy=True, tracking=True)
@@ -137,19 +138,20 @@ class Task(models.Model):
 
         res = super(Task, self).create(vals_list)
 
-        # TODO: что-то тут не так
-        if res.user_id:
-            res.action_create_activity()
-            # res._send_message_notify(self.env.ref('task.mail_template_task_assigned_notify', raise_if_not_found=False))
-
+        if res.user_ids - self.env.user:
+            # res.action_create_activity()
+            res._send_message_notify(self.env.ref('task.mail_template_task_assigned_notify', raise_if_not_found=False),
+                                     res.user_ids - self.env.user)
         return res
 
     def write(self, vals):
-        user_changed = vals.get('user_id', False) and self.user_id.id != vals['user_id']
+        old_user_ids = {t: t.user_ids for t in self}
         res = super(Task, self.with_context(mail_create_nolog=False)).write(vals)
-        if user_changed:
-            self.action_create_activity()
-            # self._send_message_notify(self.env.ref('task.mail_template_task_assigned_notify', raise_if_not_found=False))
+        new_user_ids = self.user_ids - old_user_ids[self] - self.env.user
+        if new_user_ids:
+            # self.action_create_activity()
+            self._send_message_notify(self.env.ref('task.mail_template_task_assigned_notify', raise_if_not_found=False),
+                                      new_user_ids)
         return res
 
     def _compute_attachment_count(self):
@@ -272,10 +274,23 @@ class Task(models.Model):
             if task.type_id and task.type_id.start_stage_id:
                 task.stage_id = task.type_id.start_stage_id
 
-    def _send_message_notify(self, template):
+    def _send_message_notify(self, template, user_ids):
         if not template:
             return
-        template.send_mail(self.id, email_layout_xmlid='mail.mail_notification_layout', force_send=True)
+        for user_id in user_ids.filtered(lambda u: u.email):
+            email_context = {
+                'email_to': user_id.email
+            }
+            template.sudo().send_mail(self.id, email_values=email_context,
+                                      email_layout_xmlid='mail.mail_notification_layout', force_send=True)
+
+    def _get_assigned_emails(self):
+        self.ensure_one()
+        return ",".join([e for e in self.user_ids.mapped("email") if e])
+
+    def _get_assigned_full_names(self):
+        self.ensure_one()
+        return ", ".join([n for n in self.user_ids.mapped("name") if n])
 
     def _close_mail_activities(self):
         self.ensure_one()

@@ -12,8 +12,6 @@
             'web/static/src/scss/primary_variables.scss',
         ],
         'web.assets_backend': [
-            'project_budget/static/src/js/dashboard_1.js',
-            'project_budget/static/src/xml/dashboard_1.xml',
             'project_budget/static/src/scss/change_color.css',
             'project_budget/static/src/js/dashboard_view.js',
             'project_budget/static/src/xml/dashboard_view.xml'
@@ -36,7 +34,6 @@
         'views/project_budget_project_steps.xml',
         'views/project_budget_projects.xml',
         'views/project_budget_comercial_budget.xml',
-        'views/Dashboard_1.xml',
         'views/tenders.xml',
         'wizard/report_tender_wizard.xml',
         'wizard/report_projects_wizard.xml',

@@ -27,8 +27,9 @@
                                         </div>
                                         <div class="col-8">
                                             <div class="card-body text-info">
-                                                <p class="card-text" id="my_to_do_count"/>
-                                                <p class="card-text">New</p>
+                                                <span class="tasks-title">New</span>
+                                                <br/>
+                                                <span class="tasks-count" id="my_to_do_count"/>
                                             </div>
                                         </div>
                                     </div>
@@ -44,8 +45,9 @@
                                         </div>
                                         <div class="col-8">
                                             <div class="card-body text-danger">
-                                                <p class="card-text" id="my_overdue_count"/>
-                                                <p class="card-text">Overdue</p>
+                                                <span class="tasks-title">Overdue</span>
+                                                <br/>
+                                                <span class="tasks-count" id="my_overdue_count"/>
                                             </div>
                                         </div>
                                     </div>
@@ -72,8 +74,9 @@
                                         </div>
                                         <div class="col-8">
                                             <div class="card-body text-info">
-                                                <p class="card-text" id="by_me_to_do_count"/>
-                                                <p class="card-text">New</p>
+                                                <span class="tasks-title">New</span>
+                                                <br/>
+                                                <span class="tasks-count" id="by_me_to_do_count"/>
                                             </div>
                                         </div>
                                     </div>
@@ -89,8 +92,9 @@
                                         </div>
                                         <div class="col-8">
                                             <div class="card-body text-danger">
-                                                <p class="card-text" id="by_me_overdue_count"/>
-                                                <p class="card-text">Overdue</p>
+                                                <span class="tasks-title">Overdue</span>
+                                                <br/>
+                                                <span class="tasks-count" id="by_me_overdue_count"/>
                                             </div>
                                         </div>
                                     </div>
@@ -117,8 +121,9 @@
                                         </div>
                                         <div class="col-8">
                                             <div class="card-body text-info">
-                                                <p class="card-text" id="group_to_do_count"/>
-                                                <p class="card-text">New</p>
+                                                <span class="tasks-title">New</span>
+                                                <br/>
+                                                <span class="tasks-count" id="group_to_do_count"/>
                                             </div>
                                         </div>
                                     </div>
@@ -134,8 +139,9 @@
                                         </div>
                                         <div class="col-8">
                                             <div class="card-body text-danger">
-                                                <p class="card-text" id="group_overdue_count"/>
-                                                <p class="card-text">Overdue</p>
+                                                <span class="tasks-title">Overdue</span>
+                                                <br/>
+                                                <span class="tasks-count" id="group_overdue_count"/>
                                             </div>
                                         </div>
                                     </div>

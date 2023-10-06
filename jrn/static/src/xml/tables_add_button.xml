@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+    <templates id="jrn_template_addbutton" xml:space="preserve">
+        <t t-name="OwlDemoButtons" t-inherit="web.ListView.Buttons" t-inherit-mode="primary" owl="1">
+            <xpath expr="(//div/*)" position="before">
+                <button class="btn btn-primary" type="button" t-on-click="test">
+                    Fill tables/check exists tables
+                </button>
+            </xpath>
+        </t>
+    </templates>

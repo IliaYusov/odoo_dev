@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-07 08:24+0000\n"
-"PO-Revision-Date: 2023-09-07 08:24+0000\n"
+"POT-Creation-Date: 2023-10-01 16:25+0000\n"
+"PO-Revision-Date: 2023-10-01 16:25+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -240,6 +240,11 @@ msgid "Assigned"
 msgstr "Исполнитель"
 
 #. module: task
+#: model:ir.model.fields,field_description:task.field_task_task__user_ids
+msgid "Assignees"
+msgstr "Исполнители"
+
+#. module: task
 #: model:ir.model.fields,field_description:task.field_task_task__message_attachment_count
 msgid "Attachment Count"
 msgstr "Количество вложений"
@@ -365,6 +370,11 @@ msgstr "Комментарий обязателен для заполнения!
 #: model_terms:ir.ui.view,arch_db:task.task_wizard_done_view_form
 msgid "Comment..."
 msgstr "Комментарий..."
+
+#. module: task
+#: model:ir.model.fields,field_description:task.field_task_task__company_ids
+msgid "Companies"
+msgstr "Компании"
 
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_task__company_id
@@ -779,7 +789,7 @@ msgstr "Количество ошибок"
 
 #. module: task
 #: model:ir.model.fields,help:task.field_task_task__message_needaction_counter
-msgid "Number of messages which requires an action"
+msgid "Number of messages requiring action"
 msgstr ""
 
 #. module: task
@@ -825,11 +835,6 @@ msgstr "Родитель"
 #: model:ir.model.fields,field_description:task.field_task_task__parent_ref_id
 msgid "Parent Id"
 msgstr "Идентификатор родителя"
-
-#. module: task
-#: model:ir.model.fields,field_description:task.field_task_task__parent_obj_ref
-msgid "Parent Object"
-msgstr "Родитель"
 
 #. module: task
 #. odoo-python
@@ -1092,7 +1097,7 @@ msgstr "Мои задачи"
 
 #. module: task
 #: model:mail.template,description:task.mail_template_task_assigned_notify
-msgid "Template to automate email when tasks assigned to user"
+msgid "Template to automate email when tasks assigned to users"
 msgstr "Шаблон сообщения при назначении задачи пользователю"
 
 #. module: task

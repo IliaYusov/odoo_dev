@@ -1,0 +1,15 @@
+<odoo>
+    <data>
+        <record id="owl_add_method" model="ir.ui.view">
+            <field name="name">owl_add_method</field>
+            <field name="model">jrn.tables</field>
+            <field name="inherit_id" ref="jrn.jrn_tables_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//tree" position="attributes">
+                    <attribute name="js_class">owl_demo_test</attribute>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

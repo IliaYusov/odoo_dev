@@ -8,18 +8,23 @@ class Event(models.Model):
     _inherit = ['mail.thread.cc', 'mail.activity.mixin']
     _order = 'date_start desc, id desc'
 
-    name = fields.Char(string='Name', required=True, copy=True)
+    name = fields.Char(string='Name', copy=True, required=True, tracking=True)
     company_ids = fields.Many2many('res.company', string='Companies', required=True,
                                    default=lambda self: self.env.company)
     description = fields.Html(string='Description')
-    date_start = fields.Datetime(string='Start Date', required=True, index=True, copy=True)
-    date_end = fields.Datetime(string='End Date', index=True, copy=False)
-    location = fields.Char(string='Location')
+    date_start = fields.Datetime(string='Start Date', copy=True, index=True, required=True,
+                                 default=fields.Date.context_today)
+    date_end = fields.Datetime(string='End Date', copy=True, index=True)
+    location = fields.Char(string='Location', copy=False)
 
-    organizer_id = fields.Many2one('res.users', string='Organizer')
-    agreed_id = fields.Many2one('res.users', string='Agreed')
+    organizer_id = fields.Many2one('res.users', string='Organizer', copy=False, required=True,
+                                   default=lambda self: self.env.user,
+                                   domain="['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]")
+    agreed_id = fields.Many2one('res.users', string='Agreed', copy=False,
+                                domain="['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]")
     member_ids = fields.Many2many('res.users', relation='event_user_rel', column1='event_id', column2='user_id',
-                                  string='Members')
+                                  string='Members', copy=True,
+                                  domain="['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]")
     management_committee_id = fields.Many2one('document_flow.management_committee', string='Management Committee')
     question_ids = fields.One2many('document_flow.event.question', 'event_id', string='Questions')
     decision_ids = fields.One2many('document_flow.event.decision', 'event_id', string='Decisions', copy=True)
@@ -30,12 +35,13 @@ class Event(models.Model):
         ('on_approval', 'On Approval'),
         ('approved', 'Approved'),
         ('completed', 'Completed')
-    ], required=True, index=True, string='Status', default='on_registration', readonly=True, tracking=True, copy=False)
+    ], string='Status', copy=False, index=True, tracking=True, required=True, readonly=True, default='on_registration')
 
     attachment_count = fields.Integer(compute='_compute_attachment_count', string='Attachments')
     tasks_count = fields.Integer(compute='_compute_tasks_count', string='Tasks')
 
-    is_process_started = fields.Boolean(compute='_compute_is_process_started')
+    process_id = fields.Many2one('document_flow.process', string='Process', compute='_compute_process_id')
+    process_state = fields.Selection(string='State', related='process_id.state', readonly=True)
 
     @api.returns('self', lambda value: value.id)
     def copy(self, default=None):
@@ -47,8 +53,8 @@ class Event(models.Model):
 
     @api.onchange('management_committee_id')
     def _onchange_management_committee(self):
-        if self.management_committee_id and not self.member_ids:
-            self.member_ids = self.management_committee_id.member_ids
+        if self.management_committee_id:
+            self.member_ids = self.member_ids | self.management_committee_id.member_ids
 
     def _compute_attachment_count(self):
         for event in self:
@@ -57,178 +63,127 @@ class Event(models.Model):
                 ('res_id', '=', event.id)
             ])
 
-    def _compute_tasks_count(self):
+    def _compute_process_id(self):
         for event in self:
-            tasks_count = 0
-            main_process = self.env['document_flow.process.parent_object'].search([
-                ('parent_ref_id', '=', self.id),
-                ('parent_ref_type', '=', self._name),
-                ('process_id', '!=', False),
-                ('process_id.type', '=', 'complex'),
-                ('process_id.state', '!=', 'break')
+            event.process_id = self.env['document_flow.processing'].search([
+                ('parent_ref', '=', '%s,%d' % (type(event).__name__, event.id))
             ]).process_id
-            if main_process:
-                for process in main_process.child_ids:
-                    tasks_count += len(process.sudo().task_ids)
-            event.tasks_count = tasks_count
-
-    def _compute_is_process_started(self):
-        for event in self:
-            event.is_process_started = self.env['document_flow.process.parent_object'].search_count([
-                ('parent_ref_type', '=', self._name),
-                ('parent_ref_id', '=', event.id),
-                ('process_id', '!=', False),
-                ('process_id.type', '=', 'complex'),
-                ('process_id.state', 'in', ('on_registration', 'started', 'finished'))
-            ]) > 0
 
     def action_send_for_approving(self):
         self.ensure_one()
-        all_members = list(self.member_ids | self.management_committee_id.member_ids)
-        all_members.extend([executor for executor in self.decision_ids.executor_ids])
-        c_ids = set([member.company_id.id for member in all_members])
-        complex_process = self.env['document_flow.process'].create({
-            'company_ids': [(6, 0, c_ids)],
-            'name': _('Agree on a protocol of event "%s"', self.name),
-            'type': 'complex',
-            'description': self.description
-        })
 
-        link = self.env['document_flow.process.parent_object'].create({
-            'process_id': complex_process.id,
-            'parent_ref': '%s,%s' % (self._name, self.id),
-            'parent_ref_id': self.id,
-            'parent_ref_type': self._name
-        })
+        processing = self.env['document_flow.processing'].search([
+            ('parent_ref', '=', '%s,%d' % (self._name, self.id))
+        ])
+        if not processing:
+            self._archive_previous_decisions()
 
-        if self.agreed_id:
-            process_agreement = self.env['document_flow.process'].create({
-                'company_ids': [(6, 0, [self.agreed_id.company_id.id])],
-                'name': _('Agree on a protocol of event "%s"', self.name),
-                'type': 'agreement',
-                'sequence': 0,
+            processing = self.env['document_flow.processing'].create({
+                'parent_ref': '%s,%d' % (self._name, self.id),
+                'parent_ref_type': self._name,
+                'parent_ref_id': self.id
+            })
+
+            if self.agreed_id:
+                action_agreement = self.env['document_flow.action'].create({
+                    'name': _('Agree on a protocol of event'),
+                    'type': 'agreement',
+                    'sequence': 0,
+                    'description': self.description,
+                    'parent_ref': '%s,%d' % (type(processing).__name__, processing.id),
+                    'parent_ref_type': type(processing).__name__,
+                    'parent_ref_id': processing.id,
+                    'type_sequence': 'together_with_the_previous'
+                })
+                self.env['document_flow.action.executor'].create({
+                    'action_id': action_agreement.id,
+                    'executor_ref': '%s,%s' % (type(self.agreed_id).__name__, self.agreed_id.id),
+                    'date_deadline': datetime.now()
+                })
+
+            action_review = self.env['document_flow.action'].create({
+                'name': _('Review a protocol of event'),
+                'type': 'review',
+                'sequence': 1,
                 'description': self.description,
-                'parent_id': complex_process.id
+                'parent_ref': '%s,%d' % (type(processing).__name__, processing.id),
+                'parent_ref_type': type(processing).__name__,
+                'parent_ref_id': processing.id,
+                'type_sequence': 'after_the_previous'
             })
-            process_agreement_executor = self.env['document_flow.process.executor'].create({
-                'process_id': process_agreement.id,
-                'executor_ref': '%s,%s' % (type(self.agreed_id).__name__, self.agreed_id.id),
-                'date_deadline': datetime.now()
-            })
-
-            link = self.env['document_flow.process.parent_object'].create({
-                'process_id': process_agreement.id,
-                'parent_ref': '%s,%s' % (self._name, self.id),
-                'parent_ref_id': self.id,
-                'parent_ref_type': self._name
-            })
-
-        members = list(set(self.member_ids) | set(self.management_committee_id.member_ids))
-        c_ids = set([member.company_id.id for member in members])
-        process_review = self.env['document_flow.process'].create({
-            'company_ids': [(6, 0, c_ids)],
-            'name': _('Review a protocol of event "%s"', self.name),
-            'type': 'review',
-            'sequence': 1,
-            'description': self.description,
-            'parent_id': complex_process.id
-        })
-        for executor in members:
-            process_review_executor = self.env['document_flow.process.executor'].create({
-                'process_id': process_review.id,
-                'executor_ref': '%s,%s' % (type(executor).__name__, executor.id),
-                'date_deadline': datetime.now()
-            })
-
-        link = self.env['document_flow.process.parent_object'].create({
-            'process_id': process_review.id,
-            'parent_ref': '%s,%s' % (self._name, self.id),
-            'parent_ref_id': self.id,
-            'parent_ref_type': self._name
-        })
-
-        reviews = self.decision_ids.search([
-            ('event_id', '=', self.id),
-            ('task_type', '=', 'review'),
-            ('date_deadline', '!=', False),
-            ('executor_ids', '!=', False)
-        ])
-        if reviews.ids:
-            for decision in reviews:
-                c_ids = set([executor.company_id.id for executor in decision.executor_ids])
-                process_review = self.env['document_flow.process'].create({
-                    'company_ids': [(6, 0, c_ids)],
-                    'name': _('Review with decision of event "%s"', self.name),
-                    'type': 'review',
-                    'sequence': 1,
-                    'description': decision.name,
-                    'parent_id': complex_process.id
+            members = list(set(self.member_ids) | set(self.management_committee_id.member_ids))
+            for executor in members:
+                self.env['document_flow.action.executor'].create({
+                    'action_id': action_review.id,
+                    'executor_ref': '%s,%s' % (type(executor).__name__, executor.id),
+                    'period': 1
                 })
-                for executor in decision.executor_ids:
-                    process_review_executor = self.env['document_flow.process.executor'].create({
-                        'process_id': process_review.id,
-                        'executor_ref': '%s,%s' % (type(executor).__name__, executor.id),
-                        'date_deadline': decision.date_deadline
+
+            action_complex_execution = self.env['document_flow.action'].create({
+                'name': _('Execution decisions of event'),
+                'type': 'complex',
+                'sequence': 1,
+                'description': self.description,
+                'parent_ref': '%s,%d' % (type(processing).__name__, processing.id),
+                'parent_ref_type': type(processing).__name__,
+                'parent_ref_id': processing.id,
+                'type_sequence': 'together_with_the_previous'
+            })
+
+            reviews = self.decision_ids.filtered(lambda d: d.task_type == 'review' and d.date_deadline and d.executor_ids)
+            if any(reviews):
+                for decision in reviews:
+                    action_review = self.env['document_flow.action'].create({
+                        'name': _('Review with decision of event "%s"', self.name),
+                        'type': 'review',
+                        'task_sequence': 'one_for_all',
+                        'sequence': 0,
+                        'description': decision.name,
+                        'parent_id': action_complex_execution.id
                     })
-                link = self.env['document_flow.process.parent_object'].create({
-                    'process_id': process_review.id,
-                    'parent_ref': '%s,%s' % (type(decision).__name__, decision.id),
-                    'parent_ref_id': decision.id,
-                    'parent_ref_type': type(decision).__name__
-                })
-
-        executions = self.decision_ids.search([
-            "&", "&",
-            ('event_id', '=', self.id),
-            ('task_type', '=', 'execution'),
-            ('date_deadline', '!=', False),
-            "|",
-            ('executor_ids', '!=', False),
-            ('responsible_id', '!=', False)
-        ])
-        if executions.ids:
-            for decision in executions:
-                executors = list([executor.company_id.id for executor in decision.executor_ids])
-                if decision.responsible_id:
-                    executors.append(decision.responsible_id.company_id.id)
-                c_ids = set(executors)
-                process_execution = self.env['document_flow.process'].create({
-                    'company_ids': [(6, 0, c_ids)],
-                    'name': _('Execute decision of event "%s"', self.name),
-                    'type': 'execution',
-                    'sequence': 1,
-                    'description': decision.name,
-                    'parent_id': complex_process.id
-                })
-                # TODO: свернуть в 1 запись
-                if decision.responsible_id and decision.executor_ids:
-                    process_execution.write({
-                        'reviewer_ref': '%s,%s' % (
-                            type(decision.responsible_id).__name__, decision.responsible_id.id)
-                    })
-                if decision.executor_ids:
                     for executor in decision.executor_ids:
-                        process_execution_executor = self.env['document_flow.process.executor'].create({
-                            'process_id': process_execution.id,
+                        self.env['document_flow.action.executor'].create({
+                            'action_id': action_review.id,
                             'executor_ref': '%s,%s' % (type(executor).__name__, executor.id),
                             'date_deadline': decision.date_deadline
                         })
-                elif decision.responsible_id:
-                    process_execution_executor = self.env['document_flow.process.executor'].create({
-                        'process_id': process_execution.id,
-                        'executor_ref': '%s,%s' % (
-                            type(decision.responsible_id).__name__, decision.responsible_id.id),
-                        'date_deadline': decision.date_deadline
-                    })
-                link = self.env['document_flow.process.parent_object'].create({
-                    'process_id': process_execution.id,
-                    'parent_ref': '%s,%s' % (type(decision).__name__, decision.id),
-                    'parent_ref_id': decision.id,
-                    'parent_ref_type': type(decision).__name__
-                })
-        complex_process.action_start_process()
 
-        self.write({'state': 'on_approval'})
+            executions = self.decision_ids.filtered(
+                lambda d: d.task_type == 'execution' and d.date_deadline and (d.executor_ids or d.responsible_id))
+            if any(executions):
+                for decision in executions:
+                    executors = list([executor.company_id.id for executor in decision.executor_ids])
+                    if decision.responsible_id:
+                        executors.append(decision.responsible_id.company_id.id)
+                    action_execution_data = dict(
+                        name=_('Execute decision of event "%s"', self.name),
+                        type='execution',
+                        task_sequence='one_for_all',
+                        sequence=0,
+                        description=decision.name,
+                        parent_id=action_complex_execution.id
+                    )
+                    if decision.responsible_id and decision.executor_ids:
+                        action_execution_data['controller_ref'] = '%s,%d' % (
+                            type(decision.responsible_id).__name__, decision.responsible_id.id)
+                    action_execution = self.env['document_flow.action'].create(action_execution_data)
+                    if decision.executor_ids:
+                        for executor in decision.executor_ids:
+                            self.env['document_flow.action.executor'].create({
+                                'action_id': action_execution.id,
+                                'executor_ref': '%s,%s' % (type(executor).__name__, executor.id),
+                                'date_deadline': decision.date_deadline
+                            })
+                    elif decision.responsible_id:
+                        self.env['document_flow.action.executor'].create({
+                            'action_id': action_execution.id,
+                            'executor_ref': '%s,%s' % (
+                                type(decision.responsible_id).__name__, decision.responsible_id.id),
+                            'date_deadline': decision.date_deadline
+                        })
+            self.env.cr.commit()
+            processing.action_start_processing()
+            self.write({'state': 'on_approval'})
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -239,6 +194,16 @@ class Event(models.Model):
                 'next': {'type': 'ir.actions.act_window_close'}
             }
         }
+
+    def _archive_previous_decisions(self):
+        if self.management_committee_id:
+            events = self.env['document_flow.event'].search([
+                ('id', '!=', self.id),
+                ('management_committee_id', '=', self.management_committee_id.id)
+            ])
+            tasks = events.filtered(lambda e: e.process_id).process_id.active_task_ids.filtered(lambda t: not t.is_closed)
+            for task in tasks:
+                task.write({'active': False})
 
     def action_renumber_decisions(self):
         for event in self:
@@ -261,28 +226,21 @@ class Event(models.Model):
                 """ % _("Add attachments for this event")
         }
 
-    def action_open_tasks(self):
+    def action_open_processing(self):
         self.ensure_one()
-        task_ids = []
-        main_process = self.env['document_flow.process.parent_object'].search([
-            ('parent_ref_id', '=', self.id),
-            ('parent_ref_type', '=', self._name),
-            ('process_id', '!=', False),
-            ('process_id.type', '=', 'complex'),
-            ('process_id.state', '!=', 'break')
-        ]).process_id
-        if main_process:
-            for process in main_process.sudo().child_ids:
-                if process.task_ids:
-                    task_ids.extend(process.task_ids.ids)
+        processing = self.env['document_flow.processing'].search([
+            ('parent_ref', '=', '%s,%d' % (self._name, self.id))
+        ])
         return {
-            'name': _('Tasks'),
-            'domain': [
-                ('id', 'in', task_ids)
-            ],
-            'res_model': 'task.task',
+            'view_mode': 'form',
+            'res_model': 'document_flow.processing',
             'type': 'ir.actions.act_window',
-            'view_mode': 'tree,form,pivot'
+            'res_id': processing.id,
+            'context': {
+                'default_parent_ref': '%s,%d' % (self._name, self.id),
+                'default_parent_ref_type': self._name,
+                'default_parent_ref_id': self.id
+            }
         }
 
 
@@ -295,7 +253,8 @@ class EventQuestion(models.Model):
     time_end = fields.Float(string="To")
     event_id = fields.Many2one('document_flow.event', string='Event', ondelete='cascade', index=True, required=True)
     speaker_ids = fields.Many2many('res.users', relation='event_question_user_rel', column1='question_id',
-                                   column2='speaker_id', string='Speakers')
+                                   column2='speaker_id', string='Speakers',
+                                   domain="['|', ('company_id', '=', False), ('company_id', 'in', parent.company_ids)]")
 
 
 class EventDecision(models.Model):
@@ -311,9 +270,11 @@ class EventDecision(models.Model):
         ('review', 'Review'),
         ('execution', 'Execution')
     ], required=True, default='review', string='Type')
-    responsible_id = fields.Many2one('res.users', string='Responsible')
+    responsible_id = fields.Many2one('res.users', string='Responsible',
+                                     domain="['|', ('company_id', '=', False), ('company_id', 'in', parent.company_ids)]")
     executor_ids = fields.Many2many('res.users', relation='event_decision_user_rel', column1='decision_id',
-                                    column2='executor_id', string='Executors')
+                                    column2='executor_id', string='Executors',
+                                    domain="['|', ('company_id', '=', False), ('company_id', 'in', parent.company_ids)]")
     date_deadline = fields.Date(string='Deadline', index=True)
     process_id = fields.Many2one('document_flow.process', string='Process', compute='_compute_process_id')
     date_execution = fields.Datetime(string='Execution Date', related='process_id.date_end', readonly=True)
@@ -389,7 +350,7 @@ class EventAnnex(models.Model):
     name = fields.Html(string='Name', required=True)
     event_id = fields.Many2one('document_flow.event', string='Event', ondelete='cascade', index=True, required=True)
 
-    @api.onchange('num')
+    @api.depends('num')
     def _compute_num(self):
         for annex in self:
             annex.visible_num = annex.num

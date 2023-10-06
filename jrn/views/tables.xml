@@ -1,0 +1,41 @@
+<odoo>
+    <data>
+        <record id="jrn_tables_tree" model="ir.ui.view">
+            <field name="name">jrn.tables.tree</field>
+            <field name="model">jrn.tables</field>
+            <field name="arch" type="xml">
+                <tree string="jrn tables" create="false" import="false" delete="false" edit="false">
+                    <header>
+<!--                        <button string="Create jrn tables" type="object" name="action_create_jrn_tables" class="oe_highlight"/>-->
+                        <button string="Check structure tables" type="object" name="action_check_structure" class="oe_highlight"/>
+                        <button string="Recreate tables" type="object" name="action_recreate_tables" class="oe_highlight"/>
+                        <button string="Set table attrs" type="object" name="run_wzrd_set_table_attrs" class="oe_highlight"/>
+                    </header>
+                    <field name="name"/>
+                    <field name="is_table_exist_in_jrn" widget="boolean_toggle"/>
+                    <field name="check_changes" widget="boolean_toggle"/>
+<!--                    <field name="check_insert" widget="boolean_toggle"/>-->
+<!--                    <field name="check_update" widget="boolean_toggle"/>-->
+<!--                    <field name="check_delete" widget="boolean_toggle"/>-->
+                    <field name="is_structure_correct" widget="boolean_toggle"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="show_jrn_tables" model="ir.actions.act_window">
+            <field name="name">jrn.tables</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">jrn.tables</field>
+            <field name="view_mode">tree</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Add tables to journal
+                </p>
+                <p>
+                    to check changes you need add some nessesary tables
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

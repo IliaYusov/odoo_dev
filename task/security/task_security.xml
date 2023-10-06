@@ -17,7 +17,7 @@
         <record model="ir.rule" id="task_task_company_rule">
             <field name="name">Task multi-company</field>
             <field name="model_id" ref="model_task_task"/>
-            <field name="domain_force">['|', ('company_id','=',False), ('company_id', 'in', company_ids)]</field>
+            <field name="domain_force">['|', ('company_ids','=',False), ('company_ids', 'in', company_ids)]</field>
         </record>
 
 <!--        <record model="ir.rule" id="task_user_rule">-->

@@ -29,25 +29,23 @@ class project_steps(models.Model):
     # sum_with_vat = fields.Monetary(string="sum_with_vat", compute='_compute_sum', readonly=True)
     # margin_income = fields.Monetary(string="margin", required=True, copy=True)
     dogovor_number = fields.Char(string='Dogovor number', store=True, tracking=True)
-    estimated_probability_id = fields.Many2one('project_budget.estimated_probability', string='estimated_probability',
-                                               copy=True, tracking=True, required=True, default=_getesimated_probability_fromProject)
+    estimated_probability_id = fields.Many2one('project_budget.estimated_probability', string='estimated_probability',  copy = True, tracking=True
+                        ,required = True, default = _getesimated_probability_fromProject)
     currency_id = fields.Many2one('res.currency', string='Account Currency', related='projects_id.currency_id', readonly=True)
-    project_steps_type_id = fields.Many2one('project_budget.project_steps_type', string='project steps type',
-                                            required=True, copy=True)
-    project_step_type_id = fields.Many2one('project_budget.project_type', string='project step type',
-                                           required=True, copy=True, tracking=True, domain="[('forbidden_in_steps', '=', False)]")
-    is_revenue_from_the_sale_of_works = fields.Boolean(related='project_step_type_id.is_revenue_from_the_sale_of_works', readonly=True)
-    is_revenue_from_the_sale_of_goods = fields.Boolean(related='project_step_type_id.is_revenue_from_the_sale_of_goods', readonly=True)
-    is_cost_of_goods = fields.Boolean(related='project_step_type_id.is_cost_of_goods', readonly=True)
-    is_own_works_fot = fields.Boolean(related='project_step_type_id.is_own_works_fot', readonly=True)
-    is_third_party_works = fields.Boolean(related='project_step_type_id.is_third_party_works', readonly=True)
-    is_awards_on_results_project = fields.Boolean(related='project_step_type_id.is_awards_on_results_project', readonly=True)
-    is_transportation_expenses = fields.Boolean(related='project_step_type_id.is_transportation_expenses', readonly=True)
-    is_travel_expenses = fields.Boolean(related='project_step_type_id.is_travel_expenses', readonly=True)
-    is_representation_expenses = fields.Boolean(related='project_step_type_id.is_representation_expenses', readonly=True)
-    is_warranty_service_costs = fields.Boolean(related='project_step_type_id.is_warranty_service_costs', readonly=True)
-    is_rko_other = fields.Boolean(related='project_step_type_id.is_rko_other', readonly=True)
-    is_other_expenses = fields.Boolean(related='project_step_type_id.is_other_expenses', readonly=True)
+    project_steps_type_id = fields.Many2one('project_budget.project_steps_type', string='project steps type', required=True, copy=True)
+
+    is_revenue_from_the_sale_of_works = fields.Boolean(related='project_steps_type_id.is_revenue_from_the_sale_of_works', readonly=True)
+    is_revenue_from_the_sale_of_goods = fields.Boolean(related='project_steps_type_id.is_revenue_from_the_sale_of_goods', readonly=True)
+    is_cost_of_goods = fields.Boolean(related='project_steps_type_id.is_cost_of_goods', readonly=True)
+    is_own_works_fot = fields.Boolean(related='project_steps_type_id.is_own_works_fot', readonly=True)
+    is_third_party_works = fields.Boolean(related='project_steps_type_id.is_third_party_works', readonly=True)
+    is_awards_on_results_project = fields.Boolean(related='project_steps_type_id.is_awards_on_results_project', readonly=True)
+    is_transportation_expenses = fields.Boolean(related='project_steps_type_id.is_transportation_expenses', readonly=True)
+    is_travel_expenses = fields.Boolean(related='project_steps_type_id.is_travel_expenses', readonly=True)
+    is_representation_expenses = fields.Boolean(related='project_steps_type_id.is_representation_expenses', readonly=True)
+    is_warranty_service_costs = fields.Boolean(related='project_steps_type_id.is_warranty_service_costs', readonly=True)
+    is_rko_other = fields.Boolean(related='project_steps_type_id.is_rko_other', readonly=True)
+    is_other_expenses = fields.Boolean(related='project_steps_type_id.is_other_expenses', readonly=True)
     legal_entity_signing_id = fields.Many2one(related='projects_id.legal_entity_signing_id', readonly=True)
     is_percent_fot_manual = fields.Boolean(related='legal_entity_signing_id.is_percent_fot_manual', readonly=True)
 
@@ -95,25 +93,25 @@ class project_steps(models.Model):
     @api.onchange('currency_id','essence_project','end_presale_project_month','end_sale_project_month','vat_attribute_id','total_amount_of_revenue',
                   'total_amount_of_revenue_with_vat','revenue_from_the_sale_of_works','revenue_from_the_sale_of_goods','cost_price','cost_of_goods','own_works_fot',
                   'third_party_works','awards_on_results_project','transportation_expenses','travel_expenses','representation_expenses','taxes_fot_premiums','warranty_service_costs',
-                  'rko_other','other_expenses','margin_income','profitability','estimated_probability_id','legal_entity_signing_id','project_step_type_id',
+                  'rko_other','other_expenses','margin_income','profitability','estimated_probability_id','legal_entity_signing_id','project_steps_type_id',
                   'code','dogovor_number'
                 )
     def _check_changes_step(self):
         print('_check_changes_step')
         for row in self:
             print('_check_changes_step = ', row.id)
-            if row.project_step_type_id.is_revenue_from_the_sale_of_works == False: row.revenue_from_the_sale_of_works = 0
-            if row.project_step_type_id.is_revenue_from_the_sale_of_goods == False: row.revenue_from_the_sale_of_goods = 0
-            if row.project_step_type_id.is_cost_of_goods == False: row.cost_of_goods = 0
-            if row.project_step_type_id.is_own_works_fot == False: row.own_works_fot = 0
-            if row.project_step_type_id.is_third_party_works == False: row.third_party_works = 0
-            if row.project_step_type_id.is_awards_on_results_project == False: row.awards_on_results_project = 0
-            if row.project_step_type_id.is_transportation_expenses == False: row.transportation_expenses = 0
-            if row.project_step_type_id.is_travel_expenses== False: row.travel_expenses = 0
-            if row.project_step_type_id.is_representation_expenses== False: row.representation_expenses = 0
-            if row.project_step_type_id.is_warranty_service_costs == False: row.warranty_service_costs = 0
-            if row.project_step_type_id.is_rko_other == False: row.rko_other = 0
-            if row.project_step_type_id.is_other_expenses== False: row.other_expenses = 0
+            if row.project_steps_type_id.is_revenue_from_the_sale_of_works == False: row.revenue_from_the_sale_of_works = 0
+            if row.project_steps_type_id.is_revenue_from_the_sale_of_goods == False: row.revenue_from_the_sale_of_goods = 0
+            if row.project_steps_type_id.is_cost_of_goods == False: row.cost_of_goods = 0
+            if row.project_steps_type_id.is_own_works_fot == False: row.own_works_fot = 0
+            if row.project_steps_type_id.is_third_party_works == False: row.third_party_works = 0
+            if row.project_steps_type_id.is_awards_on_results_project == False: row.awards_on_results_project = 0
+            if row.project_steps_type_id.is_transportation_expenses == False: row.transportation_expenses = 0
+            if row.project_steps_type_id.is_travel_expenses== False: row.travel_expenses = 0
+            if row.project_steps_type_id.is_representation_expenses== False: row.representation_expenses = 0
+            if row.project_steps_type_id.is_warranty_service_costs == False: row.warranty_service_costs = 0
+            if row.project_steps_type_id.is_rko_other == False: row.rko_other = 0
+            if row.project_steps_type_id.is_other_expenses== False: row.other_expenses = 0
 
     @api.depends('essence_project','step_id')
     def _get_name_to_show(self):

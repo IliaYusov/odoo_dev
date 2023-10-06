@@ -4,9 +4,9 @@
         <record id="seq_task_task" model="ir.sequence">
             <field name="name">Task Number</field>
             <field name="code">task.task</field>
-            <field name="prefix">NKK-</field>
+            <field name="prefix">TSK-</field>
             <field name="padding">10</field>
-            <field name="company_id" eval="True"/>
+            <field name="company_id" eval="False"/>
         </record>
 
         <record id="task_stage_type_to_do" model="task.stage.type">

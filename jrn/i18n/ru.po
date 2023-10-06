@@ -1,0 +1,510 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* jrn
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-10-05 13:50+0000\n"
+"PO-Revision-Date: 2023-10-05 13:50+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: jrn
+#: model_terms:ir.ui.view,arch_db:jrn.view_journal_record_form
+msgid "/&gt;"
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__message_needaction
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__message_needaction
+msgid "Action Needed"
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__activity_ids
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__activity_ids
+msgid "Activities"
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__activity_exception_decoration
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__activity_state
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__activity_state
+msgid "Activity State"
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__activity_type_icon
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__activity_type_icon
+msgid "Activity Type Icon"
+msgstr ""
+
+#. module: jrn
+#: model_terms:ir.actions.act_window,help:jrn.show_jrn_tables
+msgid "Add tables to journal"
+msgstr "Добавить таблицы в журналирование"
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__message_attachment_count
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__message_attachment_count
+msgid "Attachment Count"
+msgstr ""
+
+#. module: jrn
+#: model_terms:ir.ui.view,arch_db:jrn.task_wizard_done_view_form
+msgid "Cancel"
+msgstr "Отмена"
+
+#. module: jrn
+#: model_terms:ir.ui.view,arch_db:jrn.jrn_tables_tree
+msgid "Check structure tables"
+msgstr "Проверить структуру таблиц"
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__create_uid
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__create_uid
+#: model:ir.model.fields,field_description:jrn.field_jrn_view_journal_record__create_uid
+#: model:ir.model.fields,field_description:jrn.field_jrn_view_journal_record_spec__create_uid
+#: model:ir.model.fields,field_description:jrn.field_jrn_wizard_set_table_attrs__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__create_date
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__create_date
+#: model:ir.model.fields,field_description:jrn.field_jrn_view_journal_record__create_date
+#: model:ir.model.fields,field_description:jrn.field_jrn_view_journal_record_spec__create_date
+#: model:ir.model.fields,field_description:jrn.field_jrn_wizard_set_table_attrs__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__datetime_event
+#: model:ir.model.fields,field_description:jrn.field_jrn_view_journal_record__datetime_event
+msgid "Datetime of the event"
+msgstr "Дата-время события"
+
+#. module: jrn
+#: model:ir.model.fields.selection,name:jrn.selection__jrn_jrn__operation__8
+#: model:ir.model.fields.selection,name:jrn.selection__jrn_view_journal_record__operation__8
+msgid "Delete"
+msgstr "Удаление"
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__display_name
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__display_name
+#: model:ir.model.fields,field_description:jrn.field_jrn_view_journal_record__display_name
+#: model:ir.model.fields,field_description:jrn.field_jrn_view_journal_record_spec__display_name
+#: model:ir.model.fields,field_description:jrn.field_jrn_wizard_set_table_attrs__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: jrn
+#: model:ir.actions.act_window,name:jrn.action_tables_wizard_set_attrs
+#: model:ir.actions.act_window,name:jrn.action_view_journal_record
+#: model_terms:ir.ui.view,arch_db:jrn.task_wizard_done_view_form
+msgid "Done"
+msgstr "Готово"
+
+#. module: jrn
+#. odoo-javascript
+#: code:addons/jrn/static/src/xml/tables_add_button.xml:0
+#, python-format
+msgid "Fill tables/check exists tables"
+msgstr "Заполнить таблицы/проверить существующие"
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__message_follower_ids
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__message_follower_ids
+msgid "Followers"
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__message_partner_ids
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__message_partner_ids
+msgid "Followers (Partners)"
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,help:jrn.field_jrn_jrn__activity_type_icon
+#: model:ir.model.fields,help:jrn.field_jrn_tables__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__has_message
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__has_message
+msgid "Has Message"
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__id
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__id
+#: model:ir.model.fields,field_description:jrn.field_jrn_view_journal_record__id
+#: model:ir.model.fields,field_description:jrn.field_jrn_view_journal_record_spec__id
+#: model:ir.model.fields,field_description:jrn.field_jrn_wizard_set_table_attrs__id
+msgid "ID"
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__activity_exception_icon
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__activity_exception_icon
+msgid "Icon"
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,help:jrn.field_jrn_jrn__activity_exception_icon
+#: model:ir.model.fields,help:jrn.field_jrn_tables__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,help:jrn.field_jrn_jrn__message_needaction
+#: model:ir.model.fields,help:jrn.field_jrn_tables__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,help:jrn.field_jrn_jrn__message_has_error
+#: model:ir.model.fields,help:jrn.field_jrn_tables__message_has_error
+msgid "If checked, some messages have a delivery error."
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields.selection,name:jrn.selection__jrn_jrn__operation__2
+#: model:ir.model.fields.selection,name:jrn.selection__jrn_view_journal_record__operation__2
+msgid "Insert"
+msgstr "Вставка"
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__message_is_follower
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__message_is_follower
+msgid "Is Follower"
+msgstr ""
+
+#. module: jrn
+#: model:ir.ui.menu,name:jrn.jrn_jrn model:ir.ui.menu,name:jrn.jrn_menu
+msgid "JRN"
+msgstr "Журнал изменений"
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn____last_update
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables____last_update
+#: model:ir.model.fields,field_description:jrn.field_jrn_view_journal_record____last_update
+#: model:ir.model.fields,field_description:jrn.field_jrn_view_journal_record_spec____last_update
+#: model:ir.model.fields,field_description:jrn.field_jrn_wizard_set_table_attrs____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__write_uid
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__write_uid
+#: model:ir.model.fields,field_description:jrn.field_jrn_view_journal_record__write_uid
+#: model:ir.model.fields,field_description:jrn.field_jrn_view_journal_record_spec__write_uid
+#: model:ir.model.fields,field_description:jrn.field_jrn_wizard_set_table_attrs__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__write_date
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__write_date
+#: model:ir.model.fields,field_description:jrn.field_jrn_view_journal_record__write_date
+#: model:ir.model.fields,field_description:jrn.field_jrn_view_journal_record_spec__write_date
+#: model:ir.model.fields,field_description:jrn.field_jrn_wizard_set_table_attrs__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__message_main_attachment_id
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__message_main_attachment_id
+msgid "Main Attachment"
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__message_has_error
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__message_has_error
+msgid "Message Delivery error"
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__message_ids
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__message_ids
+msgid "Messages"
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__my_activity_date_deadline
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__activity_calendar_event_id
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__activity_calendar_event_id
+msgid "Next Activity Calendar Event"
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__activity_date_deadline
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__activity_summary
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__activity_summary
+msgid "Next Activity Summary"
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__activity_type_id
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__activity_type_id
+msgid "Next Activity Type"
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__message_needaction_counter
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__message_needaction_counter
+msgid "Number of Actions"
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__message_has_error_counter
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__message_has_error_counter
+msgid "Number of errors"
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,help:jrn.field_jrn_jrn__message_needaction_counter
+#: model:ir.model.fields,help:jrn.field_jrn_tables__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,help:jrn.field_jrn_jrn__message_has_error_counter
+#: model:ir.model.fields,help:jrn.field_jrn_tables__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr ""
+
+#. module: jrn
+#: model_terms:ir.ui.view,arch_db:jrn.jrn_tables_tree
+msgid "Recreate tables"
+msgstr "Пересоздать таблицы"
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__activity_user_id
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__activity_user_id
+msgid "Responsible User"
+msgstr ""
+
+#. module: jrn
+#: model_terms:ir.ui.view,arch_db:jrn.jrn_tables_tree
+msgid "Set table attrs"
+msgstr "Установить/снять отслеживание таблицы"
+
+#. module: jrn
+#. odoo-python
+#: code:addons/jrn/models/jrn.py:0 code:addons/jrn/models/jrn.py:0
+#, python-format
+msgid "Set tables attrs"
+msgstr "Установить/снять отслеживание таблицы"
+
+#. module: jrn
+#: model:ir.model.fields,help:jrn.field_jrn_jrn__activity_state
+#: model:ir.model.fields,help:jrn.field_jrn_tables__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__table_name_id
+msgid "Table Name"
+msgstr "Наименование таблицы"
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__name
+msgid "Table name"
+msgstr "Наименование таблицы"
+
+#. module: jrn
+#: model:ir.ui.menu,name:jrn.jrn_settings_tables
+msgid "Tables"
+msgstr "Таблицы"
+
+#. module: jrn
+#: model:ir.model.fields,help:jrn.field_jrn_jrn__activity_exception_decoration
+#: model:ir.model.fields,help:jrn.field_jrn_tables__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr ""
+
+#. module: jrn
+#: model:ir.model.fields.selection,name:jrn.selection__jrn_jrn__operation__4
+#: model:ir.model.fields.selection,name:jrn.selection__jrn_view_journal_record__operation__4
+msgid "Update"
+msgstr "Обновление"
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__user_event
+#: model:ir.model.fields,field_description:jrn.field_jrn_view_journal_record__user_event
+msgid "User who make event"
+msgstr "Автор события"
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_view_journal_record_spec__view_journal_record_id
+msgid "View Journal Record"
+msgstr "Просмотр записи журнала"
+
+#. module: jrn
+#. odoo-python
+#: code:addons/jrn/models/jrn.py:0 code:addons/jrn/models/jrn.py:0
+#, python-format
+msgid "View journal record"
+msgstr "Просмотр записи журнала"
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_wizard_set_table_attrs__check_changes
+msgid "check changes"
+msgstr "Отслеживать изменения"
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__check_changes
+msgid "check_changes"
+msgstr "Отслеживать изменения"
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_view_journal_record_spec__new_value
+msgid "field new value"
+msgstr "Новое значение"
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_view_journal_record_spec__old_value
+msgid "field old value"
+msgstr "Старое значение"
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_view_journal_record_spec__field_name
+msgid "field_name"
+msgstr "Поле таблицы"
+
+#. module: jrn
+#: model_terms:ir.actions.act_window,help:jrn.show_jrn
+msgid "here you'll see all changes in tables, that configure to check changes"
+msgstr "Здесь будут видны изменения таблиц, по которым установлен признак отслеживания изменений"
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__table_id
+#: model:ir.model.fields,field_description:jrn.field_jrn_view_journal_record__table_id
+msgid "id in table"
+msgstr "Идентификатор в таблице"
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__is_structure_correct
+msgid "is structure correct"
+msgstr "Структура корректна"
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_tables__is_table_exist_in_jrn
+msgid "is table exist in jrn"
+msgstr "Таблица присутствует среди журнальных"
+
+#. module: jrn
+#: model:ir.model,name:jrn.model_jrn_tables
+msgid "journal tables"
+msgstr "Журнальные таблицы"
+
+#. module: jrn
+#: model_terms:ir.ui.view,arch_db:jrn.show_jrn_jrn_tree
+msgid "jrn"
+msgstr "Журнал изменений по таблицам"
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_view_journal_record__jrn_id
+msgid "jrn id"
+msgstr "ID  журнала/изменения"
+
+#. module: jrn
+#: model_terms:ir.ui.view,arch_db:jrn.jrn_tables_tree
+msgid "jrn tables"
+msgstr "Журнальные таблицы"
+
+#. module: jrn
+#: model:ir.model,name:jrn.model_jrn_wizard_set_table_attrs
+msgid "jrn wizard for set table attrs"
+msgstr "Установка атриуба отслеживания таблицы"
+
+#. module: jrn
+#: model:ir.model,name:jrn.model_jrn_view_journal_record
+#: model:ir.model,name:jrn.model_jrn_view_journal_record_spec
+msgid "jrn wizard for view journal record"
+msgstr "Просмотр записи журнала"
+
+#. module: jrn
+#: model:ir.actions.act_window,name:jrn.show_jrn
+msgid "jrn.jrn"
+msgstr "Журнал"
+
+#. module: jrn
+#: model:ir.actions.act_window,name:jrn.show_jrn_tables
+msgid "jrn.tables"
+msgstr "Журнальные таблицы"
+
+#. module: jrn
+#: model:ir.model,name:jrn.model_jrn_jrn
+msgid "main journal table"
+msgstr "Основная таблица журнала"
+
+#. module: jrn
+#: model:ir.ui.menu,name:jrn.jrn_settings
+msgid "settings"
+msgstr "Настройки"
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__status
+#: model:ir.model.fields,field_description:jrn.field_jrn_view_journal_record__status
+msgid "status"
+msgstr "Статус"
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_view_journal_record__table_name
+msgid "table name"
+msgstr "Наименование таблицы"
+
+#. module: jrn
+#: model_terms:ir.actions.act_window,help:jrn.show_jrn_tables
+msgid "to check changes you need add some nessesary tables"
+msgstr "Для отслеживания изменений необходимо добавить таблицы"
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_jrn__operation
+#: model:ir.model.fields,field_description:jrn.field_jrn_view_journal_record__operation
+msgid "type of operation"
+msgstr "Тип операции"
+
+#. module: jrn
+#: model:ir.model.fields,field_description:jrn.field_jrn_view_journal_record__view_journal_record_spec_ids
+msgid "view journal record rows"
+msgstr "Просмотр изменений полей таблицы"
+
+#. module: jrn
+#: model_terms:ir.ui.view,arch_db:jrn.show_jrn_jrn_tree
+msgid "view record"
+msgstr "Просмотр записи журнала"
+
+#. module: jrn
+#: model_terms:ir.ui.view,arch_db:jrn.show_jrn_jrn_tree
+msgid "view record"
+msgstr "Просмот записи"

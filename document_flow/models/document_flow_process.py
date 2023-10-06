@@ -1,7 +1,7 @@
 from odoo import _, models, fields, api, Command
 from odoo.exceptions import ValidationError
 from odoo.tools.safe_eval import test_python_expr, safe_eval
-from datetime import datetime, date, timedelta
+from datetime import timedelta
 
 PROCESS_TYPES = [
     ('review', _('Review')),
@@ -26,6 +26,7 @@ PROCESS_STATES = [
 
 TASK_FORM_SEQUENCE = [
     ('all_at_once', _('All At Once')),
+    ('one_for_all', _('One For All')),
     ('sequentially', _('Sequentially')),
     ('mixed', _('Mixed'))
 ]
@@ -60,7 +61,7 @@ def recompute_sequence_executors(model, task_sequence, executors):
     for command, line_id, line_vals in executors:
         if command not in (Command.UNLINK, Command.DELETE):
             if line_vals:
-                if task_sequence == 'all_at_once':
+                if task_sequence in ('all_at_once', 'one_for_all'):
                     sequence = sequence
                 elif task_sequence == 'sequentially':
                     sequence += 1
@@ -73,7 +74,7 @@ def recompute_sequence_executors(model, task_sequence, executors):
                             line_id).type_sequence == 'together_with_the_previous' else sequence + 1
             elif line_id:
                 executors[i][0] = 1
-                if task_sequence == 'all_at_once':
+                if task_sequence in ('all_at_once', 'one_for_all'):
                     sequence = sequence
                 elif task_sequence == 'sequentially':
                     sequence += 1
@@ -85,7 +86,8 @@ def recompute_sequence_executors(model, task_sequence, executors):
                 line_vals = dict()
             line_vals['sequence'] = sequence
 
-            executors[i][2] = line_vals
+            if not executors[i][2]:
+                executors[i][2] = line_vals
             i += 1
 
 
@@ -111,7 +113,8 @@ def recompute_sequence_actions(model, actions):
                 line_vals = dict()
             line_vals['sequence'] = sequence
 
-            actions[i][2] = line_vals
+            if not actions[i][2]:
+                actions[i][2] = line_vals
             i += 1
 
 
@@ -169,7 +172,7 @@ class Process(models.Model):
                                      string='Task Form Sequence')
     sequence = fields.Integer(string='Sequence', default=0)
     visible_sequence = fields.Integer(string='Sequence', compute='_compute_sequence')
-    start_condition = fields.Text(string='Compute Condition',
+    start_condition = fields.Text(string='Start Condition',
                                   help='Conditions that will be checked before process will be started.')
 
     parent_obj_ref = fields.Reference(string='Parent Object', selection='_selection_parent_model',
@@ -178,7 +181,7 @@ class Process(models.Model):
                                        compute='_compute_task_history_ids')
 
     @api.constrains('start_condition')
-    def _check_start_condition(self):
+    def _verify_start_condition(self):
         for process in self.filtered('start_condition'):
             msg = test_python_expr(expr=process.start_condition.strip(), mode='exec')
             if msg:
@@ -206,9 +209,12 @@ class Process(models.Model):
 
     def _compute_parent_obj(self):
         for process in self:
-            process.parent_obj_ref = self.env['document_flow.process.parent_object'].search([
-                ('process_id', '=', process.id)
+            process.parent_obj_ref = self.env['document_flow.processing'].search([
+                ('process_id', '=', process._get_mainprocess_id_by_process_id().get(process.id, None))
             ], limit=1).parent_ref
+            # process.parent_obj_ref = self.env['document_flow.process.parent_object'].search([
+            #     ('process_id', '=', process.id)
+            # ], limit=1).parent_ref
 
     @api.onchange('sequence')
     def _compute_sequence(self):
@@ -371,25 +377,13 @@ class Process(models.Model):
             return res
 
     def start_review_process(self):
-        if self.executor_ids:
-            for executor in self.executor_ids:
-                executor.fill_date_deadline()
-                executor.create_task_for_executor()
+        self._create_tasks()
 
-    # TODO: разобраться с reviewer, нужен ли и какой процесс
     def start_agreement_process(self):
-        if self.executor_ids:
-            min_sequence = min(self.executor_ids, key=lambda pr: pr.sequence).sequence or 0
-            for executor in self.executor_ids.filtered(lambda ex: ex.sequence == min_sequence):
-                executor.fill_date_deadline()
-                executor.create_task_for_executor()
+        self._create_tasks()
 
     def start_execution_process(self):
-        if self.executor_ids:
-            min_sequence = min(self.executor_ids, key=lambda pr: pr.sequence).sequence or 0
-            for executor in self.executor_ids.filtered(lambda ex: ex.sequence == min_sequence):
-                executor.fill_date_deadline()
-                executor.create_task_for_executor()
+        self._create_tasks()
 
     def start_complex_process(self):
         next_sequence = min(self.child_ids, key=lambda pr: pr.sequence).sequence or 0
@@ -440,6 +434,33 @@ class Process(models.Model):
             if process.parent_id:
                 process.parent_id.write({'state': 'started', 'date_end': False})
 
+    def _create_tasks(self):
+        if self.executor_ids:
+            if self.task_sequence == 'one_for_all':
+                self.executor_ids[0].fill_date_deadline()
+                task_data = dict(
+                    author_id=self.create_uid.id,
+                    company_ids=[Command.link(c_id) for c_id in
+                                 set(executor.executor_ref.company_id.id for executor in self.executor_ids)],
+                    name=self.name,
+                    type_id=self.env['task.type'].search([
+                        ('code', '=', MAPPING_PROCESS_TASK_TYPES.get(self.type))
+                    ], limit=1).id,
+                    description=self.description,
+                    parent_ref='%s,%s' % (self._name, self.id),
+                    parent_ref_type=self._name,
+                    parent_ref_id=self.id,
+                    user_ids=[Command.link(executor.executor_ref.id) for executor in self.executor_ids],
+                    date_deadline=self.executor_ids[0].date_deadline
+                )
+                res = self.env['task.task'].create(task_data)
+                self._put_task_to_history(res)
+            else:
+                min_sequence = min(self.executor_ids, key=lambda pr: pr.sequence).sequence or 0
+                for executor in self.executor_ids.filtered(lambda ex: ex.sequence == min_sequence):
+                    executor.fill_date_deadline()
+                    executor._create_task(executor.executor_ref)
+
     def process_task_result(self, date_closed, result_type='ok', feedback=False):
         if result_type == 'ok':
             open_tasks = self.active_task_ids.filtered(lambda t: not t.is_closed)
@@ -452,7 +473,7 @@ class Process(models.Model):
                     if any(next_executors):
                         for executor in next_executors:
                             executor.fill_date_deadline()
-                            executor.create_task_for_executor()
+                            executor._create_task(executor.executor_ref)
                 else:
                     self.write({'state': 'finished', 'date_end': date_closed})
                     if self.parent_id:
@@ -533,10 +554,10 @@ class ProcessExecutor(models.Model):
         if not self.date_deadline:
             self.date_deadline = fields.Datetime.now() + timedelta(self.period)
 
-    def create_task_for_executor(self):
+    def _create_task(self, executor_ref):
         task_data = dict(
             author_id=self.create_uid.id,
-            company_id=self.executor_ref.company_id.id,
+            company_ids=[Command.link(executor_ref.company_id.id)],
             name=self.process_id.name,
             type_id=self.env['task.type'].search([
                 ('code', '=', MAPPING_PROCESS_TASK_TYPES.get(self.process_id.type))
@@ -547,10 +568,10 @@ class ProcessExecutor(models.Model):
             parent_ref_id=self.process_id.id,
             date_deadline=self.date_deadline
         )
-        if type(self.executor_ref).__name__ == 'res.users':
-            task_data['user_id'] = self.executor_ref.id
+        if type(executor_ref).__name__ == 'res.users':
+            task_data['user_ids'] = [Command.link(executor_ref.id)]
         else:
-            task_data['role_executor_id'] = self.executor_ref.id
+            task_data['role_executor_id'] = executor_ref.id
         res = self.env['task.task'].create(task_data)
         self.process_id._put_task_to_history(res)
         return res
@@ -619,6 +640,7 @@ class Action(models.Model):
         return selection_executor_model()
 
     name = fields.Char(string='Name', copy=True, required=True)
+    description = fields.Html(string='Description', copy=False)
     type = fields.Selection(PROCESS_TYPES, string='Type', copy=True, index=True, required=True, default='review')
     parent_ref = fields.Reference(string='Parent', selection='_selection_parent_model', ondelete='restrict')
     parent_ref_type = fields.Char(string='Parent Type', index=True)
@@ -628,9 +650,14 @@ class Action(models.Model):
     parent_id = fields.Many2one('document_flow.action', string='Parent Action', ondelete='cascade', index=True)
     child_ids = fields.One2many('document_flow.action', 'parent_id', string='Actions', copy=True)
 
-    reviewer_ref = fields.Reference(string='Reviewer', selection='_selection_executor_model', store=True)
+    reviewer_ref = fields.Reference(string='Reviewer', selection='_selection_executor_model', copy=True)
     reviewer_ref_id = fields.Integer(string='Reviewer Id', copy=True, index=True)
     reviewer_ref_type = fields.Char(string='Reviewer Type', copy=True, index=True)
+
+    controller_ref = fields.Reference(string='Controller', selection='_selection_executor_model', copy=True)
+    controller_ref_id = fields.Integer(string='Controller Id', copy=True, index=True)
+    controller_ref_type = fields.Char(string='Controller Type', copy=True, index=True)
+
     period = fields.Integer(string='Period', copy=True)
 
     task_sequence = fields.Selection(TASK_FORM_SEQUENCE, string='Task Form Sequence', copy=True, required=True,
@@ -639,20 +666,27 @@ class Action(models.Model):
                                      default='together_with_the_previous')
     sequence = fields.Integer(string='Sequence', copy=True, default=0)
     visible_sequence = fields.Integer(string='Sequence', compute='_compute_sequence')
-    start_condition = fields.Text(string='Compute Condition', copy=True,
+    start_condition = fields.Text(string='Start Condition', copy=True,
                                   help='Conditions that will be checked before action will be started.')
 
     process_id = fields.Many2one('document_flow.process', string='Process', compute='_compute_process_id')
 
     @api.model
     def create(self, vals_list):
+        if any(vals_list.get('child_ids', [])):
+            recompute_sequence_actions(self.env['document_flow.action'], vals_list.get('child_ids'))
+
         if any(vals_list.get('executor_ids', [])):
             recompute_sequence_executors(self.env['document_flow.action.executor'], vals_list.get('task_sequence'),
                                          vals_list.get('executor_ids'))
+
         res = super(Action, self).create(vals_list)
         return res
 
     def write(self, vals):
+        if any(vals.get('child_ids', [])):
+            recompute_sequence_actions(self.env['document_flow.action'], vals.get('child_ids'))
+
         if vals.get('task_sequence') or any(vals.get('executor_ids', [])):
             task_seq = self.task_sequence if not vals.get('task_sequence', False) else vals.get('task_sequence')
             if not vals.get('executor_ids', False):
@@ -661,11 +695,12 @@ class Action(models.Model):
                     executors.append(list((1, executor.id, dict())))
                 vals['executor_ids'] = executors
             recompute_sequence_executors(self.env['document_flow.action.executor'], task_seq, vals.get('executor_ids'))
+
         res = super(Action, self).write(vals)
         return res
 
     @api.constrains('start_condition')
-    def _check_start_condition(self):
+    def _verify_start_condition(self):
         for action in self.filtered('start_condition'):
             msg = test_python_expr(expr=action.start_condition.strip(), mode='exec')
             if msg:
@@ -706,7 +741,8 @@ class ActionExecutor(models.Model):
     executor_ref = fields.Reference(string='Executor', selection='_selection_executor_model', store=True)
     executor_ref_id = fields.Integer(string='Executor Id', index=True, copy=False)
     executor_ref_type = fields.Char(string='Executor Type', index=True, copy=False)
-    period = fields.Integer(string='Period')
+    period = fields.Integer(string='Period', copy=True)
+    date_deadline = fields.Date(string='Deadline', copy=False)
 
     type_sequence = fields.Selection(TYPE_SEQUENCE, string='Sequence', required=True,
                                      default='together_with_the_previous')

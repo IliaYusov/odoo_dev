@@ -28,7 +28,7 @@
                         name="state_decline"
                         attrs="{'invisible': ['|', ('date_closed', '=', False), ('processing_result', '=', 'ok')]}"/>
                 <field name="task_id"/>
-                <field name="executor_ref"/>
+                <field name="executors"/>
                 <field name="actual_executor_id" widget="many2one_avatar_user"/>
                 <field name="date_created"/>
                 <field name="date_closed"/>

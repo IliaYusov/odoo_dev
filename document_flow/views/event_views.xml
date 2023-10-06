@@ -61,6 +61,7 @@
                 <field name="organizer_id" widget="many2one_avatar_user"/>
                 <field name="member_ids" widget="many2many_avatar_user" options='{"no_quick_create": True}'/>
                 <field name="state"/>
+                <field name="company_ids" widget="many2many_tags" invisible="1" groups="!base.group_multi_company"/>
                 <field name="company_ids" widget="many2many_tags" groups="base.group_multi_company"/>
             </tree>
         </field>
@@ -73,7 +74,7 @@
             <form string="Event">
                 <header>
                     <button string="Send for approve" type="object" name="action_send_for_approving" class="oe_highlight"
-                            attrs="{'invisible': [('is_process_started', '=', True)]}"
+                            attrs="{'invisible': [('process_id', '!=', False)]}"
                             context="{'active_model': active_model, 'active_id': active_id}"
                             groups="document_flow.group_document_flow_manager"/>
                     <field name="state" widget="statusbar" options="{'clickable': False, 'fold_field': 'fold'}"
@@ -81,15 +82,16 @@
                 </header>
                 <sheet string="Event">
                     <div name="button_box" position="inside">
+                        <button class="oe_stat_button" type="object" name="action_open_processing"
+                                icon="fa-spinner" string="Processing">
+                        </button>
                         <button class="oe_stat_button" type="object" name="action_open_attachments"
                                 icon="fa-files-o">
                             <field string="Attachments" name="attachment_count" widget="statinfo"/>
                         </button>
-                        <button class="oe_stat_button" type="object" name="action_open_tasks"
-                                icon="fa-tasks">
-                            <field string="Tasks" name="tasks_count" widget="statinfo"/>
-                        </button>
                     </div>
+                    <field name="process_id" class="position-relative" widget="processingbar" readonly="1" nolabel="1"
+                           style="width:100%" attrs="{'invisible': [('process_id', '=', False)]}"/>
                     <div class="oe_title mb-3">
                         <h1>
                             <field name="name" placeholder="Event Title..." attrs="{'readonly': [('state', '!=', 'on_registration')]}"/>
@@ -97,7 +99,8 @@
                     </div>
                     <group>
                         <group attrs="{'invisible': 1}">
-                            <field name="is_process_started"/>
+                            <field name="process_id"/>
+                            <field name="company_ids" widget="many2many_tags" groups="!base.group_multi_company"/>
                         </group>
                         <group>
                             <field name="management_committee_id" attrs="{'readonly': [('state', '!=', 'on_registration')]}"/>

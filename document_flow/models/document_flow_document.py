@@ -34,7 +34,7 @@ class Document(models.Model):
     attachment_count = fields.Integer(compute='_compute_attachment_count', string='Attachment Count')
 
     project_id = fields.Many2one('project_budget.projects', string='Project', copy=True, ondelete='restrict',
-                                 required=True, tracking=True)
+                                 required=True, tracking=True, domain="[('budget_state', '=', 'work')]")
     customer_id = fields.Many2one('res.partner', related='project_id.customer_organization_id.partner_id',
                                   string='Customer', copy=False, readonly=True, required=True)
 

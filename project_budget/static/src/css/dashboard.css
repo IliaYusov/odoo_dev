@@ -20,3 +20,7 @@
 .card-header {
     padding: 0.5px;
 }
+
+.card .projects_sum {
+    font-size: 10px;
+}
