@@ -32,6 +32,8 @@ class project_steps(models.Model):
     estimated_probability_id = fields.Many2one('project_budget.estimated_probability', string='estimated_probability',
                                                copy=True, tracking=True, required=True, default=_getesimated_probability_fromProject)
     currency_id = fields.Many2one('res.currency', string='Account Currency', related='projects_id.currency_id', readonly=True)
+    project_steps_type_id = fields.Many2one('project_budget.project_steps_type', string='project steps type',
+                                            required=True, copy=True)
     project_step_type_id = fields.Many2one('project_budget.project_type', string='project step type',
                                            required=True, copy=True, tracking=True, domain="[('forbidden_in_steps', '=', False)]")
     is_revenue_from_the_sale_of_works = fields.Boolean(related='project_step_type_id.is_revenue_from_the_sale_of_works', readonly=True)
