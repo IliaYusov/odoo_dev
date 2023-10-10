@@ -21,7 +21,7 @@ class currency_rate_update(models.Model):
         rates = self.env['currency_rate_update.currency_rate_update'].get_currency_rates(tomorrow)
         for currency in currencies:
             if currency.name in rates:
-                for company in self.env['res.company'].search([]):
+                for company in self.env['res.company'].search([('auto_currency_update', '=', True)]):
                     if self.env['res.currency.rate'].search([
                                                             ('company_id', '=', company.id),
                                                             ('name', '=', tomorrow),

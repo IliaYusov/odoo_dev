@@ -10,6 +10,7 @@
         'security/ir.model.access.csv',
         'data/currency_rate_update_data.xml',
         'wizard/currency_rate_update_wizard.xml',
+        'views/inherited_company.xml'
     ],
     'demo':[
 

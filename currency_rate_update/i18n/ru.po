@@ -44,3 +44,9 @@ msgstr "Обновить"
 #: model_terms:ir.ui.view,arch_db:currency_rate_update.currency_rate_update_wizard_form
 msgid "Cancel"
 msgstr "Отмена"
+
+#. module: currency_rate_update
+#: model:ir.model.fields,field_description:currency_rate_update.field_res_company__auto_currency_update
+msgid "Auto Currency Update"
+msgstr "Автоматически обновлять курс валют"
+
