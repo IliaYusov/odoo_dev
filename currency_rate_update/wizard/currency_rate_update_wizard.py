@@ -23,7 +23,7 @@ class currency_rate_update_wizard(models.TransientModel):
             rates = self.env['currency_rate_update.currency_rate_update'].get_currency_rates(day)
             for currency in currencies:
                 if currency.name in rates:
-                    for company in self.env['res.company'].search([]):
+                    for company in self.env['res.company'].search([('id', 'in', self.env.context['allowed_company_ids'])]):
                         if self.env['res.currency.rate'].search([
                                                                 ('company_id', '=', company.id),
                                                                 ('name', '=', day),
@@ -32,10 +32,10 @@ class currency_rate_update_wizard(models.TransientModel):
                             self.env['res.currency.rate'].search([
                                                                 ('company_id', '=', company.id),
                                                                 ('name', '=', day),
-                                                                ('currency_id', '=', currency.id)]).sudo().update(
+                                                                ('currency_id', '=', currency.id)]).update(
                                 {'rate': rates[currency.name]})
                         else:
-                            self.env['res.currency.rate'].sudo().create(
+                            self.env['res.currency.rate'].create(
                                 {'rate': rates[currency.name], 'company_id': company.id, 'name': day,
                                  'currency_id': currency.id})
                 else:
