@@ -22,16 +22,13 @@ class currency_rate_update(models.Model):
         for currency in currencies:
             if currency.name in rates:
                 for company in self.env['res.company'].search([('auto_currency_update', '=', True)]):
-                    if self.env['res.currency.rate'].search([
+                    check_rate = self.env['res.currency.rate'].search([
                                                             ('company_id', '=', company.id),
                                                             ('name', '=', tomorrow),
                                                             ('currency_id', '=', currency.id),
-                                                            ]):
-                        self.env['res.currency.rate'].search([
-                                                            ('company_id', '=', company.id),
-                                                            ('name', '=', tomorrow),
-                                                            ('currency_id', '=', currency.id)]).sudo().update(
-                            {'rate': rates[currency.name]})
+                                                            ])
+                    if check_rate:
+                        check_rate.sudo().update({'rate': rates[currency.name]})
                     else:
                         self.env['res.currency.rate'].sudo().create(
                             {'rate': rates[currency.name], 'company_id': company.id, 'name': tomorrow,
