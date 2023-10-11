@@ -756,10 +756,17 @@ class report_budget_forecast_excel(models.AbstractModel):
                 sheet.write_number(row, column + 2 + 44, margin100tmp, row_format_number_color_fact)
 
             sum = self.get_sum_planned_acceptance_project_step_quater(project, step, element_name)
+            margin_sum = sum * profitability / 100
+
             if sum100tmp >= sum:
                 sum = 0
             else:
                 sum = sum - sum100tmp
+
+            if margin100tmp >= margin_sum:
+                margin_sum = 0
+            else:
+                margin_sum = margin_sum - margin100tmp
 
             # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
             sum_ostatok_acceptance = sum_distribution_acceptance = 0
@@ -783,11 +790,11 @@ class report_budget_forecast_excel(models.AbstractModel):
             if sum != 0:
                 if estimated_probability_id_name in ('75', '100', '100(done)'):
                     sheet.write_number(row, column + 3, sum, row_format_number)
-                    sheet.write_number(row, column + 3 + 44, sum*profitability/100, row_format_number)
+                    sheet.write_number(row, column + 3 + 44, margin_sum, row_format_number)
                     sum75tmp += sum
                 if estimated_probability_id_name == '50':
                     sheet.write_number(row, column + 4, sum * koeff_reserve, row_format_number)
-                    sheet.write_number(row, column + 4 + 44, sum * profitability * koeff_reserve / 100, row_format_number)
+                    sheet.write_number(row, column + 4 + 44, margin_sum * koeff_reserve, row_format_number)
                     sum50tmp += sum * koeff_reserve
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
