@@ -52,7 +52,13 @@ class distribution_acceptance(models.Model):
     @api.depends("distribution_sum_without_vat_ostatok")
     def _compute_default_sum(self):
         for row in self:
-            row.sum_cash_without_vat = min(row.distribution_sum_without_vat_ostatok, row.fact_acceptance_flow_id.sum_cash_without_vat)
+            distribution = {}
+            distr_list = [distribution for distribution in row.fact_acceptance_flow_id.distribution_acceptance_ids if 'virtual' in str(distribution.id)]
+            for distr in distr_list[:-1]:
+                distribution['total'] = distribution.get('total', 0) + distr.sum_cash_without_vat
+                distribution[distr.planned_acceptance_flow_id] = distribution.get(distr.planned_acceptance_flow_id, 0) + distr.sum_cash_without_vat
+            row.sum_cash_without_vat = min(row.distribution_sum_without_vat_ostatok - distribution.get(row.planned_acceptance_flow_id, 0), row.fact_acceptance_flow_id.sum_cash_without_vat - distribution.get('total', 0))
+
 
     def _inverse_compute_default_sum(self):
         pass
