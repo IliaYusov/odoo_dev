@@ -53,7 +53,7 @@ class distribution_acceptance(models.Model):
     def _compute_default_sum(self):
         for row in self:
             distribution = {}
-            distr_list = [distribution for distribution in row.fact_acceptance_flow_id.distribution_acceptance_ids if  type(distribution.id) != int and distribution.id.origin is not False]
+            distr_list = [distribution for distribution in row.fact_acceptance_flow_id.distribution_acceptance_ids if hasattr(distribution.id, 'origin') and distribution.id.origin is not False]
             for distr in distr_list[:-1]:
                 distribution['total'] = distribution.get('total', 0) + distr.sum_cash_without_vat
                 if distr.id.origin is None:
