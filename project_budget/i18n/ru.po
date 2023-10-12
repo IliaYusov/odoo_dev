@@ -428,7 +428,7 @@ msgstr "Дублировать"
 #: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
 #, python-format
 msgid "Cost:"
-msgstr "Себ-ть"
+msgstr "Себ-ть:"
 
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_project_steps_form
@@ -1270,7 +1270,7 @@ msgstr "Маржа 3"
 #: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
 #, python-format
 msgid "Margin:"
-msgstr "Маржа"
+msgstr "Маржа:"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_kam__message_has_error
