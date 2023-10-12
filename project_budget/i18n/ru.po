@@ -428,7 +428,7 @@ msgstr "Дублировать"
 #: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
 #, python-format
 msgid "Cost:"
-msgstr "Себестоимость"
+msgstr "Себ-ть"
 
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_project_steps_form

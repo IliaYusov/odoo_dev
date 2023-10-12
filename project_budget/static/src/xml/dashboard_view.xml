@@ -9,7 +9,7 @@
 
     <t t-name="ProjectDashboard">
         <link rel="stylesheet" href="/project_budget/static/src/css/dashboard.css"/>
-        <div class="row row-cols-1 row-cols-sm-1 row-cols-md-5 row-cols-lg-5 g-4 mt-1">
+        <div class="row row-cols-1 row-cols-sm-1 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4 mt-1">
             <div class="col potential">
                 <div class="card text-dark">
                     <div class="card-header">
@@ -106,7 +106,7 @@
                 </div>
             </div>
         </div>
-        <div class="row row-cols-1 row-cols-md-5 g-4 mt-1">
+        <div class="row row-cols-1 row-cols-sm-1 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4 mt-1">
             <div class="col canceled">
                 <div class="card text-dark">
                     <div class="card-header" style="background-color: #dc3545; opacity: 50;">
