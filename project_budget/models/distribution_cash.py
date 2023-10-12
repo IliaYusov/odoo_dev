@@ -43,10 +43,12 @@ class distribution_cash(models.Model):
     def _compute_default_sum(self):
         for row in self:
             distribution = {}
-            distr_list = [distribution for distribution in row.fact_cash_flow_id.distribution_cash_ids if 'virtual' in str(distribution.id)]
+            print(row.fact_cash_flow_id.distribution_cash_ids)
+            distr_list = [distribution for distribution in row.fact_cash_flow_id.distribution_cash_ids if type(distribution.id) != int and distribution.id.origin is not False]
             for distr in distr_list[:-1]:
                 distribution['total'] = distribution.get('total', 0) + distr.sum_cash
-                distribution[distr.planned_cash_flow_id] = distribution.get(distr.planned_cash_flow_id, 0) + distr.sum_cash
+                if distr.id.origin is None:
+                    distribution[distr.planned_cash_flow_id] = distribution.get(distr.planned_cash_flow_id, 0) + distr.sum_cash
             row.sum_cash = min(row.distribution_sum_with_vat_ostatok - distribution.get(row.planned_cash_flow_id, 0), row.fact_cash_flow_id.sum_cash - distribution.get('total', 0))
 
     def _inverse_compute_default_sum(self):
