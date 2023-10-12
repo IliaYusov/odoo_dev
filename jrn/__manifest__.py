@@ -1,8 +1,8 @@
 {
     'name' : 'jrn',
     'version' : '16.0.0.0.1',
-    'category': 'Project',
-    'depends': ['base','mail','uom'],
+    'category': 'journal',
+    'depends': ['base','web'],
     'description':"""
     """,
     'author': 'lapus',
@@ -13,6 +13,7 @@
         'views/tables.xml',
         'wizard/tables_wizard_set_attrs.xml',
         'wizard/view_journal_record.xml',
+        'wizard/jrn_wizard_undo_changes.xml',
         'views/menu.xml',
         'views/tables_add_btn.xml',
     ],

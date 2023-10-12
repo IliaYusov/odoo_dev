@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="update_currency_rates" model="ir.actions.server">
+            <field name="name">Update Currency Rates</field>
+            <field name="model_id" ref="base.model_res_currency"/>
+            <field name="state">code</field>
+            <field name="code">action = {
+    "type": "ir.actions.act_window",
+    "view_mode": "form",
+    "res_model": "currency_rate_update.currency_rate_update_wizard",
+    "target": "new",
+    }
+            </field>
+        </record>
+
+        <record id="daily_update_currency_rates" model="ir.cron">
+            <field name="name">Daily Update Currency Rates</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="model_id" ref="model_currency_rate_update_currency_rate_update"/>
+            <field name="code">model.auto_rate_update()</field>
+            <field name="nextcall" eval="(DateTime.now() + timedelta(days=1)).strftime('%Y-%m-%d 13:00:00')"/>
+        </record>
+    </data>
+</odoo>

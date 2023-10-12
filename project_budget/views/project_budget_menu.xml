@@ -45,6 +45,12 @@
 <!--        <menuitem id="project_budget_menu_dashboard" parent="project_budget.project_budget_menu" name="Dashboard" sequence="1"-->
 <!--              action="action_project_budget_dashboard"/>-->
 
-
+		<menuitem id="menu_project_budget_configuration" parent="project_budget_menu" name="Configuration"
+                  sequence="100" groups="project_budget_admin">
+            <menuitem id="menu_project_budget_account" name="Accounting" sequence="50">
+                <menuitem id="menu_action_currency_form" action="base.action_currency_form" name="Currencies"
+                          sequence="1" groups="base.group_system"/>
+            </menuitem>
+        </menuitem>
     </data>
 </odoo>

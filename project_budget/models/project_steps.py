@@ -51,7 +51,7 @@ class project_steps(models.Model):
 
     # vat_attribute_id = fields.Many2one('project_budget.vat_attribute', string='vat_attribute', copy=True, required=True
     #                                     ,default = lambda self: self.env['project_budget.vat_attribute'].search([],limit=1))
-    vat_attribute_id = fields.Many2one('project_budget.vat_attribute', string='vat_attribute', copy=True, required=True,)
+    vat_attribute_id = fields.Many2one('project_budget.vat_attribute', string='vat_attribute', copy=True, required=True, domain ="[('is_prohibit_selection','=', False)]")
                                        # default = lambda self: self.env['project_budget.vat_attribute'].search([],limit=1))
 
     # profitability = fields.Float(string="profitability", compute='_compute_sum', readonly=True)

@@ -1,8 +1,0 @@
-<odoo>
-    <data>
-        <record id="dashboard_1" model="ir.actions.client">
-            <field name="name">Dashboard1</field>
-            <field name="tag">dashboard_1_tag</field>
-        </record>
-    </data>
-</odoo>

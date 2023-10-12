@@ -48,9 +48,41 @@
                         </tree>
                     </field>
                 </sheet>
+                <footer>
+                    <button string="Done" class="btn-success" special="cancel"/>
+                </footer>
             </form>
         </field>
     </record>
+
+   <record id="show_jrn_view_journal_record_spec" model="ir.ui.view">
+            <field name="name">jrn.view_journal_record_spec.form</field>
+            <field name="model">jrn.view_journal_record_spec</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet string="Journal row">
+                        <group>
+                            <group>
+                                <field name="view_journal_record_id"/>
+                            </group>
+                            <group>
+                                <field name="field_name"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="old_value" widget="html"/>
+                            <field name="new_value" widget="html"/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button string="Done" class="btn-success" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+
+
 
     <record id="action_view_journal_record" model="ir.actions.act_window">
         <field name="name">Done</field>

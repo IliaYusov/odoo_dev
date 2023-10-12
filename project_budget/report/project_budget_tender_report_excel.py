@@ -1,6 +1,6 @@
 from odoo import models
 from xlsxwriter.utility import xl_col_to_name
-import datetime
+from datetime import datetime
 
 
 # from HTMLParser import HTMLParser
@@ -226,8 +226,8 @@ class report_tender_excel(models.AbstractModel):
 
     def generate_xlsx_report(self, workbook, data, lines):
         print('data = ', data)
-        date_from = datetime.datetime.strptime(data['date_from'], "%d-%m-%Y").date()
-        date_to = datetime.datetime.strptime(data['date_to'], "%d-%m-%Y").date()
+        date_from = datetime.strptime(data['date_from'], "%d-%m-%Y").date()
+        date_to = datetime.strptime(data['date_to'], "%d-%m-%Y").date()
         global is_report_for_management
         is_report_for_management = data['is_report_for_management']
         tenders_list = self.env['project_budget.tenders'].search([('date_of_filling_in', '>=', date_from), ('date_of_filling_in', '<=', date_to)], order='date_of_filling_in desc')

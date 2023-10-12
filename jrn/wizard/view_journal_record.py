@@ -7,6 +7,7 @@ list_table_names=[]
 class jrn_view_journal_record(models.TransientModel):
     _name = 'jrn.view_journal_record'
     _description = 'jrn wizard for view journal record'
+    _rec_name = 'name_to_show'
     jrn_id         = fields.Integer(string="jrn id", required=True, index=True, readonly=True)
     table_name     = fields.Char(string = 'table name', compute='filldata')
     table_id       = fields.Char(string="id in table", required=True, index=True, readonly=True)
@@ -15,11 +16,18 @@ class jrn_view_journal_record(models.TransientModel):
     status         = fields.Integer(string="status", required=True, index=True, readonly=True)
     operation      = fields.Selection([('2', 'Insert'), ('4', 'Update'), ('8','Delete')]
                     ,string="type of operation", required=True, index=True, readonly=True)
+    name_to_show = fields.Char(string='name_to_show', compute='_get_name_to_show')
 
     view_journal_record_spec_ids = fields.One2many(
             comodel_name='jrn.view_journal_record_spec',
             inverse_name='view_journal_record_id',
             string="view journal record rows", auto_join=True)
+
+
+    @api.depends('table_name','jrn_id')
+    def _get_name_to_show(self):
+        for row in self:
+            row.name_to_show = 'Table: '+row.table_name+' table id = ' + row.table_id
 
 
 
@@ -90,9 +98,9 @@ class jrn_view_journal_record_spec(models.TransientModel):
     # array_table_names  = fields.Selection(list_table_names, string='table names')
 
     view_journal_record_id = fields.Many2one('jrn.view_journal_record', required=True, index=True, readonly = True)
-    field_name = fields.Char(string='field_name', required=True)
-    old_value = fields.Text(string='field old value', )
-    new_value = fields.Text(string='field new value',)
+    field_name = fields.Char(string='field_name', required=True, readonly = True)
+    old_value = fields.Text(string='field old value', readonly = True)
+    new_value = fields.Text(string='field new value', readonly = True)
 
 
 

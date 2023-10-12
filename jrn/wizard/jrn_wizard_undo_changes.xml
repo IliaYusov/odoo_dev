@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="jrn_wizard_undo_changes_form" model="ir.ui.view">
+        <field name="name">jrn.wizard.undo_changes.form</field>
+        <field name="model">jrn.wizard.undo_changes</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    Undo changes. you do it on your own risk
+                </sheet>
+                <footer>
+                    <button string="Undo" name="action_undo_changes" class="btn-success" type="object"/>
+                    <button string="Cancel" class="btn-danger" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_jrn_wizard_undo_changes" model="ir.actions.act_window">
+        <field name="name">undo_changes</field>
+        <field name="res_model">jrn.wizard.undo_changes</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

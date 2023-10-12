@@ -96,6 +96,11 @@ msgid "Account Currency"
 msgstr "Валюта"
 
 #. module: project_budget
+#: model:ir.ui.menu,name:project_budget.menu_project_budget_account
+msgid "Accounting"
+msgstr "Бухгалтерский учет"
+
+#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_kam__message_needaction
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_supervisor__message_needaction
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_commercial_budget__message_needaction
@@ -396,6 +401,11 @@ msgid "Conclusion of new contracts, with VAT"
 msgstr "Заключение новых контрактов, с НДС"
 
 #. module: project_budget
+#: model:ir.ui.menu,name:project_budget.menu_project_budget_configuration
+msgid "Configuration"
+msgstr "Настройки"
+
+#. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_kanban
 msgid "Contract:"
 msgstr "Контрактование:"
@@ -606,6 +616,11 @@ msgstr "Создано кем"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_vat_attribute__create_date
 msgid "Created on"
 msgstr "Создано дата"
+
+#. module: project_budget
+#: model:ir.ui.menu,name:project_budget.menu_action_currency_form
+msgid "Currencies"
+msgstr "Валюты"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__currency_id
