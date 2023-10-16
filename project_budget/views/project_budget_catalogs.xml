@@ -114,6 +114,7 @@
                     <field name="isRukovoditel_required_in_project" widget="boolean_toggle" groups="project_budget.project_budget_admin"/>
                     <field name="print_rukovoditel_in_kb" widget="boolean_toggle" groups="project_budget.project_budget_admin"/>
                     <field name="is_prohibit_selection" widget="boolean_toggle" groups="project_budget.project_budget_admin"/>
+                    <field name="aggregate_margin_in_report" widget="boolean_toggle" groups="project_budget.project_budget_admin"/>
                 </tree>
             </field>
         </record>
@@ -139,6 +140,7 @@
                             <field name="isRukovoditel_required_in_project" widget="boolean_toggle" groups="project_budget.project_budget_admin"/>
                             <field name="print_rukovoditel_in_kb" widget="boolean_toggle" groups="project_budget.project_budget_admin"/>
                             <field name="is_prohibit_selection" widget="boolean_toggle" groups="project_budget.project_budget_admin"/>
+                            <field name="aggregate_margin_in_report" widget="boolean_toggle" groups="project_budget.project_budget_admin"/>
                         </group>
                     </sheet>
                 </form>

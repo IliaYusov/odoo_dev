@@ -711,7 +711,8 @@ class report_budget_forecast_excel(models.AbstractModel):
         global YEARint
         global year_end
 
-        sum75tmpetalon = sum50tmpetalon = sum100tmp = sum75tmp = sum50tmp = 0
+        sum75tmpetalon = sum50tmpetalon = sum100tmp = sum75tmp = sum50tmp = margin100tmp = margin75tmp = margin50tmp = 0
+
         if element_name in ('Q1','Q2','Q3','Q4'):
             project_etalon = self.get_etalon_project(project, element_name)
             step_etalon = self.get_etalon_step(step, element_name)
@@ -737,14 +738,14 @@ class report_budget_forecast_excel(models.AbstractModel):
                 estimated_probability_id_name = step_etalon.estimated_probability_id.name
 
             if sum != 0:
-                if estimated_probability_id_name in('75','100','100(done)'):
+                if estimated_probability_id_name in ('75', '100', '100(done)'):
                     sheet.write_number(row, column + 0, sum, row_format_number)
-                    sheet.write_number(row, column + 0 + 44, sum*profitability_etalon/100, row_format_number)
+                    sheet.write_number(row, column + 0 + 44, sum * profitability_etalon / 100, row_format_number)
                     sum75tmpetalon += sum
                 if estimated_probability_id_name == '50':
                     sheet.write_number(row, column + 1, sum * koeff_reserve, row_format_number)
-                    sheet.write_number(row, column + 1 + 44 , sum*profitability_etalon* koeff_reserve/100, row_format_number)
-                    sum50tmpetalon += sum* koeff_reserve
+                    sheet.write_number(row, column + 1 + 44, sum * profitability_etalon * koeff_reserve/100, row_format_number)
+                    sum50tmpetalon += sum * koeff_reserve
 
             sum100tmp = self.get_sum_fact_acceptance_project_step_quater(project, step, element_name)
             margin100tmp = self.get_sum_fact_margin_project_step_quarter(project, step, element_name)
@@ -756,17 +757,17 @@ class report_budget_forecast_excel(models.AbstractModel):
                 sheet.write_number(row, column + 2 + 44, margin100tmp, row_format_number_color_fact)
 
             sum = self.get_sum_planned_acceptance_project_step_quater(project, step, element_name)
-            margin_sum = sum * profitability / 100
+            margin_sum = sum * profitability / 100 - margin100tmp
 
             if sum100tmp >= sum:
                 sum = 0
             else:
                 sum = sum - sum100tmp
 
-            if margin100tmp >= margin_sum:
-                margin_sum = 0
-            else:
-                margin_sum = margin_sum - margin100tmp
+            # if margin100tmp >= margin_sum:
+            #     margin_sum = 0
+            # else:
+            #     margin_sum = margin_sum - margin100tmp
 
             # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
             sum_ostatok_acceptance = sum_distribution_acceptance = 0
@@ -790,14 +791,15 @@ class report_budget_forecast_excel(models.AbstractModel):
             if sum != 0:
                 if estimated_probability_id_name in ('75', '100', '100(done)'):
                     sheet.write_number(row, column + 3, sum, row_format_number)
-                    sheet.write_number(row, column + 3 + 44, margin_sum, row_format_number)
+                    sheet.write_number(row, column + 3 + 44, sum * profitability / 100, row_format_number)
+                    margin75tmp += margin_sum
                     sum75tmp += sum
                 if estimated_probability_id_name == '50':
                     sheet.write_number(row, column + 4, sum * koeff_reserve, row_format_number)
-                    sheet.write_number(row, column + 4 + 44, margin_sum * koeff_reserve, row_format_number)
+                    sheet.write_number(row, column + 4 + 44, sum * profitability * koeff_reserve / 100, row_format_number)
+                    margin50tmp += margin_sum * koeff_reserve
                     sum50tmp += sum * koeff_reserve
-        return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
-
+        return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp, margin100tmp, margin75tmp, margin50tmp
 
     def get_month_number_rus(self, monthNameRus):
         if monthNameRus == 'Январь': return 1
@@ -1050,8 +1052,8 @@ class report_budget_forecast_excel(models.AbstractModel):
         # end Поступление денежных средсв, с НДС
 
         # Валовая Выручка, без НДС
-        sumYear100etalon = sumYear75etalon = sumYear50etalon = sumYear100 = sumYear75 = sumYear50 = 0
-        sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
+        sumYear100etalon = sumYear75etalon = sumYear50etalon = sumYear100 = sumYear75 = sumYear50 = marginYear100 = marginYear75 = marginYear50 = 0
+        sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = marginHY100 = marginHY75 = marginHY50 = 0
 
         if step == False:
             profitability = project.profitability
@@ -1087,8 +1089,16 @@ class report_budget_forecast_excel(models.AbstractModel):
             sheet.write_string(row, column + 3 + 44, "", row_format_number)
             sheet.write_string(row, column + 4 + 44, "", row_format_number)
 
-            sumQ75etalon, sumQ50etalon, sumQ100, sumQ75, sumQ50 = self.print_quater_planned_acceptance_project(sheet,row,column,element
-                                                                                                              ,project,step,row_format_number,row_format_number_color_fact)
+            (
+                sumQ75etalon,
+                sumQ50etalon,
+                sumQ100,
+                sumQ75,
+                sumQ50,
+                marginQ100,
+                marginQ75,
+                marginQ50
+            ) = self.print_quater_planned_acceptance_project(sheet,row,column,element,project,step,row_format_number,row_format_number_color_fact)
 
             sumHY100etalon += sumQ100etalon
             sumHY75etalon += sumQ75etalon
@@ -1096,6 +1106,9 @@ class report_budget_forecast_excel(models.AbstractModel):
             sumHY100 += sumQ100
             sumHY75 += sumQ75
             sumHY50 += sumQ50
+            marginHY100 += marginQ100
+            marginHY75 += marginQ75
+            marginHY50 += marginQ50
 
             if element.find('HY') != -1:  # 'HY1/YEAR итого' 'HY2/YEAR итого'
                 # if sumHY75etalon != 0:
@@ -1123,7 +1136,9 @@ class report_budget_forecast_excel(models.AbstractModel):
                 sumYear100 += sumHY100
                 sumYear75 += sumHY75
                 sumYear50 += sumHY50
-                sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
+                marginYear100 += marginHY100
+                marginYear75 += marginHY75
+                marginYear50 += marginHY50
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 12 - addcolumn), xl_col_to_name(column - 6 - addcolumn))
                 sheet.write_formula(row, column + 0, formula, row_format_number)
@@ -1140,14 +1155,20 @@ class report_budget_forecast_excel(models.AbstractModel):
                 sheet.write_formula(row, column + 0 + 44, formula, row_format_number)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 11 + 44 - addcolumn), xl_col_to_name(column - 5 + 44 - addcolumn))
                 sheet.write_formula(row, column + 1 + 44, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 10 + 44 - addcolumn), xl_col_to_name(column - 4 + 44 - addcolumn))
-                sheet.write_formula(row, column + 2 + 44, formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 9 + 44 - addcolumn),  xl_col_to_name(column - 3 + 44 - addcolumn))
-                sheet.write_formula(row, column + 3 + 44, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8 + 44 - addcolumn),  xl_col_to_name(column - 2 + 44 - addcolumn))
-                sheet.write_formula(row, column + 4 + 44, formula, row_format_number)
 
+                if project.project_office_id.aggregate_margin_in_report:
+                    sheet.write_number(row, column + 2 + 44, marginHY100, row_format_number_color_fact)
+                    sheet.write_number(row, column + 3 + 44, marginHY75, row_format_number)
+                    sheet.write_number(row, column + 4 + 44, marginHY50, row_format_number)
+                else:
+                    formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 10 + 44 - addcolumn), xl_col_to_name(column - 4 + 44 - addcolumn))
+                    sheet.write_formula(row, column + 2 + 44, formula, row_format_number_color_fact)
+                    formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 9 + 44 - addcolumn),  xl_col_to_name(column - 3 + 44 - addcolumn))
+                    sheet.write_formula(row, column + 3 + 44, formula, row_format_number)
+                    formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8 + 44 - addcolumn),  xl_col_to_name(column - 2 + 44 - addcolumn))
+                    sheet.write_formula(row, column + 4 + 44, formula, row_format_number)
 
+                sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = marginHY100 = marginHY75 = marginHY50 = 0
 
             if element == 'YEAR':  # 'YEAR итого'
                 # if sumYear75etalon != 0:
@@ -1193,12 +1214,18 @@ class report_budget_forecast_excel(models.AbstractModel):
                 sheet.write_formula(row, column + 0 + 44, formula, row_format_number)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 24 + 44), xl_col_to_name(column - 5 + 44))
                 sheet.write_formula(row, column + 1 + 44, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 23 + 44), xl_col_to_name(column - 4 + 44))
-                sheet.write_formula(row, column + 2 + 44, formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 22 + 44), xl_col_to_name(column - 3 + 44))
-                sheet.write_formula(row, column + 3 + 44, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21 + 44), xl_col_to_name(column - 2 + 44))
-                sheet.write_formula(row, column + 4 + 44, formula, row_format_number)
+
+                if project.project_office_id.aggregate_margin_in_report:
+                    sheet.write_number(row, column + 2 + 44, marginYear100, row_format_number_color_fact)
+                    sheet.write_number(row, column + 3 + 44, marginYear75, row_format_number)
+                    sheet.write_number(row, column + 4 + 44, marginYear50, row_format_number)
+                else:
+                    formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 23 + 44), xl_col_to_name(column - 4 + 44))
+                    sheet.write_formula(row, column + 2 + 44, formula, row_format_number_color_fact)
+                    formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 22 + 44), xl_col_to_name(column - 3 + 44))
+                    sheet.write_formula(row, column + 3 + 44, formula, row_format_number)
+                    formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21 + 44), xl_col_to_name(column - 2 + 44))
+                    sheet.write_formula(row, column + 4 + 44, formula, row_format_number)
 
             column += 4
         # end Валовая Выручка, без НДС
@@ -1317,10 +1344,10 @@ class report_budget_forecast_excel(models.AbstractModel):
         cur_project_managers = project_managers.filtered(lambda r: r in cur_budget_projects.project_manager_id)
         cur_estimated_probabilities = estimated_probabilitys.filtered(lambda r: r in cur_budget_projects.estimated_probability_id)
         # print('cur_budget_projects=',cur_budget_projects)
-        print('****')
-        print('project_offices=',project_offices)
+        # print('****')
+        # print('project_offices=',project_offices)
         # print('project_managers=',project_managers)
-        print('cur_project_offices=',cur_project_offices)
+        # print('cur_project_offices=',cur_project_offices)
         # print('cur_project_managers=', cur_project_managers)
         # print('cur_estimated_probabilities=', cur_estimated_probabilities)
 

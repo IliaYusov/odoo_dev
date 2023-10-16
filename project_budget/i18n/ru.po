@@ -2915,6 +2915,11 @@ msgid "is prohibit selection in projects"
 msgstr "Запрет выбора в проектах"
 
 #. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_office__aggregate_margin_in_report
+msgid "aggregate margin in report"
+msgstr "Маржа в отчете по полугодию и году как разность общих сумм за период"
+
+#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__is_awards_on_results_project
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps_type__is_awards_on_results_project
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_type__is_awards_on_results_project
