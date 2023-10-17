@@ -2,7 +2,7 @@
     'name' : 'Project_budget',
     'version' : '16.0.1.1.2',
     'category': 'Project',
-    'depends': ['base','mail','uom'],
+    'depends': ['base','mail','uom','web'],
     'description':"""
     """,
     'author': 'lapus',
@@ -12,9 +12,13 @@
             'web/static/src/scss/primary_variables.scss',
         ],
         'web.assets_backend': [
-            'project_budget/static/src/scss/change_color.css',
-            'project_budget/static/src/js/dashboard_view.js',
-            'project_budget/static/src/xml/dashboard_view.xml'
+            'project_budget/static/src/dashboard.js',
+            'project_budget/static/src/dashboard.xml',
+            'project_budget/static/src/project_budget_service.js',
+            'project_budget/static/src/card/card.js',
+            'project_budget/static/src/card/card.xml',
+            'project_budget/static/src/pie_chart/pie_chart.js',
+            'project_budget/static/src/pie_chart/pie_chart.xml',
         ],
         },
     'data': [

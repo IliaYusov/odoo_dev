@@ -1008,3 +1008,19 @@ class projects(models.Model):
             res = self.env["ir.actions.actions"]._for_xml_id("project_budget.show_comercial_budget_spec")
             res['target'] = 'main'
             return res
+
+    @api.model
+    def get_statistics(self):
+
+        grouped_projects = self.read_group([], [], ['project_office_id'], lazy=False)
+        office = self.env['project_budget.project_office']
+        res = {}
+        for p in grouped_projects:
+            res[str(p['project_office_id'][1])] = p['total_amount_of_revenue']
+
+        print(res)
+
+        return {
+            'average_quantity': 1,
+            'projects': res,
+        }
