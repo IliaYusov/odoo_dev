@@ -59,11 +59,26 @@ class commercial_budget(models.Model):
             # self.budget_state='fixed'
             # self.date_actual = fields.datetime.now()
             cur_datetime = self.get_user_datetime()
-            print('cur_datetime=',cur_datetime)
-            newbudget = self.env['project_budget.commercial_budget'].sudo().browse(self.id).copy({'budget_state':'fixed'
-                                                                              ,'date_actual': fields.datetime.now()
-                                                                                })
+            print('cur_datetime=', cur_datetime)
+            newbudget = self.env['project_budget.commercial_budget'].sudo().browse(self.id).copy({
+                'budget_state': 'fixed',
+                'date_actual': fields.datetime.now(),
+            })
             print('after copy')
+
+            # меняем parent_id в скопированных проектах
+            child_projects = self.env['project_budget.projects'].sudo().search(['&',
+                                                                                ('parent_project_id', '!=', False),
+                                                                                ('commercial_budget_id', '=', newbudget.id),
+                                                                                ])
+            for child_project in child_projects:
+                print('child_project', child_project)
+                child_project.parent_project_id = (self.env['project_budget.projects']
+                                                   .sudo().search(['&',
+                                                                   ('project_id', '=', child_project.parent_project_id.project_id),
+                                                                   ('commercial_budget_id', '=', newbudget.id),
+                                                                   ]))
+
             activity_type_for_approval = self.env.ref('project_budget.mail_act_send_project_to_supervisor_for_approval').id
             activity_type_approve_supervisor = self.env.ref('project_budget.mail_act_approve_project_by_supervisor').id
             res_model_id_project_budget = self.env['ir.model'].search([('model', '=', 'project_budget.projects')]).id

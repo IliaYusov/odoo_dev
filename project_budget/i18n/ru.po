@@ -21,7 +21,43 @@ msgstr ""
 #: code:addons/project_budget/models/planned_cash_flow.py:0
 #, python-format
 msgid " | step "
-msgstr "| этап"
+msgstr " | этап "
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/planned_acceptance_flow.py:0
+#: code:addons/project_budget/models/planned_cash_flow.py:0
+#, python-format
+msgid " | code "
+msgstr " | код этапа "
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/planned_acceptance_flow.py:0
+#, python-format
+msgid " | acceptance "
+msgstr " | актирование "
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/planned_acceptance_flow.py:0
+#, python-format
+msgid " | sum cash without vat "
+msgstr " | сумма без НДС "
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/planned_cash_flow.py:0
+#, python-format
+msgid " | cash "
+msgstr " | ПДС "
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/planned_cash_flow.py:0
+#, python-format
+msgid " | sum cash "
+msgstr " | сумма "
 
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_budget_plan_supervisor_form
@@ -906,6 +942,11 @@ msgstr "Прогноз"
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
 msgid "General"
 msgstr "Общие"
+
+#. module: project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
+msgid "child projects"
+msgstr "Проекты потомки"
 
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.view_projects_search
@@ -1993,6 +2034,38 @@ msgstr "Тенжер. Пользователь"
 #, python-format
 msgid "Tenders"
 msgstr "Тендеры"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/projects.py:0
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__is_parent_project
+#, python-format
+msgid "project is parent"
+msgstr "Материнский проект"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/projects.py:0
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__parent_project_id
+#, python-format
+msgid "parent project id"
+msgstr "id материнского проекта"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/projects.py:0
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__child_project_ids
+#, python-format
+msgid "child projects"
+msgstr "Проекты потомки"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/projects.py:0
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__parent_child_rate
+#, python-format
+msgid "parent child rate"
+msgstr "Процент маржи:"
 
 #. module: project_budget
 #. odoo-python

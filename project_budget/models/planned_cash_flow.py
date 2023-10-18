@@ -49,12 +49,12 @@ class planned_cash_flow(models.Model):
     distribution_sum_with_vat_ostatok = fields.Monetary(string="distribution_sum_with_vat_ostatok", compute='_compute_distribution_sum')
 
 
-    @api.depends('date_cash','project_steps_id')
+    @api.depends('date_cash','project_steps_id','cash_id','sum_cash')
     def _get_name_to_show(self):
         for prj in self:
-            prj.name_to_show = prj.date_cash.strftime("%d/%m/%Y")
+            prj.name_to_show = prj.date_cash.strftime("%d/%m/%Y") + _(' | cash ') + prj.cash_id + _(' | sum cash ') + f'{prj.sum_cash:_.2f}'
             if prj.project_have_steps == True:
-                prj.name_to_show += _(' | step ') + (prj.project_steps_id.step_id or '') + '|'+ (prj.project_steps_id.code or '' )
+                prj.name_to_show += _(' | step ') + (prj.project_steps_id.step_id or '') + _(' | code ') + (prj.project_steps_id.code or '')
 
 
     @ api.depends('projects_id.currency_id')

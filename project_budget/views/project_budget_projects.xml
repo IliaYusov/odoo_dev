@@ -116,8 +116,21 @@
                             </group>
                             <group>
                                 <field name="project_have_steps" widget="boolean_toggle"
-                                        attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                        attrs="{'readonly': ['|','|',
+                                        ('is_parent_project', '=', True),
+                                        ('budget_state', '=', 'fixed'),
+                                        ('approve_state','!=','need_approve_manager')]}"
                                     />
+                            </group>
+                            <group>
+                                <field name="is_parent_project" widget="boolean_toggle"
+                                       attrs="{'readonly': ['|','|','|',
+                                       ('project_have_steps', '=', True),
+                                       ('budget_state', '=', 'fixed'),
+                                       ('parent_project_id', '!=', False),
+                                       ('approve_state','!=','need_approve_manager')]}"
+                                       />
+                                <field name="parent_project_id" invisible='1'/>
                             </group>
 <!--                            <group>-->
 <!--                                <field name="is_framework" widget="boolean_toggle"-->
@@ -182,7 +195,7 @@
                             <group>
                                 <field name="vat_attribute_id" placeholder="select vat attribute" options="{'no_open': True}"
                                        attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')],
-                                              'invisible': [('project_have_steps', '=', True)],'required': [('project_have_steps', '=', False)]}"/>
+                                              'invisible': ['|',('project_have_steps', '=', True),('is_parent_project', '=', True)],'required': ['&amp;',('is_parent_project', '=', False),('project_have_steps', '=', False)]}"/>
                             </group>
                         </group>
 
@@ -260,7 +273,7 @@
                                     </group>
                                 </group>
                             </page>
-                            <page string="Financial indicators">
+                            <page string="Financial indicators" attrs="{'invisible': [('is_parent_project', '=', True)]}">
                                     <field name="is_revenue_from_the_sale_of_works"  invisible="1"/>
                                     <field name="is_revenue_from_the_sale_of_goods"  invisible="1"/>
                                     <field name="is_cost_of_goods" invisible="1"/>
@@ -282,12 +295,12 @@
                                 <group col="3">
                                     <group>
                                         <field name="revenue_from_the_sale_of_works"
-                                               attrs="{'readonly': ['|','|',('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
+                                               attrs="{'readonly': ['|','|','|',('is_parent_project','=',True),('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
                                                ,'invisible': [('is_revenue_from_the_sale_of_works', '=', False),('project_have_steps', '=', False)]}"/>
                                     </group>
                                     <group>
                                         <field name="revenue_from_the_sale_of_goods"
-                                               attrs="{'readonly': ['|','|',('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
+                                               attrs="{'readonly': ['|','|','|',('is_parent_project','=',True),('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
                                                ,'invisible': [('is_revenue_from_the_sale_of_goods', '=', False),('project_have_steps', '=', False)]}"/>
                                     </group>
                                     <group>
@@ -300,41 +313,41 @@
                                 <group col="3">
                                     <group>
                                         <field name="cost_of_goods"
-                                               attrs="{'readonly': ['|','|',('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
+                                               attrs="{'readonly': ['|','|','|',('is_parent_project','=',True),('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
                                                ,'invisible': [('is_cost_of_goods', '=', False),('project_have_steps', '=', False)]}"/>
                                         <field name="third_party_works"
-                                               attrs="{'readonly': ['|','|',('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
+                                               attrs="{'readonly': ['|','|','|',('is_parent_project','=',True),('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
                                                ,'invisible': [('is_third_party_works', '=', False),('project_have_steps', '=', False)]}"/>
                                         <field name="transportation_expenses"
-                                               attrs="{'readonly': ['|','|',('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
+                                               attrs="{'readonly': ['|','|','|',('is_parent_project','=',True),('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
                                                ,'invisible': [('is_transportation_expenses', '=', False),('project_have_steps', '=', False)]}"/>
                                         <field name="warranty_service_costs"
-                                               attrs="{'readonly': ['|','|',('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
+                                               attrs="{'readonly': ['|','|','|',('is_parent_project','=',True),('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
                                                ,'invisible': [('is_warranty_service_costs', '=', False),('project_have_steps', '=', False)]}"/>
                                     </group>
                                     <group>
                                         <field name="travel_expenses"
-                                               attrs="{'readonly': ['|','|',('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
+                                               attrs="{'readonly': ['|','|','|',('is_parent_project','=',True),('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
                                                ,'invisible': [('is_travel_expenses', '=', False),('project_have_steps', '=', False)]}"/>
                                         <field name="representation_expenses"
-                                               attrs="{'readonly': ['|','|',('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
+                                               attrs="{'readonly': ['|','|','|',('is_parent_project','=',True),('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
                                                ,'invisible': [('is_representation_expenses', '=', False),('project_have_steps', '=', False)]}"/>
                                         <field name="rko_other"
-                                               attrs="{'readonly': ['|','|',('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
+                                               attrs="{'readonly': ['|','|','|',('is_parent_project','=',True),('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
                                                ,'invisible': [('is_rko_other', '=', False),('project_have_steps', '=', False)]}"/>
                                         <field name="other_expenses"
-                                               attrs="{'readonly': ['|','|',('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
+                                               attrs="{'readonly': ['|','|','|',('is_parent_project','=',True),('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
                                                ,'invisible': [('is_other_expenses', '=', False),('project_have_steps', '=', False)]}"/>
                                     </group>
                                     <group>
                                         <field name="own_works_fot"
-                                               attrs="{'readonly': ['|','|',('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
+                                               attrs="{'readonly': ['|','|','|',('is_parent_project','=',True),('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
                                                 ,'invisible': [('is_own_works_fot', '=', False),('project_have_steps', '=', False)]}"/>
                                         <field name="awards_on_results_project"
-                                               attrs="{'readonly': ['|','|',('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
+                                               attrs="{'readonly': ['|','|','|',('is_parent_project','=',True),('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]
                                               ,'invisible': [('is_awards_on_results_project', '=', False),('project_have_steps', '=', False)]}"/>
                                         <field name="taxes_fot_premiums"
-                                               attrs="{'readonly': ['|','|','|',('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager'),('is_percent_fot_manual','=',False)]
+                                               attrs="{'readonly': ['|','|','|','|',('is_parent_project','=',True),('project_have_steps','=',True),('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager'),('is_percent_fot_manual','=',False)]
                                                ,'invisible': [('is_own_works_fot', '=', False),('is_awards_on_results_project', '=', False),('project_have_steps', '=', False)]}"/>
                                     </group>
                                 </group>
@@ -344,7 +357,24 @@
                                         mode="tree" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}">
                                 </field>
                             </page>
-                            <page string="Forecast">
+                            <page string="child projects" attrs="{'invisible': [('is_parent_project', '=', False)]}">
+                                <group col='8'>
+                                    <field name="parent_child_rate" widget="percentage" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
+                                </group>
+                                    <field name="user_is_admin" invisible="1"/>
+                                    <field name="child_project_ids" mode="tree" widget="many2many"
+                                           attrs="{'readonly': ['|','|',
+                                           ('budget_state', '=', 'fixed'),
+                                           ('approve_state','!=','need_approve_manager'),
+                                           ('user_is_admin','!=', True),
+                                           ]}"
+                                           domain="['&amp;','&amp;',
+                                           ('is_parent_project', '=', False),
+                                           ('parent_project_id', '=', False),
+                                           ('budget_state', '!=', 'fixed'),
+                                           ]"/>
+                            </page>
+                            <page string="Forecast" attrs="{'invisible': [('is_parent_project', '=', True)]}">
                                 <h4>
                                 <group>
                                     <group  string="planned_acceptance_flow">
@@ -415,7 +445,7 @@
                                 </field>
 
                             </page>
-                            <page string="Fact">
+                            <page string="Fact" attrs="{'invisible': [('is_parent_project', '=', True)]}">
                                 <h4>
                                 <group>
                                     <group col="1" string="fact_acceptance_flow">
