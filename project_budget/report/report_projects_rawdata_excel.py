@@ -101,8 +101,8 @@ class report_projects_rawdata_excel(models.AbstractModel):
         column += 1
         sheet.write_string(row, column, 'Отрасль', row_format)
         column += 1
-        sheet.write_string(row, column, 'Статус заказчика', row_format)
-        column += 1
+        # sheet.write_string(row, column, 'Статус заказчика', row_format)
+        # column += 1
         sheet.write_string(row, column, 'Заказчик/организация', row_format)
         column += 1
         sheet.write_string(row, column, 'Наименование проекта', row_format)
@@ -215,8 +215,8 @@ class report_projects_rawdata_excel(models.AbstractModel):
                     column += 1
                     sheet.write_string(row, column, spec.industry_id.name, row_format)
                     column += 1
-                    sheet.write_string(row, column, spec.customer_status_id.name, row_format)
-                    column += 1
+                    # sheet.write_string(row, column, spec.customer_status_id.name, row_format)
+                    # column += 1
                     sheet.write_string(row, column, spec.customer_organization_id.name, row_format)
                     column += 1
                     sheet.write_string(row, column, (spec.essence_project or ""), row_format)
@@ -327,8 +327,8 @@ class report_projects_rawdata_excel(models.AbstractModel):
                         column += 1
                         sheet.write_string(row, column, spec.industry_id.name, row_format)
                         column += 1
-                        sheet.write_string(row, column, spec.customer_status_id.name, row_format)
-                        column += 1
+                        # sheet.write_string(row, column, spec.customer_status_id.name, row_format)
+                        # column += 1
                         sheet.write_string(row, column, spec.customer_organization_id.name, row_format)
                         column += 1
                         sheet.write_string(row, column, (spec.essence_project or ""), row_format)

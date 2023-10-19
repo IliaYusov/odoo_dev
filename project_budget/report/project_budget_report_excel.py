@@ -171,7 +171,7 @@ class report_budget_excel(models.AbstractModel):
         row += 2
 
         column = 0
-        sheet.write_string(row, column, "Project ID",head_format)
+        sheet.write_string(row, column, "CRM ID",head_format)
         sheet.set_column(column, column, 14)
         column += 1
         sheet.write_string(row, column, "Проектный офис",head_format)
@@ -186,9 +186,9 @@ class report_budget_excel(models.AbstractModel):
         sheet.write_string(row, column, "Заказчик/Организация",head_format)
         sheet.set_column(column, column, 25)
         column += 1
-        sheet.write_string(row, column, "Статус Заказчика",head_format)
-        sheet.set_column(column, column, 14)
-        column += 1
+        # sheet.write_string(row, column, "Статус Заказчика",head_format)
+        # sheet.set_column(column, column, 14)
+        # column += 1
         sheet.write_string(row, column, "Отрасль",head_format)
         sheet.set_column(column, column, 18)
         column += 1
@@ -276,7 +276,7 @@ class report_budget_excel(models.AbstractModel):
         sheet.write_string(row, column, "Технологическое направление",head_format)
         sheet.set_column(column, column, 15)
         sheet.autofilter(row, 0, row, column)
-        sheet.freeze_panes(6,8)
+        sheet.freeze_panes(6, 7)
         probabitily_list = ['']
         if stateproject == 'prepare':
             probabitily_list = self.probabitily_list_KB
@@ -341,8 +341,8 @@ class report_budget_excel(models.AbstractModel):
                                 column += 1
                                 sheet.write_string(row, column, spec.customer_organization_id.name, row_format)
                                 column += 1
-                                sheet.write_string(row, column, spec.customer_status_id.name, row_format)
-                                column += 1
+                                # sheet.write_string(row, column, spec.customer_status_id.name, row_format)
+                                # column += 1
                                 sheet.write_string(row, column, spec.industry_id.name, row_format)
                                 column += 1
                                 sheet.write_string(row, column, spec.essence_project  or "", row_format)
@@ -363,7 +363,7 @@ class report_budget_excel(models.AbstractModel):
 
                                 column += 1
                                 # sheet.write_number(row, column, spec.total_amount_of_revenue, row_format_number)
-                                formula = '=sum({1}{0}:{2}{0})'.format(row+1,xl_col_to_name(13),xl_col_to_name(14))
+                                formula = '=sum({1}{0}:{2}{0})'.format(row+1,xl_col_to_name(12),xl_col_to_name(13))
                                 sheet.write_formula(row, column, formula, row_format_itog_row)
 
                                 column += 1
@@ -391,18 +391,18 @@ class report_budget_excel(models.AbstractModel):
 
                                 column += 1
                                 # sheet.write_number(row, column, spec.cost_price,row_format_number)
-                                formula = '=sum({1}{0}:{2}{0})'.format(row + 1, xl_col_to_name(16), xl_col_to_name(26))
+                                formula = '=sum({1}{0}:{2}{0})'.format(row + 1, xl_col_to_name(15), xl_col_to_name(25))
                                 sheet.write_formula(row, column, formula, row_format_itog_row)
 
                                 column += 1
                                 # sheet.write_number(row, column, spec.margin_income,row_format_number)
-                                formula = '={1}{0}-{2}{0}'.format(row + 1, xl_col_to_name(15), xl_col_to_name(27))
+                                formula = '={1}{0}-{2}{0}'.format(row + 1, xl_col_to_name(14), xl_col_to_name(26))
                                 sheet.write_formula(row, column, formula, row_format_itog_row)
 
                                 column += 1
                                 # sheet.write(row, column, spec.profitability, row_format_number)
-                                formula = '=IFERROR({2}{0}/{1}{0},0)'.format(row + 1, xl_col_to_name(15),
-                                                                             xl_col_to_name(28))
+                                formula = '=IFERROR({2}{0}/{1}{0},0)'.format(row + 1, xl_col_to_name(14),
+                                                                             xl_col_to_name(27))
                                 sheet.write_formula(row, column, formula, row_format_percent_row)
 
                                 column += 1
@@ -442,8 +442,8 @@ class report_budget_excel(models.AbstractModel):
                                     column += 1
                                     sheet.write_string(row, column, spec.customer_organization_id.name, row_format)
                                     column += 1
-                                    sheet.write_string(row, column, spec.customer_status_id.name, row_format)
-                                    column += 1
+                                    # sheet.write_string(row, column, spec.customer_status_id.name, row_format)
+                                    # column += 1
                                     sheet.write_string(row, column, spec.industry_id.name, row_format)
                                     column += 1
                                     sheet.write_string(row, column, step.essence_project or "", row_format)
@@ -464,7 +464,7 @@ class report_budget_excel(models.AbstractModel):
 
                                     column += 1
                                     # sheet.write_number(row, column, step.total_amount_of_revenue, row_format_number)
-                                    formula = '=sum({1}{0}:{2}{0})'.format(row+1, xl_col_to_name(13), xl_col_to_name(14))
+                                    formula = '=sum({1}{0}:{2}{0})'.format(row+1, xl_col_to_name(12), xl_col_to_name(13))
                                     sheet.write_formula(row, column, formula, row_format_itog_row)
 
                                     column += 1
@@ -492,17 +492,17 @@ class report_budget_excel(models.AbstractModel):
 
                                     column += 1
                                     # sheet.write_number(row, column, step.cost_price, row_format_number)
-                                    formula = '=sum({1}{0}:{2}{0})'.format(row+1, xl_col_to_name(16), xl_col_to_name(26))
+                                    formula = '=sum({1}{0}:{2}{0})'.format(row+1, xl_col_to_name(15), xl_col_to_name(25))
                                     sheet.write_formula(row, column, formula, row_format_itog_row)
 
                                     column += 1
                                     # sheet.write_number(row, column, step.margin_income, row_format_number)
-                                    formula = '={1}{0}-{2}{0}'.format(row + 1, xl_col_to_name(15), xl_col_to_name(27))
+                                    formula = '={1}{0}-{2}{0}'.format(row + 1, xl_col_to_name(14), xl_col_to_name(26))
                                     sheet.write_formula(row, column, formula, row_format_itog_row)
 
                                     column += 1
                                     # sheet.write(row, column, step.profitability, row_format_number)
-                                    formula = '=IFERROR({2}{0}/{1}{0},0)'.format(row + 1, xl_col_to_name(15), xl_col_to_name(28))
+                                    formula = '=IFERROR({2}{0}/{1}{0},0)'.format(row + 1, xl_col_to_name(14), xl_col_to_name(27))
                                     sheet.write_formula(row, column, formula, row_format_percent_row)
 
                                     column += 1
@@ -521,8 +521,8 @@ class report_budget_excel(models.AbstractModel):
             if isFoundProjectsByOffice:
 
                 end_row_of_project_office = row  # считаем строки для промежуточных итогов
-                total_amount_of_revenue += f'{xl_col_to_name(15)}{start_row_of_project_office + 1}:{xl_col_to_name(15)}{end_row_of_project_office + 1},'
-                total_margin_income += f'{xl_col_to_name(28)}{start_row_of_project_office + 1}:{xl_col_to_name(28)}{end_row_of_project_office + 1},'
+                total_amount_of_revenue += f'{xl_col_to_name(14)}{start_row_of_project_office + 1}:{xl_col_to_name(14)}{end_row_of_project_office + 1},'
+                total_margin_income += f'{xl_col_to_name(27)}{start_row_of_project_office + 1}:{xl_col_to_name(27)}{end_row_of_project_office + 1},'
                 start_row_of_project_office = end_row_of_project_office + 2
 
                 row += 1
@@ -533,31 +533,31 @@ class report_budget_excel(models.AbstractModel):
                 sheet.write_string(row, column, 'ИТОГО ' + project_office.name, row_format_office)
                 formulaItogo = formulaItogo + ',{0}' + str(row + 1)
                 # print('formulaProjectOffice = ',formulaProjectOffice)
-                for colFormula in range(1, 35):
+                for colFormula in range(1, 34):
                     sheet.write_string(row, colFormula, '', row_format_office)
-                for colFormula in range(13, 29):
+                for colFormula in range(12, 28):
                     formulaProjectOffice = '=sum({0}{1}:{0}{2})'.format(xl_col_to_name(colFormula),
                                                                         begRowProjectsByoffice + 1, row)
                     sheet.write_formula(row, colFormula, formulaProjectOffice, row_format_office)
 
-                formula = '=IFERROR({2}{0}/{1}{0},0)'.format(row + 1, xl_col_to_name(15),
-                                                             xl_col_to_name(28))
-                sheet.write_formula(row, 29, formula, row_format_office_percent)
+                formula = '=IFERROR({2}{0}/{1}{0},0)'.format(row + 1, xl_col_to_name(14),
+                                                             xl_col_to_name(27))
+                sheet.write_formula(row, 28, formula, row_format_office_percent)
 
         row+=1
         formulaItogo = formulaItogo + ')'
         sheet.write_string(row, column, 'ИТОГО ',row_format_itogo)
-        for colFormula in range(1, 35):
+        for colFormula in range(1, 34):
             sheet.write_string(row, colFormula, '', row_format_itogo)
-        for colFormula in range(13, 29):
+        for colFormula in range(12, 28):
             formula = formulaItogo.format(xl_col_to_name(colFormula))
             # print('formula = ',formula)
             sheet.write_formula(row, colFormula, formula, row_format_itogo)
 
         if total_amount_of_revenue:  # пишем промежуточные итоги в ячейки
-            sheet.write_formula('P4', f'=SUBTOTAL(9,{total_amount_of_revenue.rstrip(",")})', format_subtotal)
+            sheet.write_formula('O4', f'=SUBTOTAL(9,{total_amount_of_revenue.rstrip(",")})', format_subtotal)
         if total_margin_income:
-            sheet.write_formula('AC4', f'=SUBTOTAL(9,{total_margin_income.rstrip(",")})', format_subtotal)
+            sheet.write_formula('AB4', f'=SUBTOTAL(9,{total_margin_income.rstrip(",")})', format_subtotal)
 
     def generate_xlsx_report(self, workbook, data, budgets):
         print('report KB')

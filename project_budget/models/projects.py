@@ -106,8 +106,8 @@ class projects(models.Model):
 
     customer_organization_id = fields.Many2one('project_budget.customer_organization', string='customer_organization',
                                                required=True, copy=True,tracking=True)
-    customer_status_id = fields.Many2one('project_budget.customer_status', string='customer_status', required=True,
-                                         copy=True,tracking=True)
+    customer_status_id = fields.Many2one('project_budget.customer_status', string='customer_status',
+                                         copy=True, tracking=True)
     industry_id = fields.Many2one('project_budget.industry', string='industry', required=True, copy=True,tracking=True)
     essence_project = fields.Text(string='essence_project', default = "",tracking=True)
     end_presale_project_quarter = fields.Char(string='End date of the Presale project(quarter)', compute='_compute_quarter', store=True, tracking=True)
