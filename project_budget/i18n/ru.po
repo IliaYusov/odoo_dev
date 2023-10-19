@@ -2046,6 +2046,14 @@ msgstr "Материнский проект"
 #. module: project_budget
 #. odoo-python
 #: code:addons/project_budget/models/projects.py:0
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__is_child_project
+#, python-format
+msgid "project is child"
+msgstr "Дочерний проект"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/projects.py:0
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__parent_project_id
 #, python-format
 msgid "parent project id"

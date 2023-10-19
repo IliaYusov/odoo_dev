@@ -213,6 +213,7 @@ class projects(models.Model):
     tenders_count = fields.Integer(compute='_compute_tenders_count', string='Tenders')
 
     is_parent_project = fields.Boolean(string="project is parent", default=False, copy=True,tracking=True)
+    is_child_project = fields.Boolean(string="project is child", compute='_check_project_is_child')
     parent_project_id = fields.Many2one(
         'project_budget.projects',
         string='parent project id',
@@ -230,6 +231,12 @@ class projects(models.Model):
             record['user_is_admin'] = False
             if self.env.user.has_group('project_budget.project_budget_admin'):
                 record['user_is_admin'] = True
+
+    def _check_project_is_child(self):
+        for record in self:
+            record['is_child_project'] = False
+            if record.parent_project_id:
+                record['is_child_project'] = True
 
     def _compute_attachment_count(self):
         for project in self:

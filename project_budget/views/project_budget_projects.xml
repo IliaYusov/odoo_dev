@@ -128,8 +128,12 @@
                                        ('project_have_steps', '=', True),
                                        ('budget_state', '=', 'fixed'),
                                        ('parent_project_id', '!=', False),
-                                       ('approve_state','!=','need_approve_manager')]}"
+                                       ('approve_state','!=','need_approve_manager')],
+                                       'invisible': [('is_child_project', '=', True)]}"
                                        />
+                                <field name="is_child_project" decoration-bf="1" readonly="1"  attrs="{'invisible': [
+                                       ('is_child_project', '!=', True),
+                                       ]}"/>
                                 <field name="parent_project_id" invisible='1'/>
                             </group>
 <!--                            <group>-->
@@ -552,6 +556,8 @@
 <!--                    <field name="is_framework" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>-->
                     <field name="was_changes" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
 <!--                    <field name="vgo" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>-->
+                    <field name="is_parent_project" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                    <field name="is_child_project" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
                     <field name="etalon_budget" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
                     <field name="budget_state" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
                     <field name="commercial_budget_id"   optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
