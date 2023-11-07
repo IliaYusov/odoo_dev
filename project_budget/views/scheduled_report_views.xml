@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_view_project_budget_scheduled_reports" model="ir.actions.act_window">
+        <field name="name">Scheduled Reports</field>
+        <field name="res_model">project_budget.scheduled.report</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No scheduled reports found. Let's create one!
+            </p>
+        </field>
+    </record>
+
+    <record id="project_budget_scheduled_report_view_tree" model="ir.ui.view">
+        <field name="name">project_budget.scheduled.report.tree</field>
+        <field name="model">project_budget.scheduled.report</field>
+        <field name="arch" type="xml">
+            <tree string="Scheduled Reports">
+                <field name="report_id"/>
+                <field name="company_id"/>
+                <field name="user_ids" widget="many2many_avatar_user"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="project_budget_scheduled_report_view_form" model="ir.ui.view">
+        <field name="name">project_budget.scheduled.report.form</field>
+        <field name="model">project_budget.scheduled.report</field>
+        <field name="arch" type="xml">
+            <form string="Scheduled Report">
+                <sheet string="Scheduled Report">
+                    <group>
+                        <field name="report_id"/>
+                    </group>
+                    <group>
+                        <field name="company_id" options="{'no_create': True, 'no_create_edit': True}"/>
+                    </group>
+                    <group>
+                        <field name="user_ids" widget="many2many_avatar_user" options="{'no_create': True, 'no_create_edit': True}"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

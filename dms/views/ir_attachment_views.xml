@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="ir_attachment_view_form_inherit_dms" model="ir.ui.view">
+        <field name="name">ir.attachment.form.inherit.dms</field>
+        <field name="model">ir.attachment</field>
+        <field name="inherit_id" ref="base.view_attachment_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='description_group']" position="before">
+                <group string="Version">
+                    <field name="version_count" invisible="1"/>
+                    <field name="version"/>
+                </group>
+            </xpath>
+            <xpath expr="//group[@name='description_group']" position="attributes">
+                <attribute name="groups">base.group_user</attribute>
+            </xpath>
+            <xpath expr="//form/sheet/group" position="after">
+                <notebook>
+                    <page name="previous_versions" string="Previous Versions"
+                          attrs="{'invisible': [('version_count', '=', 0)]}">
+                        <field name="version_ids" mode="tree" widget="section_and_note_one2many"
+                               readonly="1">
+                            <tree string="Attachments">
+                                <field name="create_uid"/>
+                                <field name="create_date"/>
+                                <field name="name"/>
+                                <field name="version"/>
+                                <field name="file_size"/>
+                                <field name="company_id" groups="base.group_multi_company"/>
+                            </tree>
+                        </field>
+                    </page>
+                </notebook>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="ir_attachment_view_tree_inherit_dms" model="ir.ui.view">
+        <field name="name">ir.attachment.tree.inherit.dms</field>
+        <field name="model">ir.attachment</field>
+        <field name="inherit_id" ref="base.view_attachment_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='file_size']" position="before">
+                <field name="version"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="ir_attachment_view_kanban_inherit_dms" model="ir.ui.view">
+        <field name="name">ir.attachment.kanban.inherit.dms</field>
+        <field name="model">ir.attachment</field>
+        <field name="inherit_id" ref="mail.view_document_file_kanban"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('o_kanban_record_title')]" position="after">
+                <div>
+                    <a>Version:
+                        <field name="version"/>
+                    </a>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

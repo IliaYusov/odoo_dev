@@ -1,0 +1,74 @@
+<odoo>
+    <data>
+        <record id="show_amount_spec" model="ir.ui.view">
+            <field name="name">project_budget.projects.form</field>
+            <field name="model">project_budget.projects</field>
+            <field name="arch" type="xml">
+                <form create="1" delete="0">
+                    <sheet string="Project">
+                        <h4>
+                            <field name="budget_state" invisible="1"/>
+                            <field name="approve_state" invisible="1"/>
+                            <field name="id" invisible="1"/>
+                            <group col="1">
+                                <group string="Edit summ specification:">
+                                </group>
+                            </group>
+                        </h4>
+                        <field name="project_id"/>
+                        <field name="current_amount_spec_type"/>
+                        <field name="amount_spec_ids" widget="section_and_note_one2many"
+                               mode="tree" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                        >
+                        </field>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="show_amount_spec_tree" model="ir.ui.view">
+            <field name="name">project_budget.amount_spec.tree</field>
+            <field name="model">project_budget.amount_spec</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="name"/>
+                    <field name="currency_id" options="{'no_open': True,}"/>
+                    <field name="summa" />
+                </tree>
+            </field>
+        </record>
+
+       <record id="show_amount_spec_form" model="ir.ui.view">
+            <field name="name">project_budget.amount_spec.form</field>
+            <field name="model">project_budget.amount_spec</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet string="project amount spec">
+                        <group>
+                            <field name="name"/>
+                            <field name="currency_id" options="{'no_open': True,}"/>
+                            <field name="summa" />
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="show_amount_spec_empty" model="ir.actions.act_window">
+            <field name="name">amount specification</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">project_budget.amount_spec</field>
+            <field name="view_mode">tree</field>
+            <field name="context">{'search_default_group_by_provider': True}</field>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a project amount specification
+              </p><p>
+                each sum in project may have amount specification in different currencies
+              </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

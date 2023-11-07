@@ -22,6 +22,7 @@ class Task(models.Model):
     # TODO: Принять решение об архитектуре предметов согласования
     def _compute_parent_obj(self):
         for task in self:
+            parent_ref = False
             if task.parent_ref_type and task.parent_ref_type.startswith('document_flow.') and task.parent_ref:
                 parent_ref = self.env['document_flow.process.parent_object'].search([
                     ('process_id', '=', task.parent_ref.id)
@@ -31,8 +32,7 @@ class Task(models.Model):
                         ('process_id', '=', task.parent_ref._get_mainprocess_id_by_process_id().get(task.parent_ref.id, None))
                     ]).parent_ref
                 task.parent_obj_ref = parent_ref
-            else:
-                task.parent_obj_ref = False
+            task.parent_obj_ref = parent_ref
 
     @api.model
     def check_user_group(self):
@@ -49,13 +49,13 @@ class Task(models.Model):
             ('parent_ref_type', 'like', 'document_flow.%'),
             ('is_closed', '=', False),
             ('date_deadline', '>=', fields.Datetime.now()),
-            ('user_id', '=', self.env.uid)
+            ('user_ids', 'in', self.env.uid)
         ])
         my_tasks_overdue_count = self.env['task.task'].search_count([
             ('parent_ref_type', 'like', 'document_flow.%'),
             ('is_closed', '=', False),
             ('date_deadline', '<', fields.Datetime.now()),
-            ('user_id', '=', self.env.uid)
+            ('user_ids', 'in', self.env.uid)
         ])
         by_me_tasks_to_do_count = self.env['task.task'].search_count([
             ('parent_ref_type', 'like', 'document_flow.%'),
@@ -77,14 +77,14 @@ class Task(models.Model):
             ('parent_ref_type', 'like', 'document_flow.%'),
             ('is_closed', '=', False),
             ('date_deadline', '>=', fields.Datetime.now()),
-            ('user_id', '=', False),
+            ('user_ids', '=', False),
             ('role_executor_id', 'in', roles.ids)
         ])
         group_tasks_overdue_count = self.env['task.task'].search_count([
             ('parent_ref_type', 'like', 'document_flow.%'),
             ('is_closed', '=', False),
             ('date_deadline', '<', fields.Datetime.now()),
-            ('user_id', '=', False),
+            ('user_ids', '=', False),
             ('role_executor_id', 'in', roles.ids)
         ])
 

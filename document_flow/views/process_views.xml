@@ -39,6 +39,7 @@
                 </header>
                 <sheet string="Process">
                     <group invisible="1">
+                        <field name="action_id"/>
                         <field name="date_start"/>
                         <field name="date_end"/>
                         <field name="sequence"/>

@@ -661,7 +661,7 @@
                 <tree string="technological_direction" editable="top">
                     <field name="name"/>
                     <field name="code"/>
-                    <field name="descr"/>
+                    <field name="descr"  class="text-wrap"/>
                 </tree>
             </field>
         </record>

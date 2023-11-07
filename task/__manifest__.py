@@ -1,6 +1,6 @@
 {
     'name': 'Task Management',
-    'version': '16.0.1.1.0',
+    'version': '16.0.1.1.1',
     'category': '',
     'depends': ['base', 'mail', 'crnd_web_diagram_plus'],
     'external_dependencies': {'python': ['html2text']},

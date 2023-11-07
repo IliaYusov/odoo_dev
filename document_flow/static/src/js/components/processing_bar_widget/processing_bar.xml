@@ -19,7 +19,7 @@
 
             <div class="o_processing_step_side d-flex pt-0 flex-grow-1">
                 <div class="o_processing_progress position-absolute"/>
-                <span t-attf-class="o_processing_dot fa fa-check d-inline-block rounded-circle small {{process.state != 'not_done' and 'o_processing_dot_isChecked' or ''}}"/>
+                <span t-attf-class="o_processing_dot fa {{ process.state == 'cancel' ? 'fa-close' : 'fa-check' }} d-inline-block rounded-circle small {{ process.state == 'todo' ? '' : 'o_processing_dot_isChecked' }}"/>
             </div>
 
             <div class="o_processing_step_content flex-grow-1 d-flex flex-column align-items-center justify-content-around">

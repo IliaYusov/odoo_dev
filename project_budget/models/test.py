@@ -1,41 +1,33 @@
-atr_value ='1|1: Статистика' \
-            '2: Топливо ' \
-            '3: ТЭК' \
-            '4: КНВ' \
-            '5: Лаборатория' \
-            '6: Несоответствия' \
-            '8: Производство' \
-            '9: УЗК ' \
-            '10: УТК' \
-            '15: ИЛ ' \
-            '17: ТКК' \
-            '19: КП' \
-            '20: SPC' \
-            '23: КТД' \
-            '26: УТД' \
-            '27: Планирование' \
-            '30: Сменка' \
-            '32:  Испытания' \
-            '34: Кадры ' \
-            '35: Геометрия' \
-            '36: ПРГР' \
-            '80: Автоматизированная аналитика'
-atr_value = atr_value + ':'
-arr = atr_value.split('|')
-key = arr[0]
-value = arr[1]
-pos = value.find(key)
-if pos != -1:
-    value = value[pos:len(value)]
-    arr = value.split(':')
-    result = arr[1]
-    lenres = len(result)
-    maybedigit = result[lenres-1:lenres]
-    while maybedigit.isdigit():
-        result = result[0:lenres-1]
-        maybedigit = result[lenres-1:lenres]
-    print (result)
-else:
-    print( '')
+dict21 = {
+            'response':
+                        [{'id': 42565717,
+                           'name': 'Python',
+                           'screen_name': 'club42565717',
+                           'is_closed': 0,
+                           'type': 'group',
+                           'members_count': 37319,
+                           'activity': 'Открытая группа',
+                           'photo_50': 'https://sun9-127.userapi.com/c845524/v845524906/1a71c2/A2r_4JtmiLQ.jpg?ava=1',
+                           'photo_100': 'https://sun9-58.userapi.com/c845524/v845524906/1a71c1/2fBtsS0k8XY.jpg?ava=1',
+                           'photo_200': 'https://sun9-50.userapi.com/c845524/v845524906/1a71c0/Kfo-eQIn0DU.jpg?ava=1'
+                          },
+                          {'id': 3183750,
+                           'name': 'Веб программист - PHP, JS, Python, Java, HTML 5',
+                           'screen_name': 'php2all',
+                           'is_closed': 0,
+                           'type': 'page',
+                           'members_count': 117833,
+                           'activity': 'Программирование',
+                           'photo_50': 'https://sun9-54.userapi.com/c626421/v626421613/941/HSj4ylRsk8k.jpg?ava=1',
+                           'photo_100': 'https://sun9-5.userapi.com/c626421/v626421613/940/yKaZLxGShkY.jpg?ava=1',
+                           'photo_200': 'https://sun9-49.userapi.com/c626421/v626421613/93f/2EygT_FJKWg.jpg?ava=1'
+                           }
+                        ],
+            'status': 'OK',
+            'data_type': 'JSON',
+            'data_type2': 'JSON RPC',
+         }
 
+a = dict21.values()
 
+print(a)

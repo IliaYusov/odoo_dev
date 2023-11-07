@@ -1,4 +1,4 @@
-$o-processing-step-width: map-get($container-max-widths, 'lg') / 4 !default;
+$o-processing-step-width: map-get($container-max-widths, 'lg') / 5 !default;
 
 .o_processing_main {
     background: white center top;
@@ -10,8 +10,9 @@ $o-processing-step-width: map-get($container-max-widths, 'lg') / 4 !default;
         &.o_processing_#{$key} {
             $-ui: map-get($values, 'ui');
 
-            @include print-variable('o-processing-done-color', nth($-ui, 1));
-            @include print-variable('o-processing-todo-color', nth($-ui, 2));
+            @include print-variable('o-processing-todo-color', nth($-ui, 1));
+            @include print-variable('o-processing-done-color', nth($-ui, 2));
+            @include print-variable('o-processing-cancel-color', nth($-ui, 3));
         }
     }
 
@@ -26,11 +27,6 @@ $o-processing-step-width: map-get($container-max-widths, 'lg') / 4 !default;
 
         .o_processing_step_content {
             width: $o-processing-step-width;
-        }
-
-        .o_processing_step_action {
-            min-width: $o-processing-step-width * .5;
-            border: $border-width solid #fff;
         }
 
         .o_processing_progress {
@@ -57,17 +53,31 @@ $o-processing-step-width: map-get($container-max-widths, 'lg') / 4 !default;
         }
 
         .o_processing_step_title,
-        .o_processing_step_action,
-        .o_processing_step_action__done,
         .o_processing_dot_isChecked {
             color: #fff;
         }
 
-        // = "Done" Step Design
+        // = Step Design
         // --------------------------------------------------------------------
-        &:not([data-step-state="not_done"])  {
-            .o_processing_dot, + .o_processing_step:not([data-step-state="not_done"]) .o_processing_progress {
+        &[data-step-state="todo"]  {
+            .o_processing_dot, .o_processing_progress {
+                background: var(--o-processing-todo-color, #{$o-brand-primary});
+            }
+        }
+
+        &[data-step-state="done"]  {
+            .o_processing_dot, .o_processing_progress {
                 background: var(--o-processing-done-color, #{$o-brand-primary});
+            }
+
+            .o_processing_dot {
+                transform: scale3d(1, 1, 1);
+            }
+        }
+
+        &[data-step-state="cancel"]  {
+            .o_processing_dot, .o_processing_progress {
+                background: var(--o-processing-cancel-color, #{$o-brand-primary});
             }
 
             .o_processing_dot {

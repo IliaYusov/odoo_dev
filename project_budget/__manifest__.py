@@ -15,6 +15,7 @@
             'project_budget/static/src/scss/change_color.css',
             'project_budget/static/src/js/dashboard_view.js',
             'project_budget/static/src/xml/dashboard_view.xml'
+            # 'project_budget/static/src/js/set_row_bgcolor.js',
         ],
         },
     'data': [
@@ -32,8 +33,11 @@
         'views/project_budget_comercial_budget_access.xml',
         'views/project_budget_comercial_budget_search.xml',
         'views/project_budget_project_steps.xml',
+        'views/project_amount_specifications.xml',
+        'views/project_step_amount_specifications.xml',
         'views/project_budget_projects.xml',
         'views/project_budget_comercial_budget.xml',
+        'views/project_currency_rates.xml',
         'views/tenders.xml',
         'wizard/report_tender_wizard.xml',
         'wizard/report_projects_wizard.xml',

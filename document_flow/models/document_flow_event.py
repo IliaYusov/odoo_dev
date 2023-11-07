@@ -197,13 +197,13 @@ class Event(models.Model):
 
     def _archive_previous_decisions(self):
         if self.management_committee_id:
-            events = self.env['document_flow.event'].search([
+            events = self.env['document_flow.event'].sudo().search([
                 ('id', '!=', self.id),
                 ('management_committee_id', '=', self.management_committee_id.id)
             ])
             tasks = events.filtered(lambda e: e.process_id).process_id.active_task_ids.filtered(lambda t: not t.is_closed)
             for task in tasks:
-                task.write({'active': False})
+                task.sudo().write({'active': False})
 
     def action_renumber_decisions(self):
         for event in self:

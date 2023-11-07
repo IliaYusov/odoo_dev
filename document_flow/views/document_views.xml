@@ -63,17 +63,13 @@
                         <field name="date" widget="date"
                                attrs="{'readonly': [('process_id', '!=', False), ('process_state', 'not in', ('on_registration', 'break'))]}"/>
                     </group>
-                    <group col="2">
-                        <group>
-                            <field name="project_id"
-                                   attrs="{'readonly': [('process_id', '!=', False), ('process_state', 'not in', ('on_registration', 'break'))]}"/>
-                        </group>
-                        <group>
-                            <field name="customer_id"/>
-                        </group>
+                    <group>
+                        <field name="partner_id"
+                               attrs="{'readonly': [('process_id', '!=', False), ('process_state', 'not in', ('on_registration', 'break'))]}"/>
                     </group>
                     <group>
-                        <field name="sum" widget="monetary"/>
+                        <field name="sum" widget="monetary"
+                               attrs="{'readonly': [('process_id', '!=', False), ('process_state', 'not in', ('on_registration', 'break'))]}"/>
                     </group>
                     <notebook>
                         <page name="description_page" string="Description">

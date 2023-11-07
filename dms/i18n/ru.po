@@ -1,0 +1,58 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* dms
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-10-19 08:07+0000\n"
+"PO-Revision-Date: 2023-10-19 08:07+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: dms
+#: model:ir.model.fields,field_description:dms.field_ir_attachment__active
+msgid "Active"
+msgstr ""
+
+#. module: dms
+#: model:ir.model,name:dms.model_ir_attachment
+msgid "Attachment"
+msgstr "Вложение"
+
+#. module: dms
+#: model_terms:ir.ui.view,arch_db:dms.ir_attachment_view_form_inherit_dms
+msgid "Attachments"
+msgstr "Вложения"
+
+#. module: dms
+#: model:ir.model.fields,field_description:dms.field_ir_attachment__current_version_id
+msgid "Current Version"
+msgstr "Актуальная версия"
+
+#. module: dms
+#: model:ir.model.fields,field_description:dms.field_ir_attachment__version_ids
+#: model_terms:ir.ui.view,arch_db:dms.ir_attachment_view_form_inherit_dms
+msgid "Previous Versions"
+msgstr "Предыдущие версии"
+
+#. module: dms
+#: model:ir.model.fields,field_description:dms.field_ir_attachment__version
+#: model_terms:ir.ui.view,arch_db:dms.ir_attachment_view_form_inherit_dms
+msgid "Version"
+msgstr "Версия"
+
+#. module: dms
+#: model:ir.model.fields,field_description:dms.field_ir_attachment__version_count
+msgid "Version Count"
+msgstr "Количество версий"
+
+#. module: dms
+#: model_terms:ir.ui.view,arch_db:dms.ir_attachment_view_kanban_inherit_dms
+msgid "Version:"
+msgstr "Версия:"

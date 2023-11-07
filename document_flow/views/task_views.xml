@@ -10,11 +10,35 @@
                        attrs="{'invisible': [('role_executor_id', '=', False)]}"/>
             </xpath>
             <xpath expr="//field[@name='parent_ref']" position="attributes">
-                    <attribute name="attrs">{'invisible': [('parent_obj_ref', '!=', False)]}</attribute>
-                </xpath>
+                <attribute name="attrs">{'invisible': [('parent_obj_ref', '!=', False)]}</attribute>
+            </xpath>
             <xpath expr="//field[@name='type_id']" position="before">
                 <field name="parent_obj_ref" options="{'no_quick_create': True}"
                        attrs="{'invisible': [('parent_obj_ref', '=', False)]}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="document_flow_task_view_inherit_tree" model="ir.ui.view">
+        <field name="name">document.flow.task.tree.inherit</field>
+        <field name="model">task.task</field>
+        <field name="inherit_id" ref="task.task_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='parent_ref']" position="after">
+                <field name="parent_obj_ref" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="document_flow_task_view_inherit_kanban" model="ir.ui.view">
+        <field name="name">document.flow.task.kanban.inherit</field>
+        <field name="model">task.task</field>
+        <field name="inherit_id" ref="task.task_view_kanban"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('o_kanban_record_top')]" position="after">
+                <div t-if="record.parent_obj_ref.raw_value" name="parent_obj_ref" attrs="{'invisible': [('parent_obj_ref', '=', False)]}">
+                    <field name="parent_obj_ref"/>
+                </div>
             </xpath>
         </field>
     </record>

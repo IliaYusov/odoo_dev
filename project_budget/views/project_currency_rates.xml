@@ -1,0 +1,15 @@
+<odoo>
+    <data>
+        <record id="show_project_currency_rates_tree" model="ir.ui.view">
+            <field name="name">project_budget.project_currency_rates.tree</field>
+            <field name="model">project_budget.project_currency_rates</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom" string="project_currency_rates">
+                    <field name="currency_id"/>
+                    <field name="name"/>
+                    <field name="rate"/>
+                </tree>
+            </field>
+        </record>
+    </data>
+</odoo>

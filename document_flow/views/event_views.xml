@@ -138,7 +138,10 @@
                         <page name="decisions_page" string="Decisions">
                             <button string="Renumber Decisions" class="btn btn-primary" type="object"
                                     name="action_renumber_decisions" icon="fa-sort-numeric-asc" attrs="{'invisible': [('state', '!=', 'on_registration')]}"/>
-                            <field name="decision_ids" widget="section_and_note_one2many" mode="tree" attrs="{'readonly': [('state', '!=', 'on_registration')]}">
+                            <field name="decision_ids" widget="section_and_note_one2many" mode="tree"
+                                   attrs="{'readonly': &quot;['|',
+                                   '&amp;', ('state', '!=', 'on_registration'), ('agreed_id', '!=', uid),
+                                   '&amp;', ('state', 'in', ('approved', 'completed')), ('agreed_id', '=', uid)]&quot;}">
                                 <tree>
                                     <field name="num" widget="handle"/>
                                     <field name="visible_num"/>

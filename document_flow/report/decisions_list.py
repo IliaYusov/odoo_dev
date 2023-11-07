@@ -58,13 +58,15 @@ class ReportDecisionsList(models.AbstractModel):
         sheet.set_column(3, 3, 25)
         sheet.write_string(row, 3, _('Deadline'), head_format)
         sheet.set_column(4, 4, 25)
-        sheet.write_string(row, 4, _('Comment'), head_format)
+        sheet.write_string(row, 4, _('Actual executor'), head_format)
+        sheet.set_column(5, 5, 25)
+        sheet.write_string(row, 5, _('Comment'), head_format)
 
         sheet.freeze_panes(2, 0)
 
         processes = event.process_id.child_ids.filtered(lambda pr: pr.type == 'complex')
         if processes:
-            for task in processes[0].active_task_ids:
+            for task in processes[0].task_ids:
                 row += 1
 
                 if task.is_closed:
@@ -79,7 +81,8 @@ class ReportDecisionsList(models.AbstractModel):
                                    row_format)
                 sheet.write_string(row, 2, ', '.join(task.user_ids.mapped('name')), row_format)
                 sheet.write_string(row, 3, task.date_deadline.strftime('%d.%m.%Y'), row_format)
-                sheet.write_string(row, 4, html2text(task.execution_result) if task.is_closed else '', row_format)
+                sheet.write_string(row, 4, task.actual_executor_id.name if task.is_closed else '', row_format)
+                sheet.write_string(row, 5, html2text(task.execution_result) if task.is_closed else '', row_format)
                 sheet.set_row(row, None)
 
             # sheet.autofit()

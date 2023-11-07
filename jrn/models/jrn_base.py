@@ -254,6 +254,10 @@ class jrn_base(models.Model):
         sql_string = sql_string.format(table.name)
         print('sql_string = ', sql_string)
         self.env.cr.execute(sql_string)
+        if table.check_changes == True:
+            self.create_trigger(table)
+        else:
+            self.drop_trigger(table)
 
     def action_create_jrn_tables_one(self, table):
         jrn = self.env['jrn.base']

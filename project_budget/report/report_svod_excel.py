@@ -33,6 +33,11 @@ class report_svod_excel(models.AbstractModel):
 
     array_itogi_last_plan_office = [5, 10, 15, 22, 27, 32, 59,64,69,96,101,106,133,138,143] # колонки где надо  формулы итоговые по офису - послледний эталонный план
 
+    def get_currency_rate_by_project(self,project):
+        project_currency_rates = self.env['project_budget.project_currency_rates']
+        return project_currency_rates._get_currency_rate_for_project_in_company_currency(project)
+
+
     def isStepinYear(self, project, step):
         global YEARint
         global year_end
@@ -248,17 +253,23 @@ class report_svod_excel(models.AbstractModel):
         sum_q3 = 0
         sum_q4 = 0
         if project:
+            try:
+                project_obj = project.projects_id
+            except:
+                project_obj = project
+            currency_rate = self.get_currency_rate_by_project(project_obj)
+
             if project.estimated_probability_id.name in ('50', '75','100','100(done)'): # смотрим сумму контрактования в эталоне и с учетом 100
                 if project.end_presale_project_month.year >= YEARint and project.end_presale_project_month.year <= year_end:
-                    sum_year = project.total_amount_of_revenue_with_vat
+                    sum_year = project.total_amount_of_revenue_with_vat*currency_rate
                     if project.end_presale_project_month.month in (1, 2, 3):
-                        sum_q1 += project.total_amount_of_revenue_with_vat
+                        sum_q1 += project.total_amount_of_revenue_with_vat*currency_rate
                     if project.end_presale_project_month.month in (4, 5, 6):
-                        sum_q2 += project.total_amount_of_revenue_with_vat
+                        sum_q2 += project.total_amount_of_revenue_with_vat*currency_rate
                     if project.end_presale_project_month.month in (7, 8, 9):
-                        sum_q3 += project.total_amount_of_revenue_with_vat
+                        sum_q3 += project.total_amount_of_revenue_with_vat*currency_rate
                     if project.end_presale_project_month.month in (10, 11, 12):
-                        sum_q4 += project.total_amount_of_revenue_with_vat
+                        sum_q4 += project.total_amount_of_revenue_with_vat*currency_rate
         return sum_year, sum_q1, sum_q2, sum_q3, sum_q4
 
     def get_sum_contract_move(self, project, project_etalon):
@@ -280,23 +291,29 @@ class report_svod_excel(models.AbstractModel):
                         # and project_etalon.total_amount_of_revenue_with_vat != 0:  # если эталон в этом году, то начинаем работать, далее только если 0 стало, а в эталоне не 0 считаем переносом
                         #
 
+                    try:
+                        project_obj = project_etalon.projects_id
+                    except:
+                        project_obj = project_etalon
+                    currency_rate = self.get_currency_rate_by_project(project_obj)
+
                     if project_etalon.end_presale_project_month.year != project.end_presale_project_month.year:  # если поменялся год, то это перенос года
-                        sum_year = project_etalon.total_amount_of_revenue_with_vat
+                        sum_year = project_etalon.total_amount_of_revenue_with_vat*currency_rate
 
                     if project_etalon.end_presale_project_month.year == project.end_presale_project_month.year and \
                        project_etalon.end_presale_project_quarter != project.end_presale_project_quarter:  # перенесли квартал не важно куда
                         if project_etalon.end_presale_project_month.month in (
                         1, 2, 3):  # а вот смотрим месяц попадания по эталонному бюджету
-                            sum_q1 += project_etalon.total_amount_of_revenue_with_vat
+                            sum_q1 += project_etalon.total_amount_of_revenue_with_vat*currency_rate
                         if project_etalon.end_presale_project_month.month in (
                         4, 5, 6):  # а вот смотрим месяц попадания по эталонному бюджету
-                            sum_q2 += project_etalon.total_amount_of_revenue_with_vat
+                            sum_q2 += project_etalon.total_amount_of_revenue_with_vat*currency_rate
                         if project_etalon.end_presale_project_month.month in (
                         7, 8, 9):  # а вот смотрим месяц попадания по эталонному бюджету
-                            sum_q3 += project_etalon.total_amount_of_revenue_with_vat
+                            sum_q3 += project_etalon.total_amount_of_revenue_with_vat*currency_rate
                         if project_etalon.end_presale_project_month.month in (
                         10, 11, 12):  # а вот смотрим месяц попадания по эталонному бюджету
-                            sum_q4 += project_etalon.total_amount_of_revenue_with_vat
+                            sum_q4 += project_etalon.total_amount_of_revenue_with_vat*currency_rate
         return sum_year, sum_q1, sum_q2, sum_q3, sum_q4
 
     def get_sum_contract_new(self, project, project_etalon):
@@ -316,39 +333,49 @@ class report_svod_excel(models.AbstractModel):
         if project_etalon:
             if project_etalon.estimated_probability_id.name in (
             '50', '75', '100','100(done)'):  # если 30 или 0 то как будто нет ничего
+                try:
+                    project_obj = project_etalon.projects_id
+                except:
+                    project_obj = project_etalon
+                currency_rate = self.get_currency_rate_by_project(project_obj)
                 if project_etalon.end_presale_project_month.year >= YEARint \
                     and project_etalon.end_presale_project_month.year <= year_end:  # а если текущий год уже вперери.. то и показывать в отчете нечего
-                    sum_contract_etalon_year = project_etalon.total_amount_of_revenue_with_vat
+                    sum_contract_etalon_year = project_etalon.total_amount_of_revenue_with_vat*currency_rate
                     if project_etalon.end_presale_project_month.month in (
                     1, 2, 3):  # сумма контракта эталона в квартал
-                        sum_contract_etalon_q1 = project_etalon.total_amount_of_revenue_with_vat
+                        sum_contract_etalon_q1 = project_etalon.total_amount_of_revenue_with_vat*currency_rate
                     if project_etalon.end_presale_project_month.month in (
                     4, 5, 6):  # сумма контракта эталона в квартал
-                        sum_contract_etalon_q2 = project_etalon.total_amount_of_revenue_with_vat
+                        sum_contract_etalon_q2 = project_etalon.total_amount_of_revenue_with_vat*currency_rate
                     if project_etalon.end_presale_project_month.month in (
                     7, 8, 9):  # сумма контракта эталона в квартал
-                        sum_contract_etalon_q3 = project_etalon.total_amount_of_revenue_with_vat
+                        sum_contract_etalon_q3 = project_etalon.total_amount_of_revenue_with_vat*currency_rate
                     if project_etalon.end_presale_project_month.month in (
                     10, 11, 12):  # сумма контракта эталона в квартал
-                        sum_contract_etalon_q4 = project_etalon.total_amount_of_revenue_with_vat
+                        sum_contract_etalon_q4 = project_etalon.total_amount_of_revenue_with_vat*currency_rate
 
         if (project.estimated_probability_id.name in ('50', '75', '100','100(done)')):  # только 50 и 75 и 100 смотрим
             if project.end_presale_project_month.year >= YEARint\
                     and project.end_presale_project_month.year <= year_end :  # а если текущий год уже вперери.. то и показывать в отчете нечего
+                try:
+                    project_obj = project.projects_id
+                except:
+                    project_obj = project
+                currency_rate = self.get_currency_rate_by_project(project_obj)
                 if sum_contract_etalon_year == 0:  # сумма эталога в году 0
-                    sum_year = project.total_amount_of_revenue_with_vat
+                    sum_year = project.total_amount_of_revenue_with_vat*currency_rate
                 if project.end_presale_project_month.month in (
                 1, 2, 3) and sum_contract_etalon_q1 == 0:  # в эталоне в кваратале было 0
-                    sum_q1 += project.total_amount_of_revenue_with_vat
+                    sum_q1 += project.total_amount_of_revenue_with_vat*currency_rate
                 if project.end_presale_project_month.month in (
                 4, 5, 6) and sum_contract_etalon_q2 == 0:  # в эталоне в кваратале было 0
-                    sum_q2 += project.total_amount_of_revenue_with_vat
+                    sum_q2 += project.total_amount_of_revenue_with_vat*currency_rate
                 if project.end_presale_project_month.month in (
                 7, 8, 9) and sum_contract_etalon_q3 == 0:  # в эталоне в кваратале было 0
-                    sum_q3 += project.total_amount_of_revenue_with_vat
+                    sum_q3 += project.total_amount_of_revenue_with_vat*currency_rate
                 if project.end_presale_project_month.month in (
                 10, 11, 12) and sum_contract_etalon_q4 == 0:  # в эталоне в кваратале было 0
-                    sum_q4 += project.total_amount_of_revenue_with_vat
+                    sum_q4 += project.total_amount_of_revenue_with_vat*currency_rate
 
         sum_year_fact, sum_q1_fact, sum_q2_fact, sum_q3_fact, sum_q4_fact = self.get_sum_contract_fact(project)
         # 20230530 Алина Козленко сказала, что если эталон 0, а факт есть, то новое = факт и это на все действует
@@ -375,19 +402,24 @@ class report_svod_excel(models.AbstractModel):
         if project.estimated_probability_id.name in ('100','100(done)'):  # только 50 и 75  смотрим
             if project.end_presale_project_month.year >= YEARint\
                     and project.end_presale_project_month.year <= year_end:  # а если текущий год уже вперери.. то и показывать в отчете нечего
+                try:
+                    project_obj = project.projects_id
+                except:
+                    project_obj = project
+                currency_rate = self.get_currency_rate_by_project(project_obj)
                 sum_year = project.total_amount_of_revenue_with_vat
                 if project.end_presale_project_month.month in (
                 1, 2, 3):  # а вот смотрим месяц попадания по текущему бюджету
-                    sum_q1 += project.total_amount_of_revenue_with_vat
+                    sum_q1 += project.total_amount_of_revenue_with_vat*currency_rate
                 if project.end_presale_project_month.month in (
                 4, 5, 6):  # а вот смотрим месяц попадания по текущему бюджету
-                    sum_q2 += project.total_amount_of_revenue_with_vat
+                    sum_q2 += project.total_amount_of_revenue_with_vat*currency_rate
                 if project.end_presale_project_month.month in (
                 7, 8, 9):  # а вот смотрим месяц попадания по текущему бюджету
-                    sum_q3 += project.total_amount_of_revenue_with_vat
+                    sum_q3 += project.total_amount_of_revenue_with_vat*currency_rate
                 if project.end_presale_project_month.month in (
                 10, 11, 12):  # а вот смотрим месяц попадания по текущему бюджету
-                    sum_q4 += project.total_amount_of_revenue_with_vat
+                    sum_q4 += project.total_amount_of_revenue_with_vat*currency_rate
 
         return sum_year, sum_q1, sum_q2, sum_q3, sum_q4
 
@@ -983,6 +1015,7 @@ class report_svod_excel(models.AbstractModel):
         sum_pds_q4 = 0
         sum_act_q4 = 0
         for project in projects:
+            currency_rate = self.get_currency_rate_by_project(project)
             if project.project_have_steps:
                 for step in project.project_steps_ids:
                     if step.estimated_probability_id.name in ('100','100(done)', '75', '50'):
@@ -1013,27 +1046,27 @@ class report_svod_excel(models.AbstractModel):
 
                     if step.estimated_probability_id.name in ('75', '50'):
                         if step.end_presale_project_month.year >= YEARint and step.end_presale_project_month.year <= year_end:
-                            sum_contract_year += step.total_amount_of_revenue_with_vat
+                            sum_contract_year += step.total_amount_of_revenue_with_vat*currency_rate
                             if step.end_presale_project_month.month in (1, 2, 3):
-                                sum_contract_q1 += step.total_amount_of_revenue_with_vat
+                                sum_contract_q1 += step.total_amount_of_revenue_with_vat*currency_rate
                             if step.end_presale_project_month.month in (4, 5, 6):
-                                sum_contract_q2 += step.total_amount_of_revenue_with_vat
+                                sum_contract_q2 += step.total_amount_of_revenue_with_vat*currency_rate
                             if step.end_presale_project_month.month in (7, 8, 9):
-                                sum_contract_q3 += step.total_amount_of_revenue_with_vat
+                                sum_contract_q3 += step.total_amount_of_revenue_with_vat*currency_rate
                             if step.end_presale_project_month.month in (10, 11, 12):
-                                sum_contract_q4 += step.total_amount_of_revenue_with_vat
+                                sum_contract_q4 += step.total_amount_of_revenue_with_vat*currency_rate
             else:
                 if project.estimated_probability_id.name in ('75', '50','100','100(done)'):
                     if project.end_presale_project_month.year >= YEARint and project.end_presale_project_month.year <= year_end:
-                        sum_contract_year += project.total_amount_of_revenue_with_vat
+                        sum_contract_year += project.total_amount_of_revenue_with_vat*currency_rate
                         if project.end_presale_project_month.month in (1, 2, 3):
-                            sum_contract_q1 += project.total_amount_of_revenue_with_vat
+                            sum_contract_q1 += project.total_amount_of_revenue_with_vat*currency_rate
                         if project.end_presale_project_month.month in (4, 5, 6):
-                            sum_contract_q2 += project.total_amount_of_revenue_with_vat
+                            sum_contract_q2 += project.total_amount_of_revenue_with_vat*currency_rate
                         if project.end_presale_project_month.month in (7, 8, 9):
-                            sum_contract_q3 += project.total_amount_of_revenue_with_vat
+                            sum_contract_q3 += project.total_amount_of_revenue_with_vat*currency_rate
                         if project.end_presale_project_month.month in (10, 11, 12):
-                            sum_contract_q4 += project.total_amount_of_revenue_with_vat
+                            sum_contract_q4 += project.total_amount_of_revenue_with_vat*currency_rate
                         if project.estimated_probability_id.name in ('100','100(done)', '75', '50'):
                             for pds in project.planned_cash_flow_ids:
                                 if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end:

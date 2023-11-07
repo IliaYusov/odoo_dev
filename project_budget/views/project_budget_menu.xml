@@ -8,6 +8,8 @@
         <menuitem id="project_budget_budgets_comercial_budget_spec" parent ="project_budget_budgets" name = "Projects" action="show_comercial_budget_spec" sequence="2"/>
         <menuitem id="project_budget_budgets_comercial_budget_spec_all" parent ="project_budget_budgets" name = "Projects all budgets" action="show_comercial_budget_spec_all" sequence="3" groups="project_budget.project_budget_admin"/>
         <menuitem id="project_budget_budgets_comercial_budget" parent ="project_budget_budgets" name = "Comercial budgets" action="show_comercial_budgets" sequence="5" groups="project_budget.project_budget_admin"/>
+        <menuitem id="project_budget_catalogs_budget_plan_supervisor" parent ="project_budget_budgets" name = "budget_plan_supervisor" action="show_budget_plan_supervisor"/>
+        <menuitem id="project_budget_catalogs_budget_plan_kam" parent ="project_budget_budgets" name = "budget_plan_kam" action="show_budget_plan_kam"/>
         <menuitem id="project_budget_budgets_tenders" parent ="project_budget_budgets" name = "Tenders" action="show_projects_tenders" sequence="5"/>
 
 
@@ -25,8 +27,6 @@
         <menuitem id="project_budget_catalogs_project_type" parent ="project_budget_catalogs" name = "project_type" action="show_project_type"/>
         <menuitem id="project_budget_catalogs_project_steps_type" parent ="project_budget_catalogs" name = "type of project steps" action="show_project_steps_type"/>
         <menuitem id="project_budget_catalogs_technological_direction" parent ="project_budget_catalogs" name = "technological_direction" action="show_technological_direction"/>
-        <menuitem id="project_budget_catalogs_budget_plan_supervisor" parent ="project_budget_catalogs" name = "budget_plan_supervisor" action="show_budget_plan_supervisor"/>
-        <menuitem id="project_budget_catalogs_budget_plan_kam" parent ="project_budget_catalogs" name = "budget_plan_kam" action="show_budget_plan_kam"/>
         <menuitem id="project_budget_catalogs_tender_current_status" parent ="project_budget_catalogs" name = "tender status" action="show_project_tender_current_status"/>
         <menuitem id="project_budget_catalogs_tender_comments_type" parent ="project_budget_catalogs" name = "tender comment types" action="show_project_tender_comments_type"/>
 

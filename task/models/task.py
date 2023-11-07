@@ -1,7 +1,7 @@
 import json
 
 from html2text import html2text
-from odoo import _, models, fields, api, exceptions
+from odoo import api, Command, exceptions, fields, models, _
 from odoo.exceptions import ValidationError
 
 PRIORITIES = [
@@ -330,7 +330,7 @@ class Task(models.Model):
             self.stage_id = route.stage_to_id.id
 
             if not self.user_id:
-                self.write({'user_id': self.env.user})
+                self.write({'user_ids': [Command.link(self.env.user.id)]})
 
             if self.stage_id.mail_template_id:
                 self._send_message_notify(self.stage_id.mail_template_id)

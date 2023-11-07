@@ -93,7 +93,7 @@ odoo.define("document_flow_dashboard.dashboard_view", function (require) {
                 domain: [
                     ['parent_ref_type', 'like', 'document_flow.%'],
                     ['is_closed', '=', false],
-                    ['user_id', 'in', require('web.session').user_id],
+                    ['user_ids', 'in', require('web.session').user_id],
                     ['date_deadline', '>=', new Date()]
                 ],
                 context: {'default_parent_ref_type': 'document_flow.'},
@@ -114,7 +114,7 @@ odoo.define("document_flow_dashboard.dashboard_view", function (require) {
                 domain: [
                     ['parent_ref_type', 'like', 'document_flow.%'],
                     ['is_closed', '=', false],
-                    ['user_id', 'in', require('web.session').user_id],
+                    ['user_ids', 'in', require('web.session').user_id],
                     ['date_deadline', '<', new Date()]
                 ],
                 context: {'default_parent_ref_type': 'document_flow.'},
@@ -184,7 +184,7 @@ odoo.define("document_flow_dashboard.dashboard_view", function (require) {
                         ['parent_ref_type', 'like', 'document_flow.%'],
                         ['is_closed', '=', false],
                         ['date_deadline', '>=', new Date()],
-                        ['user_id', '=', false],
+                        ['user_ids', '=', false],
                         ['role_executor_id', 'in', roles]
                     ],
                     context: {'default_parent_ref_type': 'document_flow.'},
@@ -212,7 +212,7 @@ odoo.define("document_flow_dashboard.dashboard_view", function (require) {
                         ['parent_ref_type', 'like', 'document_flow.%'],
                         ['is_closed', '=', false],
                         ['date_deadline', '<', new Date()],
-                        ['user_id', '=', false],
+                        ['user_ids', '=', false],
                         ['role_executor_id', 'in', roles]
                     ],
                     context: {'default_parent_ref_type': 'document_flow.'},

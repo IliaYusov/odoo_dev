@@ -499,6 +499,10 @@ class report_budget_forecast_excel(models.AbstractModel):
             sheet.merge_range(row-1, colbeg, row-1, column - 1, y[0], head_format_month)
         return column
 
+    def get_currency_rate_by_project(self,project):
+        project_currency_rates = self.env['project_budget.project_currency_rates']
+        return project_currency_rates._get_currency_rate_for_project_in_company_currency(project)
+
     def print_month_revenue_project(self, sheet, row, column, month, project, step, row_format_number,row_format_number_color_fact):
         global YEARint
         global year_end
@@ -513,66 +517,71 @@ class report_budget_forecast_excel(models.AbstractModel):
             project_etalon = self.get_etalon_project(project, self.get_quater_from_month(month))
             if step == False:
                 if project_etalon:
+                    currency_rate = self.get_currency_rate_by_project(project_etalon)
                     if month == project_etalon.end_presale_project_month.month\
                             and project_etalon.end_presale_project_month.year >= YEARint\
                             and project_etalon.end_presale_project_month.year <= year_end:
                         if project_etalon.estimated_probability_id.name == '75':
-                            sheet.write_number(row, column + 0, project_etalon.total_amount_of_revenue_with_vat, row_format_number)
-                            sum75tmpetalon += project_etalon.total_amount_of_revenue_with_vat
+                            sheet.write_number(row, column + 0, project_etalon.total_amount_of_revenue_with_vat*currency_rate, row_format_number)
+                            sum75tmpetalon += project_etalon.total_amount_of_revenue_with_vat*currency_rate
                         if project_etalon.estimated_probability_id.name == '50':
-                            sheet.write_number(row, column + 1, project_etalon.total_amount_of_revenue_with_vat * koeff_reserve, row_format_number)
-                            sum50tmpetalon += project_etalon.total_amount_of_revenue_with_vat * koeff_reserve
+                            sheet.write_number(row, column + 1, project_etalon.total_amount_of_revenue_with_vat * koeff_reserve*currency_rate, row_format_number)
+                            sum50tmpetalon += project_etalon.total_amount_of_revenue_with_vat * koeff_reserve*currency_rate
 
                 if month == project.end_presale_project_month.month \
                         and project.end_presale_project_month.year >= YEARint \
                         and project.end_presale_project_month.year <= year_end:
+                    currency_rate = self.get_currency_rate_by_project(project)
                     if project.estimated_probability_id.name in ('100','100(done)'):
-                        sheet.write_number(row, column + 2, project.total_amount_of_revenue_with_vat, row_format_number_color_fact)
-                        sum100tmp += project.total_amount_of_revenue_with_vat
+                        sheet.write_number(row, column + 2, project.total_amount_of_revenue_with_vat*currency_rate, row_format_number_color_fact)
+                        sum100tmp += project.total_amount_of_revenue_with_vat*currency_rate
                     if project.estimated_probability_id.name == '75':
-                        sheet.write_number(row, column + 3, project.total_amount_of_revenue_with_vat, row_format_number)
-                        sum75tmp += project.total_amount_of_revenue_with_vat
+                        sheet.write_number(row, column + 3, project.total_amount_of_revenue_with_vat*currency_rate, row_format_number)
+                        sum75tmp += project.total_amount_of_revenue_with_vat*currency_rate
                     if project.estimated_probability_id.name == '50':
-                        sheet.write_number(row, column + 4, project.total_amount_of_revenue_with_vat * koeff_reserve, row_format_number)
-                        sum50tmp += project.total_amount_of_revenue_with_vat * koeff_reserve
+                        sheet.write_number(row, column + 4, project.total_amount_of_revenue_with_vat * koeff_reserve*currency_rate, row_format_number)
+                        sum50tmp += project.total_amount_of_revenue_with_vat * koeff_reserve*currency_rate
             else:
                 step_etalon  = self.get_etalon_step(step, self.get_quater_from_month(month))
                 if step_etalon:
                     if month == step_etalon.end_presale_project_month.month \
                             and step_etalon.end_presale_project_month.year >= YEARint\
                             and step_etalon.end_presale_project_month.year <= year_end:
+                        currency_rate = self.get_currency_rate_by_project(step_etalon.projects_id)
                         if step_etalon.estimated_probability_id.name == '75':
-                            sheet.write_number(row, column + 0, step_etalon.total_amount_of_revenue_with_vat, row_format_number)
-                            sum75tmpetalon = step_etalon.total_amount_of_revenue_with_vat
+                            sheet.write_number(row, column + 0, step_etalon.total_amount_of_revenue_with_vat*currency_rate, row_format_number)
+                            sum75tmpetalon = step_etalon.total_amount_of_revenue_with_vat*currency_rate*currency_rate
                         if step_etalon.estimated_probability_id.name == '50':
-                            sheet.write_number(row, column + 1, step_etalon.total_amount_of_revenue_with_vat * koeff_reserve, row_format_number)
-                            sum50tmpetalon = step_etalon.total_amount_of_revenue_with_vat * koeff_reserve
+                            sheet.write_number(row, column + 1, step_etalon.total_amount_of_revenue_with_vat * koeff_reserve*currency_rate, row_format_number)
+                            sum50tmpetalon = step_etalon.total_amount_of_revenue_with_vat * koeff_reserve*currency_rate*currency_rate
                 else:
                     if project_etalon: # если нет жталонного этапа, то данные берем из проекта, да это будет увеличивать сумму на количество этапов, но что делать я ХЗ
                         if month == project_etalon.end_presale_project_month.month \
                                 and project_etalon.end_presale_project_month.year >= YEARint \
                                 and project_etalon.end_presale_project_month.year <= year_end:
+                            currency_rate = self.get_currency_rate_by_project(project_etalon)
                             if project_etalon.estimated_probability_id.name == '75':
-                                sheet.write_number(row, column + 0, project_etalon.total_amount_of_revenue_with_vat,
+                                sheet.write_number(row, column + 0, project_etalon.total_amount_of_revenue_with_vat*currency_rate,
                                                    row_format_number)
-                                sum75tmpetalon += project_etalon.total_amount_of_revenue_with_vat
+                                sum75tmpetalon += project_etalon.total_amount_of_revenue_with_vat*currency_rate
                             if project_etalon.estimated_probability_id.name == '50':
-                                sheet.write_number(row, column + 1, project_etalon.total_amount_of_revenue_with_vat * koeff_reserve,
+                                sheet.write_number(row, column + 1, project_etalon.total_amount_of_revenue_with_vat * koeff_reserve*currency_rate,
                                                    row_format_number)
-                                sum50tmpetalon += project_etalon.total_amount_of_revenue_with_vat * koeff_reserve
+                                sum50tmpetalon += project_etalon.total_amount_of_revenue_with_vat * koeff_reserve*currency_rate
 
                 if month == step.end_presale_project_month.month \
                         and step.end_presale_project_month.year >= YEARint\
                         and step.end_presale_project_month.year <= year_end:
+                    currency_rate = self.get_currency_rate_by_project(step.projects_id)
                     if step.estimated_probability_id.name in ('100','100(done)'):
-                        sheet.write_number(row, column + 2, step.total_amount_of_revenue_with_vat, row_format_number_color_fact)
-                        sum100tmp = step.total_amount_of_revenue_with_vat
+                        sheet.write_number(row, column + 2, step.total_amount_of_revenue_with_vat*currency_rate, row_format_number_color_fact)
+                        sum100tmp = step.total_amount_of_revenue_with_vat*currency_rate
                     if step.estimated_probability_id.name == '75':
-                        sheet.write_number(row, column + 3, step.total_amount_of_revenue_with_vat, row_format_number)
-                        sum75tmp = step.total_amount_of_revenue_with_vat
+                        sheet.write_number(row, column + 3, step.total_amount_of_revenue_with_vat*currency_rate, row_format_number)
+                        sum75tmp = step.total_amount_of_revenue_with_vat*currency_rate
                     if step.estimated_probability_id.name == '50':
-                        sheet.write_number(row, column + 4, step.total_amount_of_revenue_with_vat * koeff_reserve, row_format_number)
-                        sum50tmp = step.total_amount_of_revenue_with_vat * koeff_reserve
+                        sheet.write_number(row, column + 4, step.total_amount_of_revenue_with_vat * koeff_reserve*currency_rate, row_format_number)
+                        sum50tmp = step.total_amount_of_revenue_with_vat * koeff_reserve*currency_rate
 
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
@@ -1376,6 +1385,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                         # if spec.estimated_probability_id.name != '0':
                         if spec.is_framework == True and spec.project_have_steps == False: continue # рамка без этапов - пропускаем
                         if spec.vgo == '-':
+                            cur_project_rate = self.get_currency_rate_by_project(spec)
 
                             if begRowProjectsByManager == 0:
                                 begRowProjectsByManager = row
@@ -1410,21 +1420,21 @@ class report_budget_forecast_excel(models.AbstractModel):
                                         column += 1
                                         sheet.write_string(row, column, spec.customer_organization_id.name, cur_row_format)
                                         column += 1
-                                        sheet.write_string(row, column, step.essence_project, cur_row_format)
+                                        sheet.write_string(row, column, (step.essence_project or ''), cur_row_format)
                                         column += 1
                                         sheet.write_string(row, column, (step.code or '') +' | '+ spec.project_id + " | "+step.step_id, cur_row_format)
                                         column += 1
                                         sheet.write_string(row, column, self.get_estimated_probability_name_forecast(step.estimated_probability_id.name), cur_row_format)
                                         column += 1
-                                        sheet.write_number(row, column, step.total_amount_of_revenue_with_vat, cur_row_format_number)
+                                        sheet.write_number(row, column, step.total_amount_of_revenue_with_vat*cur_project_rate, cur_row_format_number)
                                         column += 1
-                                        sheet.write_number(row, column, step.margin_income, cur_row_format_number)
+                                        sheet.write_number(row, column, step.margin_income*cur_project_rate, cur_row_format_number)
                                         column += 1
-                                        sheet.write_number(row, column, step.profitability, cur_row_format_number)
+                                        sheet.write_number(row, column, step.profitability*cur_project_rate, cur_row_format_number)
                                         column += 1
                                         sheet.write_string(row, column, step.dogovor_number or '', cur_row_format)
                                         column += 1
-                                        sheet.write_string(row, column, step.vat_attribute_id.name, cur_row_format)
+                                        sheet.write_string(row, column, step.vat_attribute_id.name or '', cur_row_format)
                                         column += 1
                                         sheet.write_string(row, column, '', head_format_1)
                                         self.print_row_Values(workbook, sheet, row, column,  spec, step)
@@ -1454,21 +1464,21 @@ class report_budget_forecast_excel(models.AbstractModel):
                                     column += 1
                                     sheet.write_string(row, column, spec.customer_organization_id.name, cur_row_format)
                                     column += 1
-                                    sheet.write_string(row, column, spec.essence_project, cur_row_format)
+                                    sheet.write_string(row, column, (spec.essence_project or ''), cur_row_format)
                                     column += 1
                                     sheet.write_string(row, column, (spec.step_project_number or '')+ ' | ' +(spec.project_id or ''), cur_row_format)
                                     column += 1
                                     sheet.write_string(row, column, self.get_estimated_probability_name_forecast(spec.estimated_probability_id.name), cur_row_format)
                                     column += 1
-                                    sheet.write_number(row, column, spec.total_amount_of_revenue_with_vat, cur_row_format_number)
+                                    sheet.write_number(row, column, spec.total_amount_of_revenue_with_vat*cur_project_rate, cur_row_format_number)
                                     column += 1
-                                    sheet.write_number(row, column, spec.margin_income, cur_row_format_number)
+                                    sheet.write_number(row, column, spec.margin_income*cur_project_rate, cur_row_format_number)
                                     column += 1
-                                    sheet.write_number(row, column, spec.profitability, cur_row_format_number)
+                                    sheet.write_number(row, column, spec.profitability*cur_project_rate, cur_row_format_number)
                                     column += 1
                                     sheet.write_string(row, column, spec.dogovor_number or '', cur_row_format)
                                     column += 1
-                                    sheet.write_string(row, column, spec.vat_attribute_id.name, cur_row_format)
+                                    sheet.write_string(row, column, spec.vat_attribute_id.name or '', cur_row_format)
                                     column += 1
                                     sheet.write_string(row, column, '', head_format_1)
                                     self.print_row_Values(workbook, sheet, row, column,  spec, False)

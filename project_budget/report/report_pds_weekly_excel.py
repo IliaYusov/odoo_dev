@@ -15,6 +15,10 @@ class report_pds_weekly_excel(models.AbstractModel):
     strYEAR = '2023'
     YEARint = int(strYEAR)
 
+    def get_currency_rate_by_project(self,project):
+        project_currency_rates = self.env['project_budget.project_currency_rates']
+        return project_currency_rates._get_currency_rate_for_project_in_company_currency(project)
+
     def isStepinYear(self, project, step):
         global strYEAR
         global YEARint
@@ -2627,6 +2631,7 @@ class report_pds_weekly_excel(models.AbstractModel):
                                          or self.env['project_budget.planned_cash_flow'].search([('project_steps_id', '=', step.id)])
                                         )
                                 ):
+                                    currency_rate = self.get_currency_rate_by_project(step.projects_id)
                                     isFoundProjectsByOffice = True
                                     isFoundProjectsByCompany = True
 
@@ -2651,11 +2656,11 @@ class report_pds_weekly_excel(models.AbstractModel):
                                     column += 1
                                     sheet.write_string(row, column, self.get_estimated_probability_name_forecast(step.estimated_probability_id.name), cur_row_format)
                                     column += 1
-                                    sheet.write_number(row, column, step.total_amount_of_revenue_with_vat, cur_row_format_number)
+                                    sheet.write_number(row, column, step.total_amount_of_revenue_with_vat*currency_rate, cur_row_format_number)
                                     column += 1
-                                    sheet.write_number(row, column, step.margin_income, cur_row_format_number)
+                                    sheet.write_number(row, column, step.margin_income*currency_rate, cur_row_format_number)
                                     column += 1
-                                    sheet.write_number(row, column, step.profitability, cur_row_format_number)
+                                    sheet.write_number(row, column, step.profitability*currency_rate, cur_row_format_number)
                                     column += 1
                                     sheet.write_string(row, column, step.dogovor_number or '', cur_row_format)
                                     column += 1
@@ -2670,6 +2675,7 @@ class report_pds_weekly_excel(models.AbstractModel):
                                 and spec.estimated_probability_id.name in ['100done', '100', '75', '50']
                                 and self.isProjectinYear(spec)
                             ):
+                                currency_rate = self.get_currency_rate_by_project(spec)
                                 isFoundProjectsByOffice = True
                                 isFoundProjectsByCompany = True
 
@@ -2694,11 +2700,11 @@ class report_pds_weekly_excel(models.AbstractModel):
                                 column += 1
                                 sheet.write_string(row, column, self.get_estimated_probability_name_forecast(spec.estimated_probability_id.name), cur_row_format)
                                 column += 1
-                                sheet.write_number(row, column, spec.total_amount_of_revenue_with_vat, cur_row_format_number)
+                                sheet.write_number(row, column, spec.total_amount_of_revenue_with_vat*currency_rate, cur_row_format_number)
                                 column += 1
-                                sheet.write_number(row, column, spec.margin_income, cur_row_format_number)
+                                sheet.write_number(row, column, spec.margin_income*currency_rate, cur_row_format_number)
                                 column += 1
-                                sheet.write_number(row, column, spec.profitability, cur_row_format_number)
+                                sheet.write_number(row, column, spec.profitability*currency_rate, cur_row_format_number)
                                 column += 1
                                 sheet.write_string(row, column, spec.dogovor_number or '', cur_row_format)
                                 column += 1

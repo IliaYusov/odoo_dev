@@ -56,8 +56,13 @@
                             <field name="name" placeholder="Process Template Title..."/>
                         </h1>
                     </div>
-                    <group>
-                        <field name="document_type_id"/>
+                    <group col="2">
+                        <group>
+                            <field name="model_id"/>
+                        </group>
+                        <group>
+                            <field name="document_type_id"/>
+                        </group>
                     </group>
                     <group>
                         <field name="company_id" groups="base.group_multi_company"/>

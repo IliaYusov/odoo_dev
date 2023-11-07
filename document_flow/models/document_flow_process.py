@@ -1,4 +1,4 @@
-from odoo import _, models, fields, api, Command
+from odoo import api, Command, fields, models, _
 from odoo.exceptions import ValidationError
 from odoo.tools.safe_eval import test_python_expr, safe_eval
 from datetime import timedelta
@@ -51,7 +51,8 @@ def selection_parent_model():
         ('document_flow.event', _('Event')),
         ('document_flow.event.decision', _('Decision')),
         ('document_flow.action', _('Action')),
-        ('document_flow.document', _('Document'))
+        ('document_flow.document', _('Document')),
+        ('sale.presale', _('Presale'))
     ]
 
 
@@ -175,6 +176,7 @@ class Process(models.Model):
     start_condition = fields.Text(string='Start Condition',
                                   help='Conditions that will be checked before process will be started.')
 
+    action_id = fields.Many2one('document_flow.action', string='Action')
     parent_obj_ref = fields.Reference(string='Parent Object', selection='_selection_parent_model',
                                       compute='_compute_parent_obj', readonly=True)
     task_history_ids = fields.One2many('document_flow.task.history', string='Task History',
@@ -199,24 +201,13 @@ class Process(models.Model):
         res = super(Process, self).create(vals_list)
         return res
 
-    def write(self, vals):
-        res = super(Process, self).write(vals)
-        return res
-
-    def unlink(self):
-        self.task_ids.unlink()
-        return super(Process, self).unlink()
-
     def _compute_parent_obj(self):
         for process in self:
             process.parent_obj_ref = self.env['document_flow.processing'].search([
                 ('process_id', '=', process._get_mainprocess_id_by_process_id().get(process.id, None))
             ], limit=1).parent_ref
-            # process.parent_obj_ref = self.env['document_flow.process.parent_object'].search([
-            #     ('process_id', '=', process.id)
-            # ], limit=1).parent_ref
 
-    @api.onchange('sequence')
+    @api.depends('sequence')
     def _compute_sequence(self):
         for process in self:
             process.visible_sequence = process.sequence
@@ -237,6 +228,11 @@ class Process(models.Model):
             else:
                 process.controller_ref = False
 
+    @api.depends('action_id.description')
+    def _compute_description(self):
+        for process in self:
+            process.description = process.action_id.description
+
     def _compute_task_ids(self):
         for process in self:
             process.task_ids = self.env['task.task'].with_context(active_test=False).search([
@@ -253,6 +249,14 @@ class Process(models.Model):
             process.task_history_ids = self.env['document_flow.task.history'].search([
                 ('process_id', 'in', process._get_subprocess_ids_by_process_id().get(process.id, []) if process.type == 'complex' else [process.id])
             ]).ids or False
+
+    def write(self, vals):
+        res = super(Process, self).write(vals)
+        return res
+
+    def unlink(self):
+        self.task_ids.unlink()
+        return super(Process, self).unlink()
 
     def _put_task_to_history(self, task):
         return self.env['document_flow.task.history'].create({
@@ -453,7 +457,7 @@ class Process(models.Model):
                     user_ids=[Command.link(executor.executor_ref.id) for executor in self.executor_ids],
                     date_deadline=self.executor_ids[0].date_deadline
                 )
-                res = self.env['task.task'].create(task_data)
+                res = self.env['task.task'].sudo().create(task_data)
                 self._put_task_to_history(res)
             else:
                 min_sequence = min(self.executor_ids, key=lambda pr: pr.sequence).sequence or 0
@@ -506,8 +510,9 @@ class Process(models.Model):
             self.write({'state': 'break', 'date_end': date_closed})
             if self.parent_id:
                 self.parent_id.process_task_result(date_closed, result_type, feedback)
-            if feedback and self.parent_obj_ref:
-                self.parent_obj_ref.write({'state': 'on_registration'})
+            if feedback and not self.parent_id and self.parent_obj_ref:
+                if self.parent_obj_ref and type(self.parent_obj_ref).__name__ == 'document_flow.event':
+                    self.parent_obj_ref.write({'state': 'on_registration'})
                 self.parent_obj_ref.message_post(
                     body=feedback,
                     message_type='comment',
@@ -572,7 +577,7 @@ class ProcessExecutor(models.Model):
             task_data['user_ids'] = [Command.link(executor_ref.id)]
         else:
             task_data['role_executor_id'] = executor_ref.id
-        res = self.env['task.task'].create(task_data)
+        res = self.env['task.task'].sudo().create(task_data)
         self.process_id._put_task_to_history(res)
         return res
 
@@ -590,6 +595,7 @@ class ProcessTemplate(models.Model):
     description = fields.Html(string='Description')
     company_id = fields.Many2one('res.company', string='Company', required=True,
                                  default=lambda self: self.env.company)
+    model_id = fields.Many2one('ir.model', string='Model')
     document_type_id = fields.Many2one('document_flow.document.type', string='Document Type')
 
     action_ids = fields.One2many('document_flow.action', 'parent_ref_id', string='Actions',
@@ -725,6 +731,18 @@ class Action(models.Model):
                 ('parent_ref_type', '=', self._name),
                 ('parent_ref_id', '=', action.id)
             ])
+
+    def get_executors_company_ids(self):
+        self.ensure_one()
+        c_ids = []
+        if self.type == 'complex':
+            for child in self.child_ids:
+                for executor in child.executor_ids:
+                    c_ids.append(executor.executor_ref.company_id.id)
+        else:
+            for executor in self.executor_ids:
+                c_ids.append(executor.executor_ref.company_id.id)
+        return set(c_ids)
 
 
 class ActionExecutor(models.Model):

@@ -11,7 +11,7 @@ class ProcessingChartController(http.Controller):
             date_end=process.date_end,
             tasks=[self._prepare_task_data(task) for task in process.task_ids],
             link='/mail/view?model=%s&res_id=%s' % ('document_flow.process', process.id),
-            state='not_done' if not process.date_end else 'done'
+            state='done' if process.state == 'finished' else 'cancel' if process.state == 'break' else 'todo'
         )
 
     def _prepare_task_data(self, task):

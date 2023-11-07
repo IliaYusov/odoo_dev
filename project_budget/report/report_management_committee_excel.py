@@ -15,6 +15,11 @@ class report_management_committee_excel(models.AbstractModel):
     strYEAR = '2023'
     YEARint = int(strYEAR)
 
+    def get_currency_rate_by_project(self,project):
+        project_currency_rates = self.env['project_budget.project_currency_rates']
+        return project_currency_rates._get_currency_rate_for_project_in_company_currency(project)
+
+
     def isStepinYear(self, project, step):
         global strYEAR
         global YEARint
@@ -654,78 +659,86 @@ class report_management_committee_excel(models.AbstractModel):
             project_etalon = self.get_etalon_project(project, element)
             if not project.project_have_steps:
                 if project_etalon:
+                    currency_rate = self.get_currency_rate_by_project(project_etalon)
                     if project_etalon.end_presale_project_month.month in months and YEARint == project_etalon.end_presale_project_month.year:
                         if project_etalon.estimated_probability_id.name == '75':
-                            sum75tmpetalon = project_etalon.total_amount_of_revenue_with_vat
+                            sum75tmpetalon = project_etalon.total_amount_of_revenue_with_vat * currency_rate
                         if project_etalon.estimated_probability_id.name == '50':
-                            sum50tmpetalon = project_etalon.total_amount_of_revenue_with_vat
+                            sum50tmpetalon = project_etalon.total_amount_of_revenue_with_vat * currency_rate
 
                 if project.end_presale_project_month.month in months and YEARint == project.end_presale_project_month.year:
+                    currency_rate = self.get_currency_rate_by_project(project)
                     if project.estimated_probability_id.name in ('100', '100(done)'):
-                        sum100tmp = project.total_amount_of_revenue_with_vat
+                        sum100tmp = project.total_amount_of_revenue_with_vat * currency_rate
                     if project.estimated_probability_id.name == '75':
-                        sum75tmp = project.total_amount_of_revenue_with_vat
+                        sum75tmp = project.total_amount_of_revenue_with_vat * currency_rate
                     if project.estimated_probability_id.name == '50':
-                        sum50tmp = project.total_amount_of_revenue_with_vat
+                        sum50tmp = project.total_amount_of_revenue_with_vat * currency_rate
 
             else:
                 for step in project.project_steps_ids:
                     step_etalon = self.get_etalon_step(step, element)
                     if step_etalon:
+                        currency_rate = self.get_currency_rate_by_project(step_etalon.projects_id)
                         if step_etalon.end_presale_project_month.month in months and YEARint == step_etalon.end_presale_project_month.year:
                             if step_etalon.estimated_probability_id.name == '75':
-                                sum75tmpetalon += step_etalon.total_amount_of_revenue_with_vat
+                                sum75tmpetalon += step_etalon.total_amount_of_revenue_with_vat*currency_rate
                             if step_etalon.estimated_probability_id.name == '50':
-                                sum50tmpetalon += step_etalon.total_amount_of_revenue_with_vat
+                                sum50tmpetalon += step_etalon.total_amount_of_revenue_with_vat*currency_rate
                     else:
                         if project_etalon: # если нет эталонного этапа, то данные берем из проекта, да это будет увеличивать сумму на количество этапов, но что делать я ХЗ
+                            currency_rate = self.get_currency_rate_by_project(project_etalon)
                             if project_etalon.end_presale_project_month.month in months and YEARint == project_etalon.end_presale_project_month.year:
                                 if project_etalon.estimated_probability_id.name == '75':
-                                    sum75tmpetalon = project_etalon.total_amount_of_revenue_with_vat
+                                    sum75tmpetalon = project_etalon.total_amount_of_revenue_with_vat*currency_rate
                                 if project_etalon.estimated_probability_id.name == '50':
-                                    sum50tmpetalon = project_etalon.total_amount_of_revenue_with_vat
+                                    sum50tmpetalon = project_etalon.total_amount_of_revenue_with_vat*currency_rate
 
                     if step.end_presale_project_month.month in months and YEARint == step.end_presale_project_month.year:
+                        currency_rate = self.get_currency_rate_by_project(step.projects_id)
                         if step.estimated_probability_id.name in ('100', '100(done)'):
-                            sum100tmp += step.total_amount_of_revenue_with_vat
+                            sum100tmp += step.total_amount_of_revenue_with_vat * currency_rate
                         if step.estimated_probability_id.name == '75':
-                            sum75tmp += step.total_amount_of_revenue_with_vat
+                            sum75tmp += step.total_amount_of_revenue_with_vat* currency_rate
                         if step.estimated_probability_id.name == '50':
-                            sum50tmp += step.total_amount_of_revenue_with_vat
+                            sum50tmp += step.total_amount_of_revenue_with_vat* currency_rate
 
         elif 'NEXT' in element:
             if not project.project_have_steps:
                 if project.end_presale_project_month.year == YEARint + 1:
+                    currency_rate = self.get_currency_rate_by_project(project)
                     if project.estimated_probability_id.name in ('75', '100'):
-                        sum_next_75_tmp = project.total_amount_of_revenue_with_vat
+                        sum_next_75_tmp = project.total_amount_of_revenue_with_vat* currency_rate
                     if project.estimated_probability_id.name == '50':
-                        sum_next_50_tmp = project.total_amount_of_revenue_with_vat * multipliers['50']
+                        sum_next_50_tmp = project.total_amount_of_revenue_with_vat * multipliers['50']* currency_rate
                     if project.estimated_probability_id.name == '30':
-                        sum_next_30_tmp = project.total_amount_of_revenue_with_vat * multipliers['30']
+                        sum_next_30_tmp = project.total_amount_of_revenue_with_vat * multipliers['30']* currency_rate
                 elif project.end_presale_project_month.year == YEARint + 2:
+                    currency_rate = self.get_currency_rate_by_project(project)
                     if project.estimated_probability_id.name in ('75', '100'):
-                        sum_after_next_tmp = project.total_amount_of_revenue_with_vat
+                        sum_after_next_tmp = project.total_amount_of_revenue_with_vat* currency_rate
                     if project.estimated_probability_id.name == '50':
-                        sum_after_next_tmp = project.total_amount_of_revenue_with_vat * multipliers['50']
+                        sum_after_next_tmp = project.total_amount_of_revenue_with_vat * multipliers['50']* currency_rate
                     if project.estimated_probability_id.name == '30':
-                        sum_after_next_tmp = project.total_amount_of_revenue_with_vat * multipliers['30']
+                        sum_after_next_tmp = project.total_amount_of_revenue_with_vat * multipliers['30']* currency_rate
 
             else:
                 for step in project.project_steps_ids:
+                    currency_rate = self.get_currency_rate_by_project(step.projects_id)
                     if step.end_presale_project_month.year == YEARint + 1:
                         if step.estimated_probability_id.name in ('75', '100'):
-                            sum_next_75_tmp += step.total_amount_of_revenue_with_vat
+                            sum_next_75_tmp += step.total_amount_of_revenue_with_vat*currency_rate
                         if step.estimated_probability_id.name == '50':
-                            sum_next_50_tmp += step.total_amount_of_revenue_with_vat * multipliers['50']
+                            sum_next_50_tmp += step.total_amount_of_revenue_with_vat * multipliers['50']*currency_rate
                         if step.estimated_probability_id.name == '30':
-                            sum_next_30_tmp += step.total_amount_of_revenue_with_vat * multipliers['30']
+                            sum_next_30_tmp += step.total_amount_of_revenue_with_vat * multipliers['30']*currency_rate
                     elif step.end_presale_project_month.year == YEARint + 2:
                         if step.estimated_probability_id.name in ('75', '100'):
-                            sum_after_next_tmp += step.total_amount_of_revenue_with_vat
+                            sum_after_next_tmp += step.total_amount_of_revenue_with_vat*currency_rate
                         if step.estimated_probability_id.name == '50':
-                            sum_after_next_tmp += step.total_amount_of_revenue_with_vat * multipliers['50']
+                            sum_after_next_tmp += step.total_amount_of_revenue_with_vat * multipliers['50']*currency_rate
                         if step.estimated_probability_id.name == '30':
-                            sum_after_next_tmp += step.total_amount_of_revenue_with_vat * multipliers['30']
+                            sum_after_next_tmp += step.total_amount_of_revenue_with_vat * multipliers['30']*currency_rate
 
         return (sum75tmpetalon, sum50tmpetalon,
                 sum100tmp, sum75tmp, sum50tmp,

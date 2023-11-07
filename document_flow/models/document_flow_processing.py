@@ -1,4 +1,4 @@
-from odoo import _, models, fields, api
+from odoo import api, Command, fields, models, _
 from .document_flow_process import recompute_sequence_actions, selection_parent_model
 
 
@@ -24,7 +24,7 @@ class Processing(models.Model):
     document_type_id = fields.Many2one('document_flow.document.type', string='Document Type')
 
     template_id = fields.Many2one('document_flow.process.template', string='Template',
-                                  domain="[('document_type_id', '=', document_type_id)]")
+                                  domain="['|', ('model_id.model', '=', parent_ref_type), ('document_type_id', '=', document_type_id)]")
     action_ids = fields.One2many('document_flow.action', 'parent_ref_id', string='Actions',
                                  domain=_get_action_ids_domain)
     task_history_ids = fields.One2many('document_flow.task.history', related='process_id.task_history_ids',
@@ -68,10 +68,11 @@ class Processing(models.Model):
 
     def action_start_processing(self):
         process = self.env['document_flow.process'].create(dict(
-            name=_('Processing') + ' ' + self.parent_ref.name,
+            type='complex',
             template_id=self.template_id.id,
-            company_ids=self.parent_ref.company_id if not self.parent_ref._fields.get('company_ids', False) else self.parent_ref.company_ids,
-            type='complex'
+            name=_('Processing') + ' ' + self.parent_ref.name,
+            description=self.parent_ref.description,
+            company_ids=self.parent_ref.company_id if not self.parent_ref._fields.get('company_ids', False) else self.parent_ref.company_ids
         ))
         for action in self.action_ids:
             simple_process = self.env['document_flow.process'].create({
@@ -82,7 +83,9 @@ class Processing(models.Model):
                 'sequence': action.sequence,
                 'reviewer_ref': action.reviewer_ref,
                 'start_condition': action.start_condition,
-                'description': action.description
+                'description': action.description,
+                'action_id': action.id,
+                'company_ids': [Command.link(c_id) for c_id in action.get_executors_company_ids()]
             })
             for child in action.child_ids:
                 pr = self.env['document_flow.process'].create({
@@ -93,7 +96,9 @@ class Processing(models.Model):
                     'sequence': child.sequence,
                     'reviewer_ref': child.reviewer_ref,
                     'start_condition': child.start_condition,
-                    'description': child.description
+                    'description': child.description,
+                    'action_id': action.id,
+                    'company_ids': [Command.link(c_id) for c_id in action.get_executors_company_ids()]
                 })
                 for executor in child.executor_ids:
                     self.env['document_flow.process.executor'].create({

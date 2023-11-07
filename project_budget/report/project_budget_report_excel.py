@@ -13,6 +13,11 @@ class report_budget_excel(models.AbstractModel):
     probabitily_list_PB = ['100','100(done)']
     probabitily_list_Otmena = ['0']
     array_col_itogi = [12, 13,14,15,16,17,18,19,20,21,22,23,24,252,6,27,28]
+
+    def get_currency_rate_by_project(self,project):
+        project_currency_rates = self.env['project_budget.project_currency_rates']
+        return project_currency_rates._get_currency_rate_for_project_in_company_currency(project)
+
     def printworksheet(self,workbook,budget,namesheet,stateproject):
         global YEARint
         global year_end
@@ -315,6 +320,7 @@ class report_budget_excel(models.AbstractModel):
                                                                                     )
 
                     for spec in cur_budget_projects:
+                        currency_rate = self.get_currency_rate_by_project(spec)
                         if spec.project_have_steps == False: # or 20230707 Вавилова Ирина сказала не выводить рамку spec.is_framework == True: # рамку всегда выгружать
                             if spec.is_framework == True: continue # 20230718 Алина Козленко сказала не выгружать в принципе рамки
                             if (spec.estimated_probability_id.name in probabitily_list) and (
@@ -357,45 +363,45 @@ class report_budget_excel(models.AbstractModel):
                                 column += 1
                                 sheet.write_string(row, column, spec.vat_attribute_id.name or "", row_format)
                                 column += 1
-                                sheet.write_number(row, column, spec.revenue_from_the_sale_of_works,row_format_number)
+                                sheet.write_number(row, column, spec.revenue_from_the_sale_of_works * currency_rate,row_format_number)
                                 column += 1
-                                sheet.write_number(row, column, spec.revenue_from_the_sale_of_goods,row_format_number)
+                                sheet.write_number(row, column, spec.revenue_from_the_sale_of_goods * currency_rate,row_format_number)
 
                                 column += 1
-                                # sheet.write_number(row, column, spec.total_amount_of_revenue, row_format_number)
+                                # sheet.write_number(row, column, spec.total_amount_of_revenue * currency_rate, row_format_number)
                                 formula = '=sum({1}{0}:{2}{0})'.format(row+1,xl_col_to_name(12),xl_col_to_name(13))
                                 sheet.write_formula(row, column, formula, row_format_itog_row)
 
                                 column += 1
-                                sheet.write_number(row, column, spec.cost_of_goods,row_format_number)
+                                sheet.write_number(row, column, spec.cost_of_goods * currency_rate,row_format_number)
                                 column += 1
-                                sheet.write_number(row, column, spec.own_works_fot,row_format_number)
+                                sheet.write_number(row, column, spec.own_works_fot * currency_rate,row_format_number)
                                 column += 1
-                                sheet.write_number(row, column, spec.third_party_works,row_format_number)
+                                sheet.write_number(row, column, spec.third_party_works * currency_rate,row_format_number)
                                 column += 1
-                                sheet.write_number(row, column, spec.awards_on_results_project,row_format_number)
+                                sheet.write_number(row, column, spec.awards_on_results_project * currency_rate,row_format_number)
                                 column += 1
-                                sheet.write_number(row, column, spec.transportation_expenses,row_format_number)
+                                sheet.write_number(row, column, spec.transportation_expenses * currency_rate,row_format_number)
                                 column += 1
-                                sheet.write_number(row, column, spec.travel_expenses,row_format_number)
+                                sheet.write_number(row, column, spec.travel_expenses * currency_rate,row_format_number)
                                 column += 1
-                                sheet.write_number(row, column, spec.representation_expenses,row_format_number)
+                                sheet.write_number(row, column, spec.representation_expenses * currency_rate,row_format_number)
                                 column += 1
-                                sheet.write_number(row, column, spec.taxes_fot_premiums,row_format_number)
+                                sheet.write_number(row, column, spec.taxes_fot_premiums * currency_rate,row_format_number)
                                 column += 1
-                                sheet.write_number(row, column, spec.warranty_service_costs,row_format_number)
+                                sheet.write_number(row, column, spec.warranty_service_costs * currency_rate,row_format_number)
                                 column += 1
-                                sheet.write_number(row, column, spec.rko_other,row_format_number)
+                                sheet.write_number(row, column, spec.rko_other * currency_rate,row_format_number)
                                 column += 1
-                                sheet.write_number(row, column, spec.other_expenses,row_format_number)
+                                sheet.write_number(row, column, spec.other_expenses * currency_rate,row_format_number)
 
                                 column += 1
-                                # sheet.write_number(row, column, spec.cost_price,row_format_number)
+                                # sheet.write_number(row, column, spec.cost_price * currency_rate,row_format_number)
                                 formula = '=sum({1}{0}:{2}{0})'.format(row + 1, xl_col_to_name(15), xl_col_to_name(25))
                                 sheet.write_formula(row, column, formula, row_format_itog_row)
 
                                 column += 1
-                                # sheet.write_number(row, column, spec.margin_income,row_format_number)
+                                # sheet.write_number(row, column, spec.margin_income * currency_rate,row_format_number)
                                 formula = '={1}{0}-{2}{0}'.format(row + 1, xl_col_to_name(14), xl_col_to_name(26))
                                 sheet.write_formula(row, column, formula, row_format_itog_row)
 
@@ -458,45 +464,45 @@ class report_budget_excel(models.AbstractModel):
                                     column += 1
                                     sheet.write_string(row, column, step.vat_attribute_id.name or "", row_format)
                                     column += 1
-                                    sheet.write_number(row, column, step.revenue_from_the_sale_of_works, row_format_number)
+                                    sheet.write_number(row, column, step.revenue_from_the_sale_of_works * currency_rate, row_format_number)
                                     column += 1
-                                    sheet.write_number(row, column, step.revenue_from_the_sale_of_goods, row_format_number)
+                                    sheet.write_number(row, column, step.revenue_from_the_sale_of_goods * currency_rate, row_format_number)
 
                                     column += 1
-                                    # sheet.write_number(row, column, step.total_amount_of_revenue, row_format_number)
+                                    # sheet.write_number(row, column, step.total_amount_of_revenue * currency_rate, row_format_number)
                                     formula = '=sum({1}{0}:{2}{0})'.format(row+1, xl_col_to_name(12), xl_col_to_name(13))
                                     sheet.write_formula(row, column, formula, row_format_itog_row)
 
                                     column += 1
-                                    sheet.write_number(row, column, step.cost_of_goods, row_format_number)
+                                    sheet.write_number(row, column, step.cost_of_goods * currency_rate, row_format_number)
                                     column += 1
-                                    sheet.write_number(row, column, step.own_works_fot, row_format_number)
+                                    sheet.write_number(row, column, step.own_works_fot * currency_rate, row_format_number)
                                     column += 1
-                                    sheet.write_number(row, column, step.third_party_works, row_format_number)
+                                    sheet.write_number(row, column, step.third_party_works * currency_rate, row_format_number)
                                     column += 1
-                                    sheet.write_number(row, column, step.awards_on_results_project, row_format_number)
+                                    sheet.write_number(row, column, step.awards_on_results_project * currency_rate, row_format_number)
                                     column += 1
-                                    sheet.write_number(row, column, step.transportation_expenses, row_format_number)
+                                    sheet.write_number(row, column, step.transportation_expenses * currency_rate, row_format_number)
                                     column += 1
-                                    sheet.write_number(row, column, step.travel_expenses, row_format_number)
+                                    sheet.write_number(row, column, step.travel_expenses * currency_rate, row_format_number)
                                     column += 1
-                                    sheet.write_number(row, column, step.representation_expenses, row_format_number)
+                                    sheet.write_number(row, column, step.representation_expenses * currency_rate, row_format_number)
                                     column += 1
-                                    sheet.write_number(row, column, step.taxes_fot_premiums, row_format_number)
+                                    sheet.write_number(row, column, step.taxes_fot_premiums * currency_rate, row_format_number)
                                     column += 1
-                                    sheet.write_number(row, column, step.warranty_service_costs, row_format_number)
+                                    sheet.write_number(row, column, step.warranty_service_costs * currency_rate, row_format_number)
                                     column += 1
-                                    sheet.write_number(row, column, step.rko_other, row_format_number)
+                                    sheet.write_number(row, column, step.rko_other * currency_rate, row_format_number)
                                     column += 1
-                                    sheet.write_number(row, column, step.other_expenses, row_format_number)
+                                    sheet.write_number(row, column, step.other_expenses * currency_rate, row_format_number)
 
                                     column += 1
-                                    # sheet.write_number(row, column, step.cost_price, row_format_number)
+                                    # sheet.write_number(row, column, step.cost_price * currency_rate, row_format_number)
                                     formula = '=sum({1}{0}:{2}{0})'.format(row+1, xl_col_to_name(15), xl_col_to_name(25))
                                     sheet.write_formula(row, column, formula, row_format_itog_row)
 
                                     column += 1
-                                    # sheet.write_number(row, column, step.margin_income, row_format_number)
+                                    # sheet.write_number(row, column, step.margin_income * currency_rate, row_format_number)
                                     formula = '={1}{0}-{2}{0}'.format(row + 1, xl_col_to_name(14), xl_col_to_name(26))
                                     sheet.write_formula(row, column, formula, row_format_itog_row)
 

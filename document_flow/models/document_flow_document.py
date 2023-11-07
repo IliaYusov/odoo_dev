@@ -25,6 +25,8 @@ class Document(models.Model):
     type_id = fields.Many2one('document_flow.document.type', string='Type', copy=True, required=True, tracking=True)
     currency_id = fields.Many2one('res.currency', string='Currency', copy=False, required=True, tracking=True,
                                   default=lambda self: self.env.ref('base.RUB').id)
+    partner_id = fields.Many2one('res.partner', string='Partner', copy=True, required=True, tracking=True,
+                                 domain="[('is_company', '=', True)]")
     sum = fields.Monetary(string='Sum', copy=False, tracking=True)
     description = fields.Html(string='Description', copy=False)
 
@@ -32,11 +34,6 @@ class Document(models.Model):
     process_state = fields.Selection(string='State', related='process_id.state', readonly=True)
     attachment_ids = fields.One2many('ir.attachment', string='Attachments', compute='_compute_attachment_ids')
     attachment_count = fields.Integer(compute='_compute_attachment_count', string='Attachment Count')
-
-    project_id = fields.Many2one('project_budget.projects', string='Project', copy=True, ondelete='restrict',
-                                 required=True, tracking=True, domain="[('budget_state', '=', 'work')]")
-    customer_id = fields.Many2one('res.partner', related='project_id.customer_organization_id.partner_id',
-                                  string='Customer', copy=False, readonly=True, required=True)
 
     @api.model
     def create(self, vals_list):
@@ -58,14 +55,6 @@ class Document(models.Model):
                 ('parent_ref', '=', '%s,%d' % (document._name, document.id))
             ]).process_id
 
-    def _compute_attachment_count(self):
-        for document in self:
-            document.attachment_count = self.env['ir.attachment'].search_count([
-                '|',
-                '&', ('res_model', '=', self._name), ('res_id', 'in', [document.id]),
-                '&', ('res_model', '=', 'task.task'), ('res_id', 'in', document.process_id.task_ids.ids)
-            ])
-
     def _compute_attachment_ids(self):
         for document in self:
             document.attachment_ids = self.env['ir.attachment'].search([
@@ -74,9 +63,15 @@ class Document(models.Model):
                 '&', ('res_model', '=', 'task.task'), ('res_id', 'in', document.process_id.task_ids.ids)
             ])
 
+    @api.depends('attachment_ids')
+    def _compute_attachment_count(self):
+        for document in self:
+            document.attachment_count = len(document.attachment_ids)
+
     def action_open_attachments(self):
         self.ensure_one()
-        return {
+        can_edit = True if not self.process_state or self.process_state in ('on_registration', 'break') else False
+        action_vals = {
             'name': _('Attachments'),
             'type': 'ir.actions.act_window',
             'res_model': 'ir.attachment',
@@ -85,11 +80,15 @@ class Document(models.Model):
                        '&', ('res_model', '=', self._name), ('res_id', 'in', [self.id]),
                        '&', ('res_model', '=', 'task.task'), ('res_id', 'in', self.process_id.task_ids.ids)
                        ],
-            'context': "{'default_res_model': '%s','default_res_id': %d}" % (self._name, self.id),
+            'context': "{'default_res_model': '%s','default_res_id': %d, 'dms_file': True, 'create': %s, 'edit': %s 'delete': %s}" % (
+                self._name, self.id, can_edit, can_edit, can_edit),
             'help': """
                         <p class="o_view_nocontent_smiling_face">%s</p>
                         """ % _("Add attachments for this document")
         }
+        if not can_edit:
+            action_vals.update({'flags': {'mode': 'readonly'}})
+        return action_vals
 
     def action_open_processing(self):
         self.ensure_one()

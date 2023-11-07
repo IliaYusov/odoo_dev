@@ -8,12 +8,249 @@ class project_steps(models.Model):
     _description = "project steps"
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'name_to_show'
+
+    def _get_current_amount_spec_type(self):
+        context = self.env.context
+        print('_get_current_amount_spec_type context',context)
+        value = ''
+        if context.get("revenue_from_the_sale_of_works") == True:
+            value = _('revenue_from_the_sale_of_works')
+        if context.get("revenue_from_the_sale_of_goods") == True:
+            value =  _('revenue_from_the_sale_of_goods')
+        if context.get("cost_of_goods") == True:
+            value =  _('cost_of_goods')
+        if context.get("travel_expenses") == True:
+            value =  _('travel_expenses')
+        if context.get("third_party_works") == True:
+            value =  _('third_party_works')
+        if context.get("representation_expenses") == True:
+            value =  _('representation_expenses')
+        if context.get("rko_other") == True:
+            value =  _('rko_other')
+        if context.get("warranty_service_costs") == True:
+            value =  _('warranty_service_costs')
+        if context.get("other_expenses") == True:
+            value =  _('other_expenses')
+        if context.get("transportation_expenses") == True:
+            value =  _('transportation_expenses')
+        print('_get_current_amount_spec_type value = ', value)
+        self.current_amount_spec_type = value
+
     def _getesimated_probability_fromProject(self):
         for row in self:
             project = self.env['project_budget.projects'].search(['id','=',row.projects_id])
             print(project)
             print(project.estimated_probability_id.id)
             return project.estimated_probability_id
+
+    def _get_domainamount_spec(self):
+        domain = []
+        context = self.env.context
+        if context.get("revenue_from_the_sale_of_works") == True:
+            domain = [('type', '=', "revenue_from_the_sale_of_works")]
+        if context.get("revenue_from_the_sale_of_goods") == True:
+            domain = [('type', '=', "revenue_from_the_sale_of_goods")]
+        if context.get("cost_of_goods") == True:
+            domain = [('type', '=', "cost_of_goods")]
+        if context.get("travel_expenses") == True:
+            domain = [('type', '=', "travel_expenses")]
+        if context.get("third_party_works") == True:
+            domain = [('type', '=', "third_party_works")]
+        if context.get("transportation_expenses") == True:
+            domain = [('type', '=', "transportation_expenses")]
+        if context.get("representation_expenses") == True:
+            domain = [('type', '=', "representation_expenses")]
+        if context.get("rko_other") == True:
+            domain = [('type', '=', "rko_other")]
+        if context.get("warranty_service_costs") == True:
+            domain = [('type', '=', "warranty_service_costs")]
+        if context.get("other_expenses") == True:
+            domain = [('type', '=', "other_expenses")]
+        return domain
+
+    def _get_amount_spec_type(self, amount_spec_ids, type):
+        for amount_spec in amount_spec_ids:
+            if amount_spec.type == type: return True
+        return False
+
+    def _get_sums_from_amount_spec_type(self, row, type):
+        sum = 0
+        project_currency_rates = self.env['project_budget.project_currency_rates']
+        for amount_spec in row.amount_spec_ids:
+            # _rate_prj = self.env['res.currency']._get_conversion_rate(from_currency=amount_spec.currency_id,
+            #                                               to_currency=row.currency_id, date=)
+            if amount_spec.type == type:
+                sum += amount_spec.summa * project_currency_rates._get_currency_rate_for_project_currency(row.projects_id, amount_spec.currency_id.id)
+                       # *row.company_id.currency_id
+        return sum
+
+    def _compute_sums_from_amount_spec(self):
+        for row in self:
+            print('project_steps _compute_sums_from_amount_spec row=',row)
+            print('project_steps _compute_sums_from_amount_spec row.revenue_from_the_sale_of_works_amount_spec_exist = ', row.revenue_from_the_sale_of_works_amount_spec_exist)
+            if row.revenue_from_the_sale_of_works_amount_spec_exist == True:
+                row.revenue_from_the_sale_of_works = self._get_sums_from_amount_spec_type(row, 'revenue_from_the_sale_of_works')
+            if row.revenue_from_the_sale_of_goods_amount_spec_exist == True:
+                row.revenue_from_the_sale_of_goods = self._get_sums_from_amount_spec_type(row, 'revenue_from_the_sale_of_goods')
+            if row.cost_of_goods_amount_spec_exist == True:
+                row.cost_of_goods = self._get_sums_from_amount_spec_type(row, 'cost_of_goods')
+            if row.travel_expenses_amount_spec_exist == True:
+                row.travel_expenses = self._get_sums_from_amount_spec_type(row, 'travel_expenses')
+            if row.third_party_works_amount_spec_exist == True:
+                row.third_party_works = self._get_sums_from_amount_spec_type(row, 'third_party_works')
+            if row.transportation_expenses_amount_spec_exist == True:
+                row.transportation_expenses = self._get_sums_from_amount_spec_type(row, 'transportation_expenses')
+            if row.representation_expenses_amount_spec_exist == True:
+                row.representation_expenses = self._get_sums_from_amount_spec_type(row, 'representation_expenses')
+            if row.rko_other_amount_spec_exist == True:
+                row.rko_other = self._get_sums_from_amount_spec_type(row, 'rko_other')
+            if row.warranty_service_costs_amount_spec_exist == True:
+                row.warranty_service_costs = self._get_sums_from_amount_spec_type(row, 'warranty_service_costs')
+            if row.other_expenses_amount_spec_exist == True:
+                row.other_expenses = self._get_sums_from_amount_spec_type(row, 'other_expenses')
+
+    def action_open_amount_spec_revenue_from_the_sale_of_works(self):
+        return {
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'new',
+            'res_model': 'project_budget.project_steps',
+            'view_id': self.env.ref("project_budget.show_step_amount_spec").id,
+            'res_id': self.id,
+            'type': 'ir.actions.act_window',
+            'context': {'revenue_from_the_sale_of_works': True,'projects_id':self.projects_id.id},
+            'flags': {'initial_mode': 'view'}
+        }
+
+    def action_open_amount_spec_revenue_from_the_sale_of_goods(self):
+        return {
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'new',
+            'res_model': 'project_budget.project_steps',
+            'view_id': self.env.ref("project_budget.show_step_amount_spec").id,
+            'res_id': self.id,
+            'type': 'ir.actions.act_window',
+            'context': {'revenue_from_the_sale_of_goods': True,'projects_id':self.projects_id.id},
+            'flags': {'initial_mode': 'view'}
+        }
+
+    def action_open_amount_spec_cost_of_goods(self):
+        return {
+                'view_mode': 'form',
+                'view_type': 'form',
+                'target': 'new',
+                'res_model': 'project_budget.project_steps',
+                'view_id': self.env.ref("project_budget.show_step_amount_spec").id,
+                'res_id': self.id,
+                'type': 'ir.actions.act_window',
+                'context': {'cost_of_goods': True,'projects_id':self.projects_id.id},
+                'flags': {'initial_mode': 'view'}
+                }
+
+    def action_open_amount_spec_travel_expenses(self):
+        return {
+                'view_mode': 'form',
+                'view_type': 'form',
+                'target': 'new',
+                'res_model': 'project_budget.project_steps',
+                'view_id': self.env.ref("project_budget.show_step_amount_spec").id,
+                'res_id': self.id,
+                'type': 'ir.actions.act_window',
+                'context': {'travel_expenses': True,'projects_id':self.projects_id.id},
+                'flags': {'initial_mode': 'view'}
+                }
+
+    def action_open_amount_spec_third_party_works(self):
+        return {
+                'view_mode': 'form',
+                'view_type': 'form',
+                'target': 'new',
+                'res_model': 'project_budget.project_steps',
+                'view_id': self.env.ref("project_budget.show_step_amount_spec").id,
+                'res_id': self.id,
+                'type': 'ir.actions.act_window',
+                'context': {'third_party_works': True,'projects_id':self.projects_id.id},
+                'flags': {'initial_mode': 'view'}
+                }
+
+    def action_open_amount_spec_representation_expenses(self):
+        return {
+                'view_mode': 'form',
+                'view_type': 'form',
+                'target': 'new',
+                'res_model': 'project_budget.project_steps',
+                'view_id': self.env.ref("project_budget.show_step_amount_spec").id,
+                'res_id': self.id,
+                'type': 'ir.actions.act_window',
+                'context': {'representation_expenses': True,'projects_id':self.projects_id.id},
+                'flags': {'initial_mode': 'view'}
+                }
+
+    def action_open_amount_spec_transportation_expenses(self):
+        return {
+                'view_mode': 'form',
+                'view_type': 'form',
+                'target': 'new',
+                'res_model': 'project_budget.project_steps',
+                'view_id': self.env.ref("project_budget.show_step_amount_spec").id,
+                'res_id': self.id,
+                'type': 'ir.actions.act_window',
+                'context': {'transportation_expenses': True,'projects_id':self.projects_id.id},
+                'flags': {'initial_mode': 'view'}
+                }
+
+    def action_open_amount_spec_rko_other(self):
+        return {
+                'view_mode': 'form',
+                'view_type': 'form',
+                'target': 'new',
+                'res_model': 'project_budget.project_steps',
+                'view_id': self.env.ref("project_budget.show_step_amount_spec").id,
+                'res_id': self.id,
+                'type': 'ir.actions.act_window',
+                'context': {'rko_other': True,'projects_id':self.projects_id.id},
+                'flags': {'initial_mode': 'view'}
+                }
+
+    def action_open_amount_spec_warranty_service_costs(self):
+        return {
+                'view_mode': 'form',
+                'view_type': 'form',
+                'target': 'new',
+                'res_model': 'project_budget.project_steps',
+                'view_id': self.env.ref("project_budget.show_step_amount_spec").id,
+                'res_id': self.id,
+                'type': 'ir.actions.act_window',
+                'context': {'warranty_service_costs': True,'projects_id':self.projects_id.id},
+                'flags': {'initial_mode': 'view'}
+                }
+
+    def action_open_amount_spec_other_expenses(self):
+        return {
+                'view_mode': 'form',
+                'view_type': 'form',
+                'target': 'new',
+                'res_model': 'project_budget.project_steps',
+                'view_id': self.env.ref("project_budget.show_step_amount_spec").id,
+                'res_id': self.id,
+                'type': 'ir.actions.act_window',
+                'context': {'other_expenses': True,'projects_id':self.projects_id.id},
+                'flags': {'initial_mode': 'view'}
+                }
+    def _exists_amount_spec(self):
+        for row in self:
+            row.revenue_from_the_sale_of_works_amount_spec_exist = self._get_amount_spec_type(row.amount_spec_ids, 'revenue_from_the_sale_of_works')
+            row.revenue_from_the_sale_of_goods_amount_spec_exist = self._get_amount_spec_type(row.amount_spec_ids, 'revenue_from_the_sale_of_goods')
+            row.cost_of_goods_amount_spec_exist = self._get_amount_spec_type(row.amount_spec_ids, 'cost_of_goods')
+            row.travel_expenses_amount_spec_exist = self._get_amount_spec_type(row.amount_spec_ids, 'travel_expenses')
+            row.third_party_works_amount_spec_exist = self._get_amount_spec_type(row.amount_spec_ids, 'third_party_works')
+            row.transportation_expenses_amount_spec_exist = self._get_amount_spec_type(row.amount_spec_ids, 'transportation_expenses')
+            row.representation_expenses_amount_spec_exist = self._get_amount_spec_type(row.amount_spec_ids, 'representation_expenses')
+            row.rko_other_amount_spec_exist = self._get_amount_spec_type(row.amount_spec_ids, 'rko_other')
+            row.warranty_service_costs_amount_spec_exist = self._get_amount_spec_type(row.amount_spec_ids, 'warranty_service_costs')
+            row.other_expenses_amount_spec_exist = self._get_amount_spec_type(row.amount_spec_ids, 'other_expenses')
+
     name_to_show = fields.Char(string = 'name_to_show', compute = '_get_name_to_show')
     projects_id = fields.Many2one('project_budget.projects', string='projects_id', index=True, ondelete='cascade')
     etalon_budget = fields.Boolean(related='projects_id.etalon_budget', readonly=True)
@@ -48,6 +285,17 @@ class project_steps(models.Model):
     is_other_expenses = fields.Boolean(related='project_steps_type_id.is_other_expenses', readonly=True)
     legal_entity_signing_id = fields.Many2one(related='projects_id.legal_entity_signing_id', readonly=True)
     is_percent_fot_manual = fields.Boolean(related='legal_entity_signing_id.is_percent_fot_manual', readonly=True)
+
+    revenue_from_the_sale_of_works_amount_spec_exist = fields.Boolean(string='revenue_from_the_sale_of_works_amount_spec_exist', compute="_exists_amount_spec")
+    revenue_from_the_sale_of_goods_amount_spec_exist = fields.Boolean(string='revenue_from_the_sale_of_goods_amount_spec_exist', compute="_exists_amount_spec")
+    cost_of_goods_amount_spec_exist = fields.Boolean(string='cost_of_goods_amount_spec_exist', compute="_exists_amount_spec")
+    travel_expenses_amount_spec_exist = fields.Boolean(string='travel_expenses_amount_spec_exist', compute="_exists_amount_spec")
+    third_party_works_amount_spec_exist= fields.Boolean(string='third_party_works_amount_spec_exist', compute="_exists_amount_spec")
+    transportation_expenses_amount_spec_exist= fields.Boolean(string='transportation_expenses_amount_spec_exist', compute="_exists_amount_spec")
+    representation_expenses_amount_spec_exist= fields.Boolean(string='representation_expenses_amount_spec_exist', compute="_exists_amount_spec")
+    rko_other_amount_spec_exist= fields.Boolean(string='rko_other_amount_spec_exist', compute="_exists_amount_spec")
+    warranty_service_costs_amount_spec_exist= fields.Boolean(string='warranty_service_costs_amount_spec_exist', compute="_exists_amount_spec")
+    other_expenses_amount_spec_exist= fields.Boolean(string='other_expenses_amount_spec_exist', compute="_exists_amount_spec")
 
     # vat_attribute_id = fields.Many2one('project_budget.vat_attribute', string='vat_attribute', copy=True, required=True
     #                                     ,default = lambda self: self.env['project_budget.vat_attribute'].search([],limit=1))
@@ -90,16 +338,25 @@ class project_steps(models.Model):
 
     was_changes = fields.Boolean(string="was_changes", copy=True, default=True)
 
+    amount_spec_ids = fields.One2many(
+        comodel_name='project_budget.step_amount_spec',
+        inverse_name='step_id', string="amount spec of project sum", auto_join=True, copy=True,
+        domain = _get_domainamount_spec,
+    )
+
+    current_amount_spec_type = fields.Char(string= "current amount spec type", compute="_get_current_amount_spec_type")
+
     @api.onchange('currency_id','essence_project','end_presale_project_month','end_sale_project_month','vat_attribute_id','total_amount_of_revenue',
                   'total_amount_of_revenue_with_vat','revenue_from_the_sale_of_works','revenue_from_the_sale_of_goods','cost_price','cost_of_goods','own_works_fot',
                   'third_party_works','awards_on_results_project','transportation_expenses','travel_expenses','representation_expenses','taxes_fot_premiums','warranty_service_costs',
                   'rko_other','other_expenses','margin_income','profitability','estimated_probability_id','legal_entity_signing_id','project_steps_type_id',
-                  'code','dogovor_number'
+                  'code','dogovor_number','amount_spec_ids'
                 )
     def _check_changes_step(self):
         print('_check_changes_step')
         for row in self:
             print('_check_changes_step = ', row.id)
+            self._compute_sums_from_amount_spec()
             if row.project_steps_type_id.is_revenue_from_the_sale_of_works == False: row.revenue_from_the_sale_of_works = 0
             if row.project_steps_type_id.is_revenue_from_the_sale_of_goods == False: row.revenue_from_the_sale_of_goods = 0
             if row.project_steps_type_id.is_cost_of_goods == False: row.cost_of_goods = 0
@@ -121,9 +378,10 @@ class project_steps(models.Model):
     @api.depends("revenue_from_the_sale_of_works", 'revenue_from_the_sale_of_goods', 'cost_of_goods', 'own_works_fot',
                  'third_party_works', "awards_on_results_project", 'transportation_expenses', 'travel_expenses',
                  'representation_expenses',"warranty_service_costs", 'rko_other', 'other_expenses', 'vat_attribute_id',
-                 'projects_id.legal_entity_signing_id', 'taxes_fot_premiums')
+                 'projects_id.legal_entity_signing_id', 'taxes_fot_premiums','amount_spec_ids')
     def _compute_spec_totals(self):
         for budget_spec in self:
+            self._compute_sums_from_amount_spec()
             budget_spec.total_amount_of_revenue = budget_spec.revenue_from_the_sale_of_works + budget_spec.revenue_from_the_sale_of_goods
 
             budget_spec.cost_price = budget_spec.cost_of_goods + budget_spec.own_works_fot + budget_spec.third_party_works + budget_spec.awards_on_results_project
