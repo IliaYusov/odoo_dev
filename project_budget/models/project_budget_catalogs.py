@@ -182,6 +182,7 @@ class legal_entity_signing(models.Model):
     percent_fot = fields.Float(string="fot_percent", required=True, default=0)
     is_percent_fot_manual = fields.Boolean(string="Manual fot_percent", default=0)
     descr = fields.Char(string="legal_entity_signing description", translate=True)
+    different_project_offices_in_steps = fields.Boolean(string='different project_offices in steps', default=False)
 
 class technological_direction(models.Model):
     _name = 'project_budget.technological_direction'

@@ -539,6 +539,7 @@
                     <field name="percent_fot"/>
                     <field name="descr"/>
                     <field name="is_percent_fot_manual" widget="boolean_toggle"/>
+                    <field name="different_project_offices_in_steps" widget="boolean_toggle"/>
                 </tree>
             </field>
         </record>
@@ -557,6 +558,10 @@
                             <field name="is_percent_fot_manual" widget="boolean_toggle"/>
                             <field name="percent_fot" placeholder="enter FOT percent. e.g. 25"
                                    attrs="{'invisible': [('is_percent_fot_manual', '=', True)]}"
+                            />
+                        </group>
+                        <group>
+                            <field name="different_project_offices_in_steps" widget="boolean_toggle"/>
                             />
                         </group>
                         <group>
