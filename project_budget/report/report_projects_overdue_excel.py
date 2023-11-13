@@ -96,12 +96,14 @@ class report_projects_overdue_excel(models.AbstractModel):
 
             if isok == True: continue
             estimated_probability_id_name = ""
+            step_project_office_name = ''
             if 'step_id' in dictvalues:
                 step_id = dictvalues['step_id']
                 step_obj = self.env['project_budget.project_steps'].search(
                     [('step_id', '=', step_id),('projects_id','=',spec.id)], limit=1)
                 if step_obj:
                     estimated_probability_id_name = step_obj.estimated_probability_id.name
+                    step_project_office_name = step_obj.project_office_id.name
             else:
                 estimated_probability_id_name = spec.estimated_probability_id.name
 
@@ -109,7 +111,12 @@ class report_projects_overdue_excel(models.AbstractModel):
 
             row += 1
             column = 0
-            sheet.write_string(row, column, spec.project_office_id.name, row_format)
+
+            if step_project_office_name and spec.legal_entity_signing_id.different_project_offices_in_steps:
+                sheet.write_string(row, column, step_project_office_name, row_format)
+            else:
+                sheet.write_string(row, column, spec.project_office_id.name, row_format)
+
             column += 1
             sheet.write_string(row, column, estimated_probability_id_name, row_format)
 

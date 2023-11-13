@@ -251,11 +251,6 @@ class project_steps(models.Model):
             row.warranty_service_costs_amount_spec_exist = self._get_amount_spec_type(row.amount_spec_ids, 'warranty_service_costs')
             row.other_expenses_amount_spec_exist = self._get_amount_spec_type(row.amount_spec_ids, 'other_expenses')
 
-    @api.onchange('project_office_id')
-    def _get_project_office_from_project(self):
-        if not self.project_office_id:
-            return {'value': {'project_office_id': self.projects_id.project_office_id.id}}
-
     name_to_show = fields.Char(string = 'name_to_show', compute = '_get_name_to_show')
     projects_id = fields.Many2one('project_budget.projects', string='projects_id', index=True, ondelete='cascade')
     different_project_offices_in_steps = fields.Boolean(related='projects_id.legal_entity_signing_id.different_project_offices_in_steps', readonly=True)

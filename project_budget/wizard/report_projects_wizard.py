@@ -74,10 +74,10 @@ class report_projects_wizard(models.TransientModel):
         if self.type_report == 'management_committee':
             report_obj = self.env.ref('project_budget.action_projects_list_report_xlsx_management_committee')
             # name = {"en_US": "Projects Report Management Committee", "ru_RU": "Отчет для УК"}  # на память
-            companies = ''
-            for company_id in self.env.context.get('allowed_company_ids', ''):
-                companies += self.env['res.company'].search([('id', '=', company_id)]).name.strip().replace(' ', '_') + '_'
-            report_obj.sudo().name = f"{companies}_{datetime.now(pytz.timezone('Europe/Moscow')).strftime('%Y%m%d_%H%M%S')}"
+            # companies = ''
+            # for company_id in self.env.context.get('allowed_company_ids', ''):
+            #     companies += self.env['res.company'].search([('id', '=', company_id)]).name.strip().replace(' ', '_') + '_'
+            # report_obj.sudo().name = f"{companies}_{datetime.now(pytz.timezone('Europe/Moscow')).strftime('%Y%m%d_%H%M%S')}"
             return report_obj.report_action(self, data=datas)
 
         if self.type_report == 'pds_acceptance_by_date':

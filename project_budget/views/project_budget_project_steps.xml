@@ -51,7 +51,7 @@
                                 <field name="dogovor_number"/>
                             </group>
                             <group>
-                                <field name="project_office_id" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')], 'invisible': [('different_project_offices_in_steps', '!=', True)]}"/>
+                                <field name="project_office_id" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')], 'invisible': [('different_project_offices_in_steps', '!=', True)],  'required': [('different_project_offices_in_steps', '=', True)]}"/>
                                 <field name="different_project_offices_in_steps" invisible="1"/>
                             </group>
                         </group>

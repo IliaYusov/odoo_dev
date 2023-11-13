@@ -1392,6 +1392,11 @@ msgid "Manual fot_percent"
 msgstr "Ручной % ФОТ"
 
 #. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_legal_entity_signing__different_project_offices_in_steps
+msgid "different project offices in steps"
+msgstr "Различные проектные офисы в этапах проектов"
+
+#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_acceptance_flow__margin_manual_input
 msgid "Manual input of margin"
 msgstr "Ввести маржу вручную"
@@ -3762,6 +3767,7 @@ msgstr "КАМ проекта (все его проекты будут дост�
 
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.view_projects_search
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__project_office_id
 msgid "project office"
 msgstr "Проектный офис"
 

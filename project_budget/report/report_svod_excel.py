@@ -995,8 +995,11 @@ class report_svod_excel(models.AbstractModel):
         global year_end
 
         if project_office:
-            projects = self.env['project_budget.projects'].search(
-                [('commercial_budget_id', '=', budget.id), ('project_office_id', '=', project_office.id)])
+            projects = self.env['project_budget.projects'].search([
+                '|', ('project_office_id', '=', project_office.id),
+                ('legal_entity_signing_id.different_project_offices_in_steps', '=', True),
+                ('commercial_budget_id', '=', budget.id),
+            ])
         else:
             projects = self.env['project_budget.projects'].search([('commercial_budget_id', '=', budget.id)])
         sum_contract_year = 0
@@ -1018,31 +1021,35 @@ class report_svod_excel(models.AbstractModel):
             currency_rate = self.get_currency_rate_by_project(project)
             if project.project_have_steps:
                 for step in project.project_steps_ids:
-                    if step.estimated_probability_id.name in ('100','100(done)', '75', '50'):
-                        for pds in project.planned_cash_flow_ids:
-                            if pds.project_steps_id.id == step.id:
-                                if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end:
-                                    sum_pds_year += pds.sum_cash
-                                    if pds.date_cash.month in (1, 2, 3):
-                                        sum_pds_q1 += pds.sum_cash
-                                    if pds.date_cash.month in (4, 5, 6):
-                                        sum_pds_q2 += pds.sum_cash
-                                    if pds.date_cash.month in (7, 8, 9):
-                                        sum_pds_q3 += pds.sum_cash
-                                    if pds.date_cash.month in (10, 11, 12):
-                                        sum_pds_q4 += pds.sum_cash
-                        for act in project.planned_acceptance_flow_ids:
-                            if act.project_steps_id.id == step.id:
-                                if act.date_cash.year >= YEARint and act.date_cash.year <= year_end:
-                                    sum_act_year += act.sum_cash_without_vat
-                                    if act.date_cash.month in (1, 2, 3):
-                                        sum_act_q1 += act.sum_cash_without_vat
-                                    if act.date_cash.month in (4, 5, 6):
-                                        sum_act_q2 += act.sum_cash_without_vat
-                                    if act.date_cash.month in (7, 8, 9):
-                                        sum_act_q3 += act.sum_cash_without_vat
-                                    if act.date_cash.month in (10, 11, 12):
-                                        sum_act_q4 += act.sum_cash_without_vat
+
+                    if ((project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
+                            or ((not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
+
+                        if step.estimated_probability_id.name in ('100','100(done)', '75', '50'):
+                            for pds in project.planned_cash_flow_ids:
+                                if pds.project_steps_id.id == step.id:
+                                    if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end:
+                                        sum_pds_year += pds.sum_cash
+                                        if pds.date_cash.month in (1, 2, 3):
+                                            sum_pds_q1 += pds.sum_cash
+                                        if pds.date_cash.month in (4, 5, 6):
+                                            sum_pds_q2 += pds.sum_cash
+                                        if pds.date_cash.month in (7, 8, 9):
+                                            sum_pds_q3 += pds.sum_cash
+                                        if pds.date_cash.month in (10, 11, 12):
+                                            sum_pds_q4 += pds.sum_cash
+                            for act in project.planned_acceptance_flow_ids:
+                                if act.project_steps_id.id == step.id:
+                                    if act.date_cash.year >= YEARint and act.date_cash.year <= year_end:
+                                        sum_act_year += act.sum_cash_without_vat
+                                        if act.date_cash.month in (1, 2, 3):
+                                            sum_act_q1 += act.sum_cash_without_vat
+                                        if act.date_cash.month in (4, 5, 6):
+                                            sum_act_q2 += act.sum_cash_without_vat
+                                        if act.date_cash.month in (7, 8, 9):
+                                            sum_act_q3 += act.sum_cash_without_vat
+                                        if act.date_cash.month in (10, 11, 12):
+                                            sum_act_q4 += act.sum_cash_without_vat
 
                     if step.estimated_probability_id.name in ('75', '50'):
                         if step.end_presale_project_month.year >= YEARint and step.end_presale_project_month.year <= year_end:
@@ -1056,7 +1063,7 @@ class report_svod_excel(models.AbstractModel):
                             if step.end_presale_project_month.month in (10, 11, 12):
                                 sum_contract_q4 += step.total_amount_of_revenue_with_vat*currency_rate
             else:
-                if project.estimated_probability_id.name in ('75', '50','100','100(done)'):
+                if project.project_office_id == project_office and project.estimated_probability_id.name in ('75', '50','100','100(done)'):
                     if project.end_presale_project_month.year >= YEARint and project.end_presale_project_month.year <= year_end:
                         sum_contract_year += project.total_amount_of_revenue_with_vat*currency_rate
                         if project.end_presale_project_month.month in (1, 2, 3):
@@ -1303,102 +1310,114 @@ class report_svod_excel(models.AbstractModel):
                 isFoundProjects = False
 
                 for estimated_probability in estimated_probabilitys:
-                    cur_budget_projects = self.env['project_budget.projects'].search(
-                        [('commercial_budget_id', '=', budget.id), ('project_office_id', '=', project_office.id),
-                         ('project_manager_id', '=', project_manager.id), ('estimated_probability_id', '=', estimated_probability.id)]
+                    cur_budget_projects = self.env['project_budget.projects'].search([
+                        '|', ('project_office_id', '=', project_office.id),
+                        ('legal_entity_signing_id.different_project_offices_in_steps', '=', True),
+                        ('commercial_budget_id', '=', budget.id),
+                        ('project_manager_id', '=', project_manager.id),
+                        ('estimated_probability_id', '=', estimated_probability.id)]
                         )
                     for spec in cur_budget_projects:
-                        if spec.is_framework == True and spec.project_have_steps == False: continue # рамка без этапов - пропускаем
-                        if self.isProjectinYear(spec) == False : continue
-                        if (spec.vgo == '-'):
-                            if isFoundProjectsByOffice == False:  # первый вход
-                                row += 1
-                                formulaProjectOfficeRow = row
-                                row = self.print_etalon_budgets_name(budget, project_office, sheet, row, row_format_office)
-                                row = row - 1
-                                formulaProjectOfficeRow_end = row
-                                formulaProjectOffice_plan = "= {0}" + str(row) + " - {1}"+str(formulaProjectOfficeRow + 1)+" + {2}"+str(formulaProjectOfficeRow + 1)
-                                for i in self.array_itogi_merge_office:
-                                    sheet.merge_range(formulaProjectOfficeRow, i, row, i , '', row_format_office)
+                        if spec.project_office_id == project_office or spec.legal_entity_signing_id.different_project_offices_in_steps and any(step.project_office_id == project_office for step in spec.project_steps_ids):
+                            if spec.is_framework == True and spec.project_have_steps == False: continue # рамка без этапов - пропускаем
+                            if self.isProjectinYear(spec) == False : continue
+                            if (spec.vgo == '-'):
+                                if isFoundProjectsByOffice == False:  # первый вход
+                                    row += 1
+                                    formulaProjectOfficeRow = row
+                                    row = self.print_etalon_budgets_name(budget, project_office, sheet, row, row_format_office)
+                                    row = row - 1
+                                    formulaProjectOfficeRow_end = row
+                                    formulaProjectOffice_plan = "= {0}" + str(row) + " - {1}"+str(formulaProjectOfficeRow + 1)+" + {2}"+str(formulaProjectOfficeRow + 1)
+                                    for i in self.array_itogi_merge_office:
+                                        sheet.merge_range(formulaProjectOfficeRow, i, row, i , '', row_format_office)
 
-                            isFoundProjects = True
-                            isFoundProjectsByOffice = True
-                            row += 1
-                            if begRowProjectsByManager == 0:
-                                begRowProjectsByManager = row
+                                isFoundProjects = True
+                                isFoundProjectsByOffice = True
+                                row += 1
+                                if begRowProjectsByManager == 0:
+                                    begRowProjectsByManager = row
                             if spec.project_have_steps:
                                 for step in spec.project_steps_ids:
-                                    if self.isStepinYear(spec, step) == False: continue
+
+                                    if ((spec.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
+                                            or ((not spec.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and spec.project_office_id == project_office)):
+
+                                        if self.isStepinYear(spec, step) == False: continue
+                                        sheet.set_row(row, None, None, {'hidden': 1, 'level': 2})
+                                        # print('setrow level2 row = ',row)
+                                        cur_row_format = row_format
+                                        cur_row_format_number = row_format_number
+                                        # print('step.estimated_probability_id.name = ' + step.estimated_probability_id.name)
+                                        etalon_step = self.get_etalon_step(step)
+                                        etalon_probability_int = 0
+                                        if etalon_step:
+                                            etalon_probability_int = self.getintestimated_probability(etalon_step.estimated_probability_id.name)
+                                        current_probability_int = 0
+                                        if step:
+                                            current_probability_int = self.getintestimated_probability(step.estimated_probability_id.name)
+                                        Probability_format = cur_row_format
+                                        if current_probability_int > etalon_probability_int :
+                                            Probability_format = row_format_number_probability_up
+                                        if current_probability_int < etalon_probability_int:
+                                            Probability_format = row_format_number_probability_down
+                                        if step.estimated_probability_id.name == '0':
+                                            # print('row_format_canceled_project')
+                                            cur_row_format = row_format_canceled_project
+                                            cur_row_format_number = row_format_number_canceled_project
+                                        column = 0
+                                        if spec.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id:
+                                            sheet.write_string(row, column, step.project_office_id.name, cur_row_format)
+                                        else:
+                                            sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
+                                        column += 1
+                                        sheet.write_string(row, column, spec.customer_organization_id.name, cur_row_format)
+                                        column += 1
+                                        sheet.write_string(row, column, spec.project_id + ' | ' + step.step_id + ' ' +step.essence_project, cur_row_format)
+                                        column += 1
+                                        sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
+                                        column += 1
+                                        sheet.write_string(row, column, step.estimated_probability_id.name, Probability_format)
+                                        column += 1
+                                        self.print_row_Values(workbook, sheet, row, column, spec, step, cur_row_format_number)
+                                        row += 1
+                                row -= 1
+                            else:
+                                if spec.project_office_id == project_office:
                                     sheet.set_row(row, None, None, {'hidden': 1, 'level': 2})
-                                    # print('setrow level2 row = ',row)
+                                    # print('setrow level2 row = ', row)
                                     cur_row_format = row_format
                                     cur_row_format_number = row_format_number
-                                    # print('step.estimated_probability_id.name = ' + step.estimated_probability_id.name)
-                                    etalon_step = self.get_etalon_step(step)
+                                    # print('spec.estimated_probability_id.name = ' + spec.estimated_probability_id.name)
+                                    etalon_spec = self.get_etalon_project(spec)
                                     etalon_probability_int = 0
-                                    if etalon_step:
-                                        etalon_probability_int = self.getintestimated_probability(etalon_step.estimated_probability_id.name)
+                                    if etalon_spec:
+                                        etalon_probability_int = self.getintestimated_probability(etalon_spec.estimated_probability_id.name)
                                     current_probability_int = 0
-                                    if step:
-                                        current_probability_int = self.getintestimated_probability(step.estimated_probability_id.name)
+                                    if spec:
+                                        current_probability_int = self.getintestimated_probability(spec.estimated_probability_id.name)
                                     Probability_format = cur_row_format
-                                    if current_probability_int > etalon_probability_int :
+                                    if current_probability_int > etalon_probability_int:
                                         Probability_format = row_format_number_probability_up
                                     if current_probability_int < etalon_probability_int:
                                         Probability_format = row_format_number_probability_down
-                                    if step.estimated_probability_id.name == '0':
+                                    if spec.estimated_probability_id.name == '0':
                                         # print('row_format_canceled_project')
                                         cur_row_format = row_format_canceled_project
                                         cur_row_format_number = row_format_number_canceled_project
+
                                     column = 0
                                     sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
                                     column += 1
                                     sheet.write_string(row, column, spec.customer_organization_id.name, cur_row_format)
                                     column += 1
-                                    sheet.write_string(row, column, spec.project_id + ' | ' + step.step_id + ' ' +step.essence_project, cur_row_format)
+                                    sheet.write_string(row, column, spec.project_id + ' ' + spec.essence_project, cur_row_format)
                                     column += 1
                                     sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
                                     column += 1
-                                    sheet.write_string(row, column, step.estimated_probability_id.name, Probability_format)
+                                    sheet.write_string(row, column, spec.estimated_probability_id.name, Probability_format)
                                     column += 1
-                                    self.print_row_Values(workbook, sheet, row, column, spec, step, cur_row_format_number)
-                                    row += 1
-                                row -= 1
-                            else:
-                                sheet.set_row(row, None, None, {'hidden': 1, 'level': 2})
-                                # print('setrow level2 row = ', row)
-                                cur_row_format = row_format
-                                cur_row_format_number = row_format_number
-                                # print('spec.estimated_probability_id.name = ' + spec.estimated_probability_id.name)
-                                etalon_spec = self.get_etalon_project(spec)
-                                etalon_probability_int = 0
-                                if etalon_spec:
-                                    etalon_probability_int = self.getintestimated_probability(etalon_spec.estimated_probability_id.name)
-                                current_probability_int = 0
-                                if spec:
-                                    current_probability_int = self.getintestimated_probability(spec.estimated_probability_id.name)
-                                Probability_format = cur_row_format
-                                if current_probability_int > etalon_probability_int:
-                                    Probability_format = row_format_number_probability_up
-                                if current_probability_int < etalon_probability_int:
-                                    Probability_format = row_format_number_probability_down
-                                if spec.estimated_probability_id.name == '0':
-                                    # print('row_format_canceled_project')
-                                    cur_row_format = row_format_canceled_project
-                                    cur_row_format_number = row_format_number_canceled_project
-
-                                column = 0
-                                sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
-                                column += 1
-                                sheet.write_string(row, column, spec.customer_organization_id.name, cur_row_format)
-                                column += 1
-                                sheet.write_string(row, column, spec.project_id + ' ' + spec.essence_project, cur_row_format)
-                                column += 1
-                                sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
-                                column += 1
-                                sheet.write_string(row, column, spec.estimated_probability_id.name, Probability_format)
-                                column += 1
-                                self.print_row_Values(workbook, sheet, row, column, spec, False, cur_row_format_number)
+                                    self.print_row_Values(workbook, sheet, row, column, spec, False, cur_row_format_number)
                 # print('isFoundProjects = ' ,isFoundProjects)
                 if isFoundProjects:
                     row += 1

@@ -2614,7 +2614,7 @@ class report_pds_weekly_excel(models.AbstractModel):
                     # row += 1
                     # sheet.write_string(row, column, project_office.name, row_format)
 
-                for spec in cur_budget_projects.filtered(lambda r: r.project_office_id == project_office):
+                for spec in cur_budget_projects.filtered(lambda r: r.project_office_id == project_office or (r.legal_entity_signing_id.different_project_offices_in_steps and r.project_have_steps)):
                     if spec.is_framework is True and spec.project_have_steps is False: continue # рамка без этапов - пропускаем
                     if spec.vgo == '-':
 
@@ -2623,7 +2623,9 @@ class report_pds_weekly_excel(models.AbstractModel):
 
                         if spec.project_have_steps:
                             for step in spec.project_steps_ids:
-                                if (spec.project_office_id == project_office
+
+                                if (((spec.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
+                                    or ((not spec.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and spec.project_office_id == project_office))
                                     and spec.company_id == company
                                     and step.estimated_probability_id.name in ['100done', '100', '75', '50']
                                     and self.isStepinYear(spec, step)
@@ -2644,7 +2646,10 @@ class report_pds_weekly_excel(models.AbstractModel):
                                         cur_row_format = row_format_canceled_project
                                         cur_row_format_number = row_format_number_canceled_project
                                     column = 0
-                                    sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
+                                    if spec.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id:
+                                        sheet.write_string(row, column, step.project_office_id.name, cur_row_format)
+                                    else:
+                                        sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
                                     column += 1
                                     sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
                                     column += 1

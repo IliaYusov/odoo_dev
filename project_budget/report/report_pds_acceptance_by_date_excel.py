@@ -173,7 +173,10 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
 
                     sheet.write_string(row, column, project.company_id.name, row_format)
                     column += 1
-                    sheet.write_string(row, column, project.project_office_id.name, row_format)
+                    if project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id:
+                        sheet.write_string(row, column, step.project_office_id.name, row_format)
+                    else:
+                        sheet.write_string(row, column, project.project_office_id.name, row_format)
                     column += 1
                     sheet.write_string(row, column, project.project_manager_id.name, row_format)
                     column += 1

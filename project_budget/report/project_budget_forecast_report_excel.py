@@ -1322,14 +1322,15 @@ class report_budget_forecast_excel(models.AbstractModel):
             ('commercial_budget_id', '=', budget.id),
         ])
 
-        cur_project_offices = project_offices.filtered(lambda r: r in cur_budget_projects.project_office_id or r in {office.parent_id for office in cur_budget_projects.project_office_id if office.parent_id in project_offices})
+        # cur_project_offices = project_offices.filtered(lambda r: r in cur_budget_projects.project_office_id or r in {office.parent_id for office in cur_budget_projects.project_office_id if office.parent_id in project_offices})
+        cur_project_offices = project_offices
         cur_project_managers = project_managers.filtered(lambda r: r in cur_budget_projects.project_manager_id)
         cur_estimated_probabilities = estimated_probabilitys.filtered(lambda r: r in cur_budget_projects.estimated_probability_id)
         # print('cur_budget_projects=',cur_budget_projects)
-        print('****')
-        print('project_offices=',project_offices)
+        # print('****')
+        # print('project_offices=',project_offices)
         # print('project_managers=',project_managers)
-        print('cur_project_offices=',cur_project_offices)
+        # print('cur_project_offices=',cur_project_offices)
         # print('cur_project_managers=', cur_project_managers)
         # print('cur_estimated_probabilities=', cur_estimated_probabilities)
 
@@ -1381,7 +1382,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                     # row += 1
                     # sheet.write_string(row, column, project_office.name, row_format)
 
-                    for spec in cur_budget_projects.filtered(lambda x: x.project_office_id == project_office and x.project_manager_id == project_manager):
+                    for spec in cur_budget_projects.filtered(lambda x: (x.project_office_id == project_office or (x.legal_entity_signing_id.different_project_offices_in_steps and x.project_have_steps)) and x.project_manager_id == project_manager):
                         # if spec.estimated_probability_id.name != '0':
                         if spec.is_framework == True and spec.project_have_steps == False: continue # рамка без этапов - пропускаем
                         if spec.vgo == '-':
@@ -1395,51 +1396,58 @@ class report_budget_forecast_excel(models.AbstractModel):
 
                             if spec.project_have_steps:
                                 for step in spec.project_steps_ids:
-                                    if step.estimated_probability_id == estimated_probability:
-                                        if self.isStepinYear( spec, step) == False:
-                                            continue
-                                        isFoundProjectsByManager = True
-                                        isFoundProjectsByOffice = True
-                                        isFoundProjectsByProbability = True
 
-                                        row += 1
-                                        sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
-                                        # print('setrow  row = ',row)
-                                        # print('setrow  level = ', level)
-                                        cur_row_format = row_format
-                                        cur_row_format_number = row_format_number
-                                        # print('step.estimated_probability_id.name = ' + step.estimated_probability_id.name)
-                                        if step.estimated_probability_id.name == '0':
-                                            # print('row_format_canceled_project')
-                                            cur_row_format = row_format_canceled_project
-                                            cur_row_format_number = row_format_number_canceled_project
-                                        column = 0
-                                        sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
-                                        column += 1
-                                        sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
-                                        column += 1
-                                        sheet.write_string(row, column, spec.customer_organization_id.name, cur_row_format)
-                                        column += 1
-                                        sheet.write_string(row, column, (step.essence_project or ''), cur_row_format)
-                                        column += 1
-                                        sheet.write_string(row, column, (step.code or '') +' | '+ spec.project_id + " | "+step.step_id, cur_row_format)
-                                        column += 1
-                                        sheet.write_string(row, column, self.get_estimated_probability_name_forecast(step.estimated_probability_id.name), cur_row_format)
-                                        column += 1
-                                        sheet.write_number(row, column, step.total_amount_of_revenue_with_vat*cur_project_rate, cur_row_format_number)
-                                        column += 1
-                                        sheet.write_number(row, column, step.margin_income*cur_project_rate, cur_row_format_number)
-                                        column += 1
-                                        sheet.write_number(row, column, step.profitability*cur_project_rate, cur_row_format_number)
-                                        column += 1
-                                        sheet.write_string(row, column, step.dogovor_number or '', cur_row_format)
-                                        column += 1
-                                        sheet.write_string(row, column, step.vat_attribute_id.name or '', cur_row_format)
-                                        column += 1
-                                        sheet.write_string(row, column, '', head_format_1)
-                                        self.print_row_Values(workbook, sheet, row, column,  spec, step)
+                                    if ((spec.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
+                                            or ((not spec.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and spec.project_office_id == project_office)):
+
+                                        if step.estimated_probability_id == estimated_probability:
+                                            if self.isStepinYear( spec, step) == False:
+                                                continue
+                                            isFoundProjectsByManager = True
+                                            isFoundProjectsByOffice = True
+                                            isFoundProjectsByProbability = True
+
+                                            row += 1
+                                            sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
+                                            # print('setrow  row = ',row)
+                                            # print('setrow  level = ', level)
+                                            cur_row_format = row_format
+                                            cur_row_format_number = row_format_number
+                                            # print('step.estimated_probability_id.name = ' + step.estimated_probability_id.name)
+                                            if step.estimated_probability_id.name == '0':
+                                                # print('row_format_canceled_project')
+                                                cur_row_format = row_format_canceled_project
+                                                cur_row_format_number = row_format_number_canceled_project
+                                            column = 0
+                                            if spec.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id:
+                                                sheet.write_string(row, column, step.project_office_id.name, cur_row_format)
+                                            else:
+                                                sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
+                                            column += 1
+                                            sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
+                                            column += 1
+                                            sheet.write_string(row, column, spec.customer_organization_id.name, cur_row_format)
+                                            column += 1
+                                            sheet.write_string(row, column, (step.essence_project or ''), cur_row_format)
+                                            column += 1
+                                            sheet.write_string(row, column, (step.code or '') +' | '+ spec.project_id + " | "+step.step_id, cur_row_format)
+                                            column += 1
+                                            sheet.write_string(row, column, self.get_estimated_probability_name_forecast(step.estimated_probability_id.name), cur_row_format)
+                                            column += 1
+                                            sheet.write_number(row, column, step.total_amount_of_revenue_with_vat*cur_project_rate, cur_row_format_number)
+                                            column += 1
+                                            sheet.write_number(row, column, step.margin_income*cur_project_rate, cur_row_format_number)
+                                            column += 1
+                                            sheet.write_number(row, column, step.profitability*cur_project_rate, cur_row_format_number)
+                                            column += 1
+                                            sheet.write_string(row, column, step.dogovor_number or '', cur_row_format)
+                                            column += 1
+                                            sheet.write_string(row, column, step.vat_attribute_id.name or '', cur_row_format)
+                                            column += 1
+                                            sheet.write_string(row, column, '', head_format_1)
+                                            self.print_row_Values(workbook, sheet, row, column,  spec, step)
                             else:
-                                if spec.estimated_probability_id == estimated_probability:
+                                if spec.project_office_id == project_office and spec.estimated_probability_id == estimated_probability:
                                     if self.isProjectinYear(spec) == False:
                                         continue
                                     row += 1

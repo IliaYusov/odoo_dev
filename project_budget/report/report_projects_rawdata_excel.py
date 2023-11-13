@@ -317,7 +317,10 @@ class report_projects_rawdata_excel(models.AbstractModel):
                         column += 1
                         sheet.write_string(row, column, spec.currency_id.name, row_format)
                         column += 1
-                        sheet.write_string(row, column, spec.project_office_id.name, row_format)
+                        if spec.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id:
+                            sheet.write_string(row, column, step.project_office_id.name, row_format)
+                        else:
+                            sheet.write_string(row, column, spec.project_office_id.name, row_format)
                         column += 1
                         sheet.write_string(row, column, spec.project_supervisor_id.name, row_format)
                         column += 1
