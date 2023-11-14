@@ -272,7 +272,7 @@ class project_steps(models.Model):
     currency_id = fields.Many2one('res.currency', string='Account Currency', related='projects_id.currency_id', readonly=True)
     project_steps_type_id = fields.Many2one('project_budget.project_steps_type', string='project steps type', required=True, copy=True)
     project_office_id = fields.Many2one('project_budget.project_office', string='project office',
-                                        copy=True, tracking=True, check_company=True, required=True,
+                                        copy=True, tracking=True, check_company=True,
                                         domain="[('is_prohibit_selection','=', False)]",
                                         )
 
