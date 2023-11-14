@@ -19,6 +19,16 @@ class Task(models.Model):
                                       compute='_compute_parent_obj', readonly=True)
     role_executor_id = fields.Many2one('document_flow.role_executor', string='Group', tracking=True)
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super(Task, self).create(vals_list)
+        for record in records:
+            if record.role_executor_id and not record.user_ids:
+                record._send_message_notify(
+                    self.env.ref('task.mail_template_task_assigned_notify', raise_if_not_found=False),
+                    record.role_executor_id.member_ids)
+        return records
+
     # TODO: Принять решение об архитектуре предметов согласования
     def _compute_parent_obj(self):
         for task in self:

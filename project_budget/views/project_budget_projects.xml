@@ -615,6 +615,7 @@
                                     <tree editable="bottom" default_order="date_cash">
                                         <button name="action_copy_planned_acceptance" type="object" title="Copy acceptance" string="Copy acceptance" class="btn btn-link"/>
                                         <field name="acceptance_id"/>
+                                        <field name="forecast"/>
                                         <field name="project_have_steps" invisible="True"/>
                                         <field name="date_cash" placeholder="enter planned cash flow date"/>
                                         <field name="project_steps_id" options="{'no_open': True,}" placeholder="select project steps"
@@ -650,6 +651,7 @@
                                         <button name="action_copy_planned_cash" type="object" title="Copy cash" string="Copy cash" class="btn btn-link"/>
                                         <field name="project_have_steps" invisible="True"/>
                                         <field name="cash_id" invisible="False"/>
+                                        <field name="forecast"/>
                                         <field name="date_cash" placeholder="enter planned cash flow date"/>
                                         <field name="project_steps_id" options="{'no_open': True,}" placeholder="select project steps"
                                                attrs="{'column_invisible': [('parent.project_have_steps', '=', False)], 'required': [('parent.project_have_steps', '=', True)]}"

@@ -15,7 +15,7 @@
                                 </group>
                             </group>
                         </h4>
-                        <field name="project_id"/>
+                        <field name="project_id" readonly="1"/>
                         <field name="current_amount_spec_type"/>
                         <field name="amount_spec_ids" widget="section_and_note_one2many"
                                mode="tree" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"

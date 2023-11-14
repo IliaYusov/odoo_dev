@@ -1,9 +1,9 @@
 {
-    'name' : 'Project_budget',
-    'version' : '16.0.1.1.2',
+    'name': 'Project_budget',
+    'version': '16.0.1.1.2',
     'category': 'Project',
-    'depends': ['base','mail','uom'],
-    'description':"""
+    'depends': ['base', 'mail'],
+    'description': """
     """,
     'author': 'lapus',
     'support': 'lapushkov@yandex.ru',
@@ -17,12 +17,13 @@
             'project_budget/static/src/xml/dashboard_view.xml'
             # 'project_budget/static/src/js/set_row_bgcolor.js',
         ],
-        },
+    },
     'data': [
         'security/project_budget_users_groups.xml',
         'security/project_budget_users_rules.xml',
         'security/ir.model.access.csv',
         'data/project_budget_data.xml',
+        'data/ir_cron_data.xml',
         'views/project_sequence.xml',
         'views/plan_kam_supervisor.xml',
         'views/fact_cash_flow.xml',
@@ -39,17 +40,17 @@
         'views/project_budget_comercial_budget.xml',
         'views/project_currency_rates.xml',
         'views/tenders.xml',
+        'views/scheduled_report_views.xml',
         'wizard/report_tender_wizard.xml',
         'wizard/report_projects_wizard.xml',
         'views/dashboard_view.xml',
-        'views/project_budget_menu.xml',
+        'views/project_budget_menu.xml'
     ],
-    'demo':[
-
+    'demo': [
     ],
-    'application':True,
+    'application': True,
     'images': ['static/description/banner.png'],
-    'installable':True,
+    'installable': True,
     'auto_install': False,
-    'license': 'LGPL-3',
+    'license': 'LGPL-3'
 }

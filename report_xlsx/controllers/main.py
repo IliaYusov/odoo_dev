@@ -90,6 +90,11 @@ class ReportController(ReportController):
                             report.print_report_name, {"object": obj, "time": time}
                         )
                         filename = "%s.%s" % (report_name, "xlsx")
+                else:
+                    ctx = json.loads(context or '{}')
+                    if ctx.get('print_report_name', False):
+                        filename = '%s.%s' % (ctx['print_report_name'], 'xlsx')
+
                 if not response.headers.get("Content-Disposition"):
                     response.headers.add(
                         "Content-Disposition", content_disposition(filename)

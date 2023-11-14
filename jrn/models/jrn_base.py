@@ -298,6 +298,18 @@ class jrn_base(models.Model):
             print('1 sql_string', sql_string)
             self.env.cr.execute(sql_string)
 
+            sql_string = "select a.attname from pg_catalog.pg_attribute a " \
+            "where attrelid = 'jrn_{0}'::regclass " \
+            "and a.attnum > 0 and not a.attisdropped and a.attnotnull;"
+            sql_string = sql_string.format(table.name)
+            print('1.1 sql_string', sql_string)
+            self.env.cr.execute(sql_string)
+            for record in self.env.cr.fetchall():
+                sql_string = "alter table jrn_{0} alter {1} drop not null;"
+                sql_string = sql_string.format(table.name,record[0])
+                print('sql_string = ', sql_string)
+                self.env.cr.execute(sql_string)
+
             sql_string = """DROP INDEX if exists jrn_id_{0} CASCADE; 
             CREATE INDEX jrn_id_{0} ON jrn_{0} USING btree(jrn_id);"""
             sql_string = sql_string.format(table.name)

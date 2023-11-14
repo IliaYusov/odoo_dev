@@ -1,8 +1,8 @@
 {
     'name': 'Document Flow',
-    'version': '16.0.1.1.2',
+    'version': '16.0.1.3.0',
     'category': '',
-    'depends': ['base', 'mail', 'task', 'hr_replacement'],
+    'depends': ['base', 'mail', 'task', 'hr_replacement', 'project_budget'],
     'external_dependencies': {'python': ['htmldocx', 'html2text']},
     'description': """
     """,
@@ -34,8 +34,9 @@
         'views/event_question_views.xml',
         'views/event_decision_views.xml',
         'views/event_annex_views.xml',
-        'views/management_committee_views.xml',
+        'views/auto_substitution_views.xml',
         'views/executor_role_views.xml',
+        'views/management_committee_views.xml',
         'views/process_views.xml',
         'views/process_template_views.xml',
         'views/document_type_views.xml',

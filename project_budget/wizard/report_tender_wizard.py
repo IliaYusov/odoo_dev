@@ -9,6 +9,11 @@ class report_tender_wizard(models.TransientModel):
     date_from = fields.Date(string='event date from', required=True,default=date(date.today().year, 1, 1))
     date_to   = fields.Date(string='event  date to', required=True,default=fields.datetime.now())
     is_report_for_management = fields.Boolean(string="is_report_for_management", default = False)
+    FileName = fields.Char('Filoe name', compute='_getFileName')
+
+
+    def _getFileName(self):
+        self.FileName = 'Tender_list_' + self.date_from.strftime("%d-%m-%Y") + '_' + self.date_to.strftime("%d-%m-%Y") + '.xlsx'
 
     def action_print_report(self):
         self.ensure_one()
@@ -23,6 +28,9 @@ class report_tender_wizard(models.TransientModel):
         datas['date_to']= str(self.date_to.strftime("%d-%m-%Y"),)
         datas['is_report_for_management'] = self.is_report_for_management
         print('data=',datas)
+        print('FileName = ', self.FileName)
         report_name = 'Tender_list_'+self.date_from.strftime("%d-%m-%Y")+'_'+self.date_to.strftime("%d-%m-%Y")+'.xlsx'
-        # self.env.ref('project_budget.action_tender_list_report_xlsx').report_file = report_name
+        self.env.ref('project_budget.action_tender_list_report_xlsx').sudo().name = report_name
+        # return self.env.ref('project_budget.action_tender_list_report_xlsx').report_action(self, data=datas)
         return self.env.ref('project_budget.action_tender_list_report_xlsx').report_action(self, data=datas)
+        # return self.env['ir.actions.report']._render('project_budget.action_tender_list_report_xlsx', res_ids=[], data=datas)

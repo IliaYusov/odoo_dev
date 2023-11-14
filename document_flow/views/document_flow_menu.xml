@@ -7,7 +7,7 @@
               action="action_document_flow_dashboard"/>
 
     <menuitem id="document_flow_menu_document" parent="document_flow.document_flow_menu" name="Documents" sequence="1"
-              action="action_view_all_documents"/>
+              action="action_view_all_documents" groups="document_flow.group_document_flow_worker_with_document"/>
 
     <menuitem id="menu_task_management" parent="document_flow_menu" name="Tasks" sequence="10"
               action="action_view_all_task"/>
@@ -26,6 +26,9 @@
     <menuitem id="document_flow_menu_process_template" parent="document_flow_menu_configuration"
               name="Process Templates" sequence="1"
               action="action_view_all_process_template"/>
+    <menuitem id="menu_auto_substitution" parent="document_flow_menu_configuration" sequence="9"
+              name="Auto-substitutions"
+              action="action_document_flow_auto_substitutions_form"/>
     <menuitem id="menu_executor_role" parent="document_flow_menu_configuration" sequence="10"
               name="Roles Of Executors"
               action="action_document_flow_role_executor_all_roles"/>

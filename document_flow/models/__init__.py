@@ -1,3 +1,4 @@
+from . import document_flow_auto_substitution
 from . import document_flow_event
 from . import document_flow_role_executor
 from . import document_flow_management_committee

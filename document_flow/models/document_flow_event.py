@@ -147,6 +147,7 @@ class Event(models.Model):
                             'executor_ref': '%s,%s' % (type(executor).__name__, executor.id),
                             'date_deadline': decision.date_deadline
                         })
+                    decision.write({'action_id': action_review.id})
 
             executions = self.decision_ids.filtered(
                 lambda d: d.task_type == 'execution' and d.date_deadline and (d.executor_ids or d.responsible_id))
@@ -181,6 +182,7 @@ class Event(models.Model):
                                 type(decision.responsible_id).__name__, decision.responsible_id.id),
                             'date_deadline': decision.date_deadline
                         })
+                    decision.write({'action_id': action_execution.id})
             self.env.cr.commit()
             processing.action_start_processing()
             self.write({'state': 'on_approval'})
@@ -295,6 +297,8 @@ class EventDecision(models.Model):
         ('year', 'Years'),
     ], required=False, string='Repeat Interval')
 
+    action_id = fields.Many2one('document_flow.action', string='Action')
+
     def name_get(self):
         decisions = []
         for decision in self:
@@ -325,6 +329,14 @@ class EventDecision(models.Model):
         elif self.deadline_type == 'after_decision' and self.number_days:
             self.date_deadline = self._get_decision_date_deadline(self.after_decision_id) + timedelta(
                 days=self.number_days)
+
+    @api.onchange('name')
+    def _onchange_name(self):
+        for decision in self:
+            if decision.action_id:
+                decision.action_id.write({'description': decision.name})
+                if decision.action_id.process_id:
+                    decision.action_id.process_id.write({'description': decision.name})
 
     def _get_decision_date_deadline(self, decision):
         if decision.deadline_type == 'to_date':

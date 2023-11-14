@@ -21,7 +21,7 @@ class ProcessingChartController(http.Controller):
             is_closed=task.is_closed,
             date_closed=task.date_closed or '',
             execution_result=task.execution_result,
-            executor=task.user_id.name or '',
+            executor=', '.join(task.user_ids.mapped('name')) or '',
             actual_executor=task.actual_executor_id.name or '',
             link='/mail/view?model=%s&res_id=%s' % ('task.task', task.id)
         )

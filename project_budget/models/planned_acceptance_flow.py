@@ -49,6 +49,17 @@ class planned_acceptance_flow(models.Model):
     distribution_sum_without_vat_ostatok = fields.Monetary(string="distribution_sum_without_vat_ostatok", compute='_compute_distribution_sum')
     distribution_sum_with_vat_ostatok = fields.Monetary(string="distribution_sum_with_vat_ostatok", compute='_compute_distribution_sum')
 
+    forecast = fields.Selection([('from_project', 'From project/step')
+                                    , ('commitment', 'Commitment')
+                                    , ('reserve', 'Reserve')
+                                    , ('potential', 'Potential')], required=True, index=True, default='from_project'
+                                , copy=True, tracking=True,
+            help = "1 Of the project/stage - is calculated from the probability of the project (75 and higher - commitment, 50 - reserves, less than 50- potential "
+                   "\n 2 Commitment – falls into the forecast until the end of the 'commitment' period"
+                   "\n 3. Reserve – is included in the forecast until the end of the 'reserve' period"
+                   "\n 4. Potential – the amounts do not fall into the forecast until the end of the period, but can be entered by the seller to record information on the project (in this case, the absence of such will not be an error)."
+
+                                )
 
     @api.depends('date_cash','project_steps_id','acceptance_id','sum_cash_without_vat')
     def _get_name_to_show(self):

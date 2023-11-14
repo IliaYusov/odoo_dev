@@ -20,16 +20,11 @@ class TaskWizardDone(models.TransientModel):
         if self.require_comment and not self.comment:
             raise UserError(_("Comment is required!"))
 
-        self.task_id.execution_result = self.comment
+        self.task_id.close_task(self.route_id.stage_to_id.result_type)
+        self.task_id.write({'execution_result': self.comment, 'stage_id': self.route_id.stage_to_id.id})
+
         if self.attachment_ids:
             self._task_link_response_attachments(self.task_id.id)
-            # self.task_id.attachment_ids = self.attachment_ids.ids
-
-        self.task_id.close_task(self.route_id.stage_to_id.result_type)
-        self.task_id.stage_id = self.route_id.stage_to_id
-
-        if self.task_id.stage_id.mail_template_id:
-            self.task_id._send_message_notify(self.task_id.stage_id.mail_template_id)
 
         return None
 

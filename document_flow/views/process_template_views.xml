@@ -107,6 +107,7 @@
                     <group invisible="1">
                         <field name="parent_ref_type"/>
                         <field name="parent_ref_id"/>
+                        <field name="description"/>
                     </group>
                     <div class="oe_title mb-3">
                         <h1>

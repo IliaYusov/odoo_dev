@@ -126,7 +126,7 @@
                             <field name="active_task_ids" mode="tree">
                                 <tree create="0" delete="0">
                                     <field name="name"/>
-                                    <field name="user_id" widget="many2one_avatar_user"/>
+                                    <field name="user_ids" widget="many2many_avatar_user"/>
                                     <field name="date_deadline"/>
                                     <field name="date_closed"/>
                                     <field name="stage_id"/>

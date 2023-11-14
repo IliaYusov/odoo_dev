@@ -97,7 +97,7 @@ class Processing(models.Model):
                     'reviewer_ref': child.reviewer_ref,
                     'start_condition': child.start_condition,
                     'description': child.description,
-                    'action_id': action.id,
+                    'action_id': child.id,
                     'company_ids': [Command.link(c_id) for c_id in action.get_executors_company_ids()]
                 })
                 for executor in child.executor_ids:

@@ -52,8 +52,8 @@ class Task(models.Model):
     company_id = fields.Many2one('res.company', string='Company', required=True, default=lambda self: self.env.company)
     company_ids = fields.Many2many('res.company', string='Companies', required=True,
                                    default=lambda self: self.env.company)
-    type_id = fields.Many2one('task.type', string='Type', ondelete='restrict', required=True, index=True, copy=True,
-                              tracking=True, domain=_get_type_domain)
+    type_id = fields.Many2one('task.type', string='Type', ondelete='restrict', copy=True, depends=['parent_ref'],
+                              index=True, required=True, tracking=True, domain=_get_type_domain)
     stage_id = fields.Many2one('task.stage', string='Stage', ondelete='restrict', copy=False, required=True, index=True,
                                tracking=True, group_expand='_read_group_stage_ids', domain=_get_stage_domain)
     stage_type_id = fields.Many2one('task.stage.type', related="stage_id.type_id", string="Stage Type",
@@ -78,6 +78,7 @@ class Task(models.Model):
     child_text = fields.Char(compute='_compute_child_text')
     date_closed = fields.Datetime(string='Date Closed', copy=False, index=True)
     execution_result = fields.Html(string='Execution Result', copy=False)
+    execution_result_text = fields.Text(string='Execution Result', compute='_compute_execution_result')
     active = fields.Boolean(copy=False, default=True, index=True)
 
     attachment_count = fields.Integer(string='Attachments', compute='_compute_attachment_count')
@@ -118,40 +119,43 @@ class Task(models.Model):
     #
     #     return public_fields
 
-    @api.model
+    @api.model_create_multi
     def create(self, vals_list):
-        if vals_list.get('parent_ref'):
-            vals_list['parent_ref_type'] = vals_list['parent_ref'].split(",")[0]
-            vals_list['parent_ref_id'] = int(vals_list['parent_ref'].split(",")[1])
+        for vals in vals_list:
+            if vals.get('code', _('New')) == _('New'):
+                vals['code'] = self.env['ir.sequence'].next_by_code('task.task') or _('New')
 
-        if vals_list.get('code', _('New')) == _('New'):
-            vals_list['code'] = self.env['ir.sequence'].next_by_code('task.task') or _('New')
+            if vals.get('type_id', False):
+                type_id = self.env['task.type'].browse(vals['type_id'])
+                if type_id and type_id.start_stage_id:
+                    vals['stage_id'] = type_id.start_stage_id.id
+                else:
+                    raise ValidationError(
+                        _("Cannot create task of type '%(type_name)s': This type have no start stage defined!") % {
+                            'type_name': type_id.name})
 
-        if vals_list.get('type_id', False):
-            type_id = self.env['task.type'].browse(vals_list['type_id'])
-            if type_id and type_id.start_stage_id:
-                vals_list['stage_id'] = type_id.start_stage_id.id
-            else:
-                raise ValidationError(
-                    _("Cannot create task of type '%(type_name)s': This type have no start stage defined!") % {
-                        'type_name': type_id.name})
-
-        res = super(Task, self).create(vals_list)
-
-        if res.user_ids - self.env.user:
-            # res.action_create_activity()
-            res._send_message_notify(self.env.ref('task.mail_template_task_assigned_notify', raise_if_not_found=False),
-                                     res.user_ids - self.env.user)
-        return res
+        records = super(Task, self).create(vals_list)
+        for record in records:
+            if record.user_ids - self.env.user:
+                record._send_message_notify(
+                    self.env.ref('task.mail_template_task_assigned_notify', raise_if_not_found=False),
+                    record.user_ids - self.env.user)
+        return records
 
     def write(self, vals):
+        new_stage = False
+        if vals.get('stage_id', False):
+            new_stage = self.env['task.stage'].browse(vals.get('stage_id'))
+
         old_user_ids = {t: t.user_ids for t in self}
         res = super(Task, self.with_context(mail_create_nolog=False)).write(vals)
         new_user_ids = self.user_ids - old_user_ids[self] - self.env.user
         if new_user_ids:
-            # self.action_create_activity()
             self._send_message_notify(self.env.ref('task.mail_template_task_assigned_notify', raise_if_not_found=False),
                                       new_user_ids)
+        elif new_stage and new_stage.mail_template_id:
+            self._send_message_notify(self.env.ref('task.mail_template_task_change_stage', raise_if_not_found=False),
+                                      self.author_id)
         return res
 
     def _compute_attachment_count(self):
@@ -199,6 +203,11 @@ class Task(models.Model):
                     result.append(line)
             task.description_kanban = "\n".join(result)
 
+    @api.depends('execution_result')
+    def _compute_execution_result(self):
+        for task in self:
+            task.execution_result_text = html2text(task.execution_result)
+
     def _message_auto_subscribe_followers(self, updated_values, default_subtype_ids):
         return []
 
@@ -220,8 +229,9 @@ class Task(models.Model):
                 task.parent_ref = '%s,%d' % (task.parent_ref_type, task.parent_ref_id or 0)
             else:
                 task.parent_ref = None
-            return {'domain': {'type_id': task._get_type_domain()}}
+            # return {'domain': {'type_id': task._get_type_domain()}}
 
+    @api.depends('parent_ref')
     def _inverse_parent_ref(self):
         for task in self:
             if task.parent_ref:
@@ -274,15 +284,15 @@ class Task(models.Model):
             if task.type_id and task.type_id.start_stage_id:
                 task.stage_id = task.type_id.start_stage_id
 
-    def _send_message_notify(self, template, user_ids):
+    def _send_message_notify(self, template, user_ids=False):
         if not template:
             return
         for user_id in user_ids.filtered(lambda u: u.email):
-            email_context = {
-                'email_to': user_id.email
+            render_ctx = {
+                'user_id': user_id
             }
-            template.sudo().send_mail(self.id, email_values=email_context,
-                                      email_layout_xmlid='mail.mail_notification_layout', force_send=True)
+            template.sudo().with_context(render_ctx).send_mail(self.id, email_layout_xmlid='mail.mail_notification_layout',
+                                                               force_send=True)
 
     def _get_assigned_emails(self):
         self.ensure_one()
@@ -332,8 +342,6 @@ class Task(models.Model):
             if not self.user_id:
                 self.write({'user_ids': [Command.link(self.env.user.id)]})
 
-            if self.stage_id.mail_template_id:
-                self._send_message_notify(self.stage_id.mail_template_id)
             return None
 
         raise exceptions.UserError(_('Cannot move task (%(task)s) by this route (%(route)s)') %

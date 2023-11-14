@@ -25,8 +25,10 @@ class Document(models.Model):
     type_id = fields.Many2one('document_flow.document.type', string='Type', copy=True, required=True, tracking=True)
     currency_id = fields.Many2one('res.currency', string='Currency', copy=False, required=True, tracking=True,
                                   default=lambda self: self.env.ref('base.RUB').id)
-    partner_id = fields.Many2one('res.partner', string='Partner', copy=True, required=True, tracking=True,
-                                 domain="[('is_company', '=', True)]")
+    project_id = fields.Many2one('project_budget.projects', string='Project', copy=True, required=True, tracking=True,
+                                 domain="[('budget_state', '=', 'work')]")
+    partner_id = fields.Many2one('res.partner', related='project_id.customer_organization_id.partner_id',
+                                 string='Partner', copy=False, readonly=True, required=True)
     sum = fields.Monetary(string='Sum', copy=False, tracking=True)
     description = fields.Html(string='Description', copy=False)
 

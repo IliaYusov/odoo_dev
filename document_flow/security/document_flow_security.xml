@@ -25,6 +25,12 @@
         <field name="users" eval="[(4, ref('base.user_admin'))]"/>
     </record>
 
+    <record id="group_document_flow_worker_with_document" model="res.groups">
+        <field name="name">Manage Documents</field>
+        <field name="category_id" ref="base.module_category_hidden"/>
+        <field name="users" eval="[(4, ref('base.user_admin'))]"/>
+    </record>
+
     <data>
         <record id="base.default_user" model="res.users">
             <field name="groups_id" eval="[(4, ref('base.group_user'))]"/>
@@ -51,6 +57,12 @@
         <record model="ir.rule" id="document_flow_role_executor_company_rule">
             <field name="name">Role executor multi-company</field>
             <field name="model_id" ref="model_document_flow_role_executor"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record model="ir.rule" id="document_flow_document_company_rule">
+            <field name="name">Document multi-company</field>
+            <field name="model_id" ref="model_document_flow_document"/>
             <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
         </record>
 

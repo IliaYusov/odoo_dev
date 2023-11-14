@@ -1,8 +1,10 @@
 from odoo import models, fields, _
 from odoo.exceptions import UserError
 from io import BytesIO
+from datetime import date, timedelta
 from datetime import date, timedelta, datetime
 import pytz
+
 
 class report_projects_wizard(models.TransientModel):
     _name = 'project_budget.projects.report.wizard'
@@ -72,14 +74,11 @@ class report_projects_wizard(models.TransientModel):
             return self.env.ref('project_budget.action_projects_list_report_xlsx_overdue').report_action(self, data=datas)
 
         if self.type_report == 'management_committee':
-            report_obj = self.env.ref('project_budget.action_projects_list_report_xlsx_management_committee')
-            # name = {"en_US": "Projects Report Management Committee", "ru_RU": "Отчет для УК"}  # на память
-            # companies = ''
-            # for company_id in self.env.context.get('allowed_company_ids', ''):
-            #     companies += self.env['res.company'].search([('id', '=', company_id)]).name.strip().replace(' ', '_') + '_'
-            # report_obj.sudo().name = f"{companies}_{datetime.now(pytz.timezone('Europe/Moscow')).strftime('%Y%m%d_%H%M%S')}"
-            return report_obj.report_action(self, data=datas)
-
+            c_ids = self.env['res.company'].browse(self.env.context.get('allowed_company_ids', []))
+            print_report_name = f"{'_'.join(name.strip().replace(' ', '_') for name in c_ids.mapped('name'))}_{datetime.now(pytz.timezone(self.env.user.tz)).strftime('%Y%m%d_%H%M%S')}"
+            return self.env.ref('project_budget.action_projects_list_report_xlsx_management_committee').with_context(
+                print_report_name=print_report_name).report_action(self, data=datas)
+        
         if self.type_report == 'pds_acceptance_by_date':
             return self.env.ref('project_budget.action_projects_list_report_xlsx_pds_acceptance_by_date').report_action(self, data=datas)
 

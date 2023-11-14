@@ -6,8 +6,8 @@
             <field name="model_id" ref="task.model_task_task"/>
             <field name="subject">Task {{ object.code }} {{ object.display_name }} assigned to you</field>
             <field name="description">Template to automate email when tasks assigned to users</field>
-            <field name="email_to">{{object.user_id.email}}</field>
-            <field name="lang">{{ object.user_id.lang }}</field>
+            <field name="email_to">{{ ctx['user_id'].email }}</field>
+            <field name="lang">{{ ctx['user_id'].lang }}</field>
             <field name="auto_delete" eval="True"/>
             <field name="body_html" type="html">
                 <table cols="1" cellpadding="12"
@@ -26,11 +26,11 @@
                 </table>
                 <div style="margin: 0px; padding: 0px; font-size: 13px;">
                     <br/>
-                    Dear <t t-out="object.user_id.name or ''">user</t>,
+                    Dear <t t-out="ctx['user_id'].name or ''">user</t>,
                     <br/>
                     <br/>
                     <p style="margin:0px 0 12px 0;box-sizing:border-box;">
-                        <t t-out="object.author_id.name or ''">author</t>,
+                        <t t-out="object.write_uid.name or ''">author</t>,
                         has just assigned you the following task:
                     </p>
                     <ul style="padding:0 0 0 24px;margin:0px 0 12px 0;box-sizing:border-box;">
@@ -53,8 +53,8 @@
             <field name="model_id" ref="task.model_task_task"/>
             <field name="subject">Stage of task {{ object.code }} {{ object.display_name }} was changed</field>
             <field name="description">Set this template on a stage to automate email when tasks reach stages</field>
-            <field name="email_to">{{object.create_uid.email}}</field>
-            <field name="lang">{{ object.create_uid.lang }}</field>
+            <field name="email_to">{{ object.author_id.email }}</field>
+            <field name="lang">{{ object.author_id.lang }}</field>
             <field name="auto_delete" eval="True"/>
             <field name="body_html" type="html">
                 <table cols="1" cellpadding="12"
@@ -78,7 +78,7 @@
                     <br/>
                     <p style="margin:0px 0 12px 0;box-sizing:border-box;">
                         <t t-out="object.write_uid.name or ''">user</t>,
-                        changed the stage of task on: <t t-out="object.stage_id.name or ''">In Progress</t>
+                        changed the stage of task
                     </p>
                     <ul style="padding:0 0 0 24px;margin:0px 0 12px 0;box-sizing:border-box;">
                         <li>Subject: "<t t-esc="object.name">Task subject</t>"
@@ -90,6 +90,13 @@
                         <li>Description: <t t-esc="object.description or ''">Description</t>
                         </li>
                     </ul>
+                    on: <t t-out="object.stage_id.name or ''">In Progress</t>.
+                    <t t-if="object.is_closed">
+                        <t t-if="object.execution_result">
+                            <br/>
+                            With the comment: <t t-esc="object.execution_result_text or ''">Comment</t>
+                        </t>
+                    </t>
                     <p style="margin:0px 0 12px 0;box-sizing:border-box;"></p>
                 </div>
             </field>
