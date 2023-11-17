@@ -392,6 +392,15 @@ class report_management_committee_excel(models.AbstractModel):
                 "fg_color": '#C6E0B4',
                 "font_size": 9,
             })
+            head_format_month_detail_next = workbook.add_format({
+                'border': 1,
+                'text_wrap': True,
+                'align': 'center',
+                'valign': 'vcenter',
+                "bold": False,
+                "fg_color": '#F3F8F0',
+                "font_size": 9,
+            })
 
             colbeg = column
 
@@ -446,18 +455,18 @@ class report_management_committee_excel(models.AbstractModel):
                 elif element == 'NEXT':
                     sheet.merge_range(row, column, row, column + 2, str(YEARint + 1), head_format_month)
                     sheet.merge_range(row + 1, column, row + 1, column + 2, 'Прогноз ' + str(YEARint + 1),
-                                      head_format_month_detail)
-                    sheet.write_string(row + 2, column, 'Обязательство', head_format_month_detail)
+                                      head_format_month_detail_next)
+                    sheet.write_string(row + 2, column, 'Обязательство', head_format_month_detail_next)
                     column += 1
-                    sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail)
+                    sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail_next)
                     column += 1
-                    sheet.write_string(row + 2, column, 'Потенциал', head_format_month_detail)
+                    sheet.write_string(row + 2, column, 'Потенциал', head_format_month_detail_next)
                     column += 1
 
                 elif element == 'AFTER NEXT':
                     sheet.write_string(row, column, str(YEARint + 2), head_format_month)
                     sheet.merge_range(row + 1, column, row + 2, column, 'Прогноз ' + str(YEARint + 2),
-                                      head_format_month_detail)
+                                      head_format_month_detail_next)
                     column += 1
 
             sheet.merge_range(row - 1, colbeg, row - 1, column - 1, y[0], head_format_month)
@@ -653,17 +662,17 @@ class report_management_committee_excel(models.AbstractModel):
 
         if 'Q' in element:
             months = self.get_months_from_quarter(element)
-            project_etalon = self.get_etalon_project(project, element)
+            # project_etalon = self.get_etalon_project(project, element)
             if step == False:
-                if project_etalon:
-                    currency_rate = self.get_currency_rate_by_project(project_etalon)
-                    if project_etalon.end_presale_project_month.month in months and YEARint == project_etalon.end_presale_project_month.year:
-                        if project_etalon.estimated_probability_id.name == '75':
-                            sheet.write_number(row, column + 0, project_etalon.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
-                            sum75tmpetalon += project_etalon.total_amount_of_revenue_with_vat * currency_rate
-                        if project_etalon.estimated_probability_id.name == '50':
-                            sheet.write_number(row, column + 1, project_etalon.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
-                            sum50tmpetalon += project_etalon.total_amount_of_revenue_with_vat * currency_rate
+                # if project_etalon:
+                #     currency_rate = self.get_currency_rate_by_project(project_etalon)
+                #     if project_etalon.end_presale_project_month.month in months and YEARint == project_etalon.end_presale_project_month.year:
+                #         if project_etalon.estimated_probability_id.name == '75':
+                #             sheet.write_number(row, column + 0, project_etalon.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
+                #             sum75tmpetalon += project_etalon.total_amount_of_revenue_with_vat * currency_rate
+                #         if project_etalon.estimated_probability_id.name == '50':
+                #             sheet.write_number(row, column + 1, project_etalon.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
+                #             sum50tmpetalon += project_etalon.total_amount_of_revenue_with_vat * currency_rate
 
                 if project.end_presale_project_month.month in months and YEARint == project.end_presale_project_month.year:
                     currency_rate = self.get_currency_rate_by_project(project)
@@ -682,29 +691,29 @@ class report_management_committee_excel(models.AbstractModel):
                 if ((project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
                         or ((not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
 
-                    step_etalon  = self.get_etalon_step(step, element)
+                    # step_etalon  = self.get_etalon_step(step, element)
 
-                    if step_etalon:
-                        currency_rate = self.get_currency_rate_by_project(step_etalon.projects_id)
-                        if step_etalon.end_presale_project_month.month in months and YEARint == step_etalon.end_presale_project_month.year:
-                            if step_etalon.estimated_probability_id.name == '75':
-                                sheet.write_number(row, column + 0, step_etalon.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
-                                sum75tmpetalon = step_etalon.total_amount_of_revenue_with_vat * currency_rate
-                            if step_etalon.estimated_probability_id.name == '50':
-                                sheet.write_number(row, column + 1, step_etalon.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
-                                sum50tmpetalon = step_etalon.total_amount_of_revenue_with_vat * currency_rate
-                    else:
-                        if project_etalon: # если нет жталонного этапа, то данные берем из проекта, да это будет увеличивать сумму на количество этапов, но что делать я ХЗ
-                            currency_rate = self.get_currency_rate_by_project(project_etalon)
-                            if project_etalon.end_presale_project_month.month in months and YEARint == project_etalon.end_presale_project_month.year:
-                                if project_etalon.estimated_probability_id.name == '75':
-                                    sheet.write_number(row, column + 0, project_etalon.total_amount_of_revenue_with_vat * currency_rate,
-                                                       row_format_number)
-                                    sum75tmpetalon += project_etalon.total_amount_of_revenue_with_vat * currency_rate
-                                if project_etalon.estimated_probability_id.name == '50':
-                                    sheet.write_number(row, column + 1, project_etalon.total_amount_of_revenue_with_vat * currency_rate,
-                                                       row_format_number)
-                                    sum50tmpetalon += project_etalon.total_amount_of_revenue_with_vat * currency_rate
+                    # if step_etalon:
+                    #     currency_rate = self.get_currency_rate_by_project(step_etalon.projects_id)
+                    #     if step_etalon.end_presale_project_month.month in months and YEARint == step_etalon.end_presale_project_month.year:
+                    #         if step_etalon.estimated_probability_id.name == '75':
+                    #             sheet.write_number(row, column + 0, step_etalon.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
+                    #             sum75tmpetalon = step_etalon.total_amount_of_revenue_with_vat * currency_rate
+                    #         if step_etalon.estimated_probability_id.name == '50':
+                    #             sheet.write_number(row, column + 1, step_etalon.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
+                    #             sum50tmpetalon = step_etalon.total_amount_of_revenue_with_vat * currency_rate
+                    # else:
+                    #     if project_etalon: # если нет жталонного этапа, то данные берем из проекта, да это будет увеличивать сумму на количество этапов, но что делать я ХЗ
+                    #         currency_rate = self.get_currency_rate_by_project(project_etalon)
+                    #         if project_etalon.end_presale_project_month.month in months and YEARint == project_etalon.end_presale_project_month.year:
+                    #             if project_etalon.estimated_probability_id.name == '75':
+                    #                 sheet.write_number(row, column + 0, project_etalon.total_amount_of_revenue_with_vat * currency_rate,
+                    #                                    row_format_number)
+                    #                 sum75tmpetalon += project_etalon.total_amount_of_revenue_with_vat * currency_rate
+                    #             if project_etalon.estimated_probability_id.name == '50':
+                    #                 sheet.write_number(row, column + 1, project_etalon.total_amount_of_revenue_with_vat * currency_rate,
+                    #                                    row_format_number)
+                    #                 sum50tmpetalon += project_etalon.total_amount_of_revenue_with_vat * currency_rate
 
                     if step.end_presale_project_month.month in months  and YEARint == step.end_presale_project_month.year:
                         currency_rate = self.get_currency_rate_by_project(step.projects_id)
@@ -747,7 +756,7 @@ class report_management_committee_excel(models.AbstractModel):
                         sum_after_next_tmp = project.total_amount_of_revenue_with_vat * multipliers[
                             '30'] * currency_rate
                     sheet.write_number(row, column + 3,
-                                       project.sum_after_next_tmp,
+                                       sum_after_next_tmp,
                                        row_format_number)
 
             else:
@@ -788,7 +797,7 @@ class report_management_committee_excel(models.AbstractModel):
                             sum_after_next_tmp += step.total_amount_of_revenue_with_vat * multipliers[
                                 '30'] * currency_rate
                         sheet.write_number(row, column + 3,
-                                           project.sum_after_next_tmp,
+                                           sum_after_next_tmp,
                                            row_format_number)
 
         # return (sum75tmpetalon, sum50tmpetalon,
@@ -817,15 +826,15 @@ class report_management_committee_excel(models.AbstractModel):
 
             months = self.get_months_from_quarter(element)
 
-            project_etalon = self.get_etalon_project(project, element)
+            # project_etalon = self.get_etalon_project(project, element)
             if not project.project_have_steps:
-                if project_etalon:
-                    currency_rate = self.get_currency_rate_by_project(project_etalon)
-                    if project_etalon.end_presale_project_month.month in months and YEARint == project_etalon.end_presale_project_month.year:
-                        if project_etalon.estimated_probability_id.name == '75':
-                            sum75tmpetalon = project_etalon.total_amount_of_revenue_with_vat * currency_rate
-                        if project_etalon.estimated_probability_id.name == '50':
-                            sum50tmpetalon = project_etalon.total_amount_of_revenue_with_vat * currency_rate
+            #     if project_etalon:
+            #         currency_rate = self.get_currency_rate_by_project(project_etalon)
+            #         if project_etalon.end_presale_project_month.month in months and YEARint == project_etalon.end_presale_project_month.year:
+            #             if project_etalon.estimated_probability_id.name == '75':
+            #                 sum75tmpetalon = project_etalon.total_amount_of_revenue_with_vat * currency_rate
+            #             if project_etalon.estimated_probability_id.name == '50':
+            #                 sum50tmpetalon = project_etalon.total_amount_of_revenue_with_vat * currency_rate
 
                 if project.end_presale_project_month.month in months and YEARint == project.end_presale_project_month.year:
                     currency_rate = self.get_currency_rate_by_project(project)
@@ -844,22 +853,22 @@ class report_management_committee_excel(models.AbstractModel):
                             or ((
                                         not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
 
-                        step_etalon = self.get_etalon_step(step, element)
-                        if step_etalon:
-                            currency_rate = self.get_currency_rate_by_project(step_etalon.projects_id)
-                            if step_etalon.end_presale_project_month.month in months and YEARint == step_etalon.end_presale_project_month.year:
-                                if step_etalon.estimated_probability_id.name == '75':
-                                    sum75tmpetalon += step_etalon.total_amount_of_revenue_with_vat * currency_rate
-                                if step_etalon.estimated_probability_id.name == '50':
-                                    sum50tmpetalon += step_etalon.total_amount_of_revenue_with_vat * currency_rate
-                        else:
-                            if project_etalon:  # если нет эталонного этапа, то данные берем из проекта, да это будет увеличивать сумму на количество этапов, но что делать я ХЗ
-                                currency_rate = self.get_currency_rate_by_project(project_etalon)
-                                if project_etalon.end_presale_project_month.month in months and YEARint == project_etalon.end_presale_project_month.year:
-                                    if project_etalon.estimated_probability_id.name == '75':
-                                        sum75tmpetalon = project_etalon.total_amount_of_revenue_with_vat * currency_rate
-                                    if project_etalon.estimated_probability_id.name == '50':
-                                        sum50tmpetalon = project_etalon.total_amount_of_revenue_with_vat * currency_rate
+                        # step_etalon = self.get_etalon_step(step, element)
+                        # if step_etalon:
+                        #     currency_rate = self.get_currency_rate_by_project(step_etalon.projects_id)
+                        #     if step_etalon.end_presale_project_month.month in months and YEARint == step_etalon.end_presale_project_month.year:
+                        #         if step_etalon.estimated_probability_id.name == '75':
+                        #             sum75tmpetalon += step_etalon.total_amount_of_revenue_with_vat * currency_rate
+                        #         if step_etalon.estimated_probability_id.name == '50':
+                        #             sum50tmpetalon += step_etalon.total_amount_of_revenue_with_vat * currency_rate
+                        # else:
+                        #     if project_etalon:  # если нет эталонного этапа, то данные берем из проекта, да это будет увеличивать сумму на количество этапов, но что делать я ХЗ
+                        #         currency_rate = self.get_currency_rate_by_project(project_etalon)
+                        #         if project_etalon.end_presale_project_month.month in months and YEARint == project_etalon.end_presale_project_month.year:
+                        #             if project_etalon.estimated_probability_id.name == '75':
+                        #                 sum75tmpetalon = project_etalon.total_amount_of_revenue_with_vat * currency_rate
+                        #             if project_etalon.estimated_probability_id.name == '50':
+                        #                 sum50tmpetalon = project_etalon.total_amount_of_revenue_with_vat * currency_rate
 
                         if step.end_presale_project_month.month in months and YEARint == step.end_presale_project_month.year:
                             currency_rate = self.get_currency_rate_by_project(step.projects_id)
@@ -1011,22 +1020,22 @@ class report_management_committee_excel(models.AbstractModel):
                         or ((
                                     not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
 
-                    project_etalon = self.get_etalon_project(project, element)
-                    step_etalon = self.get_etalon_step(step, element)
-                    sum = self.get_sum_plan_pds_project_step_quarter(project_etalon, step_etalon, element)
-
-                    if not step_etalon:  # есть этап сейчас, но нет в эталоне
-                        sum = 0
-
-                    estimated_probability_id_name = step_etalon.estimated_probability_id.name
-
-                    if sum != 0:
-                        if estimated_probability_id_name in ('75', '100', '100(done)'):
-                            sheet.write_number(row, column + 0, sum, row_format_number)
-                            sum75tmpetalon += sum
-                        if estimated_probability_id_name == '50':
-                            sheet.write_number(row, column + 1, sum, row_format_number)
-                            sum50tmpetalon += sum
+                    # project_etalon = self.get_etalon_project(project, element)
+                    # step_etalon = self.get_etalon_step(step, element)
+                    # sum = self.get_sum_plan_pds_project_step_quarter(project_etalon, step_etalon, element)
+                    #
+                    # if not step_etalon:  # есть этап сейчас, но нет в эталоне
+                    #     sum = 0
+                    #
+                    # estimated_probability_id_name = step_etalon.estimated_probability_id.name
+                    #
+                    # if sum != 0:
+                    #     if estimated_probability_id_name in ('75', '100', '100(done)'):
+                    #         sheet.write_number(row, column + 0, sum, row_format_number)
+                    #         sum75tmpetalon += sum
+                    #     if estimated_probability_id_name == '50':
+                    #         sheet.write_number(row, column + 1, sum, row_format_number)
+                    #         sum50tmpetalon += sum
 
                     sum100tmp_step = self.get_sum_fact_pds_project_step_quarter(project, step, element)
                     sheet.write_number(row, column + 2, sum100tmp_step, row_format_number_color_fact)
@@ -1062,19 +1071,19 @@ class report_management_committee_excel(models.AbstractModel):
                             sheet.write_number(row, column + 4, sum, row_format_number)
                             sum50tmp += sum
             else:
-                project_etalon = self.get_etalon_project(project, element)
-
-                sum = self.get_sum_plan_pds_project_step_quarter(project_etalon, False, element)
-
-                estimated_probability_id_name = project_etalon.estimated_probability_id.name
-
-                if sum != 0:
-                    if estimated_probability_id_name in ('75', '100', '100(done)'):
-                        sheet.write_number(row, column + 0, sum, row_format_number)
-                        sum75tmpetalon += sum
-                    if estimated_probability_id_name == '50':
-                        sheet.write_number(row, column + 1, sum, row_format_number)
-                        sum50tmpetalon += sum
+                # project_etalon = self.get_etalon_project(project, element)
+                #
+                # sum = self.get_sum_plan_pds_project_step_quarter(project_etalon, False, element)
+                #
+                # estimated_probability_id_name = project_etalon.estimated_probability_id.name
+                #
+                # if sum != 0:
+                #     if estimated_probability_id_name in ('75', '100', '100(done)'):
+                #         sheet.write_number(row, column + 0, sum, row_format_number)
+                #         sum75tmpetalon += sum
+                #     if estimated_probability_id_name == '50':
+                #         sheet.write_number(row, column + 1, sum, row_format_number)
+                #         sum50tmpetalon += sum
 
                 sum100tmp = self.get_sum_fact_pds_project_step_quarter(project, False, element)
                 sheet.write_number(row, column + 2, sum100tmp, row_format_number_color_fact)
@@ -1273,20 +1282,20 @@ class report_management_committee_excel(models.AbstractModel):
                             or ((
                                         not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
 
-                        project_etalon = self.get_etalon_project(project, element)
-                        step_etalon = self.get_etalon_step(step, element)
-                        sum = self.get_sum_plan_pds_project_step_quarter(project_etalon, step_etalon, element)
-
-                        if not step_etalon:  # есть этап сейчас, но нет в эталоне
-                            sum = 0
-
-                        estimated_probability_id_name = step_etalon.estimated_probability_id.name
-
-                        if sum != 0:
-                            if estimated_probability_id_name in ('75', '100', '100(done)'):
-                                sum75tmpetalon += sum
-                            if estimated_probability_id_name == '50':
-                                sum50tmpetalon += sum
+                        # project_etalon = self.get_etalon_project(project, element)
+                        # step_etalon = self.get_etalon_step(step, element)
+                        # sum = self.get_sum_plan_pds_project_step_quarter(project_etalon, step_etalon, element)
+                        #
+                        # if not step_etalon:  # есть этап сейчас, но нет в эталоне
+                        #     sum = 0
+                        #
+                        # estimated_probability_id_name = step_etalon.estimated_probability_id.name
+                        #
+                        # if sum != 0:
+                        #     if estimated_probability_id_name in ('75', '100', '100(done)'):
+                        #         sum75tmpetalon += sum
+                        #     if estimated_probability_id_name == '50':
+                        #         sum50tmpetalon += sum
 
                         sum100tmp_step = self.get_sum_fact_pds_project_step_quarter(project, step, element)
 
@@ -1318,17 +1327,17 @@ class report_management_committee_excel(models.AbstractModel):
                             if estimated_probability_id_name == '50':
                                 sum50tmp += sum
             else:
-                project_etalon = self.get_etalon_project(project, element)
-
-                sum = self.get_sum_plan_pds_project_step_quarter(project_etalon, False, element)
-
-                estimated_probability_id_name = project_etalon.estimated_probability_id.name
-
-                if sum != 0:
-                    if estimated_probability_id_name in ('75', '100', '100(done)'):
-                        sum75tmpetalon += sum
-                    if estimated_probability_id_name == '50':
-                        sum50tmpetalon += sum
+                # project_etalon = self.get_etalon_project(project, element)
+                #
+                # sum = self.get_sum_plan_pds_project_step_quarter(project_etalon, False, element)
+                #
+                # estimated_probability_id_name = project_etalon.estimated_probability_id.name
+                #
+                # if sum != 0:
+                #     if estimated_probability_id_name in ('75', '100', '100(done)'):
+                #         sum75tmpetalon += sum
+                #     if estimated_probability_id_name == '50':
+                #         sum50tmpetalon += sum
 
                 sum100tmp = self.get_sum_fact_pds_project_step_quarter(project, False, element)
                 sum = self.get_sum_plan_pds_project_step_quarter(project, False, element)
@@ -1612,40 +1621,41 @@ class report_management_committee_excel(models.AbstractModel):
 
         if element in ('Q1', 'Q2', 'Q3', 'Q4'):
             if step:
+
                 if ((
                         project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
                         or ((
                                     not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
 
-                    project_etalon = self.get_etalon_project(project, element)
-                    step_etalon = self.get_etalon_step(step, element)
+                    # project_etalon = self.get_etalon_project(project, element)
+                    # step_etalon = self.get_etalon_step(step, element)
                     profitability = step.profitability
+                    #
+                    # if not step_etalon:
+                    #     profitability_etalon = project_etalon.profitability
+                    # else:
+                    #     profitability_etalon = step_etalon.profitability
 
-                    if not step_etalon:
-                        profitability_etalon = project_etalon.profitability
-                    else:
-                        profitability_etalon = step_etalon.profitability
-
-                    sum = self.get_sum_planned_acceptance_project_step_quarter(project_etalon, step_etalon, element)
-
-                    if not step_etalon:
-                        sum = 0
-
-                    estimated_probability_id_name = project_etalon.estimated_probability_id.name
-                    if step_etalon:
-                        estimated_probability_id_name = step_etalon.estimated_probability_id.name
-
-                    if sum != 0:
-                        if estimated_probability_id_name in ('75', '100', '100(done)'):
-                            sheet.write_number(row, column + 0, sum, row_format_number)
-                            sheet.write_number(row, column + 0 + 41, sum * profitability_etalon / 100, row_format_number)
-                            sum75tmpetalon += sum
-                            prof75tmpetalon += sum * profitability_etalon / 100
-                        if estimated_probability_id_name == '50':
-                            sheet.write_number(row, column + 1, sum, row_format_number)
-                            sheet.write_number(row, column + 1 + 41, sum * profitability_etalon / 100, row_format_number)
-                            sum50tmpetalon += sum
-                            prof75tmpetalon += sum * profitability_etalon / 100
+                    # sum = self.get_sum_planned_acceptance_project_step_quarter(project_etalon, step_etalon, element)
+                    #
+                    # if not step_etalon:
+                    #     sum = 0
+                    #
+                    # estimated_probability_id_name = project_etalon.estimated_probability_id.name
+                    # if step_etalon:
+                    #     estimated_probability_id_name = step_etalon.estimated_probability_id.name
+                    #
+                    # if sum != 0:
+                    #     if estimated_probability_id_name in ('75', '100', '100(done)'):
+                    #         sheet.write_number(row, column + 0, sum, row_format_number)
+                    #         sheet.write_number(row, column + 0 + 41, sum * profitability_etalon / 100, row_format_number)
+                    #         sum75tmpetalon += sum
+                    #         prof75tmpetalon += sum * profitability_etalon / 100
+                    #     if estimated_probability_id_name == '50':
+                    #         sheet.write_number(row, column + 1, sum, row_format_number)
+                    #         sheet.write_number(row, column + 1 + 41, sum * profitability_etalon / 100, row_format_number)
+                    #         sum50tmpetalon += sum
+                    #         prof75tmpetalon += sum * profitability_etalon / 100
 
                     sum100tmp_step = self.get_sum_fact_acceptance_project_step_quarter(project, step, element)
                     prof100tmp_step = self.get_sum_fact_margin_project_step_quarter(project, step, element)
@@ -1692,25 +1702,25 @@ class report_management_committee_excel(models.AbstractModel):
                             sum50tmp += sum
                             prof50tmp += sum * profitability / 100
             else:
-                project_etalon = self.get_etalon_project(project, element)
+                # project_etalon = self.get_etalon_project(project, element)
                 profitability = project.profitability
-                profitability_etalon = project_etalon.profitability
-
-                sum = self.get_sum_planned_acceptance_project_step_quarter(project_etalon, False, element)
-
-                estimated_probability_id_name = project_etalon.estimated_probability_id.name
-
-                if sum != 0:
-                    if estimated_probability_id_name in ('75', '100', '100(done)'):
-                        sheet.write_number(row, column + 0, sum, row_format_number)
-                        sheet.write_number(row, column + 0 + 41, sum * profitability / 100, row_format_number)
-                        sum75tmpetalon += sum
-                        prof75tmpetalon += sum * profitability_etalon / 100
-                    if estimated_probability_id_name == '50':
-                        sheet.write_number(row, column + 1, sum, row_format_number)
-                        sheet.write_number(row, column + 1 + 41, sum * profitability / 100, row_format_number)
-                        sum50tmpetalon += sum
-                        prof50tmpetalon += sum * profitability_etalon / 100
+                # profitability_etalon = project_etalon.profitability
+                #
+                # sum = self.get_sum_planned_acceptance_project_step_quarter(project_etalon, False, element)
+                #
+                # estimated_probability_id_name = project_etalon.estimated_probability_id.name
+                #
+                # if sum != 0:
+                #     if estimated_probability_id_name in ('75', '100', '100(done)'):
+                #         sheet.write_number(row, column + 0, sum, row_format_number)
+                #         sheet.write_number(row, column + 0 + 41, sum * profitability / 100, row_format_number)
+                #         sum75tmpetalon += sum
+                #         prof75tmpetalon += sum * profitability_etalon / 100
+                #     if estimated_probability_id_name == '50':
+                #         sheet.write_number(row, column + 1, sum, row_format_number)
+                #         sheet.write_number(row, column + 1 + 41, sum * profitability / 100, row_format_number)
+                #         sum50tmpetalon += sum
+                #         prof50tmpetalon += sum * profitability_etalon / 100
 
                 sum100tmp_proj = self.get_sum_fact_acceptance_project_step_quarter(project, False, element)
                 prof100tmp_proj = self.get_sum_fact_margin_project_step_quarter(project, False, element)
@@ -1754,6 +1764,7 @@ class report_management_committee_excel(models.AbstractModel):
 
         elif element == 'NEXT':
             if step:
+
                 if ((project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
                         or ((not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
 
@@ -1863,6 +1874,7 @@ class report_management_committee_excel(models.AbstractModel):
 
         elif element == 'AFTER NEXT':
             if step:
+
                 if ((project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
                         or ((not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
 
@@ -1986,31 +1998,31 @@ class report_management_committee_excel(models.AbstractModel):
                     if ((project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
                             or ((not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
 
-                        project_etalon = self.get_etalon_project(project, element)
-                        step_etalon = self.get_etalon_step(step, element)
+                        # project_etalon = self.get_etalon_project(project, element)
+                        # step_etalon = self.get_etalon_step(step, element)
                         profitability = step.profitability
-
-                        if not step_etalon:
-                            profitability_etalon = project_etalon.profitability
-                        else:
-                            profitability_etalon = step_etalon.profitability
-
-                        sum = self.get_sum_planned_acceptance_project_step_quarter(project_etalon, step_etalon, element)
-
-                        if not step_etalon:
-                            sum = 0
-
-                        estimated_probability_id_name = project_etalon.estimated_probability_id.name
-                        if step_etalon:
-                            estimated_probability_id_name = step_etalon.estimated_probability_id.name
-
-                        if sum != 0:
-                            if estimated_probability_id_name in ('75', '100', '100(done)'):
-                                sum75tmpetalon += sum
-                                prof75tmpetalon += sum * profitability_etalon / 100
-                            if estimated_probability_id_name == '50':
-                                sum50tmpetalon += sum
-                                prof75tmpetalon += sum * profitability_etalon / 100
+                        #
+                        # if not step_etalon:
+                        #     profitability_etalon = project_etalon.profitability
+                        # else:
+                        #     profitability_etalon = step_etalon.profitability
+                        #
+                        # sum = self.get_sum_planned_acceptance_project_step_quarter(project_etalon, step_etalon, element)
+                        #
+                        # if not step_etalon:
+                        #     sum = 0
+                        #
+                        # estimated_probability_id_name = project_etalon.estimated_probability_id.name
+                        # if step_etalon:
+                        #     estimated_probability_id_name = step_etalon.estimated_probability_id.name
+                        #
+                        # if sum != 0:
+                        #     if estimated_probability_id_name in ('75', '100', '100(done)'):
+                        #         sum75tmpetalon += sum
+                        #         prof75tmpetalon += sum * profitability_etalon / 100
+                        #     if estimated_probability_id_name == '50':
+                        #         sum50tmpetalon += sum
+                        #         prof75tmpetalon += sum * profitability_etalon / 100
 
                         sum100tmp_step = self.get_sum_fact_acceptance_project_step_quarter(project, step, element)
                         prof100tmp_step = self.get_sum_fact_margin_project_step_quarter(project, step, element)
@@ -2051,21 +2063,21 @@ class report_management_committee_excel(models.AbstractModel):
                                 sum50tmp += sum
                                 prof50tmp += sum * profitability / 100
             else:
-                project_etalon = self.get_etalon_project(project, element)
+                # project_etalon = self.get_etalon_project(project, element)
                 profitability = project.profitability
-                profitability_etalon = project_etalon.profitability
+                # profitability_etalon = project_etalon.profitability
 
-                sum = self.get_sum_planned_acceptance_project_step_quarter(project_etalon, False, element)
-
-                estimated_probability_id_name = project_etalon.estimated_probability_id.name
-
-                if sum != 0:
-                    if estimated_probability_id_name in ('75', '100', '100(done)'):
-                        sum75tmpetalon += sum
-                        prof75tmpetalon += sum * profitability_etalon / 100
-                    if estimated_probability_id_name == '50':
-                        sum50tmpetalon += sum
-                        prof50tmpetalon += sum * profitability_etalon / 100
+                # sum = self.get_sum_planned_acceptance_project_step_quarter(project_etalon, False, element)
+                #
+                # estimated_probability_id_name = project_etalon.estimated_probability_id.name
+                #
+                # if sum != 0:
+                #     if estimated_probability_id_name in ('75', '100', '100(done)'):
+                #         sum75tmpetalon += sum
+                #         prof75tmpetalon += sum * profitability_etalon / 100
+                #     if estimated_probability_id_name == '50':
+                #         sum50tmpetalon += sum
+                #         prof50tmpetalon += sum * profitability_etalon / 100
 
                 sum100tmp_proj = self.get_sum_fact_acceptance_project_step_quarter(project, False, element)
                 prof100tmp_proj = self.get_sum_fact_margin_project_step_quarter(project, False, element)
@@ -2804,6 +2816,12 @@ class report_management_committee_excel(models.AbstractModel):
             'font_size': 10,
             'num_format': '#,##0',
         })
+        row_format_number_color_plan = workbook.add_format({
+            "fg_color": '#D9E1F2',
+            'border': 1,
+            'font_size': 10,
+            'num_format': '#,##0',
+        })
         row_format_number_color_fact = workbook.add_format({
             "fg_color": '#C6E0B4',
             'border': 1,
@@ -2817,13 +2835,13 @@ class report_management_committee_excel(models.AbstractModel):
             'num_format': '0.00%',
         })
         row_format_number_color_forecast = workbook.add_format({
-            "fg_color": '#D9E1F2',
+            "fg_color": '#E2EFDA',
             'border': 1,
             'font_size': 10,
             'num_format': '#,##0',
         })
         row_format_number_color_next = workbook.add_format({
-            "fg_color": '#E2EFDA',
+            "fg_color": '#F3F8F0',
             'border': 1,
             'font_size': 10,
             'num_format': '#,##0',
@@ -2883,19 +2901,28 @@ class report_management_committee_excel(models.AbstractModel):
                 f_Q75 = 'sum(' + str(sumM75) + child_offices_rows.format(xl_col_to_name(column + 3)) + ')'
                 f_Q50 = 'sum(' + str(sumM50) + child_offices_rows.format(xl_col_to_name(column + 4)) + ')'
 
+                po_plan_spec = self.env['project_budget.budget_plan_supervisor_spec'].search([
+                    ('budget_plan_supervisor_id.year', '=', YEARint),
+                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('type_row', '=', 'contracting'),
+                ])
+
+                po_q_plan = [po_plan_spec.q1_plan, po_plan_spec.q2_plan, po_plan_spec.q3_plan, po_plan_spec.q4_plan]
+                po_q66_plan = [po_plan_spec.q1_plan_6_6, po_plan_spec.q2_plan_6_6, po_plan_spec.q3_plan_6_6, po_plan_spec.q4_plan_6_6]
+
                 if child_offices_rows:
                     sheet.write_formula(row, column, 'sum(' + child_offices_rows.format(xl_col_to_name(column)) + ')',
-                                        row_format_number_color_forecast)
+                                        row_format_number_color_plan)
                     sheet.write_formula(row, column + 1,
                                         'sum(' + child_offices_rows.format(xl_col_to_name(column + 1)) + ')',
-                                        row_format_number_color_forecast)
+                                        row_format_number_color_plan)
                 else:
-                    sheet.write_string(row, column, '', row_format_number_color_forecast)
-                    sheet.write_string(row, column + 1, '', row_format_number_color_forecast)
+                    sheet.write_number(row, column, po_q_plan[int(element[1]) - 1], row_format_number_color_plan)
+                    sheet.write_number(row, column + 1, po_q66_plan[int(element[1]) - 1], row_format_number_color_plan)
 
                 sheet.write_formula(row, column + 2, f_Q100, row_format_number_color_fact)
-                sheet.write_formula(row, column + 3, f_Q75, row_format_number)
-                sheet.write_formula(row, column + 4, f_Q50, row_format_number)
+                sheet.write_formula(row, column + 3, f_Q75, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 4, f_Q50, row_format_number_color_forecast)
 
             elif 'HY' in element:  # 'HY1/YEAR' 'HY2/YEAR'
                 # formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 12), xl_col_to_name(column - 6))
@@ -2908,14 +2935,14 @@ class report_management_committee_excel(models.AbstractModel):
                     xl_col_to_name(column - 10 + addcolumn),
                     xl_col_to_name(column - 5 + addcolumn)
                 )
-                sheet.write_formula(row, column, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column, formula, row_format_number_color_plan)
 
                 formula = '=sum({1}{0},{2}{0})'.format(
                     row + 1,
                     xl_col_to_name(column - 9 + addcolumn),
                     xl_col_to_name(column - 4 + addcolumn)
                 )
-                sheet.write_formula(row, column + 1, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 1, formula, row_format_number_color_plan)
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8), xl_col_to_name(column - 3))
                 sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
@@ -2935,21 +2962,21 @@ class report_management_committee_excel(models.AbstractModel):
                     xl_col_to_name(column - 7 + addcolumn),
                     xl_col_to_name(column - 2 + addcolumn)
                 )
-                sheet.write_formula(row, column + 3, formula, row_format_number)
+                sheet.write_formula(row, column + 3, formula, row_format_number_color_forecast)
                 formula = '=sum({1}{0},{2}{0})'.format(
                     row + 1,
                     xl_col_to_name(column - 6 + addcolumn),
                     xl_col_to_name(column - 1 + addcolumn)
                 )
-                sheet.write_formula(row, column + 4, formula, row_format_number)
+                sheet.write_formula(row, column + 4, formula, row_format_number_color_forecast)
 
             elif element == 'YEAR':  # 'YEAR'
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21), xl_col_to_name(column - 5))
-                sheet.write_formula(row, column, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column, formula, row_format_number_color_plan)
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 20), xl_col_to_name(column - 4))
-                sheet.write_formula(row, column + 1, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 1, formula, row_format_number_color_plan)
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 19), xl_col_to_name(column - 3))
                 sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
@@ -2963,9 +2990,9 @@ class report_management_committee_excel(models.AbstractModel):
                 )
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 18), xl_col_to_name(column - 3))
-                sheet.write_formula(row, column + 3, formula, row_format_number)
+                sheet.write_formula(row, column + 3, formula, row_format_number_color_forecast)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 17), xl_col_to_name(column - 2))
-                sheet.write_formula(row, column + 4, formula, row_format_number)
+                sheet.write_formula(row, column + 4, formula, row_format_number_color_forecast)
 
             elif element == 'NEXT':
                 f_sum_next_75 = 'sum(' + str(sum_next_75) + child_offices_rows.format(xl_col_to_name(column)) + ')'
@@ -3043,19 +3070,28 @@ class report_management_committee_excel(models.AbstractModel):
                 f_Q75 = 'sum(' + str(sumM75) + child_offices_rows.format(xl_col_to_name(column + 3)) + ')'
                 f_Q50 = 'sum(' + str(sumM50) + child_offices_rows.format(xl_col_to_name(column + 4)) + ')'
 
+                po_plan_spec = self.env['project_budget.budget_plan_supervisor_spec'].search([
+                    ('budget_plan_supervisor_id.year', '=', YEARint),
+                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('type_row', '=', 'cash'),
+                ])
+
+                po_q_plan = [po_plan_spec.q1_plan, po_plan_spec.q2_plan, po_plan_spec.q3_plan, po_plan_spec.q4_plan]
+                po_q66_plan = [po_plan_spec.q1_plan_6_6, po_plan_spec.q2_plan_6_6, po_plan_spec.q3_plan_6_6, po_plan_spec.q4_plan_6_6]
+
                 if child_offices_rows:
                     sheet.write_formula(row, column, 'sum(' + child_offices_rows.format(xl_col_to_name(column)) + ')',
-                                        row_format_number_color_forecast)
+                                        row_format_number_color_plan)
                     sheet.write_formula(row, column + 1,
                                         'sum(' + child_offices_rows.format(xl_col_to_name(column + 1)) + ')',
-                                        row_format_number_color_forecast)
+                                        row_format_number_color_plan)
                 else:
-                    sheet.write_string(row, column, '', row_format_number_color_forecast)
-                    sheet.write_string(row, column + 1, '', row_format_number_color_forecast)
+                    sheet.write_number(row, column, po_q_plan[int(element[1]) - 1], row_format_number_color_plan)
+                    sheet.write_number(row, column + 1, po_q66_plan[int(element[1]) - 1], row_format_number_color_plan)
 
                 sheet.write_formula(row, column + 2, f_Q100, row_format_number_color_fact)
-                sheet.write_formula(row, column + 3, f_Q75, row_format_number)
-                sheet.write_formula(row, column + 4, f_Q50, row_format_number)
+                sheet.write_formula(row, column + 3, f_Q75, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 4, f_Q50, row_format_number_color_forecast)
 
             elif 'HY' in element:  # 'HY1/YEAR' 'HY2/YEAR'
                 # if sumHY75etalon != 0: sheet.write_number(row, column + 0, sumHY75etalon, row_format_number)
@@ -3083,14 +3119,14 @@ class report_management_committee_excel(models.AbstractModel):
                     xl_col_to_name(column - 10 + addcolumn),
                     xl_col_to_name(column - 5 + addcolumn)
                 )
-                sheet.write_formula(row, column, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column, formula, row_format_number_color_plan)
 
                 formula = '=sum({1}{0},{2}{0})'.format(
                     row + 1,
                     xl_col_to_name(column - 9 + addcolumn),
                     xl_col_to_name(column - 4 + addcolumn)
                 )
-                sheet.write_formula(row, column + 1, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 1, formula, row_format_number_color_plan)
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8),
                                                        xl_col_to_name(column - 3))
@@ -3111,14 +3147,14 @@ class report_management_committee_excel(models.AbstractModel):
                     xl_col_to_name(column - 7 + addcolumn),
                     xl_col_to_name(column - 2 + addcolumn)
                 )
-                sheet.write_formula(row, column + 3, formula, row_format_number)
+                sheet.write_formula(row, column + 3, formula, row_format_number_color_forecast)
 
                 formula = '=sum({1}{0},{2}{0})'.format(
                     row + 1,
                     xl_col_to_name(column - 6 + addcolumn),
                     xl_col_to_name(column - 1 + addcolumn)
                 )
-                sheet.write_formula(row, column + 4, formula, row_format_number)
+                sheet.write_formula(row, column + 4, formula, row_format_number_color_forecast)
 
             elif element == 'YEAR':  # 'YEAR'
                 # if sumYear75etalon != 0: sheet.write_number(row, column + 0, sumYear75etalon, row_format_number)
@@ -3136,11 +3172,11 @@ class report_management_committee_excel(models.AbstractModel):
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21),
                                                        xl_col_to_name(column - 5))
-                sheet.write_formula(row, column, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column, formula, row_format_number_color_plan)
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 20),
                                                        xl_col_to_name(column - 4))
-                sheet.write_formula(row, column + 1, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 1, formula, row_format_number_color_plan)
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 19),
                                                        xl_col_to_name(column - 3))
@@ -3156,10 +3192,10 @@ class report_management_committee_excel(models.AbstractModel):
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 18),
                                                        xl_col_to_name(column - 3))
-                sheet.write_formula(row, column + 3, formula, row_format_number)
+                sheet.write_formula(row, column + 3, formula, row_format_number_color_forecast)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 17),
                                                        xl_col_to_name(column - 2))
-                sheet.write_formula(row, column + 4, formula, row_format_number)
+                sheet.write_formula(row, column + 4, formula, row_format_number_color_forecast)
 
             elif element == 'NEXT':
                 f_sum_next_75 = 'sum(' + str(sum_next_75) + child_offices_rows.format(xl_col_to_name(column)) + ')'
@@ -3235,23 +3271,41 @@ class report_management_committee_excel(models.AbstractModel):
 
             if 'Q' in element:
 
+                po_plan_acc = self.env['project_budget.budget_plan_supervisor_spec'].search([
+                    ('budget_plan_supervisor_id.year', '=', YEARint),
+                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('type_row', '=', 'acceptance'),
+                ])
+
+                po_plan_margin = self.env['project_budget.budget_plan_supervisor_spec'].search([
+                    ('budget_plan_supervisor_id.year', '=', YEARint),
+                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('type_row', '=', 'margin_income'),
+                ])
+
+                po_q_plan_acc = [po_plan_acc.q1_plan, po_plan_acc.q2_plan, po_plan_acc.q3_plan, po_plan_acc.q4_plan]
+                po_q66_plan_acc = [po_plan_acc.q1_plan_6_6, po_plan_acc.q2_plan_6_6, po_plan_acc.q3_plan_6_6, po_plan_acc.q4_plan_6_6]
+
+                po_q_plan_margin = [po_plan_margin.q1_plan, po_plan_margin.q2_plan, po_plan_margin.q3_plan, po_plan_margin.q4_plan]
+                po_q66_plan_margin = [po_plan_margin.q1_plan_6_6, po_plan_margin.q2_plan_6_6, po_plan_margin.q3_plan_6_6, po_plan_margin.q4_plan_6_6]
+
                 if child_offices_rows:
                     sheet.write_formula(row, column, 'sum(' + child_offices_rows.format(xl_col_to_name(column)) + ')',
-                                        row_format_number_color_forecast)
+                                        row_format_number_color_plan)
                     sheet.write_formula(row, column + 1,
                                         'sum(' + child_offices_rows.format(xl_col_to_name(column + 1)) + ')',
-                                        row_format_number_color_forecast)
+                                        row_format_number_color_plan)
                     sheet.write_formula(row, column + 41,
                                         'sum(' + child_offices_rows.format(xl_col_to_name(column + 41)) + ')',
-                                        row_format_number_color_forecast)
+                                        row_format_number_color_plan)
                     sheet.write_formula(row, column + 1 + 41,
                                         'sum(' + child_offices_rows.format(xl_col_to_name(column + 1 + 41)) + ')',
-                                        row_format_number_color_forecast)
+                                        row_format_number_color_plan)
                 else:
-                    sheet.write_string(row, column, '', row_format_number_color_forecast)
-                    sheet.write_string(row, column + 1, '', row_format_number_color_forecast)
-                    sheet.write_string(row, column + 41, '', row_format_number_color_forecast)
-                    sheet.write_string(row, column + 1 + 41, '', row_format_number_color_forecast)
+                    sheet.write_number(row, column, po_q_plan_acc[int(element[1]) - 1], row_format_number_color_plan)
+                    sheet.write_number(row, column + 1, po_q66_plan_acc[int(element[1]) - 1], row_format_number_color_plan)
+                    sheet.write_number(row, column + 41, po_q_plan_margin[int(element[1]) - 1], row_format_number_color_plan)
+                    sheet.write_number(row, column + 1 + 41, po_q66_plan_margin[int(element[1]) - 1], row_format_number_color_plan)
 
                 # f_sumQ75etalon = 'sum(' + str(sumQ75etalon) + child_offices_rows.format(xl_col_to_name(column)) + ')'
                 # f_sumQ50etalon = 'sum(' + str(sumQ50etalon) + child_offices_rows.format(
@@ -3274,10 +3328,10 @@ class report_management_committee_excel(models.AbstractModel):
                 # sheet.write_formula(row, column + 44, f_profQ50etalon, row_format_number)
                 sheet.write_formula(row, column + 2, f_sumQ100, row_format_number_color_fact)
                 sheet.write_formula(row, column + 2 + 41, f_profQ100, row_format_number_color_fact)
-                sheet.write_formula(row, column + 3, f_sumQ75, row_format_number)
-                sheet.write_formula(row, column + 3 + 41, f_profQ75, row_format_number)
-                sheet.write_formula(row, column + 4, f_sumQ50, row_format_number)
-                sheet.write_formula(row, column + 4 + 41, f_profQ50, row_format_number)
+                sheet.write_formula(row, column + 3, f_sumQ75, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 3 + 41, f_profQ75, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 4, f_sumQ50, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 4 + 41, f_profQ50, row_format_number_color_forecast)
 
                 # sumHY100etalon += sumQ100etalon
                 # sumHY75etalon += sumQ75etalon
@@ -3295,15 +3349,15 @@ class report_management_committee_excel(models.AbstractModel):
                 # sumYear50 += sumHY50
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 10), xl_col_to_name(column - 5))
-                sheet.write_formula(row, column, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column, formula, row_format_number_color_plan)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 9), xl_col_to_name(column - 4))
-                sheet.write_formula(row, column + 1, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 1, formula, row_format_number_color_plan)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 10 + 41),
                                                        xl_col_to_name(column - 5 + 41))
-                sheet.write_formula(row, column + 41, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 41, formula, row_format_number_color_plan)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 9 + 41),
                                                        xl_col_to_name(column - 4 + 41))
-                sheet.write_formula(row, column + 1 + 41, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 1 + 41, formula, row_format_number_color_plan)
 
                 sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
 
@@ -3335,10 +3389,10 @@ class report_management_committee_excel(models.AbstractModel):
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 7 + addcolumn),
                                                        xl_col_to_name(column - 2 + addcolumn))
-                sheet.write_formula(row, column + 3, formula, row_format_number)
+                sheet.write_formula(row, column + 3, formula, row_format_number_color_forecast)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 6 + addcolumn),
                                                        xl_col_to_name(column - 1 + addcolumn))
-                sheet.write_formula(row, column + 4, formula, row_format_number)
+                sheet.write_formula(row, column + 4, formula, row_format_number_color_forecast)
 
                 # formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 12 + 43), xl_col_to_name(column - 6 + 43))
                 # sheet.write_formula(row, column + 0 + 43, formula, row_format_number)
@@ -3347,10 +3401,10 @@ class report_management_committee_excel(models.AbstractModel):
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 7 + 41 + addcolumn),
                                                        xl_col_to_name(column - 2 + 41 + addcolumn))
-                sheet.write_formula(row, column + 3 + 41, formula, row_format_number)
+                sheet.write_formula(row, column + 3 + 41, formula, row_format_number_color_forecast)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 6 + 41 + addcolumn),
                                                        xl_col_to_name(column - 1 + 41 + addcolumn))
-                sheet.write_formula(row, column + 4 + 41, formula, row_format_number)
+                sheet.write_formula(row, column + 4 + 41, formula, row_format_number_color_forecast)
 
             elif element == 'YEAR':  # 'YEAR'
                 # formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 25), xl_col_to_name(column - 6))
@@ -3359,15 +3413,15 @@ class report_management_committee_excel(models.AbstractModel):
                 # sheet.write_formula(row, column + 1, formula, row_format_number)
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21), xl_col_to_name(column - 5))
-                sheet.write_formula(row, column, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column, formula, row_format_number_color_plan)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 20), xl_col_to_name(column - 4))
-                sheet.write_formula(row, column + 1, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 1, formula, row_format_number_color_plan)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21 + 41),
                                                        xl_col_to_name(column - 5 + 41))
-                sheet.write_formula(row, column + 41, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 41, formula, row_format_number_color_plan)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 20 + 41),
                                                        xl_col_to_name(column - 4 + 41))
-                sheet.write_formula(row, column + 1 + 41, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 1 + 41, formula, row_format_number_color_plan)
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 19), xl_col_to_name(column - 3))
                 sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
@@ -3390,9 +3444,9 @@ class report_management_committee_excel(models.AbstractModel):
                 )
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 18), xl_col_to_name(column - 3))
-                sheet.write_formula(row, column + 3, formula, row_format_number)
+                sheet.write_formula(row, column + 3, formula, row_format_number_color_forecast)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 17), xl_col_to_name(column - 2))
-                sheet.write_formula(row, column + 4, formula, row_format_number)
+                sheet.write_formula(row, column + 4, formula, row_format_number_color_forecast)
 
                 # formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 25 + 43), xl_col_to_name(column - 6 + 43))
                 # sheet.write_formula(row, column + 0 + 43, formula, row_format_number)
@@ -3401,10 +3455,10 @@ class report_management_committee_excel(models.AbstractModel):
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 18 + 41),
                                                        xl_col_to_name(column - 3 + 41))
-                sheet.write_formula(row, column + 3 + 41, formula, row_format_number)
+                sheet.write_formula(row, column + 3 + 41, formula, row_format_number_color_forecast)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 17 + 41),
                                                        xl_col_to_name(column - 2 + 41))
-                sheet.write_formula(row, column + 4 + 41, formula, row_format_number)
+                sheet.write_formula(row, column + 4 + 41, formula, row_format_number_color_forecast)
 
             elif element == 'NEXT':
                 f_sum_next_75 = 'sum(' + str(sum_next_75) + child_offices_rows.format(xl_col_to_name(column)) + ')'
@@ -3487,7 +3541,7 @@ class report_management_committee_excel(models.AbstractModel):
             "num_format": '#,##0',
             "top": 2,
         })
-        row_format_company_forecast = workbook.add_format({
+        row_format_company_plan = workbook.add_format({
             'border': 1,
             'font_size': 12,
             "bold": True,
@@ -3511,13 +3565,21 @@ class report_management_committee_excel(models.AbstractModel):
             "top": 2,
             "fg_color": '#ffff99',
         })
-        row_format_company_next = workbook.add_format({
+        row_format_company_forecast = workbook.add_format({
             'border': 1,
             'font_size': 12,
             "bold": True,
             "num_format": '#,##0',
             "top": 2,
             "fg_color": '#E2EFDA',
+        })
+        row_format_company_next = workbook.add_format({
+            'border': 1,
+            'font_size': 12,
+            "bold": True,
+            "num_format": '#,##0',
+            "top": 2,
+            "fg_color": '#F3F8F0',
         })
 
         row_format_date_month.set_num_format('mmm yyyy')
@@ -3572,7 +3634,9 @@ class report_management_committee_excel(models.AbstractModel):
         begRowProjectsByOffice = 0
 
         cur_budget_projects = self.env['project_budget.projects'].search([
-            ('commercial_budget_id', '=', budget.id)], order='estimated_probability_id desc').sorted(key=lambda r: r.project_manager_id.name)
+            ('commercial_budget_id', '=', budget.id),
+            ('is_parent_project', '=', False)],
+            ).sorted(key=lambda r: (r.project_manager_id.name, r.estimated_probability_id.code))
 
         # cur_project_offices = project_offices.filtered(lambda r: r in cur_budget_projects.project_office_id or r in {office.parent_id for office in cur_budget_projects.project_office_id if office.parent_id in project_offices})
         cur_project_offices = project_offices
@@ -3799,6 +3863,7 @@ class report_management_committee_excel(models.AbstractModel):
                     office_name = project_office.report_name or project_office.name
 
                     sheet.write_string(office_row, column, '       ' * level + office_name, row_format_office)
+                    sheet.merge_range(office_row, column + 1, office_row, column + 10, '', row_format_office)
                     sheet.set_row(office_row, False, False, {'hidden': 1, 'level': level})
 
                     str_project_office_id = 'project_office_' + str(int(project_office.parent_id))
@@ -3816,8 +3881,9 @@ class report_management_committee_excel(models.AbstractModel):
                     else:
                         formulaProjectOffice = formulaProjectOffice + ')'
 
-                    projects = self.env['project_budget.projects'].search(['&',
+                    projects = self.env['project_budget.projects'].search(['&','&',
                                                                            ('commercial_budget_id', '=', budget.id),
+                                                                           ('is_parent_project', '=', False),
                                                                            '|',
                                                                            (
                                                                            'project_office_id', '=', project_office.id),
@@ -3827,6 +3893,7 @@ class report_management_committee_excel(models.AbstractModel):
                                                                            '=', True),
                                                                            ('project_have_steps', '=', True),
                                                                            ])
+
                     self.print_row_values_office(
                         workbook,
                         sheet,
@@ -3852,7 +3919,7 @@ class report_management_committee_excel(models.AbstractModel):
                                                      not spec.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and spec.project_office_id == project_office))
                                             and spec.company_id == company):
 
-                                        if self.isStepinYear(spec, step) is False:
+                                        if self.isStepinYear(spec, step) is False or step.estimated_probability_id.name == '10':
                                             continue
 
                                         # печатаем строки этапов проектов
@@ -3878,22 +3945,25 @@ class report_management_committee_excel(models.AbstractModel):
                                         sheet.write_string(row, column, self.get_estimated_probability_name_forecast(
                                             step.estimated_probability_id.name), cur_row_format)
                                         column += 1
-                                        sheet.write_number(row, column, step.total_amount_of_revenue_with_vat,
+                                        sheet.write_number(row, column,
+                                                           step.total_amount_of_revenue_with_vat * self.get_currency_rate_by_project(step.projects_id),
                                                            cur_row_format_number)
                                         column += 1
-                                        sheet.write_number(row, column, step.margin_income, cur_row_format_number)
+                                        sheet.write_number(row, column,
+                                                           step.margin_income * self.get_currency_rate_by_project(step.projects_id),
+                                                           cur_row_format_number)
                                         column += 1
-                                        sheet.write_number(row, column, step.profitability, cur_row_format_number)
+                                        sheet.write_string(row, column, f'{step.profitability:.2f}' + '%', cur_row_format)
                                         column += 1
                                         sheet.write_string(row, column, step.dogovor_number or '', cur_row_format)
                                         column += 1
-                                        sheet.write_string(row, column, step.vat_attribute_id.name, cur_row_format)
+                                        sheet.write_string(row, column, step.vat_attribute_id.name or '', cur_row_format)
                                         column += 1
-                                        sheet.write_string(row, column, '', head_format_1)
+                                        sheet.write_string(row, column, '', cur_row_format)
                                         self.print_row_Values(workbook, sheet, row, column, strYEAR, spec, step, project_office, multipliers)
                             else:
                                 if spec.project_office_id == project_office and spec.company_id == company:
-                                    if self.isProjectinYear(spec) is False:
+                                    if self.isProjectinYear(spec) is False or spec.estimated_probability_id.name == '10':
                                         continue
 
                                     # печатаем строки проектов
@@ -3917,18 +3987,21 @@ class report_management_committee_excel(models.AbstractModel):
                                     sheet.write_string(row, column, self.get_estimated_probability_name_forecast(
                                         spec.estimated_probability_id.name), cur_row_format)
                                     column += 1
-                                    sheet.write_number(row, column, spec.total_amount_of_revenue_with_vat,
+                                    sheet.write_number(row, column,
+                                                       spec.total_amount_of_revenue_with_vat * self.get_currency_rate_by_project(spec),
                                                        cur_row_format_number)
                                     column += 1
-                                    sheet.write_number(row, column, spec.margin_income, cur_row_format_number)
+                                    sheet.write_number(row, column,
+                                                       spec.margin_income * self.get_currency_rate_by_project(spec),
+                                                       cur_row_format_number)
                                     column += 1
-                                    sheet.write_number(row, column, spec.profitability, cur_row_format_number)
+                                    sheet.write_string(row, column, f'{spec.profitability:.2f}' + '%', cur_row_format)
                                     column += 1
                                     sheet.write_string(row, column, spec.dogovor_number or '', cur_row_format)
                                     column += 1
                                     sheet.write_string(row, column, spec.vat_attribute_id.name or '', cur_row_format)
                                     column += 1
-                                    sheet.write_string(row, column, '', head_format_1)
+                                    sheet.write_string(row, column, '', cur_row_format)
                                     self.print_row_Values(workbook, sheet, row, column, strYEAR, spec, False, project_office, multipliers)
 
                     # for colFormula in range(12, 302):
@@ -3957,6 +4030,7 @@ class report_management_committee_excel(models.AbstractModel):
                 company_row = dict_formula['company_ids'][company.id]
 
                 sheet.write_string(company_row, column, company.name, row_format_company)
+                sheet.merge_range(company_row, column + 1, company_row, column + 10, '', row_format_company)
 
                 formulaProjectCompany += ')'
 
@@ -3965,10 +4039,10 @@ class report_management_committee_excel(models.AbstractModel):
                     for colFormula in range(0, 7):
                         formula = formulaProjectCompany.format(xl_col_to_name(i * 38 + colFormula * 5 + 1 + shift))
                         sheet.write_formula(company_row, i * 38 + colFormula * 5 + 1 + shift, formula,
-                                            row_format_company_forecast)
+                                            row_format_company_plan)
                         formula = formulaProjectCompany.format(xl_col_to_name(i * 38 + colFormula * 5 + 2 + shift))
                         sheet.write_formula(company_row, i * 38 + colFormula * 5 + 2 + shift, formula,
-                                            row_format_company_forecast)
+                                            row_format_company_plan)
                         formula = formulaProjectCompany.format(xl_col_to_name(i * 38 + colFormula * 5 + 3 + shift))
                         sheet.write_formula(company_row, i * 38 + colFormula * 5 + 3 + shift, formula,
                                             row_format_company_fact)
@@ -3979,10 +4053,10 @@ class report_management_committee_excel(models.AbstractModel):
                             shift += 1
                         formula = formulaProjectCompany.format(xl_col_to_name(i * 38 + colFormula * 5 + 4 + shift))
                         sheet.write_formula(company_row, i * 38 + colFormula * 5 + 4 + shift, formula,
-                                            row_format_company)
+                                            row_format_company_forecast)
                         formula = formulaProjectCompany.format(xl_col_to_name(i * 38 + colFormula * 5 + 5 + shift))
                         sheet.write_formula(company_row, i * 38 + colFormula * 5 + 5 + shift, formula,
-                                            row_format_company)
+                                            row_format_company_forecast)
                     for x in range(4):
                         formula = formulaProjectCompany.format(xl_col_to_name((i + 1) * 38 + x + shift - 2))
                         sheet.write_formula(company_row, (i + 1) * 38 + x + shift - 2, formula, row_format_company_next)
@@ -4104,58 +4178,39 @@ class report_management_committee_excel(models.AbstractModel):
         row = 2
         column = 0
         sheet.merge_range(row - 1, 0, row, 0, "Прогноз", head_format)
+        sheet.merge_range(row - 1, 1, row, 10, "", head_format)
         sheet.merge_range(row + 1, 0, row + 2, 0, "БЮ/Проектный офис/КАМ", head_format_1)
         sheet.set_column(column, column, 40)
         column += 1
-        sheet.write_string(row, column, "", head_format)
-        sheet.write_string(row+1, column, "Заказчик", head_format_1)
-        sheet.write_string(row + 2, column, "", head_format_1)
+        sheet.merge_range(row + 1, column, row + 2, column, "Заказчик", head_format_1)
         # sheet.set_column(column, column, 25)
         column += 1
-        sheet.write_string(row, column, "", head_format)
-        sheet.write_string(row+1, column, "Наименование Проекта", head_format_1)
-        sheet.write_string(row + 2, column, "", head_format_1)
+        sheet.merge_range(row + 1, column, row + 2, column, "Наименование Проекта", head_format_1)
         # sheet.set_column(column, column, 12.25)
         column += 1
-        sheet.write_string(row, column, "", head_format)
-        sheet.write_string(row+1, column, "Номер этапа проекта", head_format_1)
-        sheet.write_string(row + 2, column, "", head_format_1)
+        sheet.merge_range(row + 1, column, row + 2, column, "Номер этапа проекта", head_format_1)
         # sheet.set_column(column, column, 15)
         column += 1
-        sheet.write_string(row, column, "", head_format)
-        sheet.write_string(row+1, column, "Стадия продажи", head_format_1)
-        sheet.write_string(row + 2, column, "", head_format_1)
+        sheet.merge_range(row + 1, column, row + 2, column, "Стадия продажи", head_format_1)
         # sheet.set_column(column, column, 16.88)
         column += 1
-        sheet.write_string(row, column, "", head_format)
-        sheet.write_string(row+1, column, "Сумма проекта, вруб", head_format_1)
-        sheet.write_string(row + 2, column, "", head_format_1)
+        sheet.merge_range(row + 1, column, row + 2, column, "Сумма проекта, руб.", head_format_1)
         # sheet.set_column(column, column, 14)
         column += 1
-        sheet.write_string(row, column, "", head_format)
-        sheet.write_string(row+1, column, "Валовая прибыль экспертно, в руб", head_format_1)
-        sheet.write_string(row + 2, column, "", head_format_1)
+        sheet.merge_range(row + 1, column, row + 2, column, "Валовая прибыль экспертно, руб.", head_format_1)
         # sheet.set_column(column, column, 14)
         column += 1
-        sheet.write_string(row, column, "", head_format)
-        sheet.write_string(row+1, column, "Прибыльность, экспертно, %", head_format_1)
-        sheet.write_string(row + 2, column, "", head_format_1)
+        sheet.merge_range(row + 1, column, row + 2, column, "Прибыльность, экспертно, %", head_format_1)
         # sheet.set_column(column, column, 9)
         column += 1
-        sheet.write_string(row, column, "", head_format)
-        sheet.write_string(row+1, column, "Номер договора", head_format_1)
-        sheet.write_string(row + 2, column, "", head_format_1)
+        sheet.merge_range(row + 1, column, row + 2, column, "Номер договора", head_format_1)
         # sheet.set_column(column, column, 11.88)
         column += 1
-        sheet.write_string(row, column, "", head_format)
-        sheet.write_string(row+1, column, "НДС", head_format_1)
-        sheet.write_string(row + 2, column, "", head_format_1)
+        sheet.merge_range(row + 1, column, row + 2, column, "НДС", head_format_1)
         # sheet.set_column(column, column, 7)
         sheet.set_column(1, 9, False, False, {'hidden': 1, 'level': 3})
         column += 1
-        sheet.write_string(row, column, "", head_format)
-        sheet.write_string(row + 1, column, "", head_format_1)
-        sheet.write_string(row + 2, column, "", head_format_1)
+        sheet.merge_range(row + 1, column, row + 2, column, "", head_format_1)
         sheet.set_column(column, column, 2)
 
         sheet.freeze_panes(5, 1)
@@ -4165,31 +4220,43 @@ class report_management_committee_excel(models.AbstractModel):
 
         cur_budget_projects = self.env['project_budget.projects'].search([
             ('commercial_budget_id', '=', budget.id),
+            ('is_parent_project', '=', False),
         ])
 
         #  считаем max_level
-        cur_offices = set()
+        depth_dict = {}
+        max_depth = 1
+        parents = [False,]
+        new_parents = []
+
+        parent_offices = self.env['project_budget.project_office'].search([('parent_id', 'in', parents)])
+        while parent_offices:
+            for office in parent_offices:
+                depth_dict[office] = max_depth
+                new_parents.append(office.id)
+            max_depth += 1
+            parents = new_parents
+            new_parents = []
+            parent_offices = self.env['project_budget.project_office'].search([('parent_id', 'in', parents)])
+
+        depth = 1
+
+        # for project in cur_budget_projects:
+        #     if project.project_have_steps:
+        #         for step in project.project_steps_ids:
+        #             if step.project_office_id.id:
+        #                 depth = max(depth, depth_dict[step.project_office_id])
+        #     else:
+        #         depth = max(depth, depth_dict[project.project_office_id])
+        #     if depth == max_depth:
+        #         break
 
         for project in cur_budget_projects:
-            if project.project_have_steps:
-                for step in project.project_steps_ids:
-                    if step.project_office_id.id:
-                        cur_offices.add(step.project_office_id)
-            else:
-                cur_offices.add(project.project_office_id)
+            depth = max(depth, depth_dict[project.project_office_id])
+            if depth == max_depth:
+                break
 
-        parents_ids = [False,]
-        parents = set()
-        max_level = 1
-        while cur_offices:
-            new_parents_ids = []
-            for office in cur_offices:
-                if office.parent_id.id in parents_ids:
-                    parents.add(office)
-                    new_parents_ids.append(office.id)
-            max_level += 1
-            parents_ids.extend(new_parents_ids)
-            cur_offices = cur_offices - parents
+        max_level = depth + 1
 
         companies = self.env['res.company'].search([], order='name')
         project_offices = self.env['project_budget.project_office'].search([('parent_id', '=', False)],
@@ -4205,6 +4272,7 @@ class report_management_committee_excel(models.AbstractModel):
         row += 1
         column = 0
         sheet.write_string(row, column, 'ИТОГО по отчету', row_format_number_itogo)
+        sheet.merge_range(row, column + 1, row, column + 10, '', row_format_number_itogo)
         for company_row in dict_formula['company_ids'].values():
             formulaItogo += ',{0}' + str(company_row + 1)
         formulaItogo = formulaItogo + ')'
@@ -4213,7 +4281,7 @@ class report_management_committee_excel(models.AbstractModel):
             sheet.write_formula(row, colFormula, formula, row_format_number_itogo)
         for i in range(4):  # формулы для процентов выполнения
             for j in (14, 35):
-                formula = f'=IFERROR({xl_col_to_name(i * 41 + j - 1)}{row + 1}/{xl_col_to_name(i * 41 + j - 2)}{row + 1}, " ")'
+                formula = f'=IFERROR({xl_col_to_name(i * 41 + j + 9)}{row + 1}/{xl_col_to_name(i * 41 + j + 8)}{row + 1}, " ")'
                 sheet.write_formula(row, i * 41 + j + 10, formula, row_format_number_itogo_percent)
         print('dict_formula = ', dict_formula)
 
