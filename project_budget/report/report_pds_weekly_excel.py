@@ -2627,7 +2627,7 @@ class report_pds_weekly_excel(models.AbstractModel):
                                 if (((spec.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
                                     or ((not spec.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and spec.project_office_id == project_office))
                                     and spec.company_id == company
-                                    and step.estimated_probability_id.name in ['100done', '100', '75', '50']
+                                    and step.estimated_probability_id.name in ['100(done)', '100', '75', '50']
                                     and self.isStepinYear(spec, step)
                                     and (self.env['project_budget.fact_cash_flow'].search([('project_steps_id', '=', step.id)])
                                          or self.env['project_budget.planned_cash_flow'].search([('project_steps_id', '=', step.id)])
@@ -2677,7 +2677,7 @@ class report_pds_weekly_excel(models.AbstractModel):
                         else:
                             if (spec.project_office_id == project_office
                                 and spec.company_id == company
-                                and spec.estimated_probability_id.name in ['100done', '100', '75', '50']
+                                and spec.estimated_probability_id.name in ['100(done)', '100', '75', '50']
                                 and self.isProjectinYear(spec)
                             ):
                                 currency_rate = self.get_currency_rate_by_project(spec)
