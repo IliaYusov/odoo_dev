@@ -3581,6 +3581,9 @@ class report_management_committee_excel(models.AbstractModel):
             "top": 2,
             "fg_color": '#F3F8F0',
         })
+        row_format_company_empty = workbook.add_format({
+            "fg_color": '#F2F2F2',
+        })
 
         row_format_date_month.set_num_format('mmm yyyy')
 
@@ -4018,6 +4021,9 @@ class report_management_committee_excel(models.AbstractModel):
 
                     if not project_office.parent_id:
                         formulaProjectCompany += ',{0}' + f'{office_row + 1}'
+                    row += 1
+                    sheet.write_string(row, column, '', row_format_office)
+                    sheet.set_row(row, 14, row_format_company_empty, {'hidden': 1, 'level': level})
                 else:
                     if project_office.child_ids:
                         if all(child.id not in dict_formula['office_ids_not_empty'] for child in
