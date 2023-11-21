@@ -232,7 +232,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
 
         row += 1
         sheet.merge_range(row, 0, row, 9, 'ИТОГО', total_format)
-        sheet.write_formula(row, column, '=sum({0}{1}:{0}{2})'.format(xl_col_to_name(column), 3, row - 1), total_num_format)
+        sheet.write_formula(row, column, '=sum({0}{1}:{0}{2})'.format(xl_col_to_name(column), 3, row), total_num_format)
 
     def generate_xlsx_report(self, workbook, data, budgets):
 
