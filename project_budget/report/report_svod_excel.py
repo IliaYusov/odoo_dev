@@ -438,7 +438,7 @@ class report_svod_excel(models.AbstractModel):
                     if step_cur.estimated_probability_id.name in ('50', '75', '100','100(done)'): # текущую вероятность сомтрим
                         for pds in project.planned_cash_flow_ids:
                             if pds.project_steps_id.id == project_step.id :
-                                if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end:
+                                if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end and pds.forecast in ('commitment', 'reserve', 'from_project'):
                                     sum_year += pds.sum_cash
                                     if pds.date_cash.month in (1, 2, 3):
                                         sum_q1 += pds.sum_cash
@@ -451,7 +451,7 @@ class report_svod_excel(models.AbstractModel):
             else:
                 if project_cur.estimated_probability_id.name in ('50', '75', '100','100(done)'): # вероятность по текущему проекту смотрим
                     for pds in project.planned_cash_flow_ids:
-                        if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end:
+                        if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end and pds.forecast in ('commitment', 'reserve', 'from_project'):
                             sum_year += pds.sum_cash
                             if pds.date_cash.month in (1, 2, 3):
                                 sum_q1 += pds.sum_cash
@@ -563,7 +563,7 @@ class report_svod_excel(models.AbstractModel):
                     if step_cur.estimated_probability_id.name in ('50', '75', '100','100(done)'): # по текущему смотрим
                         for act in project.planned_acceptance_flow_ids:
                             if act.project_steps_id.id == project_step.id:
-                                if act.date_cash.year >= YEARint and act.date_cash.year <= year_end :
+                                if act.date_cash.year >= YEARint and act.date_cash.year <= year_end and act.forecast in ('commitment', 'reserve', 'from_project'):
                                     sum_year += act.sum_cash_without_vat
                                     if act.date_cash.month in (1, 2, 3):
                                         sum_q1 += act.sum_cash_without_vat
@@ -576,7 +576,7 @@ class report_svod_excel(models.AbstractModel):
             else:
                 if project_cur.estimated_probability_id.name in ('50', '75', '100','100(done)'): # вероятность по текущему проекту смотрим
                     for act in project.planned_acceptance_flow_ids:
-                        if act.date_cash.year >= YEARint and act.date_cash.year <= year_end:
+                        if act.date_cash.year >= YEARint and act.date_cash.year <= year_end and act.forecast in ('commitment', 'reserve', 'from_project'):
                             sum_year += act.sum_cash_without_vat
                             if act.date_cash.month in (1, 2, 3):
                                 sum_q1 += act.sum_cash_without_vat
@@ -1028,7 +1028,7 @@ class report_svod_excel(models.AbstractModel):
                         if step.estimated_probability_id.name in ('100','100(done)', '75', '50'):
                             for pds in project.planned_cash_flow_ids:
                                 if pds.project_steps_id.id == step.id:
-                                    if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end:
+                                    if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end and pds.forecast in ('commitment', 'reserve', 'from_project'):
                                         sum_pds_year += pds.sum_cash
                                         if pds.date_cash.month in (1, 2, 3):
                                             sum_pds_q1 += pds.sum_cash
@@ -1040,7 +1040,7 @@ class report_svod_excel(models.AbstractModel):
                                             sum_pds_q4 += pds.sum_cash
                             for act in project.planned_acceptance_flow_ids:
                                 if act.project_steps_id.id == step.id:
-                                    if act.date_cash.year >= YEARint and act.date_cash.year <= year_end:
+                                    if act.date_cash.year >= YEARint and act.date_cash.year <= year_end and act.forecast in ('commitment', 'reserve', 'from_project'):
                                         sum_act_year += act.sum_cash_without_vat
                                         if act.date_cash.month in (1, 2, 3):
                                             sum_act_q1 += act.sum_cash_without_vat
@@ -1076,7 +1076,7 @@ class report_svod_excel(models.AbstractModel):
                             sum_contract_q4 += project.total_amount_of_revenue_with_vat*currency_rate
                         if project.estimated_probability_id.name in ('100','100(done)', '75', '50'):
                             for pds in project.planned_cash_flow_ids:
-                                if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end:
+                                if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end and pds.forecast in ('commitment', 'reserve', 'from_project'):
                                     sum_pds_year += pds.sum_cash
                                     if pds.date_cash.month in (1, 2, 3):
                                         sum_pds_q1 += project.total_amount_of_revenue_with_vat
@@ -1087,7 +1087,7 @@ class report_svod_excel(models.AbstractModel):
                                     if pds.date_cash.month in (10, 11, 12):
                                         sum_pds_q4 += project.total_amount_of_revenue_with_vat
                             for act in project.planned_acceptance_flow_ids:
-                                if act.date_cash.year >= YEARint and act.date_cash.year <= year_end:
+                                if act.date_cash.year >= YEARint and act.date_cash.year <= year_end and act.forecast in ('commitment', 'reserve', 'from_project'):
                                     sum_act_year += act.sum_cash_without_vat
                                     if act.date_cash.month in (1, 2, 3):
                                         sum_act_q1 += act.sum_cash_without_vat
