@@ -21,7 +21,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                 if step:
                     if pds.project_steps_id.id != step.id:
                         continue
-                if date_start <= pds.date_cash <= date_end:
+                if date_start <= pds.date_cash <= date_end and pds.forecast in ('commitment', 'reserve', 'from_project'):
                     sum_cash += pds.distribution_sum_with_vat_ostatok
 
         return sum_cash
@@ -37,7 +37,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                 if step:
                     if acceptance.project_steps_id.id != step.id:
                         continue
-                if date_start <= acceptance.date_cash <= date_end:
+                if date_start <= acceptance.date_cash <= date_end and acceptance.forecast in ('commitment', 'reserve', 'from_project'):
                     sum_cash += acceptance.distribution_sum_without_vat_ostatok
 
         return sum_cash
