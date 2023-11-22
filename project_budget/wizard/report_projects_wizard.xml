@@ -21,8 +21,13 @@
                             <field name="koeff_potential" attrs="{'invisible': ['|',('type_report', 'not in', ('forecast', 'management_committee', 'pds_weekly')),('use_koeff_reserve','=',False)]}"/>
                         </group>
                     </group>
-                    <group>
-                        <field name="commercial_budget_id"/>
+                    <group col ="2">
+                        <group>
+                            <field name="commercial_budget_id"/>
+                        </group>
+                        <group>
+                            <field name="report_with_projects" attrs="{'invisible': [('type_report', 'not in', ('management_committee'))]}"/>
+                        </group>
                     </group>
                     <group col = "4" string="report period">
                         <group>

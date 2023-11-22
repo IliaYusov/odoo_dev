@@ -33,6 +33,7 @@ class report_projects_wizard(models.TransientModel):
     date_start = fields.Date(string='start of report', default=date.today(), required=True)
     date_end = fields.Date(string='end of report', default=date.today() + delta, required=True)
     pds_accept = fields.Selection([('pds', 'PDS'), ('accept', 'Acceptance')], string='PDS Accept', default='pds', required=True)
+    report_with_projects = fields.Boolean(string='detailed report', default = True)
 
 
     def action_print_report(self):
@@ -49,6 +50,7 @@ class report_projects_wizard(models.TransientModel):
         datas['koeff_reserve'] = 1 if not self.use_koeff_reserve else self.koeff_reserve
         datas['koeff_potential'] = 1 if not self.use_koeff_reserve else self.koeff_potential
         datas['pds_accept'] = self.pds_accept
+        datas['report_with_projects'] = self.report_with_projects
 
         print('data=',datas)
         report_name = 'Project_list_' + str(self.year) + '_' + self.type_report + '.xlsx'

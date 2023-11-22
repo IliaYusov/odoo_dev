@@ -646,7 +646,7 @@ class report_management_committee_excel(models.AbstractModel):
     #
     #     return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
-    def print_quarter_revenue_project(self, sheet, row, column, element, project, step, project_office, multipliers, row_format_number, row_format_number_color_fact):
+    def print_quarter_revenue_project(self, sheet, row, column, element, project, step, project_office, params, row_format_number, row_format_number_color_fact):
         global strYEAR
         global YEARint
 
@@ -738,22 +738,22 @@ class report_management_committee_excel(models.AbstractModel):
                         sum_next_75_tmp = project.total_amount_of_revenue_with_vat * currency_rate
                     if project.estimated_probability_id.name == '50':
                         sheet.write_number(row, column + 1,
-                                           project.total_amount_of_revenue_with_vat * multipliers['50'] * currency_rate,
+                                           project.total_amount_of_revenue_with_vat * params['50'] * currency_rate,
                                            row_format_number)
-                        sum_next_50_tmp = project.total_amount_of_revenue_with_vat * multipliers['50'] * currency_rate
+                        sum_next_50_tmp = project.total_amount_of_revenue_with_vat * params['50'] * currency_rate
                     if project.estimated_probability_id.name == '30':
                         sheet.write_number(row, column + 2,
-                                           project.total_amount_of_revenue_with_vat * multipliers['30'] * currency_rate,
+                                           project.total_amount_of_revenue_with_vat * params['30'] * currency_rate,
                                            row_format_number)
-                        sum_next_30_tmp = project.total_amount_of_revenue_with_vat * multipliers['30'] * currency_rate
+                        sum_next_30_tmp = project.total_amount_of_revenue_with_vat * params['30'] * currency_rate
                 elif project.end_presale_project_month.year == YEARint + 2:
                     if project.estimated_probability_id.name in ('75', '100'):
                         sum_after_next_tmp = project.total_amount_of_revenue_with_vat * currency_rate
                     if project.estimated_probability_id.name == '50':
-                        sum_after_next_tmp = project.total_amount_of_revenue_with_vat * multipliers[
+                        sum_after_next_tmp = project.total_amount_of_revenue_with_vat * params[
                             '50'] * currency_rate
                     if project.estimated_probability_id.name == '30':
-                        sum_after_next_tmp = project.total_amount_of_revenue_with_vat * multipliers[
+                        sum_after_next_tmp = project.total_amount_of_revenue_with_vat * params[
                             '30'] * currency_rate
                     sheet.write_number(row, column + 3,
                                        sum_after_next_tmp,
@@ -775,26 +775,26 @@ class report_management_committee_excel(models.AbstractModel):
                             sum_next_75_tmp += step.total_amount_of_revenue_with_vat * currency_rate
                         if step.estimated_probability_id.name == '50':
                             sheet.write_number(row, column + 1,
-                                               step.total_amount_of_revenue_with_vat * multipliers[
+                                               step.total_amount_of_revenue_with_vat * params[
                                                    '50'] * currency_rate,
                                                row_format_number)
-                            sum_next_50_tmp += step.total_amount_of_revenue_with_vat * multipliers[
+                            sum_next_50_tmp += step.total_amount_of_revenue_with_vat * params[
                                 '50'] * currency_rate
                         if step.estimated_probability_id.name == '30':
                             sheet.write_number(row, column + 2,
-                                               step.total_amount_of_revenue_with_vat * multipliers[
+                                               step.total_amount_of_revenue_with_vat * params[
                                                    '30'] * currency_rate,
                                                row_format_number)
-                            sum_next_30_tmp += step.total_amount_of_revenue_with_vat * multipliers[
+                            sum_next_30_tmp += step.total_amount_of_revenue_with_vat * params[
                                 '30'] * currency_rate
                     elif step.end_presale_project_month.year == YEARint + 2:
                         if step.estimated_probability_id.name in ('75', '100'):
                             sum_after_next_tmp += step.total_amount_of_revenue_with_vat * currency_rate
                         if step.estimated_probability_id.name == '50':
-                            sum_after_next_tmp += step.total_amount_of_revenue_with_vat * multipliers[
+                            sum_after_next_tmp += step.total_amount_of_revenue_with_vat * params[
                                 '50'] * currency_rate
                         if step.estimated_probability_id.name == '30':
-                            sum_after_next_tmp += step.total_amount_of_revenue_with_vat * multipliers[
+                            sum_after_next_tmp += step.total_amount_of_revenue_with_vat * params[
                                 '30'] * currency_rate
                         sheet.write_number(row, column + 3,
                                            sum_after_next_tmp,
@@ -808,7 +808,7 @@ class report_management_committee_excel(models.AbstractModel):
 
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
-    def calculate_quarter_revenue(self, element, project, project_office, multipliers):
+    def calculate_quarter_revenue(self, element, project, project_office, params):
         global strYEAR
         global YEARint
 
@@ -886,18 +886,18 @@ class report_management_committee_excel(models.AbstractModel):
                     if project.estimated_probability_id.name in ('75', '100'):
                         sum_next_75_tmp = project.total_amount_of_revenue_with_vat * currency_rate
                     if project.estimated_probability_id.name == '50':
-                        sum_next_50_tmp = project.total_amount_of_revenue_with_vat * multipliers['50'] * currency_rate
+                        sum_next_50_tmp = project.total_amount_of_revenue_with_vat * params['50'] * currency_rate
                     if project.estimated_probability_id.name == '30':
-                        sum_next_30_tmp = project.total_amount_of_revenue_with_vat * multipliers['30'] * currency_rate
+                        sum_next_30_tmp = project.total_amount_of_revenue_with_vat * params['30'] * currency_rate
                 elif project.end_presale_project_month.year == YEARint + 2:
                     currency_rate = self.get_currency_rate_by_project(project)
                     if project.estimated_probability_id.name in ('75', '100'):
                         sum_after_next_tmp = project.total_amount_of_revenue_with_vat * currency_rate
                     if project.estimated_probability_id.name == '50':
-                        sum_after_next_tmp = project.total_amount_of_revenue_with_vat * multipliers[
+                        sum_after_next_tmp = project.total_amount_of_revenue_with_vat * params[
                             '50'] * currency_rate
                     if project.estimated_probability_id.name == '30':
-                        sum_after_next_tmp = project.total_amount_of_revenue_with_vat * multipliers[
+                        sum_after_next_tmp = project.total_amount_of_revenue_with_vat * params[
                             '30'] * currency_rate
 
             else:
@@ -913,19 +913,19 @@ class report_management_committee_excel(models.AbstractModel):
                             if step.estimated_probability_id.name in ('75', '100'):
                                 sum_next_75_tmp += step.total_amount_of_revenue_with_vat * currency_rate
                             if step.estimated_probability_id.name == '50':
-                                sum_next_50_tmp += step.total_amount_of_revenue_with_vat * multipliers[
+                                sum_next_50_tmp += step.total_amount_of_revenue_with_vat * params[
                                     '50'] * currency_rate
                             if step.estimated_probability_id.name == '30':
-                                sum_next_30_tmp += step.total_amount_of_revenue_with_vat * multipliers[
+                                sum_next_30_tmp += step.total_amount_of_revenue_with_vat * params[
                                     '30'] * currency_rate
                         elif step.end_presale_project_month.year == YEARint + 2:
                             if step.estimated_probability_id.name in ('75', '100'):
                                 sum_after_next_tmp += step.total_amount_of_revenue_with_vat * currency_rate
                             if step.estimated_probability_id.name == '50':
-                                sum_after_next_tmp += step.total_amount_of_revenue_with_vat * multipliers[
+                                sum_after_next_tmp += step.total_amount_of_revenue_with_vat * params[
                                     '50'] * currency_rate
                             if step.estimated_probability_id.name == '30':
-                                sum_after_next_tmp += step.total_amount_of_revenue_with_vat * multipliers[
+                                sum_after_next_tmp += step.total_amount_of_revenue_with_vat * params[
                                     '30'] * currency_rate
 
         return (sum75tmpetalon, sum50tmpetalon,
@@ -996,7 +996,7 @@ class report_management_committee_excel(models.AbstractModel):
     #                     sum50tmp += sum
     #     return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
-    def print_quarter_pds_project(self, sheet, row, column, element, project, step, project_office, multipliers, row_format_number, row_format_number_color_fact):
+    def print_quarter_pds_project(self, sheet, row, column, element, project, step, project_office, params, row_format_number, row_format_number_color_fact):
         global strYEAR
         global YEARint
 
@@ -1149,11 +1149,11 @@ class report_management_committee_excel(models.AbstractModel):
                             sheet.write_number(row, column + 0, sum, row_format_number)
                             sum_next_75_tmp += sum
                         elif estimated_probability_id_name == '50':
-                            sheet.write_number(row, column + 1, sum * multipliers['50'], row_format_number)
-                            sum_next_50_tmp += sum * multipliers['50']
+                            sheet.write_number(row, column + 1, sum * params['50'], row_format_number)
+                            sum_next_50_tmp += sum * params['50']
                         elif estimated_probability_id_name == '30':
-                            sheet.write_number(row, column + 2, sum * multipliers['30'], row_format_number)
-                            sum_next_30_tmp += sum * multipliers['30']
+                            sheet.write_number(row, column + 2, sum * params['30'], row_format_number)
+                            sum_next_30_tmp += sum * params['30']
             else:
                 sum100tmp = self.get_sum_fact_pds_project_step_year(project, False, YEARint + 1)
                 sum = self.get_sum_plan_pds_project_step_year(project, False, YEARint + 1)
@@ -1180,11 +1180,11 @@ class report_management_committee_excel(models.AbstractModel):
                         sheet.write_number(row, column + 0, sum, row_format_number)
                         sum_next_75_tmp += sum
                     elif estimated_probability_id_name == '50':
-                        sheet.write_number(row, column + 1, sum * multipliers['50'], row_format_number)
-                        sum_next_50_tmp += sum * multipliers['50']
+                        sheet.write_number(row, column + 1, sum * params['50'], row_format_number)
+                        sum_next_50_tmp += sum * params['50']
                     elif estimated_probability_id_name == '30':
-                        sheet.write_number(row, column + 2, sum * multipliers['30'], row_format_number)
-                        sum_next_30_tmp += sum * multipliers['30']
+                        sheet.write_number(row, column + 2, sum * params['30'], row_format_number)
+                        sum_next_30_tmp += sum * params['30']
 
         elif element == 'AFTER NEXT':
             if step:
@@ -1219,9 +1219,9 @@ class report_management_committee_excel(models.AbstractModel):
                         if estimated_probability_id_name in ('75', '100'):
                             sum_after_next_tmp += sum
                         elif estimated_probability_id_name == '50':
-                            sum_after_next_tmp += sum * multipliers['50']
+                            sum_after_next_tmp += sum * params['50']
                         elif estimated_probability_id_name == '30':
-                            sum_after_next_tmp += sum * multipliers['30']
+                            sum_after_next_tmp += sum * params['30']
                     sheet.write_number(row, column + 0, sum_after_next_tmp, row_format_number)
 
             else:
@@ -1249,14 +1249,14 @@ class report_management_committee_excel(models.AbstractModel):
                     if estimated_probability_id_name in ('75', '100'):
                         sum_after_next_tmp += sum
                     elif estimated_probability_id_name == '50':
-                        sum_after_next_tmp += sum * multipliers['50']
+                        sum_after_next_tmp += sum * params['50']
                     elif estimated_probability_id_name == '30':
-                        sum_after_next_tmp += sum * multipliers['30']
+                        sum_after_next_tmp += sum * params['30']
                 sheet.write_number(row, column + 0, sum_after_next_tmp, row_format_number)
 
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
-    def calculate_quarter_pds(self, element, project, project_office, multipliers):
+    def calculate_quarter_pds(self, element, project, project_office, params):
         global strYEAR
         global YEARint
 
@@ -1399,9 +1399,9 @@ class report_management_committee_excel(models.AbstractModel):
                             if estimated_probability_id_name in ('75', '100'):
                                 sum_next_75_tmp += sum
                             elif estimated_probability_id_name == '50':
-                                sum_next_50_tmp += sum * multipliers['50']
+                                sum_next_50_tmp += sum * params['50']
                             elif estimated_probability_id_name == '30':
-                                sum_next_30_tmp += sum * multipliers['30']
+                                sum_next_30_tmp += sum * params['30']
             else:
                 sum100tmp = self.get_sum_fact_pds_project_step_year(project, False, YEARint + 1)
                 sum = self.get_sum_plan_pds_project_step_year(project, False, YEARint + 1)
@@ -1427,9 +1427,9 @@ class report_management_committee_excel(models.AbstractModel):
                     if estimated_probability_id_name in ('75', '100'):
                         sum_next_75_tmp += sum
                     elif estimated_probability_id_name == '50':
-                        sum_next_50_tmp += sum * multipliers['50']
+                        sum_next_50_tmp += sum * params['50']
                     elif estimated_probability_id_name == '30':
-                        sum_next_30_tmp += sum * multipliers['30']
+                        sum_next_30_tmp += sum * params['30']
 
         elif element == 'AFTER NEXT':
             if project.project_have_steps:
@@ -1465,9 +1465,9 @@ class report_management_committee_excel(models.AbstractModel):
                             if estimated_probability_id_name in ('75', '100'):
                                 sum_after_next_tmp += sum
                             elif estimated_probability_id_name == '50':
-                                sum_after_next_tmp += sum * multipliers['50']
+                                sum_after_next_tmp += sum * params['50']
                             elif estimated_probability_id_name == '30':
-                                sum_after_next_tmp += sum * multipliers['30']
+                                sum_after_next_tmp += sum * params['30']
 
             else:
                 sum100tmp = self.get_sum_fact_pds_project_step_year(project, False, YEARint + 2)
@@ -1494,9 +1494,9 @@ class report_management_committee_excel(models.AbstractModel):
                     if estimated_probability_id_name in ('75', '100'):
                         sum_after_next_tmp += sum
                     elif estimated_probability_id_name == '50':
-                        sum_after_next_tmp += sum * multipliers['50']
+                        sum_after_next_tmp += sum * params['50']
                     elif estimated_probability_id_name == '30':
-                        sum_after_next_tmp += sum * multipliers['30']
+                        sum_after_next_tmp += sum * params['30']
 
         return (sum75tmpetalon, sum50tmpetalon,
                 sum100tmp, sum75tmp, sum50tmp,
@@ -1604,7 +1604,7 @@ class report_management_committee_excel(models.AbstractModel):
 
         return sum_acceptance
 
-    def print_quarter_planned_acceptance_project(self, sheet, row, column, element, project, step,  project_office, multipliers, row_format_number, row_format_number_color_fact):
+    def print_quarter_planned_acceptance_project(self, sheet, row, column, element, project, step,  project_office, params, row_format_number, row_format_number_color_fact):
         global strYEAR
         global YEARint
 
@@ -1810,15 +1810,15 @@ class report_management_committee_excel(models.AbstractModel):
                             sum_next_75_tmp += sum
                             prof_next_75_tmp += sum * profitability / 100
                         elif estimated_probability_id_name == '50':
-                            sheet.write_number(row, column + 1, sum * multipliers['50'], row_format_number)
-                            sheet.write_number(row, column + 1 + 41, sum * multipliers['50'] * profitability / 100, row_format_number)
-                            sum_next_50_tmp += sum * multipliers['50']
-                            prof_next_50_tmp += sum * multipliers['50'] * profitability / 100
+                            sheet.write_number(row, column + 1, sum * params['50'], row_format_number)
+                            sheet.write_number(row, column + 1 + 41, sum * params['50'] * profitability / 100, row_format_number)
+                            sum_next_50_tmp += sum * params['50']
+                            prof_next_50_tmp += sum * params['50'] * profitability / 100
                         elif estimated_probability_id_name == '30':
-                            sheet.write_number(row, column + 2, sum * multipliers['30'], row_format_number)
-                            sheet.write_number(row, column + 2 + 41, sum * multipliers['30'] * profitability / 100, row_format_number)
-                            sum_next_30_tmp += sum * multipliers['30']
-                            prof_next_30_tmp += sum * multipliers['30'] * profitability / 100
+                            sheet.write_number(row, column + 2, sum * params['30'], row_format_number)
+                            sheet.write_number(row, column + 2 + 41, sum * params['30'] * profitability / 100, row_format_number)
+                            sum_next_30_tmp += sum * params['30']
+                            prof_next_30_tmp += sum * params['30'] * profitability / 100
             else:
                 profitability = project.profitability
 
@@ -1860,17 +1860,17 @@ class report_management_committee_excel(models.AbstractModel):
                         sum_next_75_tmp += sum
                         prof_next_75_tmp += sum * profitability / 100
                     elif estimated_probability_id_name == '50':
-                        sheet.write_number(row, column + 1, sum * multipliers['50'], row_format_number)
-                        sheet.write_number(row, column + 1 + 41, sum * multipliers['50'] * profitability / 100,
+                        sheet.write_number(row, column + 1, sum * params['50'], row_format_number)
+                        sheet.write_number(row, column + 1 + 41, sum * params['50'] * profitability / 100,
                                            row_format_number)
-                        sum_next_50_tmp += sum * multipliers['50']
-                        prof_next_50_tmp += sum * multipliers['50'] * profitability / 100
+                        sum_next_50_tmp += sum * params['50']
+                        prof_next_50_tmp += sum * params['50'] * profitability / 100
                     elif estimated_probability_id_name == '30':
-                        sheet.write_number(row, column + 2, sum * multipliers['30'], row_format_number)
-                        sheet.write_number(row, column + 2 + 41, sum * multipliers['30'] * profitability / 100,
+                        sheet.write_number(row, column + 2, sum * params['30'], row_format_number)
+                        sheet.write_number(row, column + 2 + 41, sum * params['30'] * profitability / 100,
                                            row_format_number)
-                        sum_next_30_tmp += sum * multipliers['30']
-                        prof_next_30_tmp += sum * multipliers['30'] * profitability / 100
+                        sum_next_30_tmp += sum * params['30']
+                        prof_next_30_tmp += sum * params['30'] * profitability / 100
 
         elif element == 'AFTER NEXT':
             if step:
@@ -1918,11 +1918,11 @@ class report_management_committee_excel(models.AbstractModel):
                             sum_after_next_tmp += sum
                             prof_after_next_tmp += sum * profitability / 100
                         elif estimated_probability_id_name == '50':
-                            sum_after_next_tmp += sum * multipliers['50']
-                            prof_after_next_tmp += sum * multipliers['50'] * profitability / 100
+                            sum_after_next_tmp += sum * params['50']
+                            prof_after_next_tmp += sum * params['50'] * profitability / 100
                         elif estimated_probability_id_name == '30':
-                            sum_after_next_tmp += sum * multipliers['30']
-                            prof_after_next_tmp += sum * multipliers['30'] * profitability / 100
+                            sum_after_next_tmp += sum * params['30']
+                            prof_after_next_tmp += sum * params['30'] * profitability / 100
                         sheet.write_number(row, column + 0, sum_after_next_tmp, row_format_number)
                         sheet.write_number(row, column + 0 + 41, prof_after_next_tmp,
                                            row_format_number)
@@ -1964,18 +1964,18 @@ class report_management_committee_excel(models.AbstractModel):
                         sum_after_next_tmp += sum
                         prof_after_next_tmp += sum * profitability / 100
                     elif estimated_probability_id_name == '50':
-                        sum_after_next_tmp += sum * multipliers['50']
-                        prof_after_next_tmp += sum * multipliers['50'] * profitability / 100
+                        sum_after_next_tmp += sum * params['50']
+                        prof_after_next_tmp += sum * params['50'] * profitability / 100
                     elif estimated_probability_id_name == '30':
-                        sum_after_next_tmp += sum * multipliers['30']
-                        prof_after_next_tmp += sum * multipliers['30'] * profitability / 100
+                        sum_after_next_tmp += sum * params['30']
+                        prof_after_next_tmp += sum * params['30'] * profitability / 100
                     sheet.write_number(row, column + 0, sum_after_next_tmp, row_format_number)
                     sheet.write_number(row, column + 0 + 41, prof_after_next_tmp,
                                        row_format_number)
 
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
-    def calculate_quarter_planned_acceptance(self, element, project, project_office, multipliers):
+    def calculate_quarter_planned_acceptance(self, element, project, project_office, params):
         global strYEAR
         global YEARint
 
@@ -2160,11 +2160,11 @@ class report_management_committee_excel(models.AbstractModel):
                                 sum_next_75_tmp += sum
                                 prof_next_75_tmp += sum * profitability / 100
                             elif estimated_probability_id_name == '50':
-                                sum_next_50_tmp += sum * multipliers['50']
-                                prof_next_50_tmp += sum * multipliers['50'] * profitability / 100
+                                sum_next_50_tmp += sum * params['50']
+                                prof_next_50_tmp += sum * params['50'] * profitability / 100
                             elif estimated_probability_id_name == '30':
-                                sum_next_30_tmp += sum * multipliers['30']
-                                prof_next_30_tmp += sum * multipliers['30'] * profitability / 100
+                                sum_next_30_tmp += sum * params['30']
+                                prof_next_30_tmp += sum * params['30'] * profitability / 100
             else:
                 profitability = project.profitability
 
@@ -2203,11 +2203,11 @@ class report_management_committee_excel(models.AbstractModel):
                         sum_next_75_tmp += sum
                         prof_next_75_tmp += sum * profitability / 100
                     elif estimated_probability_id_name == '50':
-                        sum_next_50_tmp += sum * multipliers['50']
-                        prof_next_50_tmp += sum * multipliers['50'] * profitability / 100
+                        sum_next_50_tmp += sum * params['50']
+                        prof_next_50_tmp += sum * params['50'] * profitability / 100
                     elif estimated_probability_id_name == '30':
-                        sum_next_30_tmp += sum * multipliers['30']
-                        prof_next_30_tmp += sum * multipliers['30'] * profitability / 100
+                        sum_next_30_tmp += sum * params['30']
+                        prof_next_30_tmp += sum * params['30'] * profitability / 100
 
         elif element == 'AFTER NEXT':
             if project.project_have_steps:
@@ -2256,11 +2256,11 @@ class report_management_committee_excel(models.AbstractModel):
                                 sum_after_next_tmp += sum
                                 prof_after_next_tmp += sum * profitability / 100
                             elif estimated_probability_id_name == '50':
-                                sum_after_next_tmp += sum * multipliers['50']
-                                prof_after_next_tmp += sum * multipliers['50'] * profitability / 100
+                                sum_after_next_tmp += sum * params['50']
+                                prof_after_next_tmp += sum * params['50'] * profitability / 100
                             elif estimated_probability_id_name == '30':
-                                sum_after_next_tmp += sum * multipliers['30']
-                                prof_after_next_tmp += sum * multipliers['30'] * profitability / 100
+                                sum_after_next_tmp += sum * params['30']
+                                prof_after_next_tmp += sum * params['30'] * profitability / 100
             else:
                 profitability = project.profitability
 
@@ -2299,11 +2299,11 @@ class report_management_committee_excel(models.AbstractModel):
                         sum_after_next_tmp += sum
                         prof_after_next_tmp += sum * profitability / 100
                     elif estimated_probability_id_name == '50':
-                        sum_after_next_tmp += sum * multipliers['50']
-                        prof_after_next_tmp += sum * multipliers['50'] * profitability / 100
+                        sum_after_next_tmp += sum * params['50']
+                        prof_after_next_tmp += sum * params['50'] * profitability / 100
                     elif estimated_probability_id_name == '30':
-                        sum_after_next_tmp += sum * multipliers['30']
-                        prof_after_next_tmp += sum * multipliers['30'] * profitability / 100
+                        sum_after_next_tmp += sum * params['30']
+                        prof_after_next_tmp += sum * params['30'] * profitability / 100
         return (
             sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp,
             prof75tmpetalon, prof50tmpetalon, prof100tmp, prof75tmp, prof50tmp,
@@ -2326,7 +2326,7 @@ class report_management_committee_excel(models.AbstractModel):
         if monthNameRus == 'Декабрь': return 12
         return False
 
-    def print_row_Values(self, workbook, sheet, row, column,  YEAR, project, step, project_office, multipliers):
+    def print_row_Values(self, workbook, sheet, row, column,  YEAR, project, step, project_office, params):
         global strYEAR
         global YEARint
 
@@ -2402,7 +2402,7 @@ class report_management_committee_excel(models.AbstractModel):
                 sheet.write_string(row, column + 3, "", row_format_number)
 
             sumQ75tmpetalon, sumQ50tmpetalon, sumQ100tmp, sumQ75tmp, sumQ50tmp = self.print_quarter_revenue_project(sheet, row, column, element,
-                                                                                    project, step, project_office, multipliers, row_format_number, row_format_number_color_fact)
+                                                                                    project, step, project_office, params, row_format_number, row_format_number_color_fact)
             sumQ75etalon += sumQ75tmpetalon
             sumQ50etalon += sumQ50tmpetalon
             sumQ100 += sumQ100tmp
@@ -2528,7 +2528,7 @@ class report_management_committee_excel(models.AbstractModel):
 
 
             sumQ75tmpetalon, sumQ50tmpetalon, sumQ100tmp, sumQ75tmp, sumQ50tmp = self.print_quarter_pds_project(sheet, row, column, element,
-                                                                                    project, step, project_office, multipliers, row_format_number, row_format_number_color_fact)
+                                                                                    project, step, project_office, params, row_format_number, row_format_number_color_fact)
 
             sumQ75etalon += sumQ75tmpetalon
             sumQ50etalon += sumQ50tmpetalon
@@ -2694,7 +2694,7 @@ class report_management_committee_excel(models.AbstractModel):
                 project,
                 step,
                 project_office,
-                multipliers,
+                params,
                 row_format_number,
                 row_format_number_color_fact
             )
@@ -2807,7 +2807,7 @@ class report_management_committee_excel(models.AbstractModel):
         # end Валовая Выручка, без НДС
 
     def print_row_values_office(self, workbook, sheet, row, column, YEAR, projects, project_office, formula_offices,
-                                multipliers):
+                                params):
         global strYEAR
         global YEARint
 
@@ -2878,7 +2878,7 @@ class report_management_committee_excel(models.AbstractModel):
                 (sumM75tmpetalon, sumM50tmpetalon,
                  sumM100tmp, sumM75tmp, sumM50tmp,
                  sum_next_75_tmp, sum_next_50_tmp, sum_next_30_tmp,
-                 sum_after_next_tmp) = self.calculate_quarter_revenue(element, project, project_office, multipliers)
+                 sum_after_next_tmp) = self.calculate_quarter_revenue(element, project, project_office, params)
 
                 sumM75etalon += sumM75tmpetalon
                 sumM50etalon += sumM50tmpetalon
@@ -3041,7 +3041,7 @@ class report_management_committee_excel(models.AbstractModel):
                 (sumM75tmpetalon, sumM50tmpetalon,
                  sumM100tmp, sumM75tmp, sumM50tmp,
                  sum_next_75_tmp, sum_next_50_tmp, sum_next_30_tmp,
-                 sum_after_next_tmp) = self.calculate_quarter_pds(element, project, project_office, multipliers)
+                 sum_after_next_tmp) = self.calculate_quarter_pds(element, project, project_office, params)
 
                 sumM75etalon += sumM75tmpetalon
                 sumM50etalon += sumM50tmpetalon
@@ -3245,7 +3245,7 @@ class report_management_committee_excel(models.AbstractModel):
                  prof75tmpetalon, prof50tmpetalon, prof100tmp, prof75tmp, prof50tmp,
                  sum_next_75_tmp, sum_next_50_tmp, sum_next_30_tmp, sum_after_next_tmp,
                  prof_next_75_tmp, prof_next_50_tmp, prof_next_30_tmp, prof_after_next_tmp
-                 ) = self.calculate_quarter_planned_acceptance(element, project, project_office, multipliers)
+                 ) = self.calculate_quarter_planned_acceptance(element, project, project_office, params)
 
                 sumQ75etalon += sum75tmpetalon
                 sumQ50etalon += sum50tmpetalon
@@ -3490,7 +3490,7 @@ class report_management_committee_excel(models.AbstractModel):
             column += 4
         # end Валовая Выручка, без НДС
 
-    def printrow(self, sheet, workbook, companies, project_offices, budget, row, formulaItogo, level, multipliers):
+    def printrow(self, sheet, workbook, companies, project_offices, budget, row, formulaItogo, level, params):
         global strYEAR
         global YEARint
         global dict_formula
@@ -3673,7 +3673,7 @@ class report_management_committee_excel(models.AbstractModel):
                     row += 1
                     dict_formula['office_ids'][project_office.id] = row
                     row0, formulaItogo = self.printrow(sheet, workbook, company, child_project_offices, budget, row,
-                                                       formulaItogo, level + 1, multipliers)
+                                                       formulaItogo, level + 1, params)
 
                 isFoundProjectsByOffice = False
                 if row0 != row:
@@ -3866,7 +3866,8 @@ class report_management_committee_excel(models.AbstractModel):
                     office_name = project_office.report_name or project_office.name
 
                     sheet.write_string(office_row, column, '       ' * level + office_name, row_format_office)
-                    sheet.merge_range(office_row, column + 1, office_row, column + 10, '', row_format_office)
+                    if params['report_with_projects']:
+                        sheet.merge_range(office_row, column + 1, office_row, column + params["shift"] , '', row_format_office)
                     sheet.set_row(office_row, False, False, {'hidden': 1, 'level': level})
 
                     str_project_office_id = 'project_office_' + str(int(project_office.parent_id))
@@ -3901,111 +3902,112 @@ class report_management_committee_excel(models.AbstractModel):
                         workbook,
                         sheet,
                         office_row,
-                        column + 10,
+                        column + params["shift"] ,
                         strYEAR,
                         projects,
                         project_office,
                         dict_formula,
-                        multipliers,
+                        params,
                     )
 
-                    for spec in cur_budget_projects:
-                        if spec.is_framework is True and spec.project_have_steps is False: continue  # рамка без этапов - пропускаем
-                        if spec.vgo == '-':
+                    if params['report_with_projects']:
+                        for spec in cur_budget_projects:
+                            if spec.is_framework is True and spec.project_have_steps is False: continue  # рамка без этапов - пропускаем
+                            if spec.vgo == '-':
 
-                            if spec.project_have_steps:
-                                for step in spec.project_steps_ids:
+                                if spec.project_have_steps:
+                                    for step in spec.project_steps_ids:
 
-                                    if (((
-                                                 spec.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
-                                         or ((
-                                                     not spec.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and spec.project_office_id == project_office))
-                                            and spec.company_id == company):
+                                        if (((
+                                                     spec.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
+                                             or ((
+                                                         not spec.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and spec.project_office_id == project_office))
+                                                and spec.company_id == company):
 
-                                        if self.isStepinYear(spec, step) is False or step.estimated_probability_id.name == '10':
+                                            if self.isStepinYear(spec, step) is False or step.estimated_probability_id.name in ('0', '10'):
+                                                continue
+
+                                            # печатаем строки этапов проектов
+                                            row += 1
+                                            sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level})
+                                            cur_row_format = row_format
+                                            cur_row_format_number = row_format_number
+                                            if step.estimated_probability_id.name == '0':
+                                                cur_row_format = row_format_canceled_project
+                                                cur_row_format_number = row_format_number_canceled_project
+                                            column = 0
+                                            sheet.write_string(row, column, '       ' * max_level + spec.project_manager_id.name, cur_row_format)
+                                            column += 1
+                                            sheet.write_string(row, column, spec.customer_organization_id.name,
+                                                               cur_row_format)
+                                            column += 1
+                                            sheet.write_string(row, column, step.essence_project, cur_row_format)
+                                            column += 1
+                                            sheet.write_string(row, column, (
+                                                        step.code or '') + ' | ' + spec.project_id + " | " + step.step_id,
+                                                               cur_row_format)
+                                            column += 1
+                                            sheet.write_string(row, column, self.get_estimated_probability_name_forecast(
+                                                step.estimated_probability_id.name), cur_row_format)
+                                            column += 1
+                                            sheet.write_number(row, column,
+                                                               step.total_amount_of_revenue_with_vat * self.get_currency_rate_by_project(step.projects_id),
+                                                               cur_row_format_number)
+                                            column += 1
+                                            sheet.write_number(row, column,
+                                                               step.margin_income * self.get_currency_rate_by_project(step.projects_id),
+                                                               cur_row_format_number)
+                                            column += 1
+                                            sheet.write_string(row, column, f'{step.profitability:.2f}' + '%', cur_row_format)
+                                            column += 1
+                                            sheet.write_string(row, column, step.dogovor_number or '', cur_row_format)
+                                            column += 1
+                                            sheet.write_string(row, column, step.vat_attribute_id.name or '', cur_row_format)
+                                            column += 1
+                                            sheet.write_string(row, column, '', cur_row_format)
+                                            self.print_row_Values(workbook, sheet, row, column, strYEAR, spec, step, project_office, params)
+                                else:
+                                    if spec.project_office_id == project_office and spec.company_id == company:
+                                        if self.isProjectinYear(spec) is False or spec.estimated_probability_id.name in ('0', '10'):
                                             continue
 
-                                        # печатаем строки этапов проектов
+                                        # печатаем строки проектов
                                         row += 1
                                         sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level})
                                         cur_row_format = row_format
                                         cur_row_format_number = row_format_number
-                                        if step.estimated_probability_id.name == '0':
+                                        if spec.estimated_probability_id.name == '0':
                                             cur_row_format = row_format_canceled_project
                                             cur_row_format_number = row_format_number_canceled_project
                                         column = 0
                                         sheet.write_string(row, column, '       ' * max_level + spec.project_manager_id.name, cur_row_format)
                                         column += 1
-                                        sheet.write_string(row, column, spec.customer_organization_id.name,
-                                                           cur_row_format)
+                                        sheet.write_string(row, column, spec.customer_organization_id.name, cur_row_format)
                                         column += 1
-                                        sheet.write_string(row, column, step.essence_project, cur_row_format)
+                                        sheet.write_string(row, column, spec.essence_project, cur_row_format)
                                         column += 1
-                                        sheet.write_string(row, column, (
-                                                    step.code or '') + ' | ' + spec.project_id + " | " + step.step_id,
-                                                           cur_row_format)
+                                        sheet.write_string(row, column, (spec.step_project_number or '') + ' | ' + (
+                                                    spec.project_id or ''), cur_row_format)
                                         column += 1
                                         sheet.write_string(row, column, self.get_estimated_probability_name_forecast(
-                                            step.estimated_probability_id.name), cur_row_format)
+                                            spec.estimated_probability_id.name), cur_row_format)
                                         column += 1
                                         sheet.write_number(row, column,
-                                                           step.total_amount_of_revenue_with_vat * self.get_currency_rate_by_project(step.projects_id),
+                                                           spec.total_amount_of_revenue_with_vat * self.get_currency_rate_by_project(spec),
                                                            cur_row_format_number)
                                         column += 1
                                         sheet.write_number(row, column,
-                                                           step.margin_income * self.get_currency_rate_by_project(step.projects_id),
+                                                           spec.margin_income * self.get_currency_rate_by_project(spec),
                                                            cur_row_format_number)
                                         column += 1
-                                        sheet.write_string(row, column, f'{step.profitability:.2f}' + '%', cur_row_format)
+                                        sheet.write_string(row, column, f'{spec.profitability:.2f}' + '%', cur_row_format)
                                         column += 1
-                                        sheet.write_string(row, column, step.dogovor_number or '', cur_row_format)
+                                        sheet.write_string(row, column, spec.dogovor_number or '', cur_row_format)
                                         column += 1
-                                        sheet.write_string(row, column, step.vat_attribute_id.name or '', cur_row_format)
+                                        sheet.write_string(row, column, spec.vat_attribute_id.name or '', cur_row_format)
                                         column += 1
                                         sheet.write_string(row, column, '', cur_row_format)
-                                        self.print_row_Values(workbook, sheet, row, column, strYEAR, spec, step, project_office, multipliers)
-                            else:
-                                if spec.project_office_id == project_office and spec.company_id == company:
-                                    if self.isProjectinYear(spec) is False or spec.estimated_probability_id.name == '10':
-                                        continue
-
-                                    # печатаем строки проектов
-                                    row += 1
-                                    sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level})
-                                    cur_row_format = row_format
-                                    cur_row_format_number = row_format_number
-                                    if spec.estimated_probability_id.name == '0':
-                                        cur_row_format = row_format_canceled_project
-                                        cur_row_format_number = row_format_number_canceled_project
-                                    column = 0
-                                    sheet.write_string(row, column, '       ' * max_level + spec.project_manager_id.name, cur_row_format)
-                                    column += 1
-                                    sheet.write_string(row, column, spec.customer_organization_id.name, cur_row_format)
-                                    column += 1
-                                    sheet.write_string(row, column, spec.essence_project, cur_row_format)
-                                    column += 1
-                                    sheet.write_string(row, column, (spec.step_project_number or '') + ' | ' + (
-                                                spec.project_id or ''), cur_row_format)
-                                    column += 1
-                                    sheet.write_string(row, column, self.get_estimated_probability_name_forecast(
-                                        spec.estimated_probability_id.name), cur_row_format)
-                                    column += 1
-                                    sheet.write_number(row, column,
-                                                       spec.total_amount_of_revenue_with_vat * self.get_currency_rate_by_project(spec),
-                                                       cur_row_format_number)
-                                    column += 1
-                                    sheet.write_number(row, column,
-                                                       spec.margin_income * self.get_currency_rate_by_project(spec),
-                                                       cur_row_format_number)
-                                    column += 1
-                                    sheet.write_string(row, column, f'{spec.profitability:.2f}' + '%', cur_row_format)
-                                    column += 1
-                                    sheet.write_string(row, column, spec.dogovor_number or '', cur_row_format)
-                                    column += 1
-                                    sheet.write_string(row, column, spec.vat_attribute_id.name or '', cur_row_format)
-                                    column += 1
-                                    sheet.write_string(row, column, '', cur_row_format)
-                                    self.print_row_Values(workbook, sheet, row, column, strYEAR, spec, False, project_office, multipliers)
+                                        self.print_row_Values(workbook, sheet, row, column, strYEAR, spec, False, project_office, params)
 
                     # for colFormula in range(12, 302):
                     #     formula = formulaProjectOffice.format(xl_col_to_name(colFormula))
@@ -4021,9 +4023,10 @@ class report_management_committee_excel(models.AbstractModel):
 
                     if not project_office.parent_id:
                         formulaProjectCompany += ',{0}' + f'{office_row + 1}'
-                    row += 1
-                    sheet.write_string(row, column, '', row_format_office)
-                    sheet.set_row(row, 14, row_format_company_empty, {'hidden': 1, 'level': level})
+                    if params['report_with_projects']:
+                        row += 1
+                        sheet.write_string(row, column, '', row_format_company_empty)
+                        sheet.set_row(row, 14, row_format_company_empty, {'hidden': 1, 'level': level})
                 else:
                     if project_office.child_ids:
                         if all(child.id not in dict_formula['office_ids_not_empty'] for child in
@@ -4036,11 +4039,12 @@ class report_management_committee_excel(models.AbstractModel):
                 company_row = dict_formula['company_ids'][company.id]
 
                 sheet.write_string(company_row, column, company.name, row_format_company)
-                sheet.merge_range(company_row, column + 1, company_row, column + 10, '', row_format_company)
+                if params['report_with_projects']:
+                    sheet.merge_range(company_row, column + 1, company_row, column + params["shift"] , '', row_format_company)
 
                 formulaProjectCompany += ')'
 
-                shift = 10
+                shift = params["shift"]
                 for i in range(0, 4):  # оформление строки Компания
                     for colFormula in range(0, 7):
                         formula = formulaProjectCompany.format(xl_col_to_name(i * 38 + colFormula * 5 + 1 + shift))
@@ -4070,7 +4074,7 @@ class report_management_committee_excel(models.AbstractModel):
 
         return row, formulaItogo
 
-    def printworksheet(self, workbook, budget, namesheet, multipliers):
+    def printworksheet(self, workbook, budget, namesheet, params):
         global strYEAR
         global YEARint
         global max_level
@@ -4184,40 +4188,44 @@ class report_management_committee_excel(models.AbstractModel):
         row = 2
         column = 0
         sheet.merge_range(row - 1, 0, row, 0, "Прогноз", head_format)
-        sheet.merge_range(row - 1, 1, row, 10, "", head_format)
-        sheet.merge_range(row + 1, 0, row + 2, 0, "БЮ/Проектный офис/КАМ", head_format_1)
+        if params['report_with_projects']:
+            sheet.merge_range(row + 1, 0, row + 2, 0, "БЮ/Проектный офис/КАМ", head_format_1)
+        else:
+            sheet.merge_range(row + 1, 0, row + 2, 0, "БЮ/Проектный офис", head_format_1)
         sheet.set_column(column, column, 40)
-        column += 1
-        sheet.merge_range(row + 1, column, row + 2, column, "Заказчик", head_format_1)
-        # sheet.set_column(column, column, 25)
-        column += 1
-        sheet.merge_range(row + 1, column, row + 2, column, "Наименование Проекта", head_format_1)
-        # sheet.set_column(column, column, 12.25)
-        column += 1
-        sheet.merge_range(row + 1, column, row + 2, column, "Номер этапа проекта", head_format_1)
-        # sheet.set_column(column, column, 15)
-        column += 1
-        sheet.merge_range(row + 1, column, row + 2, column, "Стадия продажи", head_format_1)
-        # sheet.set_column(column, column, 16.88)
-        column += 1
-        sheet.merge_range(row + 1, column, row + 2, column, "Сумма проекта, руб.", head_format_1)
-        # sheet.set_column(column, column, 14)
-        column += 1
-        sheet.merge_range(row + 1, column, row + 2, column, "Валовая прибыль экспертно, руб.", head_format_1)
-        # sheet.set_column(column, column, 14)
-        column += 1
-        sheet.merge_range(row + 1, column, row + 2, column, "Прибыльность, экспертно, %", head_format_1)
-        # sheet.set_column(column, column, 9)
-        column += 1
-        sheet.merge_range(row + 1, column, row + 2, column, "Номер договора", head_format_1)
-        # sheet.set_column(column, column, 11.88)
-        column += 1
-        sheet.merge_range(row + 1, column, row + 2, column, "НДС", head_format_1)
-        # sheet.set_column(column, column, 7)
-        sheet.set_column(1, 9, False, False, {'hidden': 1, 'level': 3})
-        column += 1
-        sheet.merge_range(row + 1, column, row + 2, column, "", head_format_1)
-        sheet.set_column(column, column, 2)
+        if params['report_with_projects']:
+            sheet.merge_range(row - 1, 1, row, 10, "", head_format)
+            column += 1
+            sheet.merge_range(row + 1, column, row + 2, column, "Заказчик", head_format_1)
+            # sheet.set_column(column, column, 25)
+            column += 1
+            sheet.merge_range(row + 1, column, row + 2, column, "Наименование Проекта", head_format_1)
+            # sheet.set_column(column, column, 12.25)
+            column += 1
+            sheet.merge_range(row + 1, column, row + 2, column, "Номер этапа проекта", head_format_1)
+            # sheet.set_column(column, column, 15)
+            column += 1
+            sheet.merge_range(row + 1, column, row + 2, column, "Стадия продажи", head_format_1)
+            # sheet.set_column(column, column, 16.88)
+            column += 1
+            sheet.merge_range(row + 1, column, row + 2, column, "Сумма проекта, руб.", head_format_1)
+            # sheet.set_column(column, column, 14)
+            column += 1
+            sheet.merge_range(row + 1, column, row + 2, column, "Валовая прибыль экспертно, руб.", head_format_1)
+            # sheet.set_column(column, column, 14)
+            column += 1
+            sheet.merge_range(row + 1, column, row + 2, column, "Прибыльность, экспертно, %", head_format_1)
+            # sheet.set_column(column, column, 9)
+            column += 1
+            sheet.merge_range(row + 1, column, row + 2, column, "Номер договора", head_format_1)
+            # sheet.set_column(column, column, 11.88)
+            column += 1
+            sheet.merge_range(row + 1, column, row + 2, column, "НДС", head_format_1)
+            # sheet.set_column(column, column, 7)
+            sheet.set_column(1, 9, False, False, {'hidden': 1, 'level': 3})
+            column += 1
+            sheet.merge_range(row + 1, column, row + 2, column, "", head_format_1)
+            sheet.set_column(column, column, 2)
 
         sheet.freeze_panes(5, 1)
         column += 1
@@ -4273,22 +4281,23 @@ class report_management_committee_excel(models.AbstractModel):
         formulaItogo = '=sum(0'
 
         row, formulaItogo = self.printrow(sheet, workbook, companies, project_offices, budget, row, formulaItogo, 1,
-                                          multipliers)
+                                          params)
 
         row += 1
         column = 0
         sheet.write_string(row, column, 'ИТОГО по отчету', row_format_number_itogo)
-        sheet.merge_range(row, column + 1, row, column + 10, '', row_format_number_itogo)
+        if params['report_with_projects']:
+            sheet.merge_range(row, column + 1, row, column + params["shift"] , '', row_format_number_itogo)
         for company_row in dict_formula['company_ids'].values():
             formulaItogo += ',{0}' + str(company_row + 1)
         formulaItogo = formulaItogo + ')'
-        for colFormula in range(11, 175):
+        for colFormula in range(1 + params["shift"] , 165 + params["shift"] ):
             formula = formulaItogo.format(xl_col_to_name(colFormula))
             sheet.write_formula(row, colFormula, formula, row_format_number_itogo)
         for i in range(4):  # формулы для процентов выполнения
             for j in (14, 35):
-                formula = f'=IFERROR({xl_col_to_name(i * 41 + j + 9)}{row + 1}/{xl_col_to_name(i * 41 + j + 8)}{row + 1}, " ")'
-                sheet.write_formula(row, i * 41 + j + 10, formula, row_format_number_itogo_percent)
+                formula = f'=IFERROR({xl_col_to_name(i * 41 + j + params["shift"] - 1)}{row + 1}/{xl_col_to_name(i * 41 + j + params["shift"] - 2)}{row + 1}, " ")'
+                sheet.write_formula(row, i * 41 + j + params['shift'], formula, row_format_number_itogo_percent)
         print('dict_formula = ', dict_formula)
 
     def generate_xlsx_report(self, workbook, data, budgets):
@@ -4304,9 +4313,13 @@ class report_management_committee_excel(models.AbstractModel):
         print('YEARint=', YEARint)
         print('strYEAR =', strYEAR)
 
-        multipliers = {'50': data['koeff_reserve'], '30': data['koeff_potential']}
+        params = {'50': data['koeff_reserve'], '30': data['koeff_potential'],
+                       'report_with_projects': data['report_with_projects'], 'shift': 0}
+
+        if data['report_with_projects']:
+            params['shift'] = 10
 
         commercial_budget_id = data['commercial_budget_id']
         print('commercial_budget_id', commercial_budget_id)
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
-        self.printworksheet(workbook, budget, 'Прогноз', multipliers)
+        self.printworksheet(workbook, budget, 'Прогноз', params)
