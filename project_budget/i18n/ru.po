@@ -105,7 +105,7 @@ msgid ""
 " 3. Reserve – is included in the forecast until the end of the 'reserve' period\n"
 " 4. Potential – the amounts do not fall into the forecast until the end of the period, but can be entered by the seller to record information on the project (in this case, the absence of such will not be an error)."
 msgstr ""
-" 1 Из проекта/этапа - считается от вероятности проекта (75 и выше - обязаттельство, 50 - резеры, менее 50- потенциал  2 Обязательство – попадает в прогноз до конца периода «обязательство»\n"
+" 1 Из проекта/этапа - считается от вероятности проекта (75 и выше - обязаттельство, 50 - резеры, менее 50- потенциал\n"
 " 2 Обязательство – попадает в прогноз до конца периода «обязательство»\n"
 " 3. Резерв – попадает в прогноз до конца периода «резерв»\n"
 " 4. Потенциал – суммы не попадают в прогноз до конца периода, но могут быть занесены продавцом для фиксирования информации по проекту (при этом отсутствие таковых не будет являться ошибкой)."
@@ -2428,9 +2428,13 @@ msgstr "Актирование 6+6"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__acceptance_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__cash_id
 msgid "acceptance_id"
-msgstr "актирование"
+msgstr ""
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__cash_id
+msgid "cash_id"
+msgstr ""
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__amount_spec_ids
@@ -4763,7 +4767,7 @@ msgstr "Сумма выручки"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__total_amount_of_revenue_with_vat
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__total_amount_of_revenue_with_vat
 msgid "total_amount_of_revenue_with_vat"
-msgstr "Сумма выручки с НДС"
+msgstr "Сумма контрактования"
 
 #. module: project_budget
 #. odoo-python
