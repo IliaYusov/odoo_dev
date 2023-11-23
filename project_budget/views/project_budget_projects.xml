@@ -218,7 +218,7 @@
                                         <group>
                                             <field class="text-break" name="step_project_number" placeholder="enter project code from AXAPTA"
                                                     attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')], 'required': [('estimated_probability_id', 'in', (5, 6))]}"
-                                                    decoration-bf="1"/>
+                                                    decoration-bf="1"/> <!--обязательно при вероятности 100 и 100(done) -->
                                             <field class="text-break" name="project_office_id" placeholder="select project office" force_save="1" options="{'no_open': True,}"
                                                     attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
                                                     decoration-bf="1"/>
@@ -580,8 +580,10 @@
                                             <field name="industry_id"  options="{'no_open': True,}" optional="hide" readonly="1"/>
                                             <field name="customer_organization_id" widget="many2one_avatar"  options="{'no_open': True,}" optional="show" readonly="1"/>
                                             <field name="essence_project" optional="show" readonly="1"/>
-                                            <field name="end_presale_project_quarter"  optional="show" readonly="1"/>
-                                            <field name="end_sale_project_quarter"  optional="show" readonly="1"/>
+                                            <field name="end_presale_project_month" optional="show" readonly="1"/>
+                                            <field name="end_sale_project_month" optional="show" readonly="1"/>
+                                            <field name="end_presale_project_quarter"  optional="hide" readonly="1"/>
+                                            <field name="end_sale_project_quarter"  optional="hide" readonly="1"/>
                                             <field name="total_amount_of_revenue" optional="show" readonly="1"/>
                                             <field name="cost_price" optional="show" readonly="1"/>
                                             <field name="margin_income" optional="show" readonly="1"/>
@@ -789,8 +791,10 @@
 <!--                    <field name="customer_status_id" force_save="1" options="{'no_open': True,}"  optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>-->
                     <field name="customer_organization_id" widget="many2one_avatar" force_save="1" options="{'no_open': True,}" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
                     <field name="essence_project" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
-                    <field name="end_presale_project_quarter"  optional="show"/>
-                    <field name="end_sale_project_quarter"  optional="show"/>
+                    <field name="end_presale_project_month"  optional="show" readonly="1"/>
+                    <field name="end_sale_project_month"  optional="show" readonly="1"/>
+                    <field name="end_presale_project_quarter"  optional="hide"/>
+                    <field name="end_sale_project_quarter"  optional="hide"/>
                     <field name="total_amount_of_revenue" optional="show"/>
                     <field name="cost_price" optional="show"/>
                     <field name="margin_income" optional="show"/>

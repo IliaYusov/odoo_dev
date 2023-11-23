@@ -36,9 +36,9 @@
                         <group>
                             <field name="step_id" readonly="1"/>
                         </group>
-                        <group col="5">
+                        <group col="4">
                             <group>
-                                <field name="code" placeholder="type step code e.g. 0001" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')], 'required': [('estimated_probability_id', 'in', (5, 6))]}"/>
+                                <field name="code" placeholder="type step code e.g. 0001" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')], 'required': [('estimated_probability_id', 'in', (5, 6))]}"/> <!--обязательно при вероятности 100 и 100(done) -->
                             </group>
                             <group>
                                 <field name="project_steps_type_id" force_save="1" options="{'no_open': True,}"/>
@@ -50,12 +50,8 @@
                             <group>
                                 <field name="dogovor_number"/>
                             </group>
-                            <group>
-                                <field name="project_office_id" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')], 'invisible': [('different_project_offices_in_steps', '!=', True)],  'required': [('different_project_offices_in_steps', '=', True)]}"/>
-                                <field name="different_project_offices_in_steps" invisible="1"/>
-                            </group>
                         </group>
-                        <group col="3">
+                        <group col="4">
                             <group>
                                 <field name="essence_project" placeholder="type here essence of the project" colspan="1"
                                                attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
@@ -65,6 +61,10 @@
                             </group>
                             <group>
                                 <field name="end_sale_project_month" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
+                            </group>
+                            <group>
+                                <field name="project_office_id" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')], 'invisible': [('different_project_offices_in_steps', '!=', True)],  'required': [('different_project_offices_in_steps', '=', True)]}"/>
+                                <field name="different_project_offices_in_steps" invisible="1"/>
                             </group>
                         </group>
                         <h5>
