@@ -272,7 +272,7 @@ class report_management_committee_excel(models.AbstractModel):
         global strYEAR
         global YEARint
 
-        sum_cash = 0
+        sum_cash = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
         months = self.get_months_from_quarter(quarter)
 
@@ -285,7 +285,20 @@ class report_management_committee_excel(models.AbstractModel):
             if step:
                 if pds.project_steps_id.id != step.id: continue
             if pds.date_cash.month in months and pds.date_cash.year == YEARint:
-                sum_cash += pds.sum_cash
+                if pds.forecast == 'from_project':
+                    if step:
+                        estimated_probability_id_name = step.estimated_probability_id.name
+                    else:
+                        estimated_probability_id_name = project.estimated_probability_id.name
+
+                    if estimated_probability_id_name in ('75', '100', '100(done)'):
+                        sum_cash['commitment'] += pds.sum_cash
+                    elif estimated_probability_id_name == '50':
+                        sum_cash['reserve'] += pds.sum_cash
+                    elif estimated_probability_id_name == '30':
+                        sum_cash['potential'] += pds.sum_cash
+                else:
+                    sum_cash[pds.forecast] += pds.sum_cash
         # else: # если нихрена нет планового ПДС, то берем сумму общую по дате окончания sale или по дате этапа
         #     print('step = ',step)
         #     print('project = ',project)
@@ -303,7 +316,7 @@ class report_management_committee_excel(models.AbstractModel):
         global strYEAR
         global YEARint
 
-        sum_cash = 0
+        sum_cash = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
         pds_list = project.planned_cash_flow_ids
 
@@ -311,7 +324,20 @@ class report_management_committee_excel(models.AbstractModel):
             if step:
                 if pds.project_steps_id.id != step.id: continue
             if pds.date_cash.year == year:
-                sum_cash += pds.sum_cash
+                if pds.forecast == 'from_project':
+                    if step:
+                        estimated_probability_id_name = step.estimated_probability_id.name
+                    else:
+                        estimated_probability_id_name = project.estimated_probability_id.name
+
+                    if estimated_probability_id_name in ('75', '100', '100(done)'):
+                        sum_cash['commitment'] += pds.sum_cash
+                    elif estimated_probability_id_name == '50':
+                        sum_cash['reserve'] += pds.sum_cash
+                    elif estimated_probability_id_name == '30':
+                        sum_cash['potential'] += pds.sum_cash
+                else:
+                    sum_cash[pds.forecast] += pds.sum_cash
         return sum_cash
 
     # def get_sum_plan_acceptance_step_month(self,project, step, month):
@@ -1044,32 +1070,40 @@ class report_management_committee_excel(models.AbstractModel):
 
                     sum = self.get_sum_plan_pds_project_step_quarter(project, step, element)
 
-                    if sum100tmp_step >= sum:
-                        sum = 0
+                    if sum100tmp_step >= sum['commitment']:
+                        sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
+                        sum['commitment'] = 0
+                        sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
                     else:
-                        sum = sum - sum100tmp_step
+                        sum['commitment'] = sum['commitment'] - sum100tmp_step
 
                     # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                    sum_ostatok_pds = sum_distribution_pds = 0
+                    sum_distribution_pds = 0
+                    sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
                     for planned_cash_flow in project.planned_cash_flow_ids:
                         if (planned_cash_flow.project_steps_id.id == step.id
                                 and planned_cash_flow.date_cash.month in months
                                 and planned_cash_flow.date_cash.year == YEARint):
-                            sum_ostatok_pds += planned_cash_flow.distribution_sum_with_vat_ostatok
                             sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
+                            if planned_cash_flow.forecast == 'from_project':
+                                if step.estimated_probability_id.name in ('75', '100', '100(done)'):
+                                    sum_ostatok_pds['commitment'] = sum_ostatok_pds.get('commitment',
+                                                                                        0) + planned_cash_flow.distribution_sum_with_vat_ostatok
+                                elif step.estimated_probability_id.name == '50':
+                                    sum_ostatok_pds['reserve'] = sum_ostatok_pds.get('reserve',
+                                                                                     0) + planned_cash_flow.distribution_sum_with_vat_ostatok
+                            else:
+                                sum_ostatok_pds[planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
                     if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
                         sum = sum_ostatok_pds
-                        if sum < 0: sum = 0
+                        for key in sum:
+                            if sum[key] < 0:
+                                sum[key] = 0
 
-                    estimated_probability_id_name = step.estimated_probability_id.name
-
-                    if sum != 0:
-                        if estimated_probability_id_name in ('75', '100', '100(done)'):
-                            sheet.write_number(row, column + 3, sum, row_format_number)
-                            sum75tmp += sum
-                        if estimated_probability_id_name == '50':
-                            sheet.write_number(row, column + 4, sum, row_format_number)
-                            sum50tmp += sum
+                    sheet.write_number(row, column + 3, sum['commitment'], row_format_number)
+                    sum75tmp += sum['commitment']
+                    sheet.write_number(row, column + 4, sum['reserve'], row_format_number)
+                    sum50tmp += sum['reserve']
             else:
                 # project_etalon = self.get_etalon_project(project, element)
                 #
@@ -1090,30 +1124,40 @@ class report_management_committee_excel(models.AbstractModel):
 
                 sum = self.get_sum_plan_pds_project_step_quarter(project, False, element)
 
-                if sum100tmp >= sum:
-                    sum = 0
+                if sum100tmp >= sum['commitment']:
+                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                    sum['commitment'] = 0
+                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                 else:
-                    sum = sum - sum100tmp
+                    sum['commitment'] = sum['commitment'] - sum100tmp
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum_ostatok_pds = sum_distribution_pds = 0
+                sum_distribution_pds = 0
+                sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
                 for planned_cash_flow in project.planned_cash_flow_ids:
                     if planned_cash_flow.date_cash.month in months and planned_cash_flow.date_cash.year == YEARint:
-                        sum_ostatok_pds += planned_cash_flow.distribution_sum_with_vat_ostatok
                         sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
+                        if planned_cash_flow.forecast == 'from_project':
+                            if project.estimated_probability_id.name in ('75', '100', '100(done)'):
+                                sum_ostatok_pds['commitment'] = sum_ostatok_pds.get('commitment',
+                                                                                    0) + planned_cash_flow.distribution_sum_with_vat_ostatok
+                            elif project.estimated_probability_id.name == '50':
+                                sum_ostatok_pds['reserve'] = sum_ostatok_pds.get('reserve',
+                                                                                 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
+                        else:
+                            sum_ostatok_pds[
+                                planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
+
                 if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
                     sum = sum_ostatok_pds
-                    if sum < 0: sum = 0
+                    for key in sum:
+                        if sum[key] < 0:
+                            sum[key] = 0
 
-                estimated_probability_id_name = project.estimated_probability_id.name
-
-                if sum != 0:
-                    if estimated_probability_id_name in ('75', '100', '100(done)'):
-                        sheet.write_number(row, column + 3, sum, row_format_number)
-                        sum75tmp += sum
-                    if estimated_probability_id_name == '50':
-                        sheet.write_number(row, column + 4, sum, row_format_number)
-                        sum50tmp += sum
+                sheet.write_number(row, column + 3, sum['commitment'], row_format_number)
+                sum75tmp += sum['commitment']
+                sheet.write_number(row, column + 4, sum['reserve'], row_format_number)
+                sum50tmp += sum['reserve']
 
         elif element == 'NEXT':
             if step:
@@ -1127,64 +1171,89 @@ class report_management_committee_excel(models.AbstractModel):
                     sum100tmp += sum100tmp_step
                     sum = self.get_sum_plan_pds_project_step_year(project, step, YEARint + 1)
 
-                    if sum100tmp_step >= sum:
-                        sum = 0
+                    if sum100tmp_step >= sum['commitment']:
+                        sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
+                        sum['commitment'] = 0
+                        sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
                     else:
-                        sum = sum - sum100tmp_step
+                        sum['commitment'] = sum['commitment'] - sum100tmp_step
 
                     # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                    sum_ostatok_pds = sum_distribution_pds = 0
-
-                    estimated_probability_id_name = step.estimated_probability_id.name
+                    sum_distribution_pds = 0
+                    sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
                     for planned_cash_flow in project.planned_cash_flow_ids:
                         if planned_cash_flow.project_steps_id.id == step.id and planned_cash_flow.date_cash.year == YEARint + 1:
-                            sum_ostatok_pds += planned_cash_flow.distribution_sum_with_vat_ostatok
                             sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
+                            if planned_cash_flow.forecast == 'from_project':
+                                if step.estimated_probability_id.name in ('75', '100'):
+                                    sum_ostatok_pds['commitment'] = sum_ostatok_pds.get('commitment',
+                                                                                        0) + planned_cash_flow.distribution_sum_with_vat_ostatok
+                                elif step.estimated_probability_id.name == '50':
+                                    sum_ostatok_pds['reserve'] = sum_ostatok_pds.get('reserve',
+                                                                                     0) + planned_cash_flow.distribution_sum_with_vat_ostatok
+                                elif step.estimated_probability_id.name == '30':
+                                    sum_ostatok_pds['potential'] = sum_ostatok_pds.get('potential',
+                                                                                     0) + planned_cash_flow.distribution_sum_with_vat_ostatok
+                            else:
+                                sum_ostatok_pds[planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
+
                     if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
                         sum = sum_ostatok_pds
-                        if sum < 0: sum = 0
-                    if sum != 0:
-                        if estimated_probability_id_name in ('75', '100'):
-                            sheet.write_number(row, column + 0, sum, row_format_number)
-                            sum_next_75_tmp += sum
-                        elif estimated_probability_id_name == '50':
-                            sheet.write_number(row, column + 1, sum * params['50'], row_format_number)
-                            sum_next_50_tmp += sum * params['50']
-                        elif estimated_probability_id_name == '30':
-                            sheet.write_number(row, column + 2, sum * params['30'], row_format_number)
-                            sum_next_30_tmp += sum * params['30']
+                        for key in sum:
+                            if sum[key] < 0:
+                                sum[key] = 0
+
+                    sheet.write_number(row, column + 0, sum['commitment'], row_format_number)
+                    sum_next_75_tmp += sum['commitment']
+                    sheet.write_number(row, column + 1, sum['reserve'] * params['50'], row_format_number)
+                    sum_next_50_tmp += sum['reserve'] * params['50']
+                    sheet.write_number(row, column + 2, sum['potential'] * params['30'], row_format_number)
+                    sum_next_30_tmp += sum['potential'] * params['30']
             else:
                 sum100tmp = self.get_sum_fact_pds_project_step_year(project, False, YEARint + 1)
                 sum = self.get_sum_plan_pds_project_step_year(project, False, YEARint + 1)
 
-                if sum100tmp >= sum:
-                    sum = 0
+                if sum100tmp >= sum['commitment']:
+                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                    sum['commitment'] = 0
+                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                 else:
-                    sum = sum - sum100tmp
+                    sum['commitment'] = sum['commitment'] - sum100tmp
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum_ostatok_pds = sum_distribution_pds = 0
-
-                estimated_probability_id_name = project.estimated_probability_id.name
+                sum_distribution_pds = 0
+                sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
                 for planned_cash_flow in project.planned_cash_flow_ids:
                     if planned_cash_flow.date_cash.year == YEARint + 1:
-                        sum_ostatok_pds += planned_cash_flow.distribution_sum_with_vat_ostatok
                         sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
+                        if planned_cash_flow.forecast == 'from_project':
+                            if project.estimated_probability_id.name in ('75', '100'):
+                                sum_ostatok_pds['commitment'] = sum_ostatok_pds.get('commitment',
+                                                                                    0) + planned_cash_flow.distribution_sum_with_vat_ostatok
+                            elif project.estimated_probability_id.name == '50':
+                                sum_ostatok_pds['reserve'] = sum_ostatok_pds.get('reserve',
+                                                                                 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
+                            elif project.estimated_probability_id.name == '30':
+                                sum_ostatok_pds['potential'] = sum_ostatok_pds.get('potential',
+                                                                                 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
+                        else:
+                            sum_ostatok_pds[
+                                planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
+
                 if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
                     sum = sum_ostatok_pds
-                    if sum < 0: sum = 0
-                if sum != 0:
-                    if estimated_probability_id_name in ('75', '100'):
-                        sheet.write_number(row, column + 0, sum, row_format_number)
-                        sum_next_75_tmp += sum
-                    elif estimated_probability_id_name == '50':
-                        sheet.write_number(row, column + 1, sum * params['50'], row_format_number)
-                        sum_next_50_tmp += sum * params['50']
-                    elif estimated_probability_id_name == '30':
-                        sheet.write_number(row, column + 2, sum * params['30'], row_format_number)
-                        sum_next_30_tmp += sum * params['30']
+                    for key in sum:
+                        if sum[key] < 0:
+                            sum[key] = 0
+
+                sheet.write_number(row, column + 0, sum['commitment'], row_format_number)
+                sum_next_75_tmp += sum['commitment']
+                sheet.write_number(row, column + 1, sum['reserve'] * params['50'], row_format_number)
+                sum_next_50_tmp += sum['reserve'] * params['50']
+                sheet.write_number(row, column + 2, sum['potential'] * params['30'], row_format_number)
+                sum_next_30_tmp += sum['potential'] * params['30']
 
         elif element == 'AFTER NEXT':
             if step:
@@ -1198,60 +1267,87 @@ class report_management_committee_excel(models.AbstractModel):
                     sum100tmp += sum100tmp_step
                     sum = self.get_sum_plan_pds_project_step_year(project, step, YEARint + 2)
 
-                    if sum100tmp_step >= sum:
-                        sum = 0
+                    if sum100tmp_step >= sum['commitment']:
+                        sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
+                        sum['commitment'] = 0
+                        sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
                     else:
-                        sum = sum - sum100tmp_step
+                        sum['commitment'] = sum['commitment'] - sum100tmp_step
 
                     # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                    sum_ostatok_pds = sum_distribution_pds = 0
-
-                    estimated_probability_id_name = step.estimated_probability_id.name
+                    sum_distribution_pds = 0
+                    sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
                     for planned_cash_flow in project.planned_cash_flow_ids:
                         if planned_cash_flow.project_steps_id.id == step.id and planned_cash_flow.date_cash.year == YEARint + 2:
-                            sum_ostatok_pds += planned_cash_flow.distribution_sum_with_vat_ostatok
                             sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
+                            if planned_cash_flow.forecast == 'from_project':
+                                if step.estimated_probability_id.name in ('75', '100'):
+                                    sum_ostatok_pds['commitment'] = sum_ostatok_pds.get('commitment',
+                                                                                        0) + planned_cash_flow.distribution_sum_with_vat_ostatok
+                                elif step.estimated_probability_id.name == '50':
+                                    sum_ostatok_pds['reserve'] = sum_ostatok_pds.get('reserve',
+                                                                                     0) + planned_cash_flow.distribution_sum_with_vat_ostatok
+                                elif step.estimated_probability_id.name == '30':
+                                    sum_ostatok_pds['potential'] = sum_ostatok_pds.get('potential',
+                                                                                       0) + planned_cash_flow.distribution_sum_with_vat_ostatok
+                            else:
+                                sum_ostatok_pds[
+                                    planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
+
+
                     if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
                         sum = sum_ostatok_pds
-                        if sum < 0: sum = 0
-                    if sum != 0:
-                        if estimated_probability_id_name in ('75', '100'):
-                            sum_after_next_tmp += sum
-                        elif estimated_probability_id_name == '50':
-                            sum_after_next_tmp += sum * params['50']
-                        elif estimated_probability_id_name == '30':
-                            sum_after_next_tmp += sum * params['30']
+                        for key in sum:
+                            if sum[key] < 0:
+                                sum[key] = 0
+
+                    sum_after_next_tmp += sum['commitment']
+                    sum_after_next_tmp += sum['reserve'] * params['50']
+                    sum_after_next_tmp += sum['potential'] * params['30']
                     sheet.write_number(row, column + 0, sum_after_next_tmp, row_format_number)
 
             else:
                 sum100tmp = self.get_sum_fact_pds_project_step_year(project, False, YEARint + 2)
                 sum = self.get_sum_plan_pds_project_step_year(project, False, YEARint + 2)
 
-                if sum100tmp >= sum:
-                    sum = 0
+                if sum100tmp >= sum['commitment']:
+                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                    sum['commitment'] = 0
+                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                 else:
-                    sum = sum - sum100tmp
+                    sum['commitment'] = sum['commitment'] - sum100tmp
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum_ostatok_pds = sum_distribution_pds = 0
-
-                estimated_probability_id_name = project.estimated_probability_id.name
+                sum_distribution_pds = 0
+                sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
                 for planned_cash_flow in project.planned_cash_flow_ids:
                     if planned_cash_flow.date_cash.year == YEARint + 2:
-                        sum_ostatok_pds += planned_cash_flow.distribution_sum_with_vat_ostatok
                         sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
+                        if planned_cash_flow.forecast == 'from_project':
+                            if project.estimated_probability_id.name in ('75', '100'):
+                                sum_ostatok_pds['commitment'] = sum_ostatok_pds.get('commitment',
+                                                                                    0) + planned_cash_flow.distribution_sum_with_vat_ostatok
+                            elif project.estimated_probability_id.name == '50':
+                                sum_ostatok_pds['reserve'] = sum_ostatok_pds.get('reserve',
+                                                                                 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
+                            elif project.estimated_probability_id.name == '30':
+                                sum_ostatok_pds['potential'] = sum_ostatok_pds.get('potential',
+                                                                                   0) + planned_cash_flow.distribution_sum_with_vat_ostatok
+                        else:
+                            sum_ostatok_pds[
+                                planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
+
                 if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
                     sum = sum_ostatok_pds
-                    if sum < 0: sum = 0
-                if sum != 0:
-                    if estimated_probability_id_name in ('75', '100'):
-                        sum_after_next_tmp += sum
-                    elif estimated_probability_id_name == '50':
-                        sum_after_next_tmp += sum * params['50']
-                    elif estimated_probability_id_name == '30':
-                        sum_after_next_tmp += sum * params['30']
+                    for key in sum:
+                        if sum[key] < 0:
+                            sum[key] = 0
+
+                sum_after_next_tmp += sum['commitment']
+                sum_after_next_tmp += sum['reserve'] * params['50']
+                sum_after_next_tmp += sum['potential'] * params['30']
                 sheet.write_number(row, column + 0, sum_after_next_tmp, row_format_number)
 
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
@@ -1303,29 +1399,38 @@ class report_management_committee_excel(models.AbstractModel):
 
                         sum = self.get_sum_plan_pds_project_step_quarter(project, step, element)
 
-                        if sum100tmp_step >= sum:
-                            sum = 0
+                        if sum100tmp_step >= sum['commitment']:
+                            sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
+                            sum['commitment'] = 0
+                            sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
                         else:
-                            sum = sum - sum100tmp_step
+                            sum['commitment'] = sum['commitment'] - sum100tmp_step
                         # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                        sum_ostatok_pds = sum_distribution_pds = 0
+                        sum_distribution_pds = 0
+                        sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
                         for planned_cash_flow in project.planned_cash_flow_ids:
                             if (planned_cash_flow.project_steps_id.id == step.id
                                     and planned_cash_flow.date_cash.month in months
                                     and planned_cash_flow.date_cash.year == YEARint):
-                                sum_ostatok_pds += planned_cash_flow.distribution_sum_with_vat_ostatok
                                 sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
+                                if planned_cash_flow.forecast == 'from_project':
+                                    if step.estimated_probability_id.name in ('75', '100', '100(done)'):
+                                        sum_ostatok_pds['commitment'] += planned_cash_flow.distribution_sum_with_vat_ostatok
+                                    elif step.estimated_probability_id.name == '50':
+                                        sum_ostatok_pds['reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
+                                else:
+                                    sum_ostatok_pds[
+                                        planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
+
                         if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
                             sum = sum_ostatok_pds
-                            if sum < 0: sum = 0
+                            for key in sum:
+                                if sum[key] < 0:
+                                    sum[key] = 0
 
-                        estimated_probability_id_name = step.estimated_probability_id.name
+                        sum75tmp += sum['commitment']
+                        sum50tmp += sum['reserve']
 
-                        if sum != 0:
-                            if estimated_probability_id_name in ('75', '100', '100(done)'):
-                                sum75tmp += sum
-                            if estimated_probability_id_name == '50':
-                                sum50tmp += sum
             else:
                 # project_etalon = self.get_etalon_project(project, element)
                 #
@@ -1342,28 +1447,36 @@ class report_management_committee_excel(models.AbstractModel):
                 sum100tmp = self.get_sum_fact_pds_project_step_quarter(project, False, element)
                 sum = self.get_sum_plan_pds_project_step_quarter(project, False, element)
 
-                if sum100tmp >= sum:
-                    sum = 0
+                if sum100tmp >= sum['commitment']:
+                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                    sum['commitment'] = 0
+                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                 else:
-                    sum = sum - sum100tmp
+                    sum['commitment'] = sum['commitment'] - sum100tmp
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum_ostatok_pds = sum_distribution_pds = 0
+                sum_distribution_pds = 0
+                sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
                 for planned_cash_flow in project.planned_cash_flow_ids:
                     if planned_cash_flow.date_cash.month in months and planned_cash_flow.date_cash.year == YEARint:
-                        sum_ostatok_pds += planned_cash_flow.distribution_sum_with_vat_ostatok
                         sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
+                        if planned_cash_flow.forecast == 'from_project':
+                            if project.estimated_probability_id.name in ('75', '100', '100(done)'):
+                                sum_ostatok_pds['commitment'] += planned_cash_flow.distribution_sum_with_vat_ostatok
+                            elif project.estimated_probability_id.name == '50':
+                                sum_ostatok_pds['reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
+                        else:
+                            sum_ostatok_pds[
+                                planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
+
                 if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
                     sum = sum_ostatok_pds
-                    if sum < 0: sum = 0
+                    for key in sum:
+                        if sum[key] < 0:
+                            sum[key] = 0
 
-                estimated_probability_id_name = project.estimated_probability_id.name
-
-                if sum != 0:
-                    if estimated_probability_id_name in ('75', '100', '100(done)'):
-                        sum75tmp += sum
-                    if estimated_probability_id_name == '50':
-                        sum50tmp += sum
+                sum75tmp += sum['commitment']
+                sum50tmp += sum['reserve']
 
         elif element == 'NEXT':
             if project.project_have_steps:
@@ -1378,58 +1491,78 @@ class report_management_committee_excel(models.AbstractModel):
                         sum100tmp += sum100tmp_step
                         sum = self.get_sum_plan_pds_project_step_year(project, step, YEARint + 1)
 
-                        if sum100tmp_step >= sum:
-                            sum = 0
+                        if sum100tmp_step >= sum['commitment']:
+                            sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
+                            sum['commitment'] = 0
+                            sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
                         else:
-                            sum = sum - sum100tmp_step
+                            sum['commitment'] = sum['commitment'] - sum100tmp_step
 
                         # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                        sum_ostatok_pds = sum_distribution_pds = 0
-
-                        estimated_probability_id_name = step.estimated_probability_id.name
+                        sum_distribution_pds = 0
+                        sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
                         for planned_cash_flow in project.planned_cash_flow_ids:
                             if planned_cash_flow.project_steps_id.id == step.id and planned_cash_flow.date_cash.year == YEARint + 1:
-                                sum_ostatok_pds += planned_cash_flow.distribution_sum_with_vat_ostatok
                                 sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
+                                if planned_cash_flow.forecast == 'from_project':
+                                    if step.estimated_probability_id.name in ('75', '100'):
+                                        sum_ostatok_pds['commitment'] += planned_cash_flow.distribution_sum_with_vat_ostatok
+                                    elif step.estimated_probability_id.name == '50':
+                                        sum_ostatok_pds['reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
+                                    elif step.estimated_probability_id.name == '30':
+                                        sum_ostatok_pds['potential'] += planned_cash_flow.distribution_sum_with_vat_ostatok
+                                else:
+                                    sum_ostatok_pds[
+                                        planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
+
                         if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
                             sum = sum_ostatok_pds
-                            if sum < 0: sum = 0
-                        if sum != 0:
-                            if estimated_probability_id_name in ('75', '100'):
-                                sum_next_75_tmp += sum
-                            elif estimated_probability_id_name == '50':
-                                sum_next_50_tmp += sum * params['50']
-                            elif estimated_probability_id_name == '30':
-                                sum_next_30_tmp += sum * params['30']
+                            for key in sum:
+                                if sum[key] < 0:
+                                    sum[key] = 0
+
+                        sum_next_75_tmp += sum['commitment']
+                        sum_next_50_tmp += sum['reserve'] * params['50']
+                        sum_next_30_tmp += sum['potential'] * params['30']
             else:
                 sum100tmp = self.get_sum_fact_pds_project_step_year(project, False, YEARint + 1)
                 sum = self.get_sum_plan_pds_project_step_year(project, False, YEARint + 1)
 
-                if sum100tmp >= sum:
-                    sum = 0
+                if sum100tmp >= sum['commitment']:
+                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                    sum['commitment'] = 0
+                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                 else:
-                    sum = sum - sum100tmp
+                    sum['commitment'] = sum['commitment'] - sum100tmp
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum_ostatok_pds = sum_distribution_pds = 0
-
-                estimated_probability_id_name = project.estimated_probability_id.name
+                sum_distribution_pds = 0
+                sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
                 for planned_cash_flow in project.planned_cash_flow_ids:
                     if planned_cash_flow.date_cash.year == YEARint + 1:
-                        sum_ostatok_pds += planned_cash_flow.distribution_sum_with_vat_ostatok
                         sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
+                        if planned_cash_flow.forecast == 'from_project':
+                            if project.estimated_probability_id.name in ('75', '100'):
+                                sum_ostatok_pds['commitment'] += planned_cash_flow.distribution_sum_with_vat_ostatok
+                            elif project.estimated_probability_id.name == '50':
+                                sum_ostatok_pds['reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
+                            elif project.estimated_probability_id.name == '30':
+                                sum_ostatok_pds['potential'] += planned_cash_flow.distribution_sum_with_vat_ostatok
+                        else:
+                            sum_ostatok_pds[
+                                planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
+
                 if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
                     sum = sum_ostatok_pds
-                    if sum < 0: sum = 0
-                if sum != 0:
-                    if estimated_probability_id_name in ('75', '100'):
-                        sum_next_75_tmp += sum
-                    elif estimated_probability_id_name == '50':
-                        sum_next_50_tmp += sum * params['50']
-                    elif estimated_probability_id_name == '30':
-                        sum_next_30_tmp += sum * params['30']
+                    for key in sum:
+                        if sum[key] < 0:
+                            sum[key] = 0
+
+                sum_next_75_tmp += sum['commitment']
+                sum_next_50_tmp += sum['reserve'] * params['50']
+                sum_next_30_tmp += sum['potential'] * params['30']
 
         elif element == 'AFTER NEXT':
             if project.project_have_steps:
@@ -1444,59 +1577,85 @@ class report_management_committee_excel(models.AbstractModel):
                         sum100tmp += sum100tmp_step
                         sum = self.get_sum_plan_pds_project_step_year(project, step, YEARint + 2)
 
-                        if sum100tmp_step >= sum:
-                            sum = 0
+                        if sum100tmp_step >= sum['commitment']:
+                            sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
+                            sum['commitment'] = 0
+                            sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
                         else:
-                            sum = sum - sum100tmp_step
+                            sum['commitment'] = sum['commitment'] - sum100tmp_step
 
                         # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                        sum_ostatok_pds = sum_distribution_pds = 0
-
-                        estimated_probability_id_name = step.estimated_probability_id.name
+                        sum_distribution_pds = 0
+                        sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
                         for planned_cash_flow in project.planned_cash_flow_ids:
                             if planned_cash_flow.project_steps_id.id == step.id and planned_cash_flow.date_cash.year == YEARint + 2:
-                                sum_ostatok_pds += planned_cash_flow.distribution_sum_with_vat_ostatok
                                 sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
+                                if planned_cash_flow.forecast == 'from_project':
+                                    if step.estimated_probability_id.name in ('75', '100'):
+                                        sum_ostatok_pds[
+                                            'commitment'] += planned_cash_flow.distribution_sum_with_vat_ostatok
+                                    elif step.estimated_probability_id.name == '50':
+                                        sum_ostatok_pds[
+                                            'reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
+                                    elif step.estimated_probability_id.name == '30':
+                                        sum_ostatok_pds[
+                                            'potential'] += planned_cash_flow.distribution_sum_with_vat_ostatok
+                                else:
+                                    sum_ostatok_pds[
+                                        planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
+
                         if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
                             sum = sum_ostatok_pds
-                            if sum < 0: sum = 0
-                        if sum != 0:
-                            if estimated_probability_id_name in ('75', '100'):
-                                sum_after_next_tmp += sum
-                            elif estimated_probability_id_name == '50':
-                                sum_after_next_tmp += sum * params['50']
-                            elif estimated_probability_id_name == '30':
-                                sum_after_next_tmp += sum * params['30']
+                            for key in sum:
+                                if sum[key] < 0:
+                                    sum[key] = 0
+
+                        sum_after_next_tmp += sum['commitment']
+                        sum_after_next_tmp += sum['reserve'] * params['50']
+                        sum_after_next_tmp += sum['potential'] * params['30']
 
             else:
                 sum100tmp = self.get_sum_fact_pds_project_step_year(project, False, YEARint + 2)
                 sum = self.get_sum_plan_pds_project_step_year(project, False, YEARint + 2)
 
-                if sum100tmp >= sum:
-                    sum = 0
+                if sum100tmp >= sum['commitment']:
+                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                    sum['commitment'] = 0
+                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                 else:
-                    sum = sum - sum100tmp
+                    sum['commitment'] = sum['commitment'] - sum100tmp
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum_ostatok_pds = sum_distribution_pds = 0
-
-                estimated_probability_id_name = project.estimated_probability_id.name
+                sum_distribution_pds = 0
+                sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
                 for planned_cash_flow in project.planned_cash_flow_ids:
                     if planned_cash_flow.date_cash.year == YEARint + 2:
-                        sum_ostatok_pds += planned_cash_flow.distribution_sum_with_vat_ostatok
                         sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
+                        if planned_cash_flow.forecast == 'from_project':
+                            if project.estimated_probability_id.name in ('75', '100'):
+                                sum_ostatok_pds[
+                                    'commitment'] += planned_cash_flow.distribution_sum_with_vat_ostatok
+                            elif project.estimated_probability_id.name == '50':
+                                sum_ostatok_pds[
+                                    'reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
+                            elif project.estimated_probability_id.name == '30':
+                                sum_ostatok_pds[
+                                    'potential'] += planned_cash_flow.distribution_sum_with_vat_ostatok
+                        else:
+                            sum_ostatok_pds[
+                                planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
+
                 if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
                     sum = sum_ostatok_pds
-                    if sum < 0: sum = 0
-                if sum != 0:
-                    if estimated_probability_id_name in ('75', '100'):
-                        sum_after_next_tmp += sum
-                    elif estimated_probability_id_name == '50':
-                        sum_after_next_tmp += sum * params['50']
-                    elif estimated_probability_id_name == '30':
-                        sum_after_next_tmp += sum * params['30']
+                    for key in sum:
+                        if sum[key] < 0:
+                            sum[key] = 0
+
+                sum_after_next_tmp += sum['commitment']
+                sum_after_next_tmp += sum['reserve'] * params['50']
+                sum_after_next_tmp += sum['potential'] * params['30']
 
         return (sum75tmpetalon, sum50tmpetalon,
                 sum100tmp, sum75tmp, sum50tmp,
@@ -1570,7 +1729,7 @@ class report_management_committee_excel(models.AbstractModel):
         global strYEAR
         global YEARint
 
-        sum_acceptance = 0
+        sum_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
         months = self.get_months_from_quarter(element_name)
 
@@ -1586,13 +1745,25 @@ class report_management_committee_excel(models.AbstractModel):
                     if step:
                         if acceptance.project_steps_id.id != step.id: continue
                     if acceptance.date_cash.month in months and acceptance.date_cash.year == YEARint:
-                        sum_acceptance += acceptance.sum_cash_without_vat
-                        # sum_acceptance += acceptance.sum_cash_without_vat / (1 + vatpercent / 100)
+                        if acceptance.forecast == 'from_project':
+                            if step:
+                                estimated_probability_id_name = step.estimated_probability_id.name
+                            else:
+                                estimated_probability_id_name = project.estimated_probability_id.name
+
+                            if estimated_probability_id_name in ('75', '100', '100(done)'):
+                                sum_acceptance['commitment'] += acceptance.sum_cash_without_vat
+                            elif estimated_probability_id_name == '50':
+                                sum_acceptance['reserve'] += acceptance.sum_cash_without_vat
+                            elif estimated_probability_id_name == '30':
+                                sum_acceptance['potential'] += acceptance.sum_cash_without_vat
+                        else:
+                            sum_acceptance[acceptance.forecast] += acceptance.sum_cash_without_vat
         return sum_acceptance
 
     def get_sum_planned_acceptance_project_step_year(self, project, step, year):
 
-        sum_acceptance = 0
+        sum_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
         acceptance_list = project.planned_acceptance_flow_ids
         if acceptance_list:
@@ -1600,8 +1771,20 @@ class report_management_committee_excel(models.AbstractModel):
                 if step:
                     if acceptance.project_steps_id.id != step.id: continue
                 if acceptance.date_cash.year == year:
-                    sum_acceptance += acceptance.sum_cash_without_vat
+                    if acceptance.forecast == 'from_project':
+                        if step:
+                            estimated_probability_id_name = step.estimated_probability_id.name
+                        else:
+                            estimated_probability_id_name = project.estimated_probability_id.name
 
+                        if estimated_probability_id_name in ('75', '100', '100(done)'):
+                            sum_acceptance['commitment'] += acceptance.sum_cash_without_vat
+                        elif estimated_probability_id_name == '50':
+                            sum_acceptance['reserve'] += acceptance.sum_cash_without_vat
+                        elif estimated_probability_id_name == '30':
+                            sum_acceptance['potential'] += acceptance.sum_cash_without_vat
+                    else:
+                        sum_acceptance[acceptance.forecast] += acceptance.sum_cash_without_vat
         return sum_acceptance
 
     def print_quarter_planned_acceptance_project(self, sheet, row, column, element, project, step,  project_office, params, row_format_number, row_format_number_color_fact):
@@ -1667,13 +1850,16 @@ class report_management_committee_excel(models.AbstractModel):
 
                     sum = self.get_sum_planned_acceptance_project_step_quarter(project, step, element)
 
-                    if sum100tmp_step >= sum:
-                        sum = 0
+                    if sum100tmp_step >= sum['commitment']:
+                        sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
+                        sum['commitment'] = 0
+                        sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
                     else:
-                        sum = sum - sum100tmp_step
+                        sum['commitment'] = sum['commitment'] - sum100tmp_step
 
                     # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                    sum_ostatok_acceptance = sum_distribution_acceptance = 0
+                    sum_distribution_acceptance = 0
+                    sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
                     months = self.get_months_from_quarter(element)
 
                     for planned_acceptance_flow in project.planned_acceptance_flow_ids:
@@ -1681,26 +1867,36 @@ class report_management_committee_excel(models.AbstractModel):
                                 and planned_acceptance_flow.date_cash.month in months
                                 and planned_acceptance_flow.date_cash.year == YEARint
                         ):
-                            sum_ostatok_acceptance += planned_acceptance_flow.distribution_sum_without_vat_ostatok
                             sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+                            if planned_acceptance_flow.forecast == 'from_project':
+                                if step.estimated_probability_id.name in ('75', '100', '100(done)'):
+                                    sum_ostatok_acceptance[
+                                        'commitment'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                                elif step.estimated_probability_id.name == '50':
+                                    sum_ostatok_acceptance[
+                                        'reserve'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                                elif step.estimated_probability_id.name == '30':
+                                    sum_ostatok_acceptance[
+                                        'potential'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                            else:
+                                sum_ostatok_acceptance[
+                                    planned_acceptance_flow.forecast] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+
 
                     if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
                         sum = sum_ostatok_acceptance
-                        if sum <= 0: sum = 0
+                        for key in sum:
+                            if sum[key] < 0:
+                                sum[key] = 0
 
-                    estimated_probability_id_name = step.estimated_probability_id.name
-
-                    if sum != 0:
-                        if estimated_probability_id_name in ('75', '100', '100(done)'):
-                            sheet.write_number(row, column + 3, sum, row_format_number)
-                            sheet.write_number(row, column + 3 + 41, sum * profitability / 100, row_format_number)
-                            sum75tmp += sum
-                            prof75tmp += sum * profitability / 100
-                        if estimated_probability_id_name == '50':
-                            sheet.write_number(row, column + 4, sum, row_format_number)
-                            sheet.write_number(row, column + 4 + 41, sum * profitability / 100, row_format_number)
-                            sum50tmp += sum
-                            prof50tmp += sum * profitability / 100
+                    sheet.write_number(row, column + 3, sum['commitment'], row_format_number)
+                    sheet.write_number(row, column + 3 + 41, sum['commitment'] * profitability / 100, row_format_number)
+                    sum75tmp += sum['commitment']
+                    prof75tmp += sum['commitment'] * profitability / 100
+                    sheet.write_number(row, column + 4, sum['reserve'], row_format_number)
+                    sheet.write_number(row, column + 4 + 41, sum['reserve'] * profitability / 100, row_format_number)
+                    sum50tmp += sum['reserve']
+                    prof50tmp += sum['reserve'] * profitability / 100
             else:
                 # project_etalon = self.get_etalon_project(project, element)
                 profitability = project.profitability
@@ -1732,35 +1928,48 @@ class report_management_committee_excel(models.AbstractModel):
 
                 sum = self.get_sum_planned_acceptance_project_step_quarter(project, False, element)
 
-                if sum100tmp >= sum:
-                    sum = 0
+                if sum100tmp >= sum['commitment']:
+                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                    sum['commitment'] = 0
+                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                 else:
-                    sum = sum - sum100tmp
+                    sum['commitment'] = sum['commitment'] - sum100tmp
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum_ostatok_acceptance = sum_distribution_acceptance = 0
+                sum_distribution_acceptance = 0
+                sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
                 months = self.get_months_from_quarter(element)
                 for planned_acceptance_flow in project.planned_acceptance_flow_ids:
                     if planned_acceptance_flow.date_cash.month in months and planned_acceptance_flow.date_cash.year == YEARint:
-                        sum_ostatok_acceptance += planned_acceptance_flow.distribution_sum_without_vat_ostatok
                         sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+                        if planned_acceptance_flow.forecast == 'from_project':
+                            if project.estimated_probability_id.name in ('75', '100', '100(done)'):
+                                sum_ostatok_acceptance[
+                                    'commitment'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                            elif project.estimated_probability_id.name == '50':
+                                sum_ostatok_acceptance[
+                                    'reserve'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                            elif project.estimated_probability_id.name == '30':
+                                sum_ostatok_acceptance[
+                                    'potential'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                        else:
+                            sum_ostatok_acceptance[
+                                planned_acceptance_flow.forecast] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+
                 if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
                     sum = sum_ostatok_acceptance
-                    if sum <= 0: sum = 0
+                    for key in sum:
+                        if sum[key] < 0:
+                            sum[key] = 0
 
-                estimated_probability_id_name = project.estimated_probability_id.name
-
-                if sum != 0:
-                    if estimated_probability_id_name in ('75', '100', '100(done)'):
-                        sheet.write_number(row, column + 3, sum, row_format_number)
-                        sheet.write_number(row, column + 3 + 41, sum * profitability / 100, row_format_number)
-                        sum75tmp += sum
-                        prof75tmp += sum * profitability / 100
-                    if estimated_probability_id_name == '50':
-                        sheet.write_number(row, column + 4, sum, row_format_number)
-                        sheet.write_number(row, column + 4 + 41, sum * profitability / 100, row_format_number)
-                        sum50tmp += sum
-                        prof50tmp += sum * profitability / 100
+                sheet.write_number(row, column + 3, sum['commitment'], row_format_number)
+                sheet.write_number(row, column + 3 + 41, sum['commitment'] * profitability / 100, row_format_number)
+                sum75tmp += sum['commitment']
+                prof75tmp += sum['commitment'] * profitability / 100
+                sheet.write_number(row, column + 4, sum['reserve'], row_format_number)
+                sheet.write_number(row, column + 4 + 41, sum['reserve'] * profitability / 100, row_format_number)
+                sum50tmp += sum['reserve']
+                prof50tmp += sum['reserve'] * profitability / 100
 
         elif element == 'NEXT':
             if step:
@@ -1778,47 +1987,64 @@ class report_management_committee_excel(models.AbstractModel):
 
                     sum = self.get_sum_planned_acceptance_project_step_year(project, step, YEARint + 1)
 
-                    if sum100tmp_step >= sum:
-                        sum = 0
+                    if sum100tmp_step >= sum['commitment']:
+                        sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
+                        sum['commitment'] = 0
+                        sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
                     else:
-                        sum = sum - sum100tmp_step
+                        sum['commitment'] = sum['commitment'] - sum100tmp_step
 
-                    if sum == 0 and step.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
-                        sum = step.total_amount_of_revenue
+                    if all(value == 0 for value in sum.values()) and step.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
+                        if step.estimated_probability_id.name in ('75', '100'):
+                            sum['commitment'] = step.total_amount_of_revenue
+                        elif step.estimated_probability_id.name == '50':
+                            sum['reserve'] = step.total_amount_of_revenue
+                        elif step.estimated_probability_id.name == '30':
+                            sum['potential'] = step.total_amount_of_revenue
 
                     # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                    sum_ostatok_acceptance = sum_distribution_acceptance = 0
-
+                    sum_distribution_acceptance = 0
+                    sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
                     for planned_acceptance_flow in project.planned_acceptance_flow_ids:
                         if (
                                 planned_acceptance_flow.project_steps_id.id == step.id
                                 and planned_acceptance_flow.date_cash.year == YEARint + 1
                         ):
-                            sum_ostatok_acceptance += planned_acceptance_flow.distribution_sum_without_vat_ostatok
                             sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+                            if planned_acceptance_flow.forecast == 'from_project':
+                                if step.estimated_probability_id.name in ('75', '100'):
+                                    sum_ostatok_acceptance[
+                                        'commitment'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                                elif step.estimated_probability_id.name == '50':
+                                    sum_ostatok_acceptance[
+                                        'reserve'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                                elif step.estimated_probability_id.name == '30':
+                                    sum_ostatok_acceptance[
+                                        'potential'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                            else:
+                                sum_ostatok_acceptance[
+                                    planned_acceptance_flow.forecast] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+
 
                     if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
                         sum = sum_ostatok_acceptance
-                        if sum <= 0: sum = 0
+                        for key in sum:
+                            if sum[key] < 0:
+                                sum[key] = 0
 
-                    estimated_probability_id_name = step.estimated_probability_id.name
 
-                    if sum != 0:
-                        if estimated_probability_id_name in ('75', '100'):
-                            sheet.write_number(row, column + 0, sum, row_format_number)
-                            sheet.write_number(row, column + 0 + 41, sum * profitability / 100, row_format_number)
-                            sum_next_75_tmp += sum
-                            prof_next_75_tmp += sum * profitability / 100
-                        elif estimated_probability_id_name == '50':
-                            sheet.write_number(row, column + 1, sum * params['50'], row_format_number)
-                            sheet.write_number(row, column + 1 + 41, sum * params['50'] * profitability / 100, row_format_number)
-                            sum_next_50_tmp += sum * params['50']
-                            prof_next_50_tmp += sum * params['50'] * profitability / 100
-                        elif estimated_probability_id_name == '30':
-                            sheet.write_number(row, column + 2, sum * params['30'], row_format_number)
-                            sheet.write_number(row, column + 2 + 41, sum * params['30'] * profitability / 100, row_format_number)
-                            sum_next_30_tmp += sum * params['30']
-                            prof_next_30_tmp += sum * params['30'] * profitability / 100
+                    sheet.write_number(row, column + 0, sum['commitment'], row_format_number)
+                    sheet.write_number(row, column + 0 + 41, sum['commitment'] * profitability / 100, row_format_number)
+                    sum_next_75_tmp += sum['commitment']
+                    prof_next_75_tmp += sum['commitment'] * profitability / 100
+                    sheet.write_number(row, column + 1, sum['reserve'] * params['50'], row_format_number)
+                    sheet.write_number(row, column + 1 + 41, sum['reserve'] * params['50'] * profitability / 100, row_format_number)
+                    sum_next_50_tmp += sum['reserve'] * params['50']
+                    prof_next_50_tmp += sum['reserve'] * params['50'] * profitability / 100
+                    sheet.write_number(row, column + 2, sum['potential'] * params['30'], row_format_number)
+                    sheet.write_number(row, column + 2 + 41, sum['potential'] * params['30'] * profitability / 100, row_format_number)
+                    sum_next_30_tmp += sum['potential'] * params['30']
+                    prof_next_30_tmp += sum['potential'] * params['30'] * profitability / 100
             else:
                 profitability = project.profitability
 
@@ -1830,47 +2056,63 @@ class report_management_committee_excel(models.AbstractModel):
 
                 sum = self.get_sum_planned_acceptance_project_step_year(project, False, YEARint + 1)
 
-                if sum100tmp >= sum:
-                    sum = 0
+                if sum100tmp >= sum['commitment']:
+                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                    sum['commitment'] = 0
+                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                 else:
-                    sum = sum - sum100tmp
+                    sum['commitment'] = sum['commitment'] - sum100tmp
 
-                if sum == 0 and project.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
-                    sum = project.total_amount_of_revenue
+                if all(value == 0 for value in sum.values()) and project.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
+                    if project.estimated_probability_id.name in ('75', '100'):
+                        sum['commitment'] = project.total_amount_of_revenue
+                    elif project.estimated_probability_id.name == '50':
+                        sum['reserve'] = project.total_amount_of_revenue
+                    elif project.estimated_probability_id.name == '30':
+                        sum['potential'] = project.total_amount_of_revenue
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum_ostatok_acceptance = sum_distribution_acceptance = 0
-
+                sum_distribution_acceptance = 0
+                sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
                 for planned_acceptance_flow in project.planned_acceptance_flow_ids:
                     if planned_acceptance_flow.date_cash.year == YEARint + 1:
-                        sum_ostatok_acceptance += planned_acceptance_flow.distribution_sum_without_vat_ostatok
                         sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+                        if planned_acceptance_flow.forecast == 'from_project':
+                            if project.estimated_probability_id.name in ('75', '100'):
+                                sum_ostatok_acceptance[
+                                    'commitment'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                            elif project.estimated_probability_id.name == '50':
+                                sum_ostatok_acceptance[
+                                    'reserve'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                            elif project.estimated_probability_id.name == '30':
+                                sum_ostatok_acceptance[
+                                    'potential'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                        else:
+                            sum_ostatok_acceptance[
+                                planned_acceptance_flow.forecast] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+
 
                 if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
                     sum = sum_ostatok_acceptance
-                    if sum <= 0: sum = 0
+                    for key in sum:
+                        if sum[key] < 0:
+                            sum[key] = 0
 
-                estimated_probability_id_name = project.estimated_probability_id.name
-
-                if sum != 0:
-                    if estimated_probability_id_name in ('75', '100'):
-                        sheet.write_number(row, column + 0, sum, row_format_number)
-                        sheet.write_number(row, column + 0 + 41, sum * profitability / 100,
-                                           row_format_number)
-                        sum_next_75_tmp += sum
-                        prof_next_75_tmp += sum * profitability / 100
-                    elif estimated_probability_id_name == '50':
-                        sheet.write_number(row, column + 1, sum * params['50'], row_format_number)
-                        sheet.write_number(row, column + 1 + 41, sum * params['50'] * profitability / 100,
-                                           row_format_number)
-                        sum_next_50_tmp += sum * params['50']
-                        prof_next_50_tmp += sum * params['50'] * profitability / 100
-                    elif estimated_probability_id_name == '30':
-                        sheet.write_number(row, column + 2, sum * params['30'], row_format_number)
-                        sheet.write_number(row, column + 2 + 41, sum * params['30'] * profitability / 100,
-                                           row_format_number)
-                        sum_next_30_tmp += sum * params['30']
-                        prof_next_30_tmp += sum * params['30'] * profitability / 100
+                sheet.write_number(row, column + 0, sum['commitment'], row_format_number)
+                sheet.write_number(row, column + 0 + 41, sum['commitment'] * profitability / 100,
+                                   row_format_number)
+                sum_next_75_tmp += sum['commitment']
+                prof_next_75_tmp += sum['commitment'] * profitability / 100
+                sheet.write_number(row, column + 1, sum['reserve'] * params['50'], row_format_number)
+                sheet.write_number(row, column + 1 + 41, sum['reserve'] * params['50'] * profitability / 100,
+                                   row_format_number)
+                sum_next_50_tmp += sum['reserve'] * params['50']
+                prof_next_50_tmp += sum['reserve'] * params['50'] * profitability / 100
+                sheet.write_number(row, column + 2, sum['potential'] * params['30'], row_format_number)
+                sheet.write_number(row, column + 2 + 41, sum['potential'] * params['30'] * profitability / 100,
+                                   row_format_number)
+                sum_next_30_tmp += sum['potential'] * params['30']
+                prof_next_30_tmp += sum['potential'] * params['30'] * profitability / 100
 
         elif element == 'AFTER NEXT':
             if step:
@@ -1888,44 +2130,59 @@ class report_management_committee_excel(models.AbstractModel):
 
                     sum = self.get_sum_planned_acceptance_project_step_year(project, step, YEARint + 2)
 
-                    if sum100tmp_step >= sum:
-                        sum = 0
+                    if sum100tmp_step >= sum['commitment']:
+                        sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
+                        sum['commitment'] = 0
+                        sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
                     else:
-                        sum = sum - sum100tmp_step
+                        sum['commitment'] = sum['commitment'] - sum100tmp_step
 
-                    if sum == 0 and step.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
-                        sum = step.total_amount_of_revenue
+                    if all(value == 0 for value in sum.values()) and step.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
+                        if step.estimated_probability_id.name in ('75', '100'):
+                            sum['commitment'] = step.total_amount_of_revenue
+                        elif step.estimated_probability_id.name == '50':
+                            sum['reserve'] = step.total_amount_of_revenue
+                        elif step.estimated_probability_id.name == '30':
+                            sum['potential'] = step.total_amount_of_revenue
 
                     # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                    sum_ostatok_acceptance = sum_distribution_acceptance = 0
-
+                    sum_distribution_acceptance = 0
+                    sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
                     for planned_acceptance_flow in project.planned_acceptance_flow_ids:
                         if (
                                 planned_acceptance_flow.project_steps_id.id == step.id
                                 and planned_acceptance_flow.date_cash.year == YEARint + 2
                         ):
-                            sum_ostatok_acceptance += planned_acceptance_flow.distribution_sum_without_vat_ostatok
                             sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+                            if planned_acceptance_flow.forecast == 'from_project':
+                                if step.estimated_probability_id.name in ('75', '100'):
+                                    sum_ostatok_acceptance[
+                                        'commitment'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                                elif step.estimated_probability_id.name == '50':
+                                    sum_ostatok_acceptance[
+                                        'reserve'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                                elif step.estimated_probability_id.name == '30':
+                                    sum_ostatok_acceptance[
+                                        'potential'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                            else:
+                                sum_ostatok_acceptance[
+                                    planned_acceptance_flow.forecast] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
 
                     if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
                         sum = sum_ostatok_acceptance
-                        if sum <= 0: sum = 0
+                        for key in sum:
+                            if sum[key] < 0:
+                                sum[key] = 0
 
-                    estimated_probability_id_name = step.estimated_probability_id.name
-
-                    if sum != 0:
-                        if estimated_probability_id_name in ('75', '100'):
-                            sum_after_next_tmp += sum
-                            prof_after_next_tmp += sum * profitability / 100
-                        elif estimated_probability_id_name == '50':
-                            sum_after_next_tmp += sum * params['50']
-                            prof_after_next_tmp += sum * params['50'] * profitability / 100
-                        elif estimated_probability_id_name == '30':
-                            sum_after_next_tmp += sum * params['30']
-                            prof_after_next_tmp += sum * params['30'] * profitability / 100
-                        sheet.write_number(row, column + 0, sum_after_next_tmp, row_format_number)
-                        sheet.write_number(row, column + 0 + 41, prof_after_next_tmp,
-                                           row_format_number)
+                    sum_after_next_tmp += sum['commitment']
+                    prof_after_next_tmp += sum['commitment'] * profitability / 100
+                    sum_after_next_tmp += sum['reserve'] * params['50']
+                    prof_after_next_tmp += sum['reserve'] * params['50'] * profitability / 100
+                    sum_after_next_tmp += sum['potential'] * params['30']
+                    prof_after_next_tmp += sum['potential'] * params['30'] * profitability / 100
+                    sheet.write_number(row, column + 0, sum_after_next_tmp, row_format_number)
+                    sheet.write_number(row, column + 0 + 41, prof_after_next_tmp,
+                                       row_format_number)
             else:
                 profitability = project.profitability
 
@@ -1937,41 +2194,57 @@ class report_management_committee_excel(models.AbstractModel):
 
                 sum = self.get_sum_planned_acceptance_project_step_year(project, False, YEARint + 2)
 
-                if sum100tmp >= sum:
-                    sum = 0
+                if sum100tmp >= sum['commitment']:
+                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                    sum['commitment'] = 0
+                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                 else:
-                    sum = sum - sum100tmp
+                    sum['commitment'] = sum['commitment'] - sum100tmp
 
-                if sum == 0 and project.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
-                    sum = project.total_amount_of_revenue
+                if all(value == 0 for value in sum.values()) and project.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
+                    if project.estimated_probability_id.name in ('75', '100'):
+                        sum['commitment'] = project.total_amount_of_revenue
+                    elif project.estimated_probability_id.name == '50':
+                        sum['reserve'] = project.total_amount_of_revenue
+                    elif project.estimated_probability_id.name == '30':
+                        sum['potential'] = project.total_amount_of_revenue
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum_ostatok_acceptance = sum_distribution_acceptance = 0
-
+                sum_distribution_acceptance = 0
+                sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
                 for planned_acceptance_flow in project.planned_acceptance_flow_ids:
                     if planned_acceptance_flow.date_cash.year == YEARint + 2:
-                        sum_ostatok_acceptance += planned_acceptance_flow.distribution_sum_without_vat_ostatok
                         sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+                        if planned_acceptance_flow.forecast == 'from_project':
+                            if project.estimated_probability_id.name in ('75', '100'):
+                                sum_ostatok_acceptance[
+                                    'commitment'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                            elif project.estimated_probability_id.name == '50':
+                                sum_ostatok_acceptance[
+                                    'reserve'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                            elif project.estimated_probability_id.name == '30':
+                                sum_ostatok_acceptance[
+                                    'potential'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                        else:
+                            sum_ostatok_acceptance[
+                                planned_acceptance_flow.forecast] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+
 
                 if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
                     sum = sum_ostatok_acceptance
-                    if sum <= 0: sum = 0
+                    for key in sum:
+                        if sum[key] < 0:
+                            sum[key] = 0
 
-                estimated_probability_id_name = project.estimated_probability_id.name
-
-                if sum != 0:
-                    if estimated_probability_id_name in ('75', '100'):
-                        sum_after_next_tmp += sum
-                        prof_after_next_tmp += sum * profitability / 100
-                    elif estimated_probability_id_name == '50':
-                        sum_after_next_tmp += sum * params['50']
-                        prof_after_next_tmp += sum * params['50'] * profitability / 100
-                    elif estimated_probability_id_name == '30':
-                        sum_after_next_tmp += sum * params['30']
-                        prof_after_next_tmp += sum * params['30'] * profitability / 100
-                    sheet.write_number(row, column + 0, sum_after_next_tmp, row_format_number)
-                    sheet.write_number(row, column + 0 + 41, prof_after_next_tmp,
-                                       row_format_number)
+                sum_after_next_tmp += sum['commitment']
+                prof_after_next_tmp += sum['commitment'] * profitability / 100
+                sum_after_next_tmp += sum['reserve'] * params['50']
+                prof_after_next_tmp += sum['reserve'] * params['50'] * profitability / 100
+                sum_after_next_tmp += sum['potential'] * params['30']
+                prof_after_next_tmp += sum['potential'] * params['30'] * profitability / 100
+            sheet.write_number(row, column + 0, sum_after_next_tmp, row_format_number)
+            sheet.write_number(row, column + 0 + 41, prof_after_next_tmp,
+                               row_format_number)
 
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
@@ -2032,13 +2305,16 @@ class report_management_committee_excel(models.AbstractModel):
 
                         sum = self.get_sum_planned_acceptance_project_step_quarter(project, step, element)
 
-                        if sum100tmp_step >= sum:
-                            sum = 0
+                        if sum100tmp_step >= sum['commitment']:
+                            sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
+                            sum['commitment'] = 0
+                            sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
                         else:
-                            sum = sum - sum100tmp_step
+                            sum['commitment'] = sum['commitment'] - sum100tmp_step
 
                         # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                        sum_ostatok_acceptance = sum_distribution_acceptance = 0
+                        sum_distribution_acceptance = 0
+                        sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
                         months = self.get_months_from_quarter(element)
 
                         for planned_acceptance_flow in project.planned_acceptance_flow_ids:
@@ -2046,22 +2322,32 @@ class report_management_committee_excel(models.AbstractModel):
                                     and planned_acceptance_flow.date_cash.month in months
                                     and planned_acceptance_flow.date_cash.year == YEARint
                             ):
-                                sum_ostatok_acceptance += planned_acceptance_flow.distribution_sum_without_vat_ostatok
                                 sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+                                if planned_acceptance_flow.forecast == 'from_project':
+                                    if step.estimated_probability_id.name in ('75', '100', '100(done)'):
+                                        sum_ostatok_acceptance[
+                                            'commitment'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                                    elif step.estimated_probability_id.name == '50':
+                                        sum_ostatok_acceptance[
+                                            'reserve'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                                    elif step.estimated_probability_id.name == '30':
+                                        sum_ostatok_acceptance[
+                                            'potential'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                                else:
+                                    sum_ostatok_acceptance[
+                                        planned_acceptance_flow.forecast] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+
 
                         if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
                             sum = sum_ostatok_acceptance
-                            if sum <= 0: sum = 0
+                            for key in sum:
+                                if sum[key] < 0:
+                                    sum[key] = 0
 
-                        estimated_probability_id_name = step.estimated_probability_id.name
-
-                        if sum != 0:
-                            if estimated_probability_id_name in ('75', '100', '100(done)'):
-                                sum75tmp += sum
-                                prof75tmp += sum * profitability / 100
-                            if estimated_probability_id_name == '50':
-                                sum50tmp += sum
-                                prof50tmp += sum * profitability / 100
+                        sum75tmp += sum['commitment']
+                        prof75tmp += sum['commitment'] * profitability / 100
+                        sum50tmp += sum['reserve']
+                        prof50tmp += sum['reserve'] * profitability / 100
             else:
                 # project_etalon = self.get_etalon_project(project, element)
                 profitability = project.profitability
@@ -2087,31 +2373,44 @@ class report_management_committee_excel(models.AbstractModel):
 
                 sum = self.get_sum_planned_acceptance_project_step_quarter(project, False, element)
 
-                if sum100tmp >= sum:
-                    sum = 0
+                if sum100tmp >= sum['commitment']:
+                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                    sum['commitment'] = 0
+                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                 else:
-                    sum = sum - sum100tmp
+                    sum['commitment'] = sum['commitment'] - sum100tmp
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum_ostatok_acceptance = sum_distribution_acceptance = 0
+                sum_distribution_acceptance = 0
+                sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
                 months = self.get_months_from_quarter(element)
                 for planned_acceptance_flow in project.planned_acceptance_flow_ids:
                     if planned_acceptance_flow.date_cash.month in months and planned_acceptance_flow.date_cash.year == YEARint:
-                        sum_ostatok_acceptance += planned_acceptance_flow.distribution_sum_without_vat_ostatok
                         sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+                        if planned_acceptance_flow.forecast == 'from_project':
+                            if project.estimated_probability_id.name in ('75', '100', '100(done)'):
+                                sum_ostatok_acceptance[
+                                    'commitment'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                            elif project.estimated_probability_id.name == '50':
+                                sum_ostatok_acceptance[
+                                    'reserve'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                            elif project.estimated_probability_id.name == '30':
+                                sum_ostatok_acceptance[
+                                    'potential'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                        else:
+                            sum_ostatok_acceptance[
+                                planned_acceptance_flow.forecast] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+
                 if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
                     sum = sum_ostatok_acceptance
-                    if sum <= 0: sum = 0
+                    for key in sum:
+                        if sum[key] < 0:
+                            sum[key] = 0
 
-                estimated_probability_id_name = project.estimated_probability_id.name
-
-                if sum != 0:
-                    if estimated_probability_id_name in ('75', '100', '100(done)'):
-                        sum75tmp += sum
-                        prof75tmp += sum * profitability / 100
-                    if estimated_probability_id_name == '50':
-                        sum50tmp += sum
-                        prof50tmp += sum * profitability / 100
+                sum75tmp += sum['commitment']
+                prof75tmp += sum['commitment'] * profitability / 100
+                sum50tmp += sum['reserve']
+                prof50tmp += sum['reserve'] * profitability / 100
 
         elif element == 'NEXT':
             if project.project_have_steps:
@@ -2130,41 +2429,57 @@ class report_management_committee_excel(models.AbstractModel):
 
                         sum = self.get_sum_planned_acceptance_project_step_year(project, step, YEARint + 1)
 
-                        if sum100tmp_step >= sum:
-                            sum = 0
+                        if sum100tmp_step >= sum['commitment']:
+                            sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
+                            sum['commitment'] = 0
+                            sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
                         else:
-                            sum = sum - sum100tmp_step
+                            sum['commitment'] = sum['commitment'] - sum100tmp_step
 
-                        if sum == 0 and step.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
-                            sum = step.total_amount_of_revenue
+                        if all(value == 0 for value in sum.values()) and step.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
+                            if step.estimated_probability_id.name in ('75', '100'):
+                                sum['commitment'] = step.total_amount_of_revenue
+                            elif step.estimated_probability_id.name == '50':
+                                sum['reserve'] = step.total_amount_of_revenue
+                            elif step.estimated_probability_id.name == '30':
+                                sum['potential'] = step.total_amount_of_revenue
 
                         # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                        sum_ostatok_acceptance = sum_distribution_acceptance = 0
-
+                        sum_distribution_acceptance = 0
+                        sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
                         for planned_acceptance_flow in project.planned_acceptance_flow_ids:
                             if (
                                     planned_acceptance_flow.project_steps_id.id == step.id
                                     and planned_acceptance_flow.date_cash.year == YEARint + 1
                             ):
-                                sum_ostatok_acceptance += planned_acceptance_flow.distribution_sum_without_vat_ostatok
                                 sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+                                if planned_acceptance_flow.forecast == 'from_project':
+                                    if step.estimated_probability_id.name in ('75', '100'):
+                                        sum_ostatok_acceptance[
+                                            'commitment'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                                    elif step.estimated_probability_id.name == '50':
+                                        sum_ostatok_acceptance[
+                                            'reserve'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                                    elif step.estimated_probability_id.name == '30':
+                                        sum_ostatok_acceptance[
+                                            'potential'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                                else:
+                                    sum_ostatok_acceptance[
+                                        planned_acceptance_flow.forecast] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+
 
                         if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
                             sum = sum_ostatok_acceptance
-                            if sum <= 0: sum = 0
+                            for key in sum:
+                                if sum[key] < 0:
+                                    sum[key] = 0
 
-                        estimated_probability_id_name = step.estimated_probability_id.name
-
-                        if sum != 0:
-                            if estimated_probability_id_name in ('75', '100'):
-                                sum_next_75_tmp += sum
-                                prof_next_75_tmp += sum * profitability / 100
-                            elif estimated_probability_id_name == '50':
-                                sum_next_50_tmp += sum * params['50']
-                                prof_next_50_tmp += sum * params['50'] * profitability / 100
-                            elif estimated_probability_id_name == '30':
-                                sum_next_30_tmp += sum * params['30']
-                                prof_next_30_tmp += sum * params['30'] * profitability / 100
+                        sum_next_75_tmp += sum['commitment']
+                        prof_next_75_tmp += sum['commitment'] * profitability / 100
+                        sum_next_50_tmp += sum['reserve'] * params['50']
+                        prof_next_50_tmp += sum['reserve'] * params['50'] * profitability / 100
+                        sum_next_30_tmp += sum['potential'] * params['30']
+                        prof_next_30_tmp += sum['potential'] * params['30'] * profitability / 100
             else:
                 profitability = project.profitability
 
@@ -2176,38 +2491,53 @@ class report_management_committee_excel(models.AbstractModel):
 
                 sum = self.get_sum_planned_acceptance_project_step_year(project, False, YEARint + 1)
 
-                if sum100tmp >= sum:
-                    sum = 0
+                if sum100tmp >= sum['commitment']:
+                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                    sum['commitment'] = 0
+                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                 else:
-                    sum = sum - sum100tmp
-
-                if sum == 0 and project.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
-                    sum = project.total_amount_of_revenue
+                    sum['commitment'] = sum['commitment'] - sum100tmp
+                print(project_office, project, sum, sum100tmp)
+                if all(value == 0 for value in sum.values()) and project.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
+                    if project.estimated_probability_id.name in ('75', '100'):
+                        sum['commitment'] = project.total_amount_of_revenue
+                    elif project.estimated_probability_id.name == '50':
+                        sum['reserve'] = project.total_amount_of_revenue
+                    elif project.estimated_probability_id.name == '30':
+                        sum['potential'] = project.total_amount_of_revenue
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum_ostatok_acceptance = sum_distribution_acceptance = 0
-
+                sum_distribution_acceptance = 0
+                sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
                 for planned_acceptance_flow in project.planned_acceptance_flow_ids:
                     if planned_acceptance_flow.date_cash.year == YEARint + 1:
-                        sum_ostatok_acceptance += planned_acceptance_flow.distribution_sum_without_vat_ostatok
                         sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+                        if planned_acceptance_flow.forecast == 'from_project':
+                            if project.estimated_probability_id.name in ('75', '100'):
+                                sum_ostatok_acceptance[
+                                    'commitment'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                            elif project.estimated_probability_id.name == '50':
+                                sum_ostatok_acceptance[
+                                    'reserve'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                            elif project.estimated_probability_id.name == '30':
+                                sum_ostatok_acceptance[
+                                    'potential'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                        else:
+                            sum_ostatok_acceptance[
+                                planned_acceptance_flow.forecast] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
 
                 if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
                     sum = sum_ostatok_acceptance
-                    if sum <= 0: sum = 0
+                    for key in sum:
+                        if sum[key] < 0:
+                            sum[key] = 0
 
-                estimated_probability_id_name = project.estimated_probability_id.name
-
-                if sum != 0:
-                    if estimated_probability_id_name in ('75', '100'):
-                        sum_next_75_tmp += sum
-                        prof_next_75_tmp += sum * profitability / 100
-                    elif estimated_probability_id_name == '50':
-                        sum_next_50_tmp += sum * params['50']
-                        prof_next_50_tmp += sum * params['50'] * profitability / 100
-                    elif estimated_probability_id_name == '30':
-                        sum_next_30_tmp += sum * params['30']
-                        prof_next_30_tmp += sum * params['30'] * profitability / 100
+                sum_next_75_tmp += sum['commitment']
+                prof_next_75_tmp += sum['commitment'] * profitability / 100
+                sum_next_50_tmp += sum['reserve'] * params['50']
+                prof_next_50_tmp += sum['reserve'] * params['50'] * profitability / 100
+                sum_next_30_tmp += sum['potential'] * params['30']
+                prof_next_30_tmp += sum['potential'] * params['30'] * profitability / 100
 
         elif element == 'AFTER NEXT':
             if project.project_have_steps:
@@ -2226,41 +2556,57 @@ class report_management_committee_excel(models.AbstractModel):
 
                         sum = self.get_sum_planned_acceptance_project_step_year(project, step, YEARint + 2)
 
-                        if sum100tmp_step >= sum:
-                            sum = 0
+                        if sum100tmp_step >= sum['commitment']:
+                            sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
+                            sum['commitment'] = 0
+                            sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
                         else:
-                            sum = sum - sum100tmp_step
+                            sum['commitment'] = sum['commitment'] - sum100tmp_step
 
-                        if sum == 0 and step.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
-                            sum = step.total_amount_of_revenue
+                        if all(value == 0 for value in sum.values()) and step.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
+                            if step.estimated_probability_id.name in ('75', '100'):
+                                sum['commitment'] = step.total_amount_of_revenue
+                            elif step.estimated_probability_id.name == '50':
+                                sum['reserve'] = step.total_amount_of_revenue
+                            elif step.estimated_probability_id.name == '30':
+                                sum['potential'] = step.total_amount_of_revenue
 
                         # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                        sum_ostatok_acceptance = sum_distribution_acceptance = 0
-
+                        sum_distribution_acceptance = 0
+                        sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
                         for planned_acceptance_flow in project.planned_acceptance_flow_ids:
                             if (
                                     planned_acceptance_flow.project_steps_id.id == step.id
                                     and planned_acceptance_flow.date_cash.year == YEARint + 2
                             ):
-                                sum_ostatok_acceptance += planned_acceptance_flow.distribution_sum_without_vat_ostatok
                                 sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+                                if planned_acceptance_flow.forecast == 'from_project':
+                                    if step.estimated_probability_id.name in ('75', '100'):
+                                        sum_ostatok_acceptance[
+                                            'commitment'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                                    elif step.estimated_probability_id.name == '50':
+                                        sum_ostatok_acceptance[
+                                            'reserve'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                                    elif step.estimated_probability_id.name == '30':
+                                        sum_ostatok_acceptance[
+                                            'potential'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                                else:
+                                    sum_ostatok_acceptance[
+                                        planned_acceptance_flow.forecast] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+
 
                         if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
                             sum = sum_ostatok_acceptance
-                            if sum <= 0: sum = 0
+                            for key in sum:
+                                if sum[key] < 0:
+                                    sum[key] = 0
 
-                        estimated_probability_id_name = step.estimated_probability_id.name
-
-                        if sum != 0:
-                            if estimated_probability_id_name in ('75', '100'):
-                                sum_after_next_tmp += sum
-                                prof_after_next_tmp += sum * profitability / 100
-                            elif estimated_probability_id_name == '50':
-                                sum_after_next_tmp += sum * params['50']
-                                prof_after_next_tmp += sum * params['50'] * profitability / 100
-                            elif estimated_probability_id_name == '30':
-                                sum_after_next_tmp += sum * params['30']
-                                prof_after_next_tmp += sum * params['30'] * profitability / 100
+                        sum_after_next_tmp += sum['commitment']
+                        prof_after_next_tmp += sum['commitment'] * profitability / 100
+                        sum_after_next_tmp += sum['reserve'] * params['50']
+                        prof_after_next_tmp += sum['reserve'] * params['50'] * profitability / 100
+                        sum_after_next_tmp += sum['potential'] * params['30']
+                        prof_after_next_tmp += sum['potential'] * params['30'] * profitability / 100
             else:
                 profitability = project.profitability
 
@@ -2272,38 +2618,53 @@ class report_management_committee_excel(models.AbstractModel):
 
                 sum = self.get_sum_planned_acceptance_project_step_year(project, False, YEARint + 2)
 
-                if sum100tmp >= sum:
-                    sum = 0
+                if sum100tmp >= sum['commitment']:
+                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                    sum['commitment'] = 0
+                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                 else:
-                    sum = sum - sum100tmp
+                    sum['commitment'] = sum['commitment'] - sum100tmp
 
-                if sum == 0 and project.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
-                    sum = project.total_amount_of_revenue
+                if all(value == 0 for value in sum.values()) and project.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
+                    if project.estimated_probability_id.name in ('75', '100'):
+                        sum['commitment'] = project.total_amount_of_revenue
+                    elif project.estimated_probability_id.name == '50':
+                        sum['reserve'] = project.total_amount_of_revenue
+                    elif project.estimated_probability_id.name == '30':
+                        sum['potential'] = project.total_amount_of_revenue
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum_ostatok_acceptance = sum_distribution_acceptance = 0
-
+                sum_distribution_acceptance = 0
+                sum_ostatok_acceptance = {'acceptance': 0, 'reserve': 0, 'potential': 0}
                 for planned_acceptance_flow in project.planned_acceptance_flow_ids:
                     if planned_acceptance_flow.date_cash.year == YEARint + 2:
-                        sum_ostatok_acceptance += planned_acceptance_flow.distribution_sum_without_vat_ostatok
                         sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+                        if planned_acceptance_flow.forecast == 'from_project':
+                            if project.estimated_probability_id.name in ('75', '100'):
+                                sum_ostatok_acceptance[
+                                    'commitment'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                            elif project.estimated_probability_id.name == '50':
+                                sum_ostatok_acceptance[
+                                    'reserve'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                            elif project.estimated_probability_id.name == '30':
+                                sum_ostatok_acceptance[
+                                    'potential'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                        else:
+                            sum_ostatok_acceptance[
+                                planned_acceptance_flow.forecast] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
 
                 if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
                     sum = sum_ostatok_acceptance
-                    if sum <= 0: sum = 0
+                    for key in sum:
+                        if sum[key] < 0:
+                            sum[key] = 0
 
-                estimated_probability_id_name = project.estimated_probability_id.name
-
-                if sum != 0:
-                    if estimated_probability_id_name in ('75', '100'):
-                        sum_after_next_tmp += sum
-                        prof_after_next_tmp += sum * profitability / 100
-                    elif estimated_probability_id_name == '50':
-                        sum_after_next_tmp += sum * params['50']
-                        prof_after_next_tmp += sum * params['50'] * profitability / 100
-                    elif estimated_probability_id_name == '30':
-                        sum_after_next_tmp += sum * params['30']
-                        prof_after_next_tmp += sum * params['30'] * profitability / 100
+                sum_after_next_tmp += sum['commitment']
+                prof_after_next_tmp += sum['commitment'] * profitability / 100
+                sum_after_next_tmp += sum['reserve'] * params['50']
+                prof_after_next_tmp += sum['reserve'] * params['50'] * profitability / 100
+                sum_after_next_tmp += sum['potential'] * params['30']
+                prof_after_next_tmp += sum['potential'] * params['30'] * profitability / 100
         return (
             sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp,
             prof75tmpetalon, prof50tmpetalon, prof100tmp, prof75tmp, prof50tmp,
