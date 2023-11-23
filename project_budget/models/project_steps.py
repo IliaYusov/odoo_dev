@@ -259,7 +259,7 @@ class project_steps(models.Model):
     budget_state = fields.Selection(related='projects_id.budget_state', readonly=True, store=True)
     approve_state = fields.Selection(related='projects_id.approve_state', readonly=True, store=True)
     # name = fields.Char(string="step name", required=True, copy=True)
-    code = fields.Char(string="step code", required=True, copy=True)
+    code = fields.Char(string="step code", copy=True)
     essence_project = fields.Text(string='essence_project', default = "")
     step_id = fields.Char(string="step_id", required=True, copy=True, default = '-',index=True)
     # date_step = fields.Date(string="step date" , required=True, copy=True)
@@ -375,10 +375,10 @@ class project_steps(models.Model):
             if row.project_steps_type_id.is_rko_other == False: row.rko_other = 0
             if row.project_steps_type_id.is_other_expenses== False: row.other_expenses = 0
 
-    @api.depends('essence_project','step_id')
+    @api.depends('essence_project', 'step_id')
     def _get_name_to_show(self):
         for step in self:
-            step.name_to_show = step.step_id + '|'+step.code+'| ' + step.essence_project
+            step.name_to_show = step.step_id + '|' + (step.code or '') + '| ' + step.essence_project
 
     @api.depends("revenue_from_the_sale_of_works", 'revenue_from_the_sale_of_goods', 'cost_of_goods', 'own_works_fot',
                  'third_party_works', "awards_on_results_project", 'transportation_expenses', 'travel_expenses',

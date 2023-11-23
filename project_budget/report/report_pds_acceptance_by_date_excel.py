@@ -188,7 +188,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                     column += 1
                     sheet.write_string(row, column, step.step_id, row_format)
                     column += 1
-                    sheet.write_string(row, column, step.code, row_format)
+                    sheet.write_string(row, column, (step.code or ''), row_format)
                     column += 1
                     sheet.write_string(row, column, step.essence_project , row_format)
                     column += 1

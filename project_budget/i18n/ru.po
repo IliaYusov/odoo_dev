@@ -4824,12 +4824,12 @@ msgstr "Тип этапа проекта"
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_project_steps_tree
 msgid "type step code DAX e.g. 0001"
-msgstr "введите код этапа, например 0001"
+msgstr "из AXAPTA"
 
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_project_steps_form
 msgid "type step code e.g. 0001"
-msgstr "введите код этапа, например 0001"
+msgstr "из AXAPTA"
 
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_project_steps_tree
