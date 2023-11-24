@@ -746,6 +746,24 @@ class report_budget_forecast_excel(models.AbstractModel):
                             sum_acceptance[acceptance.forecast] = sum_acceptance.get(acceptance.forecast, 0) + acceptance.sum_cash_without_vat
         return sum_acceptance
 
+    def get_margin_forecast_from_distributions(self, planned_acceptance, margin_plan, project, step):
+        # суммируем доли маржи фактов в соотношении (сумма распределения/суммы факта)
+        margin_distribution = 0
+        for distribution in planned_acceptance.distribution_acceptance_ids:
+            if distribution.fact_acceptance_flow_id.sum_cash_without_vat != 0:
+                margin_distribution += distribution.fact_acceptance_flow_id.margin * distribution.distribution_sum_without_vat / distribution.fact_acceptance_flow_id.sum_cash_without_vat
+        if planned_acceptance.forecast == 'from_project':
+            estimated_probability_id_name = project.estimated_probability_id.name
+            if step:
+                estimated_probability_id_name = step.estimated_probability_id.name
+            if estimated_probability_id_name in ('75', '100', '100(done)'):
+                margin_plan['commitment'] -= margin_distribution
+            elif estimated_probability_id_name == '50':
+                margin_plan['reserve'] -= margin_distribution
+        else:
+            margin_plan[planned_acceptance.forecast] -= margin_distribution
+        return  margin_plan
+
     def print_quater_planned_acceptance_project(self, sheet, row, column, element_name, project, step, row_format_number, row_format_number_color_fact):
         global YEARint
         global year_end
@@ -788,11 +806,12 @@ class report_budget_forecast_excel(models.AbstractModel):
 
             sum = self.get_sum_planned_acceptance_project_step_quater(project, step, element_name)
 
-            margin_sum = {'commitment': 0, 'reserve':0}
+            margin_sum = {'commitment': 0, 'reserve': 0}
+            margin_plan = {'commitment': 0, 'reserve': 0}
 
             if sum:
                 for key in sum:
-                    margin_sum[key] = sum[key] * profitability / 100
+                    margin_plan[key] = sum[key] * profitability / 100
 
             if sum100tmp >= sum.get('commitment', 0):
                 sum100tmp_ostatok = sum100tmp - sum['commitment']
@@ -801,12 +820,12 @@ class report_budget_forecast_excel(models.AbstractModel):
             else:
                 sum['commitment'] = sum['commitment'] - sum100tmp
 
-            if margin100tmp >= margin_sum.get('commitment', 0):
-                margin100tmp_ostatok = margin100tmp - margin_sum['commitment']
+            if margin100tmp >= margin_plan['commitment']:  # маржа если нет распределения
+                margin100tmp_ostatok = margin100tmp - margin_plan['commitment']
                 margin_sum['commitment'] = 0
-                margin_sum['reserve'] = max(margin_sum['reserve'] - margin100tmp_ostatok, 0)
+                margin_sum['reserve'] = max(margin_plan['reserve'] - margin100tmp_ostatok, 0)
             else:
-                margin_sum['commitment'] = margin_sum['commitment'] - margin100tmp
+                margin_sum['commitment'] = margin_plan['commitment'] - margin100tmp
 
             # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
             sum_ostatok_acceptance = {'commitment': 0, 'reserve':0}
@@ -819,6 +838,9 @@ class report_budget_forecast_excel(models.AbstractModel):
                         and planned_acceptance_flow.date_cash.year >= YEARint\
                         and planned_acceptance_flow.date_cash.year <= year_end:
                     sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+
+                    margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow, margin_plan, project, step)
+
                     if planned_acceptance_flow.forecast == 'from_project':
 
                         estimated_probability_id_name = project.estimated_probability_id.name
@@ -836,10 +858,10 @@ class report_budget_forecast_excel(models.AbstractModel):
 
             if sum_distribution_acceptance != 0 : # если есть распределение, то остаток = остатку распределения
                 sum = sum_ostatok_acceptance
-                print(project.project_id, sum, margin_sum)
+                margin_sum = margin_plan
                 for key in sum:
-                    if sum[key] < 0:
-                        sum[key] = 0
+                    sum[key] = max(sum[key], 0)
+                    margin_sum[key] = max(margin_sum[key], 0)
 
             if sum:
                 sheet.write_number(row, column + 3, sum.get('commitment', 0), row_format_number)
