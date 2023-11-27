@@ -378,7 +378,7 @@ class project_steps(models.Model):
     @api.constrains('estimated_probability_id', 'total_amount_of_revenue', 'cost_price')
     def _check_financial_data_is_present(self):
         for step in self:
-            if (step.estimated_probability_id.name in ('50', '75', '100', '100(done)')
+            if (step.estimated_probability_id.name in ('50', '75', '100')
                     and step.total_amount_of_revenue == 0
                     and step.cost_price == 0):
                 raisetext = _("Please enter financial data to project {0} step {1}")
