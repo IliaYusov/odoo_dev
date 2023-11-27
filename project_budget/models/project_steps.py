@@ -375,6 +375,14 @@ class project_steps(models.Model):
             if row.project_steps_type_id.is_rko_other == False: row.rko_other = 0
             if row.project_steps_type_id.is_other_expenses== False: row.other_expenses = 0
 
+    @api.constrains('estimated_probability_id', 'total_amount_of_revenue', 'cost_price')
+    def _check_financial_data_is_present(self):
+        for step in self:
+            if (step.estimated_probability_id.name in ('50', '75', '100', '100(done)')
+                        and step.total_amount_of_revenue == 0 and step.cost_price == 0):
+                raisetext = _("Please enter financial data")
+                raise ValidationError(raisetext)
+
     @api.depends('essence_project', 'step_id')
     def _get_name_to_show(self):
         for step in self:

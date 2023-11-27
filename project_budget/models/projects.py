@@ -404,13 +404,40 @@ class projects(models.Model):
         for prj in self:
             prj.name_to_show = prj.project_id + '|'+ (prj.step_project_number or '') + '|' + (prj.essence_project[:30] or '')+'...'
 
+    def show_message(self, mestext):
+        print('show_message mestext = ', mestext)
+        message_id = self.env['prj_message.wizard'].create({'message': mestext})
+        print('show_message message_id = ', message_id)
+        notification = {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Success'),
+                'message': mestext,
+                'sticky': True,
+            }
+        }
+        return notification
+        # return {
+        #     'name': _('Successfull'),
+        #     'type': 'ir.actions.act_window',
+        #     'view_mode': 'form',
+        #     'view_type': 'form',
+        #     'view_id': self.env.ref("project_budget.prj_message_wizard_form").id,
+        #     'res_model': 'prj_message.wizard',
+        #     'res_id': message_id.id,
+        #     'target': 'new',
+        #     'flags': {'initial_mode': 'view'}
+        # }
     @api.depends('estimated_probability_id')
     def _compute_specification_state(self):
         for row in self:
             if row.estimated_probability_id.name == '0':
                 row.specification_state = 'cancel'
-                for step in row.project_steps_ids:
-                    step.estimated_probability_id = row.estimated_probability_id
+                if row.project_steps_ids:
+                    for step in row.project_steps_ids:
+                        step.estimated_probability_id = row.estimated_probability_id
+                    # return self.show_message(_('all stages have a probability of 0'))
             if row.estimated_probability_id.name == '10':
                 row.specification_state = 'lead'
             if row.estimated_probability_id.name == '30':
@@ -423,6 +450,11 @@ class projects(models.Model):
                 row.specification_state = 'production'
             if row.estimated_probability_id.name == '100(done)':
                 row.specification_state = 'done'
+                if row.project_steps_ids:
+                    for step in row.project_steps_ids:
+                        if row.estimated_probability_id.name != '0':
+                            step.estimated_probability_id = row.estimated_probability_id
+                    # return self.show_message(_('all stages have a probability of 100(done)'))
 
 
     @api.onchange('project_office_id','specification_state','currency_id','project_supervisor_id','project_manager_id',
@@ -780,6 +812,14 @@ class projects(models.Model):
         if not supervisor_access :
             return False
         else: return True
+
+    @api.constrains('estimated_probability_id', 'total_amount_of_revenue', 'cost_price')
+    def _check_financial_data_is_present(self):
+        for project in self:
+            if (project.estimated_probability_id.name in ('50', '75', '100', '100(done)')
+                        and project.total_amount_of_revenue == 0 and project.cost_price == 0):
+                raisetext = _("Please enter financial data")
+                raise ValidationError(raisetext)
 
     def check_overdue_date(self, vals_list):
         for project in self:

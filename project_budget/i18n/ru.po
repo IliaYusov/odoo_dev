@@ -3573,6 +3573,14 @@ msgstr "Удаление этапа возможно только в стату�
 
 #. module: project_budget
 #. odoo-python
+#: code:addons/project_budget/models/project_steps.py:0
+#: code:addons/project_budget/models/projects.py:0
+#, python-format
+msgid "Please enter financial data"
+msgstr "Пожалуйста добавьте Финансовые показатели"
+
+#. module: project_budget
+#. odoo-python
 #: code:addons/project_budget/models/projects.py:0
 #, python-format
 msgid ""
