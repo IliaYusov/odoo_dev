@@ -818,7 +818,7 @@ class projects(models.Model):
         for project in self:
             if (project.estimated_probability_id.name in ('50', '75', '100', '100(done)')
                         and project.total_amount_of_revenue == 0 and project.cost_price == 0):
-                raisetext = _("Please enter financial data")
+                raisetext = _("Please enter financial data to project")
                 raise ValidationError(raisetext)
 
     def check_overdue_date(self, vals_list):

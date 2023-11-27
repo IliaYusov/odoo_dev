@@ -380,7 +380,7 @@ class project_steps(models.Model):
         for step in self:
             if (step.estimated_probability_id.name in ('50', '75', '100', '100(done)')
                         and step.total_amount_of_revenue == 0 and step.cost_price == 0):
-                raisetext = _("Please enter financial data")
+                raisetext = _("Please enter financial data to project step")
                 raise ValidationError(raisetext)
 
     @api.depends('essence_project', 'step_id')
