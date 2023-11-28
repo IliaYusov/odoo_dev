@@ -55,7 +55,7 @@ class distribution_acceptance(models.Model):
         string="distribution_sum_with_vat_ostatok", readonly=True)
 
     sum_cash_without_vat = fields.Monetary(string="fact sum_cash_without_vat", required=True, copy=True, default=_compute_default_sum)
-    sum_cash = fields.Monetary(string="fact sum_cash", required=True, copy=True,compute='_compute_sum', readonly=True)
+    sum_cash = fields.Monetary(string="fact sum_cash", required=True, copy=True, compute='_compute_sum')
 
     @api.depends("sum_cash_without_vat")
     def _compute_sum(self):
