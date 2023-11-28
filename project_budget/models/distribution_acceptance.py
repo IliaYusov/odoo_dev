@@ -10,7 +10,6 @@ class distribution_acceptance(models.Model):
     def _compute_default_sum(self):
         if self.planned_acceptance_flow_id.ids:
             distribution = {}
-            print('self.fact_acceptance_flow_id.distribution_acceptance_ids', self.fact_acceptance_flow_id.distribution_acceptance_ids)
             distr_list = [distribution for distribution in self.fact_acceptance_flow_id.distribution_acceptance_ids if
                           hasattr(distribution.id, 'origin') and distribution.id.origin is not False]
             for distr in distr_list[:-1]:
