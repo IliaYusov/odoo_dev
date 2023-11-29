@@ -1787,6 +1787,24 @@ class report_management_committee_excel(models.AbstractModel):
                         sum_acceptance[acceptance.forecast] += acceptance.sum_cash_without_vat
         return sum_acceptance
 
+    def get_margin_forecast_from_distributions(self, planned_acceptance, margin_plan, project, step):
+        # суммируем доли маржи фактов в соотношении (сумма распределения/суммы факта)
+        margin_distribution = 0
+        for distribution in planned_acceptance.distribution_acceptance_ids:
+            if distribution.fact_acceptance_flow_id.sum_cash_without_vat != 0:
+                margin_distribution += distribution.fact_acceptance_flow_id.margin * distribution.distribution_sum_without_vat / distribution.fact_acceptance_flow_id.sum_cash_without_vat
+        if planned_acceptance.forecast == 'from_project':
+            estimated_probability_id_name = project.estimated_probability_id.name
+            if step:
+                estimated_probability_id_name = step.estimated_probability_id.name
+            if estimated_probability_id_name in ('75', '100', '100(done)'):
+                margin_plan['commitment'] -= margin_distribution
+            elif estimated_probability_id_name == '50':
+                margin_plan['reserve'] -= margin_distribution
+        else:
+            margin_plan[planned_acceptance.forecast] -= margin_distribution
+        return  margin_plan
+
     def print_quarter_planned_acceptance_project(self, sheet, row, column, element, project, step,  project_office, params, row_format_number, row_format_number_color_fact):
         global strYEAR
         global YEARint
@@ -1850,6 +1868,9 @@ class report_management_committee_excel(models.AbstractModel):
 
                     sum = self.get_sum_planned_acceptance_project_step_quarter(project, step, element)
 
+                    margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
+                    margin_sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
                     if sum100tmp_step >= sum['commitment']:
                         sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
                         sum['commitment'] = 0
@@ -1868,6 +1889,8 @@ class report_management_committee_excel(models.AbstractModel):
                                 and planned_acceptance_flow.date_cash.year == YEARint
                         ):
                             sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+                            margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow,
+                                                                                      margin_plan, project, step)
                             if planned_acceptance_flow.forecast == 'from_project':
                                 if step.estimated_probability_id.name in ('75', '100', '100(done)'):
                                     sum_ostatok_acceptance[
@@ -1928,6 +1951,9 @@ class report_management_committee_excel(models.AbstractModel):
 
                 sum = self.get_sum_planned_acceptance_project_step_quarter(project, False, element)
 
+                margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
+                margin_sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
                 if sum100tmp >= sum['commitment']:
                     sum100tmp_ostatok = sum100tmp - sum['commitment']
                     sum['commitment'] = 0
@@ -1942,6 +1968,8 @@ class report_management_committee_excel(models.AbstractModel):
                 for planned_acceptance_flow in project.planned_acceptance_flow_ids:
                     if planned_acceptance_flow.date_cash.month in months and planned_acceptance_flow.date_cash.year == YEARint:
                         sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+                        margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow, margin_plan,
+                                                                                  project, False)
                         if planned_acceptance_flow.forecast == 'from_project':
                             if project.estimated_probability_id.name in ('75', '100', '100(done)'):
                                 sum_ostatok_acceptance[
@@ -1987,6 +2015,9 @@ class report_management_committee_excel(models.AbstractModel):
 
                     sum = self.get_sum_planned_acceptance_project_step_year(project, step, YEARint + 1)
 
+                    margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
+                    margin_sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
                     if sum100tmp_step >= sum['commitment']:
                         sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
                         sum['commitment'] = 0
@@ -2011,6 +2042,8 @@ class report_management_committee_excel(models.AbstractModel):
                                 and planned_acceptance_flow.date_cash.year == YEARint + 1
                         ):
                             sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+                            margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow,
+                                                                                      margin_plan, project, step)
                             if planned_acceptance_flow.forecast == 'from_project':
                                 if step.estimated_probability_id.name in ('75', '100'):
                                     sum_ostatok_acceptance[
@@ -2056,6 +2089,9 @@ class report_management_committee_excel(models.AbstractModel):
 
                 sum = self.get_sum_planned_acceptance_project_step_year(project, False, YEARint + 1)
 
+                margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
+                margin_sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
                 if sum100tmp >= sum['commitment']:
                     sum100tmp_ostatok = sum100tmp - sum['commitment']
                     sum['commitment'] = 0
@@ -2077,6 +2113,8 @@ class report_management_committee_excel(models.AbstractModel):
                 for planned_acceptance_flow in project.planned_acceptance_flow_ids:
                     if planned_acceptance_flow.date_cash.year == YEARint + 1:
                         sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+                        margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow, margin_plan,
+                                                                                  project, False)
                         if planned_acceptance_flow.forecast == 'from_project':
                             if project.estimated_probability_id.name in ('75', '100'):
                                 sum_ostatok_acceptance[
@@ -2130,6 +2168,9 @@ class report_management_committee_excel(models.AbstractModel):
 
                     sum = self.get_sum_planned_acceptance_project_step_year(project, step, YEARint + 2)
 
+                    margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
+                    margin_sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
                     if sum100tmp_step >= sum['commitment']:
                         sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
                         sum['commitment'] = 0
@@ -2154,6 +2195,8 @@ class report_management_committee_excel(models.AbstractModel):
                                 and planned_acceptance_flow.date_cash.year == YEARint + 2
                         ):
                             sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+                            margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow,
+                                                                                      margin_plan, project, step)
                             if planned_acceptance_flow.forecast == 'from_project':
                                 if step.estimated_probability_id.name in ('75', '100'):
                                     sum_ostatok_acceptance[
@@ -2194,6 +2237,9 @@ class report_management_committee_excel(models.AbstractModel):
 
                 sum = self.get_sum_planned_acceptance_project_step_year(project, False, YEARint + 2)
 
+                margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
+                margin_sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
                 if sum100tmp >= sum['commitment']:
                     sum100tmp_ostatok = sum100tmp - sum['commitment']
                     sum['commitment'] = 0
@@ -2215,6 +2261,8 @@ class report_management_committee_excel(models.AbstractModel):
                 for planned_acceptance_flow in project.planned_acceptance_flow_ids:
                     if planned_acceptance_flow.date_cash.year == YEARint + 2:
                         sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+                        margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow, margin_plan,
+                                                                                  project, False)
                         if planned_acceptance_flow.forecast == 'from_project':
                             if project.estimated_probability_id.name in ('75', '100'):
                                 sum_ostatok_acceptance[
@@ -2305,6 +2353,9 @@ class report_management_committee_excel(models.AbstractModel):
 
                         sum = self.get_sum_planned_acceptance_project_step_quarter(project, step, element)
 
+                        margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
+                        margin_sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
                         if sum100tmp_step >= sum['commitment']:
                             sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
                             sum['commitment'] = 0
@@ -2323,6 +2374,8 @@ class report_management_committee_excel(models.AbstractModel):
                                     and planned_acceptance_flow.date_cash.year == YEARint
                             ):
                                 sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+                                margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow,
+                                                                                          margin_plan, project, step)
                                 if planned_acceptance_flow.forecast == 'from_project':
                                     if step.estimated_probability_id.name in ('75', '100', '100(done)'):
                                         sum_ostatok_acceptance[
@@ -2373,6 +2426,9 @@ class report_management_committee_excel(models.AbstractModel):
 
                 sum = self.get_sum_planned_acceptance_project_step_quarter(project, False, element)
 
+                margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
+                margin_sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
                 if sum100tmp >= sum['commitment']:
                     sum100tmp_ostatok = sum100tmp - sum['commitment']
                     sum['commitment'] = 0
@@ -2387,6 +2443,8 @@ class report_management_committee_excel(models.AbstractModel):
                 for planned_acceptance_flow in project.planned_acceptance_flow_ids:
                     if planned_acceptance_flow.date_cash.month in months and planned_acceptance_flow.date_cash.year == YEARint:
                         sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+                        margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow, margin_plan,
+                                                                                  project, False)
                         if planned_acceptance_flow.forecast == 'from_project':
                             if project.estimated_probability_id.name in ('75', '100', '100(done)'):
                                 sum_ostatok_acceptance[
@@ -2429,6 +2487,9 @@ class report_management_committee_excel(models.AbstractModel):
 
                         sum = self.get_sum_planned_acceptance_project_step_year(project, step, YEARint + 1)
 
+                        margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
+                        margin_sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
                         if sum100tmp_step >= sum['commitment']:
                             sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
                             sum['commitment'] = 0
@@ -2453,6 +2514,8 @@ class report_management_committee_excel(models.AbstractModel):
                                     and planned_acceptance_flow.date_cash.year == YEARint + 1
                             ):
                                 sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+                                margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow,
+                                                                                          margin_plan, project, step)
                                 if planned_acceptance_flow.forecast == 'from_project':
                                     if step.estimated_probability_id.name in ('75', '100'):
                                         sum_ostatok_acceptance[
@@ -2491,6 +2554,9 @@ class report_management_committee_excel(models.AbstractModel):
 
                 sum = self.get_sum_planned_acceptance_project_step_year(project, False, YEARint + 1)
 
+                margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
+                margin_sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
                 if sum100tmp >= sum['commitment']:
                     sum100tmp_ostatok = sum100tmp - sum['commitment']
                     sum['commitment'] = 0
@@ -2512,6 +2578,8 @@ class report_management_committee_excel(models.AbstractModel):
                 for planned_acceptance_flow in project.planned_acceptance_flow_ids:
                     if planned_acceptance_flow.date_cash.year == YEARint + 1:
                         sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+                        margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow, margin_plan,
+                                                                                  project, False)
                         if planned_acceptance_flow.forecast == 'from_project':
                             if project.estimated_probability_id.name in ('75', '100'):
                                 sum_ostatok_acceptance[
@@ -2556,6 +2624,9 @@ class report_management_committee_excel(models.AbstractModel):
 
                         sum = self.get_sum_planned_acceptance_project_step_year(project, step, YEARint + 2)
 
+                        margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
+                        margin_sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
                         if sum100tmp_step >= sum['commitment']:
                             sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
                             sum['commitment'] = 0
@@ -2580,6 +2651,8 @@ class report_management_committee_excel(models.AbstractModel):
                                     and planned_acceptance_flow.date_cash.year == YEARint + 2
                             ):
                                 sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+                                margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow,
+                                                                                          margin_plan, project, step)
                                 if planned_acceptance_flow.forecast == 'from_project':
                                     if step.estimated_probability_id.name in ('75', '100'):
                                         sum_ostatok_acceptance[
@@ -2618,6 +2691,9 @@ class report_management_committee_excel(models.AbstractModel):
 
                 sum = self.get_sum_planned_acceptance_project_step_year(project, False, YEARint + 2)
 
+                margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
+                margin_sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
                 if sum100tmp >= sum['commitment']:
                     sum100tmp_ostatok = sum100tmp - sum['commitment']
                     sum['commitment'] = 0
@@ -2635,10 +2711,12 @@ class report_management_committee_excel(models.AbstractModel):
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                 sum_distribution_acceptance = 0
-                sum_ostatok_acceptance = {'acceptance': 0, 'reserve': 0, 'potential': 0}
+                sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
                 for planned_acceptance_flow in project.planned_acceptance_flow_ids:
                     if planned_acceptance_flow.date_cash.year == YEARint + 2:
                         sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+                        margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow, margin_plan,
+                                                                                  project, False)
                         if planned_acceptance_flow.forecast == 'from_project':
                             if project.estimated_probability_id.name in ('75', '100'):
                                 sum_ostatok_acceptance[
