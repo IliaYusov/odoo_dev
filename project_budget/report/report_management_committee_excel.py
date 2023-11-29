@@ -96,6 +96,8 @@ class report_management_committee_excel(models.AbstractModel):
 
     def get_estimated_probability_name_forecast(self, name):
         result = name
+        return result
+        # сказали не надо словами
         if name == '0': result = 'Отменен'
         if name == '30': result = 'Идентификация проекта'
         if name == '50': result = 'Подготовка ТКП'
@@ -442,12 +444,13 @@ class report_management_committee_excel(models.AbstractModel):
                     if 'HY2' in element or 'Q' in element:
                         addcolumn = -1
 
+                    sheet.set_column(column, column + 5, 13)
                     if 'Q' in elementone:
-                        sheet.set_column(column, column + 5, False, False, {'hidden': 1, 'level': 2})
+                        sheet.set_column(column, column + 5, 13, False, {'hidden': 1, 'level': 2})
                     elif 'HY1' in elementone:
-                        sheet.set_column(column, column + 5, False, False, {'hidden': 1, 'level': 1})
+                        sheet.set_column(column, column + 5, 13, False, {'hidden': 1, 'level': 1})
                     elif 'HY2' in elementone:
-                        sheet.set_column(column, column + 4, False, False, {'hidden': 1, 'level': 1})
+                        sheet.set_column(column, column + 4, 13, False, {'hidden': 1, 'level': 1})
 
                     sheet.merge_range(row, column, row, column + 5 + addcolumn, element, head_format_month)
 
@@ -480,6 +483,7 @@ class report_management_committee_excel(models.AbstractModel):
 
                 elif element == 'NEXT':
                     sheet.merge_range(row, column, row, column + 2, str(YEARint + 1), head_format_month)
+                    sheet.set_column(column, column + 3, 13, False, {'hidden': 1, 'level': 1})
                     sheet.merge_range(row + 1, column, row + 1, column + 2, 'Прогноз ' + str(YEARint + 1),
                                       head_format_month_detail_next)
                     sheet.write_string(row + 2, column, 'Обязательство', head_format_month_detail_next)
@@ -491,6 +495,7 @@ class report_management_committee_excel(models.AbstractModel):
 
                 elif element == 'AFTER NEXT':
                     sheet.write_string(row, column, str(YEARint + 2), head_format_month)
+                    sheet.set_column(column, column, 13, False, {'hidden': 1, 'level': 1})
                     sheet.merge_range(row + 1, column, row + 2, column, 'Прогноз ' + str(YEARint + 2),
                                       head_format_month_detail_next)
                     column += 1
@@ -2635,7 +2640,7 @@ class report_management_committee_excel(models.AbstractModel):
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                 sum_distribution_acceptance = 0
-                sum_ostatok_acceptance = {'acceptance': 0, 'reserve': 0, 'potential': 0}
+                sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
                 for planned_acceptance_flow in project.planned_acceptance_flow_ids:
                     if planned_acceptance_flow.date_cash.year == YEARint + 2:
                         sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
@@ -4588,9 +4593,16 @@ class report_management_committee_excel(models.AbstractModel):
             sheet.merge_range(row + 1, column, row + 2, column, "", head_format_1)
             sheet.set_column(column, column, 2)
 
-        sheet.freeze_panes(5, 1)
+        if params['report_with_projects']:
+            sheet.freeze_panes(5, 3)
+        else:
+            sheet.freeze_panes(5, 1)
+
         column += 1
         column = self.print_quater_head(workbook, sheet, row, column, strYEAR)
+
+        sheet.autofilter(4, 0, 4, column - 1)
+
         row += 2
 
         cur_budget_projects = self.env['project_budget.projects'].search([
