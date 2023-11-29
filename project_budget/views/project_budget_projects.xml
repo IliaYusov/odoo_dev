@@ -626,11 +626,11 @@
                                         />
 <!-- #20230403 Вавилова Ирина сказла убрать...                                       <field name="doc_cash" placeholder="type docs description"/>-->
                                         <field name="sum_cash_without_vat" placeholder="enter planned cash flow sum "/>
-                                        <field name="sum_cash" placeholder="enter planned cash flow sum "/>
-                                        <field name="distribution_sum_with_vat_ostatok"
-                                               decoration-success="distribution_sum_with_vat_ostatok == 0"
-                                               decoration-danger="distribution_sum_with_vat_ostatok &lt; 0"
-                                               decoration-warning="distribution_sum_with_vat_ostatok != 0"/>
+                                        <field name="sum_cash" placeholder="enter planned cash flow sum " optional="hide"/>
+                                        <field name="distribution_sum_without_vat_ostatok"
+                                               decoration-success="distribution_sum_without_vat_ostatok == 0"
+                                               decoration-danger="distribution_sum_without_vat_ostatok &lt; 0"
+                                               decoration-warning="distribution_sum_without_vat_ostatok != 0"/>
                                     </tree>
                                 </field>
                                 <h4>
@@ -660,7 +660,7 @@
                                                domain="[('id', 'in', parent.project_steps_ids)]"
                                         />
 <!--#20230403 Вавилова Ирина сказла убрать...                                        <field name="doc_cash" placeholder="type docs description"/>-->
-                                        <field name="sum_cash_without_vat" placeholder="enter planned cash flow sum "/>
+                                        <field name="sum_cash_without_vat" placeholder="enter planned cash flow sum " optional="hide"/>
                                         <field name="sum_cash" placeholder="enter planned cash flow sum "/>
                                         <field name="distribution_sum_with_vat_ostatok"
                                                decoration-success="distribution_sum_with_vat_ostatok == 0"

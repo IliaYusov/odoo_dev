@@ -53,18 +53,18 @@
                                     <field name="planned_acceptance_flow_id" placeholder="select planned acceptance flow" force_save="1"/>
                                     <field name="fact_acceptance_flow_id" placeholder="select planned acceptance flow" invisible="True"/>
                                     <field name="sum_cash_without_vat_plan"/>
-                                    <field name="sum_cash_plan" invisible="True" />
+                                    <field name="sum_cash_plan" optional="hide"/>
                                     <field name="sum_cash_without_vat" placeholder="enter distribution fact on plan sum" force_save="1"/>
-                                    <field name="sum_cash" placeholder="enter distribution fact on plan sum" force_save="1" invisible="True"/>
+                                    <field name="sum_cash" placeholder="enter distribution fact on plan sum" force_save="1" optional="hide"/>
                                     <field name="distribution_sum_without_vat" />
-                                    <field name="distribution_sum_with_vat" decoration-success="sum_cash_plan == distribution_sum_with_vat" invisible="True"/>
+                                    <field name="distribution_sum_with_vat" decoration-success="sum_cash_plan == distribution_sum_with_vat" optional="hide"/>
                                     <field name="distribution_sum_without_vat_ostatok"
                                            decoration-danger="distribution_sum_without_vat_ostatok &lt; 0"
                                            decoration-warning="distribution_sum_without_vat_ostatok != 0"/>
                                     <field name="distribution_sum_with_vat_ostatok"
                                            decoration-danger="distribution_sum_with_vat_ostatok &lt; 0"
                                            decoration-warning="distribution_sum_with_vat_ostatok != 0"
-                                           invisible="True" />
+                                           optional="hide" />
                                 </tree>
                             </field>
 
@@ -87,15 +87,16 @@
                     />
     <!--#20230403 Вавилова Ирина сказла убрать...                                        <field name="doc_cash" placeholder="type docs description"/>-->
                     <field name="sum_cash_without_vat" placeholder="enter planned acceptance flow sum "/>
-                    <field name="sum_cash" placeholder="enter planned acceptance flow sum "/>
+                    <field name="sum_cash" placeholder="enter planned acceptance flow sum " optional="hide"/>
                     <field name="distribution_sum_without_vat"
                             decoration-success="sum_cash == distribution_sum_with_vat"
                             decoration-danger="sum_cash != distribution_sum_with_vat"/>
                     <field name="distribution_sum_with_vat"
                             decoration-success="sum_cash == distribution_sum_with_vat"
-                            decoration-danger="sum_cash != distribution_sum_with_vat"/>
+                            decoration-danger="sum_cash != distribution_sum_with_vat"
+                            optional="hide"/>
                     <field name="distribution_sum_without_vat_ostatok" decoration-warning="distribution_sum_with_vat_ostatok != 0"/>
-                    <field name="distribution_sum_with_vat_ostatok" decoration-warning="distribution_sum_with_vat_ostatok != 0"/>
+                    <field name="distribution_sum_with_vat_ostatok" decoration-warning="distribution_sum_with_vat_ostatok != 0" optional="hide"/>
                 </tree>
             </field>
         </record>
