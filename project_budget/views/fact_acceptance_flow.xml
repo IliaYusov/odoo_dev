@@ -30,7 +30,7 @@
                                             decoration-danger="sum_cash_without_vat != distribution_sum_without_vat"
                                 />
                             </group>
-                            <group>
+                            <group invisible="True">
                                 <field name="sum_cash" placeholder="enter planned cash flow sum "/>
                                 <field name="distribution_sum_with_vat"
                                             decoration-bf="1"
@@ -51,19 +51,20 @@
 <!--                                    <field name="projects_flow_plan_id" invisible="True"/>-->
 <!--                                    <field name="projects_id"/>-->
                                     <field name="planned_acceptance_flow_id" placeholder="select planned acceptance flow" force_save="1"/>
-                                    <field name="fact_acceptance_flow_id" placeholder="select planned acceptance flow" invisible="True" />
+                                    <field name="fact_acceptance_flow_id" placeholder="select planned acceptance flow" invisible="True"/>
                                     <field name="sum_cash_without_vat_plan"/>
-                                    <field name="sum_cash_plan"/>
+                                    <field name="sum_cash_plan" invisible="True" />
                                     <field name="sum_cash_without_vat" placeholder="enter distribution fact on plan sum" force_save="1"/>
-                                    <field name="sum_cash" placeholder="enter distribution fact on plan sum" force_save="1"/>
+                                    <field name="sum_cash" placeholder="enter distribution fact on plan sum" force_save="1" invisible="True"/>
                                     <field name="distribution_sum_without_vat" />
-                                    <field name="distribution_sum_with_vat" decoration-success="sum_cash_plan == distribution_sum_with_vat"/>
+                                    <field name="distribution_sum_with_vat" decoration-success="sum_cash_plan == distribution_sum_with_vat" invisible="True"/>
                                     <field name="distribution_sum_without_vat_ostatok"
                                            decoration-danger="distribution_sum_without_vat_ostatok &lt; 0"
                                            decoration-warning="distribution_sum_without_vat_ostatok != 0"/>
                                     <field name="distribution_sum_with_vat_ostatok"
                                            decoration-danger="distribution_sum_with_vat_ostatok &lt; 0"
-                                           decoration-warning="distribution_sum_with_vat_ostatok != 0"/>
+                                           decoration-warning="distribution_sum_with_vat_ostatok != 0"
+                                           invisible="True" />
                                 </tree>
                             </field>
 
