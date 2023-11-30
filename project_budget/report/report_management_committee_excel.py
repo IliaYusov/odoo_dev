@@ -235,98 +235,40 @@ class report_management_committee_excel(models.AbstractModel):
             logger.info(f' end get_etalon_step')
         return etalon_step
 
-    def get_sum_fact_pds_project_step_quarter(self, project, step, quarter):
-        global strYEAR
-        global YEARint
+    def get_sum_fact_pds_project_step_year_quarter(self, project, step, year, quarter):
 
         sum_cash = 0
 
-        months = self.get_months_from_quarter(quarter)
-
-        pds_list = project.fact_cash_flow_ids
-        # if step:
-        #     pds_list = self.env['project_budget.fact_cash_flow'].search([('project_steps_id', '=', step.id)])
-        # else:
-        #     pds_list = self.env['project_budget.fact_cash_flow'].search([('projects_id', '=', project.id)])
-        for pds in pds_list:
-            if step:
-                if pds.project_steps_id.id != step.id: continue
-            if pds.date_cash.month in months and pds.date_cash.year == YEARint:
-                sum_cash += pds.sum_cash
-
-        return sum_cash
-
-    def get_sum_fact_pds_project_step_year(self, project, step, year):
-
-        sum_cash = 0
+        if quarter:
+            months = self.get_months_from_quarter(quarter)
 
         pds_list = project.fact_cash_flow_ids
 
         for pds in pds_list:
             if step:
                 if pds.project_steps_id.id != step.id: continue
-            if pds.date_cash.year == year:
+            if (not quarter or pds.date_cash.month in months) and pds.date_cash.year == year:
                 sum_cash += pds.sum_cash
 
         return sum_cash
 
-    def get_sum_plan_pds_project_step_quarter(self, project, step, quarter):
+    def get_sum_plan_pds_project_step_year_quarter(self, project, step, year, quarter):
         global strYEAR
         global YEARint
 
         sum_cash = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
-        months = self.get_months_from_quarter(quarter)
-
-        # if step:
-        #     pds_list = self.env['project_budget.planned_cash_flow'].search([('project_steps_id', '=', step.id)])
-        # else:
-        #     pds_list = self.env['project_budget.planned_cash_flow'].search([('projects_id', '=', project.id)])
-        pds_list = project.planned_cash_flow_ids
-        for pds in pds_list:
-            if step:
-                if pds.project_steps_id.id != step.id: continue
-            if pds.date_cash.month in months and pds.date_cash.year == YEARint:
-                if pds.forecast == 'from_project':
-                    if step:
-                        estimated_probability_id_name = step.estimated_probability_id.name
-                    else:
-                        estimated_probability_id_name = project.estimated_probability_id.name
-
-                    if estimated_probability_id_name in ('75', '100', '100(done)'):
-                        sum_cash['commitment'] += pds.sum_cash
-                    elif estimated_probability_id_name == '50':
-                        sum_cash['reserve'] += pds.sum_cash
-                    elif estimated_probability_id_name == '30':
-                        sum_cash['potential'] += pds.sum_cash
-                else:
-                    sum_cash[pds.forecast] += pds.sum_cash
-        # else: # если нихрена нет планового ПДС, то берем сумму общую по дате окончания sale или по дате этапа
-        #     print('step = ',step)
-        #     print('project = ',project)
-        #     if step == False or step == False:
-        #         if project:
-        #             if project.end_sale_project_month.month == month and project.end_sale_project_month.year == YEARint:
-        #                 sum_cash = project.total_amount_of_revenue_with_vat
-        #     else:
-        #         if step:
-        #             if step.end_sale_project_month.month == month and step.end_sale_project_month.year == YEARint:
-        #                 sum_cash = step.total_amount_of_revenue_with_vat
-        return sum_cash
-
-    def get_sum_plan_pds_project_step_year(self, project, step, year):
-        global strYEAR
-        global YEARint
-
-        sum_cash = {'commitment': 0, 'reserve': 0, 'potential': 0}
+        if quarter:
+            months = self.get_months_from_quarter(quarter)
 
         pds_list = project.planned_cash_flow_ids
 
         for pds in pds_list:
             if step:
                 if pds.project_steps_id.id != step.id: continue
-            if pds.date_cash.year == year:
+            if (not quarter or pds.date_cash.month in months) and pds.date_cash.year == year:
                 if pds.forecast == 'from_project':
+
                     if step:
                         estimated_probability_id_name = step.estimated_probability_id.name
                     else:
@@ -341,24 +283,6 @@ class report_management_committee_excel(models.AbstractModel):
                 else:
                     sum_cash[pds.forecast] += pds.sum_cash
         return sum_cash
-
-    # def get_sum_plan_acceptance_step_month(self,project, step, month):
-    #     global strYEAR
-    #     global YEARint
-    # 
-    #     sum_cash = 0
-    #     # if project.project_have_steps == False:
-    #     #     acceptance_list = self.env['project_budget.planned_acceptance_flow'].search([('projects_id', '=', project.id)])
-    #     # if project.project_have_steps and step != False:
-    #     #     acceptance_list = self.env['project_budget.planned_acceptance_flow'].search([('project_steps_id', '=', step.id)])
-    # 
-    #     acceptance_list = project.planned_acceptance_flow_ids
-    #     for acceptance in acceptance_list:
-    #         if step:
-    #             if acceptance.project_steps_id.id != step.id: continue
-    #         if acceptance.date_cash.month == month:
-    #             sum_cash += acceptance.sum_cash_without_vat
-    #     return sum_cash
 
     def print_quater_head(self, workbook, sheet, row, column, YEAR):
         global strYEAR
@@ -373,6 +297,15 @@ class report_management_committee_excel(models.AbstractModel):
                 'valign': 'vcenter',
                 "bold": True,
                 "fg_color": y[1],
+                "font_size": 11,
+            })
+            head_format_month_dark = workbook.add_format({
+                'border': 1,
+                'text_wrap': True,
+                'align': 'center',
+                'valign': 'vcenter',
+                "bold": True,
+                "fg_color": '#' + hex(int(y[1][1:], 16) - 0x303030)[2:],
                 "font_size": 11,
             })
             head_format_month_itogo = workbook.add_format({
@@ -482,7 +415,17 @@ class report_management_committee_excel(models.AbstractModel):
                     column += 1
 
                 elif element == 'NEXT':
-                    sheet.merge_range(row, column, row, column + 2, str(YEARint + 1), head_format_month)
+                    sheet.merge_range(row, column, row, column + 2, 'Q1 ' + str(YEARint + 1), head_format_month_dark)
+                    sheet.set_column(column, column + 3, 13, False, {'hidden': 1, 'level': 1})
+                    sheet.merge_range(row + 1, column, row + 1, column + 2, 'Прогноз до конца периода (на дату отчета)',
+                                      head_format_month_detail_next)
+                    sheet.write_string(row + 2, column, 'Обязательство', head_format_month_detail_next)
+                    column += 1
+                    sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail_next)
+                    column += 1
+                    sheet.write_string(row + 2, column, 'Потенциал', head_format_month_detail_next)
+                    column += 1
+                    sheet.merge_range(row, column, row, column + 2,str(YEARint + 1), head_format_month)
                     sheet.set_column(column, column + 3, 13, False, {'hidden': 1, 'level': 1})
                     sheet.merge_range(row + 1, column, row + 1, column + 2, 'Прогноз ' + str(YEARint + 1),
                                       head_format_month_detail_next)
@@ -692,18 +635,10 @@ class report_management_committee_excel(models.AbstractModel):
         sum_after_next_tmp = 0
 
         if 'Q' in element:
+
             months = self.get_months_from_quarter(element)
-            # project_etalon = self.get_etalon_project(project, element)
+
             if step == False:
-                # if project_etalon:
-                #     currency_rate = self.get_currency_rate_by_project(project_etalon)
-                #     if project_etalon.end_presale_project_month.month in months and YEARint == project_etalon.end_presale_project_month.year:
-                #         if project_etalon.estimated_probability_id.name == '75':
-                #             sheet.write_number(row, column + 0, project_etalon.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
-                #             sum75tmpetalon += project_etalon.total_amount_of_revenue_with_vat * currency_rate
-                #         if project_etalon.estimated_probability_id.name == '50':
-                #             sheet.write_number(row, column + 1, project_etalon.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
-                #             sum50tmpetalon += project_etalon.total_amount_of_revenue_with_vat * currency_rate
 
                 if project.end_presale_project_month.month in months and YEARint == project.end_presale_project_month.year:
                     currency_rate = self.get_currency_rate_by_project(project)
@@ -722,30 +657,6 @@ class report_management_committee_excel(models.AbstractModel):
                 if ((project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
                         or ((not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
 
-                    # step_etalon  = self.get_etalon_step(step, element)
-
-                    # if step_etalon:
-                    #     currency_rate = self.get_currency_rate_by_project(step_etalon.projects_id)
-                    #     if step_etalon.end_presale_project_month.month in months and YEARint == step_etalon.end_presale_project_month.year:
-                    #         if step_etalon.estimated_probability_id.name == '75':
-                    #             sheet.write_number(row, column + 0, step_etalon.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
-                    #             sum75tmpetalon = step_etalon.total_amount_of_revenue_with_vat * currency_rate
-                    #         if step_etalon.estimated_probability_id.name == '50':
-                    #             sheet.write_number(row, column + 1, step_etalon.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
-                    #             sum50tmpetalon = step_etalon.total_amount_of_revenue_with_vat * currency_rate
-                    # else:
-                    #     if project_etalon: # если нет жталонного этапа, то данные берем из проекта, да это будет увеличивать сумму на количество этапов, но что делать я ХЗ
-                    #         currency_rate = self.get_currency_rate_by_project(project_etalon)
-                    #         if project_etalon.end_presale_project_month.month in months and YEARint == project_etalon.end_presale_project_month.year:
-                    #             if project_etalon.estimated_probability_id.name == '75':
-                    #                 sheet.write_number(row, column + 0, project_etalon.total_amount_of_revenue_with_vat * currency_rate,
-                    #                                    row_format_number)
-                    #                 sum75tmpetalon += project_etalon.total_amount_of_revenue_with_vat * currency_rate
-                    #             if project_etalon.estimated_probability_id.name == '50':
-                    #                 sheet.write_number(row, column + 1, project_etalon.total_amount_of_revenue_with_vat * currency_rate,
-                    #                                    row_format_number)
-                    #                 sum50tmpetalon += project_etalon.total_amount_of_revenue_with_vat * currency_rate
-
                     if step.end_presale_project_month.month in months  and YEARint == step.end_presale_project_month.year:
                         currency_rate = self.get_currency_rate_by_project(step.projects_id)
                         if step.estimated_probability_id.name in ('100','100(done)'):
@@ -761,7 +672,7 @@ class report_management_committee_excel(models.AbstractModel):
         elif element == 'NEXT':
             if step == False:
                 currency_rate = self.get_currency_rate_by_project(project)
-                if project.end_presale_project_month.year == YEARint + 1:
+                if project.end_presale_project_month.year == YEARint + 1 and project.end_presale_project_month.month in self.get_months_from_quarter('Q1'):
                     if project.estimated_probability_id.name in ('75', '100'):
                         sheet.write_number(row, column + 0,
                                            project.total_amount_of_revenue_with_vat * currency_rate,
@@ -777,6 +688,22 @@ class report_management_committee_excel(models.AbstractModel):
                                            project.total_amount_of_revenue_with_vat * params['30'] * currency_rate,
                                            row_format_number)
                         sum_next_30_tmp = project.total_amount_of_revenue_with_vat * params['30'] * currency_rate
+                if project.end_presale_project_month.year == YEARint + 1:
+                    if project.estimated_probability_id.name in ('75', '100'):
+                        sheet.write_number(row, column + 3,
+                                           project.total_amount_of_revenue_with_vat * currency_rate,
+                                           row_format_number)
+                        sum_next_75_tmp = project.total_amount_of_revenue_with_vat * currency_rate
+                    if project.estimated_probability_id.name == '50':
+                        sheet.write_number(row, column + 4,
+                                           project.total_amount_of_revenue_with_vat * params['50'] * currency_rate,
+                                           row_format_number)
+                        sum_next_50_tmp = project.total_amount_of_revenue_with_vat * params['50'] * currency_rate
+                    if project.estimated_probability_id.name == '30':
+                        sheet.write_number(row, column + 5,
+                                           project.total_amount_of_revenue_with_vat * params['30'] * currency_rate,
+                                           row_format_number)
+                        sum_next_30_tmp = project.total_amount_of_revenue_with_vat * params['30'] * currency_rate
                 elif project.end_presale_project_month.year == YEARint + 2:
                     if project.estimated_probability_id.name in ('75', '100'):
                         sum_after_next_tmp = project.total_amount_of_revenue_with_vat * currency_rate
@@ -786,7 +713,7 @@ class report_management_committee_excel(models.AbstractModel):
                     if project.estimated_probability_id.name == '30':
                         sum_after_next_tmp = project.total_amount_of_revenue_with_vat * params[
                             '30'] * currency_rate
-                    sheet.write_number(row, column + 3,
+                    sheet.write_number(row, column + 6,
                                        sum_after_next_tmp,
                                        row_format_number)
 
@@ -798,7 +725,7 @@ class report_management_committee_excel(models.AbstractModel):
                                     not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
 
                     currency_rate = self.get_currency_rate_by_project(step.projects_id)
-                    if step.end_presale_project_month.year == YEARint + 1:
+                    if step.end_presale_project_month.year == YEARint + 1 and step.end_presale_project_month.month in self.get_months_from_quarter('Q1'):
                         if step.estimated_probability_id.name in ('75', '100'):
                             sheet.write_number(row, column + 0,
                                                step.total_amount_of_revenue_with_vat * currency_rate,
@@ -818,6 +745,26 @@ class report_management_committee_excel(models.AbstractModel):
                                                row_format_number)
                             sum_next_30_tmp += step.total_amount_of_revenue_with_vat * params[
                                 '30'] * currency_rate
+                    if step.end_presale_project_month.year == YEARint + 1:
+                        if step.estimated_probability_id.name in ('75', '100'):
+                            sheet.write_number(row, column + 3,
+                                               step.total_amount_of_revenue_with_vat * currency_rate,
+                                               row_format_number)
+                            sum_next_75_tmp += step.total_amount_of_revenue_with_vat * currency_rate
+                        if step.estimated_probability_id.name == '50':
+                            sheet.write_number(row, column + 4,
+                                               step.total_amount_of_revenue_with_vat * params[
+                                                   '50'] * currency_rate,
+                                               row_format_number)
+                            sum_next_50_tmp += step.total_amount_of_revenue_with_vat * params[
+                                '50'] * currency_rate
+                        if step.estimated_probability_id.name == '30':
+                            sheet.write_number(row, column + 5,
+                                               step.total_amount_of_revenue_with_vat * params[
+                                                   '30'] * currency_rate,
+                                               row_format_number)
+                            sum_next_30_tmp += step.total_amount_of_revenue_with_vat * params[
+                                '30'] * currency_rate
                     elif step.end_presale_project_month.year == YEARint + 2:
                         if step.estimated_probability_id.name in ('75', '100'):
                             sum_after_next_tmp += step.total_amount_of_revenue_with_vat * currency_rate
@@ -827,15 +774,9 @@ class report_management_committee_excel(models.AbstractModel):
                         if step.estimated_probability_id.name == '30':
                             sum_after_next_tmp += step.total_amount_of_revenue_with_vat * params[
                                 '30'] * currency_rate
-                        sheet.write_number(row, column + 3,
+                        sheet.write_number(row, column + 6,
                                            sum_after_next_tmp,
                                            row_format_number)
-
-        # return (sum75tmpetalon, sum50tmpetalon,
-        #         sum100tmp, sum75tmp, sum50tmp,
-        #         sum_next_75_tmp, sum_next_50_tmp, sum_next_30_tmp,
-        #         sum_after_next_tmp)
-
 
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
@@ -848,6 +789,9 @@ class report_management_committee_excel(models.AbstractModel):
         sum100tmp = 0
         sum75tmp = 0
         sum50tmp = 0
+        sum_next_75_q1_tmp = 0
+        sum_next_50_q1_tmp = 0
+        sum_next_30_q1_tmp = 0
         sum_next_75_tmp = 0
         sum_next_50_tmp = 0
         sum_next_30_tmp = 0
@@ -857,15 +801,7 @@ class report_management_committee_excel(models.AbstractModel):
 
             months = self.get_months_from_quarter(element)
 
-            # project_etalon = self.get_etalon_project(project, element)
             if not project.project_have_steps:
-            #     if project_etalon:
-            #         currency_rate = self.get_currency_rate_by_project(project_etalon)
-            #         if project_etalon.end_presale_project_month.month in months and YEARint == project_etalon.end_presale_project_month.year:
-            #             if project_etalon.estimated_probability_id.name == '75':
-            #                 sum75tmpetalon = project_etalon.total_amount_of_revenue_with_vat * currency_rate
-            #             if project_etalon.estimated_probability_id.name == '50':
-            #                 sum50tmpetalon = project_etalon.total_amount_of_revenue_with_vat * currency_rate
 
                 if project.end_presale_project_month.month in months and YEARint == project.end_presale_project_month.year:
                     currency_rate = self.get_currency_rate_by_project(project)
@@ -884,23 +820,6 @@ class report_management_committee_excel(models.AbstractModel):
                             or ((
                                         not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
 
-                        # step_etalon = self.get_etalon_step(step, element)
-                        # if step_etalon:
-                        #     currency_rate = self.get_currency_rate_by_project(step_etalon.projects_id)
-                        #     if step_etalon.end_presale_project_month.month in months and YEARint == step_etalon.end_presale_project_month.year:
-                        #         if step_etalon.estimated_probability_id.name == '75':
-                        #             sum75tmpetalon += step_etalon.total_amount_of_revenue_with_vat * currency_rate
-                        #         if step_etalon.estimated_probability_id.name == '50':
-                        #             sum50tmpetalon += step_etalon.total_amount_of_revenue_with_vat * currency_rate
-                        # else:
-                        #     if project_etalon:  # если нет эталонного этапа, то данные берем из проекта, да это будет увеличивать сумму на количество этапов, но что делать я ХЗ
-                        #         currency_rate = self.get_currency_rate_by_project(project_etalon)
-                        #         if project_etalon.end_presale_project_month.month in months and YEARint == project_etalon.end_presale_project_month.year:
-                        #             if project_etalon.estimated_probability_id.name == '75':
-                        #                 sum75tmpetalon = project_etalon.total_amount_of_revenue_with_vat * currency_rate
-                        #             if project_etalon.estimated_probability_id.name == '50':
-                        #                 sum50tmpetalon = project_etalon.total_amount_of_revenue_with_vat * currency_rate
-
                         if step.end_presale_project_month.month in months and YEARint == step.end_presale_project_month.year:
                             currency_rate = self.get_currency_rate_by_project(step.projects_id)
                             if step.estimated_probability_id.name in ('100', '100(done)'):
@@ -912,6 +831,14 @@ class report_management_committee_excel(models.AbstractModel):
 
         elif 'NEXT' in element:
             if not project.project_have_steps:
+                if project.end_presale_project_month.year == YEARint + 1 and project.end_presale_project_month.month in self.get_months_from_quarter('Q1'):
+                    currency_rate = self.get_currency_rate_by_project(project)
+                    if project.estimated_probability_id.name in ('75', '100'):
+                        sum_next_75_q1_tmp = project.total_amount_of_revenue_with_vat * currency_rate
+                    if project.estimated_probability_id.name == '50':
+                        sum_next_50_q1_tmp = project.total_amount_of_revenue_with_vat * params['50'] * currency_rate
+                    if project.estimated_probability_id.name == '30':
+                        sum_next_30_q1_tmp = project.total_amount_of_revenue_with_vat * params['30'] * currency_rate
                 if project.end_presale_project_month.year == YEARint + 1:
                     currency_rate = self.get_currency_rate_by_project(project)
                     if project.estimated_probability_id.name in ('75', '100'):
@@ -940,6 +867,15 @@ class report_management_committee_excel(models.AbstractModel):
                                         not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
 
                         currency_rate = self.get_currency_rate_by_project(step.projects_id)
+                        if step.end_presale_project_month.year == YEARint + 1 and step.end_presale_project_month.month in self.get_months_from_quarter('Q1'):
+                            if step.estimated_probability_id.name in ('75', '100'):
+                                sum_next_75_q1_tmp += step.total_amount_of_revenue_with_vat * currency_rate
+                            if step.estimated_probability_id.name == '50':
+                                sum_next_50_q1_tmp += step.total_amount_of_revenue_with_vat * params[
+                                    '50'] * currency_rate
+                            if step.estimated_probability_id.name == '30':
+                                sum_next_30_q1_tmp += step.total_amount_of_revenue_with_vat * params[
+                                    '30'] * currency_rate
                         if step.end_presale_project_month.year == YEARint + 1:
                             if step.estimated_probability_id.name in ('75', '100'):
                                 sum_next_75_tmp += step.total_amount_of_revenue_with_vat * currency_rate
@@ -961,71 +897,39 @@ class report_management_committee_excel(models.AbstractModel):
 
         return (sum75tmpetalon, sum50tmpetalon,
                 sum100tmp, sum75tmp, sum50tmp,
+                sum_next_75_q1_tmp, sum_next_50_q1_tmp, sum_next_30_q1_tmp,
                 sum_next_75_tmp, sum_next_50_tmp, sum_next_30_tmp,
                 sum_after_next_tmp)
 
-    # def print_month_pds_project(self, sheet, row, column, month, project, step, row_format_number, row_format_number_color_fact):
-    #     global strYEAR
-    #     global YEARint
-    #
-    #     sum75tmpetalon = sum50tmpetalon = sum100tmp = sum75tmp = sum50tmp = 0
-    #     if month:
-    #             project_etalon = self.get_etalon_project(project, self.get_quarter_from_month(month))
-    #             step_etalon = self.get_etalon_step(step, self.get_quarter_from_month(month))
-    #             sum = 0
-    #             sum = self.get_sum_plan_pds_project_step_quarter(project_etalon, step_etalon, month)
-    #
-    #             if (step) and (not step_etalon): # есть этап сейчас, но нет в эталоне
-    #                 sum = 0
-    #
-    #             estimated_probability_id_name = project_etalon.estimated_probability_id.name
-    #             if step_etalon :
-    #                 estimated_probability_id_name = step_etalon.estimated_probability_id.name
-    #             if sum != 0:
-    #                 if estimated_probability_id_name in('75','100','100(done)'):
-    #                     sheet.write_number(row, column + 0, sum,row_format_number)
-    #                     sum75tmpetalon += sum
-    #                 if estimated_probability_id_name == '50':
-    #                     sheet.write_number(row, column + 1, sum, row_format_number)
-    #                     sum50tmpetalon += sum
-    #
-    #             sum100tmp = self.get_sum_fact_pds_project_step_quarter(project, step, month)
-    #             if sum100tmp:
-    #                 sheet.write_number(row, column + 2, sum100tmp, row_format_number_color_fact)
-    #
-    #             sum = self.get_sum_plan_pds_project_step_quarter(project, step, month)
-    #             # print('----- project.id=',project.id)
-    #             # print('sum100tmp = ',sum100tmp)
-    #             # print('sum = ', sum)
-    #             if sum100tmp >= sum:
-    #                 sum = 0
-    #             else:
-    #                 sum = sum - sum100tmp
-    #             # print('after: sum = ', sum)
-    #             # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-    #             sum_ostatok_pds = sum_distribution_pds = 0
-    #             for planned_cash_flow in project.planned_cash_flow_ids:
-    #                 if step:
-    #                     if planned_cash_flow.project_steps_id.id != step.id: continue
-    #                 if planned_cash_flow.date_cash.month == month and planned_cash_flow.date_cash.year == YEARint:
-    #                     sum_ostatok_pds += planned_cash_flow.distribution_sum_with_vat_ostatok
-    #                     sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
-    #             if sum_distribution_pds != 0 : # если есть распределение, то остаток = остатку распределения
-    #                 sum = sum_ostatok_pds
-    #                 if sum < 0 : sum = 0
-    #
-    #             estimated_probability_id_name = project.estimated_probability_id.name
-    #             if step :
-    #                 estimated_probability_id_name = step.estimated_probability_id.name
-    #
-    #             if sum != 0:
-    #                 if estimated_probability_id_name in('75','100','100(done)'):
-    #                     sheet.write_number(row, column + 3, sum,row_format_number)
-    #                     sum75tmp += sum
-    #                 if estimated_probability_id_name == '50':
-    #                     sheet.write_number(row, column + 4, sum, row_format_number)
-    #                     sum50tmp += sum
-    #     return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
+    def get_pds_forecast_from_distributions(self, sum, project, step, year, months):
+
+        sum_distribution_pds = 0
+        sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
+        for planned_cash in project.planned_cash_flow_ids:
+            if ((not step or planned_cash.project_steps_id.id == step.id)
+                    and (not months or planned_cash.date_cash.month in months)
+                    and planned_cash.date_cash.year == year):
+                sum_distribution_pds += planned_cash.distribution_sum_without_vat
+                if planned_cash.forecast == 'from_project':
+                    estimated_probability_id_name = project.estimated_probability_id.name
+                    if step:
+                        estimated_probability_id_name = step.estimated_probability_id.name
+                    if estimated_probability_id_name in ('75', '100', '100(done)'):
+                        sum_ostatok_pds['commitment'] += planned_cash.distribution_sum_with_vat_ostatok
+                    elif estimated_probability_id_name == '50':
+                        sum_ostatok_pds['reserve'] += planned_cash.distribution_sum_with_vat_ostatok
+                    elif estimated_probability_id_name == '30':
+                        sum_ostatok_pds['potential'] += planned_cash.distribution_sum_with_vat_ostatok
+                else:
+                    sum_ostatok_pds[planned_cash.forecast] += planned_cash.distribution_sum_with_vat_ostatok
+
+        if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
+            sum = sum_ostatok_pds
+            for key in sum:
+                sum[key] = max(sum[key], 0)
+
+        return sum
 
     def print_quarter_pds_project(self, sheet, row, column, element, project, step, project_office, params, row_format_number, row_format_number_color_fact):
         global strYEAR
@@ -1036,6 +940,9 @@ class report_management_committee_excel(models.AbstractModel):
         sum100tmp = 0
         sum75tmp = 0
         sum50tmp = 0
+        sum_next_75_q1_tmp = 0
+        sum_next_50_q1_tmp = 0
+        sum_next_30_q1_tmp = 0
         sum_next_75_tmp = 0
         sum_next_50_tmp = 0
         sum_next_30_tmp = 0
@@ -1051,29 +958,12 @@ class report_management_committee_excel(models.AbstractModel):
                         or ((
                                     not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
 
-                    # project_etalon = self.get_etalon_project(project, element)
-                    # step_etalon = self.get_etalon_step(step, element)
-                    # sum = self.get_sum_plan_pds_project_step_quarter(project_etalon, step_etalon, element)
-                    #
-                    # if not step_etalon:  # есть этап сейчас, но нет в эталоне
-                    #     sum = 0
-                    #
-                    # estimated_probability_id_name = step_etalon.estimated_probability_id.name
-                    #
-                    # if sum != 0:
-                    #     if estimated_probability_id_name in ('75', '100', '100(done)'):
-                    #         sheet.write_number(row, column + 0, sum, row_format_number)
-                    #         sum75tmpetalon += sum
-                    #     if estimated_probability_id_name == '50':
-                    #         sheet.write_number(row, column + 1, sum, row_format_number)
-                    #         sum50tmpetalon += sum
-
-                    sum100tmp_step = self.get_sum_fact_pds_project_step_quarter(project, step, element)
+                    sum100tmp_step = self.get_sum_fact_pds_project_step_year_quarter(project, step, YEARint, element)
                     sheet.write_number(row, column + 2, sum100tmp_step, row_format_number_color_fact)
 
                     sum100tmp += sum100tmp_step
 
-                    sum = self.get_sum_plan_pds_project_step_quarter(project, step, element)
+                    sum = self.get_sum_plan_pds_project_step_year_quarter(project, step, YEARint, element)
 
                     if sum100tmp_step >= sum['commitment']:
                         sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
@@ -1083,51 +973,17 @@ class report_management_committee_excel(models.AbstractModel):
                         sum['commitment'] = sum['commitment'] - sum100tmp_step
 
                     # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                    sum_distribution_pds = 0
-                    sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
-                    for planned_cash_flow in project.planned_cash_flow_ids:
-                        if (planned_cash_flow.project_steps_id.id == step.id
-                                and planned_cash_flow.date_cash.month in months
-                                and planned_cash_flow.date_cash.year == YEARint):
-                            sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
-                            if planned_cash_flow.forecast == 'from_project':
-                                if step.estimated_probability_id.name in ('75', '100', '100(done)'):
-                                    sum_ostatok_pds['commitment'] = sum_ostatok_pds.get('commitment',
-                                                                                        0) + planned_cash_flow.distribution_sum_with_vat_ostatok
-                                elif step.estimated_probability_id.name == '50':
-                                    sum_ostatok_pds['reserve'] = sum_ostatok_pds.get('reserve',
-                                                                                     0) + planned_cash_flow.distribution_sum_with_vat_ostatok
-                            else:
-                                sum_ostatok_pds[planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                    if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
-                        sum = sum_ostatok_pds
-                        for key in sum:
-                            if sum[key] < 0:
-                                sum[key] = 0
+                    sum = self.get_pds_forecast_from_distributions(sum, project, step, YEARint, months)
 
                     sheet.write_number(row, column + 3, sum['commitment'], row_format_number)
                     sum75tmp += sum['commitment']
                     sheet.write_number(row, column + 4, sum['reserve'], row_format_number)
                     sum50tmp += sum['reserve']
             else:
-                # project_etalon = self.get_etalon_project(project, element)
-                #
-                # sum = self.get_sum_plan_pds_project_step_quarter(project_etalon, False, element)
-                #
-                # estimated_probability_id_name = project_etalon.estimated_probability_id.name
-                #
-                # if sum != 0:
-                #     if estimated_probability_id_name in ('75', '100', '100(done)'):
-                #         sheet.write_number(row, column + 0, sum, row_format_number)
-                #         sum75tmpetalon += sum
-                #     if estimated_probability_id_name == '50':
-                #         sheet.write_number(row, column + 1, sum, row_format_number)
-                #         sum50tmpetalon += sum
-
-                sum100tmp = self.get_sum_fact_pds_project_step_quarter(project, False, element)
+                sum100tmp = self.get_sum_fact_pds_project_step_year_quarter(project, False, YEARint,element)
                 sheet.write_number(row, column + 2, sum100tmp, row_format_number_color_fact)
 
-                sum = self.get_sum_plan_pds_project_step_quarter(project, False, element)
+                sum = self.get_sum_plan_pds_project_step_year_quarter(project, False, YEARint, element)
 
                 if sum100tmp >= sum['commitment']:
                     sum100tmp_ostatok = sum100tmp - sum['commitment']
@@ -1137,27 +993,7 @@ class report_management_committee_excel(models.AbstractModel):
                     sum['commitment'] = sum['commitment'] - sum100tmp
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum_distribution_pds = 0
-                sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
-                for planned_cash_flow in project.planned_cash_flow_ids:
-                    if planned_cash_flow.date_cash.month in months and planned_cash_flow.date_cash.year == YEARint:
-                        sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
-                        if planned_cash_flow.forecast == 'from_project':
-                            if project.estimated_probability_id.name in ('75', '100', '100(done)'):
-                                sum_ostatok_pds['commitment'] = sum_ostatok_pds.get('commitment',
-                                                                                    0) + planned_cash_flow.distribution_sum_with_vat_ostatok
-                            elif project.estimated_probability_id.name == '50':
-                                sum_ostatok_pds['reserve'] = sum_ostatok_pds.get('reserve',
-                                                                                 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
-                        else:
-                            sum_ostatok_pds[
-                                planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
-
-                if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
-                    sum = sum_ostatok_pds
-                    for key in sum:
-                        if sum[key] < 0:
-                            sum[key] = 0
+                sum = self.get_pds_forecast_from_distributions(sum, project, False, YEARint, months)
 
                 sheet.write_number(row, column + 3, sum['commitment'], row_format_number)
                 sum75tmp += sum['commitment']
@@ -1172,9 +1008,18 @@ class report_management_committee_excel(models.AbstractModel):
                         or ((
                                     not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
 
-                    sum100tmp_step = self.get_sum_fact_pds_project_step_year(project, step, YEARint + 1)
+                    sum100tmp_q1_step = self.get_sum_fact_pds_project_step_year_quarter(project, step, YEARint + 1, 'Q1')
+                    sum100tmp_step = self.get_sum_fact_pds_project_step_year_quarter(project, step, YEARint + 1, False)
                     sum100tmp += sum100tmp_step
-                    sum = self.get_sum_plan_pds_project_step_year(project, step, YEARint + 1)
+                    sum_q1 = self.get_sum_plan_pds_project_step_year_quarter(project, step, YEARint + 1, 'Q1')
+                    sum = self.get_sum_plan_pds_project_step_year_quarter(project, step, YEARint + 1, False)
+
+                    if sum100tmp_q1_step >= sum_q1['commitment']:
+                        sum100tmp_q1_step_ostatok = sum100tmp_q1_step - sum_q1['commitment']
+                        sum_q1['commitment'] = 0
+                        sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_step_ostatok, 0)
+                    else:
+                        sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1_step
 
                     if sum100tmp_step >= sum['commitment']:
                         sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
@@ -1184,40 +1029,35 @@ class report_management_committee_excel(models.AbstractModel):
                         sum['commitment'] = sum['commitment'] - sum100tmp_step
 
                     # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                    sum_distribution_pds = 0
-                    sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
+                    sum_q1 = self.get_pds_forecast_from_distributions(sum_q1, project, step, YEARint + 1,
+                                                                      self.get_months_from_quarter('Q1'))
+                    sum = self.get_pds_forecast_from_distributions(sum, project, step, YEARint + 1, False)
 
-                    for planned_cash_flow in project.planned_cash_flow_ids:
-                        if planned_cash_flow.project_steps_id.id == step.id and planned_cash_flow.date_cash.year == YEARint + 1:
-                            sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
-                            if planned_cash_flow.forecast == 'from_project':
-                                if step.estimated_probability_id.name in ('75', '100'):
-                                    sum_ostatok_pds['commitment'] = sum_ostatok_pds.get('commitment',
-                                                                                        0) + planned_cash_flow.distribution_sum_with_vat_ostatok
-                                elif step.estimated_probability_id.name == '50':
-                                    sum_ostatok_pds['reserve'] = sum_ostatok_pds.get('reserve',
-                                                                                     0) + planned_cash_flow.distribution_sum_with_vat_ostatok
-                                elif step.estimated_probability_id.name == '30':
-                                    sum_ostatok_pds['potential'] = sum_ostatok_pds.get('potential',
-                                                                                     0) + planned_cash_flow.distribution_sum_with_vat_ostatok
-                            else:
-                                sum_ostatok_pds[planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
+                    sheet.write_number(row, column + 0, sum_q1['commitment'], row_format_number)
+                    sum_next_75_q1_tmp += sum_q1['commitment']
+                    sheet.write_number(row, column + 1, sum_q1['reserve'] * params['50'], row_format_number)
+                    sum_next_50_q1_tmp += sum_q1['reserve'] * params['50']
+                    sheet.write_number(row, column + 2, sum_q1['potential'] * params['30'], row_format_number)
+                    sum_next_30_q1_tmp += sum_q1['potential'] * params['30']
 
-                    if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
-                        sum = sum_ostatok_pds
-                        for key in sum:
-                            if sum[key] < 0:
-                                sum[key] = 0
-
-                    sheet.write_number(row, column + 0, sum['commitment'], row_format_number)
+                    sheet.write_number(row, column + 3, sum['commitment'], row_format_number)
                     sum_next_75_tmp += sum['commitment']
-                    sheet.write_number(row, column + 1, sum['reserve'] * params['50'], row_format_number)
+                    sheet.write_number(row, column + 4, sum['reserve'] * params['50'], row_format_number)
                     sum_next_50_tmp += sum['reserve'] * params['50']
-                    sheet.write_number(row, column + 2, sum['potential'] * params['30'], row_format_number)
+                    sheet.write_number(row, column + 5, sum['potential'] * params['30'], row_format_number)
                     sum_next_30_tmp += sum['potential'] * params['30']
             else:
-                sum100tmp = self.get_sum_fact_pds_project_step_year(project, False, YEARint + 1)
-                sum = self.get_sum_plan_pds_project_step_year(project, False, YEARint + 1)
+                sum100tmp_q1 = self.get_sum_fact_pds_project_step_year_quarter(project, False, YEARint + 1, 'Q1')
+                sum100tmp = self.get_sum_fact_pds_project_step_year_quarter(project, False, YEARint + 1, False)
+                sum_q1 = self.get_sum_plan_pds_project_step_year_quarter(project, False, YEARint + 1, 'Q1')
+                sum = self.get_sum_plan_pds_project_step_year_quarter(project, False, YEARint + 1, False)
+
+                if sum100tmp_q1 >= sum_q1['commitment']:
+                    sum100tmp_q1_ostatok = sum100tmp_q1 - sum_q1['commitment']
+                    sum_q1['commitment'] = 0
+                    sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_ostatok, 0)
+                else:
+                    sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1
 
                 if sum100tmp >= sum['commitment']:
                     sum100tmp_ostatok = sum100tmp - sum['commitment']
@@ -1227,37 +1067,20 @@ class report_management_committee_excel(models.AbstractModel):
                     sum['commitment'] = sum['commitment'] - sum100tmp
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum_distribution_pds = 0
-                sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
+                sum_q1 = self.get_pds_forecast_from_distributions(sum_q1, project, False, YEARint + 1, self.get_months_from_quarter('Q1'))
+                sum = self.get_pds_forecast_from_distributions(sum, project, False, YEARint + 1, False)
 
-                for planned_cash_flow in project.planned_cash_flow_ids:
-                    if planned_cash_flow.date_cash.year == YEARint + 1:
-                        sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
-                        if planned_cash_flow.forecast == 'from_project':
-                            if project.estimated_probability_id.name in ('75', '100'):
-                                sum_ostatok_pds['commitment'] = sum_ostatok_pds.get('commitment',
-                                                                                    0) + planned_cash_flow.distribution_sum_with_vat_ostatok
-                            elif project.estimated_probability_id.name == '50':
-                                sum_ostatok_pds['reserve'] = sum_ostatok_pds.get('reserve',
-                                                                                 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
-                            elif project.estimated_probability_id.name == '30':
-                                sum_ostatok_pds['potential'] = sum_ostatok_pds.get('potential',
-                                                                                 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
-                        else:
-                            sum_ostatok_pds[
-                                planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
-
-                if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
-                    sum = sum_ostatok_pds
-                    for key in sum:
-                        if sum[key] < 0:
-                            sum[key] = 0
-
-                sheet.write_number(row, column + 0, sum['commitment'], row_format_number)
+                sheet.write_number(row, column + 0, sum_q1['commitment'], row_format_number)
+                sum_next_75_tmp += sum_q1['commitment']
+                sheet.write_number(row, column + 1, sum_q1['reserve'] * params['50'], row_format_number)
+                sum_next_50_tmp += sum_q1['reserve'] * params['50']
+                sheet.write_number(row, column + 2, sum_q1['potential'] * params['30'], row_format_number)
+                sum_next_30_tmp += sum_q1['potential'] * params['30']
+                sheet.write_number(row, column + 3, sum['commitment'], row_format_number)
                 sum_next_75_tmp += sum['commitment']
-                sheet.write_number(row, column + 1, sum['reserve'] * params['50'], row_format_number)
+                sheet.write_number(row, column + 4, sum['reserve'] * params['50'], row_format_number)
                 sum_next_50_tmp += sum['reserve'] * params['50']
-                sheet.write_number(row, column + 2, sum['potential'] * params['30'], row_format_number)
+                sheet.write_number(row, column + 5, sum['potential'] * params['30'], row_format_number)
                 sum_next_30_tmp += sum['potential'] * params['30']
 
         elif element == 'AFTER NEXT':
@@ -1268,9 +1091,9 @@ class report_management_committee_excel(models.AbstractModel):
                         or ((
                                     not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
 
-                    sum100tmp_step = self.get_sum_fact_pds_project_step_year(project, step, YEARint + 2)
+                    sum100tmp_step = self.get_sum_fact_pds_project_step_year_quarter(project, step, YEARint + 2, False)
                     sum100tmp += sum100tmp_step
-                    sum = self.get_sum_plan_pds_project_step_year(project, step, YEARint + 2)
+                    sum = self.get_sum_plan_pds_project_step_year_quarter(project, step, YEARint + 2, False)
 
                     if sum100tmp_step >= sum['commitment']:
                         sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
@@ -1280,32 +1103,7 @@ class report_management_committee_excel(models.AbstractModel):
                         sum['commitment'] = sum['commitment'] - sum100tmp_step
 
                     # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                    sum_distribution_pds = 0
-                    sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
-
-                    for planned_cash_flow in project.planned_cash_flow_ids:
-                        if planned_cash_flow.project_steps_id.id == step.id and planned_cash_flow.date_cash.year == YEARint + 2:
-                            sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
-                            if planned_cash_flow.forecast == 'from_project':
-                                if step.estimated_probability_id.name in ('75', '100'):
-                                    sum_ostatok_pds['commitment'] = sum_ostatok_pds.get('commitment',
-                                                                                        0) + planned_cash_flow.distribution_sum_with_vat_ostatok
-                                elif step.estimated_probability_id.name == '50':
-                                    sum_ostatok_pds['reserve'] = sum_ostatok_pds.get('reserve',
-                                                                                     0) + planned_cash_flow.distribution_sum_with_vat_ostatok
-                                elif step.estimated_probability_id.name == '30':
-                                    sum_ostatok_pds['potential'] = sum_ostatok_pds.get('potential',
-                                                                                       0) + planned_cash_flow.distribution_sum_with_vat_ostatok
-                            else:
-                                sum_ostatok_pds[
-                                    planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
-
-
-                    if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
-                        sum = sum_ostatok_pds
-                        for key in sum:
-                            if sum[key] < 0:
-                                sum[key] = 0
+                    sum = self.get_pds_forecast_from_distributions(sum, project, step, YEARint + 2, False)
 
                     sum_after_next_tmp += sum['commitment']
                     sum_after_next_tmp += sum['reserve'] * params['50']
@@ -1313,8 +1111,8 @@ class report_management_committee_excel(models.AbstractModel):
                     sheet.write_number(row, column + 0, sum_after_next_tmp, row_format_number)
 
             else:
-                sum100tmp = self.get_sum_fact_pds_project_step_year(project, False, YEARint + 2)
-                sum = self.get_sum_plan_pds_project_step_year(project, False, YEARint + 2)
+                sum100tmp = self.get_sum_fact_pds_project_step_year_quarter(project, False, YEARint + 2, False)
+                sum = self.get_sum_plan_pds_project_step_year_quarter(project, False, YEARint + 2, False)
 
                 if sum100tmp >= sum['commitment']:
                     sum100tmp_ostatok = sum100tmp - sum['commitment']
@@ -1324,31 +1122,7 @@ class report_management_committee_excel(models.AbstractModel):
                     sum['commitment'] = sum['commitment'] - sum100tmp
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum_distribution_pds = 0
-                sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
-
-                for planned_cash_flow in project.planned_cash_flow_ids:
-                    if planned_cash_flow.date_cash.year == YEARint + 2:
-                        sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
-                        if planned_cash_flow.forecast == 'from_project':
-                            if project.estimated_probability_id.name in ('75', '100'):
-                                sum_ostatok_pds['commitment'] = sum_ostatok_pds.get('commitment',
-                                                                                    0) + planned_cash_flow.distribution_sum_with_vat_ostatok
-                            elif project.estimated_probability_id.name == '50':
-                                sum_ostatok_pds['reserve'] = sum_ostatok_pds.get('reserve',
-                                                                                 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
-                            elif project.estimated_probability_id.name == '30':
-                                sum_ostatok_pds['potential'] = sum_ostatok_pds.get('potential',
-                                                                                   0) + planned_cash_flow.distribution_sum_with_vat_ostatok
-                        else:
-                            sum_ostatok_pds[
-                                planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
-
-                if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
-                    sum = sum_ostatok_pds
-                    for key in sum:
-                        if sum[key] < 0:
-                            sum[key] = 0
+                sum = self.get_pds_forecast_from_distributions(sum , project, False, YEARint + 2, False)
 
                 sum_after_next_tmp += sum['commitment']
                 sum_after_next_tmp += sum['reserve'] * params['50']
@@ -1366,6 +1140,9 @@ class report_management_committee_excel(models.AbstractModel):
         sum100tmp = 0
         sum75tmp = 0
         sum50tmp = 0
+        sum_next_75_q1_tmp = 0
+        sum_next_50_q1_tmp = 0
+        sum_next_30_q1_tmp = 0
         sum_next_75_tmp = 0
         sum_next_50_tmp = 0
         sum_next_30_tmp = 0
@@ -1383,26 +1160,11 @@ class report_management_committee_excel(models.AbstractModel):
                             or ((
                                         not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
 
-                        # project_etalon = self.get_etalon_project(project, element)
-                        # step_etalon = self.get_etalon_step(step, element)
-                        # sum = self.get_sum_plan_pds_project_step_quarter(project_etalon, step_etalon, element)
-                        #
-                        # if not step_etalon:  # есть этап сейчас, но нет в эталоне
-                        #     sum = 0
-                        #
-                        # estimated_probability_id_name = step_etalon.estimated_probability_id.name
-                        #
-                        # if sum != 0:
-                        #     if estimated_probability_id_name in ('75', '100', '100(done)'):
-                        #         sum75tmpetalon += sum
-                        #     if estimated_probability_id_name == '50':
-                        #         sum50tmpetalon += sum
-
-                        sum100tmp_step = self.get_sum_fact_pds_project_step_quarter(project, step, element)
+                        sum100tmp_step = self.get_sum_fact_pds_project_step_year_quarter(project, step, YEARint, element)
 
                         sum100tmp += sum100tmp_step
 
-                        sum = self.get_sum_plan_pds_project_step_quarter(project, step, element)
+                        sum = self.get_sum_plan_pds_project_step_year_quarter(project, step, YEARint, element)
 
                         if sum100tmp_step >= sum['commitment']:
                             sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
@@ -1411,46 +1173,14 @@ class report_management_committee_excel(models.AbstractModel):
                         else:
                             sum['commitment'] = sum['commitment'] - sum100tmp_step
                         # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                        sum_distribution_pds = 0
-                        sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
-                        for planned_cash_flow in project.planned_cash_flow_ids:
-                            if (planned_cash_flow.project_steps_id.id == step.id
-                                    and planned_cash_flow.date_cash.month in months
-                                    and planned_cash_flow.date_cash.year == YEARint):
-                                sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
-                                if planned_cash_flow.forecast == 'from_project':
-                                    if step.estimated_probability_id.name in ('75', '100', '100(done)'):
-                                        sum_ostatok_pds['commitment'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                                    elif step.estimated_probability_id.name == '50':
-                                        sum_ostatok_pds['reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                                else:
-                                    sum_ostatok_pds[
-                                        planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
-
-                        if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
-                            sum = sum_ostatok_pds
-                            for key in sum:
-                                if sum[key] < 0:
-                                    sum[key] = 0
+                        sum = self.get_pds_forecast_from_distributions(sum, project, step, YEARint, months)
 
                         sum75tmp += sum['commitment']
                         sum50tmp += sum['reserve']
 
             else:
-                # project_etalon = self.get_etalon_project(project, element)
-                #
-                # sum = self.get_sum_plan_pds_project_step_quarter(project_etalon, False, element)
-                #
-                # estimated_probability_id_name = project_etalon.estimated_probability_id.name
-                #
-                # if sum != 0:
-                #     if estimated_probability_id_name in ('75', '100', '100(done)'):
-                #         sum75tmpetalon += sum
-                #     if estimated_probability_id_name == '50':
-                #         sum50tmpetalon += sum
-
-                sum100tmp = self.get_sum_fact_pds_project_step_quarter(project, False, element)
-                sum = self.get_sum_plan_pds_project_step_quarter(project, False, element)
+                sum100tmp = self.get_sum_fact_pds_project_step_year_quarter(project, False, YEARint, element)
+                sum = self.get_sum_plan_pds_project_step_year_quarter(project, False, YEARint, element)
 
                 if sum100tmp >= sum['commitment']:
                     sum100tmp_ostatok = sum100tmp - sum['commitment']
@@ -1460,25 +1190,7 @@ class report_management_committee_excel(models.AbstractModel):
                     sum['commitment'] = sum['commitment'] - sum100tmp
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum_distribution_pds = 0
-                sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
-                for planned_cash_flow in project.planned_cash_flow_ids:
-                    if planned_cash_flow.date_cash.month in months and planned_cash_flow.date_cash.year == YEARint:
-                        sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
-                        if planned_cash_flow.forecast == 'from_project':
-                            if project.estimated_probability_id.name in ('75', '100', '100(done)'):
-                                sum_ostatok_pds['commitment'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                            elif project.estimated_probability_id.name == '50':
-                                sum_ostatok_pds['reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                        else:
-                            sum_ostatok_pds[
-                                planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
-
-                if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
-                    sum = sum_ostatok_pds
-                    for key in sum:
-                        if sum[key] < 0:
-                            sum[key] = 0
+                sum = self.get_pds_forecast_from_distributions(sum, project, False, YEARint, months)
 
                 sum75tmp += sum['commitment']
                 sum50tmp += sum['reserve']
@@ -1492,9 +1204,18 @@ class report_management_committee_excel(models.AbstractModel):
                             or ((
                                         not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
 
-                        sum100tmp_step = self.get_sum_fact_pds_project_step_year(project, step, YEARint + 1)
+                        sum100tmp_q1_step = self.get_sum_fact_pds_project_step_year_quarter(project, step, YEARint + 1, 'Q1')
+                        sum100tmp_step = self.get_sum_fact_pds_project_step_year_quarter(project, step, YEARint + 1, False)
                         sum100tmp += sum100tmp_step
-                        sum = self.get_sum_plan_pds_project_step_year(project, step, YEARint + 1)
+                        sum_q1 = self.get_sum_plan_pds_project_step_year_quarter(project, step, YEARint + 1, 'Q1')
+                        sum = self.get_sum_plan_pds_project_step_year_quarter(project, step, YEARint + 1, False)
+
+                        if sum100tmp_q1_step >= sum_q1['commitment']:
+                            sum100tmp_q1_step_ostatok = sum100tmp_q1_step - sum_q1['commitment']
+                            sum_q1['commitment'] = 0
+                            sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_step_ostatok, 0)
+                        else:
+                            sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1_step
 
                         if sum100tmp_step >= sum['commitment']:
                             sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
@@ -1504,35 +1225,28 @@ class report_management_committee_excel(models.AbstractModel):
                             sum['commitment'] = sum['commitment'] - sum100tmp_step
 
                         # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                        sum_distribution_pds = 0
-                        sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
+                        sum_q1 = self.get_pds_forecast_from_distributions(sum_q1, project, step, YEARint + 1, self.get_months_from_quarter('Q1'))
+                        sum = self.get_pds_forecast_from_distributions(sum, project, step, YEARint + 1, False)
 
-                        for planned_cash_flow in project.planned_cash_flow_ids:
-                            if planned_cash_flow.project_steps_id.id == step.id and planned_cash_flow.date_cash.year == YEARint + 1:
-                                sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
-                                if planned_cash_flow.forecast == 'from_project':
-                                    if step.estimated_probability_id.name in ('75', '100'):
-                                        sum_ostatok_pds['commitment'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                                    elif step.estimated_probability_id.name == '50':
-                                        sum_ostatok_pds['reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                                    elif step.estimated_probability_id.name == '30':
-                                        sum_ostatok_pds['potential'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                                else:
-                                    sum_ostatok_pds[
-                                        planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
-
-                        if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
-                            sum = sum_ostatok_pds
-                            for key in sum:
-                                if sum[key] < 0:
-                                    sum[key] = 0
+                        sum_next_75_q1_tmp += sum_q1['commitment']
+                        sum_next_50_q1_tmp += sum_q1['reserve'] * params['50']
+                        sum_next_30_q1_tmp += sum_q1['potential'] * params['30']
 
                         sum_next_75_tmp += sum['commitment']
                         sum_next_50_tmp += sum['reserve'] * params['50']
                         sum_next_30_tmp += sum['potential'] * params['30']
             else:
-                sum100tmp = self.get_sum_fact_pds_project_step_year(project, False, YEARint + 1)
-                sum = self.get_sum_plan_pds_project_step_year(project, False, YEARint + 1)
+                sum100tmp_q1 = self.get_sum_fact_pds_project_step_year_quarter(project, False, YEARint + 1, 'Q1')
+                sum100tmp = self.get_sum_fact_pds_project_step_year_quarter(project, False, YEARint + 1, False)
+                sum_q1 = self.get_sum_plan_pds_project_step_year_quarter(project, False, YEARint + 1, 'Q1')
+                sum = self.get_sum_plan_pds_project_step_year_quarter(project, False, YEARint + 1, False)
+
+                if sum100tmp_q1 >= sum_q1['commitment']:
+                    sum100tmp_q1_ostatok = sum100tmp_q1 - sum_q1['commitment']
+                    sum_q1['commitment'] = 0
+                    sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_ostatok, 0)
+                else:
+                    sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1
 
                 if sum100tmp >= sum['commitment']:
                     sum100tmp_ostatok = sum100tmp - sum['commitment']
@@ -1542,28 +1256,12 @@ class report_management_committee_excel(models.AbstractModel):
                     sum['commitment'] = sum['commitment'] - sum100tmp
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum_distribution_pds = 0
-                sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
+                sum_q1 = self.get_pds_forecast_from_distributions(sum_q1, project, False, YEARint + 1, self.get_months_from_quarter('Q1'))
+                sum = self.get_pds_forecast_from_distributions(sum, project, False, YEARint + 1, False)
 
-                for planned_cash_flow in project.planned_cash_flow_ids:
-                    if planned_cash_flow.date_cash.year == YEARint + 1:
-                        sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
-                        if planned_cash_flow.forecast == 'from_project':
-                            if project.estimated_probability_id.name in ('75', '100'):
-                                sum_ostatok_pds['commitment'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                            elif project.estimated_probability_id.name == '50':
-                                sum_ostatok_pds['reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                            elif project.estimated_probability_id.name == '30':
-                                sum_ostatok_pds['potential'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                        else:
-                            sum_ostatok_pds[
-                                planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
-
-                if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
-                    sum = sum_ostatok_pds
-                    for key in sum:
-                        if sum[key] < 0:
-                            sum[key] = 0
+                sum_next_75_q1_tmp += sum_q1['commitment']
+                sum_next_50_q1_tmp += sum_q1['reserve'] * params['50']
+                sum_next_30_q1_tmp += sum_q1['potential'] * params['30']
 
                 sum_next_75_tmp += sum['commitment']
                 sum_next_50_tmp += sum['reserve'] * params['50']
@@ -1578,9 +1276,9 @@ class report_management_committee_excel(models.AbstractModel):
                             or ((
                                         not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
 
-                        sum100tmp_step = self.get_sum_fact_pds_project_step_year(project, step, YEARint + 2)
+                        sum100tmp_step = self.get_sum_fact_pds_project_step_year_quarter(project, step, YEARint + 2, False)
                         sum100tmp += sum100tmp_step
-                        sum = self.get_sum_plan_pds_project_step_year(project, step, YEARint + 2)
+                        sum = self.get_sum_plan_pds_project_step_year_quarter(project, step, YEARint + 2, False)
 
                         if sum100tmp_step >= sum['commitment']:
                             sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
@@ -1590,39 +1288,15 @@ class report_management_committee_excel(models.AbstractModel):
                             sum['commitment'] = sum['commitment'] - sum100tmp_step
 
                         # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                        sum_distribution_pds = 0
-                        sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
-
-                        for planned_cash_flow in project.planned_cash_flow_ids:
-                            if planned_cash_flow.project_steps_id.id == step.id and planned_cash_flow.date_cash.year == YEARint + 2:
-                                sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
-                                if planned_cash_flow.forecast == 'from_project':
-                                    if step.estimated_probability_id.name in ('75', '100'):
-                                        sum_ostatok_pds[
-                                            'commitment'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                                    elif step.estimated_probability_id.name == '50':
-                                        sum_ostatok_pds[
-                                            'reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                                    elif step.estimated_probability_id.name == '30':
-                                        sum_ostatok_pds[
-                                            'potential'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                                else:
-                                    sum_ostatok_pds[
-                                        planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
-
-                        if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
-                            sum = sum_ostatok_pds
-                            for key in sum:
-                                if sum[key] < 0:
-                                    sum[key] = 0
+                        sum = self.get_pds_forecast_from_distributions(sum, project, step, YEARint + 2, False)
 
                         sum_after_next_tmp += sum['commitment']
                         sum_after_next_tmp += sum['reserve'] * params['50']
                         sum_after_next_tmp += sum['potential'] * params['30']
 
             else:
-                sum100tmp = self.get_sum_fact_pds_project_step_year(project, False, YEARint + 2)
-                sum = self.get_sum_plan_pds_project_step_year(project, False, YEARint + 2)
+                sum100tmp = self.get_sum_fact_pds_project_step_year_quarter(project, False, YEARint + 2, False)
+                sum = self.get_sum_plan_pds_project_step_year_quarter(project, False, YEARint + 2, False)
 
                 if sum100tmp >= sum['commitment']:
                     sum100tmp_ostatok = sum100tmp - sum['commitment']
@@ -1632,31 +1306,7 @@ class report_management_committee_excel(models.AbstractModel):
                     sum['commitment'] = sum['commitment'] - sum100tmp
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum_distribution_pds = 0
-                sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
-
-                for planned_cash_flow in project.planned_cash_flow_ids:
-                    if planned_cash_flow.date_cash.year == YEARint + 2:
-                        sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
-                        if planned_cash_flow.forecast == 'from_project':
-                            if project.estimated_probability_id.name in ('75', '100'):
-                                sum_ostatok_pds[
-                                    'commitment'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                            elif project.estimated_probability_id.name == '50':
-                                sum_ostatok_pds[
-                                    'reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                            elif project.estimated_probability_id.name == '30':
-                                sum_ostatok_pds[
-                                    'potential'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                        else:
-                            sum_ostatok_pds[
-                                planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
-
-                if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
-                    sum = sum_ostatok_pds
-                    for key in sum:
-                        if sum[key] < 0:
-                            sum[key] = 0
+                sum = self.get_pds_forecast_from_distributions(sum, project, False, YEARint + 2, False)
 
                 sum_after_next_tmp += sum['commitment']
                 sum_after_next_tmp += sum['reserve'] * params['50']
@@ -1664,118 +1314,57 @@ class report_management_committee_excel(models.AbstractModel):
 
         return (sum75tmpetalon, sum50tmpetalon,
                 sum100tmp, sum75tmp, sum50tmp,
+                sum_next_75_q1_tmp, sum_next_50_q1_tmp, sum_next_30_q1_tmp,
                 sum_next_75_tmp, sum_next_50_tmp, sum_next_30_tmp,
                 sum_after_next_tmp)
 
-    def get_sum_fact_acceptance_project_step_quarter(self, project, step, element_name):
-        global strYEAR
-        global YEARint
-
-        sum_cash = 0
-        months = self.get_months_from_quarter(element_name)
-        if months:
-            acceptance_list = False
-            # if step == False:
-            #     acceptance_list = self.env['project_budget.fact_acceptance_flow'].search([('projects_id', '=', project.id)])
-            # else:
-            #     acceptance_list = self.env['project_budget.fact_acceptance_flow'].search([('project_steps_id', '=', step.id)])
-            acceptance_list = project.fact_acceptance_flow_ids
-            if acceptance_list:
-                for acceptance in acceptance_list:
-                    if step:
-                        if acceptance.project_steps_id.id != step.id: continue
-                    if acceptance.date_cash.month in months and acceptance.date_cash.year == YEARint:
-                        sum_cash += acceptance.sum_cash_without_vat
-        return sum_cash
-
-    def get_sum_fact_margin_project_step_quarter(self, project, step, element_name):
-        global strYEAR
-        global YEARint
-
-        sum_cash = 0
-        months = self.get_months_from_quarter(element_name)
-        if months:
-            acceptance_list = project.fact_acceptance_flow_ids
-            if acceptance_list:
-                for acceptance in acceptance_list:
-                    if step:
-                        if acceptance.project_steps_id.id != step.id: continue
-                    if acceptance.date_cash.month in months and acceptance.date_cash.year == YEARint:
-                        sum_cash += acceptance.margin
-        return sum_cash
-
-    def get_sum_fact_acceptance_project_step_year(self, project, step, year):
+    def get_sum_fact_acceptance_project_step_year_quarter(self, project, step, year, quarter):
         sum_cash = 0
 
         acceptance_list = project.fact_acceptance_flow_ids
+
+        if quarter:
+            months = self.get_months_from_quarter(quarter)
+
         if acceptance_list:
             for acceptance in acceptance_list:
                 if step:
                     if acceptance.project_steps_id.id != step.id: continue
-                if acceptance.date_cash.year == year:
+                if (not quarter or acceptance.date_cash.month in months) and acceptance.date_cash.year == year:
                     sum_cash += acceptance.sum_cash_without_vat
 
         return sum_cash
 
-    def get_sum_fact_margin_project_step_year(self, project, step, year):
+    def get_sum_fact_margin_project_step_year_quarter(self, project, step, year, quarter):
         sum_cash = 0
 
         acceptance_list = project.fact_acceptance_flow_ids
+
+        if quarter:
+            months = self.get_months_from_quarter(quarter)
+
         if acceptance_list:
             for acceptance in acceptance_list:
                 if step:
                     if acceptance.project_steps_id.id != step.id: continue
-                if acceptance.date_cash.year == year:
+                if (not quarter or acceptance.date_cash.month in months) and acceptance.date_cash.year == year:
                     sum_cash += acceptance.margin
 
         return sum_cash
 
-    def get_sum_planned_acceptance_project_step_quarter(self, project, step, element_name):
-        global strYEAR
-        global YEARint
+    def get_sum_planned_acceptance_project_step_year_quarter(self, project, step, year, quarter):
 
         sum_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
-        months = self.get_months_from_quarter(element_name)
-
-        if months:
-            # if step == False:
-            #     acceptance_list = self.env['project_budget.planned_acceptance_flow'].search([('projects_id', '=', project.id)])
-            # else:
-            #     acceptance_list = self.env['project_budget.planned_acceptance_flow'].search([('project_steps_id', '=', step.id),('projects_id', '=', project.id)])
-
-            acceptance_list = project.planned_acceptance_flow_ids
-            if acceptance_list:
-                for acceptance in acceptance_list:
-                    if step:
-                        if acceptance.project_steps_id.id != step.id: continue
-                    if acceptance.date_cash.month in months and acceptance.date_cash.year == YEARint:
-                        if acceptance.forecast == 'from_project':
-                            if step:
-                                estimated_probability_id_name = step.estimated_probability_id.name
-                            else:
-                                estimated_probability_id_name = project.estimated_probability_id.name
-
-                            if estimated_probability_id_name in ('75', '100', '100(done)'):
-                                sum_acceptance['commitment'] += acceptance.sum_cash_without_vat
-                            elif estimated_probability_id_name == '50':
-                                sum_acceptance['reserve'] += acceptance.sum_cash_without_vat
-                            elif estimated_probability_id_name == '30':
-                                sum_acceptance['potential'] += acceptance.sum_cash_without_vat
-                        else:
-                            sum_acceptance[acceptance.forecast] += acceptance.sum_cash_without_vat
-        return sum_acceptance
-
-    def get_sum_planned_acceptance_project_step_year(self, project, step, year):
-
-        sum_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
+        if quarter:
+            months = self.get_months_from_quarter(quarter)
 
         acceptance_list = project.planned_acceptance_flow_ids
         if acceptance_list:
             for acceptance in acceptance_list:
                 if step:
                     if acceptance.project_steps_id.id != step.id: continue
-                if acceptance.date_cash.year == year:
+                if (not quarter or acceptance.date_cash.month in months) and acceptance.date_cash.year == year:
                     if acceptance.forecast == 'from_project':
                         if step:
                             estimated_probability_id_name = step.estimated_probability_id.name
@@ -1792,89 +1381,106 @@ class report_management_committee_excel(models.AbstractModel):
                         sum_acceptance[acceptance.forecast] += acceptance.sum_cash_without_vat
         return sum_acceptance
 
-    def get_margin_forecast_from_distributions(self, planned_acceptance, margin_plan, project, step):
-        # суммируем доли маржи фактов в соотношении (сумма распределения/суммы факта)
-        margin_distribution = 0
-        for distribution in planned_acceptance.distribution_acceptance_ids:
-            if distribution.fact_acceptance_flow_id.sum_cash_without_vat != 0:
-                margin_distribution += distribution.fact_acceptance_flow_id.margin * distribution.distribution_sum_without_vat / distribution.fact_acceptance_flow_id.sum_cash_without_vat
-        if planned_acceptance.forecast == 'from_project':
-            estimated_probability_id_name = project.estimated_probability_id.name
-            if step:
-                estimated_probability_id_name = step.estimated_probability_id.name
-            if estimated_probability_id_name in ('75', '100', '100(done)'):
-                margin_plan['commitment'] -= margin_distribution
-            elif estimated_probability_id_name == '50':
-                margin_plan['reserve'] -= margin_distribution
-        else:
-            margin_plan[planned_acceptance.forecast] -= margin_distribution
-        return  margin_plan
+    def get_act_margin_forecast_from_distributions(self, sum, margin_sum, margin_plan, project, step, year, months):
+
+        sum_distribution_acceptance = 0
+        sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
+        for planned_acceptance in project.planned_acceptance_flow_ids:
+            if ((not step or planned_acceptance.project_steps_id.id == step.id)
+                    and (not months or planned_acceptance.date_cash.month in months)
+                    and planned_acceptance.date_cash.year == year
+            ):
+                sum_distribution_acceptance += planned_acceptance.distribution_sum_without_vat
+
+                if planned_acceptance.forecast == 'from_project':
+                    estimated_probability_id_name = project.estimated_probability_id.name
+                    if step:
+                        estimated_probability_id_name = step.estimated_probability_id.name
+                    if estimated_probability_id_name in ('75', '100', '100(done)'):
+                        sum_ostatok_acceptance['commitment'] += planned_acceptance.distribution_sum_without_vat_ostatok
+                    elif estimated_probability_id_name == '50':
+                        sum_ostatok_acceptance['reserve'] += planned_acceptance.distribution_sum_without_vat_ostatok
+                    elif estimated_probability_id_name == '30':
+                        sum_ostatok_acceptance['potential'] += planned_acceptance.distribution_sum_without_vat_ostatok
+                else:
+                    sum_ostatok_acceptance[
+                        planned_acceptance.forecast] += planned_acceptance.distribution_sum_without_vat_ostatok
+
+                # суммируем доли маржи фактов в соотношении (сумма распределения/суммы факта)
+                margin_distribution = 0
+                for distribution in planned_acceptance.distribution_acceptance_ids:
+                    if distribution.fact_acceptance_flow_id.sum_cash_without_vat != 0:
+                        margin_distribution += (distribution.fact_acceptance_flow_id.margin
+                                                * distribution.distribution_sum_without_vat
+                                                / distribution.fact_acceptance_flow_id.sum_cash_without_vat)
+                if planned_acceptance.forecast == 'from_project':
+                    estimated_probability_id_name = project.estimated_probability_id.name
+                    if step:
+                        estimated_probability_id_name = step.estimated_probability_id.name
+                    if estimated_probability_id_name in ('75', '100', '100(done)'):
+                        margin_plan['commitment'] -= margin_distribution
+                    elif estimated_probability_id_name == '50':
+                        margin_plan['reserve'] -= margin_distribution
+                else:
+                    margin_plan[planned_acceptance.forecast] -= margin_distribution
+
+        if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
+            sum = sum_ostatok_acceptance
+            margin_sum = margin_plan
+            for key in sum:
+                sum[key] = max(sum[key], 0)
+                margin_sum[key] = max(margin_sum[key], 0)
+
+        return  sum, margin_sum
 
     def print_quarter_planned_acceptance_project(self, sheet, row, column, element, project, step,  project_office, params, row_format_number, row_format_number_color_fact):
         global strYEAR
         global YEARint
 
-        sum75tmpetalon = sum50tmpetalon = sum100tmp = sum75tmp = sum50tmp = 0
-        prof75tmpetalon = prof50tmpetalon = prof100tmp = prof75tmp = prof50tmp = 0
+        sum75tmpetalon = sum50tmpetalon = sum100tmp = sum100tmp_q1 = sum75tmp = sum50tmp = 0
+        prof75tmpetalon = prof50tmpetalon = prof100tmp = prof100tmp_q1 = prof75tmp = prof50tmp = 0
+        sum_next_75_q1_tmp = 0
+        sum_next_50_q1_tmp = 0
+        sum_next_30_q1_tmp = 0
         sum_next_75_tmp = 0
         sum_next_50_tmp = 0
         sum_next_30_tmp = 0
         sum_after_next_tmp = 0
+        prof_next_75_q1_tmp = 0
+        prof_next_50_q1_tmp = 0
+        prof_next_30_q1_tmp = 0
         prof_next_75_tmp = 0
         prof_next_50_tmp = 0
         prof_next_30_tmp = 0
         prof_after_next_tmp = 0
 
         if element in ('Q1', 'Q2', 'Q3', 'Q4'):
+            months = self.get_months_from_quarter(element)
             if step:
-
                 if ((
                         project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
                         or ((
                                     not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
 
-                    # project_etalon = self.get_etalon_project(project, element)
-                    # step_etalon = self.get_etalon_step(step, element)
                     profitability = step.profitability
-                    #
-                    # if not step_etalon:
-                    #     profitability_etalon = project_etalon.profitability
-                    # else:
-                    #     profitability_etalon = step_etalon.profitability
 
-                    # sum = self.get_sum_planned_acceptance_project_step_quarter(project_etalon, step_etalon, element)
-                    #
-                    # if not step_etalon:
-                    #     sum = 0
-                    #
-                    # estimated_probability_id_name = project_etalon.estimated_probability_id.name
-                    # if step_etalon:
-                    #     estimated_probability_id_name = step_etalon.estimated_probability_id.name
-                    #
-                    # if sum != 0:
-                    #     if estimated_probability_id_name in ('75', '100', '100(done)'):
-                    #         sheet.write_number(row, column + 0, sum, row_format_number)
-                    #         sheet.write_number(row, column + 0 + 41, sum * profitability_etalon / 100, row_format_number)
-                    #         sum75tmpetalon += sum
-                    #         prof75tmpetalon += sum * profitability_etalon / 100
-                    #     if estimated_probability_id_name == '50':
-                    #         sheet.write_number(row, column + 1, sum, row_format_number)
-                    #         sheet.write_number(row, column + 1 + 41, sum * profitability_etalon / 100, row_format_number)
-                    #         sum50tmpetalon += sum
-                    #         prof75tmpetalon += sum * profitability_etalon / 100
-
-                    sum100tmp_step = self.get_sum_fact_acceptance_project_step_quarter(project, step, element)
-                    prof100tmp_step = self.get_sum_fact_margin_project_step_quarter(project, step, element)
+                    sum100tmp_step = self.get_sum_fact_acceptance_project_step_year_quarter(project, step, YEARint, element)
+                    prof100tmp_step = self.get_sum_fact_margin_project_step_year_quarter(project, step, YEARint, element)
                     sheet.write_number(row, column + 2, sum100tmp_step, row_format_number)
-                    sheet.write_number(row, column + 2 + 41, prof100tmp_step, row_format_number)
+                    sheet.write_number(row, column + 2 + 44, prof100tmp_step, row_format_number)
 
                     sum100tmp += sum100tmp_step
                     prof100tmp += prof100tmp_step
 
-                    sum = self.get_sum_planned_acceptance_project_step_quarter(project, step, element)
+                    sum = self.get_sum_planned_acceptance_project_step_year_quarter(project, step, YEARint, element)
 
                     margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
                     margin_sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
+                    if sum:
+                        for key in sum:
+                            margin_plan[key] = sum[key] * profitability / 100
 
                     if sum100tmp_step >= sum['commitment']:
                         sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
@@ -1883,81 +1489,43 @@ class report_management_committee_excel(models.AbstractModel):
                     else:
                         sum['commitment'] = sum['commitment'] - sum100tmp_step
 
+                    if prof100tmp_step >= margin_plan['commitment']:  # маржа если нет распределения
+                        prof100tmp_step_ostatok = prof100tmp_step - margin_plan['commitment']
+                        margin_sum['commitment'] = 0
+                        margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_step_ostatok, 0)
+                    else:
+                        margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_step
+
                     # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                    sum_distribution_acceptance = 0
-                    sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
-                    months = self.get_months_from_quarter(element)
-
-                    for planned_acceptance_flow in project.planned_acceptance_flow_ids:
-                        if (planned_acceptance_flow.project_steps_id.id == step.id
-                                and planned_acceptance_flow.date_cash.month in months
-                                and planned_acceptance_flow.date_cash.year == YEARint
-                        ):
-                            sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
-                            margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow,
-                                                                                      margin_plan, project, step)
-                            if planned_acceptance_flow.forecast == 'from_project':
-                                if step.estimated_probability_id.name in ('75', '100', '100(done)'):
-                                    sum_ostatok_acceptance[
-                                        'commitment'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                                elif step.estimated_probability_id.name == '50':
-                                    sum_ostatok_acceptance[
-                                        'reserve'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                                elif step.estimated_probability_id.name == '30':
-                                    sum_ostatok_acceptance[
-                                        'potential'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                            else:
-                                sum_ostatok_acceptance[
-                                    planned_acceptance_flow.forecast] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-
-
-                    if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
-                        sum = sum_ostatok_acceptance
-                        for key in sum:
-                            if sum[key] < 0:
-                                sum[key] = 0
+                    sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, step, YEARint, months)
 
                     sheet.write_number(row, column + 3, sum['commitment'], row_format_number)
-                    sheet.write_number(row, column + 3 + 41, sum['commitment'] * profitability / 100, row_format_number)
+                    sheet.write_number(row, column + 3 + 44, margin_sum['commitment'], row_format_number)
                     sum75tmp += sum['commitment']
-                    prof75tmp += sum['commitment'] * profitability / 100
+                    prof75tmp += margin_sum['commitment']
                     sheet.write_number(row, column + 4, sum['reserve'], row_format_number)
-                    sheet.write_number(row, column + 4 + 41, sum['reserve'] * profitability / 100, row_format_number)
+                    sheet.write_number(row, column + 4 + 44, margin_sum['reserve'], row_format_number)
                     sum50tmp += sum['reserve']
-                    prof50tmp += sum['reserve'] * profitability / 100
+                    prof50tmp += margin_sum['reserve']
             else:
-                # project_etalon = self.get_etalon_project(project, element)
                 profitability = project.profitability
-                # profitability_etalon = project_etalon.profitability
-                #
-                # sum = self.get_sum_planned_acceptance_project_step_quarter(project_etalon, False, element)
-                #
-                # estimated_probability_id_name = project_etalon.estimated_probability_id.name
-                #
-                # if sum != 0:
-                #     if estimated_probability_id_name in ('75', '100', '100(done)'):
-                #         sheet.write_number(row, column + 0, sum, row_format_number)
-                #         sheet.write_number(row, column + 0 + 41, sum * profitability / 100, row_format_number)
-                #         sum75tmpetalon += sum
-                #         prof75tmpetalon += sum * profitability_etalon / 100
-                #     if estimated_probability_id_name == '50':
-                #         sheet.write_number(row, column + 1, sum, row_format_number)
-                #         sheet.write_number(row, column + 1 + 41, sum * profitability / 100, row_format_number)
-                #         sum50tmpetalon += sum
-                #         prof50tmpetalon += sum * profitability_etalon / 100
 
-                sum100tmp_proj = self.get_sum_fact_acceptance_project_step_quarter(project, False, element)
-                prof100tmp_proj = self.get_sum_fact_margin_project_step_quarter(project, False, element)
+                sum100tmp_proj = self.get_sum_fact_acceptance_project_step_year_quarter(project, False, YEARint, element)
+                prof100tmp_proj = self.get_sum_fact_margin_project_step_year_quarter(project, False, YEARint, element)
                 sheet.write_number(row, column + 2, sum100tmp_proj, row_format_number)
-                sheet.write_number(row, column + 2 + 41, prof100tmp_proj, row_format_number)
+                sheet.write_number(row, column + 2 + 44, prof100tmp_proj, row_format_number)
 
                 sum100tmp += sum100tmp_proj
                 prof100tmp += prof100tmp_proj
 
-                sum = self.get_sum_planned_acceptance_project_step_quarter(project, False, element)
+                sum = self.get_sum_planned_acceptance_project_step_year_quarter(project, False, YEARint, element)
 
                 margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
                 margin_sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
+                if sum:
+                    for key in sum:
+                        margin_plan[key] = sum[key] * profitability / 100
 
                 if sum100tmp >= sum['commitment']:
                     sum100tmp_ostatok = sum100tmp - sum['commitment']
@@ -1966,43 +1534,24 @@ class report_management_committee_excel(models.AbstractModel):
                 else:
                     sum['commitment'] = sum['commitment'] - sum100tmp
 
-                # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum_distribution_acceptance = 0
-                sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
-                months = self.get_months_from_quarter(element)
-                for planned_acceptance_flow in project.planned_acceptance_flow_ids:
-                    if planned_acceptance_flow.date_cash.month in months and planned_acceptance_flow.date_cash.year == YEARint:
-                        sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
-                        margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow, margin_plan,
-                                                                                  project, False)
-                        if planned_acceptance_flow.forecast == 'from_project':
-                            if project.estimated_probability_id.name in ('75', '100', '100(done)'):
-                                sum_ostatok_acceptance[
-                                    'commitment'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                            elif project.estimated_probability_id.name == '50':
-                                sum_ostatok_acceptance[
-                                    'reserve'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                            elif project.estimated_probability_id.name == '30':
-                                sum_ostatok_acceptance[
-                                    'potential'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                        else:
-                            sum_ostatok_acceptance[
-                                planned_acceptance_flow.forecast] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                if prof100tmp >= margin_plan['commitment']:  # маржа если нет распределения
+                    prof100tmp_ostatok = prof100tmp - margin_plan['commitment']
+                    margin_sum['commitment'] = 0
+                    margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
+                else:
+                    margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp
 
-                if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
-                    sum = sum_ostatok_acceptance
-                    for key in sum:
-                        if sum[key] < 0:
-                            sum[key] = 0
+                # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
+                sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, False, YEARint, months)
 
                 sheet.write_number(row, column + 3, sum['commitment'], row_format_number)
-                sheet.write_number(row, column + 3 + 41, sum['commitment'] * profitability / 100, row_format_number)
+                sheet.write_number(row, column + 3 + 44, margin_sum['commitment'], row_format_number)
                 sum75tmp += sum['commitment']
-                prof75tmp += sum['commitment'] * profitability / 100
+                prof75tmp += margin_sum['commitment']
                 sheet.write_number(row, column + 4, sum['reserve'], row_format_number)
-                sheet.write_number(row, column + 4 + 41, sum['reserve'] * profitability / 100, row_format_number)
+                sheet.write_number(row, column + 4 + 44, margin_sum['reserve'], row_format_number)
                 sum50tmp += sum['reserve']
-                prof50tmp += sum['reserve'] * profitability / 100
+                prof50tmp += margin_sum['reserve']
 
         elif element == 'NEXT':
             if step:
@@ -2012,16 +1561,38 @@ class report_management_committee_excel(models.AbstractModel):
 
                     profitability = step.profitability
 
-                    sum100tmp_step = self.get_sum_fact_acceptance_project_step_year(project, step, YEARint + 1)
-                    prof100tmp_step = self.get_sum_fact_margin_project_step_year(project, step, YEARint + 1)
+                    sum100tmp_q1_step = self.get_sum_fact_acceptance_project_step_year_quarter(project, step, YEARint + 1,
+                                                                                            'Q1')
+                    prof100tmp_q1_step = self.get_sum_fact_margin_project_step_year_quarter(project, step, YEARint + 1,
+                                                                                         'Q1')
+                    sum100tmp_step = self.get_sum_fact_acceptance_project_step_year_quarter(project, step, YEARint + 1, False)
+                    prof100tmp_step = self.get_sum_fact_margin_project_step_year_quarter(project, step, YEARint + 1, False)
 
                     sum100tmp += sum100tmp_step
                     prof100tmp += prof100tmp_step
 
-                    sum = self.get_sum_planned_acceptance_project_step_year(project, step, YEARint + 1)
+                    sum_q1 = self.get_sum_planned_acceptance_project_step_year_quarter(project, step, YEARint + 1, 'Q1')
+                    sum = self.get_sum_planned_acceptance_project_step_year_quarter(project, step, YEARint + 1, False)
 
+                    margin_plan_q1 = {'commitment': 0, 'reserve': 0, 'potential': 0}
+                    margin_sum_q1 = {'commitment': 0, 'reserve': 0, 'potential': 0}
                     margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
                     margin_sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
+                    if sum:
+                        for key in sum:
+                            margin_plan[key] = sum[key] * profitability / 100
+
+                    if sum_q1:
+                        for key in sum_q1:
+                            margin_plan_q1[key] = sum_q1[key] * profitability / 100
+
+                    if sum100tmp_q1_step >= sum_q1['commitment']:
+                        sum100tmp_q1_step_ostatok = sum100tmp_q1_step - sum_q1['commitment']
+                        sum_q1['commitment'] = 0
+                        sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_step_ostatok, 0)
+                    else:
+                        sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1_step
 
                     if sum100tmp_step >= sum['commitment']:
                         sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
@@ -2029,6 +1600,30 @@ class report_management_committee_excel(models.AbstractModel):
                         sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
                     else:
                         sum['commitment'] = sum['commitment'] - sum100tmp_step
+
+                    if prof100tmp_q1_step >= margin_plan_q1['commitment']:  # маржа если нет распределения
+                        prof100tmp_q1_step_ostatok = prof100tmp_q1_step - margin_plan_q1['commitment']
+                        margin_sum_q1['commitment'] = 0
+                        margin_sum_q1['reserve'] = max(margin_plan_q1['reserve'] - prof100tmp_q1_step_ostatok, 0)
+                    else:
+                        margin_sum_q1['commitment'] = margin_plan_q1['commitment'] - prof100tmp_q1_step
+
+                    if prof100tmp_step >= margin_plan['commitment']:  # маржа если нет распределения
+                        prof100tmp_step_ostatok = prof100tmp_step - margin_plan['commitment']
+                        margin_sum['commitment'] = 0
+                        margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_step_ostatok, 0)
+                    else:
+                        margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_step
+
+                    if (all(value == 0 for value in
+                           sum_q1.values()) and step.end_sale_project_month.year == YEARint + 1
+                            and step.end_sale_project_month.month in self.get_months_from_quarter('Q1')):  # если актирование 0, а месяц в нужном квартале, берем выручку
+                        if step.estimated_probability_id.name in ('75', '100'):
+                            sum_q1['commitment'] = step.total_amount_of_revenue
+                        elif step.estimated_probability_id.name == '50':
+                            sum_q1['reserve'] = step.total_amount_of_revenue
+                        elif step.estimated_probability_id.name == '30':
+                            sum_q1['potential'] = step.total_amount_of_revenue
 
                     if all(value == 0 for value in sum.values()) and step.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
                         if step.estimated_probability_id.name in ('75', '100'):
@@ -2039,63 +1634,72 @@ class report_management_committee_excel(models.AbstractModel):
                             sum['potential'] = step.total_amount_of_revenue
 
                     # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                    sum_distribution_acceptance = 0
-                    sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
-                    for planned_acceptance_flow in project.planned_acceptance_flow_ids:
-                        if (
-                                planned_acceptance_flow.project_steps_id.id == step.id
-                                and planned_acceptance_flow.date_cash.year == YEARint + 1
-                        ):
-                            sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
-                            margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow,
-                                                                                      margin_plan, project, step)
-                            if planned_acceptance_flow.forecast == 'from_project':
-                                if step.estimated_probability_id.name in ('75', '100'):
-                                    sum_ostatok_acceptance[
-                                        'commitment'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                                elif step.estimated_probability_id.name == '50':
-                                    sum_ostatok_acceptance[
-                                        'reserve'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                                elif step.estimated_probability_id.name == '30':
-                                    sum_ostatok_acceptance[
-                                        'potential'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                            else:
-                                sum_ostatok_acceptance[
-                                    planned_acceptance_flow.forecast] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                    sum_q1, margin_sum_q1 = self.get_act_margin_forecast_from_distributions(sum_q1, margin_sum_q1, margin_plan_q1,
+                                                                                      project, step, YEARint + 1, self.get_months_from_quarter('Q1'))
+                    sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, step, YEARint + 1, False)
 
+                    sheet.write_number(row, column + 0, sum_q1['commitment'], row_format_number)
+                    sheet.write_number(row, column + 0 + 44, sum_q1['commitment'] * profitability / 100, row_format_number)
+                    sum_next_75_q1_tmp += sum_q1['commitment']
+                    prof_next_75_q1_tmp += sum_q1['commitment'] * profitability / 100
+                    sheet.write_number(row, column + 1, sum_q1['reserve'] * params['50'], row_format_number)
+                    sheet.write_number(row, column + 1 + 44, sum_q1['reserve'] * params['50'] * profitability / 100, row_format_number)
+                    sum_next_50_q1_tmp += sum_q1['reserve'] * params['50']
+                    prof_next_50_q1_tmp += sum_q1['reserve'] * params['50'] * profitability / 100
+                    sheet.write_number(row, column + 2, sum_q1['potential'] * params['30'], row_format_number)
+                    sheet.write_number(row, column + 2 + 44, sum_q1['potential'] * params['30'] * profitability / 100, row_format_number)
+                    sum_next_30_q1_tmp += sum_q1['potential'] * params['30']
+                    prof_next_30_q1_tmp += sum_q1['potential'] * params['30'] * profitability / 100
 
-                    if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
-                        sum = sum_ostatok_acceptance
-                        for key in sum:
-                            if sum[key] < 0:
-                                sum[key] = 0
-
-
-                    sheet.write_number(row, column + 0, sum['commitment'], row_format_number)
-                    sheet.write_number(row, column + 0 + 41, sum['commitment'] * profitability / 100, row_format_number)
+                    sheet.write_number(row, column + 3, sum['commitment'], row_format_number)
+                    sheet.write_number(row, column + 3 + 44, sum['commitment'] * profitability / 100, row_format_number)
                     sum_next_75_tmp += sum['commitment']
                     prof_next_75_tmp += sum['commitment'] * profitability / 100
-                    sheet.write_number(row, column + 1, sum['reserve'] * params['50'], row_format_number)
-                    sheet.write_number(row, column + 1 + 41, sum['reserve'] * params['50'] * profitability / 100, row_format_number)
+                    sheet.write_number(row, column + 4, sum['reserve'] * params['50'], row_format_number)
+                    sheet.write_number(row, column + 4 + 44, sum['reserve'] * params['50'] * profitability / 100, row_format_number)
                     sum_next_50_tmp += sum['reserve'] * params['50']
                     prof_next_50_tmp += sum['reserve'] * params['50'] * profitability / 100
-                    sheet.write_number(row, column + 2, sum['potential'] * params['30'], row_format_number)
-                    sheet.write_number(row, column + 2 + 41, sum['potential'] * params['30'] * profitability / 100, row_format_number)
+                    sheet.write_number(row, column + 5, sum['potential'] * params['30'], row_format_number)
+                    sheet.write_number(row, column + 5 + 44, sum['potential'] * params['30'] * profitability / 100, row_format_number)
                     sum_next_30_tmp += sum['potential'] * params['30']
                     prof_next_30_tmp += sum['potential'] * params['30'] * profitability / 100
             else:
                 profitability = project.profitability
 
-                sum100tmp_proj = self.get_sum_fact_acceptance_project_step_year(project, False, YEARint + 1)
-                prof100tmp_proj = self.get_sum_fact_margin_project_step_year(project, False, YEARint + 1)
+                sum100tmp_q1_proj = self.get_sum_fact_acceptance_project_step_year_quarter(project, False, YEARint + 1,
+                                                                                        'Q1')
+                prof100tmp_q1_proj = self.get_sum_fact_margin_project_step_year_quarter(project, False, YEARint + 1, 'Q1')
 
+                sum100tmp_proj = self.get_sum_fact_acceptance_project_step_year_quarter(project, False, YEARint + 1, False)
+                prof100tmp_proj = self.get_sum_fact_margin_project_step_year_quarter(project, False, YEARint + 1, False)
+
+                sum100tmp_q1 += sum100tmp_q1_proj
+                prof100tmp_q1 += prof100tmp_q1_proj
                 sum100tmp += sum100tmp_proj
                 prof100tmp += prof100tmp_proj
 
-                sum = self.get_sum_planned_acceptance_project_step_year(project, False, YEARint + 1)
+                sum_q1 = self.get_sum_planned_acceptance_project_step_year_quarter(project, False, YEARint + 1, 'Q1')
+                sum = self.get_sum_planned_acceptance_project_step_year_quarter(project, False, YEARint + 1, False)
 
+                margin_plan_q1 = {'commitment': 0, 'reserve': 0, 'potential': 0}
+                margin_sum_q1 = {'commitment': 0, 'reserve': 0, 'potential': 0}
                 margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
                 margin_sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
+                if sum:
+                    for key in sum:
+                        margin_plan[key] = sum[key] * profitability / 100
+
+                if sum_q1:
+                    for key in sum_q1:
+                        margin_plan_q1[key] = sum_q1[key] * profitability / 100
+
+                if sum100tmp_q1 >= sum_q1['commitment']:
+                    sum100tmp_q1_ostatok = sum100tmp_q1 - sum_q1['commitment']
+                    sum_q1['commitment'] = 0
+                    sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_ostatok, 0)
+                else:
+                    sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1
 
                 if sum100tmp >= sum['commitment']:
                     sum100tmp_ostatok = sum100tmp - sum['commitment']
@@ -2103,6 +1707,28 @@ class report_management_committee_excel(models.AbstractModel):
                     sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                 else:
                     sum['commitment'] = sum['commitment'] - sum100tmp
+
+                if prof100tmp_q1 >= margin_plan_q1['commitment']:  # маржа если нет распределения
+                    prof100tmp_q1_ostatok = prof100tmp_q1 - margin_plan_q1['commitment']
+                    margin_sum_q1['commitment'] = 0
+                    margin_sum_q1['reserve'] = max(margin_plan_q1['reserve'] - prof100tmp_q1_ostatok, 0)
+                else:
+                    margin_sum_q1['commitment'] = margin_plan_q1['commitment'] - prof100tmp_q1
+
+                if prof100tmp >= margin_plan['commitment']:  # маржа если нет распределения
+                    prof100tmp_ostatok = prof100tmp - margin_plan['commitment']
+                    margin_sum['commitment'] = 0
+                    margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
+                else:
+                    margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp
+
+                if all(value == 0 for value in sum_q1.values()) and project.end_sale_project_month.year == YEARint + 1 and project.end_sale_project_month.month in self.get_months_from_quarter('Q1'):  # если актирование 0, а месяц в нужном году, берем выручку
+                    if project.estimated_probability_id.name in ('75', '100'):
+                        sum_q1['commitment'] = project.total_amount_of_revenue
+                    elif project.estimated_probability_id.name == '50':
+                        sum_q1['reserve'] = project.total_amount_of_revenue
+                    elif project.estimated_probability_id.name == '30':
+                        sum_q1['potential'] = project.total_amount_of_revenue
 
                 if all(value == 0 for value in sum.values()) and project.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
                     if project.estimated_probability_id.name in ('75', '100'):
@@ -2113,46 +1739,37 @@ class report_management_committee_excel(models.AbstractModel):
                         sum['potential'] = project.total_amount_of_revenue
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum_distribution_acceptance = 0
-                sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
-                for planned_acceptance_flow in project.planned_acceptance_flow_ids:
-                    if planned_acceptance_flow.date_cash.year == YEARint + 1:
-                        sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
-                        margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow, margin_plan,
-                                                                                  project, False)
-                        if planned_acceptance_flow.forecast == 'from_project':
-                            if project.estimated_probability_id.name in ('75', '100'):
-                                sum_ostatok_acceptance[
-                                    'commitment'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                            elif project.estimated_probability_id.name == '50':
-                                sum_ostatok_acceptance[
-                                    'reserve'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                            elif project.estimated_probability_id.name == '30':
-                                sum_ostatok_acceptance[
-                                    'potential'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                        else:
-                            sum_ostatok_acceptance[
-                                planned_acceptance_flow.forecast] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                sum_q1, margin_sum_q1 = self.get_act_margin_forecast_from_distributions(sum_q1, margin_sum_q1, margin_plan_q1, project, False, YEARint + 1, self.get_months_from_quarter('Q1'))
+                sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, False, YEARint + 1, False)
 
+                sheet.write_number(row, column + 0, sum_q1['commitment'], row_format_number)
+                sheet.write_number(row, column + 0 + 44, sum_q1['commitment'] * profitability / 100,
+                                   row_format_number)
+                sum_next_75_q1_tmp += sum_q1['commitment']
+                prof_next_75_q1_tmp += sum_q1['commitment'] * profitability / 100
+                sheet.write_number(row, column + 1, sum_q1['reserve'] * params['50'], row_format_number)
+                sheet.write_number(row, column + 1 + 44, sum_q1['reserve'] * params['50'] * profitability / 100,
+                                   row_format_number)
+                sum_next_50_q1_tmp += sum_q1['reserve'] * params['50']
+                prof_next_50_q1_tmp += sum_q1['reserve'] * params['50'] * profitability / 100
+                sheet.write_number(row, column + 2, sum_q1['potential'] * params['30'], row_format_number)
+                sheet.write_number(row, column + 2 + 44, sum_q1['potential'] * params['30'] * profitability / 100,
+                                   row_format_number)
+                sum_next_30_q1_tmp += sum_q1['potential'] * params['30']
+                prof_next_30_q1_tmp += sum_q1['potential'] * params['30'] * profitability / 100
 
-                if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
-                    sum = sum_ostatok_acceptance
-                    for key in sum:
-                        if sum[key] < 0:
-                            sum[key] = 0
-
-                sheet.write_number(row, column + 0, sum['commitment'], row_format_number)
-                sheet.write_number(row, column + 0 + 41, sum['commitment'] * profitability / 100,
+                sheet.write_number(row, column + 3, sum['commitment'], row_format_number)
+                sheet.write_number(row, column + 3 + 44, sum['commitment'] * profitability / 100,
                                    row_format_number)
                 sum_next_75_tmp += sum['commitment']
                 prof_next_75_tmp += sum['commitment'] * profitability / 100
-                sheet.write_number(row, column + 1, sum['reserve'] * params['50'], row_format_number)
-                sheet.write_number(row, column + 1 + 41, sum['reserve'] * params['50'] * profitability / 100,
+                sheet.write_number(row, column + 4, sum['reserve'] * params['50'], row_format_number)
+                sheet.write_number(row, column + 4 + 44, sum['reserve'] * params['50'] * profitability / 100,
                                    row_format_number)
                 sum_next_50_tmp += sum['reserve'] * params['50']
                 prof_next_50_tmp += sum['reserve'] * params['50'] * profitability / 100
-                sheet.write_number(row, column + 2, sum['potential'] * params['30'], row_format_number)
-                sheet.write_number(row, column + 2 + 41, sum['potential'] * params['30'] * profitability / 100,
+                sheet.write_number(row, column + 5, sum['potential'] * params['30'], row_format_number)
+                sheet.write_number(row, column + 5 + 44, sum['potential'] * params['30'] * profitability / 100,
                                    row_format_number)
                 sum_next_30_tmp += sum['potential'] * params['30']
                 prof_next_30_tmp += sum['potential'] * params['30'] * profitability / 100
@@ -2165,16 +1782,20 @@ class report_management_committee_excel(models.AbstractModel):
 
                     profitability = step.profitability
 
-                    sum100tmp_step = self.get_sum_fact_acceptance_project_step_year(project, step, YEARint + 2)
-                    prof100tmp_step = self.get_sum_fact_margin_project_step_year(project, step, YEARint + 2)
+                    sum100tmp_step = self.get_sum_fact_acceptance_project_step_year_quarter(project, step, YEARint + 2, False)
+                    prof100tmp_step = self.get_sum_fact_margin_project_step_year_quarter(project, step, YEARint + 2, False)
 
                     sum100tmp += sum100tmp_step
                     prof100tmp += prof100tmp_step
 
-                    sum = self.get_sum_planned_acceptance_project_step_year(project, step, YEARint + 2)
+                    sum = self.get_sum_planned_acceptance_project_step_year_quarter(project, step, YEARint + 2, False)
 
                     margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
                     margin_sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
+                    if sum:
+                        for key in sum:
+                            margin_plan[key] = sum[key] * profitability / 100
 
                     if sum100tmp_step >= sum['commitment']:
                         sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
@@ -2182,6 +1803,13 @@ class report_management_committee_excel(models.AbstractModel):
                         sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
                     else:
                         sum['commitment'] = sum['commitment'] - sum100tmp_step
+
+                    if prof100tmp_step >= margin_plan['commitment']:  # маржа если нет распределения
+                        prof100tmp_step_ostatok = prof100tmp_step - margin_plan['commitment']
+                        margin_sum['commitment'] = 0
+                        margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_step_ostatok, 0)
+                    else:
+                        margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_step
 
                     if all(value == 0 for value in sum.values()) and step.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
                         if step.estimated_probability_id.name in ('75', '100'):
@@ -2192,35 +1820,7 @@ class report_management_committee_excel(models.AbstractModel):
                             sum['potential'] = step.total_amount_of_revenue
 
                     # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                    sum_distribution_acceptance = 0
-                    sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
-                    for planned_acceptance_flow in project.planned_acceptance_flow_ids:
-                        if (
-                                planned_acceptance_flow.project_steps_id.id == step.id
-                                and planned_acceptance_flow.date_cash.year == YEARint + 2
-                        ):
-                            sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
-                            margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow,
-                                                                                      margin_plan, project, step)
-                            if planned_acceptance_flow.forecast == 'from_project':
-                                if step.estimated_probability_id.name in ('75', '100'):
-                                    sum_ostatok_acceptance[
-                                        'commitment'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                                elif step.estimated_probability_id.name == '50':
-                                    sum_ostatok_acceptance[
-                                        'reserve'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                                elif step.estimated_probability_id.name == '30':
-                                    sum_ostatok_acceptance[
-                                        'potential'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                            else:
-                                sum_ostatok_acceptance[
-                                    planned_acceptance_flow.forecast] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-
-                    if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
-                        sum = sum_ostatok_acceptance
-                        for key in sum:
-                            if sum[key] < 0:
-                                sum[key] = 0
+                    sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, step, YEARint + 2, False)
 
                     sum_after_next_tmp += sum['commitment']
                     prof_after_next_tmp += sum['commitment'] * profitability / 100
@@ -2229,21 +1829,25 @@ class report_management_committee_excel(models.AbstractModel):
                     sum_after_next_tmp += sum['potential'] * params['30']
                     prof_after_next_tmp += sum['potential'] * params['30'] * profitability / 100
                     sheet.write_number(row, column + 0, sum_after_next_tmp, row_format_number)
-                    sheet.write_number(row, column + 0 + 41, prof_after_next_tmp,
+                    sheet.write_number(row, column + 0 + 44, prof_after_next_tmp,
                                        row_format_number)
             else:
                 profitability = project.profitability
 
-                sum100tmp_proj = self.get_sum_fact_acceptance_project_step_year(project, False, YEARint + 2)
-                prof100tmp_proj = self.get_sum_fact_margin_project_step_year(project, False, YEARint + 2)
+                sum100tmp_proj = self.get_sum_fact_acceptance_project_step_year_quarter(project, False, YEARint + 2, False)
+                prof100tmp_proj = self.get_sum_fact_margin_project_step_year_quarter(project, False, YEARint + 2, False)
 
                 sum100tmp += sum100tmp_proj
                 prof100tmp += prof100tmp_proj
 
-                sum = self.get_sum_planned_acceptance_project_step_year(project, False, YEARint + 2)
+                sum = self.get_sum_planned_acceptance_project_step_year_quarter(project, False, YEARint + 2, False)
 
                 margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
                 margin_sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
+                if sum:
+                    for key in sum:
+                        margin_plan[key] = sum[key] * profitability / 100
 
                 if sum100tmp >= sum['commitment']:
                     sum100tmp_ostatok = sum100tmp - sum['commitment']
@@ -2251,6 +1855,13 @@ class report_management_committee_excel(models.AbstractModel):
                     sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                 else:
                     sum['commitment'] = sum['commitment'] - sum100tmp
+
+                if prof100tmp >= margin_plan['commitment']:  # маржа если нет распределения
+                    prof100tmp_ostatok = prof100tmp - margin_plan['commitment']
+                    margin_sum['commitment'] = 0
+                    margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
+                else:
+                    margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp
 
                 if all(value == 0 for value in sum.values()) and project.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
                     if project.estimated_probability_id.name in ('75', '100'):
@@ -2261,33 +1872,7 @@ class report_management_committee_excel(models.AbstractModel):
                         sum['potential'] = project.total_amount_of_revenue
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum_distribution_acceptance = 0
-                sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
-                for planned_acceptance_flow in project.planned_acceptance_flow_ids:
-                    if planned_acceptance_flow.date_cash.year == YEARint + 2:
-                        sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
-                        margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow, margin_plan,
-                                                                                  project, False)
-                        if planned_acceptance_flow.forecast == 'from_project':
-                            if project.estimated_probability_id.name in ('75', '100'):
-                                sum_ostatok_acceptance[
-                                    'commitment'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                            elif project.estimated_probability_id.name == '50':
-                                sum_ostatok_acceptance[
-                                    'reserve'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                            elif project.estimated_probability_id.name == '30':
-                                sum_ostatok_acceptance[
-                                    'potential'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                        else:
-                            sum_ostatok_acceptance[
-                                planned_acceptance_flow.forecast] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-
-
-                if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
-                    sum = sum_ostatok_acceptance
-                    for key in sum:
-                        if sum[key] < 0:
-                            sum[key] = 0
+                sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, False, YEARint + 2, False)
 
                 sum_after_next_tmp += sum['commitment']
                 prof_after_next_tmp += sum['commitment'] * profitability / 100
@@ -2296,7 +1881,7 @@ class report_management_committee_excel(models.AbstractModel):
                 sum_after_next_tmp += sum['potential'] * params['30']
                 prof_after_next_tmp += sum['potential'] * params['30'] * profitability / 100
             sheet.write_number(row, column + 0, sum_after_next_tmp, row_format_number)
-            sheet.write_number(row, column + 0 + 41, prof_after_next_tmp,
+            sheet.write_number(row, column + 0 + 44, prof_after_next_tmp,
                                row_format_number)
 
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
@@ -2305,61 +1890,47 @@ class report_management_committee_excel(models.AbstractModel):
         global strYEAR
         global YEARint
 
-        sum75tmpetalon = sum50tmpetalon = sum100tmp = sum75tmp = sum50tmp = 0
-        prof75tmpetalon = prof50tmpetalon = prof100tmp = prof75tmp = prof50tmp = 0
+        sum75tmpetalon = sum50tmpetalon = sum100tmp = sum100tmp_q1 = sum75tmp = sum50tmp = 0
+        prof75tmpetalon = prof50tmpetalon = prof100tmp = prof100tmp_q1 = prof75tmp = prof50tmp = 0
+        sum_next_75_q1_tmp = 0
+        sum_next_50_q1_tmp = 0
+        sum_next_30_q1_tmp = 0
         sum_next_75_tmp = 0
         sum_next_50_tmp = 0
         sum_next_30_tmp = 0
         sum_after_next_tmp = 0
+        prof_next_75_q1_tmp = 0
+        prof_next_50_q1_tmp = 0
+        prof_next_30_q1_tmp = 0
         prof_next_75_tmp = 0
         prof_next_50_tmp = 0
         prof_next_30_tmp = 0
         prof_after_next_tmp = 0
 
         if element in ('Q1', 'Q2', 'Q3', 'Q4'):
-
+            months = self.get_months_from_quarter(element)
             if project.project_have_steps:
                 for step in project.project_steps_ids:
 
                     if ((project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
                             or ((not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
 
-                        # project_etalon = self.get_etalon_project(project, element)
-                        # step_etalon = self.get_etalon_step(step, element)
                         profitability = step.profitability
-                        #
-                        # if not step_etalon:
-                        #     profitability_etalon = project_etalon.profitability
-                        # else:
-                        #     profitability_etalon = step_etalon.profitability
-                        #
-                        # sum = self.get_sum_planned_acceptance_project_step_quarter(project_etalon, step_etalon, element)
-                        #
-                        # if not step_etalon:
-                        #     sum = 0
-                        #
-                        # estimated_probability_id_name = project_etalon.estimated_probability_id.name
-                        # if step_etalon:
-                        #     estimated_probability_id_name = step_etalon.estimated_probability_id.name
-                        #
-                        # if sum != 0:
-                        #     if estimated_probability_id_name in ('75', '100', '100(done)'):
-                        #         sum75tmpetalon += sum
-                        #         prof75tmpetalon += sum * profitability_etalon / 100
-                        #     if estimated_probability_id_name == '50':
-                        #         sum50tmpetalon += sum
-                        #         prof75tmpetalon += sum * profitability_etalon / 100
 
-                        sum100tmp_step = self.get_sum_fact_acceptance_project_step_quarter(project, step, element)
-                        prof100tmp_step = self.get_sum_fact_margin_project_step_quarter(project, step, element)
+                        sum100tmp_step = self.get_sum_fact_acceptance_project_step_year_quarter(project, step, YEARint, element)
+                        prof100tmp_step = self.get_sum_fact_margin_project_step_year_quarter(project, step, YEARint, element)
 
                         sum100tmp += sum100tmp_step
                         prof100tmp += prof100tmp_step
 
-                        sum = self.get_sum_planned_acceptance_project_step_quarter(project, step, element)
+                        sum = self.get_sum_planned_acceptance_project_step_year_quarter(project, step, YEARint, element)
 
                         margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
                         margin_sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
+                        if sum:
+                            for key in sum:
+                                margin_plan[key] = sum[key] * profitability / 100
 
                         if sum100tmp_step >= sum['commitment']:
                             sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
@@ -2368,71 +1939,37 @@ class report_management_committee_excel(models.AbstractModel):
                         else:
                             sum['commitment'] = sum['commitment'] - sum100tmp_step
 
+                        if prof100tmp_step >= margin_plan['commitment']:  # маржа если нет распределения
+                            prof100tmp_step_ostatok = prof100tmp_step - margin_plan['commitment']
+                            margin_sum['commitment'] = 0
+                            margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_step_ostatok, 0)
+                        else:
+                            margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_step
+
                         # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                        sum_distribution_acceptance = 0
-                        sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
-                        months = self.get_months_from_quarter(element)
-
-                        for planned_acceptance_flow in project.planned_acceptance_flow_ids:
-                            if (planned_acceptance_flow.project_steps_id.id == step.id
-                                    and planned_acceptance_flow.date_cash.month in months
-                                    and planned_acceptance_flow.date_cash.year == YEARint
-                            ):
-                                sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
-                                margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow,
-                                                                                          margin_plan, project, step)
-                                if planned_acceptance_flow.forecast == 'from_project':
-                                    if step.estimated_probability_id.name in ('75', '100', '100(done)'):
-                                        sum_ostatok_acceptance[
-                                            'commitment'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                                    elif step.estimated_probability_id.name == '50':
-                                        sum_ostatok_acceptance[
-                                            'reserve'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                                    elif step.estimated_probability_id.name == '30':
-                                        sum_ostatok_acceptance[
-                                            'potential'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                                else:
-                                    sum_ostatok_acceptance[
-                                        planned_acceptance_flow.forecast] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-
-
-                        if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
-                            sum = sum_ostatok_acceptance
-                            for key in sum:
-                                if sum[key] < 0:
-                                    sum[key] = 0
+                        sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, step, YEARint, months)
 
                         sum75tmp += sum['commitment']
-                        prof75tmp += sum['commitment'] * profitability / 100
+                        prof75tmp += margin_sum['commitment']
                         sum50tmp += sum['reserve']
-                        prof50tmp += sum['reserve'] * profitability / 100
+                        prof50tmp += margin_sum['reserve']
             else:
-                # project_etalon = self.get_etalon_project(project, element)
                 profitability = project.profitability
-                # profitability_etalon = project_etalon.profitability
 
-                # sum = self.get_sum_planned_acceptance_project_step_quarter(project_etalon, False, element)
-                #
-                # estimated_probability_id_name = project_etalon.estimated_probability_id.name
-                #
-                # if sum != 0:
-                #     if estimated_probability_id_name in ('75', '100', '100(done)'):
-                #         sum75tmpetalon += sum
-                #         prof75tmpetalon += sum * profitability_etalon / 100
-                #     if estimated_probability_id_name == '50':
-                #         sum50tmpetalon += sum
-                #         prof50tmpetalon += sum * profitability_etalon / 100
-
-                sum100tmp_proj = self.get_sum_fact_acceptance_project_step_quarter(project, False, element)
-                prof100tmp_proj = self.get_sum_fact_margin_project_step_quarter(project, False, element)
+                sum100tmp_proj = self.get_sum_fact_acceptance_project_step_year_quarter(project, False, YEARint, element)
+                prof100tmp_proj = self.get_sum_fact_margin_project_step_year_quarter(project, False, YEARint, element)
 
                 sum100tmp += sum100tmp_proj
                 prof100tmp += prof100tmp_proj
 
-                sum = self.get_sum_planned_acceptance_project_step_quarter(project, False, element)
+                sum = self.get_sum_planned_acceptance_project_step_year_quarter(project, False, YEARint, element)
 
                 margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
                 margin_sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
+                if sum:
+                    for key in sum:
+                        margin_plan[key] = sum[key] * profitability / 100
 
                 if sum100tmp >= sum['commitment']:
                     sum100tmp_ostatok = sum100tmp - sum['commitment']
@@ -2441,39 +1978,20 @@ class report_management_committee_excel(models.AbstractModel):
                 else:
                     sum['commitment'] = sum['commitment'] - sum100tmp
 
-                # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum_distribution_acceptance = 0
-                sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
-                months = self.get_months_from_quarter(element)
-                for planned_acceptance_flow in project.planned_acceptance_flow_ids:
-                    if planned_acceptance_flow.date_cash.month in months and planned_acceptance_flow.date_cash.year == YEARint:
-                        sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
-                        margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow, margin_plan,
-                                                                                  project, False)
-                        if planned_acceptance_flow.forecast == 'from_project':
-                            if project.estimated_probability_id.name in ('75', '100', '100(done)'):
-                                sum_ostatok_acceptance[
-                                    'commitment'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                            elif project.estimated_probability_id.name == '50':
-                                sum_ostatok_acceptance[
-                                    'reserve'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                            elif project.estimated_probability_id.name == '30':
-                                sum_ostatok_acceptance[
-                                    'potential'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                        else:
-                            sum_ostatok_acceptance[
-                                planned_acceptance_flow.forecast] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                if prof100tmp >= margin_plan['commitment']:  # маржа если нет распределения
+                    prof100tmp_ostatok = prof100tmp - margin_plan['commitment']
+                    margin_sum['commitment'] = 0
+                    margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
+                else:
+                    margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp
 
-                if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
-                    sum = sum_ostatok_acceptance
-                    for key in sum:
-                        if sum[key] < 0:
-                            sum[key] = 0
+                # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
+                sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, False, YEARint, months)
 
                 sum75tmp += sum['commitment']
-                prof75tmp += sum['commitment'] * profitability / 100
+                prof75tmp += margin_sum['commitment']
                 sum50tmp += sum['reserve']
-                prof50tmp += sum['reserve'] * profitability / 100
+                prof50tmp += margin_sum['reserve']
 
         elif element == 'NEXT':
             if project.project_have_steps:
@@ -2484,16 +2002,40 @@ class report_management_committee_excel(models.AbstractModel):
 
                         profitability = step.profitability
 
-                        sum100tmp_step = self.get_sum_fact_acceptance_project_step_year(project, step, YEARint + 1)
-                        prof100tmp_step = self.get_sum_fact_margin_project_step_year(project, step, YEARint + 1)
+                        sum100tmp_q1_step = self.get_sum_fact_acceptance_project_step_year_quarter(project, step,
+                                                                                                YEARint + 1, 'Q1')
+                        prof100tmp_q1_step = self.get_sum_fact_margin_project_step_year_quarter(project, step, YEARint + 1,
+                                                                                             'Q1')
+                        sum100tmp_step = self.get_sum_fact_acceptance_project_step_year_quarter(project, step, YEARint + 1, False)
+                        prof100tmp_step = self.get_sum_fact_margin_project_step_year_quarter(project, step, YEARint + 1, False)
 
+                        sum100tmp_q1 += sum100tmp_q1_step
+                        prof100tmp_q1 += prof100tmp_q1_step
                         sum100tmp += sum100tmp_step
                         prof100tmp += prof100tmp_step
 
-                        sum = self.get_sum_planned_acceptance_project_step_year(project, step, YEARint + 1)
+                        sum_q1 = self.get_sum_planned_acceptance_project_step_year_quarter(project, step, YEARint + 1, 'Q1')
+                        sum = self.get_sum_planned_acceptance_project_step_year_quarter(project, step, YEARint + 1, False)
 
+                        margin_plan_q1 = {'commitment': 0, 'reserve': 0, 'potential': 0}
+                        margin_sum_q1 = {'commitment': 0, 'reserve': 0, 'potential': 0}
                         margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
                         margin_sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
+                        if sum_q1:
+                            for key in sum_q1:
+                                margin_plan_q1[key] = sum_q1[key] * profitability / 100
+
+                        if sum:
+                            for key in sum:
+                                margin_plan[key] = sum[key] * profitability / 100
+
+                        if sum100tmp_q1_step >= sum_q1['commitment']:
+                            sum100tmp_q1_step_ostatok = sum100tmp_q1_step - sum_q1['commitment']
+                            sum_q1['commitment'] = 0
+                            sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_step_ostatok, 0)
+                        else:
+                            sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1_step
 
                         if sum100tmp_step >= sum['commitment']:
                             sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
@@ -2501,6 +2043,29 @@ class report_management_committee_excel(models.AbstractModel):
                             sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
                         else:
                             sum['commitment'] = sum['commitment'] - sum100tmp_step
+
+                        if prof100tmp_q1_step >= margin_plan_q1['commitment']:  # маржа если нет распределения
+                            prof100tmp_q1_step_ostatok = prof100tmp_q1_step - margin_plan_q1['commitment']
+                            margin_sum_q1['commitment'] = 0
+                            margin_sum_q1['reserve'] = max(margin_plan_q1['reserve'] - prof100tmp_q1_step_ostatok, 0)
+                        else:
+                            margin_sum_q1['commitment'] = margin_plan_q1['commitment'] - prof100tmp_q1_step
+
+                        if prof100tmp_step >= margin_plan['commitment']:  # маржа если нет распределения
+                            prof100tmp_step_ostatok = prof100tmp_step - margin_plan['commitment']
+                            margin_sum['commitment'] = 0
+                            margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_step_ostatok, 0)
+                        else:
+                            margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_step
+
+                        if (all(value == 0 for value in sum_q1.values()) and step.end_sale_project_month.year == YEARint + 1
+                                and step.end_sale_project_month.month in self.get_months_from_quarter('Q1')):  # если актирование 0, а месяц в нужном году, берем выручку
+                            if step.estimated_probability_id.name in ('75', '100'):
+                                sum_q1['commitment'] = step.total_amount_of_revenue
+                            elif step.estimated_probability_id.name == '50':
+                                sum_q1['reserve'] = step.total_amount_of_revenue
+                            elif step.estimated_probability_id.name == '30':
+                                sum_q1['potential'] = step.total_amount_of_revenue
 
                         if all(value == 0 for value in sum.values()) and step.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
                             if step.estimated_probability_id.name in ('75', '100'):
@@ -2511,36 +2076,15 @@ class report_management_committee_excel(models.AbstractModel):
                                 sum['potential'] = step.total_amount_of_revenue
 
                         # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                        sum_distribution_acceptance = 0
-                        sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
-                        for planned_acceptance_flow in project.planned_acceptance_flow_ids:
-                            if (
-                                    planned_acceptance_flow.project_steps_id.id == step.id
-                                    and planned_acceptance_flow.date_cash.year == YEARint + 1
-                            ):
-                                sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
-                                margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow,
-                                                                                          margin_plan, project, step)
-                                if planned_acceptance_flow.forecast == 'from_project':
-                                    if step.estimated_probability_id.name in ('75', '100'):
-                                        sum_ostatok_acceptance[
-                                            'commitment'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                                    elif step.estimated_probability_id.name == '50':
-                                        sum_ostatok_acceptance[
-                                            'reserve'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                                    elif step.estimated_probability_id.name == '30':
-                                        sum_ostatok_acceptance[
-                                            'potential'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                                else:
-                                    sum_ostatok_acceptance[
-                                        planned_acceptance_flow.forecast] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                        sum_q1, margin_sum_q1 = self.get_act_margin_forecast_from_distributions(sum_q1, margin_sum_q1, margin_plan, project, step, YEARint + 1, self.get_months_from_quarter('Q1'))
+                        sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, step, YEARint + 1, False)
 
-
-                        if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
-                            sum = sum_ostatok_acceptance
-                            for key in sum:
-                                if sum[key] < 0:
-                                    sum[key] = 0
+                        sum_next_75_q1_tmp += sum_q1['commitment']
+                        prof_next_75_q1_tmp += sum_q1['commitment'] * profitability / 100
+                        sum_next_50_q1_tmp += sum_q1['reserve'] * params['50']
+                        prof_next_50_q1_tmp += sum_q1['reserve'] * params['50'] * profitability / 100
+                        sum_next_30_q1_tmp += sum_q1['potential'] * params['30']
+                        prof_next_30_q1_tmp += sum_q1['potential'] * params['30'] * profitability / 100
 
                         sum_next_75_tmp += sum['commitment']
                         prof_next_75_tmp += sum['commitment'] * profitability / 100
@@ -2551,16 +2095,38 @@ class report_management_committee_excel(models.AbstractModel):
             else:
                 profitability = project.profitability
 
-                sum100tmp_proj = self.get_sum_fact_acceptance_project_step_year(project, False, YEARint + 1)
-                prof100tmp_proj = self.get_sum_fact_margin_project_step_year(project, False, YEARint + 1)
+                sum100tmp_q1_proj = self.get_sum_fact_acceptance_project_step_year_quarter(project, False, YEARint + 1, 'Q1')
+                prof100tmp_q1_proj = self.get_sum_fact_margin_project_step_year_quarter(project, False, YEARint + 1, 'Q1')
+                sum100tmp_proj = self.get_sum_fact_acceptance_project_step_year_quarter(project, False, YEARint + 1, False)
+                prof100tmp_proj = self.get_sum_fact_margin_project_step_year_quarter(project, False, YEARint + 1, False)
 
+                sum100tmp_q1 += sum100tmp_q1_proj
+                prof100tmp_q1 += prof100tmp_q1_proj
                 sum100tmp += sum100tmp_proj
                 prof100tmp += prof100tmp_proj
 
-                sum = self.get_sum_planned_acceptance_project_step_year(project, False, YEARint + 1)
+                sum_q1 = self.get_sum_planned_acceptance_project_step_year_quarter(project, False, YEARint + 1, 'Q1')
+                sum = self.get_sum_planned_acceptance_project_step_year_quarter(project, False, YEARint + 1, False)
 
+                margin_plan_q1 = {'commitment': 0, 'reserve': 0, 'potential': 0}
+                margin_sum_q1 = {'commitment': 0, 'reserve': 0, 'potential': 0}
                 margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
                 margin_sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
+                if sum:
+                    for key in sum:
+                        margin_plan[key] = sum[key] * profitability / 100
+
+                if sum_q1:
+                    for key in sum_q1:
+                        margin_plan_q1[key] = sum_q1[key] * profitability / 100
+
+                if sum100tmp_q1 >= sum_q1['commitment']:
+                    sum100tmp_q1_ostatok = sum100tmp_q1 - sum_q1['commitment']
+                    sum_q1['commitment'] = 0
+                    sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_ostatok, 0)
+                else:
+                    sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1
 
                 if sum100tmp >= sum['commitment']:
                     sum100tmp_ostatok = sum100tmp - sum['commitment']
@@ -2568,7 +2134,30 @@ class report_management_committee_excel(models.AbstractModel):
                     sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                 else:
                     sum['commitment'] = sum['commitment'] - sum100tmp
-                print(project_office, project, sum, sum100tmp)
+
+                if prof100tmp_q1 >= margin_plan_q1['commitment']:  # маржа если нет распределения
+                    prof100tmp_q1_ostatok = prof100tmp_q1 - margin_plan_q1['commitment']
+                    margin_sum_q1['commitment'] = 0
+                    margin_sum_q1['reserve'] = max(margin_plan_q1['reserve'] - prof100tmp_q1_ostatok, 0)
+                else:
+                    margin_sum_q1['commitment'] = margin_plan_q1['commitment'] - prof100tmp_q1
+
+                if prof100tmp >= margin_plan['commitment']:  # маржа если нет распределения
+                    prof100tmp_ostatok = prof100tmp - margin_plan['commitment']
+                    margin_sum['commitment'] = 0
+                    margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
+                else:
+                    margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp
+
+                if (all(value == 0 for value in sum_q1.values()) and project.end_sale_project_month.year == YEARint + 1
+                        and project.end_sale_project_month.month in self.get_months_from_quarter('Q1')):  # если актирование 0, а месяц в нужном году, берем выручку
+                    if project.estimated_probability_id.name in ('75', '100'):
+                        sum_q1['commitment'] = project.total_amount_of_revenue
+                    elif project.estimated_probability_id.name == '50':
+                        sum_q1['reserve'] = project.total_amount_of_revenue
+                    elif project.estimated_probability_id.name == '30':
+                        sum_q1['potential'] = project.total_amount_of_revenue
+
                 if all(value == 0 for value in sum.values()) and project.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
                     if project.estimated_probability_id.name in ('75', '100'):
                         sum['commitment'] = project.total_amount_of_revenue
@@ -2578,32 +2167,15 @@ class report_management_committee_excel(models.AbstractModel):
                         sum['potential'] = project.total_amount_of_revenue
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum_distribution_acceptance = 0
-                sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
-                for planned_acceptance_flow in project.planned_acceptance_flow_ids:
-                    if planned_acceptance_flow.date_cash.year == YEARint + 1:
-                        sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
-                        margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow, margin_plan,
-                                                                                  project, False)
-                        if planned_acceptance_flow.forecast == 'from_project':
-                            if project.estimated_probability_id.name in ('75', '100'):
-                                sum_ostatok_acceptance[
-                                    'commitment'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                            elif project.estimated_probability_id.name == '50':
-                                sum_ostatok_acceptance[
-                                    'reserve'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                            elif project.estimated_probability_id.name == '30':
-                                sum_ostatok_acceptance[
-                                    'potential'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                        else:
-                            sum_ostatok_acceptance[
-                                planned_acceptance_flow.forecast] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                sum_q1, margin_sum_q1 = self.get_act_margin_forecast_from_distributions(sum_q1, margin_sum_q1, margin_plan_q1, project, False, YEARint + 1, self.get_months_from_quarter('Q1'))
+                sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, False, YEARint + 1, False)
 
-                if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
-                    sum = sum_ostatok_acceptance
-                    for key in sum:
-                        if sum[key] < 0:
-                            sum[key] = 0
+                sum_next_75_q1_tmp += sum_q1['commitment']
+                prof_next_75_q1_tmp += sum_q1['commitment'] * profitability / 100
+                sum_next_50_q1_tmp += sum_q1['reserve'] * params['50']
+                prof_next_50_q1_tmp += sum_q1['reserve'] * params['50'] * profitability / 100
+                sum_next_30_q1_tmp += sum_q1['potential'] * params['30']
+                prof_next_30_q1_tmp += sum_q1['potential'] * params['30'] * profitability / 100
 
                 sum_next_75_tmp += sum['commitment']
                 prof_next_75_tmp += sum['commitment'] * profitability / 100
@@ -2621,16 +2193,20 @@ class report_management_committee_excel(models.AbstractModel):
 
                         profitability = step.profitability
 
-                        sum100tmp_step = self.get_sum_fact_acceptance_project_step_year(project, step, YEARint + 2)
-                        prof100tmp_step = self.get_sum_fact_margin_project_step_year(project, step, YEARint + 2)
+                        sum100tmp_step = self.get_sum_fact_acceptance_project_step_year_quarter(project, step, YEARint + 2, False)
+                        prof100tmp_step = self.get_sum_fact_margin_project_step_year_quarter(project, step, YEARint + 2, False)
 
                         sum100tmp += sum100tmp_step
                         prof100tmp += prof100tmp_step
 
-                        sum = self.get_sum_planned_acceptance_project_step_year(project, step, YEARint + 2)
+                        sum = self.get_sum_planned_acceptance_project_step_year_quarter(project, step, YEARint + 2, False)
 
                         margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
                         margin_sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
+                        if sum:
+                            for key in sum:
+                                margin_plan[key] = sum[key] * profitability / 100
 
                         if sum100tmp_step >= sum['commitment']:
                             sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
@@ -2638,6 +2214,13 @@ class report_management_committee_excel(models.AbstractModel):
                             sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
                         else:
                             sum['commitment'] = sum['commitment'] - sum100tmp_step
+
+                        if prof100tmp_step >= margin_plan['commitment']:  # маржа если нет распределения
+                            prof100tmp_step_ostatok = prof100tmp_step - margin_plan['commitment']
+                            margin_sum['commitment'] = 0
+                            margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_step_ostatok, 0)
+                        else:
+                            margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_step
 
                         if all(value == 0 for value in sum.values()) and step.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
                             if step.estimated_probability_id.name in ('75', '100'):
@@ -2648,36 +2231,7 @@ class report_management_committee_excel(models.AbstractModel):
                                 sum['potential'] = step.total_amount_of_revenue
 
                         # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                        sum_distribution_acceptance = 0
-                        sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
-                        for planned_acceptance_flow in project.planned_acceptance_flow_ids:
-                            if (
-                                    planned_acceptance_flow.project_steps_id.id == step.id
-                                    and planned_acceptance_flow.date_cash.year == YEARint + 2
-                            ):
-                                sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
-                                margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow,
-                                                                                          margin_plan, project, step)
-                                if planned_acceptance_flow.forecast == 'from_project':
-                                    if step.estimated_probability_id.name in ('75', '100'):
-                                        sum_ostatok_acceptance[
-                                            'commitment'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                                    elif step.estimated_probability_id.name == '50':
-                                        sum_ostatok_acceptance[
-                                            'reserve'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                                    elif step.estimated_probability_id.name == '30':
-                                        sum_ostatok_acceptance[
-                                            'potential'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                                else:
-                                    sum_ostatok_acceptance[
-                                        planned_acceptance_flow.forecast] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-
-
-                        if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
-                            sum = sum_ostatok_acceptance
-                            for key in sum:
-                                if sum[key] < 0:
-                                    sum[key] = 0
+                        sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, step, YEARint + 2, False)
 
                         sum_after_next_tmp += sum['commitment']
                         prof_after_next_tmp += sum['commitment'] * profitability / 100
@@ -2688,16 +2242,20 @@ class report_management_committee_excel(models.AbstractModel):
             else:
                 profitability = project.profitability
 
-                sum100tmp_proj = self.get_sum_fact_acceptance_project_step_year(project, False, YEARint + 2)
-                prof100tmp_proj = self.get_sum_fact_margin_project_step_year(project, False, YEARint + 2)
+                sum100tmp_proj = self.get_sum_fact_acceptance_project_step_year_quarter(project, False, YEARint + 2, False)
+                prof100tmp_proj = self.get_sum_fact_margin_project_step_year_quarter(project, False, YEARint + 2, False)
 
                 sum100tmp += sum100tmp_proj
                 prof100tmp += prof100tmp_proj
 
-                sum = self.get_sum_planned_acceptance_project_step_year(project, False, YEARint + 2)
+                sum = self.get_sum_planned_acceptance_project_step_year_quarter(project, False, YEARint + 2, False)
 
                 margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
                 margin_sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
+                if sum:
+                    for key in sum:
+                        margin_plan[key] = sum[key] * profitability / 100
 
                 if sum100tmp >= sum['commitment']:
                     sum100tmp_ostatok = sum100tmp - sum['commitment']
@@ -2705,6 +2263,13 @@ class report_management_committee_excel(models.AbstractModel):
                     sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                 else:
                     sum['commitment'] = sum['commitment'] - sum100tmp
+
+                if prof100tmp >= margin_plan['commitment']:  # маржа если нет распределения
+                    prof100tmp_ostatok = prof100tmp - margin_plan['commitment']
+                    margin_sum['commitment'] = 0
+                    margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
+                else:
+                    margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp
 
                 if all(value == 0 for value in sum.values()) and project.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
                     if project.estimated_probability_id.name in ('75', '100'):
@@ -2715,32 +2280,7 @@ class report_management_committee_excel(models.AbstractModel):
                         sum['potential'] = project.total_amount_of_revenue
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum_distribution_acceptance = 0
-                sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
-                for planned_acceptance_flow in project.planned_acceptance_flow_ids:
-                    if planned_acceptance_flow.date_cash.year == YEARint + 2:
-                        sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
-                        margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow, margin_plan,
-                                                                                  project, False)
-                        if planned_acceptance_flow.forecast == 'from_project':
-                            if project.estimated_probability_id.name in ('75', '100'):
-                                sum_ostatok_acceptance[
-                                    'commitment'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                            elif project.estimated_probability_id.name == '50':
-                                sum_ostatok_acceptance[
-                                    'reserve'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                            elif project.estimated_probability_id.name == '30':
-                                sum_ostatok_acceptance[
-                                    'potential'] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                        else:
-                            sum_ostatok_acceptance[
-                                planned_acceptance_flow.forecast] += planned_acceptance_flow.distribution_sum_without_vat_ostatok
-
-                if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
-                    sum = sum_ostatok_acceptance
-                    for key in sum:
-                        if sum[key] < 0:
-                            sum[key] = 0
+                sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, False, YEARint + 2, False)
 
                 sum_after_next_tmp += sum['commitment']
                 prof_after_next_tmp += sum['commitment'] * profitability / 100
@@ -2751,7 +2291,9 @@ class report_management_committee_excel(models.AbstractModel):
         return (
             sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp,
             prof75tmpetalon, prof50tmpetalon, prof100tmp, prof75tmp, prof50tmp,
+            sum_next_75_q1_tmp, sum_next_50_q1_tmp, sum_next_30_q1_tmp,
             sum_next_75_tmp, sum_next_50_tmp, sum_next_30_tmp, sum_after_next_tmp,
+            prof_next_75_q1_tmp, prof_next_50_q1_tmp, prof_next_30_q1_tmp,
             prof_next_75_tmp, prof_next_50_tmp, prof_next_30_tmp, prof_after_next_tmp
         )
 
@@ -2834,16 +2376,19 @@ class report_management_committee_excel(models.AbstractModel):
             #     sheet.write_string(row, column, "", head_format_month_itogo)
             #     column += 1
             if 'NEXT' not in element:
-                sheet.write_string(row, column + 0, "", row_format_number)
-                sheet.write_string(row, column + 1, "", row_format_number)
-                sheet.write_string(row, column + 2, "", row_format_number_color_fact)
-                sheet.write_string(row, column + 3, "", row_format_number)
-                sheet.write_string(row, column + 4, "", row_format_number)
+                sheet.write_number(row, column + 0, 0, row_format_number)
+                sheet.write_number(row, column + 1, 0, row_format_number)
+                sheet.write_number(row, column + 2, 0, row_format_number_color_fact)
+                sheet.write_number(row, column + 3, 0, row_format_number)
+                sheet.write_number(row, column + 4, 0, row_format_number)
             elif element == 'NEXT':
-                sheet.write_string(row, column + 0, "", row_format_number)
-                sheet.write_string(row, column + 1, "", row_format_number)
-                sheet.write_string(row, column + 2, "", row_format_number)
-                sheet.write_string(row, column + 3, "", row_format_number)
+                sheet.write_number(row, column + 0, 0, row_format_number)
+                sheet.write_number(row, column + 1, 0, row_format_number)
+                sheet.write_number(row, column + 2, 0, row_format_number)
+                sheet.write_number(row, column + 3, 0, row_format_number)
+                sheet.write_number(row, column + 4, 0, row_format_number)
+                sheet.write_number(row, column + 5, 0, row_format_number)
+                sheet.write_number(row, column + 6, 0, row_format_number)
 
             sumQ75tmpetalon, sumQ50tmpetalon, sumQ100tmp, sumQ75tmp, sumQ50tmp = self.print_quarter_revenue_project(sheet, row, column, element,
                                                                                     project, step, project_office, params, row_format_number, row_format_number_color_fact)
@@ -2943,7 +2488,7 @@ class report_management_committee_excel(models.AbstractModel):
                 sheet.write_formula(row, column + 5, formula, row_format_number)
                 column += 1
             column += 4
-        column -= 6
+        column -= 3
         #end печать Контрактование, с НДС
         # Поступление денежных средсв, с НДС
         sumYear100etalon = sumYear75etalon = sumYear50etalon = sumYear100 = sumYear75 = sumYear50 = 0
@@ -3061,7 +2606,7 @@ class report_management_committee_excel(models.AbstractModel):
                 column += 1
 
             elif element == 'NEXT':
-                column -= 2
+                column += 1
             column += 4
         column -= 4
         # end Поступление денежных средсв, с НДС
@@ -3114,20 +2659,26 @@ class report_management_committee_excel(models.AbstractModel):
                 sheet.write_string(row, column + 2, "", row_format_number_color_fact)
                 sheet.write_string(row, column + 3, "", row_format_number)
                 sheet.write_string(row, column + 4, "", row_format_number)
-                sheet.write_string(row, column + 0 + 41, "", row_format_number)
-                sheet.write_string(row, column + 1 + 41, "", row_format_number)
-                sheet.write_string(row, column + 2 + 41, "", row_format_number_color_fact)
-                sheet.write_string(row, column + 3 + 41, "", row_format_number)
-                sheet.write_string(row, column + 4 + 41, "", row_format_number)
+                sheet.write_string(row, column + 0 + 44, "", row_format_number)
+                sheet.write_string(row, column + 1 + 44, "", row_format_number)
+                sheet.write_string(row, column + 2 + 44, "", row_format_number_color_fact)
+                sheet.write_string(row, column + 3 + 44, "", row_format_number)
+                sheet.write_string(row, column + 4 + 44, "", row_format_number)
             elif element == 'NEXT':
                 sheet.write_string(row, column + 0, "", row_format_number)
                 sheet.write_string(row, column + 1, "", row_format_number)
                 sheet.write_string(row, column + 2, "", row_format_number)
                 sheet.write_string(row, column + 3, "", row_format_number)
-                sheet.write_string(row, column + 0 + 41, "", row_format_number)
-                sheet.write_string(row, column + 1 + 41, "", row_format_number)
-                sheet.write_string(row, column + 2 + 41, "", row_format_number)
-                sheet.write_string(row, column + 3 + 41, "", row_format_number)
+                sheet.write_string(row, column + 4, "", row_format_number)
+                sheet.write_string(row, column + 5, "", row_format_number)
+                sheet.write_string(row, column + 6, "", row_format_number)
+                sheet.write_string(row, column + 0 + 44, "", row_format_number)
+                sheet.write_string(row, column + 1 + 44, "", row_format_number)
+                sheet.write_string(row, column + 2 + 44, "", row_format_number)
+                sheet.write_string(row, column + 3 + 44, "", row_format_number)
+                sheet.write_string(row, column + 4 + 44, "", row_format_number)
+                sheet.write_string(row, column + 5 + 44, "", row_format_number)
+                sheet.write_string(row, column + 6 + 44, "", row_format_number)
 
             (sumQ75etalon, sumQ50etalon,
              sumQ100, sumQ75, sumQ50) = self.print_quarter_planned_acceptance_project(
@@ -3153,16 +2704,16 @@ class report_management_committee_excel(models.AbstractModel):
             if 'HY' in element:  # 'HY1/YEAR' 'HY2/YEAR'
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 10),xl_col_to_name(column - 5))
                 sheet.write_formula(row, column + 0, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 10 + 41), xl_col_to_name(column - 5 + 41))
-                sheet.write_formula(row, column + 0 + 41, formula, row_format_number)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 10 + 44), xl_col_to_name(column - 5 + 44))
+                sheet.write_formula(row, column + 0 + 44, formula, row_format_number)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 9),xl_col_to_name(column - 4))
                 sheet.write_formula(row, column + 1, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 9 + 41), xl_col_to_name(column - 4 + 41))
-                sheet.write_formula(row, column + 1 + 41, formula, row_format_number)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 9 + 44), xl_col_to_name(column - 4 + 44))
+                sheet.write_formula(row, column + 1 + 44, formula, row_format_number)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8),xl_col_to_name(column - 3))
                 sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8 + 41), xl_col_to_name(column - 3 + 41))
-                sheet.write_formula(row, column + 2 + 41, formula, row_format_number_color_fact)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8 + 44), xl_col_to_name(column - 3 + 44))
+                sheet.write_formula(row, column + 2 + 44, formula, row_format_number_color_fact)
                 if 'HY1' in element:
                     column += 1
                     sheet.write_formula(
@@ -3173,33 +2724,33 @@ class report_management_committee_excel(models.AbstractModel):
                     )
                     sheet.write_formula(
                         row,
-                        column + 2 + 41,
-                        f'=IFERROR({xl_col_to_name(column + 1 + 41)}{row + 1}/{xl_col_to_name(column + 41)}{row + 1}," ")',
+                        column + 2 + 44,
+                        f'=IFERROR({xl_col_to_name(column + 1 + 44)}{row + 1}/{xl_col_to_name(column + 44)}{row + 1}," ")',
                         row_format_number_color_percent
                     )
                     formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8),
                                                            xl_col_to_name(column - 3))
                     sheet.write_formula(row, column + 3, formula, row_format_number)
-                    formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8 + 41),
-                                                           xl_col_to_name(column - 3 + 41))
-                    sheet.write_formula(row, column + 3 + 41, formula, row_format_number)
+                    formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8 + 44),
+                                                           xl_col_to_name(column - 3 + 44))
+                    sheet.write_formula(row, column + 3 + 44, formula, row_format_number)
                     formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 7),
                                                            xl_col_to_name(column - 2))
                     sheet.write_formula(row, column + 4, formula, row_format_number)
-                    formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 7 + 41),
-                                                           xl_col_to_name(column - 2 + 41))
-                    sheet.write_formula(row, column + 4 + 41, formula, row_format_number)
+                    formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 7 + 44),
+                                                           xl_col_to_name(column - 2 + 44))
+                    sheet.write_formula(row, column + 4 + 44, formula, row_format_number)
                 else:
                     formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 7),xl_col_to_name(column - 2))
                     sheet.write_formula(row, column + 3, formula, row_format_number)
-                    formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 7 + 41),
-                                                           xl_col_to_name(column - 2 + 41))
-                    sheet.write_formula(row, column + 3 + 41, formula, row_format_number)
+                    formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 7 + 44),
+                                                           xl_col_to_name(column - 2 + 44))
+                    sheet.write_formula(row, column + 3 + 44, formula, row_format_number)
                     formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 6),xl_col_to_name(column - 1))
                     sheet.write_formula(row, column + 4, formula, row_format_number)
-                    formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 6 + 41),
-                                                           xl_col_to_name(column - 1 + 41))
-                    sheet.write_formula(row, column + 4 + 41, formula, row_format_number)
+                    formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 6 + 44),
+                                                           xl_col_to_name(column - 1 + 44))
+                    sheet.write_formula(row, column + 4 + 44, formula, row_format_number)
 
             elif element == 'YEAR':  # 'YEAR'
                 # if sumYear75etalon != 0: sheet.write_number(row, column + 0, sumYear75etalon, row_format_number)
@@ -3209,16 +2760,16 @@ class report_management_committee_excel(models.AbstractModel):
                 # if sumYear50 != 0:       sheet.write_number(row, column + 4, sumYear50, row_format_number)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21), xl_col_to_name(column - 5))
                 sheet.write_formula(row, column + 0, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21 + 41), xl_col_to_name(column - 5 + 41))
-                sheet.write_formula(row, column + 0 + 41, formula, row_format_number)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21 + 44), xl_col_to_name(column - 5 + 44))
+                sheet.write_formula(row, column + 0 + 44, formula, row_format_number)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 20), xl_col_to_name(column - 4))
                 sheet.write_formula(row, column + 1, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 20 + 41), xl_col_to_name(column - 4 + 41))
-                sheet.write_formula(row, column + 1 + 41, formula, row_format_number)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 20 + 44), xl_col_to_name(column - 4 + 44))
+                sheet.write_formula(row, column + 1 + 44, formula, row_format_number)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 19), xl_col_to_name(column - 3))
                 sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 19 + 41), xl_col_to_name(column - 3 + 41))
-                sheet.write_formula(row, column + 2 + 41, formula, row_format_number_color_fact)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 19 + 44), xl_col_to_name(column - 3 + 44))
+                sheet.write_formula(row, column + 2 + 44, formula, row_format_number_color_fact)
                 sheet.write_formula(
                     row,
                     column + 3,
@@ -3227,22 +2778,22 @@ class report_management_committee_excel(models.AbstractModel):
                 )
                 sheet.write_formula(
                     row,
-                    column + 3 + 41,
-                    f'=IFERROR({xl_col_to_name(column + 2 + 41)}{row + 1}/{xl_col_to_name(column + 1 + 41)}{row + 1}," ")',
+                    column + 3 + 44,
+                    f'=IFERROR({xl_col_to_name(column + 2 + 44)}{row + 1}/{xl_col_to_name(column + 1 + 44)}{row + 1}," ")',
                     row_format_number_color_percent
                 )
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 17), xl_col_to_name(column - 2))
                 sheet.write_formula(row, column + 4, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 17 + 41), xl_col_to_name(column - 2 + 41))
-                sheet.write_formula(row, column + 4 + 41, formula, row_format_number)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 17 + 44), xl_col_to_name(column - 2 + 44))
+                sheet.write_formula(row, column + 4 + 44, formula, row_format_number)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 16), xl_col_to_name(column - 1))
                 sheet.write_formula(row, column + 5, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 16 + 41), xl_col_to_name(column - 1 + 41))
-                sheet.write_formula(row, column + 5 + 41, formula, row_format_number)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 16 + 44), xl_col_to_name(column - 1 + 44))
+                sheet.write_formula(row, column + 5 + 44, formula, row_format_number)
                 column += 1
 
             elif element == 'NEXT':
-                column -= 2
+                column += 1
 
             # elif element == 'AFTER NEXT':
             #     column += 6
@@ -3307,6 +2858,9 @@ class report_management_committee_excel(models.AbstractModel):
             sumM100 = 0
             sumM75 = 0
             sumM50 = 0
+            sum_next_75_q1 = 0
+            sum_next_50_q1 = 0
+            sum_next_30_q1 = 0
             sum_next_75 = 0
             sum_next_50 = 0
             sum_next_30 = 0
@@ -3321,6 +2875,7 @@ class report_management_committee_excel(models.AbstractModel):
             for project in projects:
                 (sumM75tmpetalon, sumM50tmpetalon,
                  sumM100tmp, sumM75tmp, sumM50tmp,
+                 sum_next_75_q1_tmp, sum_next_50_q1_tmp, sum_next_30_q1_tmp,
                  sum_next_75_tmp, sum_next_50_tmp, sum_next_30_tmp,
                  sum_after_next_tmp) = self.calculate_quarter_revenue(element, project, project_office, params)
 
@@ -3329,6 +2884,9 @@ class report_management_committee_excel(models.AbstractModel):
                 sumM100 += sumM100tmp
                 sumM75 += sumM75tmp
                 sumM50 += sumM50tmp
+                sum_next_75_q1 += sum_next_75_q1_tmp
+                sum_next_50_q1 += sum_next_50_q1_tmp
+                sum_next_30_q1 += sum_next_30_q1_tmp
                 sum_next_75 += sum_next_75_tmp
                 sum_next_50 += sum_next_50_tmp
                 sum_next_30 += sum_next_30_tmp
@@ -3439,13 +2997,19 @@ class report_management_committee_excel(models.AbstractModel):
                 sheet.write_formula(row, column + 4, formula, row_format_number_color_forecast)
 
             elif element == 'NEXT':
-                f_sum_next_75 = 'sum(' + str(sum_next_75) + child_offices_rows.format(xl_col_to_name(column)) + ')'
-                f_sum_next_50 = 'sum(' + str(sum_next_50) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')'
-                f_sum_next_30 = 'sum(' + str(sum_next_30) + child_offices_rows.format(xl_col_to_name(column + 2)) + ')'
-                sheet.write_formula(row, column, f_sum_next_75, row_format_number_color_next)
-                sheet.write_formula(row, column + 1, f_sum_next_50, row_format_number_color_next)
-                sheet.write_formula(row, column + 2, f_sum_next_30, row_format_number_color_next)
-                column -= 2
+                f_sum_next_75_q1 = 'sum(' + str(sum_next_75_q1) + child_offices_rows.format(xl_col_to_name(column)) + ')'
+                f_sum_next_50_q1 = 'sum(' + str(sum_next_50_q1) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')'
+                f_sum_next_30_q1 = 'sum(' + str(sum_next_30_q1) + child_offices_rows.format(xl_col_to_name(column + 2)) + ')'
+                f_sum_next_75 = 'sum(' + str(sum_next_75) + child_offices_rows.format(xl_col_to_name(column + 3)) + ')'
+                f_sum_next_50 = 'sum(' + str(sum_next_50) + child_offices_rows.format(xl_col_to_name(column + 4)) + ')'
+                f_sum_next_30 = 'sum(' + str(sum_next_30) + child_offices_rows.format(xl_col_to_name(column + 5)) + ')'
+                sheet.write_formula(row, column, f_sum_next_75_q1, row_format_number_color_next)
+                sheet.write_formula(row, column + 1, f_sum_next_50_q1, row_format_number_color_next)
+                sheet.write_formula(row, column + 2, f_sum_next_30_q1, row_format_number_color_next)
+                sheet.write_formula(row, column + 3, f_sum_next_75, row_format_number_color_next)
+                sheet.write_formula(row, column + 4, f_sum_next_50, row_format_number_color_next)
+                sheet.write_formula(row, column + 5, f_sum_next_30, row_format_number_color_next)
+                column += 1
 
             elif element == 'AFTER NEXT':
                 f_sum_after_next = 'sum(' + str(sum_after_next) + child_offices_rows.format(
@@ -3470,6 +3034,9 @@ class report_management_committee_excel(models.AbstractModel):
             sumM100 = 0
             sumM75 = 0
             sumM50 = 0
+            sum_next_75_q1 = 0
+            sum_next_50_q1 = 0
+            sum_next_30_q1 = 0
             sum_next_75 = 0
             sum_next_50 = 0
             sum_next_30 = 0
@@ -3484,6 +3051,7 @@ class report_management_committee_excel(models.AbstractModel):
             for project in projects:
                 (sumM75tmpetalon, sumM50tmpetalon,
                  sumM100tmp, sumM75tmp, sumM50tmp,
+                 sum_next_75_q1_tmp, sum_next_50_q1_tmp, sum_next_30_q1_tmp,
                  sum_next_75_tmp, sum_next_50_tmp, sum_next_30_tmp,
                  sum_after_next_tmp) = self.calculate_quarter_pds(element, project, project_office, params)
 
@@ -3492,6 +3060,9 @@ class report_management_committee_excel(models.AbstractModel):
                 sumM100 += sumM100tmp
                 sumM75 += sumM75tmp
                 sumM50 += sumM50tmp
+                sum_next_75_q1 += sum_next_75_q1_tmp
+                sum_next_50_q1 += sum_next_50_q1_tmp
+                sum_next_30_q1 += sum_next_30_q1_tmp
                 sum_next_75 += sum_next_75_tmp
                 sum_next_50 += sum_next_50_tmp
                 sum_next_30 += sum_next_30_tmp
@@ -3642,13 +3213,19 @@ class report_management_committee_excel(models.AbstractModel):
                 sheet.write_formula(row, column + 4, formula, row_format_number_color_forecast)
 
             elif element == 'NEXT':
-                f_sum_next_75 = 'sum(' + str(sum_next_75) + child_offices_rows.format(xl_col_to_name(column)) + ')'
-                f_sum_next_50 = 'sum(' + str(sum_next_50) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')'
-                f_sum_next_30 = 'sum(' + str(sum_next_30) + child_offices_rows.format(xl_col_to_name(column + 2)) + ')'
-                sheet.write_formula(row, column, f_sum_next_75, row_format_number_color_next)
-                sheet.write_formula(row, column + 1, f_sum_next_50, row_format_number_color_next)
-                sheet.write_formula(row, column + 2, f_sum_next_30, row_format_number_color_next)
-                column -= 2
+                f_sum_next_75_q1 = 'sum(' + str(sum_next_75_q1) + child_offices_rows.format(xl_col_to_name(column)) + ')'
+                f_sum_next_50_q1 = 'sum(' + str(sum_next_50_q1) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')'
+                f_sum_next_30_q1 = 'sum(' + str(sum_next_30_q1) + child_offices_rows.format(xl_col_to_name(column + 2)) + ')'
+                f_sum_next_75 = 'sum(' + str(sum_next_75) + child_offices_rows.format(xl_col_to_name(column + 3)) + ')'
+                f_sum_next_50 = 'sum(' + str(sum_next_50) + child_offices_rows.format(xl_col_to_name(column + 4)) + ')'
+                f_sum_next_30 = 'sum(' + str(sum_next_30) + child_offices_rows.format(xl_col_to_name(column + 5)) + ')'
+                sheet.write_formula(row, column, f_sum_next_75_q1, row_format_number_color_next)
+                sheet.write_formula(row, column + 1, f_sum_next_50_q1, row_format_number_color_next)
+                sheet.write_formula(row, column + 2, f_sum_next_30_q1, row_format_number_color_next)
+                sheet.write_formula(row, column + 3, f_sum_next_75, row_format_number_color_next)
+                sheet.write_formula(row, column + 4, f_sum_next_50, row_format_number_color_next)
+                sheet.write_formula(row, column + 5, f_sum_next_30, row_format_number_color_next)
+                column += 1
 
             elif element == 'AFTER NEXT':
                 f_sum_after_next = 'sum(' + str(sum_after_next) + child_offices_rows.format(
@@ -3670,8 +3247,11 @@ class report_management_committee_excel(models.AbstractModel):
 
             sumQ100etalon = sumQ75etalon = sumQ50etalon = sumQ100 = sumQ75 = sumQ50 = 0
             profQ100etalon = profQ75etalon = profQ50etalon = profQ100 = profQ75 = profQ50 = 0
+            sum_next_75_q1 = sum_next_50_q1 = sum_next_30_q1 = 0
             sum_next_75 = sum_next_50 = sum_next_30 = sum_after_next = 0
+            prof_next_75_q1 = prof_next_50_q1 = prof_next_30_q1 = 0
             prof_next_75 = prof_next_50 = prof_next_30 = prof_after_next = 0
+
 
             # sheet.write_string(row, column + 0, "", row_format_number)
             # sheet.write_string(row, column + 1, "", row_format_number)
@@ -3687,7 +3267,9 @@ class report_management_committee_excel(models.AbstractModel):
             for project in projects:
                 (sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp,
                  prof75tmpetalon, prof50tmpetalon, prof100tmp, prof75tmp, prof50tmp,
+                 sum_next_75_q1_tmp, sum_next_50_q1_tmp, sum_next_30_q1_tmp,
                  sum_next_75_tmp, sum_next_50_tmp, sum_next_30_tmp, sum_after_next_tmp,
+                 prof_next_75_q1_tmp, prof_next_50_q1_tmp, prof_next_30_q1_tmp,
                  prof_next_75_tmp, prof_next_50_tmp, prof_next_30_tmp, prof_after_next_tmp
                  ) = self.calculate_quarter_planned_acceptance(element, project, project_office, params)
 
@@ -3696,6 +3278,9 @@ class report_management_committee_excel(models.AbstractModel):
                 sumQ100 += sum100tmp
                 sumQ75 += sum75tmp
                 sumQ50 += sum50tmp
+                sum_next_75_q1 += sum_next_75_q1_tmp
+                sum_next_50_q1 += sum_next_50_q1_tmp
+                sum_next_30_q1 += sum_next_30_q1_tmp
                 sum_next_75 += sum_next_75_tmp
                 sum_next_50 += sum_next_50_tmp
                 sum_next_30 += sum_next_30_tmp
@@ -3706,6 +3291,9 @@ class report_management_committee_excel(models.AbstractModel):
                 profQ100 += prof100tmp
                 profQ75 += prof75tmp
                 profQ50 += prof50tmp
+                prof_next_75_q1 += prof_next_75_q1_tmp
+                prof_next_50_q1 += prof_next_50_q1_tmp
+                prof_next_30_q1 += prof_next_30_q1_tmp
                 prof_next_75 += prof_next_75_tmp
                 prof_next_50 += prof_next_50_tmp
                 prof_next_30 += prof_next_30_tmp
@@ -3739,17 +3327,17 @@ class report_management_committee_excel(models.AbstractModel):
                     sheet.write_formula(row, column + 1,
                                         'sum(' + child_offices_rows.format(xl_col_to_name(column + 1)) + ')',
                                         row_format_number_color_plan)
-                    sheet.write_formula(row, column + 41,
-                                        'sum(' + child_offices_rows.format(xl_col_to_name(column + 41)) + ')',
+                    sheet.write_formula(row, column + 44,
+                                        'sum(' + child_offices_rows.format(xl_col_to_name(column + 44)) + ')',
                                         row_format_number_color_plan)
-                    sheet.write_formula(row, column + 1 + 41,
-                                        'sum(' + child_offices_rows.format(xl_col_to_name(column + 1 + 41)) + ')',
+                    sheet.write_formula(row, column + 1 + 44,
+                                        'sum(' + child_offices_rows.format(xl_col_to_name(column + 1 + 44)) + ')',
                                         row_format_number_color_plan)
                 else:
                     sheet.write_number(row, column, po_q_plan_acc[int(element[1]) - 1], row_format_number_color_plan)
                     sheet.write_number(row, column + 1, po_q66_plan_acc[int(element[1]) - 1], row_format_number_color_plan)
-                    sheet.write_number(row, column + 41, po_q_plan_margin[int(element[1]) - 1], row_format_number_color_plan)
-                    sheet.write_number(row, column + 1 + 41, po_q66_plan_margin[int(element[1]) - 1], row_format_number_color_plan)
+                    sheet.write_number(row, column + 44, po_q_plan_margin[int(element[1]) - 1], row_format_number_color_plan)
+                    sheet.write_number(row, column + 1 + 44, po_q66_plan_margin[int(element[1]) - 1], row_format_number_color_plan)
 
                 # f_sumQ75etalon = 'sum(' + str(sumQ75etalon) + child_offices_rows.format(xl_col_to_name(column)) + ')'
                 # f_sumQ50etalon = 'sum(' + str(sumQ50etalon) + child_offices_rows.format(
@@ -3762,20 +3350,20 @@ class report_management_committee_excel(models.AbstractModel):
                 #     xl_col_to_name(column + 43)) + ')'
                 # f_profQ50etalon = 'sum(' + str(profQ50etalon) + child_offices_rows.format(
                 #     xl_col_to_name(column + 44)) + ')'
-                f_profQ100 = 'sum(' + str(profQ100) + child_offices_rows.format(xl_col_to_name(column + 2 + 41)) + ')'
-                f_profQ75 = 'sum(' + str(profQ75) + child_offices_rows.format(xl_col_to_name(column + 3 + 41)) + ')'
-                f_profQ50 = 'sum(' + str(profQ50) + child_offices_rows.format(xl_col_to_name(column + 4 + 41)) + ')'
+                f_profQ100 = 'sum(' + str(profQ100) + child_offices_rows.format(xl_col_to_name(column + 2 + 44)) + ')'
+                f_profQ75 = 'sum(' + str(profQ75) + child_offices_rows.format(xl_col_to_name(column + 3 + 44)) + ')'
+                f_profQ50 = 'sum(' + str(profQ50) + child_offices_rows.format(xl_col_to_name(column + 4 + 44)) + ')'
 
                 # sheet.write_formula(row, column, f_sumQ75etalon, row_format_number)
                 # sheet.write_formula(row, column + 43, f_profQ75etalon, row_format_number)
                 # sheet.write_formula(row, column + 1, f_sumQ50etalon, row_format_number)
                 # sheet.write_formula(row, column + 44, f_profQ50etalon, row_format_number)
                 sheet.write_formula(row, column + 2, f_sumQ100, row_format_number_color_fact)
-                sheet.write_formula(row, column + 2 + 41, f_profQ100, row_format_number_color_fact)
+                sheet.write_formula(row, column + 2 + 44, f_profQ100, row_format_number_color_fact)
                 sheet.write_formula(row, column + 3, f_sumQ75, row_format_number_color_forecast)
-                sheet.write_formula(row, column + 3 + 41, f_profQ75, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 3 + 44, f_profQ75, row_format_number_color_forecast)
                 sheet.write_formula(row, column + 4, f_sumQ50, row_format_number_color_forecast)
-                sheet.write_formula(row, column + 4 + 41, f_profQ50, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 4 + 44, f_profQ50, row_format_number_color_forecast)
 
                 # sumHY100etalon += sumQ100etalon
                 # sumHY75etalon += sumQ75etalon
@@ -3796,12 +3384,12 @@ class report_management_committee_excel(models.AbstractModel):
                 sheet.write_formula(row, column, formula, row_format_number_color_plan)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 9), xl_col_to_name(column - 4))
                 sheet.write_formula(row, column + 1, formula, row_format_number_color_plan)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 10 + 41),
-                                                       xl_col_to_name(column - 5 + 41))
-                sheet.write_formula(row, column + 41, formula, row_format_number_color_plan)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 9 + 41),
-                                                       xl_col_to_name(column - 4 + 41))
-                sheet.write_formula(row, column + 1 + 41, formula, row_format_number_color_plan)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 10 + 44),
+                                                       xl_col_to_name(column - 5 + 44))
+                sheet.write_formula(row, column + 44, formula, row_format_number_color_plan)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 9 + 44),
+                                                       xl_col_to_name(column - 4 + 44))
+                sheet.write_formula(row, column + 1 + 44, formula, row_format_number_color_plan)
 
                 sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
 
@@ -3811,9 +3399,9 @@ class report_management_committee_excel(models.AbstractModel):
                 # sheet.write_formula(row, column + 1, formula, row_format_number)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8), xl_col_to_name(column - 3))
                 sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8 + 41),
-                                                       xl_col_to_name(column - 3 + 41))
-                sheet.write_formula(row, column + 2 + 41, formula, row_format_number_color_fact)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8 + 44),
+                                                       xl_col_to_name(column - 3 + 44))
+                sheet.write_formula(row, column + 2 + 44, formula, row_format_number_color_fact)
 
                 if 'HY1' in element:  # 'HY1/YEAR''
                     sheet.write_formula(
@@ -3824,8 +3412,8 @@ class report_management_committee_excel(models.AbstractModel):
                     )
                     sheet.write_formula(
                         row,
-                        column + 3 + 41,
-                        f'=IFERROR({xl_col_to_name(column + 2 + 41)}{row + 1}/{xl_col_to_name(column + 1 + 41)}{row + 1}," ")',
+                        column + 3 + 44,
+                        f'=IFERROR({xl_col_to_name(column + 2 + 44)}{row + 1}/{xl_col_to_name(column + 1 + 44)}{row + 1}," ")',
                         row_format_number_color_percent
                     )
                     column += 1
@@ -3843,12 +3431,12 @@ class report_management_committee_excel(models.AbstractModel):
                 # formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 11 + 43), xl_col_to_name(column - 5 + 43))
                 # sheet.write_formula(row, column + 1 + 43, formula, row_format_number)
 
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 7 + 41 + addcolumn),
-                                                       xl_col_to_name(column - 2 + 41 + addcolumn))
-                sheet.write_formula(row, column + 3 + 41, formula, row_format_number_color_forecast)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 6 + 41 + addcolumn),
-                                                       xl_col_to_name(column - 1 + 41 + addcolumn))
-                sheet.write_formula(row, column + 4 + 41, formula, row_format_number_color_forecast)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 7 + 44 + addcolumn),
+                                                       xl_col_to_name(column - 2 + 44 + addcolumn))
+                sheet.write_formula(row, column + 3 + 44, formula, row_format_number_color_forecast)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 6 + 44 + addcolumn),
+                                                       xl_col_to_name(column - 1 + 44 + addcolumn))
+                sheet.write_formula(row, column + 4 + 44, formula, row_format_number_color_forecast)
 
             elif element == 'YEAR':  # 'YEAR'
                 # formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 25), xl_col_to_name(column - 6))
@@ -3860,18 +3448,18 @@ class report_management_committee_excel(models.AbstractModel):
                 sheet.write_formula(row, column, formula, row_format_number_color_plan)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 20), xl_col_to_name(column - 4))
                 sheet.write_formula(row, column + 1, formula, row_format_number_color_plan)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21 + 41),
-                                                       xl_col_to_name(column - 5 + 41))
-                sheet.write_formula(row, column + 41, formula, row_format_number_color_plan)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 20 + 41),
-                                                       xl_col_to_name(column - 4 + 41))
-                sheet.write_formula(row, column + 1 + 41, formula, row_format_number_color_plan)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21 + 44),
+                                                       xl_col_to_name(column - 5 + 44))
+                sheet.write_formula(row, column + 44, formula, row_format_number_color_plan)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 20 + 44),
+                                                       xl_col_to_name(column - 4 + 44))
+                sheet.write_formula(row, column + 1 + 44, formula, row_format_number_color_plan)
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 19), xl_col_to_name(column - 3))
                 sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 19 + 41),
-                                                       xl_col_to_name(column - 3 + 41))
-                sheet.write_formula(row, column + 2 + 41, formula, row_format_number_color_fact)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 19 + 44),
+                                                       xl_col_to_name(column - 3 + 44))
+                sheet.write_formula(row, column + 2 + 44, formula, row_format_number_color_fact)
 
                 column += 1
                 sheet.write_formula(
@@ -3882,8 +3470,8 @@ class report_management_committee_excel(models.AbstractModel):
                 )
                 sheet.write_formula(
                     row,
-                    column + 2 + 41,
-                    f'=IFERROR({xl_col_to_name(column + 1 + 41)}{row + 1}/{xl_col_to_name(column + 41)}{row + 1}," ")',
+                    column + 2 + 44,
+                    f'=IFERROR({xl_col_to_name(column + 1 + 44)}{row + 1}/{xl_col_to_name(column + 44)}{row + 1}," ")',
                     row_format_number_color_percent
                 )
 
@@ -3897,38 +3485,53 @@ class report_management_committee_excel(models.AbstractModel):
                 # formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 24 + 43), xl_col_to_name(column - 5 + 43))
                 # sheet.write_formula(row, column + 1 + 43, formula, row_format_number)
 
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 18 + 41),
-                                                       xl_col_to_name(column - 3 + 41))
-                sheet.write_formula(row, column + 3 + 41, formula, row_format_number_color_forecast)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 17 + 41),
-                                                       xl_col_to_name(column - 2 + 41))
-                sheet.write_formula(row, column + 4 + 41, formula, row_format_number_color_forecast)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 18 + 44),
+                                                       xl_col_to_name(column - 3 + 44))
+                sheet.write_formula(row, column + 3 + 44, formula, row_format_number_color_forecast)
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 17 + 44),
+                                                       xl_col_to_name(column - 2 + 44))
+                sheet.write_formula(row, column + 4 + 44, formula, row_format_number_color_forecast)
 
             elif element == 'NEXT':
-                f_sum_next_75 = 'sum(' + str(sum_next_75) + child_offices_rows.format(xl_col_to_name(column)) + ')'
-                f_sum_next_50 = 'sum(' + str(sum_next_50) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')'
-                f_sum_next_30 = 'sum(' + str(sum_next_30) + child_offices_rows.format(xl_col_to_name(column + 2)) + ')'
-                sheet.write_formula(row, column, f_sum_next_75, row_format_number_color_next)
-                sheet.write_formula(row, column + 1, f_sum_next_50, row_format_number_color_next)
-                sheet.write_formula(row, column + 2, f_sum_next_30, row_format_number_color_next)
+                f_sum_next_75_q1 = 'sum(' + str(sum_next_75_q1) + child_offices_rows.format(xl_col_to_name(column)) + ')'
+                f_sum_next_50_q1 = 'sum(' + str(sum_next_50_q1) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')'
+                f_sum_next_30_q1 = 'sum(' + str(sum_next_30_q1) + child_offices_rows.format(xl_col_to_name(column + 2)) + ')'
+                f_sum_next_75 = 'sum(' + str(sum_next_75) + child_offices_rows.format(xl_col_to_name(column + 3)) + ')'
+                f_sum_next_50 = 'sum(' + str(sum_next_50) + child_offices_rows.format(xl_col_to_name(column + 4)) + ')'
+                f_sum_next_30 = 'sum(' + str(sum_next_30) + child_offices_rows.format(xl_col_to_name(column + 5)) + ')'
+                sheet.write_formula(row, column, f_sum_next_75_q1, row_format_number_color_next)
+                sheet.write_formula(row, column + 1, f_sum_next_50_q1, row_format_number_color_next)
+                sheet.write_formula(row, column + 2, f_sum_next_30_q1, row_format_number_color_next)
+                sheet.write_formula(row, column + 3, f_sum_next_75, row_format_number_color_next)
+                sheet.write_formula(row, column + 4, f_sum_next_50, row_format_number_color_next)
+                sheet.write_formula(row, column + 5, f_sum_next_30, row_format_number_color_next)
+                f_prof_next_75_q1 = 'sum(' + str(prof_next_75_q1) + child_offices_rows.format(
+                    xl_col_to_name(column + 44)) + ')'
+                f_prof_next_50_q1 = 'sum(' + str(prof_next_50_q1) + child_offices_rows.format(
+                    xl_col_to_name(column + 1 + 44)) + ')'
+                f_prof_next_30_q1 = 'sum(' + str(prof_next_30_q1) + child_offices_rows.format(
+                    xl_col_to_name(column + 2 + 44)) + ')'
                 f_prof_next_75 = 'sum(' + str(prof_next_75) + child_offices_rows.format(
-                    xl_col_to_name(column + 41)) + ')'
+                    xl_col_to_name(column + 3 + 44)) + ')'
                 f_prof_next_50 = 'sum(' + str(prof_next_50) + child_offices_rows.format(
-                    xl_col_to_name(column + 1 + 41)) + ')'
+                    xl_col_to_name(column + 4 + 44)) + ')'
                 f_prof_next_30 = 'sum(' + str(prof_next_30) + child_offices_rows.format(
-                    xl_col_to_name(column + 2 + 41)) + ')'
-                sheet.write_formula(row, column + 41, f_prof_next_75, row_format_number_color_next)
-                sheet.write_formula(row, column + 1 + 41, f_prof_next_50, row_format_number_color_next)
-                sheet.write_formula(row, column + 2 + 41, f_prof_next_30, row_format_number_color_next)
-                column -= 2
+                    xl_col_to_name(column + 5 + 44)) + ')'
+                sheet.write_formula(row, column + 44, f_prof_next_75_q1, row_format_number_color_next)
+                sheet.write_formula(row, column + 1 + 44, f_prof_next_50_q1, row_format_number_color_next)
+                sheet.write_formula(row, column + 2 + 44, f_prof_next_30_q1, row_format_number_color_next)
+                sheet.write_formula(row, column + 3 + 44, f_prof_next_75, row_format_number_color_next)
+                sheet.write_formula(row, column + 4 + 44, f_prof_next_50, row_format_number_color_next)
+                sheet.write_formula(row, column + 5 + 44, f_prof_next_30, row_format_number_color_next)
+                column += 1
 
             elif element == 'AFTER NEXT':
                 f_sum_after_next = 'sum(' + str(sum_after_next) + child_offices_rows.format(
                     xl_col_to_name(column)) + ')'
                 sheet.write_formula(row, column, f_sum_after_next, row_format_number_color_next)
                 f_prof_after_next = 'sum(' + str(prof_after_next) + child_offices_rows.format(
-                    xl_col_to_name(column + 41)) + ')'
-                sheet.write_formula(row, column + 41, f_prof_after_next, row_format_number_color_next)
+                    xl_col_to_name(column + 44)) + ')'
+                sheet.write_formula(row, column + 44, f_prof_after_next, row_format_number_color_next)
                 column -= 4
 
             column += 4
@@ -4511,10 +4114,10 @@ class report_management_committee_excel(models.AbstractModel):
                         formula = formulaProjectCompany.format(xl_col_to_name(i * 38 + colFormula * 5 + 5 + shift))
                         sheet.write_formula(company_row, i * 38 + colFormula * 5 + 5 + shift, formula,
                                             row_format_company_forecast)
-                    for x in range(4):
+                    for x in range(7):
                         formula = formulaProjectCompany.format(xl_col_to_name((i + 1) * 38 + x + shift - 2))
                         sheet.write_formula(company_row, (i + 1) * 38 + x + shift - 2, formula, row_format_company_next)
-                    shift += 1
+                    shift += 4
 
         return row, formulaItogo
 
@@ -4742,13 +4345,13 @@ class report_management_committee_excel(models.AbstractModel):
         for company_row in dict_formula['company_ids'].values():
             formulaItogo += ',{0}' + str(company_row + 1)
         formulaItogo = formulaItogo + ')'
-        for colFormula in range(1 + params["shift"] , 165 + params["shift"] ):
+        for colFormula in range(1 + params["shift"] , 177 + params["shift"] ):
             formula = formulaItogo.format(xl_col_to_name(colFormula))
             sheet.write_formula(row, colFormula, formula, row_format_number_itogo)
         for i in range(4):  # формулы для процентов выполнения
             for j in (14, 35):
-                formula = f'=IFERROR({xl_col_to_name(i * 41 + j + params["shift"] - 1)}{row + 1}/{xl_col_to_name(i * 41 + j + params["shift"] - 2)}{row + 1}, " ")'
-                sheet.write_formula(row, i * 41 + j + params['shift'], formula, row_format_number_itogo_percent)
+                formula = f'=IFERROR({xl_col_to_name(i * 44 + j + params["shift"] - 1)}{row + 1}/{xl_col_to_name(i * 44 + j + params["shift"] - 2)}{row + 1}, " ")'
+                sheet.write_formula(row, i * 44 + j + params['shift'], formula, row_format_number_itogo_percent)
         print('dict_formula = ', dict_formula)
 
     def generate_xlsx_report(self, workbook, data, budgets):
