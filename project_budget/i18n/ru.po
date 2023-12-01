@@ -1437,6 +1437,16 @@ msgid "Margin income"
 msgstr "Маржа"
 
 #. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__total_margin_of_child_projects
+msgid "total margin of child projects"
+msgstr "Сумма маржи дочерних проектов"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__margin_for_parent_project
+msgid "margin for parent project"
+msgstr "Маржа материнского проекта"
+
+#. module: project_budget
 #. odoo-javascript
 #: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
 #: code:addons/project_budget/static/src/xml/dashboard_view.xml:0
