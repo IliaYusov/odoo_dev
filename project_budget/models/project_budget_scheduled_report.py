@@ -66,7 +66,8 @@ class ScheduledReport(models.Model):
             ], limit=1).id,
             koeff_reserve=1,
             koeff_potential=1,
-            pds_accept='pds'
+            pds_accept='pds',
+            report_with_projects=True,
         )
         schedule_reports = self.env['project_budget.scheduled.report'].search([])
         for sr in schedule_reports:
