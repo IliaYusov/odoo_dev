@@ -372,7 +372,7 @@ class projects(models.Model):
         string="child projects", auto_join=True)
     margin_rate_for_parent = fields.Float(string="margin rate for parent project", default=0, copy=True, tracking=True)
     total_margin_of_child_projects = fields.Monetary(string="total margin of child projects", compute='_compute_total_margin')
-    margin_for_parent_project = fields.Monetary(string="margin for parent project", compute='_compute_spec_totals')
+    margin_for_parent_project = fields.Monetary(string="margin for parent project", compute='_compute_margin_for_parent_project')
 
     user_is_admin = fields.Boolean(string="user is admin", compute='_check_user_is_admin')
 
@@ -384,9 +384,9 @@ class projects(models.Model):
 
     def _check_project_is_child(self):
         for record in self:
-            record['is_child_project'] = False
+            record.is_child_project = False
             if record.parent_project_id:
-                record['is_child_project'] = True
+                record.is_child_project = True
 
     def _compute_attachment_count(self):
         for project in self:
@@ -408,6 +408,11 @@ class projects(models.Model):
                 project.total_margin_of_child_projects = sum(child_id.margin_income + child_id.margin_for_parent_project for child_id in project.child_project_ids)
             else:
                 project.total_margin_of_child_projects = 0
+
+    @api.depends('margin_income', 'margin_rate_for_parent')
+    def _compute_margin_for_parent_project(self):
+        for project in self:
+                project.margin_for_parent_project = project.margin_income / (1 - project.margin_rate_for_parent) * project.margin_rate_for_parent
 
     @api.depends('project_id','step_project_number')
     def _get_name_to_show(self):
@@ -626,10 +631,7 @@ class projects(models.Model):
             project.profitability = project.margin_income / project.total_amount_of_revenue * 100
 
         if project.is_child_project:
-            project.margin_for_parent_project = project.margin_income * project.margin_rate_for_parent
             project.margin_income = project.margin_income * (1 - project.margin_rate_for_parent)
-        else:
-            project.margin_for_parent_project = 0
 
     @api.depends("project_steps_ids.revenue_from_the_sale_of_works", 'project_steps_ids.revenue_from_the_sale_of_goods', 'project_steps_ids.cost_of_goods', 'project_steps_ids.own_works_fot',
                  'project_steps_ids.third_party_works', "project_steps_ids.awards_on_results_project", 'project_steps_ids.transportation_expenses', 'project_steps_ids.travel_expenses',
