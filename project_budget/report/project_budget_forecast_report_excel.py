@@ -1512,7 +1512,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                             column += 1
                                             sheet.write_number(row, column, step.margin_income*cur_project_rate, cur_row_format_number)
                                             column += 1
-                                            sheet.write_number(row, column, step.profitability*cur_project_rate, cur_row_format_number)
+                                            sheet.write_number(row, column, step.profitability, cur_row_format_number)
                                             column += 1
                                             sheet.write_string(row, column, step.dogovor_number or '', cur_row_format)
                                             column += 1
@@ -1556,7 +1556,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                     column += 1
                                     sheet.write_number(row, column, spec.margin_income*cur_project_rate, cur_row_format_number)
                                     column += 1
-                                    sheet.write_number(row, column, spec.profitability*cur_project_rate, cur_row_format_number)
+                                    sheet.write_number(row, column, spec.profitability, cur_row_format_number)
                                     column += 1
                                     sheet.write_string(row, column, spec.dogovor_number or '', cur_row_format)
                                     column += 1
