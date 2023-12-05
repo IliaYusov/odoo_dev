@@ -1,0 +1,118 @@
+<odoo>
+    <data>
+
+        <record id="article_search" model="ir.ui.view">
+            <field name="name">knowledge_base.article.search</field>
+            <field name="model">knowledge_base.article</field>
+            <field name="arch" type="xml">
+                <search string="Search articles">
+                    <field name="name" filter_domain="[('name','ilike',self)]" string="name"/>
+                    <field name="text" filter_domain="[('text','ilike',self)]" string="text"/>
+                    <searchpanel>
+                        <field name="section" icon="fa-folder-open" string="Section" enable_counters="1"/>
+                        <field name="tags" icon="fa-filter" select="multi" string="Tags" enable_counters="1"/>
+                    </searchpanel>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_view_all_articles" model="ir.actions.act_window">
+            <field name="name">Articles</field>
+            <field name="res_model">knowledge_base.article</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="knowledge_base.article_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No articles found. Let's create one!
+                </p>
+            </field>
+        </record>
+
+<!--        <record id="action_view_article" model="ir.actions.act_window">-->
+<!--            <field name="name">Article</field>-->
+<!--            <field name="res_model">knowledge_base.article</field>-->
+<!--            <field name="view_mode">form</field>-->
+<!--            <field name="view_id" ref="knowledge_base.article_form"/>-->
+<!--        </record>-->
+
+        <record id="article_form" model="ir.ui.view">
+            <field name="name">knowledge_base.article.form</field>
+            <field name="model">knowledge_base.article</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet string="Article">
+                        <h3>
+                            <group>
+                                <field name="name" placeholder="Name of your article"/>
+                            </group>
+                        </h3>
+                        <h4>
+                            <group col="3">
+                                <group>
+                                    <field name="section" placeholder="Section of your article"/>
+                                </group>
+                                <group>
+                                    <field name="parent_article" placeholder="parent article"/>
+                                </group>
+                                <group>
+                                    <field name="tags" placeholder="Article tags" widget="many2many_tags"/>
+                                </group>
+                            </group>
+                        </h4>
+                            <field name="article_has_childs" invisible="1"/>
+                            <group col="1" attrs="{'invisible': [('article_has_childs', '=', False)]}">
+                                <group>
+                                    <field name="child_articles" mode="tree" widget="many2many">
+                                        <tree>
+                                            <field name="name" nolabel="1" string="Child articles"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                            </group>
+                        <field name="text" placeholder="Text of your article" widget="html"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="article_tree" model="ir.ui.view">
+            <field name="name">knowledge_base.article.tree</field>
+            <field name="model">knowledge_base.article</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="parent_article"/>
+                    <field name="create_uid" widget="many2one_avatar"/>
+                    <field name="section"/>
+                    <field name="tags" widget="many2many_tags"/>
+                </tree>
+            </field>
+        </record>
+
+<!--        <record id="dashboard_view" model="ir.ui.view">-->
+<!--           <field name="name">Dashboard</field>-->
+<!--           <field name="model">board.board</field>-->
+<!--           <field name="type">form</field>-->
+<!--           <field name="arch" type="xml">-->
+<!--               <form string="My Dashboard">-->
+<!--                   <board style="1-1">-->
+<!--                       <column>-->
+<!--                         <action name="%(knowledge_base.action_view_all_articles)d" string="Articles"/>-->
+<!--                       </column>-->
+<!--                       <column>-->
+<!--                         <action name="%(knowledge_base.action_view_article)d" string="Article"/>-->
+<!--                       </column>-->
+<!--                   </board>-->
+<!--               </form>-->
+<!--           </field>-->
+<!--        </record>-->
+
+<!--        <record id="open_dashboard_action" model="ir.actions.act_window">-->
+<!--           <field name="name">Dashboard</field>-->
+<!--           <field name="res_model">board.board</field>-->
+<!--           <field name="view_mode">form</field>-->
+<!--           <field name="usage">menu</field>-->
+<!--           <field name="view_id" ref="dashboard_view"/>-->
+<!--        </record>-->
+    </data>
+</odoo>

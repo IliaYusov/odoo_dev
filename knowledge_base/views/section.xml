@@ -1,0 +1,41 @@
+<odoo>
+    <data>
+
+        <record id="action_view_all_sections" model="ir.actions.act_window">
+            <field name="name">Sections</field>
+            <field name="res_model">knowledge_base.section</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No sections found. Let's create one!
+                </p>
+            </field>
+        </record>
+
+        <record id="section_form" model="ir.ui.view">
+            <field name="name">knowledge_base.section.form</field>
+            <field name="model">knowledge_base.section</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet string="Section">
+                        <h4>
+                            <field name="name" placeholder="Name of your section"/>
+                        </h4>
+                        <field name="description" placeholder="Description of your section"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="section_tree" model="ir.ui.view">
+            <field name="name">knowledge_base.section.tree</field>
+            <field name="model">knowledge_base.section</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="description"/>
+                </tree>
+            </field>
+        </record>
+    </data>
+</odoo>

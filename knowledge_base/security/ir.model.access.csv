@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+access_knowledge_base_article,access_knowledge_base_article,model_knowledge_base_article,base.group_user,1,1,1,1
+access_knowledge_base_section,access_knowledge_base_section,model_knowledge_base_section,base.group_user,1,1,1,1
+access_knowledge_base_tags,access_knowledge_base_tags,model_knowledge_base_tags,base.group_user,1,1,1,1

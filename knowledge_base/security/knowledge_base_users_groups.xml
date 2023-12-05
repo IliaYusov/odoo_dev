@@ -1,0 +1,13 @@
+<odoo>
+     <data>
+
+        <record id="knowledge_base_user" model="res.groups">
+            <field name="name">Project users</field>
+        </record>
+
+        <record id="knowledge_base_admin" model="res.groups">
+            <field name="name">Project Admin</field>
+        </record>
+
+    </data>
+</odoo>
