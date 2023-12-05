@@ -401,18 +401,21 @@ class projects(models.Model):
                 ('projects_id', '=', project.id)
             ])
 
-    @api.depends('child_project_ids')
+    @api.depends('child_project_ids.total_amount_of_revenue', 'child_project_ids.cost_price', 'child_project_ids')
     def _compute_total_margin(self):
         for project in self:
             if project.is_parent_project:
-                project.total_margin_of_child_projects = sum(child_id.margin_income + child_id.margin_for_parent_project for child_id in project.child_project_ids)
+                project.total_margin_of_child_projects = sum(child_id.total_amount_of_revenue - child_id.cost_price for child_id in project.child_project_ids)
             else:
                 project.total_margin_of_child_projects = 0
 
-    @api.depends('margin_income', 'margin_rate_for_parent')
+    @api.depends('total_amount_of_revenue', 'margin_rate_for_parent', 'cost_price')
     def _compute_margin_for_parent_project(self):
         for project in self:
-                project.margin_for_parent_project = project.margin_income / (1 - project.margin_rate_for_parent) * project.margin_rate_for_parent
+            if project.is_child_project:
+                project.margin_for_parent_project = project.margin_rate_for_parent * (project.total_amount_of_revenue - project.cost_price)
+            else:
+                project.margin_for_parent_project = 0
 
     @api.depends('project_id','step_project_number')
     def _get_name_to_show(self):
@@ -565,11 +568,16 @@ class projects(models.Model):
                 project.taxes_fot_premiums = (project.awards_on_results_project + project.own_works_fot) * project.legal_entity_signing_id.percent_fot / 100
 
             project.cost_price = project.cost_price + project.taxes_fot_premiums
-            project.margin_income = project.total_amount_of_revenue - project.cost_price
 
-            if project.is_parent_project:
+            if project.is_child_project:
+                project.margin_income = (project.total_amount_of_revenue - project.cost_price) * (1 - project.margin_rate_for_parent)
+            elif project.is_parent_project:
+                margin_income = 0
                 for child_project in project.child_project_ids:
-                    project.margin_income += child_project.margin_for_parent_project
+                    margin_income += child_project.margin_rate_for_parent * (child_project.total_amount_of_revenue - child_project.cost_price)
+                project.margin_income = margin_income
+            else:
+                project.margin_income = project.total_amount_of_revenue - project.cost_price
 
             project.total_amount_of_revenue_with_vat = (project.revenue_from_the_sale_of_works + project.revenue_from_the_sale_of_goods) * (
                                                                        1 + project.vat_attribute_id.percent / 100)
@@ -609,7 +617,10 @@ class projects(models.Model):
             for step in project.project_steps_ids:
                 project.total_amount_of_revenue += step.total_amount_of_revenue
                 project.cost_price += step.cost_price
-                project.margin_income += step.margin_income
+                if project.is_child_project:
+                    project.margin_income += step.margin_income * (1 - project.margin_rate_for_parent)
+                else:
+                    project.margin_income += step.margin_income
                 project.total_amount_of_revenue_with_vat += step.total_amount_of_revenue_with_vat
                 project.taxes_fot_premiums += step.taxes_fot_premiums
                 project.revenue_from_the_sale_of_works += step.revenue_from_the_sale_of_works
@@ -630,9 +641,6 @@ class projects(models.Model):
         else:
             project.profitability = project.margin_income / project.total_amount_of_revenue * 100
 
-        if project.is_child_project:
-            project.margin_income = project.margin_income * (1 - project.margin_rate_for_parent)
-
     @api.depends("project_steps_ids.revenue_from_the_sale_of_works", 'project_steps_ids.revenue_from_the_sale_of_goods', 'project_steps_ids.cost_of_goods', 'project_steps_ids.own_works_fot',
                  'project_steps_ids.third_party_works', "project_steps_ids.awards_on_results_project", 'project_steps_ids.transportation_expenses', 'project_steps_ids.travel_expenses',
                  'project_steps_ids.representation_expenses',"project_steps_ids.warranty_service_costs", 'project_steps_ids.rko_other', 'project_steps_ids.other_expenses',
@@ -640,7 +648,9 @@ class projects(models.Model):
                  ,"revenue_from_the_sale_of_works", 'revenue_from_the_sale_of_goods', 'cost_of_goods', 'own_works_fot',
                  'third_party_works', "awards_on_results_project", 'transportation_expenses', 'travel_expenses', 'representation_expenses',
                  "warranty_service_costs", 'rko_other', 'other_expenses','vat_attribute_id','legal_entity_signing_id','project_have_steps',
-                 'parent_project_id','child_project_ids','margin_rate_for_parent','amount_spec_ids')
+                 'parent_project_id','child_project_ids','margin_rate_for_parent','amount_spec_ids', 'total_margin_of_child_projects',
+                 'child_project_ids.margin_rate_for_parent', 'child_project_ids.margin_for_parent_project',
+                 'child_project_ids.total_amount_of_revenue', 'child_project_ids.cost_price','child_project_ids.margin_rate_for_parent')
     def _compute_spec_totals(self):
         for budget_spec in self:
             self._culculate_all_sums(budget_spec)

@@ -1444,7 +1444,7 @@ msgstr "Сумма маржи дочерних проектов"
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__margin_for_parent_project
 msgid "margin for parent project"
-msgstr "Маржа материнского проекта"
+msgstr "Маржа на материнский проект"
 
 #. module: project_budget
 #. odoo-javascript

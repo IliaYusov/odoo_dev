@@ -181,6 +181,7 @@
                                         decoration-danger="margin_income &lt; 0"
                                     />
                                     <field name="margin_for_parent_project" attrs="{'invisible': [('is_child_project', '!=', True)]}"/>
+                                    <field name="total_margin_of_child_projects" attrs="{'invisible': [('is_parent_project', '!=', True)]}"/>
                                 </group>
                             </group>
                         </h5>
@@ -202,7 +203,6 @@
                                 <field name="vat_attribute_id" placeholder="select vat attribute" options="{'no_open': True}"
                                        attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')],
                                               'invisible': ['|',('project_have_steps', '=', True),('is_parent_project', '=', True)],'required': ['&amp;',('is_parent_project', '=', False),('project_have_steps', '=', False)]}"/>
-                                <field name="total_margin_of_child_projects" attrs="{'invisible': [('is_parent_project', '!=', True)]}"/>
                             </group>
                         </group>
 
