@@ -19,6 +19,8 @@
         'views/section.xml',
         'views/tags.xml',
         'views/knowledge_base_menu.xml',
+        'report/article_reports.xml',
+        'report/article_templates.xml',
     ],
     'demo':[
     ],

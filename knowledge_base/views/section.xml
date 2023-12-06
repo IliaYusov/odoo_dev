@@ -19,9 +19,13 @@
                 <form>
                     <sheet string="Section">
                         <h4>
-                            <field name="name" placeholder="Name of your section"/>
+                            <group>
+                                <field name="name" placeholder="Name of your section"/>
+                            </group>
                         </h4>
-                        <field name="description" placeholder="Description of your section"/>
+                        <group>
+                            <field name="description" placeholder="Description of your section"/>
+                        </group>
                     </sheet>
                 </form>
             </field>

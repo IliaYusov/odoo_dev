@@ -1,31 +1,130 @@
-# Translation of Odoo Server.
-# This file contains the translation of the following modules:
-# 	* currency_rate_update
-#
-msgid ""
-msgstr ""
-"Project-Id-Version: Odoo Server 16.0\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-15 10:54+0000\n"
-"PO-Revision-Date: 2023-09-15 10:54+0000\n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: \n"
-"Plural-Forms: \n"
+#. module: knowledge_base
+#: model:ir.ui.menu,name:knowledge_base.knowledge_base_menu
+msgid "Knowledge base"
+msgstr "База знаний"
 
 #. module: knowledge_base
-#: model:ir.model.fields,field_description:knowledge_base.field_article__name
+#: model:ir.ui.menu,name:knowledge_base.knowledge_base_menu_tree_articles
+#: model:ir.actions.act_window,name:knowledge_base.action_view_all_articles
+msgid "Articles"
+msgstr "Статьи"
+
+#. module: knowledge_base
+#: model:ir.ui.menu,name:knowledge_base.knowledge_base_menu_tree_sections
+#: model:ir.actions.act_window,name:knowledge_base.action_view_all_sections
+msgid "Sections"
+msgstr "Секции"
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_article__name
 msgid "Article name"
 msgstr "Название статьи"
 
 #. module: knowledge_base
-#: model:ir.actions.server,name:currency_rate_update.update_currency_rates
-msgid "Update Currency Rates"
-msgstr "Обновить курсы валют"
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_article__text
+msgid "Article text"
+msgstr "Содержание статьи"
 
 #. module: knowledge_base
-#: model_terms:ir.ui.view,arch_db:currency_rate_update.currency_rate_update_wizard_form
-msgid "update period"
-msgstr "Период обновления"
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_article__section
+#: model_terms:ir.ui.view,arch_db:knowledge_base.article_search
+msgid "Section"
+msgstr "Секция"
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_article__tags
+#: model_terms:ir.ui.view,arch_db:knowledge_base.article_search
+#: model:ir.ui.menu,name:knowledge_base.knowledge_base_menu_tree_tags
+#: model:ir.actions.act_window,name:knowledge_base.action_view_all_tags
+msgid "Tags"
+msgstr "Тэги"
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_article__parent_article
+msgid "Parent article"
+msgstr "Родительская статья"
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_article__child_articles
+msgid "Child articles"
+msgstr "Дочерние статьи"
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_article__create_uid
+msgid "Created by"
+msgstr "Создано кем"
+
+#. module: knowledge_base
+#: model_terms:ir.ui.view,arch_db:knowledge_base.article_form
+msgid "Name of your article"
+msgstr "Название вашей статьи"
+
+#. module: knowledge_base
+#: model_terms:ir.ui.view,arch_db:knowledge_base.article_form
+msgid "Section of your article"
+msgstr "Секция вашей статьи"
+
+#. module: knowledge_base
+#: model_terms:ir.ui.view,arch_db:knowledge_base.article_form
+msgid "Parent article"
+msgstr "Родительская статья, если есть"
+
+#. module: knowledge_base
+#: model_terms:ir.ui.view,arch_db:knowledge_base.article_form
+msgid "Article tags"
+msgstr "Тэги вашей статьи"
+
+#. module: knowledge_base
+#: model_terms:ir.ui.view,arch_db:knowledge_base.article_form
+msgid "Text of your article"
+msgstr "Содержание вашей статьи"
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_section__name
+msgid "Section name"
+msgstr "Название секции"
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_section__description
+msgid "Section description"
+msgstr "Описание секции"
+
+#. module: knowledge_base
+#: model_terms:ir.ui.view,arch_db:knowledge_base.section_form
+msgid "Name of your section"
+msgstr "Название секции"
+
+#. module: knowledge_base
+#: model_terms:ir.ui.view,arch_db:knowledge_base.section_form
+msgid "Description of your section"
+msgstr "Описание, если есть"
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_tags__name
+msgid "Tag name"
+msgstr "Название тэга"
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_tags__description
+msgid "Tag description"
+msgstr "Описание тэга"
+
+#. module: knowledge_base
+#: model_terms:ir.ui.view,arch_db:knowledge_base.tags_form
+msgid "Name of your tag"
+msgstr "Название тэга"
+
+#. module: knowledge_base
+#: model_terms:ir.ui.view,arch_db:knowledge_base.tags_form
+msgid "Description of your tag"
+msgstr "Описание, если есть"
+
+#. module: knowledge_base
+#: model:ir.actions.report,name:knowledge_base.action_article_report
+msgid "Article Report"
+msgstr "Печать статьи (PDF)"
+
+#. module: knowledge_base
+#: model:ir.actions.report,print_report_name:knowledge_base.action_article_report
+msgid "'Knowledge base - %s' % (object.name or 'no name').replace('/','')"
+msgstr "'База знаний - %s' % (object.name or 'no name').replace('/','')"

@@ -52,7 +52,7 @@
                                     <field name="section" placeholder="Section of your article"/>
                                 </group>
                                 <group>
-                                    <field name="parent_article" placeholder="parent article"/>
+                                    <field name="parent_article" placeholder="Parent article"/>
                                 </group>
                                 <group>
                                     <field name="tags" placeholder="Article tags" widget="many2many_tags"/>

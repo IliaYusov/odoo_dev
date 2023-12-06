@@ -12,22 +12,26 @@
             </field>
         </record>
 
-        <record id="section_form" model="ir.ui.view">
+        <record id="tags_form" model="ir.ui.view">
             <field name="name">knowledge_base.tags.form</field>
             <field name="model">knowledge_base.tags</field>
             <field name="arch" type="xml">
                 <form>
                     <sheet string="Tag">
                         <h4>
-                            <field name="name" placeholder="Name of your tag"/>
+                            <group>
+                                <field name="name" placeholder="Name of your tag"/>
+                            </group>
                         </h4>
-                        <field name="description" placeholder="Description of your tag"/>
+                        <group>
+                                <field name="description" placeholder="Description of your tag"/>
+                        </group>
                     </sheet>
                 </form>
             </field>
         </record>
 
-        <record id="section_tree" model="ir.ui.view">
+        <record id="tags_tree" model="ir.ui.view">
             <field name="name">knowledge_base.tags.tree</field>
             <field name="model">knowledge_base.tags</field>
             <field name="arch" type="xml">
