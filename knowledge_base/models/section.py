@@ -10,3 +10,5 @@ class Section(models.Model):
     articles = fields.One2many(comodel_name='knowledge_base.article', inverse_name='section',
                                string="Articles of a section",
                                auto_join=True)
+    parent_id = fields.Many2one('knowledge_base.section', string="Parent section")
+    child_ids = fields.One2many('knowledge_base.section', 'parent_id',  string="Child sections")

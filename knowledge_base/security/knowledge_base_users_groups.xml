@@ -1,12 +1,17 @@
 <odoo>
      <data>
+         <record id="knowledge_base.module_category_services_knowledge_base" model="ir.module.category">
+             <field name="name">Knowledge base</field>
+             <field name="description">Articles of knowledge base</field>
+             <field name="sequence">4</field>
+         </record>
 
         <record id="knowledge_base_user" model="res.groups">
-            <field name="name">Project users</field>
+            <field name="name">Knowledge base user</field>
         </record>
 
         <record id="knowledge_base_admin" model="res.groups">
-            <field name="name">Project Admin</field>
+            <field name="name">Knowledge base admin</field>
         </record>
 
     </data>

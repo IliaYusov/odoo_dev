@@ -40,12 +40,12 @@ msgid "Tags"
 msgstr "Тэги"
 
 #. module: knowledge_base
-#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_article__parent_article
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_article__parent_id
 msgid "Parent article"
 msgstr "Родительская статья"
 
 #. module: knowledge_base
-#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_article__child_articles
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_article__child_ids
 msgid "Child articles"
 msgstr "Дочерние статьи"
 
@@ -83,6 +83,16 @@ msgstr "Содержание вашей статьи"
 #: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_section__name
 msgid "Section name"
 msgstr "Название секции"
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_section__parent_id
+msgid "Parent section"
+msgstr "Родительская секция"
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_section__child_ids
+msgid "Child sections"
+msgstr "Дочерние секции"
 
 #. module: knowledge_base
 #: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_section__description

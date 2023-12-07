@@ -2,7 +2,7 @@
     'name' : 'Knowledge base',
     'version' : '1',
     'category': '',
-    'depends': ['base'],
+    'depends': ['base', 'mail'],
     'description':"""
     """,
     'author': '',
@@ -15,10 +15,10 @@
     'data': [
         'security/ir.model.access.csv',
         'security/knowledge_base_users_groups.xml',
+        'views/knowledge_base_menu.xml',
         'views/article.xml',
         'views/section.xml',
         'views/tags.xml',
-        'views/knowledge_base_menu.xml',
         'report/article_reports.xml',
         'report/article_templates.xml',
     ],

@@ -9,7 +9,7 @@
                     <field name="name" filter_domain="[('name','ilike',self)]" string="name"/>
                     <field name="text" filter_domain="[('text','ilike',self)]" string="text"/>
                     <searchpanel>
-                        <field name="section" icon="fa-folder-open" string="Section" enable_counters="1"/>
+                        <field name="section" icon="fa-folder-open" string="Section"/>
                         <field name="tags" icon="fa-filter" select="multi" string="Tags" enable_counters="1"/>
                     </searchpanel>
                 </search>
@@ -49,20 +49,22 @@
                         <h4>
                             <group col="3">
                                 <group>
-                                    <field name="section" placeholder="Section of your article"/>
+                                    <field name="section" placeholder="Section of your article"
+                                           options="{'no_open': True}"/>
                                 </group>
                                 <group>
-                                    <field name="parent_article" placeholder="Parent article"/>
+                                    <field name="parent_id" placeholder="Parent article"/>
                                 </group>
                                 <group>
-                                    <field name="tags" placeholder="Article tags" widget="many2many_tags"/>
+                                    <field name="tags" placeholder="Article tags" widget="many2many_tags"
+                                           options="{'no_open': True}"/>
                                 </group>
                             </group>
                         </h4>
                             <field name="article_has_childs" invisible="1"/>
                             <group col="1" attrs="{'invisible': [('article_has_childs', '=', False)]}">
                                 <group>
-                                    <field name="child_articles" mode="tree" widget="many2many">
+                                    <field name="child_ids" mode="tree" widget="many2many">
                                         <tree>
                                             <field name="name" nolabel="1" string="Child articles"/>
                                         </tree>
@@ -71,6 +73,10 @@
                             </group>
                         <field name="text" placeholder="Text of your article" widget="html"/>
                     </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
                 </form>
             </field>
         </record>
@@ -81,7 +87,7 @@
             <field name="arch" type="xml">
                 <tree>
                     <field name="name"/>
-                    <field name="parent_article"/>
+                    <field name="parent_id"/>
                     <field name="create_uid" widget="many2one_avatar"/>
                     <field name="section"/>
                     <field name="tags" widget="many2many_tags"/>

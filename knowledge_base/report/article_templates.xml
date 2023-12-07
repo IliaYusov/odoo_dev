@@ -13,7 +13,7 @@
                        </div>
                        <p><span t-field="article.text"/></p>
                        <t t-if="article.article_has_childs">
-                            <t t-foreach="article.child_articles" t-as="child">
+                            <t t-foreach="article.child_ids" t-as="child">
                                 <br/>
                                 <hr/>
                                 <h2><t t-out="child.name"/></h2>
