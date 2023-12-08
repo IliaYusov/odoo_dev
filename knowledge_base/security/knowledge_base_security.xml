@@ -1,0 +1,25 @@
+<odoo>
+     <data>
+         <record id="knowledge_base.module_category_knowledge_base_management" model="ir.module.category">
+             <field name="name">Knowledge base</field>
+             <field name="description">Articles of knowledge base</field>
+             <field name="sequence">4</field>
+         </record>
+
+        <record id="knowledge_base_admin" model="res.groups">
+            <field name="name">Administrator</field>
+            <field name="category_id" ref="knowledge_base.module_category_knowledge_base_management"/>
+            <field name="users" eval="[(4, ref('base.user_admin'))]"/>
+        </record>
+
+        <record model="ir.rule" id="knowledge_base_user_group_rule">
+            <field name="name">Access to knowledge base by group id</field>
+            <field name="model_id" ref="model_knowledge_base_article"/>
+            <field name="domain_force">['|',
+                ('group_ids', '=', False),
+                ('group_ids.id', 'in', user.groups_id.ids),
+                ]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+    </data>
+</odoo>

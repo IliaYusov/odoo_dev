@@ -71,6 +71,15 @@
                                     </field>
                                 </group>
                             </group>
+                            <field name="user_is_admin" invisible="1"/>
+                            <group col="1" attrs="{'invisible': [('user_is_admin','!=', True)]}">
+                                <field name="group_ids" mode="tree" widget="many2many">
+                                    <tree>
+                                        <field name="name" nolabel="1" string="Users who can see article"
+                                               placeholder="If empty, all can see" options="{'no_open': True}"/>
+                                    </tree>
+                                </field>
+                            </group>
                         <field name="text" placeholder="Text of your article" widget="html"/>
                     </sheet>
                     <div class="oe_chatter">

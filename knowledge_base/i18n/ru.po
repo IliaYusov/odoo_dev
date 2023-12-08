@@ -45,6 +45,11 @@ msgid "Parent article"
 msgstr "Родительская статья"
 
 #. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_article__group_ids
+msgid "Groups who can view the article"
+msgstr "Группы, которые видят статью (если пусто, видят все)"
+
+#. module: knowledge_base
 #: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_article__child_ids
 msgid "Child articles"
 msgstr "Дочерние статьи"
@@ -78,6 +83,11 @@ msgstr "Тэги вашей статьи"
 #: model_terms:ir.ui.view,arch_db:knowledge_base.article_form
 msgid "Text of your article"
 msgstr "Содержание вашей статьи"
+
+#. module: knowledge_base
+#: model_terms:ir.ui.view,arch_db:knowledge_base.article_form
+msgid "If empty, all can see"
+msgstr "Если пусто, видят все"
 
 #. module: knowledge_base
 #: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_section__name

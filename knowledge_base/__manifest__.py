@@ -13,8 +13,8 @@
     'assets': {
         },
     'data': [
+        'security/knowledge_base_security.xml',
         'security/ir.model.access.csv',
-        'security/knowledge_base_users_groups.xml',
         'views/knowledge_base_menu.xml',
         'views/article.xml',
         'views/section.xml',
