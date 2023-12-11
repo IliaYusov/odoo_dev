@@ -1,7 +1,7 @@
 <odoo>
     <data>
 
-        <record id="article_search" model="ir.ui.view">
+        <record id="article_view_search" model="ir.ui.view">
             <field name="name">knowledge_base.article.search</field>
             <field name="model">knowledge_base.article</field>
             <field name="arch" type="xml">
@@ -9,8 +9,8 @@
                     <field name="name" filter_domain="[('name','ilike',self)]" string="name"/>
                     <field name="text" filter_domain="[('text','ilike',self)]" string="text"/>
                     <searchpanel>
-                        <field name="section" icon="fa-folder-open" string="Section"/>
-                        <field name="tags" icon="fa-filter" select="multi" string="Tags" enable_counters="1"/>
+                        <field name="section_id" icon="fa-folder-open" string="Section"/>
+                        <field name="tag_ids" icon="fa-filter" select="multi" string="Tags" enable_counters="1"/>
                     </searchpanel>
                 </search>
             </field>
@@ -20,7 +20,7 @@
             <field name="name">Articles</field>
             <field name="res_model">knowledge_base.article</field>
             <field name="view_mode">tree,form</field>
-            <field name="search_view_id" ref="knowledge_base.article_search"/>
+            <field name="search_view_id" ref="knowledge_base.article_view_search"/>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
                     No articles found. Let's create one!
@@ -32,10 +32,10 @@
 <!--            <field name="name">Article</field>-->
 <!--            <field name="res_model">knowledge_base.article</field>-->
 <!--            <field name="view_mode">form</field>-->
-<!--            <field name="view_id" ref="knowledge_base.article_form"/>-->
+<!--            <field name="view_id" ref="knowledge_base.article_view_form"/>-->
 <!--        </record>-->
 
-        <record id="article_form" model="ir.ui.view">
+        <record id="article_view_form" model="ir.ui.view">
             <field name="name">knowledge_base.article.form</field>
             <field name="model">knowledge_base.article</field>
             <field name="arch" type="xml">
@@ -49,14 +49,14 @@
                         <h4>
                             <group col="3">
                                 <group>
-                                    <field name="section" placeholder="Section of your article"
+                                    <field name="section_id" placeholder="Section of your article"
                                            options="{'no_open': True}"/>
                                 </group>
                                 <group>
                                     <field name="parent_id" placeholder="Parent article"/>
                                 </group>
                                 <group>
-                                    <field name="tags" placeholder="Article tags" widget="many2many_tags"
+                                    <field name="tag_ids" placeholder="Article tags" widget="many2many_tags"
                                            options="{'no_open': True}"/>
                                 </group>
                             </group>
@@ -71,8 +71,7 @@
                                     </field>
                                 </group>
                             </group>
-                            <field name="user_is_admin" invisible="1"/>
-                            <group col="1" attrs="{'invisible': [('user_is_admin','!=', True)]}">
+                            <group col="1" groups='knowledge_base.knowledge_base_admin'>
                                 <field name="group_ids" mode="tree" widget="many2many">
                                     <tree>
                                         <field name="name" nolabel="1" string="Users who can see article"
@@ -90,7 +89,7 @@
             </field>
         </record>
 
-        <record id="article_tree" model="ir.ui.view">
+        <record id="article_view_tree" model="ir.ui.view">
             <field name="name">knowledge_base.article.tree</field>
             <field name="model">knowledge_base.article</field>
             <field name="arch" type="xml">
@@ -98,8 +97,8 @@
                     <field name="name"/>
                     <field name="parent_id"/>
                     <field name="create_uid" widget="many2one_avatar"/>
-                    <field name="section"/>
-                    <field name="tags" widget="many2many_tags"/>
+                    <field name="section_id"/>
+                    <field name="tag_ids" widget="many2many_tags"/>
                 </tree>
             </field>
         </record>

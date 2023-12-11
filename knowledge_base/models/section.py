@@ -7,7 +7,7 @@ class Section(models.Model):
 
     name = fields.Char(string="Section name", required=True, index=True, copy=True, group_operator='count')
     description = fields.Text(string='Section description')
-    articles = fields.One2many(comodel_name='knowledge_base.article', inverse_name='section',
+    article_ids = fields.One2many(comodel_name='knowledge_base.article', inverse_name='section_id',
                                string="Articles of a section",
                                auto_join=True)
     parent_id = fields.Many2one('knowledge_base.section', string="Parent section")

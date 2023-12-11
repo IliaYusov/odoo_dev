@@ -26,14 +26,14 @@ msgid "Article text"
 msgstr "Содержание статьи"
 
 #. module: knowledge_base
-#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_article__section
-#: model_terms:ir.ui.view,arch_db:knowledge_base.article_search
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_article__section_id
+#: model_terms:ir.ui.view,arch_db:knowledge_base.article_view_search
 msgid "Section"
 msgstr "Секция"
 
 #. module: knowledge_base
-#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_article__tags
-#: model_terms:ir.ui.view,arch_db:knowledge_base.article_search
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_article__tag_ids
+#: model_terms:ir.ui.view,arch_db:knowledge_base.article_view_search
 #: model:ir.ui.menu,name:knowledge_base.knowledge_base_menu_tree_tags
 #: model:ir.actions.act_window,name:knowledge_base.action_view_all_tags
 msgid "Tags"
@@ -60,32 +60,32 @@ msgid "Created by"
 msgstr "Создано кем"
 
 #. module: knowledge_base
-#: model_terms:ir.ui.view,arch_db:knowledge_base.article_form
+#: model_terms:ir.ui.view,arch_db:knowledge_base.article_view_form
 msgid "Name of your article"
 msgstr "Название вашей статьи"
 
 #. module: knowledge_base
-#: model_terms:ir.ui.view,arch_db:knowledge_base.article_form
+#: model_terms:ir.ui.view,arch_db:knowledge_base.article_view_form
 msgid "Section of your article"
 msgstr "Секция вашей статьи"
 
 #. module: knowledge_base
-#: model_terms:ir.ui.view,arch_db:knowledge_base.article_form
+#: model_terms:ir.ui.view,arch_db:knowledge_base.article_view_form
 msgid "Parent article"
 msgstr "Родительская статья, если есть"
 
 #. module: knowledge_base
-#: model_terms:ir.ui.view,arch_db:knowledge_base.article_form
+#: model_terms:ir.ui.view,arch_db:knowledge_base.article_view_form
 msgid "Article tags"
 msgstr "Тэги вашей статьи"
 
 #. module: knowledge_base
-#: model_terms:ir.ui.view,arch_db:knowledge_base.article_form
+#: model_terms:ir.ui.view,arch_db:knowledge_base.article_view_form
 msgid "Text of your article"
 msgstr "Содержание вашей статьи"
 
 #. module: knowledge_base
-#: model_terms:ir.ui.view,arch_db:knowledge_base.article_form
+#: model_terms:ir.ui.view,arch_db:knowledge_base.article_view_form
 msgid "If empty, all can see"
 msgstr "Если пусто, видят все"
 
@@ -110,12 +110,12 @@ msgid "Section description"
 msgstr "Описание секции"
 
 #. module: knowledge_base
-#: model_terms:ir.ui.view,arch_db:knowledge_base.section_form
+#: model_terms:ir.ui.view,arch_db:knowledge_base.section_view_form
 msgid "Name of your section"
 msgstr "Название секции"
 
 #. module: knowledge_base
-#: model_terms:ir.ui.view,arch_db:knowledge_base.section_form
+#: model_terms:ir.ui.view,arch_db:knowledge_base.section_view_form
 msgid "Description of your section"
 msgstr "Описание, если есть"
 
@@ -130,12 +130,12 @@ msgid "Tag description"
 msgstr "Описание тэга"
 
 #. module: knowledge_base
-#: model_terms:ir.ui.view,arch_db:knowledge_base.tags_form
+#: model_terms:ir.ui.view,arch_db:knowledge_base.tags_view_form
 msgid "Name of your tag"
 msgstr "Название тэга"
 
 #. module: knowledge_base
-#: model_terms:ir.ui.view,arch_db:knowledge_base.tags_form
+#: model_terms:ir.ui.view,arch_db:knowledge_base.tags_view_form
 msgid "Description of your tag"
 msgstr "Описание, если есть"
 

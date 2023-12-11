@@ -13,23 +13,17 @@ class Article(models.Model):
     text = fields.Html(string='Article text')
     parent_id = fields.Many2one('knowledge_base.article', string="Parent article")
     child_ids = fields.One2many(comodel_name='knowledge_base.article', inverse_name='parent_id', string='Child articles')
-    section = fields.Many2one('knowledge_base.section', string='Section')
-    tags = fields.Many2many('knowledge_base.tags', string='Tags')
+    section_id = fields.Many2one('knowledge_base.section', string='Section')
+    tag_ids = fields.Many2many('knowledge_base.tags', string='Tags')
     article_has_childs = fields.Boolean(compute="_article_has_childs")
     group_ids = fields.Many2many('res.groups', string='Groups who can view the article')
     base64_qr = fields.Text(compute='_generate_qr', store=True)
     base_url = fields.Text(compute='_generate_qr', store=True)
-    user_is_admin = fields.Boolean(string="user is admin", compute='_check_user_is_admin')
 
-    def _check_user_is_admin(self):
-        for record in self:
-            record.user_is_admin = False
-            if self.env.user.has_group('knowledge_base.knowledge_base_admin'):
-                record.user_is_admin = True
-
+    @api.depends('child_ids')
     def _article_has_childs(self):
         for article in self:
-            if self.env['knowledge_base.article'].search([('parent_id', '=', article.id)], limit=1):
+            if len(article.child_ids):
                 article.article_has_childs = True
             else:
                 article.article_has_childs = False

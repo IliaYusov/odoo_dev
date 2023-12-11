@@ -12,7 +12,7 @@
                            <img t-att-src="'data:image/png;base64,%s' % article.base64_qr" style="max-height: 100px;"/>
                        </div>
                        <p><span t-field="article.text"/></p>
-                       <t t-if="article.article_has_childs">
+                       <t t-if="len(article.child_ids)">
                             <t t-foreach="article.child_ids" t-as="child">
                                 <br/>
                                 <hr/>
