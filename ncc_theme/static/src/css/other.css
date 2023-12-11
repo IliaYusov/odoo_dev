@@ -1,0 +1,35 @@
+/* Tree View Style */
+.o_search_panel .list-group-item header.active{
+    background-color: #0F5F8B;
+    border-radius: 5px;
+}
+.o_search_panel .list-group-item .active .o_search_panel_label_title,.o_search_panel .list-group-item .active .o_search_panel_counter{
+    color: #fff !important;
+}
+
+/* Attendance View Style */
+.o_hr_attendance_kiosk_mode{
+    border-radius: 5px;
+}
+.o_hr_attendance_kiosk_mode .o_hr_attendance_user_badge{
+    background: linear-gradient(to right bottom, #0F5F8B, #b2ccfd);
+    border-radius: 5px 5px 0 0;
+}
+
+/* Website Dashboard View Style */
+.o_website_dashboard_content,.o_website_dashboard_content .o_dashboard_sales{
+    width: 100%;
+}
+.o_dashboards .o_website_dashboard div.o_box{
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgb(38 60 85 / 16%) !important;
+    margin: 15px;
+}
+.o_website_dashboard_content .o_dashboard_visits{
+    margin-right: 15px;
+}
+
+/* Inventory Header Style */
+.o_purchase_dashboard .table > thead > tr > td.o_main,.o_purchase_dashboard .table tbody > tr > td.o_main,.o_purchase_dashboard .table > thead > tr > td,.o_purchase_dashboard .table tbody > tr > td{
+    border-radius: 5px;
+}
