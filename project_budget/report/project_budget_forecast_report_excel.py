@@ -623,16 +623,17 @@ class report_budget_forecast_excel(models.AbstractModel):
                 sheet.write_number(row, column + 2, sum100tmp, row_format_number_color_fact)
 
             sum = self.get_sum_plan_pds_project_step_month(project, step, month)
-            # print('----- project.id=',project.id)
-            # print('sum100tmp = ',sum100tmp)
-            # print('sum = ', sum)
+            print('----- project.id=',project.id)
+            print('sum100tmp = ',sum100tmp)
+            print('sum = ', sum)
 
-            if sum100tmp >= sum.get('commitment', 0):
-                sum100tmp_ostatok = sum100tmp - sum['commitment']
-                sum['commitment'] = 0
-                sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
-            else:
-                sum['commitment'] = sum['commitment'] - sum100tmp
+            if not project.is_correction_project:
+                if sum100tmp >= sum.get('commitment', 0):
+                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                    sum['commitment'] = 0
+                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
+                else:
+                    sum['commitment'] = sum['commitment'] - sum100tmp
 
             # print('after: sum = ', sum)
             # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
@@ -661,7 +662,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             if sum_distribution_pds != 0 : # если есть распределение, то остаток = остатку распределения
                 sum = sum_ostatok_pds
                 for key in sum:
-                    if sum[key] < 0:
+                    if sum[key] < 0 and not project.is_correction_project:
                         sum[key] = 0
 
             if sum:
@@ -813,19 +814,21 @@ class report_budget_forecast_excel(models.AbstractModel):
                 for key in sum:
                     margin_plan[key] = sum[key] * profitability / 100
 
-            if sum100tmp >= sum.get('commitment', 0):
-                sum100tmp_ostatok = sum100tmp - sum['commitment']
-                sum['commitment'] = 0
-                sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
-            else:
-                sum['commitment'] = sum['commitment'] - sum100tmp
+            if not project.is_correction_project:
 
-            if margin100tmp >= margin_plan['commitment']:  # маржа если нет распределения
-                margin100tmp_ostatok = margin100tmp - margin_plan['commitment']
-                margin_sum['commitment'] = 0
-                margin_sum['reserve'] = max(margin_plan['reserve'] - margin100tmp_ostatok, 0)
-            else:
-                margin_sum['commitment'] = margin_plan['commitment'] - margin100tmp
+                if sum100tmp >= sum.get('commitment', 0):
+                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                    sum['commitment'] = 0
+                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
+                else:
+                    sum['commitment'] = sum['commitment'] - sum100tmp
+
+                if margin100tmp >= margin_plan['commitment']:  # маржа если нет распределения
+                    margin100tmp_ostatok = margin100tmp - margin_plan['commitment']
+                    margin_sum['commitment'] = 0
+                    margin_sum['reserve'] = max(margin_plan['reserve'] - margin100tmp_ostatok, 0)
+                else:
+                    margin_sum['commitment'] = margin_plan['commitment'] - margin100tmp
 
             # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
             sum_ostatok_acceptance = {'commitment': 0, 'reserve':0}
@@ -860,8 +863,9 @@ class report_budget_forecast_excel(models.AbstractModel):
                 sum = sum_ostatok_acceptance
                 margin_sum = margin_plan
                 for key in sum:
-                    sum[key] = max(sum[key], 0)
-                    margin_sum[key] = max(margin_sum[key], 0)
+                    if  not project.is_correction_project:
+                        sum[key] = max(sum[key], 0)
+                        margin_sum[key] = max(margin_sum[key], 0)
 
             if sum:
                 sheet.write_number(row, column + 3, sum.get('commitment', 0), row_format_number)
@@ -1635,7 +1639,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 else:
                     formulaProjectOffice = formulaProjectOffice + ')'
 
-                print('project_office = ', project_office, dict_formula)
+                # print('project_office = ', project_office, dict_formula)
                 formulaItogo = formulaItogo + ',{0}' + str(row + 1)
                 # print('formulaProjectOffice = ',formulaProjectOffice)
                 for colFormula in range(1, 12):

@@ -311,7 +311,7 @@ class projects(models.Model):
     is_other_expenses = fields.Boolean(related='project_type_id.is_other_expenses', readonly=True)
     is_percent_fot_manual = fields.Boolean(related='legal_entity_signing_id.is_percent_fot_manual', readonly=True)
 
-    comments  = fields.Text(string='comments project', default = "")
+    comments = fields.Text(string='comments project', default="")
     technological_direction_id = fields.Many2one('project_budget.technological_direction',
                                               string='technological_direction', required=True,copy=True,tracking=True)
     planned_cash_flow_sum = fields.Monetary(string='planned_cash_flow_sum', compute='_compute_planned_cash_flow_sum',
@@ -373,6 +373,8 @@ class projects(models.Model):
     margin_rate_for_parent = fields.Float(string="margin rate for parent project", default=0, copy=True, tracking=True)
     total_margin_of_child_projects = fields.Monetary(string="total margin of child projects", compute='_compute_total_margin')
     margin_for_parent_project = fields.Monetary(string="margin for parent project", compute='_compute_margin_for_parent_project')
+
+    is_correction_project = fields.Boolean(string="project for corrections", default=False)
 
     user_is_admin = fields.Boolean(string="user is admin", compute='_check_user_is_admin')
 

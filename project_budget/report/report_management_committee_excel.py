@@ -927,7 +927,8 @@ class report_management_committee_excel(models.AbstractModel):
         if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
             sum = sum_ostatok_pds
             for key in sum:
-                sum[key] = max(sum[key], 0)
+                if not project.is_correction_project:
+                    sum[key] = max(sum[key], 0)
 
         return sum
 
@@ -965,12 +966,13 @@ class report_management_committee_excel(models.AbstractModel):
 
                     sum = self.get_sum_plan_pds_project_step_year_quarter(project, step, YEARint, element)
 
-                    if sum100tmp_step >= sum['commitment']:
-                        sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
-                        sum['commitment'] = 0
-                        sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
-                    else:
-                        sum['commitment'] = sum['commitment'] - sum100tmp_step
+                    if not project.is_correction_project:
+                        if sum100tmp_step >= sum['commitment']:
+                            sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
+                            sum['commitment'] = 0
+                            sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
+                        else:
+                            sum['commitment'] = sum['commitment'] - sum100tmp_step
 
                     # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                     sum = self.get_pds_forecast_from_distributions(sum, project, step, YEARint, months)
@@ -985,12 +987,13 @@ class report_management_committee_excel(models.AbstractModel):
 
                 sum = self.get_sum_plan_pds_project_step_year_quarter(project, False, YEARint, element)
 
-                if sum100tmp >= sum['commitment']:
-                    sum100tmp_ostatok = sum100tmp - sum['commitment']
-                    sum['commitment'] = 0
-                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
-                else:
-                    sum['commitment'] = sum['commitment'] - sum100tmp
+                if not project.is_correction_project:
+                    if sum100tmp >= sum['commitment']:
+                        sum100tmp_ostatok = sum100tmp - sum['commitment']
+                        sum['commitment'] = 0
+                        sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
+                    else:
+                        sum['commitment'] = sum['commitment'] - sum100tmp
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                 sum = self.get_pds_forecast_from_distributions(sum, project, False, YEARint, months)
@@ -1014,19 +1017,20 @@ class report_management_committee_excel(models.AbstractModel):
                     sum_q1 = self.get_sum_plan_pds_project_step_year_quarter(project, step, YEARint + 1, 'Q1')
                     sum = self.get_sum_plan_pds_project_step_year_quarter(project, step, YEARint + 1, False)
 
-                    if sum100tmp_q1_step >= sum_q1['commitment']:
-                        sum100tmp_q1_step_ostatok = sum100tmp_q1_step - sum_q1['commitment']
-                        sum_q1['commitment'] = 0
-                        sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_step_ostatok, 0)
-                    else:
-                        sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1_step
+                    if not project.is_correction_project:
+                        if sum100tmp_q1_step >= sum_q1['commitment']:
+                            sum100tmp_q1_step_ostatok = sum100tmp_q1_step - sum_q1['commitment']
+                            sum_q1['commitment'] = 0
+                            sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_step_ostatok, 0)
+                        else:
+                            sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1_step
 
-                    if sum100tmp_step >= sum['commitment']:
-                        sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
-                        sum['commitment'] = 0
-                        sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
-                    else:
-                        sum['commitment'] = sum['commitment'] - sum100tmp_step
+                        if sum100tmp_step >= sum['commitment']:
+                            sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
+                            sum['commitment'] = 0
+                            sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
+                        else:
+                            sum['commitment'] = sum['commitment'] - sum100tmp_step
 
                     # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                     sum_q1 = self.get_pds_forecast_from_distributions(sum_q1, project, step, YEARint + 1,
@@ -1052,19 +1056,20 @@ class report_management_committee_excel(models.AbstractModel):
                 sum_q1 = self.get_sum_plan_pds_project_step_year_quarter(project, False, YEARint + 1, 'Q1')
                 sum = self.get_sum_plan_pds_project_step_year_quarter(project, False, YEARint + 1, False)
 
-                if sum100tmp_q1 >= sum_q1['commitment']:
-                    sum100tmp_q1_ostatok = sum100tmp_q1 - sum_q1['commitment']
-                    sum_q1['commitment'] = 0
-                    sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_ostatok, 0)
-                else:
-                    sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1
+                if not project.is_correction_project:
+                    if sum100tmp_q1 >= sum_q1['commitment']:
+                        sum100tmp_q1_ostatok = sum100tmp_q1 - sum_q1['commitment']
+                        sum_q1['commitment'] = 0
+                        sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_ostatok, 0)
+                    else:
+                        sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1
 
-                if sum100tmp >= sum['commitment']:
-                    sum100tmp_ostatok = sum100tmp - sum['commitment']
-                    sum['commitment'] = 0
-                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
-                else:
-                    sum['commitment'] = sum['commitment'] - sum100tmp
+                    if sum100tmp >= sum['commitment']:
+                        sum100tmp_ostatok = sum100tmp - sum['commitment']
+                        sum['commitment'] = 0
+                        sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
+                    else:
+                        sum['commitment'] = sum['commitment'] - sum100tmp
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                 sum_q1 = self.get_pds_forecast_from_distributions(sum_q1, project, False, YEARint + 1, self.get_months_from_quarter('Q1'))
@@ -1095,12 +1100,13 @@ class report_management_committee_excel(models.AbstractModel):
                     sum100tmp += sum100tmp_step
                     sum = self.get_sum_plan_pds_project_step_year_quarter(project, step, YEARint + 2, False)
 
-                    if sum100tmp_step >= sum['commitment']:
-                        sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
-                        sum['commitment'] = 0
-                        sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
-                    else:
-                        sum['commitment'] = sum['commitment'] - sum100tmp_step
+                    if not project.is_correction_project:
+                        if sum100tmp_step >= sum['commitment']:
+                            sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
+                            sum['commitment'] = 0
+                            sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
+                        else:
+                            sum['commitment'] = sum['commitment'] - sum100tmp_step
 
                     # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                     sum = self.get_pds_forecast_from_distributions(sum, project, step, YEARint + 2, False)
@@ -1114,12 +1120,13 @@ class report_management_committee_excel(models.AbstractModel):
                 sum100tmp = self.get_sum_fact_pds_project_step_year_quarter(project, False, YEARint + 2, False)
                 sum = self.get_sum_plan_pds_project_step_year_quarter(project, False, YEARint + 2, False)
 
-                if sum100tmp >= sum['commitment']:
-                    sum100tmp_ostatok = sum100tmp - sum['commitment']
-                    sum['commitment'] = 0
-                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
-                else:
-                    sum['commitment'] = sum['commitment'] - sum100tmp
+                if not project.is_correction_project:
+                    if sum100tmp >= sum['commitment']:
+                        sum100tmp_ostatok = sum100tmp - sum['commitment']
+                        sum['commitment'] = 0
+                        sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
+                    else:
+                        sum['commitment'] = sum['commitment'] - sum100tmp
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                 sum = self.get_pds_forecast_from_distributions(sum , project, False, YEARint + 2, False)
@@ -1166,12 +1173,13 @@ class report_management_committee_excel(models.AbstractModel):
 
                         sum = self.get_sum_plan_pds_project_step_year_quarter(project, step, YEARint, element)
 
-                        if sum100tmp_step >= sum['commitment']:
-                            sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
-                            sum['commitment'] = 0
-                            sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
-                        else:
-                            sum['commitment'] = sum['commitment'] - sum100tmp_step
+                        if not project.is_correction_project:
+                            if sum100tmp_step >= sum['commitment']:
+                                sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
+                                sum['commitment'] = 0
+                                sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
+                            else:
+                                sum['commitment'] = sum['commitment'] - sum100tmp_step
                         # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                         sum = self.get_pds_forecast_from_distributions(sum, project, step, YEARint, months)
 
@@ -1182,12 +1190,13 @@ class report_management_committee_excel(models.AbstractModel):
                 sum100tmp = self.get_sum_fact_pds_project_step_year_quarter(project, False, YEARint, element)
                 sum = self.get_sum_plan_pds_project_step_year_quarter(project, False, YEARint, element)
 
-                if sum100tmp >= sum['commitment']:
-                    sum100tmp_ostatok = sum100tmp - sum['commitment']
-                    sum['commitment'] = 0
-                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
-                else:
-                    sum['commitment'] = sum['commitment'] - sum100tmp
+                if not project.is_correction_project:
+                    if sum100tmp >= sum['commitment']:
+                        sum100tmp_ostatok = sum100tmp - sum['commitment']
+                        sum['commitment'] = 0
+                        sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
+                    else:
+                        sum['commitment'] = sum['commitment'] - sum100tmp
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                 sum = self.get_pds_forecast_from_distributions(sum, project, False, YEARint, months)
@@ -1210,19 +1219,20 @@ class report_management_committee_excel(models.AbstractModel):
                         sum_q1 = self.get_sum_plan_pds_project_step_year_quarter(project, step, YEARint + 1, 'Q1')
                         sum = self.get_sum_plan_pds_project_step_year_quarter(project, step, YEARint + 1, False)
 
-                        if sum100tmp_q1_step >= sum_q1['commitment']:
-                            sum100tmp_q1_step_ostatok = sum100tmp_q1_step - sum_q1['commitment']
-                            sum_q1['commitment'] = 0
-                            sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_step_ostatok, 0)
-                        else:
-                            sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1_step
+                        if not project.is_correction_project:
+                            if sum100tmp_q1_step >= sum_q1['commitment']:
+                                sum100tmp_q1_step_ostatok = sum100tmp_q1_step - sum_q1['commitment']
+                                sum_q1['commitment'] = 0
+                                sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_step_ostatok, 0)
+                            else:
+                                sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1_step
 
-                        if sum100tmp_step >= sum['commitment']:
-                            sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
-                            sum['commitment'] = 0
-                            sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
-                        else:
-                            sum['commitment'] = sum['commitment'] - sum100tmp_step
+                            if sum100tmp_step >= sum['commitment']:
+                                sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
+                                sum['commitment'] = 0
+                                sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
+                            else:
+                                sum['commitment'] = sum['commitment'] - sum100tmp_step
 
                         # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                         sum_q1 = self.get_pds_forecast_from_distributions(sum_q1, project, step, YEARint + 1, self.get_months_from_quarter('Q1'))
@@ -1241,19 +1251,20 @@ class report_management_committee_excel(models.AbstractModel):
                 sum_q1 = self.get_sum_plan_pds_project_step_year_quarter(project, False, YEARint + 1, 'Q1')
                 sum = self.get_sum_plan_pds_project_step_year_quarter(project, False, YEARint + 1, False)
 
-                if sum100tmp_q1 >= sum_q1['commitment']:
-                    sum100tmp_q1_ostatok = sum100tmp_q1 - sum_q1['commitment']
-                    sum_q1['commitment'] = 0
-                    sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_ostatok, 0)
-                else:
-                    sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1
+                if not project.is_correction_project:
+                    if sum100tmp_q1 >= sum_q1['commitment']:
+                        sum100tmp_q1_ostatok = sum100tmp_q1 - sum_q1['commitment']
+                        sum_q1['commitment'] = 0
+                        sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_ostatok, 0)
+                    else:
+                        sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1
 
-                if sum100tmp >= sum['commitment']:
-                    sum100tmp_ostatok = sum100tmp - sum['commitment']
-                    sum['commitment'] = 0
-                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
-                else:
-                    sum['commitment'] = sum['commitment'] - sum100tmp
+                    if sum100tmp >= sum['commitment']:
+                        sum100tmp_ostatok = sum100tmp - sum['commitment']
+                        sum['commitment'] = 0
+                        sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
+                    else:
+                        sum['commitment'] = sum['commitment'] - sum100tmp
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                 sum_q1 = self.get_pds_forecast_from_distributions(sum_q1, project, False, YEARint + 1, self.get_months_from_quarter('Q1'))
@@ -1280,12 +1291,13 @@ class report_management_committee_excel(models.AbstractModel):
                         sum100tmp += sum100tmp_step
                         sum = self.get_sum_plan_pds_project_step_year_quarter(project, step, YEARint + 2, False)
 
-                        if sum100tmp_step >= sum['commitment']:
-                            sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
-                            sum['commitment'] = 0
-                            sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
-                        else:
-                            sum['commitment'] = sum['commitment'] - sum100tmp_step
+                        if not project.is_correction_project:
+                            if sum100tmp_step >= sum['commitment']:
+                                sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
+                                sum['commitment'] = 0
+                                sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
+                            else:
+                                sum['commitment'] = sum['commitment'] - sum100tmp_step
 
                         # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                         sum = self.get_pds_forecast_from_distributions(sum, project, step, YEARint + 2, False)
@@ -1298,12 +1310,13 @@ class report_management_committee_excel(models.AbstractModel):
                 sum100tmp = self.get_sum_fact_pds_project_step_year_quarter(project, False, YEARint + 2, False)
                 sum = self.get_sum_plan_pds_project_step_year_quarter(project, False, YEARint + 2, False)
 
-                if sum100tmp >= sum['commitment']:
-                    sum100tmp_ostatok = sum100tmp - sum['commitment']
-                    sum['commitment'] = 0
-                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
-                else:
-                    sum['commitment'] = sum['commitment'] - sum100tmp
+                if not project.is_correction_project:
+                    if sum100tmp >= sum['commitment']:
+                        sum100tmp_ostatok = sum100tmp - sum['commitment']
+                        sum['commitment'] = 0
+                        sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
+                    else:
+                        sum['commitment'] = sum['commitment'] - sum100tmp
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                 sum = self.get_pds_forecast_from_distributions(sum, project, False, YEARint + 2, False)
@@ -1429,8 +1442,9 @@ class report_management_committee_excel(models.AbstractModel):
             sum = sum_ostatok_acceptance
             margin_sum = margin_plan
             for key in sum:
-                sum[key] = max(sum[key], 0)
-                margin_sum[key] = max(margin_sum[key], 0)
+                if not project.is_correction_project:
+                    sum[key] = max(sum[key], 0)
+                    margin_sum[key] = max(margin_sum[key], 0)
 
         return  sum, margin_sum
 
@@ -1482,19 +1496,20 @@ class report_management_committee_excel(models.AbstractModel):
                         for key in sum:
                             margin_plan[key] = sum[key] * profitability / 100
 
-                    if sum100tmp_step >= sum['commitment']:
-                        sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
-                        sum['commitment'] = 0
-                        sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
-                    else:
-                        sum['commitment'] = sum['commitment'] - sum100tmp_step
+                    if not project.is_correction_project:
+                        if sum100tmp_step >= sum['commitment']:
+                            sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
+                            sum['commitment'] = 0
+                            sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
+                        else:
+                            sum['commitment'] = sum['commitment'] - sum100tmp_step
 
-                    if prof100tmp_step >= margin_plan['commitment']:  # маржа если нет распределения
-                        prof100tmp_step_ostatok = prof100tmp_step - margin_plan['commitment']
-                        margin_sum['commitment'] = 0
-                        margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_step_ostatok, 0)
-                    else:
-                        margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_step
+                        if prof100tmp_step >= margin_plan['commitment']:  # маржа если нет распределения
+                            prof100tmp_step_ostatok = prof100tmp_step - margin_plan['commitment']
+                            margin_sum['commitment'] = 0
+                            margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_step_ostatok, 0)
+                        else:
+                            margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_step
 
                     # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                     sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, step, YEARint, months)
@@ -1527,19 +1542,20 @@ class report_management_committee_excel(models.AbstractModel):
                     for key in sum:
                         margin_plan[key] = sum[key] * profitability / 100
 
-                if sum100tmp >= sum['commitment']:
-                    sum100tmp_ostatok = sum100tmp - sum['commitment']
-                    sum['commitment'] = 0
-                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
-                else:
-                    sum['commitment'] = sum['commitment'] - sum100tmp
+                if not project.is_correction_project:
+                    if sum100tmp >= sum['commitment']:
+                        sum100tmp_ostatok = sum100tmp - sum['commitment']
+                        sum['commitment'] = 0
+                        sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
+                    else:
+                        sum['commitment'] = sum['commitment'] - sum100tmp
 
-                if prof100tmp >= margin_plan['commitment']:  # маржа если нет распределения
-                    prof100tmp_ostatok = prof100tmp - margin_plan['commitment']
-                    margin_sum['commitment'] = 0
-                    margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
-                else:
-                    margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp
+                    if prof100tmp >= margin_plan['commitment']:  # маржа если нет распределения
+                        prof100tmp_ostatok = prof100tmp - margin_plan['commitment']
+                        margin_sum['commitment'] = 0
+                        margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
+                    else:
+                        margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                 sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, False, YEARint, months)
@@ -1587,33 +1603,34 @@ class report_management_committee_excel(models.AbstractModel):
                         for key in sum_q1:
                             margin_plan_q1[key] = sum_q1[key] * profitability / 100
 
-                    if sum100tmp_q1_step >= sum_q1['commitment']:
-                        sum100tmp_q1_step_ostatok = sum100tmp_q1_step - sum_q1['commitment']
-                        sum_q1['commitment'] = 0
-                        sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_step_ostatok, 0)
-                    else:
-                        sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1_step
+                    if not project.is_correction_project:
+                        if sum100tmp_q1_step >= sum_q1['commitment']:
+                            sum100tmp_q1_step_ostatok = sum100tmp_q1_step - sum_q1['commitment']
+                            sum_q1['commitment'] = 0
+                            sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_step_ostatok, 0)
+                        else:
+                            sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1_step
 
-                    if sum100tmp_step >= sum['commitment']:
-                        sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
-                        sum['commitment'] = 0
-                        sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
-                    else:
-                        sum['commitment'] = sum['commitment'] - sum100tmp_step
+                        if sum100tmp_step >= sum['commitment']:
+                            sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
+                            sum['commitment'] = 0
+                            sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
+                        else:
+                            sum['commitment'] = sum['commitment'] - sum100tmp_step
 
-                    if prof100tmp_q1_step >= margin_plan_q1['commitment']:  # маржа если нет распределения
-                        prof100tmp_q1_step_ostatok = prof100tmp_q1_step - margin_plan_q1['commitment']
-                        margin_sum_q1['commitment'] = 0
-                        margin_sum_q1['reserve'] = max(margin_plan_q1['reserve'] - prof100tmp_q1_step_ostatok, 0)
-                    else:
-                        margin_sum_q1['commitment'] = margin_plan_q1['commitment'] - prof100tmp_q1_step
+                        if prof100tmp_q1_step >= margin_plan_q1['commitment']:  # маржа если нет распределения
+                            prof100tmp_q1_step_ostatok = prof100tmp_q1_step - margin_plan_q1['commitment']
+                            margin_sum_q1['commitment'] = 0
+                            margin_sum_q1['reserve'] = max(margin_plan_q1['reserve'] - prof100tmp_q1_step_ostatok, 0)
+                        else:
+                            margin_sum_q1['commitment'] = margin_plan_q1['commitment'] - prof100tmp_q1_step
 
-                    if prof100tmp_step >= margin_plan['commitment']:  # маржа если нет распределения
-                        prof100tmp_step_ostatok = prof100tmp_step - margin_plan['commitment']
-                        margin_sum['commitment'] = 0
-                        margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_step_ostatok, 0)
-                    else:
-                        margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_step
+                        if prof100tmp_step >= margin_plan['commitment']:  # маржа если нет распределения
+                            prof100tmp_step_ostatok = prof100tmp_step - margin_plan['commitment']
+                            margin_sum['commitment'] = 0
+                            margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_step_ostatok, 0)
+                        else:
+                            margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_step
 
                     if (all(value == 0 for value in
                            sum_q1.values()) and step.end_sale_project_month.year == YEARint + 1
@@ -1694,33 +1711,34 @@ class report_management_committee_excel(models.AbstractModel):
                     for key in sum_q1:
                         margin_plan_q1[key] = sum_q1[key] * profitability / 100
 
-                if sum100tmp_q1 >= sum_q1['commitment']:
-                    sum100tmp_q1_ostatok = sum100tmp_q1 - sum_q1['commitment']
-                    sum_q1['commitment'] = 0
-                    sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_ostatok, 0)
-                else:
-                    sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1
+                if not project.is_correction_project:
+                    if sum100tmp_q1 >= sum_q1['commitment']:
+                        sum100tmp_q1_ostatok = sum100tmp_q1 - sum_q1['commitment']
+                        sum_q1['commitment'] = 0
+                        sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_ostatok, 0)
+                    else:
+                        sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1
 
-                if sum100tmp >= sum['commitment']:
-                    sum100tmp_ostatok = sum100tmp - sum['commitment']
-                    sum['commitment'] = 0
-                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
-                else:
-                    sum['commitment'] = sum['commitment'] - sum100tmp
+                    if sum100tmp >= sum['commitment']:
+                        sum100tmp_ostatok = sum100tmp - sum['commitment']
+                        sum['commitment'] = 0
+                        sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
+                    else:
+                        sum['commitment'] = sum['commitment'] - sum100tmp
 
-                if prof100tmp_q1 >= margin_plan_q1['commitment']:  # маржа если нет распределения
-                    prof100tmp_q1_ostatok = prof100tmp_q1 - margin_plan_q1['commitment']
-                    margin_sum_q1['commitment'] = 0
-                    margin_sum_q1['reserve'] = max(margin_plan_q1['reserve'] - prof100tmp_q1_ostatok, 0)
-                else:
-                    margin_sum_q1['commitment'] = margin_plan_q1['commitment'] - prof100tmp_q1
+                    if prof100tmp_q1 >= margin_plan_q1['commitment']:  # маржа если нет распределения
+                        prof100tmp_q1_ostatok = prof100tmp_q1 - margin_plan_q1['commitment']
+                        margin_sum_q1['commitment'] = 0
+                        margin_sum_q1['reserve'] = max(margin_plan_q1['reserve'] - prof100tmp_q1_ostatok, 0)
+                    else:
+                        margin_sum_q1['commitment'] = margin_plan_q1['commitment'] - prof100tmp_q1
 
-                if prof100tmp >= margin_plan['commitment']:  # маржа если нет распределения
-                    prof100tmp_ostatok = prof100tmp - margin_plan['commitment']
-                    margin_sum['commitment'] = 0
-                    margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
-                else:
-                    margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp
+                    if prof100tmp >= margin_plan['commitment']:  # маржа если нет распределения
+                        prof100tmp_ostatok = prof100tmp - margin_plan['commitment']
+                        margin_sum['commitment'] = 0
+                        margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
+                    else:
+                        margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp
 
                 if all(value == 0 for value in sum_q1.values()) and project.end_sale_project_month.year == YEARint + 1 and project.end_sale_project_month.month in self.get_months_from_quarter('Q1'):  # если актирование 0, а месяц в нужном году, берем выручку
                     if project.estimated_probability_id.name in ('75', '100'):
@@ -1797,19 +1815,20 @@ class report_management_committee_excel(models.AbstractModel):
                         for key in sum:
                             margin_plan[key] = sum[key] * profitability / 100
 
-                    if sum100tmp_step >= sum['commitment']:
-                        sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
-                        sum['commitment'] = 0
-                        sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
-                    else:
-                        sum['commitment'] = sum['commitment'] - sum100tmp_step
+                    if not project.is_correction_project:
+                        if sum100tmp_step >= sum['commitment']:
+                            sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
+                            sum['commitment'] = 0
+                            sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
+                        else:
+                            sum['commitment'] = sum['commitment'] - sum100tmp_step
 
-                    if prof100tmp_step >= margin_plan['commitment']:  # маржа если нет распределения
-                        prof100tmp_step_ostatok = prof100tmp_step - margin_plan['commitment']
-                        margin_sum['commitment'] = 0
-                        margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_step_ostatok, 0)
-                    else:
-                        margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_step
+                        if prof100tmp_step >= margin_plan['commitment']:  # маржа если нет распределения
+                            prof100tmp_step_ostatok = prof100tmp_step - margin_plan['commitment']
+                            margin_sum['commitment'] = 0
+                            margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_step_ostatok, 0)
+                        else:
+                            margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_step
 
                     if all(value == 0 for value in sum.values()) and step.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
                         if step.estimated_probability_id.name in ('75', '100'):
@@ -1849,19 +1868,20 @@ class report_management_committee_excel(models.AbstractModel):
                     for key in sum:
                         margin_plan[key] = sum[key] * profitability / 100
 
-                if sum100tmp >= sum['commitment']:
-                    sum100tmp_ostatok = sum100tmp - sum['commitment']
-                    sum['commitment'] = 0
-                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
-                else:
-                    sum['commitment'] = sum['commitment'] - sum100tmp
+                if not project.is_correction_project:
+                    if sum100tmp >= sum['commitment']:
+                        sum100tmp_ostatok = sum100tmp - sum['commitment']
+                        sum['commitment'] = 0
+                        sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
+                    else:
+                        sum['commitment'] = sum['commitment'] - sum100tmp
 
-                if prof100tmp >= margin_plan['commitment']:  # маржа если нет распределения
-                    prof100tmp_ostatok = prof100tmp - margin_plan['commitment']
-                    margin_sum['commitment'] = 0
-                    margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
-                else:
-                    margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp
+                    if prof100tmp >= margin_plan['commitment']:  # маржа если нет распределения
+                        prof100tmp_ostatok = prof100tmp - margin_plan['commitment']
+                        margin_sum['commitment'] = 0
+                        margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
+                    else:
+                        margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp
 
                 if all(value == 0 for value in sum.values()) and project.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
                     if project.estimated_probability_id.name in ('75', '100'):
@@ -1932,19 +1952,20 @@ class report_management_committee_excel(models.AbstractModel):
                             for key in sum:
                                 margin_plan[key] = sum[key] * profitability / 100
 
-                        if sum100tmp_step >= sum['commitment']:
-                            sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
-                            sum['commitment'] = 0
-                            sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
-                        else:
-                            sum['commitment'] = sum['commitment'] - sum100tmp_step
+                        if not project.is_correction_project:
+                            if sum100tmp_step >= sum['commitment']:
+                                sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
+                                sum['commitment'] = 0
+                                sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
+                            else:
+                                sum['commitment'] = sum['commitment'] - sum100tmp_step
 
-                        if prof100tmp_step >= margin_plan['commitment']:  # маржа если нет распределения
-                            prof100tmp_step_ostatok = prof100tmp_step - margin_plan['commitment']
-                            margin_sum['commitment'] = 0
-                            margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_step_ostatok, 0)
-                        else:
-                            margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_step
+                            if prof100tmp_step >= margin_plan['commitment']:  # маржа если нет распределения
+                                prof100tmp_step_ostatok = prof100tmp_step - margin_plan['commitment']
+                                margin_sum['commitment'] = 0
+                                margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_step_ostatok, 0)
+                            else:
+                                margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_step
 
                         # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                         sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, step, YEARint, months)
@@ -1971,19 +1992,20 @@ class report_management_committee_excel(models.AbstractModel):
                     for key in sum:
                         margin_plan[key] = sum[key] * profitability / 100
 
-                if sum100tmp >= sum['commitment']:
-                    sum100tmp_ostatok = sum100tmp - sum['commitment']
-                    sum['commitment'] = 0
-                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
-                else:
-                    sum['commitment'] = sum['commitment'] - sum100tmp
+                if not project.is_correction_project:
+                    if sum100tmp >= sum['commitment']:
+                        sum100tmp_ostatok = sum100tmp - sum['commitment']
+                        sum['commitment'] = 0
+                        sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
+                    else:
+                        sum['commitment'] = sum['commitment'] - sum100tmp
 
-                if prof100tmp >= margin_plan['commitment']:  # маржа если нет распределения
-                    prof100tmp_ostatok = prof100tmp - margin_plan['commitment']
-                    margin_sum['commitment'] = 0
-                    margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
-                else:
-                    margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp
+                    if prof100tmp >= margin_plan['commitment']:  # маржа если нет распределения
+                        prof100tmp_ostatok = prof100tmp - margin_plan['commitment']
+                        margin_sum['commitment'] = 0
+                        margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
+                    else:
+                        margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                 sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, False, YEARint, months)
@@ -2030,33 +2052,34 @@ class report_management_committee_excel(models.AbstractModel):
                             for key in sum:
                                 margin_plan[key] = sum[key] * profitability / 100
 
-                        if sum100tmp_q1_step >= sum_q1['commitment']:
-                            sum100tmp_q1_step_ostatok = sum100tmp_q1_step - sum_q1['commitment']
-                            sum_q1['commitment'] = 0
-                            sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_step_ostatok, 0)
-                        else:
-                            sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1_step
+                        if not project.is_correction_project:
+                            if sum100tmp_q1_step >= sum_q1['commitment']:
+                                sum100tmp_q1_step_ostatok = sum100tmp_q1_step - sum_q1['commitment']
+                                sum_q1['commitment'] = 0
+                                sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_step_ostatok, 0)
+                            else:
+                                sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1_step
 
-                        if sum100tmp_step >= sum['commitment']:
-                            sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
-                            sum['commitment'] = 0
-                            sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
-                        else:
-                            sum['commitment'] = sum['commitment'] - sum100tmp_step
+                            if sum100tmp_step >= sum['commitment']:
+                                sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
+                                sum['commitment'] = 0
+                                sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
+                            else:
+                                sum['commitment'] = sum['commitment'] - sum100tmp_step
 
-                        if prof100tmp_q1_step >= margin_plan_q1['commitment']:  # маржа если нет распределения
-                            prof100tmp_q1_step_ostatok = prof100tmp_q1_step - margin_plan_q1['commitment']
-                            margin_sum_q1['commitment'] = 0
-                            margin_sum_q1['reserve'] = max(margin_plan_q1['reserve'] - prof100tmp_q1_step_ostatok, 0)
-                        else:
-                            margin_sum_q1['commitment'] = margin_plan_q1['commitment'] - prof100tmp_q1_step
+                            if prof100tmp_q1_step >= margin_plan_q1['commitment']:  # маржа если нет распределения
+                                prof100tmp_q1_step_ostatok = prof100tmp_q1_step - margin_plan_q1['commitment']
+                                margin_sum_q1['commitment'] = 0
+                                margin_sum_q1['reserve'] = max(margin_plan_q1['reserve'] - prof100tmp_q1_step_ostatok, 0)
+                            else:
+                                margin_sum_q1['commitment'] = margin_plan_q1['commitment'] - prof100tmp_q1_step
 
-                        if prof100tmp_step >= margin_plan['commitment']:  # маржа если нет распределения
-                            prof100tmp_step_ostatok = prof100tmp_step - margin_plan['commitment']
-                            margin_sum['commitment'] = 0
-                            margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_step_ostatok, 0)
-                        else:
-                            margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_step
+                            if prof100tmp_step >= margin_plan['commitment']:  # маржа если нет распределения
+                                prof100tmp_step_ostatok = prof100tmp_step - margin_plan['commitment']
+                                margin_sum['commitment'] = 0
+                                margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_step_ostatok, 0)
+                            else:
+                                margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_step
 
                         if (all(value == 0 for value in sum_q1.values()) and step.end_sale_project_month.year == YEARint + 1
                                 and step.end_sale_project_month.month in self.get_months_from_quarter('Q1')):  # если актирование 0, а месяц в нужном году, берем выручку
@@ -2121,33 +2144,34 @@ class report_management_committee_excel(models.AbstractModel):
                     for key in sum_q1:
                         margin_plan_q1[key] = sum_q1[key] * profitability / 100
 
-                if sum100tmp_q1 >= sum_q1['commitment']:
-                    sum100tmp_q1_ostatok = sum100tmp_q1 - sum_q1['commitment']
-                    sum_q1['commitment'] = 0
-                    sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_ostatok, 0)
-                else:
-                    sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1
+                if not project.is_correction_project:
+                    if sum100tmp_q1 >= sum_q1['commitment']:
+                        sum100tmp_q1_ostatok = sum100tmp_q1 - sum_q1['commitment']
+                        sum_q1['commitment'] = 0
+                        sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_ostatok, 0)
+                    else:
+                        sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1
 
-                if sum100tmp >= sum['commitment']:
-                    sum100tmp_ostatok = sum100tmp - sum['commitment']
-                    sum['commitment'] = 0
-                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
-                else:
-                    sum['commitment'] = sum['commitment'] - sum100tmp
+                    if sum100tmp >= sum['commitment']:
+                        sum100tmp_ostatok = sum100tmp - sum['commitment']
+                        sum['commitment'] = 0
+                        sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
+                    else:
+                        sum['commitment'] = sum['commitment'] - sum100tmp
 
-                if prof100tmp_q1 >= margin_plan_q1['commitment']:  # маржа если нет распределения
-                    prof100tmp_q1_ostatok = prof100tmp_q1 - margin_plan_q1['commitment']
-                    margin_sum_q1['commitment'] = 0
-                    margin_sum_q1['reserve'] = max(margin_plan_q1['reserve'] - prof100tmp_q1_ostatok, 0)
-                else:
-                    margin_sum_q1['commitment'] = margin_plan_q1['commitment'] - prof100tmp_q1
+                    if prof100tmp_q1 >= margin_plan_q1['commitment']:  # маржа если нет распределения
+                        prof100tmp_q1_ostatok = prof100tmp_q1 - margin_plan_q1['commitment']
+                        margin_sum_q1['commitment'] = 0
+                        margin_sum_q1['reserve'] = max(margin_plan_q1['reserve'] - prof100tmp_q1_ostatok, 0)
+                    else:
+                        margin_sum_q1['commitment'] = margin_plan_q1['commitment'] - prof100tmp_q1
 
-                if prof100tmp >= margin_plan['commitment']:  # маржа если нет распределения
-                    prof100tmp_ostatok = prof100tmp - margin_plan['commitment']
-                    margin_sum['commitment'] = 0
-                    margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
-                else:
-                    margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp
+                    if prof100tmp >= margin_plan['commitment']:  # маржа если нет распределения
+                        prof100tmp_ostatok = prof100tmp - margin_plan['commitment']
+                        margin_sum['commitment'] = 0
+                        margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
+                    else:
+                        margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp
 
                 if (all(value == 0 for value in sum_q1.values()) and project.end_sale_project_month.year == YEARint + 1
                         and project.end_sale_project_month.month in self.get_months_from_quarter('Q1')):  # если актирование 0, а месяц в нужном году, берем выручку
@@ -2208,19 +2232,20 @@ class report_management_committee_excel(models.AbstractModel):
                             for key in sum:
                                 margin_plan[key] = sum[key] * profitability / 100
 
-                        if sum100tmp_step >= sum['commitment']:
-                            sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
-                            sum['commitment'] = 0
-                            sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
-                        else:
-                            sum['commitment'] = sum['commitment'] - sum100tmp_step
+                        if not project.is_correction_project:
+                            if sum100tmp_step >= sum['commitment']:
+                                sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
+                                sum['commitment'] = 0
+                                sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
+                            else:
+                                sum['commitment'] = sum['commitment'] - sum100tmp_step
 
-                        if prof100tmp_step >= margin_plan['commitment']:  # маржа если нет распределения
-                            prof100tmp_step_ostatok = prof100tmp_step - margin_plan['commitment']
-                            margin_sum['commitment'] = 0
-                            margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_step_ostatok, 0)
-                        else:
-                            margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_step
+                            if prof100tmp_step >= margin_plan['commitment']:  # маржа если нет распределения
+                                prof100tmp_step_ostatok = prof100tmp_step - margin_plan['commitment']
+                                margin_sum['commitment'] = 0
+                                margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_step_ostatok, 0)
+                            else:
+                                margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_step
 
                         if all(value == 0 for value in sum.values()) and step.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
                             if step.estimated_probability_id.name in ('75', '100'):
@@ -2257,19 +2282,20 @@ class report_management_committee_excel(models.AbstractModel):
                     for key in sum:
                         margin_plan[key] = sum[key] * profitability / 100
 
-                if sum100tmp >= sum['commitment']:
-                    sum100tmp_ostatok = sum100tmp - sum['commitment']
-                    sum['commitment'] = 0
-                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
-                else:
-                    sum['commitment'] = sum['commitment'] - sum100tmp
+                if not project.is_correction_project:
+                    if sum100tmp >= sum['commitment']:
+                        sum100tmp_ostatok = sum100tmp - sum['commitment']
+                        sum['commitment'] = 0
+                        sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
+                    else:
+                        sum['commitment'] = sum['commitment'] - sum100tmp
 
-                if prof100tmp >= margin_plan['commitment']:  # маржа если нет распределения
-                    prof100tmp_ostatok = prof100tmp - margin_plan['commitment']
-                    margin_sum['commitment'] = 0
-                    margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
-                else:
-                    margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp
+                    if prof100tmp >= margin_plan['commitment']:  # маржа если нет распределения
+                        prof100tmp_ostatok = prof100tmp - margin_plan['commitment']
+                        margin_sum['commitment'] = 0
+                        margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
+                    else:
+                        margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp
 
                 if all(value == 0 for value in sum.values()) and project.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
                     if project.estimated_probability_id.name in ('75', '100'):

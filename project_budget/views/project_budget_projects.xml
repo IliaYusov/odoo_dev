@@ -277,6 +277,7 @@
                                     </group>
                                     <group col="2">
                                         <field name="comments" placeholder="type comments for the project" colspan="1" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
+                                        <field name="is_correction_project" attrs="{'readonly': [('user_is_admin', '!=', True)]}"/>
                                     </group>
                                 </group>
                             </page>

@@ -2557,6 +2557,11 @@ msgid "comments"
 msgstr "Комментарий"
 
 #. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__is_correction_project
+msgid "project for corrections"
+msgstr "Корректировочный проект"
+
+#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__comments
 msgid "comments project"
 msgstr "Комментарий к проекту"
