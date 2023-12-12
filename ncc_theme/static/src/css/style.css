@@ -234,7 +234,7 @@ select.o_field_widget.o_input{
 }
 
 .o_list_buttons .btn-secondary,.o_form_buttons_edit .btn-secondary,.o_form_buttons_view .btn-secondary{
-    margin-left: 15px;
+    margin-left: 5px;
 }
 .o_list_view .o_optional_columns .o_optional_columns_dropdown .dropdown-item label{
     padding-top: 5px;

@@ -10,16 +10,23 @@
 @media (max-width: 767.98px){
     .o_FormRenderer_chatterContainer .o_ChatterTopbar_actions .btn{
         font-size: 10px;
-        padding: 5px;
+        padding: 3px;
     }
 }
 @media (max-width: 440px){
     .o_FormRenderer_chatterContainer .o_ChatterTopbar_actions .btn{
         font-size: 9px;
-        padding: 4px;
+        padding: 3px;
     }
 }
 
+/* Chatter Button Tab Style */
+.o_ChatterTopbar_button {
+    font-weight: 400;
+    font-size: 0.94791667rem;
+    margin-bottom: 0px;
+    margin-top: 5px;
+}
 
 /* Chatter Active Tab Style */
 .o_ChatterTopbar_actions .o-active{
@@ -28,7 +35,8 @@
 
 /* Chatter Send Message Style */
 .o_Chatter .o_Chatter_composer{
-    border-radius: 0 0 5px 5px;
+    border-radius: 5px 5px 5px 5px;
+    border: 2px solid #0F5F8B !important;
 }
 
 /* Default Message Style */

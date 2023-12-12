@@ -1,6 +1,9 @@
 /* Right Header Eleman Style */
 .o_control_panel .o_cp_top_right, .o_control_panel .o_cp_bottom_right {
-    width: 60% !important;
+    width: 60%;
+}
+.o_cp_pager {
+    padding-top: 3px;
 }
 @media (max-width: 1200px){
     .o_control_panel .o_cp_top_right, .o_control_panel .o_cp_bottom_right {
@@ -90,7 +93,7 @@
     border-radius: 4px 0 0 4px !important;
 }
 .o_searchview .o_searchview_facet .o_facet_remove{
-    right: -10px;
+    right: 0px;
 }
 /* Search Button Mobile Size Style */
 @media (max-width: 767.98px){

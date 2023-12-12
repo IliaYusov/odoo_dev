@@ -23,6 +23,7 @@
             'ncc_theme/static/src/css/dashboard.css',
             'ncc_theme/static/src/css/chatter.css',
             'ncc_theme/static/src/css/other.css',
+            'ncc_theme/static/src/scss/web_responsive.scss',
         ]
     }
 }

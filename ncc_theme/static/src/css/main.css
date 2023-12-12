@@ -31,11 +31,14 @@
 
 /* Button Style */
 .btn{
-    padding: 5px 20px;
+    padding: 5px 10px;
     border-radius: 4px;
+    text-transform: none;
 }
 .btn-secondary{
     color: #0F5F8B !important;
+    border-color: #0F5F8B !important;
+    text-transform: none !important;
 }
 .btn-link{
     color: #1e4081;
