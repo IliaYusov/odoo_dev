@@ -18,7 +18,6 @@
             'ncc_theme/static/src/css/pivot.css',
             'ncc_theme/static/src/css/graph.css',
             'ncc_theme/static/src/css/activity.css',
-            'ncc_theme/static/src/css/mail.css',
             'ncc_theme/static/src/css/card.css',
             'ncc_theme/static/src/css/dashboard.css',
             'ncc_theme/static/src/css/chatter.css',

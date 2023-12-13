@@ -36,6 +36,11 @@
     color: #4e5b6f;
 }
 
+/* Form Statusbar Style */
+.o_arrow_button {
+    text-transform: none !important;
+}
+
 /* Avatar Form Style */
 .o_form_view .oe_avatar > img{
     border-radius: 5px;

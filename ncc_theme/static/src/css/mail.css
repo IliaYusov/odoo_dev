@@ -46,18 +46,25 @@
 
 /* Background MessageList Style */
 .o_MessageList{
-    background-color: #f0f0f0;
+    background-color: #fff !important;
 }
 
 /* Date MessageList Style */
 .o_MessageList_separatorLabel{
     background-color: transparent;
 }
+.o_MessageList_separatorDate{
+    background-color: #fff !important;
+    padding-top: 0px !important;
+}
 
 /* Message Box Style */
 .o_ThreadView_core .o_MessageList_item{
     display: flex;
     justify-content: end;
+    background-color: #e0f2fc;
+    margin: 5px 10px;
+    border-radius: 4px;
 }
 .o_ThreadView_core .o_MessageList .o_Message_custom{
     direction: rtl;
@@ -121,7 +128,7 @@
     }
 }
 .o_Message_sidebar{
-    flex: 0 0 25px;
+    flex: 0 0 20px;
 }
 .o_ThreadView_core .o_MessageList .o_Message_custom .o_Message_bubbleWrap .o_Message_content{
     padding: 10px 0;
@@ -199,7 +206,7 @@
 /* Message Box Avatar Style */
 .o_MessageList_item:not(.o-squashed) .o_Message_sidebarItem{
     position: absolute !important;
-    left: -10px;
+    left: -20px;
     top: -20px;
     border: 3px solid #f0f0f0;
     border-radius: 50%;
@@ -291,6 +298,12 @@
     position: relative;
     top: 3px;
     right: 5px;
+}
+
+/* Message Header Style */
+.o_Message_header {
+    flex-wrap: nowrap !important;
+    overflow: visible;
 }
 
 /* Metting Invation Form Style */

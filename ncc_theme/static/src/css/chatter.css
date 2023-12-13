@@ -22,15 +22,20 @@
 
 /* Chatter Button Tab Style */
 .o_ChatterTopbar_button {
-    font-weight: 400;
+    font-weight: 500;
     font-size: 0.94791667rem;
     margin-bottom: 0px;
     margin-top: 5px;
+    padding: 5px 5px;
 }
 
 /* Chatter Active Tab Style */
 .o_ChatterTopbar_actions .o-active{
     border-radius: 5px 5px 0 0;
+}
+
+.o_ChatterTopbar_rightSection{
+    justify-content: flex-start !important;
 }
 
 /* Chatter Send Message Style */
@@ -46,12 +51,12 @@
 
 /* Chatter Messages Style */
 .o_ThreadView.o_Chatter_thread .o_ThreadView_core .o_MessageList .o_Message{
-    width: 100%;
+    width: 96%;
 }
 
 /* Online Chat Message Style */
 .o_ChatWindow .o_ChatWindow_thread .o_ThreadView_core .o_MessageList .o_Message{
-    width: 100%;
+    width: 96%;
 }
 
 /* Online User Status Style */
@@ -74,7 +79,7 @@
 }
 .o_Activity_iconContainer .fa{
     position: absolute;
-    top: 7px;
+    top: 4px;
 }
 
 /* Message Reaction Style */

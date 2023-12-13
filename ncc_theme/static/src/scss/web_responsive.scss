@@ -164,23 +164,23 @@ html .o_web_client .o_action_manager .o_action {
             z-index: 2;
         }
 
-        // Support for long title (with ellipsis)
-        .oe_title {
-            .o_field_widget:not(.oe_inline) {
-                display: block;
-                span:not(.o_field_translate) {
-                    display: block;
-                    max-width: 100%;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                    overflow: hidden;
-                    width: initial;
-                    &:active {
-                        white-space: normal;
-                    }
-                }
-            }
-        }
+//         // Support for long title (with ellipsis)
+//         .oe_title {
+//             .o_field_widget:not(.oe_inline) {
+//                 display: block;
+//                 span:not(.o_field_translate) {
+//                     display: block;
+//                     max-width: 100%;
+//                     text-overflow: ellipsis;
+//                     white-space: nowrap;
+//                     overflow: hidden;
+//                     width: initial;
+//                     &:active {
+//                         white-space: normal;
+//                     }
+//                 }
+//             }
+//         }
 
         @include media-breakpoint-down(sm) {
             min-width: auto;
