@@ -67,57 +67,61 @@
                                 <field name="different_project_offices_in_steps" invisible="1"/>
                             </group>
                         </group>
-                        <h5>
-                            <field name="is_revenue_from_the_sale_of_works"  invisible="1"/>
-                            <field name="is_revenue_from_the_sale_of_goods"  invisible="1"/>
-                            <field name="is_cost_of_goods" invisible="1"/>
-                            <field name="is_own_works_fot" invisible="1"/>
-                            <field name="is_third_party_works" invisible="1"/>
-                            <field name="is_awards_on_results_project" invisible="1"/>
-                            <field name="is_transportation_expenses" invisible="1"/>
-                            <field name="is_travel_expenses" invisible="1"/>
-                            <field name="is_representation_expenses" invisible="1"/>
-                            <field name="is_warranty_service_costs" invisible="1"/>
-                            <field name="is_rko_other" invisible="1"/>
-                            <field name="is_other_expenses" invisible="1"/>
-                            <field name="revenue_from_the_sale_of_works_amount_spec_exist" invisible="1"/>
-                            <field name="revenue_from_the_sale_of_goods_amount_spec_exist" invisible="1"/>
-                            <field name="cost_of_goods_amount_spec_exist" invisible="1"/>
-                            <field name="travel_expenses_amount_spec_exist" invisible="1"/>
-                            <field name="third_party_works_amount_spec_exist" invisible="1"/>
-                            <field name="transportation_expenses_amount_spec_exist" invisible="1"/>
-                            <field name="representation_expenses_amount_spec_exist" invisible="1"/>
-                            <field name="rko_other_amount_spec_exist" invisible="1"/>
-                            <field name="warranty_service_costs_amount_spec_exist" invisible="1"/>
-                            <field name="other_expenses_amount_spec_exist" invisible="1"/>
 
-                            <group col ="3">
-                                    <group>
-                                         <field name="total_amount_of_revenue"
-                                            decoration-bf="1"
-                                            decoration-success="total_amount_of_revenue &gt; 0"
-                                         />
-                                    </group>
-                                    <group>
-                                         <field name="total_amount_of_revenue_with_vat"
-                                            decoration-bf="1"
-                                            decoration-success="total_amount_of_revenue_with_vat &gt; 0"
-                                        />
-                                    </group>
-                                    <group>
-                                        <field name="cost_price"
-                                            decoration-bf="1"
-                                            decoration-success="cost_price &gt; 0"
-                                        />
-                                    </group>
+                        <field name="is_revenue_from_the_sale_of_works"  invisible="1"/>
+                        <field name="is_revenue_from_the_sale_of_goods"  invisible="1"/>
+                        <field name="is_cost_of_goods" invisible="1"/>
+                        <field name="is_own_works_fot" invisible="1"/>
+                        <field name="is_third_party_works" invisible="1"/>
+                        <field name="is_awards_on_results_project" invisible="1"/>
+                        <field name="is_transportation_expenses" invisible="1"/>
+                        <field name="is_travel_expenses" invisible="1"/>
+                        <field name="is_representation_expenses" invisible="1"/>
+                        <field name="is_warranty_service_costs" invisible="1"/>
+                        <field name="is_rko_other" invisible="1"/>
+                        <field name="is_other_expenses" invisible="1"/>
+                        <field name="revenue_from_the_sale_of_works_amount_spec_exist" invisible="1"/>
+                        <field name="revenue_from_the_sale_of_goods_amount_spec_exist" invisible="1"/>
+                        <field name="cost_of_goods_amount_spec_exist" invisible="1"/>
+                        <field name="travel_expenses_amount_spec_exist" invisible="1"/>
+                        <field name="third_party_works_amount_spec_exist" invisible="1"/>
+                        <field name="transportation_expenses_amount_spec_exist" invisible="1"/>
+                        <field name="representation_expenses_amount_spec_exist" invisible="1"/>
+                        <field name="rko_other_amount_spec_exist" invisible="1"/>
+                        <field name="warranty_service_costs_amount_spec_exist" invisible="1"/>
+                        <field name="other_expenses_amount_spec_exist" invisible="1"/>
+
+                        <group col ="3">
+                            <group>
+                                <field name="total_amount_of_revenue"
+                                       decoration-bf="1"
+                                       decoration-success="total_amount_of_revenue &gt; 0"
+                                       class="h5"
+                                />
                             </group>
-                        </h5>
+                            <group>
+                                <field name="total_amount_of_revenue_with_vat"
+                                       decoration-bf="1"
+                                       decoration-success="total_amount_of_revenue_with_vat &gt; 0"
+                                       class="h5"
+                                />
+                            </group>
+                            <group>
+                                <field name="cost_price"
+                                       class="h5"
+                                       decoration-bf="1"
+                                       decoration-success="cost_price &gt; 0"
+                                />
+                            </group>
+                        </group>
+
                         <group col="4">
                             <group>
                                 <field name="margin_income"
-                                    decoration-bf="1"
-                                    decoration-success="margin_income &gt; 0"
-                                    decoration-danger="margin_income &lt; 0"
+                                       decoration-bf="1"
+                                       decoration-success="margin_income &gt; 0"
+                                       decoration-danger="margin_income &lt; 0"
+                                       class="h5"
                                 />
                             </group>
                             <group>
@@ -139,14 +143,15 @@
                                 </group>
                             </group>
                         </h4>
-                        <group col="4">
-                            <group>
+                        <group col="6">
+                            <group colspan="2">
                                 <field name="revenue_from_the_sale_of_works"
                                        attrs="{'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager'),
                                        ('revenue_from_the_sale_of_works_amount_spec_exist', '=', True)]
-                                       ,'invisible': [('is_revenue_from_the_sale_of_works', '=', False)]}"/>
+                                       ,'invisible': [('is_revenue_from_the_sale_of_works', '=', False)]}"
+                                />
                             </group>
-                            <group >
+                            <group col="1" colspan="1">
                                 <button name="action_open_amount_spec_revenue_from_the_sale_of_works" type="object" title="View/edit spec revenue_from_the_sale_of_works" string="spec" icon="fa-list" class="btn btn-link "
                                         attrs="{'invisible': ['|',('revenue_from_the_sale_of_works_amount_spec_exist', '=', False),('is_revenue_from_the_sale_of_works', '=', False)]}"
                                 />
@@ -156,13 +161,13 @@
                                         ]}"
                                 />
                             </group>
-                            <group>
+                            <group colspan="2">
                                 <field name="revenue_from_the_sale_of_goods"
                                        attrs="{'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager'),
                                        ('revenue_from_the_sale_of_goods_amount_spec_exist', '=', True)]
                                        ,'invisible': [('is_revenue_from_the_sale_of_goods', '=', False)]}"/>
                             </group>
-                            <group>
+                            <group col="1" colspan="1">
                                 <button name="action_open_amount_spec_revenue_from_the_sale_of_goods" type="object" title="View/edit spec revenue_from_the_sale_of_goods" string="spec" icon="fa-list" class="btn btn-link "
                                         attrs="{'invisible': ['|',('revenue_from_the_sale_of_goods_amount_spec_exist', '=', False),('is_revenue_from_the_sale_of_goods', '=', False)]}"
                                 />
@@ -177,16 +182,16 @@
                             <group string="Costs" >
                             </group>
                         </h4>
-                        <group col="4">
-                            <group>
+                        <group col="6">
+                            <group colspan="2">
                                 <field name="cost_of_goods"
                                        attrs="{'invisible': [('is_cost_of_goods', '=', False)]
                                        ,'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')
                                        ,('cost_of_goods_amount_spec_exist', '=', True)]}"
-                                       widget="monetary"
+                                       widget="monetary" class='oe_right' style="text-align:right"
                                 />
                             </group>
-                            <group>
+                            <group col="1" colspan="1">
                                 <button name="action_open_amount_spec_cost_of_goods" type="object" title="View project" string="spec" icon="fa-list" class="btn btn-link" style ="color:red"
                                         attrs="{'invisible': ['|',('cost_of_goods_amount_spec_exist', '=', False),('is_cost_of_goods', '=', False)]}"
                                 />
@@ -196,15 +201,15 @@
                                 />
 
                             </group>
-                            <group>
+                            <group colspan="2">
                                 <field name="travel_expenses"
                                        attrs="{'invisible': [('is_travel_expenses', '=', False)]
                                        ,'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')
                                        ,('travel_expenses_amount_spec_exist', '=', True)]}"
-                                       widget="monetary"
+                                       widget="monetary" class='oe_right' style="text-align:right"
                                 />
                             </group>
-                            <group>
+                            <group col="1" colspan="1">
                                 <button name="action_open_amount_spec_travel_expenses" type="object" title="View project" string="spec" icon="fa-list" class="btn btn-link "
                                         attrs="{'invisible': ['|',('travel_expenses_amount_spec_exist', '=', False),('is_travel_expenses', '=', False)]}"
                                 />
@@ -214,16 +219,16 @@
                                 />
                             </group>
                         </group>
-                        <group col="4">
-                            <group>
+                        <group col="6">
+                            <group colspan="2">
                                 <field name="third_party_works"
                                        attrs="{'invisible': [('is_third_party_works', '=', False)]
                                        ,'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')
                                        ,('third_party_works_amount_spec_exist', '=', True)]}"
-                                       widget="monetary"
+                                       widget="monetary" class='oe_right' style="text-align:right"
                                 />
                             </group>
-                            <group>
+                            <group col="1" colspan="1">
                                 <button name="action_open_amount_spec_third_party_works" type="object" title="View project" string="spec" icon="fa-list" class="btn btn-link "
                                         attrs="{'invisible': ['|',('third_party_works_amount_spec_exist', '=', False), ('is_third_party_works', '=', False)]}"
                                 />
@@ -232,15 +237,15 @@
                                         ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
                                 />
                             </group>
-                            <group>
+                            <group colspan="2">
                                 <field name="representation_expenses"
                                        attrs="{'invisible': [('is_representation_expenses', '=', False)]
                                        ,'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')
                                        ,('representation_expenses_amount_spec_exist', '=', True)]}"
-                                       widget="monetary"
+                                       widget="monetary" class='oe_right' style="text-align:right"
                                 />
                             </group>
-                            <group>
+                            <group col="1" colspan="1">
                                 <button name="action_open_amount_spec_representation_expenses" type="object" title="View project" string="spec" icon="fa-list" class="btn btn-link "
                                         attrs="{'invisible': ['|',('representation_expenses_amount_spec_exist', '=', False),('is_representation_expenses', '=', False)]}"
                                 />
@@ -250,16 +255,16 @@
                                 />
                             </group>
                         </group>
-                        <group col="4">
-                            <group>
+                        <group col="6">
+                            <group colspan="2">
                                 <field name="transportation_expenses"
                                        attrs="{'invisible': [('is_transportation_expenses', '=', False)]
                                        ,'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')
                                        ,('transportation_expenses_amount_spec_exist', '=', True)]}"
-                                       widget="monetary"
+                                       widget="monetary" class='oe_right' style="text-align:right"
                                 />
                             </group>
-                            <group>
+                            <group col="1" colspan="1">
                                 <button name="action_open_amount_spec_transportation_expenses" type="object" title="View project" string="spec" icon="fa-list" class="btn btn-link "
                                         attrs="{'invisible': ['|',('transportation_expenses_amount_spec_exist', '=', False),('is_transportation_expenses', '=', False)]}"
                                 />
@@ -268,15 +273,15 @@
                                         ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
                                 />
                             </group>
-                            <group>
+                            <group colspan="2">
                                 <field name="rko_other"
                                        attrs="{'invisible': [('is_rko_other', '=', False)]
                                        ,'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')
                                        ,('rko_other_amount_spec_exist', '=', True)]}"
-                                       widget="monetary"
+                                       widget="monetary" class='oe_right' style="text-align:right"
                                 />
                             </group>
-                            <group>
+                            <group col="1" colspan="1">
                                 <button name="action_open_amount_spec_rko_other" type="object" title="View project" string="spec" icon="fa-list" class="btn btn-link "
                                         attrs="{'invisible': ['|',('rko_other_amount_spec_exist', '=', False),('is_rko_other', '=', False)]}"
                                 />
@@ -286,16 +291,16 @@
                                 />
                             </group>
                         </group>
-                        <group col="4">
-                            <group>
+                        <group col="6">
+                            <group colspan="2">
                             <field name="warranty_service_costs"
                                        attrs="{'invisible': [('is_warranty_service_costs', '=', False)]
                                        ,'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')
                                        ,('warranty_service_costs_amount_spec_exist', '=', True)]}"
-                                       widget="monetary"
+                                       widget="monetary" class='oe_right' style="text-align:right"
                                 />
                             </group>
-                            <group>
+                            <group col="1" colspan="1">
                                 <button name="action_open_amount_spec_warranty_service_costs" type="object" title="View project" string="spec" icon="fa-list" class="btn btn-link "
                                         attrs="{'invisible': ['|',('warranty_service_costs_amount_spec_exist', '=', False),('is_warranty_service_costs', '=', False)]}"
                                 />
@@ -304,15 +309,15 @@
                                         ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
                                 />
                             </group>
-                            <group>
+                            <group colspan="2">
                                 <field name="other_expenses"
                                        attrs="{'invisible': [('is_other_expenses', '=', False)]
                                        ,'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')
                                        ,('other_expenses_amount_spec_exist', '=', True)]}"
-                                       widget="monetary"
+                                       widget="monetary" class='oe_right' style="text-align:right"
                                 />
                             </group>
-                            <group>
+                            <group col="1" colspan="1">
                                 <button name="action_open_amount_spec_other_expenses" type="object" title="View project" string="spec" icon="fa-list" class="btn btn-link "
                                         attrs="{'invisible': ['|',('other_expenses_amount_spec_exist', '=', False),('is_other_expenses', '=', False)]}"
                                 />
@@ -325,15 +330,21 @@
                         <group  col="3" string="Costs FOT" >
                             <group>
                                 <field name="own_works_fot"
-                                       attrs="{'invisible': [('is_own_works_fot', '=', False)]}"/>
+                                       attrs="{'invisible': [('is_own_works_fot', '=', False)]}"
+                                       style="text-align:right"
+                                />
                             </group>
                             <group>
                                 <field name="awards_on_results_project"
-                                       attrs="{'invisible': [('is_awards_on_results_project', '=', False)]}"/>
+                                       attrs="{'invisible': [('is_awards_on_results_project', '=', False)]}"
+                                       style="text-align:right"
+                                />
                             </group>
                             <group>
                                 <field name="taxes_fot_premiums"
-                                       attrs="{'invisible': [('is_own_works_fot', '=', False),('is_awards_on_results_project', '=', False)]}"/>
+                                       attrs="{'invisible': [('is_own_works_fot', '=', False),('is_awards_on_results_project', '=', False)]}"
+                                       style="text-align:right"
+                                />
                             </group>
                         </group>
                     </sheet>

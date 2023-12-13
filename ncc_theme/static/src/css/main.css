@@ -60,6 +60,10 @@ a{
     border-radius: 5px;
 }
 
+.modal-lg, .modal-xl {
+    max-width: 80%;
+  }
+
 /* Popover Style */
 .o_popover{
     border-radius: 5px;
