@@ -856,6 +856,13 @@ class projects(models.Model):
                 raisetext = raisetext.format(project.project_id)
                 raise ValidationError(raisetext)
 
+    @api.constrains('project_have_steps', 'project_type_id')
+    def _check_project_with_steps_is_complex(self):
+        for project in self:
+            if project.project_have_steps and project.project_type_id.code != '03' and project.budget_state == 'work':  # Комплексный проект
+                raisetext = _("Project with steps should be 'Complex' type")
+                raise ValidationError(raisetext)
+
     def check_overdue_date(self, vals_list):
         for project in self:
 
