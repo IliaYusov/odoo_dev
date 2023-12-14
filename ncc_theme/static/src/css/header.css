@@ -91,7 +91,8 @@
     border-radius: 4px 0 0 4px !important;
 }
 .o_searchview .o_searchview_facet .o_facet_remove{
-    right: 0px;
+    right: -2px;
+    top: 2px;
 }
 /* Search Button Mobile Size Style */
 @media (max-width: 767.98px){

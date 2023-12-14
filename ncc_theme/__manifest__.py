@@ -17,6 +17,7 @@
             'ncc_theme/static/src/css/calendar.css',
             'ncc_theme/static/src/css/pivot.css',
             'ncc_theme/static/src/css/graph.css',
+            'ncc_theme/static/src/css/mail.css',
             'ncc_theme/static/src/css/activity.css',
             'ncc_theme/static/src/css/card.css',
             'ncc_theme/static/src/css/dashboard.css',
