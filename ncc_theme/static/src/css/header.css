@@ -1,4 +1,9 @@
-/* Right Header Eleman Style */
+/* Header Style */
+.o_cp_bottom {
+    margin-top: 0.5rem;
+}
+
+/* Right Header Element Style */
 .o_control_panel .o_cp_top_right, .o_control_panel .o_cp_bottom_right {
     width: 60%;
 }
@@ -119,7 +124,7 @@
 
 /* Filter Dropdown Toggle Style */
 button.dropdown-toggle.dropdown-item::after, button.dropdown-toggle.dropdown-item::before{
-    top: 5px;
+    top: 7px !important;
 }
 
 /* Custom Filter Style */

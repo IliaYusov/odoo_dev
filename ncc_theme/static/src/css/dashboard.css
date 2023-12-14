@@ -86,6 +86,9 @@
 
 
 /* My Dashboard Card Style */
+.pb_dashboards .card-title{
+    margin: 0.5rem;
+}
 .o_dashboard .o-dashboard-column .o-dashboard-action{
     border-radius: 5px;
     box-shadow: 0 2px 4px rgb(38 60 85 / 16%) !important;

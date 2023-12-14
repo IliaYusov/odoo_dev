@@ -106,7 +106,7 @@
 
                         <group col="6">
                             <group colspan="2">
-                                <field name="project_id" readonly="1"/>
+                                <field name="project_id" readonly="1" class="h5"/>
 <!--                                <field name="was_changes" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>-->
                             </group>
                             <group>
@@ -252,18 +252,18 @@
                                     <group string="Customer/Organization" >
                                     </group>
                                 </h4>
-                                <group col="3">
-                                    <group>
+                                <group col="6">
+                                    <group colspan="3">
                                         <field name="customer_organization_id" force_save="1" widget="many2one_avatar" options="{'no_open': True,}" placeholder="select costomer/organization"
                                                attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
 <!--                                        <field name="customer_status_id" force_save="1" options="{'no_open': True,}" placeholder="select customer state"-->
 <!--                                               attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>-->
                                     </group>
-                                    <group>
+                                    <group colspan="1">
                                         <field name="industry_id" force_save="1" options="{'no_open': True,}" placeholder="select industry"
                                                attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
                                     </group>
-                                    <group>
+                                    <group colspan="2">
                                         <field name="legal_entity_signing_id" force_save="1" options="{'no_open': True,}" placeholder="select legal entity signing"
                                                attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
 <!--                                        <field name="vgo" force_save="1" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>-->

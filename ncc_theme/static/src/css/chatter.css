@@ -27,15 +27,12 @@
     margin-bottom: 0px;
     margin-top: 5px;
     padding: 5px 5px;
+    white-space: normal !important;
 }
 
 /* Chatter Active Tab Style */
 .o_ChatterTopbar_actions .o-active{
     border-radius: 5px 5px 0 0;
-}
-
-.o_ChatterTopbar_rightSection{
-    justify-content: flex-start !important;
 }
 
 /* Chatter Send Message Style */
