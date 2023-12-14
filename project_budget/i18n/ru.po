@@ -3611,6 +3611,13 @@ msgstr "При наличии этапа проект должен иметь т
 #. odoo-python
 #: code:addons/project_budget/models/projects.py:0
 #, python-format
+msgid "'Complex' project should be with with steps"
+msgstr "'Комплексный' проект должен иметь этапность"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/projects.py:0
+#, python-format
 msgid ""
 "only project admin or supervisor or project office manager can reopen "
 "projects"
