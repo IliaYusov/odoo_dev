@@ -381,7 +381,8 @@ class project_steps(models.Model):
             if (step.estimated_probability_id.name in ('50', '75', '100')
                     and step.total_amount_of_revenue == 0
                     and step.cost_price == 0
-                    and step.projects_id.budget_state == 'work'):
+                    and step.projects_id.budget_state == 'work'
+                    and not step.projects_id.is_correction_project):
                 raisetext = _("Please enter financial data to project {0} step {1}")
                 raisetext = raisetext.format(step.projects_id.project_id, step.step_id)
                 raise ValidationError(raisetext)

@@ -852,7 +852,8 @@ class projects(models.Model):
                     and project.cost_price == 0
                     and not project.project_have_steps
                     and not project.is_parent_project
-                    and project.budget_state == 'work'):
+                    and project.budget_state == 'work'
+                    and not project.is_correction_project):
                 raisetext = _("Please enter financial data to project {0}")
                 raisetext = raisetext.format(project.project_id)
                 raise ValidationError(raisetext)
