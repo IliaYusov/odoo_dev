@@ -1,3 +1,7 @@
+.text-primary {
+    color: #0F5F8B !important;
+}
+
 /* Loading Bottom Page Style */
 .o_loading span{
     border-radius: 5px 0 0 0;
