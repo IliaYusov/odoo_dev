@@ -1495,6 +1495,7 @@ class report_management_committee_excel(models.AbstractModel):
                     if sum:
                         for key in sum:
                             margin_plan[key] = sum[key] * profitability / 100
+                            margin_sum[key] = sum[key] * profitability / 100
 
                     if not project.is_correction_project:
                         if sum100tmp_step >= sum['commitment']:
@@ -1541,6 +1542,7 @@ class report_management_committee_excel(models.AbstractModel):
                 if sum:
                     for key in sum:
                         margin_plan[key] = sum[key] * profitability / 100
+                        margin_sum[key] = sum[key] * profitability / 100
 
                 if not project.is_correction_project:
                     if sum100tmp >= sum['commitment']:
@@ -1598,10 +1600,12 @@ class report_management_committee_excel(models.AbstractModel):
                     if sum:
                         for key in sum:
                             margin_plan[key] = sum[key] * profitability / 100
+                            margin_sum[key] = sum[key] * profitability / 100
 
                     if sum_q1:
                         for key in sum_q1:
                             margin_plan_q1[key] = sum_q1[key] * profitability / 100
+                            margin_sum_q1[key] = sum_q1[key] * profitability / 100
 
                     if not project.is_correction_project:
                         if sum100tmp_q1_step >= sum_q1['commitment']:
@@ -1706,10 +1710,12 @@ class report_management_committee_excel(models.AbstractModel):
                 if sum:
                     for key in sum:
                         margin_plan[key] = sum[key] * profitability / 100
+                        margin_sum[key] = sum[key] * profitability / 100
 
                 if sum_q1:
                     for key in sum_q1:
                         margin_plan_q1[key] = sum_q1[key] * profitability / 100
+                        margin_sum_q1[key] = sum_q1[key] * profitability / 100
 
                 if not project.is_correction_project:
                     if sum100tmp_q1 >= sum_q1['commitment']:
@@ -1814,6 +1820,7 @@ class report_management_committee_excel(models.AbstractModel):
                     if sum:
                         for key in sum:
                             margin_plan[key] = sum[key] * profitability / 100
+                            margin_sum[key] = sum[key] * profitability / 100
 
                     if not project.is_correction_project:
                         if sum100tmp_step >= sum['commitment']:
@@ -1867,6 +1874,7 @@ class report_management_committee_excel(models.AbstractModel):
                 if sum:
                     for key in sum:
                         margin_plan[key] = sum[key] * profitability / 100
+                        margin_sum[key] = sum[key] * profitability / 100
 
                 if not project.is_correction_project:
                     if sum100tmp >= sum['commitment']:
@@ -1951,6 +1959,7 @@ class report_management_committee_excel(models.AbstractModel):
                         if sum:
                             for key in sum:
                                 margin_plan[key] = sum[key] * profitability / 100
+                                margin_sum[key] = sum[key] * profitability / 100
 
                         if not project.is_correction_project:
                             if sum100tmp_step >= sum['commitment']:
@@ -1991,6 +2000,7 @@ class report_management_committee_excel(models.AbstractModel):
                 if sum:
                     for key in sum:
                         margin_plan[key] = sum[key] * profitability / 100
+                        margin_sum[key] = sum[key] * profitability / 100
 
                 if not project.is_correction_project:
                     if sum100tmp >= sum['commitment']:
@@ -2044,13 +2054,15 @@ class report_management_committee_excel(models.AbstractModel):
                         margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
                         margin_sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
-                        if sum_q1:
-                            for key in sum_q1:
-                                margin_plan_q1[key] = sum_q1[key] * profitability / 100
-
                         if sum:
                             for key in sum:
                                 margin_plan[key] = sum[key] * profitability / 100
+                                margin_sum[key] = sum[key] * profitability / 100
+
+                        if sum_q1:
+                            for key in sum_q1:
+                                margin_plan_q1[key] = sum_q1[key] * profitability / 100
+                                margin_sum_q1[key] = sum_q1[key] * profitability / 100
 
                         if not project.is_correction_project:
                             if sum100tmp_q1_step >= sum_q1['commitment']:
@@ -2139,10 +2151,12 @@ class report_management_committee_excel(models.AbstractModel):
                 if sum:
                     for key in sum:
                         margin_plan[key] = sum[key] * profitability / 100
+                        margin_sum[key] = sum[key] * profitability / 100
 
                 if sum_q1:
                     for key in sum_q1:
                         margin_plan_q1[key] = sum_q1[key] * profitability / 100
+                        margin_sum_q1[key] = sum_q1[key] * profitability / 100
 
                 if not project.is_correction_project:
                     if sum100tmp_q1 >= sum_q1['commitment']:
@@ -2231,6 +2245,7 @@ class report_management_committee_excel(models.AbstractModel):
                         if sum:
                             for key in sum:
                                 margin_plan[key] = sum[key] * profitability / 100
+                                margin_sum[key] = sum[key] * profitability / 100
 
                         if not project.is_correction_project:
                             if sum100tmp_step >= sum['commitment']:
@@ -2281,6 +2296,7 @@ class report_management_committee_excel(models.AbstractModel):
                 if sum:
                     for key in sum:
                         margin_plan[key] = sum[key] * profitability / 100
+                        margin_sum[key] = sum[key] * profitability / 100
 
                 if not project.is_correction_project:
                     if sum100tmp >= sum['commitment']:

@@ -813,6 +813,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             if sum:
                 for key in sum:
                     margin_plan[key] = sum[key] * profitability / 100
+                    margin_sum[key] = sum[key] * profitability / 100
 
             if not project.is_correction_project:
 
