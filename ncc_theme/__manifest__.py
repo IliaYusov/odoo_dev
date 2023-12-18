@@ -3,6 +3,9 @@
     'version': '16.0.1.0.0',
     'category': "Themes/Backend",
     'depends': ['base', 'web', 'mail'],
+    "data": [
+        'views/layout.xml',
+    ],
     'assets': {
         'web._assets_primary_variables': [
             'ncc_theme/static/src/scss/primary_variables_custom.scss',
@@ -23,7 +26,7 @@
             'ncc_theme/static/src/css/dashboard.css',
             'ncc_theme/static/src/css/chatter.css',
             'ncc_theme/static/src/css/other.css',
-            'ncc_theme/static/src/scss/web_responsive.scss',
+            'ncc_theme/static/src/scss/new_layout.scss',
         ]
     }
 }

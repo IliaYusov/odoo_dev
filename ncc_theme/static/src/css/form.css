@@ -27,7 +27,10 @@
 .o_control_panel .breadcrumb > li, .breadcrumb-item > a{
     font-size: 1.3rem !important;
     color: #0F5F8B;
-    max-width: 100% !important;
+    max-width: 95% !important;
+}
+.breadcrumb {
+    flex-wrap: nowrap;
 }
 
 /* Form Button Style */

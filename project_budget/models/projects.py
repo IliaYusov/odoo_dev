@@ -420,7 +420,8 @@ class projects(models.Model):
     @api.depends('project_id','step_project_number')
     def _get_name_to_show(self):
         for prj in self:
-            prj.name_to_show = prj.project_id + '|'+ (prj.step_project_number or '') + '|' + (prj.essence_project[:30] or '')+'...'
+            name = (prj.project_id + '|'+ (prj.step_project_number or '') + '|' + (prj.essence_project or ''))
+            prj.name_to_show = name
 
     def show_message(self, mestext):
         print('show_message mestext = ', mestext)

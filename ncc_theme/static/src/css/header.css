@@ -10,7 +10,7 @@
 
 @media (max-width: 1200px){
     .o_control_panel .o_cp_top_right, .o_control_panel .o_cp_bottom_right {
-        width: 80% !important;
+        width: 50% !important;
     }
 }
 @media (max-width: 800px){
@@ -35,9 +35,6 @@
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 @media (max-width: 767.98px){
-    .o_control_panel .o_searchview{
-        padding: 0 13px;
-    }
     .o_control_panel .o_searchview .fa{
         font-size: 15px !important;
     }
