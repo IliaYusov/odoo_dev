@@ -113,6 +113,9 @@
 .o_form_view .o_field_widget{
     margin-bottom: 10px;
 }
+.o_field_stage_button_widget{
+    margin-bottom: 0px !important;
+}
 
 /* Empty Field Style */
 .o_field_empty{

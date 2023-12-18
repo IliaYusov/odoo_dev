@@ -1,12 +1,14 @@
 /* Kanban Section Style */
 .o_kanban_renderer.o_kanban_grouped.o_kanban_small_column .o_kanban_group:not(.o_column_folded),.o_kanban_renderer .o_kanban_group:not(.o_column_folded){
-    width: 272px;
     background-color: rgb(245, 245, 245);
     margin: 10px;
     border-radius: 5px;
     box-shadow: 0 2px 4px rgb(38 60 85 / 16%);
-    padding: 10px;
+    padding: 0px 6px;
     border-top: 4px solid #0F5F8B;
+}
+.o_kanban_renderer.o_kanban_grouped {
+    max-height: inherit;
 }
 
 /* Kanban Header Style */
@@ -55,7 +57,6 @@
 
 /* Kanban Item Footer Style */
 .o_kanban_renderer .o_kanban_record .o_kanban_record_bottom{
-    border-top: 1px solid rgb(202, 202, 202);
     padding-top: 5px;
 }
 

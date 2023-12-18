@@ -20,7 +20,7 @@
     border-radius: 5px 0 0 5px;
 }
 .o_kanban_renderer .oe_kanban_card .o_kanban_image, .o_kanban_renderer .o_kanban_record .o_kanban_image{
-    width: 100px;
+    width: 95px;
 }
 .o_kanban_renderer .o_kanban_record.o_kanban_record_has_image_fill .o_kanban_image_fill_left{
     border-radius: 5px 0px 0px 5px;
@@ -41,9 +41,6 @@
 /* Card Detail Style */
 .o_kanban_renderer.o_kanban_ungrouped .o_res_partner_kanban.o_kanban_record{
     padding-left: 7px !important;
-}
-.o_kanban_renderer .oe_kanban_card .oe_kanban_details ul, .o_kanban_renderer .o_kanban_record .oe_kanban_details ul{
-    margin-bottom: 25px;
 }
 
 /* Card Footer Icon Style */
