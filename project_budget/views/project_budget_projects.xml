@@ -196,8 +196,8 @@
                                 </group>
                             </h5>
                             <group>
-                                <field name="currency_id" options="{'no_open': True}" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
-<!--                                <field name="currency_id" attrs="{'readonly': True}" options="{'no_open': True}"/>-->
+<!--                                <field name="currency_id" options="{'no_open': True}" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>-->
+                                <field name="currency_id" attrs="{'readonly': True}" options="{'no_open': True}"/>
                             </group>
                             <group>
                                 <field name="dogovor_number" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
@@ -280,6 +280,7 @@
                                     </group>
                                     <group colspan="4">
                                         <field name="comments" placeholder="type comments for the project" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
+                                        <field name="is_correction_project" attrs="{'readonly': [('user_is_admin', '!=', True)]}"/>
                                     </group>
                                 </group>
                             </page>
