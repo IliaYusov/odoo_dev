@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <template id="custom_theme_color" inherit_id="web.webclient_bootstrap"
+              name="Custom Theme-color">
+        <xpath expr="//meta[@name='theme-color']" position="replace">
+            <meta name="theme-color"
+                  content="#0F5F8B"/>
+        </xpath>
+    </template>
+</odoo>
