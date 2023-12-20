@@ -59,6 +59,14 @@
     color: #dc3545;
 }
 
+.subordinates_to_do_tasks {
+    color: #0f5f8b;
+}
+
+.subordinates_overdue_tasks {
+    color: #dc3545;
+}
+
 /*=====================Process Chart===========================*/
 .chart_container {
     display: grid;

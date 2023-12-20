@@ -23,6 +23,16 @@
             <field name="active">True</field>
         </record>
 
+        <record id="document_flow_auto_substitution_head_project_office" model="document_flow.auto_substitution">
+            <field name="name">Head of project office</field>
+            <field name="expression">result = record.project_id.project_office_id.user_id</field>
+            <field name="active">True</field>
+        </record>
+
+        <record id="dms_version_config_document" model="dms.version.config">
+            <field name="model_id" ref="model_document_flow_document"/>
+        </record>
+
         <record id="task_type_review" model="task.type">
             <field name="name">Agreement</field>
             <field name="code">sys_df_review</field>

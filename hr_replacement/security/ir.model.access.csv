@@ -1,3 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 
-access_hr_employee_replacement,access_hr_employee_replacement,model_hr_employee_replacement,base.group_user,1,1,1,1
+access_hr_employee_replacement_user,hr.employee.replacement,model_hr_employee_replacement,document_flow.group_document_flow_user,1,0,0,0
+access_hr_employee_replacement_admin,hr.employee.replacement,model_hr_employee_replacement,document_flow.group_document_flow_manager,1,1,1,1

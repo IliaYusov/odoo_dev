@@ -77,7 +77,7 @@
                 </header>
                 <sheet string="Task">
                     <div class="oe_button_box" name="button_box">
-                        <button class="oe_stat_button" type="object" name="action_open_attachments"
+                        <button name="action_open_attachments" class="oe_stat_button" type="object"
                                 icon="fa-files-o">
                             <field string="Attachments" name="attachment_count" widget="statinfo"/>
                         </button>
@@ -112,7 +112,7 @@
                         <group>
                             <field name="priority" widget="priority"/>
                             <field name="user_ids" options="{'no_open': True, 'no_quick_create': True}"
-                                   widget="many2many_avatar_user" domain="[('share', '=', False)]"/>
+                                   widget="many2many_avatar_user"/>
                             <field name="date_deadline"/>
                         </group>
                     </group>

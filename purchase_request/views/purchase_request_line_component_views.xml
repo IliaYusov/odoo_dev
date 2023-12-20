@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="purchase_request_line_component_view_tree" model="ir.ui.view">
+        <field name="name">purchase.request.line.component.tree</field>
+        <field name="model">purchase.request.line.component</field>
+        <field name="arch" type="xml">
+            <tree string="Purchase Request Line Components" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="request_line_id" invisible="1"/>
+                <field name="request_line_estimation_id" invisible="1"/>
+                <field name="product_uom_category_id" invisible="1"/>
+                <field name="vendor_id"/>
+                <field name="product_barcode"/>
+                <field name="product_id"/>
+                <field name="product_uom_id"/>
+                <field name="product_uom_qty"/>
+                <field name="currency_id" invisible="1"/>
+                <field name="price_unit" widget="monetary" attrs="{'column_invisible': [('parent.position_type', '=', 'request')]}"/>
+                <field name="company_id" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+</odoo>

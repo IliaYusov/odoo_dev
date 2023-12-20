@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <menuitem id="menu_hr_timesheet" name="Timesheets" sequence="75" groups="group_hr_timesheet_user"/>
+
+    <menuitem id="menu_hr_timesheet_tracking" name="Timesheets" parent="menu_hr_timesheet" sequence="5">
+        <menuitem id="menu_hr_timesheet_activity_mine" name="My Timesheets" sequence="1"
+                  action="action_hr_timesheet_account_analytic_line_form_mine" groups="group_hr_timesheet_user"/>
+        <menuitem id="menu_hr_timesheet_activity_all" name="All Timesheets" sequence="2"
+                  action="action_hr_timesheet_account_analytic_line_form_all" groups="group_hr_timesheet_manager"/>
+    </menuitem>
+</odoo>

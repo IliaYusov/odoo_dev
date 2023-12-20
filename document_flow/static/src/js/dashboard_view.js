@@ -15,22 +15,47 @@ odoo.define("document_flow_dashboard.dashboard_view", function (require) {
             "click .by_me_to_do_tasks": "by_me_tasks_to_do",
             "click .by_me_overdue_tasks": "by_me_tasks_overdue",
             "click .group_to_do_tasks": "group_tasks_to_do",
-            "click .group_overdue_tasks": "group_tasks_overdue"
+            "click .group_overdue_tasks": "group_tasks_overdue",
+            "click .subordinates_to_do_tasks": "subordinates_tasks_to_do",
+            "click .subordinates_overdue_tasks": "subordinates_tasks_overdue",
         },
+
+        willStart: function() {
+            var self = this;
+            return this._super().then(
+                function() {
+                    var has_subordinates =  self._rpc({
+                        model: 'hr.employee',
+                        method: 'check_user_has_subordinates'
+                    }).then(function(result) {
+                        self.has_subordinates = result;
+                    });
+
+                    var replaceable_ids  = self._rpc({
+                        model: "hr.employee",
+                        method: "get_replaceable_user_ids",
+                    }).then(function (result) {
+                        self.replaceable_ids = result;
+                    });
+                    return $.when(has_subordinates, replaceable_ids);
+            });
+        },
+
         init: function (parent, context) {
             this._super(parent, context);
             this.dashboards_templates = ['DocumentFlowDashboard'];
         },
+
         start: function () {
             var self = this;
             this.set("title", 'Dashboard');
             return this._super().then(function () {
                 self.render_dashboards();
-                self.render_graphs();
+//                self.render_graphs();
                 self.$el.parent().addClass('oe_background_grey');
             });
-
         },
+
         render_graphs: function () {
             var self = this;
 //            self.render_tasks_graph();
@@ -50,9 +75,18 @@ odoo.define("document_flow_dashboard.dashboard_view", function (require) {
             });
         },
 
+        _getSubordinates: function () {
+            var self = this;
+            return rpc.query({
+                model: "hr.employee",
+                method: "get_subordinate_ids",
+                args: []
+            });
+        },
+
         render_dashboards: function () {
             var self = this;
-            var templates = ['DashBoardDocumentFlow'];
+            var templates = ['UserDashboard'];
             _.each(templates, function (template) {
                 self.$('.document_flow_dashboard_main').append(QWeb.render(template, {widget: self}));
             });
@@ -60,24 +94,24 @@ odoo.define("document_flow_dashboard.dashboard_view", function (require) {
             rpc.query({
                 model: "task.task",
                 method: "get_tasks_count",
-                args: [],
-            })
-                .then(function (result) {
-                    $("#my_tasks_count").append("<span class='stat-digit'>" + result.my_tasks_count + "</span>");
-                    $("#my_to_do_count").append("<span class='stat-digit'>" + result.my_to_do_count + "</span>");
-                    $("#my_overdue_count").append("<span class='stat-digit'>" + result.my_overdue_count + "</span>");
-                    $("#by_me_tasks_count").append("<span class='stat-digit'>" + result.by_me_tasks_count + "</span>");
-                    $("#by_me_to_do_count").append("<span class='stat-digit'>" + result.by_me_to_do_count + "</span>");
-                    $("#by_me_overdue_count").append("<span class='stat-digit'>" + result.by_me_overdue_count + "</span>");
-                    $("#group_tasks_count").append("<span class='stat-digit'>" + result.group_tasks_count + "</span>");
-                    $("#group_to_do_count").append("<span class='stat-digit'>" + result.group_to_do_count + "</span>");
-                    $("#group_overdue_count").append("<span class='stat-digit'>" + result.group_overdue_count + "</span>");
-
-                    ajax.jsonRpc("/document_flow/tasks", "call", {}).then(function (values) {
-                        $('.pending_tasks').append(values);
-                    });
-
-                });
+                args: [require('web.session').user_context.allowed_company_ids]
+            }).then(function (result) {
+                $("#my_tasks_count").append("<span class='stat-digit'>" + result.my_tasks_count + "</span>");
+                $("#my_to_do_count").append("<span class='stat-digit'>" + result.my_to_do_count + "</span>");
+                $("#my_overdue_count").append("<span class='stat-digit'>" + result.my_overdue_count + "</span>");
+                $("#by_me_tasks_count").append("<span class='stat-digit'>" + result.by_me_tasks_count + "</span>");
+                $("#by_me_to_do_count").append("<span class='stat-digit'>" + result.by_me_to_do_count + "</span>");
+                $("#by_me_overdue_count").append("<span class='stat-digit'>" + result.by_me_overdue_count + "</span>");
+                $("#group_tasks_count").append("<span class='stat-digit'>" + result.group_tasks_count + "</span>");
+                $("#group_to_do_count").append("<span class='stat-digit'>" + result.group_to_do_count + "</span>");
+                $("#group_overdue_count").append("<span class='stat-digit'>" + result.group_overdue_count + "</span>");
+                $("#subordinates_tasks_count").append("<span class='stat-digit'>" + result.subordinates_tasks_count + "</span>");
+                $("#subordinates_to_do_count").append("<span class='stat-digit'>" + result.subordinates_to_do_count + "</span>");
+                $("#subordinates_overdue_count").append("<span class='stat-digit'>" + result.subordinates_overdue_count + "</span>");
+//                    ajax.jsonRpc("/document_flow/tasks", "call", {}).then(function (values) {
+//                        $('.pending_tasks').append(values);
+//                    });
+            });
         },
 
         my_tasks_to_do: function (ev) {
@@ -93,7 +127,7 @@ odoo.define("document_flow_dashboard.dashboard_view", function (require) {
                 domain: [
                     ['parent_ref_type', 'like', 'document_flow.%'],
                     ['is_closed', '=', false],
-                    ['user_ids', 'in', require('web.session').user_id],
+                    '|', ['user_ids', '=', require('web.session').user_id], ['user_ids', 'in', self.replaceable_ids],
                     ['date_deadline', '>=', new Date()]
                 ],
                 context: {'default_parent_ref_type': 'document_flow.'},
@@ -114,7 +148,7 @@ odoo.define("document_flow_dashboard.dashboard_view", function (require) {
                 domain: [
                     ['parent_ref_type', 'like', 'document_flow.%'],
                     ['is_closed', '=', false],
-                    ['user_ids', 'in', require('web.session').user_id],
+                    '|', ['user_ids', '=', require('web.session').user_id], ['user_ids', 'in', self.replaceable_ids],
                     ['date_deadline', '<', new Date()]
                 ],
                 context: {'default_parent_ref_type': 'document_flow.'},
@@ -135,7 +169,7 @@ odoo.define("document_flow_dashboard.dashboard_view", function (require) {
                 domain: [
                     ['parent_ref_type', 'like', 'document_flow.%'],
                     ['is_closed', '=', false],
-                    ['author_id', 'in', require('web.session').user_id],
+                    ['author_id', '=', require('web.session').user_id],
                     ['date_deadline', '>=', new Date()]
                 ],
                 context: {'default_parent_ref_type': 'document_flow.'},
@@ -156,7 +190,7 @@ odoo.define("document_flow_dashboard.dashboard_view", function (require) {
                 domain: [
                     ['parent_ref_type', 'like', 'document_flow.%'],
                     ['is_closed', '=', false],
-                    ['author_id', 'in', require('web.session').user_id],
+                    ['author_id', '=', require('web.session').user_id],
                     ['date_deadline', '<', new Date()]
                 ],
                 context: {'default_parent_ref_type': 'document_flow.'},
@@ -214,6 +248,60 @@ odoo.define("document_flow_dashboard.dashboard_view", function (require) {
                         ['date_deadline', '<', new Date()],
                         ['user_ids', '=', false],
                         ['role_executor_id', 'in', roles]
+                    ],
+                    context: {'default_parent_ref_type': 'document_flow.'},
+                    target: 'current'
+                });
+            })
+        },
+
+        subordinates_tasks_to_do: function (ev) {
+            var self = this;
+            ev.stopPropagation();
+            ev.preventDefault();
+            rpc.query({
+                model: "hr.employee",
+                method: "get_subordinate_ids",
+                args: []
+            }).then(subordinates => {
+                this.do_action({
+                    name: _t('Tasks of subordinates'),
+                    type: 'ir.actions.act_window',
+                    res_model: 'task.task',
+                    view_mode: 'kanban,tree,form',
+                    views: [[false, 'kanban'], [false, 'list'], [false, 'form']],
+                    domain: [
+                        ['parent_ref_type', 'like', 'document_flow.%'],
+                        ['is_closed', '=', false],
+                        ['user_ids', 'in', subordinates],
+                        ['date_deadline', '>=', new Date()]
+                    ],
+                    context: {'default_parent_ref_type': 'document_flow.'},
+                    target: 'current'
+                });
+            })
+        },
+
+        subordinates_tasks_overdue: function (ev) {
+            var self = this;
+            ev.stopPropagation();
+            ev.preventDefault();
+            rpc.query({
+                model: "hr.employee",
+                method: "get_subordinate_ids",
+                args: []
+            }).then(subordinates => {
+                this.do_action({
+                    name: _t('Overdue tasks of subordinates'),
+                    type: 'ir.actions.act_window',
+                    res_model: 'task.task',
+                    view_mode: 'kanban,tree,form',
+                    views: [[false, 'kanban'], [false, 'list'], [false, 'form']],
+                    domain: [
+                        ['parent_ref_type', 'like', 'document_flow.%'],
+                        ['is_closed', '=', false],
+                        ['user_ids', 'in', subordinates],
+                        ['date_deadline', '<', new Date()]
                     ],
                     context: {'default_parent_ref_type': 'document_flow.'},
                     target: 'current'

@@ -1,9 +1,14 @@
-from odoo import models, fields, api, _
+import logging
+
+from odoo import api, fields, models, _
+from datetime import datetime, timedelta
+
+_logger = logging.getLogger(__name__)
 
 
 class TaskType(models.Model):
-    _name = "task.type"
-    _description = "Task Type"
+    _name = 'task.type'
+    _description = 'Task Type'
     _order = 'name, id'
 
     name = fields.Char(required=True, copy=True, translate=True)
@@ -21,12 +26,63 @@ class TaskType(models.Model):
     route_count = fields.Integer(string='Routes', compute='_compute_route_count', readonly=True)
 
     model_id = fields.Many2one('ir.model', string='Model')
+    access_group_ids = fields.Many2many('res.groups', relation='task_type_group_rel', column1='task_type_id',
+                                        column2='group_id', string='Access groups',
+                                        help="""If user belongs to one of groups specified in this field,
+                                        then he will be able to select this type during task creation.""")
+
+    employee_overdue_reminder = fields.Boolean(string='Employee Reminder', default=False)
+    days_before = fields.Integer(string='Days Before', default=1)
 
     _sql_constraints = [
         ('code_uniq',
          'UNIQUE (code)',
          'Code must be unique.')
     ]
+
+    @api.model
+    def _cron_deadline_reminder(self):
+        template = self.env.ref('task.mail_template_task_deadline_reminder', raise_if_not_found=False)
+        if not template:
+            _logger.warning(
+                'Cannot sent deadline reminder mail, because Mail Scheduler has reference to non-existent template')
+            return True
+
+        today = datetime.now().date()
+        types = self.search([('employee_overdue_reminder', '=', True)])
+        tasks = self.env['task.task'].search([
+            ('is_closed', '=', False),
+            ('date_deadline', '!=', False),
+            ('type_id', 'in', types.ids),
+            ('user_ids', '!=', False)
+        ])
+
+        users = set(tasks.user_ids)
+        for user in users:
+            overdue_tasks = tasks.filtered(lambda t: user in t.user_ids and t.date_deadline < today)
+            expiration_tasks = tasks.filtered(
+                lambda t: user in t.user_ids and today <= t.date_deadline <= today + timedelta(
+                    days=t.type_id.days_before))
+            render_ctx = {
+                'user_id': user,
+                'overdue_tasks': overdue_tasks,
+                'expiration_tasks': expiration_tasks
+            }
+            template.sudo().with_context(render_ctx).send_mail(self.id,
+                                                               email_layout_xmlid='mail.mail_notification_layout',
+                                                               force_send=True)
+        return True
+
+    @api.model_create_multi
+    def create(self, vals):
+        task_types = super().create(vals)
+
+        if self.env.context.get('create_default_stages'):
+            for task_type in task_types:
+                if not task_type.start_stage_id:
+                    task_type._create_default_stages_and_routes()
+
+        return task_types
 
     @api.depends('stage_ids')
     def _compute_stage_count(self):
@@ -73,17 +129,6 @@ class TaskType(models.Model):
             'stage_to_id': stage_done.id,
             'task_type_id': self.id,
         })
-
-    @api.model_create_multi
-    def create(self, vals):
-        task_types = super().create(vals)
-
-        if self.env.context.get('create_default_stages'):
-            for task_type in task_types:
-                if not task_type.start_stage_id:
-                    task_type._create_default_stages_and_routes()
-
-        return task_types
 
     def action_create_default_stage_and_routes(self):
         self._create_default_stages_and_routes()

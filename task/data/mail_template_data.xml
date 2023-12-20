@@ -101,5 +101,216 @@
                 </div>
             </field>
         </record>
+
+        <record id="mail_template_task_deadline_reminder" model="mail.template">
+            <field name="name">Task: Deadline Reminder</field>
+            <field name="email_to">{{ ctx['user_id'].email }}</field>
+            <field name="lang">{{ ctx['user_id'].lang }}</field>
+            <field name="subject">Reminder email for tasks deadline</field>
+            <field name="description">Template to automate email when tasks were overdue or expiration soon</field>
+            <field name="model_id" ref="task.model_task_type"/>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html" type="html">
+                <div style="margin: 0px; padding: 0px; font-size: 13px;">
+                    <br/>
+                    Dear <t t-out="ctx['user_id'].name or ''">user</t>,
+                    <br/>
+                    <br/>
+                    <div>
+                        The Deadline for tasks is coming up soon. Please submit your work by the Deadline.
+                        <br/>
+                        <br/>
+                        <table border="0" cellpadding="0" cellspacing="0" style="border: 1pt solid black; border-collapse: collapse; margin:5pt; width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th style="border: 1pt solid black; border-collapse: collapse; border-radius:8pt; text-align:center; width: 70%">Task</th>
+                                    <th style="border: 1pt solid black; border-collapse: collapse; text-align:center; width: 15%">Deadline</th>
+                                    <th style="border: 1pt solid black; border-collapse: collapse; border-radius:8pt; text-align:center; width: 15%">Link</th>
+                                </tr>
+                           </thead>
+                           <tbody>
+                               <t t-if="len(ctx['expiration_tasks']) > 0">
+                                   <th colspan="3" style="background-color: yellow; text-align: center;">Expiration tasks</th>
+                                   <t t-foreach="ctx['expiration_tasks']" t-as="task">
+                                       <tr>
+                                           <td style="border: 1pt solid black; border-collapse: collapse;">
+                                               <span>
+                                                   <t t-out="task.name"/>
+                                               </span>
+                                           </td>
+                                           <td style="border: 1pt solid black; border-collapse: collapse; text-align:center;">
+                                               <span>
+                                                   <t t-out="task.date_deadline"/>
+                                               </span>
+                                           </td>
+                                           <td style="border: 1pt solid black; border-collapse: collapse; text-align:center; padding: 7px;">
+                                               <a t-att-href="(task._compute_url())" style="background-color: #0f5f8b; height:18px;
+                                               width:80px; color: white; padding-top:1px;
+                                               border: none; border-radius: 5px;
+                                               text-align: center; text-decoration: none;
+                                               display: inline-block; font-size: 12px;">View Task
+                                               </a>
+                                           </td>
+                                       </tr>
+                                   </t>
+                               </t>
+                               <t t-if="len(ctx['overdue_tasks']) > 0">
+                                   <th colspan="3" style="background-color: red; text-align:center;">Overdue tasks</th>
+                                   <t t-foreach="ctx['overdue_tasks']" t-as="task">
+                                       <tr>
+                                           <td style="border: 1pt solid black; border-collapse: collapse;">
+                                               <span>
+                                                   <t t-out="task.name"/>
+                                               </span>
+                                           </td>
+                                           <td style="border: 1pt solid black; border-collapse: collapse; text-align:center;">
+                                               <span>
+                                                   <t t-out="task.date_deadline"/>
+                                               </span>
+                                           </td>
+                                           <td style="border: 1pt solid black; border-collapse: collapse; text-align:center; padding: 7px;">
+                                               <a t-att-href="(task._compute_url())" style="background-color: #0f5f8b; height:18px;
+                                               width:80px; color: white; padding-top:1px;
+                                               border: none; border-radius: 5px;
+                                               text-align: center; text-decoration: none;
+                                               display: inline-block; font-size: 12px;">View Task
+                                               </a>
+                                           </td>
+                                       </tr>
+                                   </t>
+                               </t>
+                           </tbody>
+                       </table>
+                    </div>
+                    <p style="margin:0px 0 12px 0;box-sizing:border-box;"></p>
+                </div>
+            </field>
+        </record>
+
+        <template id="mail.mail_notification_layout" name="Mail: mail notification layout template">
+            <html t-att-lang="lang">
+                <header>
+                    <meta http-equiv="Content-Type" content="text/html charset=UTF-8"/>
+                </header>
+                <body style="font-family:Verdana, Arial,sans-serif; color: #454748;">
+                    <t t-set="subtype_internal" t-value="subtype and subtype.internal"/>
+                    <!-- HEADER -->
+                    <t t-call="mail.notification_preview"/>
+                    <div style="max-width: 900px; width: 100%;">
+                        <div t-if="has_button_access" itemscope="itemscope" itemtype="http://schema.org/EmailMessage">
+                            <div itemprop="potentialAction" itemscope="itemscope"
+                                 itemtype="http://schema.org/ViewAction">
+                                <link itemprop="target" t-att-href="button_access['url']"/>
+                                <link itemprop="url" t-att-href="button_access['url']"/>
+                                <meta itemprop="name" t-att-content="button_access['title']"/>
+                            </div>
+                        </div>
+                        <div t-if="subtitles or has_button_access or actions or not is_discussion"
+                             summary="o_mail_notification" style="padding: 0px;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0"
+                                   style="width: 100%; margin-top: 5px;">
+                                <tbody>
+                                    <tr>
+                                        <td valign="center">
+                                            <img t-att-src="'/logo.png?company=%s' % (company.id or 0)"
+                                                 style="padding: 0px; margin: 0px; height: auto; max-width: 200px; max-height: 36px;"
+                                                 t-att-alt="'%s' % company.name"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td valign="center">
+                                            <hr width="100%"
+                                                style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 10px 0px;"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td valign="center" style="white-space:nowrap;">
+                                            <table cellspacing="0" cellpadding="0" border="0">
+                                                <tbody>
+                                                    <tr>
+                                                        <td t-if="has_button_access"
+                                                            t-att-style="'border-radius: 3px; text-align: center; background: ' + (company.secondary_color if company.secondary_color else '#875A7B')">
+                                                            <a t-att-href="button_access['url']"
+                                                               style="font-size: 12px; color: #FFFFFF; display: block; padding: 8px 12px 11px; text-decoration: none !important; font-weight: 400;">
+                                                                <t t-out="button_access['title']"/>
+                                                            </a>
+                                                        </td>
+                                                        <td t-if="has_button_access">&amp;nbsp;&amp;nbsp;</td>
+
+                                                        <td t-if="subtitles" style="font-size: 12px;">
+                                                            <t t-foreach="subtitles" t-as="subtitle">
+                                                                <span t-attf-style="{{ 'font-weight:bold;' if subtitle_first else '' }}"
+                                                                      t-out="subtitle"/>
+                                                                <br t-if="not subtitle_last"/>
+                                                            </t>
+                                                        </td>
+                                                        <td t-else="">
+                                                            <span style="font-weight:bold;" t-out="record_name"/>
+                                                            <br/>
+                                                        </td>
+                                                        <td>&amp;nbsp;&amp;nbsp;</td>
+
+                                                        <td t-if="actions">
+                                                            <t t-foreach="actions" t-as="action">
+                                                                |
+                                                                <a t-att-href="action['url']"
+                                                                   style="font-size: 12px; color: #875A7B; text-decoration:none !important;">
+                                                                    <t t-out="action['title']"/>
+                                                                </a>
+                                                            </t>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td valign="center">
+                                            <hr width="100%"
+                                                style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0;margin: 10px 0px;"/>
+                                            <p t-if="subtype_internal"
+                                               style="background-color: #f2dede; padding: 5px; margin-bottom: 16px; font-size: 13px;">
+                                                <strong>Internal communication</strong>: Replying will post an internal
+                                                note. Followers won't receive any email notification.
+                                            </p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- CONTENT -->
+                        <div t-out="message.body" style="font-size: 13px;"/>
+                        <ul t-if="tracking_values">
+                            <t t-foreach="tracking_values" t-as="tracking">
+                                <li><t t-out="tracking[0]"/>:
+                                    <t t-out="tracking[1]"/> &#8594;
+                                    <t t-out="tracking[2]"/>
+                                </li>
+                            </t>
+                        </ul>
+                        <t class="o_signature">
+                            <div t-if="email_add_signature and not is_html_empty(signature)" t-out="signature"
+                                 style="font-size: 13px;"/>
+                        </t>
+                        <!-- FOOTER -->
+                        <div style="margin-top:32px;">
+                            <hr width="100%"
+                                style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 4px 0px;"/>
+                            <b t-out="company.name" style="font-size:11px;"/>
+                            <br/>
+                            <p style="color: #999999; margin-top:2px; font-size:11px;">
+                                <t t-out="company.phone"/>
+                                <t t-if="company.email and company.phone">|</t>
+                                <a t-if="company.email" t-att-href="'mailto:%s' % company.email"
+                                   style="text-decoration:none; color: #999999;" t-out="company.email"/>
+                                <t t-if="company.website and (company.phone or company.email)">|</t>
+                                <a t-if="company.website" t-att-href="'%s' % company.website"
+                                   style="text-decoration:none; color: #999999;" t-out="company.website"/>
+                            </p>
+                        </div>
+                    </div>
+                </body>
+            </html>
+        </template>
     </data>
 </odoo>

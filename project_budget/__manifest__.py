@@ -43,6 +43,7 @@
         'views/scheduled_report_views.xml',
         'wizard/report_tender_wizard.xml',
         'wizard/report_projects_wizard.xml',
+        'wizard/message_wizard.xml',
         'views/dashboard_view.xml',
         'views/project_budget_menu.xml'
     ],

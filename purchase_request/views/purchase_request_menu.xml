@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <menuitem id="purchase.menu_purchase_rfq" active="False"/>
+    <menuitem id="purchase.menu_purchase_form_action" active="False"/>
+    <menuitem id="purchase.purchase_report_main" active="False"/>
+
+    <menuitem id="menu_purchase_request" parent="purchase.menu_procurement_management" sequence="10" name="Purchase Requests"
+              action="action_purchase_requests_form"/>
+
+    <menuitem id="menu_action_component_characteristic_form" parent="purchase.menu_purchase_products"
+              name="Component Characteristic" sequence="30"
+              action="action_purchase_request_characteristics_form"/>
+
+    <menuitem id="menu_purchase_request_configuration" parent="purchase.menu_purchase_config" name="Purchase Requests"
+              sequence="20">
+        <menuitem id="menu_action_request_types_form" name="Request Types" sequence="1"
+                  action="action_purchase_request_types_form"/>
+    </menuitem>
+</odoo>

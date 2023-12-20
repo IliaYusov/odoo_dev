@@ -7,13 +7,13 @@
         </div>
     </t>
 
-    <t t-name="DashBoardDocumentFlow">
+    <t t-name="UserDashboard">
         <link rel="stylesheet" href="/document_flow/static/src/css/dashboard.css"/>
         <div class="row row-cols-1 row-cols-md-4 g-4 mt-1">
             <div class="col my_tasks">
                 <div class="card">
                     <div class="card-header justify-content-center align-items-center">
-                        <h2 class="card-title">My Tasks: <small id="my_tasks_count"/></h2>
+                        <h2 class="card-title">My tasks: <small id="my_tasks_count"/></h2>
                     </div>
                     <div class="card-body">
                         <div class="row row-cols-2">
@@ -60,7 +60,7 @@
             <div class="col by_me_tasks">
                 <div class="card">
                     <div class="card-header justify-content-center align-items-center">
-                        <h2 class="card-title">Created By Me: <small id="by_me_tasks_count"/></h2>
+                        <h2 class="card-title">Created by me: <small id="by_me_tasks_count"/></h2>
                     </div>
                     <div class="card-body">
                         <div class="row row-cols-2">
@@ -107,7 +107,7 @@
             <div class="col group_tasks">
                 <div class="card">
                     <div class="card-header justify-content-center align-items-center">
-                        <h2 class="card-title">Group Tasks: <small id="group_tasks_count"/></h2>
+                        <h2 class="card-title">Group tasks: <small id="group_tasks_count"/></h2>
                     </div>
                     <div class="card-body">
                         <div class="row row-cols-2">
@@ -151,6 +151,55 @@
                     </div>
                 </div>
             </div>
+            <t t-if="widget.has_subordinates">
+                <div class="col subordinates_tasks">
+                    <div class="card">
+                        <div class="card-header justify-content-center align-items-center">
+                            <h2 class="card-title">Tasks of subordinates: <small id="subordinates_tasks_count"/></h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="row row-cols-2">
+                                <div class="col-md-6">
+                                    <div class="card subordinates_to_do_tasks">
+                                        <div class="row justify-content-center align-items-center g-0">
+                                            <div class="col-4">
+                                                <div class="card-icon">
+                                                    <i class="fa fa-inbox"/>
+                                                </div>
+                                            </div>
+                                            <div class="col-8">
+                                                <div class="card-body text-info">
+                                                    <span class="tasks-title">New</span>
+                                                    <br/>
+                                                    <span class="tasks-count" id="subordinates_to_do_count"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card subordinates_overdue_tasks">
+                                        <div class="row justify-content-center align-items-center g-0">
+                                            <div class="col-4">
+                                                <div class="card-icon">
+                                                    <i class="fa fa-fire"/>
+                                                </div>
+                                            </div>
+                                            <div class="col-8">
+                                                <div class="card-body text-danger">
+                                                    <span class="tasks-title">Overdue</span>
+                                                    <br/>
+                                                    <span class="tasks-count" id="subordinates_overdue_count"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
         </div>
     </t>
 </templates>

@@ -67,7 +67,7 @@ class Event(models.Model):
         for event in self:
             event.process_id = self.env['document_flow.processing'].search([
                 ('parent_ref', '=', '%s,%d' % (type(event).__name__, event.id))
-            ]).process_id
+            ]).process_ids[-1:]
 
     def action_send_for_approving(self):
         self.ensure_one()
@@ -90,7 +90,6 @@ class Event(models.Model):
                     'type': 'agreement',
                     'sequence': 0,
                     'description': self.description,
-                    'parent_ref': '%s,%d' % (type(processing).__name__, processing.id),
                     'parent_ref_type': type(processing).__name__,
                     'parent_ref_id': processing.id,
                     'type_sequence': 'together_with_the_previous'
@@ -106,7 +105,6 @@ class Event(models.Model):
                 'type': 'review',
                 'sequence': 1,
                 'description': self.description,
-                'parent_ref': '%s,%d' % (type(processing).__name__, processing.id),
                 'parent_ref_type': type(processing).__name__,
                 'parent_ref_id': processing.id,
                 'type_sequence': 'after_the_previous'
@@ -124,7 +122,6 @@ class Event(models.Model):
                 'type': 'complex',
                 'sequence': 1,
                 'description': self.description,
-                'parent_ref': '%s,%d' % (type(processing).__name__, processing.id),
                 'parent_ref_type': type(processing).__name__,
                 'parent_ref_id': processing.id,
                 'type_sequence': 'together_with_the_previous'
@@ -297,7 +294,7 @@ class EventDecision(models.Model):
         ('year', 'Years'),
     ], required=False, string='Repeat Interval')
 
-    action_id = fields.Many2one('document_flow.action', string='Action')
+    action_id = fields.Many2one('document_flow.action', string='Action', copy=False)
 
     def name_get(self):
         decisions = []
@@ -314,12 +311,7 @@ class EventDecision(models.Model):
     @api.depends('process_id')
     def _compute_process_id(self):
         for decision in self:
-            decision.process_id = self.env['document_flow.process.parent_object'].sudo().search([
-                ('parent_ref_type', '=', self._name),
-                ('parent_ref_id', '=', decision.id),
-                ('process_id', '!=', False),
-                ('process_id.state', '!=', 'break')
-            ], limit=1).process_id
+            decision.process_id = False
 
     @api.onchange('deadline_type', 'after_decision_id', 'number_days')
     def onchange_date_deadline(self):

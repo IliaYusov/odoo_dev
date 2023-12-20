@@ -17,7 +17,7 @@ class TaskStageRoute(models.Model):
     close = fields.Boolean(related='stage_to_id.closed', store=True, index=True, readonly=True)
     result_type = fields.Selection(related='stage_to_id.result_type', store=True, readonly=True)
 
-    require_comment = fields.Boolean(store=True, help="If set, then user will be asked for comment on this route")
+    require_comment = fields.Boolean(store=True, help='If set, then user will be asked for comment on this route')
 
     button_style = fields.Selection([
         ('primary', 'Primary'),
@@ -65,11 +65,11 @@ class TaskStageRoute(models.Model):
             TaskStage = self.env['task.stage']
             stage = TaskStage.browse(to_stage_id) if to_stage_id else None
             raise exceptions.ValidationError(_(
-                "Cannot move task to this stage: no route.\n"
-                "\tTask: %(task)s\n"
-                "\tTo stage id: %(to_stage_id)s\n"
-                "\tTo stage name: %(to_stage_name)s\n"
-                "\tFrom stage name: %(from_stage_name)s\n"
+                'Cannot move task to this stage: no route.\n'
+                '\tTask: %(task)s\n'
+                '\tTo stage id: %(to_stage_id)s\n'
+                '\tTo stage name: %(to_stage_name)s\n'
+                '\tFrom stage name: %(from_stage_name)s\n'
             ) % {
                 'task': task.name,
                 'to_stage_id': to_stage_id,

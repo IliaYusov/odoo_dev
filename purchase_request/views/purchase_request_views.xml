@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_purchase_requests_form" model="ir.actions.act_window">
+        <field name="name">Purchase Requests</field>
+        <field name="res_model">purchase.request</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No purchase requests found. Let's create one!
+            </p>
+        </field>
+    </record>
+
+    <record id="purchase_request_view_tree" model="ir.ui.view">
+        <field name="name">purchase.request.tree</field>
+        <field name="model">purchase.request</field>
+        <field name="arch" type="xml">
+            <tree string="Purchase Requests" multi_edit="1" sample="1">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="project_id"/>
+                <field name="partner_id"/>
+                <field name="sum"/>
+                <field name="special_conditions" optional="hide"/>
+                <field name="state" widget="badge" decoration-success="state == 'done'" decoration-danger="state == 'cancel'" decoration-info="state == 'draft'"/>
+                <field name="company_id" widget="many2many_tags" invisible="1" groups="!base.group_multi_company"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="purchase_request_view_form" model="ir.ui.view">
+        <field name="name">purchase.request.form</field>
+        <field name="model">purchase.request</field>
+        <field name="arch" type="xml">
+            <form string="Purchase Request">
+                <header>
+                    <button string="Estimation Completed" type="object" name="action_estimation_completed"
+                            class="oe_highlight" groups="purchase.group_purchase_manager"
+                            attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                    <field name="state" widget="statusbar" readonly="1"/>
+                </header>
+                <sheet string="Purchase Request">
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" type="object" name="action_open_processing"
+                                icon="fa-spinner" string="Processing">
+                        </button>
+                        <button class="oe_stat_button" type="object" name="action_open_estimations"
+                                icon="fa-dollar">
+                            <field string="Estimations" name="estimation_count" widget="statinfo"/>
+                        </button>
+                        <button class="oe_stat_button" type="object" name="action_open_attachments"
+                                icon="fa-files-o">
+                            <field string="Attachments" name="attachment_count" widget="statinfo"/>
+                        </button>
+                    </div>
+                    <group invisible="1">
+                        <field name="process_state"/>
+                    </group>
+                    <field name="process_id" class="position-relative" widget="processingbar" readonly="1" nolabel="1"
+                           style="width:100%" attrs="{'invisible': [('process_id', '=', False)]}"/>
+                    <div class="oe_title">
+                        <field name="code" readonly="1"/>
+                    </div>
+                    <h2>
+                        <field name="name" style="width:100%" placeholder="Presale Title..."
+                               attrs="{'readonly': [('process_id', '!=', False), ('process_state', 'not in', ('on_registration', 'break'))]}"/>
+                    </h2>
+                    <group col="3">
+                        <group>
+                            <field name="project_id" attrs="{'readonly': [('process_id', '!=', False), ('process_state', 'not in', ('on_registration', 'break'))]}"/>
+                        </group>
+                        <group>
+                            <field name="partner_id"/>
+                        </group>
+                        <group>
+                            <field name="partner_vat"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="main_info" string="Main Info">
+                            <group col="2">
+                                <group>
+                                    <field name="request_type_id"/>
+                                </group>
+                                <group>
+                                    <field name="competition_link" widget="url"
+                                           placeholder="e.g. https://zakupki.gov.ru"/>
+                                </group>
+                            </group>
+                            <group col="2">
+                                <group>
+                                    <field name="application_deadline"/>
+                                </group>
+                                <group>
+                                    <field name="date_price"/>
+                                </group>
+                            </group>
+                            <group col="2">
+                                <group>
+                                    <field name="responsible_ids" options="{'no_open': True, 'no_quick_create': True}"
+                                           widget="many2many_avatar_employee"/>
+                                </group>
+                                <group>
+                                    <field name="partner_payment_term_id"/>
+                                </group>
+                            </group>
+                            <group col="2">
+                                <group>
+                                    <field name="date_delivery"/>
+                                </group>
+                                <group>
+                                    <field name="calc_delivery_cost" widget="boolean_toggle"
+                                           options="{'autosave': False}"/>
+                                </group>
+                            </group>
+                            <group>
+                                <field name="sum"
+                                       attrs="{'readonly': [('process_id', '!=', False), ('process_state', 'not in', ('on_registration', 'break'))]}"/>
+                            </group>
+                            <group>
+                                <field name="special_conditions" placeholder="Special conditions..."/>
+                            </group>
+                            <group>
+                                <field name="company_id" invisible="1" groups="!base.group_multi_company"/>
+                                <field name="company_id" groups="base.group_multi_company"
+                                       attrs="{'readonly': [('process_id', '!=', False), ('process_state', 'not in', ('on_registration', 'break'))]}"/>
+                            </group>
+                        </page>
+                        <page name="request_line" string="Request Lines">
+                            <field name="line_ids" mode="tree" widget="section_and_note_one2many"
+                                   context="{'default_sequence': len(line_ids), 'default_request_id': active_id}"/>
+                        </page>
+                        <page name="request_line_delivery" string="Purchase Request Lines Delivery"
+                              attrs="{'invisible': [('calc_delivery_cost', '=', False)]}">
+                            <group col="2">
+                                <group>
+                                    <field name="partial_shipment" widget="boolean_toggle"/>
+                                </group>
+                                <group>
+                                    <field name="number_packages"/>
+                                </group>
+                            </group>
+                            <button string="Fill by lines" class="btn btn-primary" type="object"
+                                    name="action_fill_delivery_info_by_lines" icon="fa-pencil"/>
+                            <field name="line_delivery_ids" mode="tree"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,487 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* contract
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-12-15 08:13+0000\n"
+"PO-Revision-Date: 2023-12-15 08:13+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: contract
+#: model_terms:ir.ui.view,arch_db:contract.contract_view_form
+msgid ""
+"<i class=\"fa fa-long-arrow-right mx-2\" aria-label=\"Arrow icon\" "
+"title=\"Arrow\"/>"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__message_needaction
+msgid "Action Needed"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__active
+#: model:ir.model.fields,field_description:contract.field_contract_type__active
+msgid "Active"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__activity_ids
+msgid "Activities"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__activity_state
+msgid "Activity State"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__activity_type_icon
+msgid "Activity Type Icon"
+msgstr ""
+
+#. module: contract
+#. odoo-python
+#: code:addons/contract/models/contract.py:0
+#, python-format
+msgid "Add attachments for this contract"
+msgstr "Добавьте вложение для этого договора"
+
+#. module: contract
+#: model_terms:ir.ui.view,arch_db:contract.contract_view_form
+msgid "Additional Properties"
+msgstr "Дополнительные свойства"
+
+#. module: contract
+#: model_terms:ir.ui.view,arch_db:contract.contract_type_view_form
+#: model_terms:ir.ui.view,arch_db:contract.contract_view_form
+#: model_terms:ir.ui.view,arch_db:contract.contract_view_search
+msgid "Archived"
+msgstr "В архиве"
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__attachment_count
+#: model:ir.model.fields,field_description:contract.field_contract_contract__message_attachment_count
+msgid "Attachment Count"
+msgstr "Количество вложений"
+
+#. module: contract
+#. odoo-python
+#: code:addons/contract/models/contract.py:0
+#: model:ir.model.fields,field_description:contract.field_contract_contract__attachment_ids
+#: model_terms:ir.ui.view,arch_db:contract.contract_view_form
+#, python-format
+msgid "Attachments"
+msgstr "Вложения"
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__author_id
+msgid "Author"
+msgstr "Подготовил"
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__can_edit
+msgid "Can Edit"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__code
+msgid "Code"
+msgstr "Код"
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__company_id
+msgid "Company"
+msgstr "Компания"
+
+#. module: contract
+#: model:ir.ui.menu,name:contract.menu_contract_configuration
+msgid "Configuration"
+msgstr "Настройки"
+
+#. module: contract
+#: model:ir.model,name:contract.model_res_partner
+msgid "Contact"
+msgstr ""
+
+#. module: contract
+#: model:ir.model,name:contract.model_contract_contract
+#: model_terms:ir.ui.view,arch_db:contract.contract_view_form
+msgid "Contract"
+msgstr "Договор"
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_res_partner__contract_count
+#: model:ir.model.fields,field_description:contract.field_res_users__contract_count
+msgid "Contract Count"
+msgstr "Количество договоров"
+
+#. module: contract
+#: model_terms:ir.ui.view,arch_db:contract.contract_view_form
+msgid "Contract Description..."
+msgstr "Комментарий..."
+
+#. module: contract
+#: model:ir.ui.menu,name:contract.menu_contract_contract
+msgid "Contract Management"
+msgstr "Управление договорами"
+
+#. module: contract
+#: model_terms:ir.ui.view,arch_db:contract.contract_view_form
+msgid "Contract Name..."
+msgstr "Наименование договора"
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_type__properties_definition
+msgid "Contract Properties"
+msgstr ""
+
+#. module: contract
+#: model:ir.actions.act_window,name:contract.action_contract_template_form
+msgid "Contract Templates"
+msgstr "Шаблоны договоров"
+
+#. module: contract
+#: model:ir.model,name:contract.model_contract_type
+#: model_terms:ir.ui.view,arch_db:contract.contract_type_view_form
+msgid "Contract Type"
+msgstr "Вид договора"
+
+#. module: contract
+#: model_terms:ir.ui.view,arch_db:contract.contract_type_view_form
+msgid "Contract Type Name..."
+msgstr "Наименование вида договора..."
+
+#. module: contract
+#: model:ir.actions.act_window,name:contract.action_contract_type_form
+#: model:ir.ui.menu,name:contract.menu_contract_types
+#: model_terms:ir.ui.view,arch_db:contract.contract_type_view_tree
+msgid "Contract Types"
+msgstr "Виды договоров"
+
+#. module: contract
+#: model_terms:ir.ui.view,arch_db:contract.contract_view_form
+msgid "Contracting Parties"
+msgstr "Стороны договора"
+
+#. module: contract
+#: model:ir.actions.act_window,name:contract.action_contract_form
+#: model:ir.ui.menu,name:contract.menu_contacts
+#: model:ir.ui.menu,name:contract.menu_contract_management
+#: model_terms:ir.ui.view,arch_db:contract.contract_view_search
+#: model_terms:ir.ui.view,arch_db:contract.contract_view_tree
+#: model_terms:ir.ui.view,arch_db:contract.res_partner_view_form_inherit_contract
+msgid "Contracts"
+msgstr "Договоры"
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__create_uid
+#: model:ir.model.fields,field_description:contract.field_contract_type__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__create_date
+#: model:ir.model.fields,field_description:contract.field_contract_type__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__currency_id
+msgid "Currency"
+msgstr "Валюта"
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__date
+msgid "Date"
+msgstr "Дата"
+
+#. module: contract
+#: model_terms:ir.ui.view,arch_db:contract.contract_view_tree
+msgid "Date End"
+msgstr "Действует по"
+
+#. module: contract
+#: model_terms:ir.ui.view,arch_db:contract.contract_view_tree
+msgid "Date Start"
+msgstr "Действует с"
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__description
+#: model_terms:ir.ui.view,arch_db:contract.contract_view_form
+msgid "Description"
+msgstr "Описание"
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__display_name
+#: model:ir.model.fields,field_description:contract.field_contract_type__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__date_end
+msgid "End Date"
+msgstr "Действует по"
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__message_follower_ids
+msgid "Followers"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__message_partner_ids
+msgid "Followers (Partners)"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,help:contract.field_contract_contract__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__has_message
+msgid "Has Message"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__id
+#: model:ir.model.fields,field_description:contract.field_contract_type__id
+msgid "ID"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__activity_exception_icon
+msgid "Icon"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,help:contract.field_contract_contract__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,help:contract.field_contract_contract__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,help:contract.field_contract_contract__message_has_error
+msgid "If checked, some messages have a delivery error."
+msgstr ""
+
+#. module: contract
+#: model_terms:ir.ui.view,arch_db:contract.contract_view_form
+#: model_terms:ir.ui.view,arch_db:contract.contract_view_search
+#: model_terms:ir.ui.view,arch_db:contract.contract_view_tree
+msgid "Internal Number"
+msgstr "Внутренний номер"
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__message_is_follower
+msgid "Is Follower"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract____last_update
+#: model:ir.model.fields,field_description:contract.field_contract_type____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__write_uid
+#: model:ir.model.fields,field_description:contract.field_contract_type__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__write_date
+#: model:ir.model.fields,field_description:contract.field_contract_type__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__message_main_attachment_id
+msgid "Main Attachment"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__message_has_error
+msgid "Message Delivery error"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__message_ids
+msgid "Messages"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__name
+#: model:ir.model.fields,field_description:contract.field_contract_type__name
+#: model_terms:ir.ui.view,arch_db:contract.contract_view_search
+msgid "Name"
+msgstr "Наименование"
+
+#. module: contract
+#. odoo-python
+#: code:addons/contract/models/contract.py:0
+#: code:addons/contract/models/contract.py:0
+#: code:addons/contract/models/contract.py:0
+#: code:addons/contract/models/contract.py:0
+#, python-format
+msgid "New"
+msgstr "Новый"
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__activity_calendar_event_id
+msgid "Next Activity Calendar Event"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__activity_summary
+msgid "Next Activity Summary"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__activity_type_id
+msgid "Next Activity Type"
+msgstr ""
+
+#. module: contract
+#: model_terms:ir.actions.act_window,help:contract.action_contract_type_form
+msgid "No contract types found. Let's create one!"
+msgstr "Виды договоров не найдены. Давайте создадим первый!"
+
+#. module: contract
+#: model_terms:ir.actions.act_window,help:contract.action_contract_form
+msgid "No contracts found. Let's create one!"
+msgstr "Договоры не найдены. Давайте создадим первый!"
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__num
+#: model_terms:ir.ui.view,arch_db:contract.contract_view_form
+#: model_terms:ir.ui.view,arch_db:contract.contract_view_search
+msgid "Number"
+msgstr "Номер"
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__message_needaction_counter
+msgid "Number of Actions"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__message_has_error_counter
+msgid "Number of errors"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,help:contract.field_contract_contract__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,help:contract.field_contract_contract__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__partner_id
+msgid "Partner"
+msgstr "Контрагент"
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_res_partner__contract_ids
+#: model:ir.model.fields,field_description:contract.field_res_users__contract_ids
+msgid "Partner Contracts"
+msgstr ""
+
+#. module: contract
+#: model_terms:ir.ui.view,arch_db:contract.contract_view_form
+msgid "Payments"
+msgstr "Расчеты"
+
+#. module: contract
+#: model_terms:ir.ui.view,arch_db:contract.contract_view_form
+msgid "Period"
+msgstr "Период"
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__properties
+msgid "Properties"
+msgstr "Свойства"
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__property_count
+msgid "Property Count"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__responsible_id
+msgid "Responsible"
+msgstr "Ответственный"
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__activity_user_id
+msgid "Responsible User"
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__date_begin
+msgid "Start Date"
+msgstr "Период"
+
+#. module: contract
+#: model:ir.model.fields,help:contract.field_contract_contract__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__sum
+msgid "Sum"
+msgstr "Сумма"
+
+#. module: contract
+#: model:ir.ui.menu,name:contract.menu_contract_templates
+msgid "Templates"
+msgstr "Шаблоны"
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_contract_contract__type_id
+msgid "Type"
+msgstr "Вид"
+
+#. module: contract
+#: model:ir.model.fields,help:contract.field_contract_contract__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr ""
+
+#. module: contract
+#: model_terms:ir.ui.view,arch_db:contract.contract_view_form
+msgid "from"
+msgstr "от"

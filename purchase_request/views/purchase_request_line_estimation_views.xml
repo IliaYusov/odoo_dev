@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="purchase_request_line_estimation_view_search" model="ir.ui.view">
+        <field name="name">purchase.request.line.estimation.search</field>
+        <field name="model">purchase.request.line.estimation</field>
+        <field name="arch" type="xml">
+            <search string="Estimations">
+                <group expand="0" string="Group By">
+                    <filter name="group_by_request_line_id" string="Request Line" domain="[]"
+                            context="{'group_by': 'request_line_id'}"/>
+                    <filter name="group_by_vendor_id" string="Vendor" context="{'group_by': 'vendor_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="purchase_request_line_estimation_view_tree" model="ir.ui.view">
+        <field name="name">purchase.request.line.estimation.tree</field>
+        <field name="model">purchase.request.line.estimation</field>
+        <field name="arch" type="xml">
+            <tree string="Purchase Request Lines Estimation">
+                <header>
+                    <button string="New quotation" type="object" name="action_create_quotation"
+                            class="oe_highlight" attrs="{'invisible': [('request_state', 'not in', ('done'))]}"/>
+                </header>
+                <field name="request_state" invisible="1"/>
+                <field name="request_line_id" invisible="1"/>
+                <field name="is_favorite" widget="boolean_favorite" nolabel="1" width="1"/>
+                <field name="vendor_id"/>
+                <field name="request_id" invisible="1"/>
+                <field name="product_uom_category_id" invisible="1"/>
+                <field name="product_barcode"/>
+                <field name="product_id"/>
+                <field name="product_uom_id"/>
+                <field name="product_uom_qty"/>
+                <field name="currency_id" invisible="1"/>
+                <field name="price_unit"/>
+                <field name="price_subtotal" widget="monetary"/>
+                <field name="delivery_time" invisible="context.get('hide_add_info', False)"/>
+                <field name="vendor_guarantee" invisible="context.get('hide_add_info', False)"/>
+                <field name="supplier_id" invisible="context.get('hide_add_info', False)"/>
+                <field name="comment" invisible="context.get('hide_add_info', False)"/>
+                <field name="create_uid" string="Purchasing Manager"/>
+                <field name="company_id" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="purchase_request_line_estimation_view_form" model="ir.ui.view">
+        <field name="name">purchase.request.line.estimation.form</field>
+        <field name="model">purchase.request.line.estimation</field>
+        <field name="arch" type="xml">
+            <form string="Purchase Request Line Estimation">
+                <sheet string="Purchase Request Line Estimation">
+                    <group invisible="1">
+                        <field name="request_id"/>
+                        <field name="product_uom_category_id"/>
+                        <field name="position_type"/>
+                        <field name="technical_requirements"/>
+                    </group>
+                    <field name="is_favorite" nolabel="1" widget="boolean_favorite"/>
+                    <group col="3">
+                        <group>
+                            <field name="vendor_id"/>
+                        </group>
+                        <group>
+                            <field name="product_id"/>
+                        </group>
+                        <group>
+                            <label for="product_uom_qty"/>
+                            <div class="o_row" name="ordered_qty">
+                                <field name="product_uom_qty"/>
+                                <field name="product_uom_id" class="oe_inline"/>
+                            </div>
+                        </group>
+                    </group>
+                    <group col="3">
+                        <group>
+                            <label for="price_unit"/>
+                            <div class="o_row" name="price_unit">
+                                <field name="price_unit"/>
+                                <field name="currency_id" class="oe_inline" options="{'no_create': True, 'no_open': True}"/>
+                            </div>
+                        </group>
+                        <group>
+                            <label for="delivery_time"/>
+                            <div name="delivery_time">
+                                <field name="delivery_time" class="oe_inline"/>
+                                weeks
+                            </div>
+                        </group>
+                        <group>
+                            <label for="vendor_guarantee"/>
+                            <div name="vendor_guarantee">
+                                <field name="vendor_guarantee" class="oe_inline"/>
+                                months
+                            </div>
+                        </group>
+                    </group>
+                    <group col="3">
+                        <group>
+                            <field name="payment_term_id"/>
+                        </group>
+                        <group>
+                            <field name="comment"/>
+                        </group>
+                        <group>
+                            <field name="supplier_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="create_uid" string="Purchasing Manager"/>
+                    </group>
+                    <group>
+                        <field name="company_id" invisible="1" groups="!base.group_multi_company"/>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                    </group>
+                    <notebook>
+                        <page name="component_line" string="Components">
+                            <div class="row">
+                                <field name="component_ids" mode="tree" widget="section_and_note_one2many"/>
+                                <field name="characteristic_ids" mode="tree" widget="section_and_note_one2many"
+                                       attrs="{'invisible': [('technical_requirements', '=', False)]}" readonly="1"/>
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

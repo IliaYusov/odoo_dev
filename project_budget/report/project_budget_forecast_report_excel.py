@@ -1461,7 +1461,11 @@ class report_budget_forecast_excel(models.AbstractModel):
                     # row += 1
                     # sheet.write_string(row, column, project_office.name, row_format)
 
-                    for spec in cur_budget_projects.filtered(lambda x: (x.project_office_id == project_office or (x.legal_entity_signing_id.different_project_offices_in_steps and x.project_have_steps)) and x.project_manager_id == project_manager):
+                    for spec in cur_budget_projects:
+                        if spec.id in dict_formula['printed_projects']:
+                            continue
+                        if not ((spec.project_office_id == project_office or (spec.legal_entity_signing_id.different_project_offices_in_steps and spec.project_have_steps)) and spec.project_manager_id == project_manager):
+                            continue
                         # if spec.estimated_probability_id.name != '0':
                         if spec.is_framework == True and spec.project_have_steps == False: continue # рамка без этапов - пропускаем
                         if spec.vgo == '-':
@@ -1475,6 +1479,8 @@ class report_budget_forecast_excel(models.AbstractModel):
 
                             if spec.project_have_steps:
                                 for step in spec.project_steps_ids:
+                                    if step.id in dict_formula['printed_steps']:
+                                        continue
 
                                     if ((spec.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
                                             or ((not spec.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and spec.project_office_id == project_office)):
@@ -1525,6 +1531,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                             column += 1
                                             sheet.write_string(row, column, '', head_format_1)
                                             self.print_row_Values(workbook, sheet, row, column,  spec, step)
+                                            dict_formula['printed_steps'].add(step.id)
                             else:
                                 if spec.project_office_id == project_office and spec.estimated_probability_id == estimated_probability:
                                     if self.isProjectinYear(spec) == False:
@@ -1569,6 +1576,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                     column += 1
                                     sheet.write_string(row, column, '', head_format_1)
                                     self.print_row_Values(workbook, sheet, row, column,  spec, False)
+                                    dict_formula['printed_projects'].add(spec.id)
 
                     if isFoundProjectsByProbability:
                         row += 1
@@ -1932,10 +1940,10 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         commercial_budget_id = data['commercial_budget_id']
 
-        dict_formula = {}
+        dict_formula = {'printed_projects': set(), 'printed_steps': set()}
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
         estimated_probabilities = self.env['project_budget.estimated_probability'].search([('name', '!=', '10')], order='code desc')  # для сортировки так делаем
         self.printworksheet(workbook, budget, 'Прогноз', estimated_probabilities)
-        dict_formula = {}
+        dict_formula = {'printed_projects': set(), 'printed_steps': set()}
         estimated_probabilities = self.env['project_budget.estimated_probability'].search([('name', '=', '10')], order='code desc')  # для сортировки так делаем
         self.printworksheet(workbook, budget, '10%', estimated_probabilities)

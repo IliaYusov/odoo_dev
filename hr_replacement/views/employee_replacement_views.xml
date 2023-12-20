@@ -4,7 +4,7 @@
         <field name="name">Replacements Of The Employees</field>
         <field name="res_model">hr.employee.replacement</field>
         <field name="view_mode">tree,form</field>
-        <field name="context">{"active_test": False}</field>
+        <field name="context">{"active_test": False, "search_default_actual_replacements": True}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 No replacements of the employees found. Let's create one!

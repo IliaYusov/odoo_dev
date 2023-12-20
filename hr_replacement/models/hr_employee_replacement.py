@@ -18,6 +18,12 @@ class HrEmployeeReplacement(models.Model):
     active = fields.Boolean(default=True, index=True)
     comment = fields.Html(string='Comment', copy=True)
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        self.clear_caches()
+        res = super(HrEmployeeReplacement, self).create(vals_list)
+        return res
+
     def write(self, vals):
         self.clear_caches()
         res = super(HrEmployeeReplacement, self).write(vals)

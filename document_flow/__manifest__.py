@@ -1,8 +1,8 @@
 {
     'name': 'Document Flow',
-    'version': '16.0.1.3.0',
+    'version': '1.5.1',
     'category': '',
-    'depends': ['base', 'mail', 'task', 'hr_replacement', 'project_budget'],
+    'depends': ['base', 'mail', 'task', 'dms', 'hr', 'project_budget'],
     'external_dependencies': {'python': ['htmldocx', 'html2text']},
     'description': """
     """,
@@ -39,17 +39,19 @@
         'views/management_committee_views.xml',
         'views/process_views.xml',
         'views/process_template_views.xml',
-        'views/document_type_views.xml',
+        'views/document_kind_template_views.xml',
         'views/document_views.xml',
+        'views/document_access_views.xml',
+        'wizard/document_flow_processing_wizard_resume.xml',
         'views/processing_views.xml',
         'views/task_history_views.xml',
         'views/task_views.xml',
         'views/dashboard_view.xml',
         'views/dashboard_templates.xml',
         'report/report.xml',
-        'views/document_flow_menu.xml'
+        'views/document_flow_menu.xml',
     ],
     'demo': [
     ],
-    'license': 'LGPL-3',
+    'license': 'LGPL-3'
 }

@@ -12,6 +12,11 @@ class IrAttachment(models.Model):
                                   string='Previous Versions', context={'active_test': False})
     version_count = fields.Integer(string='Version Count', compute='_compute_version_count')
 
+    def _read_group_allowed_fields(self):
+        allowed_fields = super()._read_group_allowed_fields()
+        allowed_fields.append('version')
+        return allowed_fields
+
     @api.depends('version')
     def _compute_version_ids(self):
         for attachment in self:
@@ -26,16 +31,17 @@ class IrAttachment(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        if self.env.context.get('dms_file', False):
-            for vals in vals_list:
-                if not vals.get('version', False):
-                    vals['version'] = 1
+        for vals in vals_list:
+            model = vals.get('res_model') or self.env.context.get('active_model')
+            if self.env['dms.version.config'].search([('model_id', '=', model)]) and not vals.get('version', False):
+                vals['version'] = 1
 
         records = super().create(vals_list)
         return records
 
     def write(self, vals):
-        if self.env.context.get('dms_file', False):
+        model = vals.get('res_model') or self.env.context.get('active_model')
+        if self.env['dms.version.config'].search([('model_id', '=', model)]):
             copy = self.copy({'active': False, 'current_version_id': self.id})
             self.env.cr.execute(
                 "UPDATE ir_attachment SET create_date='%s' WHERE id=%s" %

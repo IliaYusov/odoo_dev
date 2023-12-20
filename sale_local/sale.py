@@ -507,7 +507,7 @@ class sale_order(osv.osv):
 
     def test_no_product(self, cr, uid, order, context):
         for line in order.order_line:
-            if line.product_id and (line.product_id.type != 'service'):
+            if line.product_id and (line.product_id.type<>'service'):
                 return False
         return True
 
@@ -526,7 +526,7 @@ class sale_order(osv.osv):
             context = dict(context or {}, date_invoice=date_invoice)
         for o in self.browse(cr, uid, ids, context=context):
             currency_id = o.pricelist_id.currency_id.id
-            if (o.partner_id.id in partner_currency) and (partner_currency[o.partner_id.id] != currency_id):
+            if (o.partner_id.id in partner_currency) and (partner_currency[o.partner_id.id] <> currency_id):
                 raise osv.except_osv(
                     _('Error!'),
                     _('You cannot group sales having different currencies for the same partner.'))
@@ -835,7 +835,7 @@ class sale_order_line(osv.osv):
             proxy = self.pool.get('ir.model.data')
             result = proxy.get_object_reference(cr, uid, 'product', 'product_uom_unit')
             return result[1]
-        except Exception as ex:
+        except Exception, ex:
             return False
 
     def _fnct_line_invoiced(self, cr, uid, ids, field_name, args, context=None):

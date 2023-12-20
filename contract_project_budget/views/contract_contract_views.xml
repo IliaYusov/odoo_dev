@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="contract_view_form_inherit_contract_project_budget" model="ir.ui.view">
+        <field name="name">contract.view.form.inherit.contract_project_budget</field>
+        <field name="model">contract.contract</field>
+        <field name="inherit_id" ref="contract.contract_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//separator[@name='contracting_parties']" position="before">
+                <group>
+                    <field name="project_id" options="{'no_create_edit': True, 'no_open': True}"
+                           attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

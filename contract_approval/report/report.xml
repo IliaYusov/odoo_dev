@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_contract_approval_form" model="ir.actions.report">
+        <field name="name">Approval form (docx)</field>
+        <field name="model">contract.contract</field>
+        <field name="report_type">docx</field>
+        <field name="report_name">contract.contract_approval_form</field>
+        <field name="report_file">contract.contract_approval_form</field>
+        <field name="print_report_name">'Approval form "%s"' % object.name</field>
+        <field name="binding_model_id" ref="model_contract_contract"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

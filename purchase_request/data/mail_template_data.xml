@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="track_decision_name_template">
+            <div>
+                <strong>The decision has been updated.</strong>
+                <ul>
+                    <li><t t-esc="decision.name"/>:</li>
+                    Name: <t t-esc="decision.name" /> -&gt; <t t-esc="new_name"/><br/>
+                </ul>
+            </div>
+        </template>
+    </data>
+</odoo>

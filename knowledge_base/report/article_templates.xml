@@ -1,0 +1,38 @@
+<odoo>
+    <template id="article_report">
+       <t t-call="web.html_container">
+           <t t-foreach="docs" t-as="article">
+               <t t-call="web.external_layout">
+                   <div class="page">
+                       <div class="oe_structure"/>
+                       <h2>
+                       <a t-att-href="article.base_url"><span t-field="article.name"/></a>
+                       </h2>
+                       <div class="col-xs-6 mt6">
+                           <img t-att-src="'data:image/png;base64,%s' % article.base64_qr" style="max-height: 100px;"/>
+                       </div>
+                       <p><span t-field="article.text"/></p>
+                       <t t-if="len(article.child_ids)">
+                            <t t-foreach="article.child_ids" t-as="child">
+                                <br/>
+                                <hr/>
+                                <h2><t t-out="child.name"/></h2>
+                                <p><t t-out="child.text"/></p>
+                            </t>
+                       </t>
+                   </div>
+               </t>
+           </t>
+       </t>
+    </template>
+    <!-- убираем header, заменяем отступы -->
+    <template id="article_report_header" inherit_id="web.external_layout_standard">
+        <xpath expr="//div[@t-attf-class='header o_company_#{company.id}_layout']" position="replace">
+        </xpath>
+        <xpath expr="//div[@class='pt-5']" position="replace">
+            <div>
+                <t t-call="web.address_layout"/>
+            </div>
+        </xpath>
+    </template>
+</odoo>

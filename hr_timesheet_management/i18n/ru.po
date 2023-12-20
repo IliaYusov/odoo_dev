@@ -1,0 +1,234 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* hr_timesheet_management
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-12-04 10:33+0000\n"
+"PO-Revision-Date: 2023-12-04 10:33+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: hr_timesheet_management
+#: model:res.groups,name:hr_timesheet_management.group_hr_timesheet_manager
+msgid "Administrator"
+msgstr "Администратор"
+
+#. module: hr_timesheet_management
+#: model:ir.actions.act_window,name:hr_timesheet_management.action_hr_timesheet_account_analytic_line_form_all
+#: model:ir.ui.menu,name:hr_timesheet_management.menu_hr_timesheet_activity_all
+msgid "All Timesheets"
+msgstr "Все трудозатраты"
+
+#. module: hr_timesheet_management
+#: model:ir.model.fields,field_description:hr_timesheet_management.field_project_budget_projects__analytic_account_id
+#: model:ir.model.fields,field_description:hr_timesheet_management.field_task_task__analytic_account_id
+msgid "Analytic Account"
+msgstr "Аналитический счет"
+
+#. module: hr_timesheet_management
+#: model:ir.model,name:hr_timesheet_management.model_account_analytic_line
+msgid "Analytic Line"
+msgstr "Позиция аналитики"
+
+#. module: hr_timesheet_management
+#: model:ir.model.fields,help:hr_timesheet_management.field_task_task__analytic_account_id
+msgid ""
+"Analytic account to which this task and its timesheets are linked.\n"
+"             Track the costs and revenues of your task by setting its analytic account on your related documents.\n"
+"             By default, the analytic account of the project is set. However, it can be changed on each task individually if necessary."
+msgstr ""
+"Аналитический счет, к которому привязан данный проект, его задачи и трудозатраты.\n"
+"Отслеживайте расходы и доходы вашего проекта, настроив этот аналитический счет для работы с соответствующими документами.\n"
+"При необходимости этот аналитический счет можно изменить для каждой задачи в отдельности.\n"
+"Аналитический счет необходим для использования трудозатрат."
+
+#. module: hr_timesheet_management
+#: model:ir.model,name:hr_timesheet_management.model_res_company
+msgid "Companies"
+msgstr "Компании"
+
+#. module: hr_timesheet_management
+#: model_terms:ir.ui.view,arch_db:hr_timesheet_management.hr_timesheet_account_analytic_line_view_search
+msgid "Date"
+msgstr "Дата"
+
+#. module: hr_timesheet_management
+#: model:ir.model.fields,field_description:hr_timesheet_management.field_res_company__analytic_plan_id
+msgid "Default Plan"
+msgstr "План по умолчанию"
+
+#. module: hr_timesheet_management
+#: model:ir.model.fields,help:hr_timesheet_management.field_res_company__analytic_plan_id
+msgid "Default Plan for a new analytic account for projects"
+msgstr "План по умолчанию для новой аналитической учетной записи проектов"
+
+#. module: hr_timesheet_management
+#: model:ir.model.fields,field_description:hr_timesheet_management.field_account_analytic_line__employee_id
+#: model_terms:ir.ui.view,arch_db:hr_timesheet_management.hr_timesheet_account_analytic_line_view_search
+msgid "Employee"
+msgstr "Сотрудник"
+
+#. module: hr_timesheet_management
+#: model_terms:ir.ui.view,arch_db:hr_timesheet_management.hr_timesheet_account_analytic_line_view_search
+msgid "Group By"
+msgstr "Группировать по"
+
+#. module: hr_timesheet_management
+#: model:ir.model.fields,field_description:hr_timesheet_management.field_project_budget_projects__total_hours_spent
+msgid "Hours"
+msgstr "Часы"
+
+#. module: hr_timesheet_management
+#: model:ir.model.fields,field_description:hr_timesheet_management.field_task_task__effective_hours
+#: model_terms:ir.ui.view,arch_db:hr_timesheet_management.task_task_view_form_inherit_hr_timesheet
+msgid "Hours Spent"
+msgstr "Затрачено"
+
+#. module: hr_timesheet_management
+#: model_terms:ir.ui.view,arch_db:hr_timesheet_management.task_task_view_form_inherit_hr_timesheet
+msgid "Hours Spent on Sub-tasks:"
+msgstr "Затрачено на выполнение подзадач:"
+
+#. module: hr_timesheet_management
+#: model:ir.model.fields,field_description:hr_timesheet_management.field_account_analytic_line__manager_id
+#: model_terms:ir.ui.view,arch_db:hr_timesheet_management.hr_timesheet_account_analytic_line_view_search
+msgid "Manager"
+msgstr "Руководитель"
+
+#. module: hr_timesheet_management
+#: model:ir.actions.act_window,name:hr_timesheet_management.action_hr_timesheet_account_analytic_line_form_mine
+#: model:ir.ui.menu,name:hr_timesheet_management.menu_hr_timesheet_activity_mine
+#: model_terms:ir.ui.view,arch_db:hr_timesheet_management.hr_timesheet_account_analytic_line_view_search
+msgid "My Timesheets"
+msgstr "Мои трудозатраты"
+
+#. module: hr_timesheet_management
+#: model_terms:ir.actions.act_window,help:hr_timesheet_management.action_hr_timesheet_account_analytic_line_form_all
+#: model_terms:ir.actions.act_window,help:hr_timesheet_management.action_hr_timesheet_account_analytic_line_form_mine
+#: model_terms:ir.actions.act_window,help:hr_timesheet_management.action_hr_timesheet_account_analytic_line_form_project
+msgid "No activities found. Let's start a new one!"
+msgstr "Не найдено ни одного действия. Давайте начнем работу!"
+
+#. module: hr_timesheet_management
+#: model:ir.model.fields,field_description:hr_timesheet_management.field_task_task__planned_hours
+#: model_terms:ir.ui.view,arch_db:hr_timesheet_management.task_task_view_form_inherit_hr_timesheet
+msgid "Planned Hours"
+msgstr "Оценка"
+
+#. module: hr_timesheet_management
+#: model:ir.model.fields,field_description:hr_timesheet_management.field_account_analytic_line__project_id
+#: model_terms:ir.ui.view,arch_db:hr_timesheet_management.hr_timesheet_account_analytic_line_view_search
+msgid "Project"
+msgstr "Проект"
+
+#. module: hr_timesheet_management
+#: model:ir.model.fields,field_description:hr_timesheet_management.field_task_task__project_analytic_account_id
+msgid "Project Analytic Account"
+msgstr ""
+
+#. module: hr_timesheet_management
+#: model:ir.model.fields,field_description:hr_timesheet_management.field_task_task__subtask_effective_hours
+msgid "Sub-tasks Hours Spent"
+msgstr "Затрачено на выполнение подзадач"
+
+#. module: hr_timesheet_management
+#: model:ir.model.fields,field_description:hr_timesheet_management.field_task_task__subtask_planned_hours
+msgid "Sub-tasks Planned Hours"
+msgstr ""
+
+#. module: hr_timesheet_management
+#: model:ir.model.fields,help:hr_timesheet_management.field_task_task__subtask_planned_hours
+msgid ""
+"Sum of the hours allocated for all the sub-tasks (and their own sub-tasks) linked to this task.\n"
+"                                              Usually less than or equal to the allocated hours of this task."
+msgstr ""
+
+#. module: hr_timesheet_management
+#: model:ir.model,name:hr_timesheet_management.model_task_task
+#: model:ir.model.fields,field_description:hr_timesheet_management.field_account_analytic_line__task_id
+#: model_terms:ir.ui.view,arch_db:hr_timesheet_management.hr_timesheet_account_analytic_line_view_search
+msgid "Task"
+msgstr "Задача"
+
+#. module: hr_timesheet_management
+#: model:ir.model.fields,help:hr_timesheet_management.field_task_task__subtask_effective_hours
+msgid "Time spent on the sub-tasks (and their own sub-tasks) of this task."
+msgstr ""
+"Трудозатраты на подзадачи (и их собственные подзадачи) для этой задачи."
+
+#. module: hr_timesheet_management
+#: model:ir.model.fields,help:hr_timesheet_management.field_task_task__total_hours_spent
+msgid "Time spent on this task and its sub-tasks (and their own sub-tasks)."
+msgstr ""
+"Трудозатраты на эту задачу и ее подзадачи (и их собственные подзадачи)."
+
+#. module: hr_timesheet_management
+#: model_terms:ir.ui.view,arch_db:hr_timesheet_management.hr_timesheet_account_analytic_line_view_pivot_mine
+#: model_terms:ir.ui.view,arch_db:hr_timesheet_management.hr_timesheet_account_analytic_line_view_search
+msgid "Timesheet"
+msgstr "Трудозатраты"
+
+#. module: hr_timesheet_management
+#: model_terms:ir.ui.view,arch_db:hr_timesheet_management.hr_timesheet_account_analytic_line_view_search
+msgid "Timesheet by Date"
+msgstr "Трудозатраты по дате"
+
+#. module: hr_timesheet_management
+#: model:ir.actions.act_window,name:hr_timesheet_management.action_hr_timesheet_account_analytic_line_form_project
+#: model:ir.model.fields,field_description:hr_timesheet_management.field_project_budget_projects__timesheet_ids
+#: model:ir.model.fields,field_description:hr_timesheet_management.field_task_task__timesheet_ids
+#: model:ir.ui.menu,name:hr_timesheet_management.menu_hr_timesheet
+#: model:ir.ui.menu,name:hr_timesheet_management.menu_hr_timesheet_tracking
+#: model_terms:ir.ui.view,arch_db:hr_timesheet_management.hr_timesheet_account_analytic_line_view_pivot
+#: model_terms:ir.ui.view,arch_db:hr_timesheet_management.hr_timesheet_account_analytic_line_view_tree
+#: model_terms:ir.ui.view,arch_db:hr_timesheet_management.project_budget_project_view_form_inherit_hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet_management.task_task_view_form_inherit_hr_timesheet
+msgid "Timesheets"
+msgstr "Трудозатраты"
+
+#. module: hr_timesheet_management
+#: model_terms:ir.ui.view,arch_db:hr_timesheet_management.hr_timesheet_account_analytic_line_view_tree
+msgid "Total"
+msgstr "Итого"
+
+#. module: hr_timesheet_management
+#: model:ir.model.fields,field_description:hr_timesheet_management.field_task_task__total_hours_spent
+#: model_terms:ir.ui.view,arch_db:hr_timesheet_management.task_task_view_form_inherit_hr_timesheet
+msgid "Total Hours"
+msgstr "Итого часов"
+
+#. module: hr_timesheet_management
+#: model_terms:ir.actions.act_window,help:hr_timesheet_management.action_hr_timesheet_account_analytic_line_form_all
+#: model_terms:ir.actions.act_window,help:hr_timesheet_management.action_hr_timesheet_account_analytic_line_form_mine
+#: model_terms:ir.actions.act_window,help:hr_timesheet_management.action_hr_timesheet_account_analytic_line_form_project
+msgid "Track your working hours by projects every day."
+msgstr "Отслеживайте рабочее время по проектам каждый день."
+
+#. module: hr_timesheet_management
+#. odoo-python
+#: code:addons/hr_timesheet_management/models/project_budget_project.py:0
+#, python-format
+msgid "Unknown Analytic Account"
+msgstr ""
+
+#. module: hr_timesheet_management
+#: model:ir.model.fields,field_description:hr_timesheet_management.field_account_analytic_line__user_id
+msgid "User"
+msgstr "Пользователь"
+
+#. module: hr_timesheet_management
+#: model:res.groups,name:hr_timesheet_management.group_hr_timesheet_user
+msgid "User: own timesheets only"
+msgstr "Пользователь: только свои трудозатраты"
+
+#. module: hr_timesheet_management
+#: model:ir.model,name:hr_timesheet_management.model_project_budget_projects
+msgid "project_office commercial budget projects"
+msgstr "Проекты"

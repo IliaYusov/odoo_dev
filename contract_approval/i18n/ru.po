@@ -1,0 +1,191 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* contract_approval
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-12-13 14:23+0000\n"
+"PO-Revision-Date: 2023-12-13 14:23+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: contract_approval
+#: model:ir.actions.report,print_report_name:contract_approval.action_report_contract_approval_form
+msgid "'Approval form \"%s\"' % object.name"
+msgstr "'Лист согласования \"%s\"' % object.name"
+
+#. module: contract_approval
+#: model:ir.model.fields,field_description:contract_approval.field_contract_contract__access_ids
+#: model_terms:ir.ui.view,arch_db:contract_approval.contract_access_view_tree
+#: model_terms:ir.ui.view,arch_db:contract_approval.contract_contract_view_form_inherit_contract_approval
+msgid "Access"
+msgstr "Доступ"
+
+#. module: contract_approval
+#. odoo-python
+#: code:addons/contract_approval/report/approval_form.py:0
+#, python-format
+msgid "Actual executor"
+msgstr "Фактический исполнитель"
+
+#. module: contract_approval
+#. odoo-python
+#: code:addons/contract_approval/report/approval_form.py:0
+#, python-format
+msgid "Agreed"
+msgstr "Согласовано"
+
+#. module: contract_approval
+#. odoo-python
+#: code:addons/contract_approval/report/approval_form.py:0
+#, python-format
+msgid "Approval form"
+msgstr "Лист согласования"
+
+#. module: contract_approval
+#: model:ir.actions.report,name:contract_approval.action_report_contract_approval_form
+msgid "Approval form (docx)"
+msgstr "Лист согласования (docx)"
+
+#. module: contract_approval
+#. odoo-python
+#: code:addons/contract_approval/report/approval_form.py:0
+#, python-format
+msgid "Comment"
+msgstr "Комментарий"
+
+#. module: contract_approval
+#. odoo-python
+#: code:addons/contract_approval/models/document_flow_processing.py:0
+#: code:addons/contract_approval/models/task_task.py:0
+#: model:ir.model,name:contract_approval.model_contract_contract
+#: model:ir.model.fields,field_description:contract_approval.field_contract_access__contract_id
+#, python-format
+msgid "Contract"
+msgstr "Договор"
+
+#. module: contract_approval
+#. odoo-python
+#: code:addons/contract_approval/report/approval_form.py:0
+#, python-format
+msgid "Contract \"%s\" from %s"
+msgstr "Договор \"%s\" от %s"
+
+#. module: contract_approval
+#: model:ir.model,name:contract_approval.model_contract_access
+msgid "Contract Access"
+msgstr ""
+
+#. module: contract_approval
+#: model:ir.model.fields,field_description:contract_approval.field_contract_access__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: contract_approval
+#: model:ir.model.fields,field_description:contract_approval.field_contract_access__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: contract_approval
+#. odoo-python
+#: code:addons/contract_approval/report/approval_form.py:0
+#, python-format
+msgid "Date"
+msgstr "Дата"
+
+#. module: contract_approval
+#: model:ir.model.fields,field_description:contract_approval.field_contract_access__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: contract_approval
+#. odoo-python
+#: code:addons/contract_approval/report/approval_form.py:0
+#, python-format
+msgid "Full name"
+msgstr "ФИО"
+
+#. module: contract_approval
+#: model:ir.model.fields,field_description:contract_approval.field_contract_access__role_executor_id
+msgid "Group"
+msgstr "Группа"
+
+#. module: contract_approval
+#: model:ir.model.fields,field_description:contract_approval.field_contract_access__id
+msgid "ID"
+msgstr ""
+
+#. module: contract_approval
+#: model:ir.model.fields,field_description:contract_approval.field_contract_access____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: contract_approval
+#: model:ir.model.fields,field_description:contract_approval.field_contract_access__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: contract_approval
+#: model:ir.model.fields,field_description:contract_approval.field_contract_access__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: contract_approval
+#. odoo-python
+#: code:addons/contract_approval/report/approval_form.py:0
+#, python-format
+msgid "Not agreed"
+msgstr "Не согласовано"
+
+#. module: contract_approval
+#: model:ir.model.fields,field_description:contract_approval.field_contract_contract__process_id
+msgid "Process"
+msgstr ""
+
+#. module: contract_approval
+#: model:ir.model,name:contract_approval.model_document_flow_processing
+#: model_terms:ir.ui.view,arch_db:contract_approval.contract_contract_view_form_inherit_contract_approval
+msgid "Processing"
+msgstr "Обработка"
+
+#. module: contract_approval
+#. odoo-python
+#: code:addons/contract_approval/report/approval_form.py:0
+#, python-format
+msgid "Result"
+msgstr "Результат"
+
+#. module: contract_approval
+#: model:ir.model.fields,field_description:contract_approval.field_contract_contract__process_state
+msgid "State"
+msgstr "Статус"
+
+#. module: contract_approval
+#: model:ir.model,name:contract_approval.model_task_task
+msgid "Task"
+msgstr "Задача"
+
+#. module: contract_approval
+#: model:ir.model.fields,field_description:contract_approval.field_contract_access__user_id
+#: model:ir.model.fields,field_description:contract_approval.field_contract_access__user_ref
+msgid "User"
+msgstr "Пользователь"
+
+#. module: contract_approval
+#. odoo-python
+#: code:addons/contract_approval/models/contract_contract.py:0
+#, python-format
+msgid "You cannot delete this contract because some tasks were closed."
+msgstr ""
+"Вы не можете удалить данный договор, т.к. по нему есть закрытые задачи."
+
+#. module: contract_approval
+#: model:ir.model,name:contract_approval.model_report_contract_contract_approval_form
+msgid "contract.contract_approval_form"
+msgstr ""

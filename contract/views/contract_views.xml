@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_contract_form" model="ir.actions.act_window">
+        <field name="name">Contracts</field>
+        <field name="res_model">contract.contract</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{"active_test": True}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No contracts found. Let's create one!
+            </p>
+        </field>
+    </record>
+
+    <record id="contract_view_search" model="ir.ui.view">
+        <field name="name">contract.contract.search</field>
+        <field name="model">contract.contract</field>
+        <field name="arch" type="xml">
+            <search string="Contracts">
+                <field name="name" string="Name" filter_domain="['|', ('name', 'ilike', self), ('id', 'ilike', self)]"/>
+                <field name="code" string="Internal Number" filter_domain="[('code', 'ilike', self)]"/>
+                <field name="num" string="Number" filter_domain="[('num', 'ilike', self)]"/>
+                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="contract_view_tree" model="ir.ui.view">
+        <field name="name">contract.contract.tree</field>
+        <field name="model">contract.contract</field>
+        <field name="arch" type="xml">
+            <tree string="Contracts">
+                <field name="code" string="Internal Number"/>
+                <field name="num"/>
+                <field name="type_id" options="{'no_create_edit': True, 'no_open': True}"/>
+                <field name="name"/>
+                <field name="date_begin" string="Date Start" widget="date"/>
+                <field name="date_end" string="Date End" widget="date"/>
+                <field name="responsible_id" widget="many2one_avatar_employee" options="{'no_create_edit': True}"/>
+                <field name="description" optional="hide"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="contract_view_form" model="ir.ui.view">
+        <field name="name">contract.contract.form</field>
+        <field name="model">contract.contract</field>
+        <field name="arch" type="xml">
+            <form string="Contract">
+                <sheet string="Contract">
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" type="object" name="action_open_attachments"
+                                icon="fa-files-o">
+                            <field string="Attachments" name="attachment_count" widget="statinfo"/>
+                        </button>
+                    </div>
+                    <group invisible="1">
+                        <field name="active"/>
+                        <field name="can_edit"/>
+                        <field name="property_count"/>
+                    </group>
+                    <widget name="web_ribbon" title="Archived"
+                            bg_color="bg-danger"
+                            attrs="{'invisible': [('active', '=', True)]}"/>
+                    <group col="2">
+                        <group>
+                            <field name="type_id" options="{'no_create_edit': True, 'no_open': True}"
+                                attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                        </group>
+                        <group>
+                            <field name="code" string="Internal Number" attrs="{'invisible': [('id', '=', False)]}"/>
+                        </group>
+                    </group>
+                    <group>
+                        <label for="num" string="Number"/>
+                        <div class="o_row">
+                            <field name="num" nolabel="1" class="oe_inline"
+                                   attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                            from
+                            <field name="date" nolabel="1" widget="date"
+                                   attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                        </div>
+                    </group>
+                    <group>
+                        <label for="date_begin" string="Period"/>
+                        <div class="o_row">
+                            <field name="date_begin" widget="daterange" nolabel="1" class="oe_inline"
+                                   options="{'related_end_date': 'date_end'}"
+                                   attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                            <i class="fa fa-long-arrow-right mx-2" aria-label="Arrow icon" title="Arrow"/>
+                            <field name="date_end" widget="daterange" nolabel="1" class="oe_inline"
+                                   options="{'related_start_date': 'date_begin'}"
+                                   attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                        </div>
+                    </group>
+                    <group>
+                        <field name="name" class="o_text_overflow" placeholder="Contract Name..."
+                               attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                    </group>
+                    <group col="2">
+                        <group>
+                            <field name="author_id" widget="many2one_avatar_employee"
+                                   options="{'no_create_edit': True, 'no_open': True}"
+                                   attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                        </group>
+                        <group>
+                            <field name="responsible_id" widget="many2one_avatar_employee"
+                                   options="{'no_create_edit': True, 'no_open': True}"
+                                   attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                        </group>
+                    </group>
+                    <separator string="Contracting Parties" name="contracting_parties"/>
+                    <group col="2">
+                        <group>
+                            <field name="company_id" readonly="1" groups="!base.group_multi_company"/>
+                            <field name="company_id" groups="base.group_multi_company"
+                                   attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                        </group>
+                        <group>
+                            <field name="partner_id" options="{'no_create_edit': True}"
+                                   attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                        </group>
+                    </group>
+                    <separator string="Payments"/>
+                    <group col="2">
+                        <group>
+                            <field name="sum" widget="monetary" attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                        </group>
+                        <group>
+                            <field name="currency_id" attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                        </group>
+                    </group>
+                    <separator string="Additional Properties" name="additional_properties"
+                               attrs="{'invisible': ['|', ('type_id', '=', False), ('property_count', '=', 0)]}"/>
+                    <field name="properties" nolabel="1" columns="2" hideKanbanOption="1"
+                           attrs="{'readonly': [('can_edit', '=', False)], 'invisible': [('type_id', '=', False)]}"/>
+                    <notebook>
+                        <page name="description_page" string="Description">
+                            <field name="description" type="html" options="{'collaborative': true, 'resizable': false}"
+                                   placeholder="Contract Description..."
+                                   attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+</odoo>

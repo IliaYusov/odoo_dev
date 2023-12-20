@@ -19,7 +19,7 @@ class planned_cash_flow(models.Model):
             row.distribution_sum_with_vat_ostatok =row.sum_cash - row.distribution_sum_with_vat
             row.distribution_sum_without_vat_ostatok = row.sum_cash_without_vat - row.distribution_sum_without_vat
 
-    cash_id = fields.Char(string="acceptance_id", required=True, copy=True, default='-'
+    cash_id = fields.Char(string="cash_id", required=True, copy=True, default='-'
                                 # lambda self: self.env['ir.sequence'].sudo().next_by_code('project_budget.planned_acceptance_flow')
                                 , index=True, readonly=True)
     name_to_show = fields.Char(string='name_to_show', compute='_get_name_to_show')

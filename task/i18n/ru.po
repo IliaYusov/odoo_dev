@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-08 19:45+0000\n"
-"PO-Revision-Date: 2023-11-08 19:45+0000\n"
+"POT-Creation-Date: 2023-12-11 11:18+0000\n"
+"PO-Revision-Date: 2023-12-11 11:18+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -30,9 +30,151 @@ msgid "(+ 1 task)"
 msgstr "(+ 1 задача)"
 
 #. module: task
+#: model:mail.template,body_html:task.mail_template_task_deadline_reminder
+msgid ""
+"<div style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"                    <br>\n"
+"                    Dear <t t-out=\"ctx['user_id'].name or ''\">user</t>,\n"
+"                    <br>\n"
+"                    <br>\n"
+"                    <div>\n"
+"                        The Deadline for tasks is coming up soon. Please submit your work by the Deadline.\n"
+"                        <br>\n"
+"                        <br>\n"
+"                        <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"border: 1pt solid black; border-collapse: collapse; margin:5pt; width: 100%;\">\n"
+"                            <thead>\n"
+"                                <tr>\n"
+"                                    <th style=\"border: 1pt solid black; border-collapse: collapse; border-radius:8pt; text-align:center; width: 70%\">Task</th>\n"
+"                                    <th style=\"border: 1pt solid black; border-collapse: collapse; text-align:center; width: 15%\">Deadline</th>\n"
+"                                    <th style=\"border: 1pt solid black; border-collapse: collapse; border-radius:8pt; text-align:center; width: 15%\">Link</th>\n"
+"                                </tr>\n"
+"                           </thead>\n"
+"                           <tbody>\n"
+"                               <t t-if=\"len(ctx['expiration_tasks']) &gt; 0\">\n"
+"                                   <th colspan=\"3\" style=\"background-color: yellow; text-align: center;\">Expiration tasks</th>\n"
+"                                   <t t-foreach=\"ctx['expiration_tasks']\" t-as=\"task\">\n"
+"                                       <tr>\n"
+"                                           <td style=\"border: 1pt solid black; border-collapse: collapse;\">\n"
+"                                               <span>\n"
+"                                                   <t t-out=\"task.name\"></t>\n"
+"                                               </span>\n"
+"                                           </td>\n"
+"                                           <td style=\"border: 1pt solid black; border-collapse: collapse; text-align:center;\">\n"
+"                                               <span>\n"
+"                                                   <t t-out=\"task.date_deadline\"></t>\n"
+"                                               </span>\n"
+"                                           </td>\n"
+"                                           <td style=\"border: 1pt solid black; border-collapse: collapse; text-align:center; padding: 7px;\">\n"
+"                                               <a t-att-href=\"(task._compute_url())\" style=\"background-color: #0f5f8b; height:18px;                                                width:80px; color: white; padding-top:1px;                                                border: none; border-radius: 5px;                                                text-align: center; text-decoration: none;                                                display: inline-block; font-size: 12px;\">View Task\n"
+"                                               </a>\n"
+"                                           </td>\n"
+"                                       </tr>\n"
+"                                   </t>\n"
+"                               </t>\n"
+"                               <t t-if=\"len(ctx['overdue_tasks']) &gt; 0\">\n"
+"                                   <th colspan=\"3\" style=\"background-color: red; text-align:center;\">Overdue tasks</th>\n"
+"                                   <t t-foreach=\"ctx['overdue_tasks']\" t-as=\"task\">\n"
+"                                       <tr>\n"
+"                                           <td style=\"border: 1pt solid black; border-collapse: collapse;\">\n"
+"                                               <span>\n"
+"                                                   <t t-out=\"task.name\"></t>\n"
+"                                               </span>\n"
+"                                           </td>\n"
+"                                           <td style=\"border: 1pt solid black; border-collapse: collapse; text-align:center;\">\n"
+"                                               <span>\n"
+"                                                   <t t-out=\"task.date_deadline\"></t>\n"
+"                                               </span>\n"
+"                                           </td>\n"
+"                                           <td style=\"border: 1pt solid black; border-collapse: collapse; text-align:center; padding: 7px;\">\n"
+"                                               <a t-att-href=\"(task._compute_url())\" style=\"background-color: #0f5f8b; height:18px;                                                width:80px; color: white; padding-top:1px;                                                border: none; border-radius: 5px;                                                text-align: center; text-decoration: none;                                                display: inline-block; font-size: 12px;\">View Task\n"
+"                                               </a>\n"
+"                                           </td>\n"
+"                                       </tr>\n"
+"                                   </t>\n"
+"                               </t>\n"
+"                           </tbody>\n"
+"                       </table>\n"
+"                    </div>\n"
+"                    <p style=\"margin:0px 0 12px 0;box-sizing:border-box;\"></p>\n"
+"                </div>\n"
+"            "
+msgstr ""
+"<div style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"                    <br>\n"
+"                    Уважаемый(ая) <t t-out=\"ctx['user_id'].name or ''\">пользователь</t>,\n"
+"                    <br>\n"
+"                    <br>\n"
+"                    <div>\n"
+"                        Срок исполнения задач приближается. Пожалуйста, выполните свои работы в указанный срок.\n"
+"                        <br>\n"
+"                        <br>\n"
+"                        <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"border: 1pt solid black; border-collapse: collapse; margin:5pt; width: 100%;\">\n"
+"                            <thead>\n"
+"                                <tr>\n"
+"                                    <th style=\"border: 1pt solid black; border-collapse: collapse; border-radius:8pt; text-align:center; width: 70%\">Задача</th>\n"
+"                                    <th style=\"border: 1pt solid black; border-collapse: collapse; text-align:center; width: 15%\">Срок исполнения</th>\n"
+"                                    <th style=\"border: 1pt solid black; border-collapse: collapse; border-radius:8pt; text-align:center; width: 15%\">Ссылка</th>\n"
+"                                </tr>\n"
+"                           </thead>\n"
+"                           <tbody>\n"
+"                               <t t-if=\"len(ctx['expiration_tasks']) &gt; 0\">\n"
+"                                   <th colspan=\"3\" style=\"background-color: yellow; text-align: center;\">Задачи с истекающим сроком выполнения</th>\n"
+"                                   <t t-foreach=\"ctx['expiration_tasks']\" t-as=\"task\">\n"
+"                                       <tr>\n"
+"                                           <td style=\"border: 1pt solid black; border-collapse: collapse;\">\n"
+"                                               <span>\n"
+"                                                   <t t-out=\"task.name\"></t>\n"
+"                                               </span>\n"
+"                                           </td>\n"
+"                                           <td style=\"border: 1pt solid black; border-collapse: collapse; text-align:center;\">\n"
+"                                               <span>\n"
+"                                                   <t t-out=\"task.date_deadline\"></t>\n"
+"                                               </span>\n"
+"                                           </td>\n"
+"                                           <td style=\"border: 1pt solid black; border-collapse: collapse; text-align:center; padding: 7px;\">\n"
+"                                               <a t-att-href=\"(task._compute_url())\" style=\"background-color: #0f5f8b; height:18px;                                                width:80px; color: white; padding-top:1px;                                                border: none; border-radius: 5px;                                                text-align: center; text-decoration: none;                                                display: inline-block; font-size: 12px;\">Открыть\n"
+"                                               </a>\n"
+"                                           </td>\n"
+"                                       </tr>\n"
+"                                   </t>\n"
+"                               </t>\n"
+"                               <t t-if=\"len(ctx['overdue_tasks']) &gt; 0\">\n"
+"                                   <th colspan=\"3\" style=\"background-color: red; text-align:center;\">Просроченные задачи</th>\n"
+"                                   <t t-foreach=\"ctx['overdue_tasks']\" t-as=\"task\">\n"
+"                                       <tr>\n"
+"                                           <td style=\"border: 1pt solid black; border-collapse: collapse;\">\n"
+"                                               <span>\n"
+"                                                   <t t-out=\"task.name\"></t>\n"
+"                                               </span>\n"
+"                                           </td>\n"
+"                                           <td style=\"border: 1pt solid black; border-collapse: collapse; text-align:center;\">\n"
+"                                               <span>\n"
+"                                                   <t t-out=\"task.date_deadline\"></t>\n"
+"                                               </span>\n"
+"                                           </td>\n"
+"                                           <td style=\"border: 1pt solid black; border-collapse: collapse; text-align:center; padding: 7px;\">\n"
+"                                               <a t-att-href=\"(task._compute_url())\" style=\"background-color: #0f5f8b; height:18px;                                                width:80px; color: white; padding-top:1px;                                                border: none; border-radius: 5px;                                                text-align: center; text-decoration: none;                                                display: inline-block; font-size: 12px;\">Открыть\n"
+"                                               </a>\n"
+"                                           </td>\n"
+"                                       </tr>\n"
+"                                   </t>\n"
+"                               </t>\n"
+"                           </tbody>\n"
+"                       </table>\n"
+"                    </div>\n"
+"                    <p style=\"margin:0px 0 12px 0;box-sizing:border-box;\"></p>\n"
+"                </div>\n"
+"            "
+
+#. module: task
 #: model_terms:ir.ui.view,arch_db:task.task_view_form
 msgid "<span class=\"o_stat_text\">Sub-tasks</span>"
 msgstr "<span class=\"o_stat_text\">Подзадачи</span>"
+
+#. module: task
+#: model_terms:ir.ui.view,arch_db:task.task_type_view_form
+msgid "<span class=\"task-separator-text\">Deadline Control</span>"
+msgstr "<span class=\"task-separator-text\">Контроль срока исполнения</span>"
 
 #. module: task
 #: model_terms:ir.ui.view,arch_db:task.task_view_form
@@ -89,7 +231,7 @@ msgstr ""
 "                </table>\n"
 "                <div style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
 "                    <br>\n"
-"                    Уважаемый(ая) <t t-out=\"ctx['user_id'].name or ''\">пользователь</t>,\n"
+"                    Уважаемый(ая) <t t-out=\"object.user_id.name or ''\">пользователь</t>,\n"
 "                    <br>\n"
 "                    <br>\n"
 "                    <p style=\"margin:0px 0 12px 0;box-sizing:border-box;\">\n"
@@ -194,6 +336,11 @@ msgstr ""
 "            "
 
 #. module: task
+#: model:ir.model.fields,field_description:task.field_task_type__access_group_ids
+msgid "Access groups"
+msgstr "Доступен группам"
+
+#. module: task
 #: model:ir.model.fields,field_description:task.field_task_task__message_needaction
 msgid "Action Needed"
 msgstr ""
@@ -239,12 +386,22 @@ msgid "Administrator"
 msgstr "Администратор"
 
 #. module: task
+#: model_terms:ir.ui.view,arch_db:task.res_config_settings_view_form_inherit_task
+msgid "Allows the user assign task only for subordinates"
+msgstr "Позволяет пользователю назначать задачи только на подчиненных"
+
+#. module: task
 #: model_terms:ir.ui.view,arch_db:task.task_stage_type_view_form
 #: model_terms:ir.ui.view,arch_db:task.task_stage_view_form
 #: model_terms:ir.ui.view,arch_db:task.task_type_view_form
 #: model_terms:ir.ui.view,arch_db:task.task_view_form
 msgid "Archived"
 msgstr "В архиве"
+
+#. module: task
+#: model:ir.model.fields,field_description:task.field_res_config_settings__assign_task_only_to_subordinates
+msgid "Assign Task Only To Subordinates"
+msgstr "Назначать задачи только на подчиненных"
 
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_task__user_id
@@ -395,6 +552,11 @@ msgid "Company"
 msgstr "Компания"
 
 #. module: task
+#: model:ir.model,name:task.model_res_config_settings
+msgid "Config Settings"
+msgstr "Конфигурационные настройки"
+
+#. module: task
 #: model:ir.ui.menu,name:task.task_configuration_menu
 msgid "Configuration"
 msgstr "Настройки"
@@ -443,6 +605,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:task.field_task_task__date_closed
 msgid "Date Closed"
 msgstr "Дата исполнения"
+
+#. module: task
+#: model:ir.model.fields,field_description:task.field_task_type__days_before
+msgid "Days Before"
+msgstr "дня(-ей) перед"
 
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_task__date_deadline
@@ -501,6 +668,11 @@ msgstr "Выполнено как"
 #: model:ir.model.fields,field_description:task.field_task_stage__mail_template_id
 msgid "Email Template"
 msgstr "Шаблон письма"
+
+#. module: task
+#: model:ir.model.fields,field_description:task.field_task_type__employee_overdue_reminder
+msgid "Employee Reminder"
+msgstr "Напоминания сотруднику"
 
 #. module: task
 #. odoo-python
@@ -607,6 +779,7 @@ msgstr "Если отмечено, то сообщения требуют Ваш
 
 #. module: task
 #: model:ir.model.fields,help:task.field_task_task__message_has_error
+#: model:ir.model.fields,help:task.field_task_task__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
 msgstr "Если отмечено, то есть ошибки доставки"
 
@@ -625,6 +798,15 @@ msgstr ""
 msgid "If set, then user will be asked for comment on this route"
 msgstr ""
 "Если установлено, то поле комментарий становится обязательным для заполнения"
+
+#. module: task
+#: model:ir.model.fields,help:task.field_task_type__access_group_ids
+msgid ""
+"If user belongs to one of groups specified in this field,\n"
+"                                        then he will be able to select this type during task creation."
+msgstr ""
+"Если пользователь в одну из групп указанных в этом поле,\n"
+"                                        тогда он сможет выбрать данный тип при создании задачи."
 
 #. module: task
 #: model:task.stage.type,name:task.task_stage_type_in_progress
@@ -796,6 +978,11 @@ msgid "Not set"
 msgstr ""
 
 #. module: task
+#: model_terms:ir.ui.view,arch_db:task.task_type_view_form
+msgid "Notifications"
+msgstr "Уведомления"
+
+#. module: task
 #: model:ir.model.fields,field_description:task.field_task_task__message_needaction_counter
 msgid "Number of Actions"
 msgstr "Количество действий"
@@ -884,6 +1071,11 @@ msgid "Priority"
 msgstr "Приоритет"
 
 #. module: task
+#: model:mail.template,subject:task.mail_template_task_deadline_reminder
+msgid "Reminder email for tasks deadline"
+msgstr "Уведомление об истечении сроков выполнения задач"
+
+#. module: task
 #: model:ir.model.fields,field_description:task.field_task_stage_route__require_comment
 #: model:ir.model.fields,field_description:task.field_task_wizard_done__require_comment
 msgid "Require Comment"
@@ -908,9 +1100,19 @@ msgid "Routes"
 msgstr "Маршруты"
 
 #. module: task
+#: model:ir.model.fields,field_description:task.field_task_task__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr ""
+
+#. module: task
 #: model:ir.model.fields.selection,name:task.selection__task_stage_route__button_style__secondary
 msgid "Secondary"
 msgstr ""
+
+#. module: task
+#: model_terms:ir.ui.view,arch_db:task.task_type_view_form
+msgid "Send a periodical email reminder to tasks assignees"
+msgstr "Отправлять периодические напоминания исполнителям о просроченных задачах"
 
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_stage__sequence
@@ -923,6 +1125,12 @@ msgstr "Последовательность"
 msgid "Set this template on a stage to automate email when tasks reach stages"
 msgstr ""
 "Установите этот шаблон для статуса задачи для автоматической отправки email"
+
+#. module: task
+#: model:ir.actions.act_window,name:task.action_task_config_settings
+#: model:ir.ui.menu,name:task.menu_task_config_settings
+msgid "Settings"
+msgstr "Настройки"
 
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_task__stage_id
@@ -1025,6 +1233,7 @@ msgstr "Задача"
 #. module: task
 #: model:ir.module.category,name:task.module_category_task_management
 #: model:ir.ui.menu,name:task.task_root_menu
+#: model_terms:ir.ui.view,arch_db:task.res_config_settings_view_form_inherit_task
 msgid "Task Management"
 msgstr "Управление задачами"
 
@@ -1097,6 +1306,13 @@ msgid "Task: Assigned"
 msgstr "Задача: Назначена"
 
 #. module: task
+#: model:ir.actions.server,name:task.ir_cron_task_deadline_reminder_scheduler_action_ir_actions_server
+#: model:ir.cron,cron_name:task.ir_cron_task_deadline_reminder_scheduler_action
+#: model:mail.template,name:task.mail_template_task_deadline_reminder
+msgid "Task: Deadline Reminder"
+msgstr "Задача: Напоминание о сроке выполнения"
+
+#. module: task
 #: model:mail.template,name:task.mail_template_task_change_stage
 msgid "Task: Stage Changed"
 msgstr "Задача: Статус изменен"
@@ -1114,9 +1330,19 @@ msgid "Tasks"
 msgstr "Мои задачи"
 
 #. module: task
+#: model_terms:ir.ui.view,arch_db:task.res_config_settings_view_form_inherit_task
+msgid "Tasks Management"
+msgstr "Управление задачами"
+
+#. module: task
 #: model:mail.template,description:task.mail_template_task_assigned_notify
 msgid "Template to automate email when tasks assigned to users"
 msgstr "Шаблон сообщения при назначении задачи пользователю"
+
+#. module: task
+#: model:mail.template,description:task.mail_template_task_deadline_reminder
+msgid "Template to automate email when tasks were overdue or expiration soon"
+msgstr "Шаблон сообщения-напоминания о сроках выполнения задач"
 
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_task__name
@@ -1184,6 +1410,16 @@ msgid "Warning"
 msgstr ""
 
 #. module: task
+#: model:ir.model.fields,field_description:task.field_task_task__website_message_ids
+msgid "Website Messages"
+msgstr ""
+
+#. module: task
+#: model:ir.model.fields,help:task.field_task_task__website_message_ids
+msgid "Website communication history"
+msgstr ""
+
+#. module: task
 #. odoo-python
 #: code:addons/task/models/task.py:0
 #, python-format
@@ -1194,3 +1430,8 @@ msgstr "Вы были назначены исполнителем задачи %
 #: model:ir.model.fields,help:task.field_task_wizard_done__attachment_ids
 msgid "You may attach files to comment"
 msgstr "Вы можете приложить файлы к комментарию"
+
+#. module: task
+#: model_terms:ir.ui.view,arch_db:task.task_type_view_form
+msgid "days before deadline"
+msgstr "дня(-ей) до истечения срока"

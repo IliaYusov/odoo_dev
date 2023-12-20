@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_dms_version_config_form" model="ir.actions.act_window">
+        <field name="name">Version Config</field>
+        <field name="res_model">dms.version.config</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="dms_version_config_view_tree" model="ir.ui.view">
+        <field name="name">dms.version.config.tree</field>
+        <field name="model">dms.version.config</field>
+        <field name="arch" type="xml">
+            <tree string="Attachments Version Config" editable="bottom" duplicate="0">
+                <field name="model_id"/>
+                <field name="model_name"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </tree>
+        </field>
+    </record>
+</odoo>

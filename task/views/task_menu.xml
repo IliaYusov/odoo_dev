@@ -5,7 +5,10 @@
     <menuitem id="tasks_menu" parent="task_root_menu" sequence="10" name="Tasks"/>
     <menuitem id="task_tasks_menu" parent="tasks_menu" action="action_view_all_task"/>
 
-    <menuitem id="task_configuration_menu" parent="task_root_menu" sequence="100" name="Configuration"/>
-    <menuitem id="task_type_menu" parent="task_configuration_menu" action="action_task_type"/>
-    <menuitem id="task_stage_type_menu" parent="task.task_configuration_menu" action="task_stage_type_action_form"/>
+    <menuitem id="task_configuration_menu" parent="task_root_menu" sequence="100" name="Configuration">
+        <menuitem id="menu_task_config_settings" name="Settings" sequence="0" action="action_task_config_settings"
+                  groups="base.group_system"/>
+        <menuitem id="task_type_menu" action="action_task_type"/>
+        <menuitem id="task_stage_type_menu" action="task_stage_type_action_form"/>
+    </menuitem>
 </odoo>

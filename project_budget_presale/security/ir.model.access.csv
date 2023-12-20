@@ -1,4 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-
-access_project_budget_presale_user,access_project_budget_presale,model_project_budget_presale,project_budget.project_budget_users,1,1,1,1
-access_project_budget_presale_admin,access_project_budget_presale,model_project_budget_presale,project_budget.project_budget_admin,1,1,1,1

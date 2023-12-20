@@ -95,28 +95,19 @@
                 <field name="id" invisible="1"/>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button name="action_task_type_diagram"
-                                type="object"
-                                string="View Flow"
-                                class="oe_stat_button"
+                        <button name="action_task_type_diagram" type="object" string="View Flow" class="oe_stat_button"
                                 icon="fa-code-fork">
                         </button>
-                        <button name="%(action_task_type_routes)d"
-                                type="action"
-                                class="oe_stat_button" icon="fa-random">
-                            <field string="Routes" name="route_count"
-                                   widget="statinfo"/>
+                        <button name="%(action_task_type_routes)d" type="action" class="oe_stat_button"
+                                icon="fa-random">
+                            <field string="Routes" name="route_count" widget="statinfo"/>
                         </button>
-                        <button name="%(action_task_type_stages)d"
-                                type="action"
-                                class="oe_stat_button" icon="fa-bars">
-                            <field string="Stages" name="stage_count"
-                                   widget="statinfo"/>
+                        <button name="%(action_task_type_stages)d" type="action" class="oe_stat_button" icon="fa-bars">
+                            <field string="Stages" name="stage_count" widget="statinfo"/>
                         </button>
                     </div>
                     <field name="active" invisible="1"/>
-                    <widget name="web_ribbon" title="Archived"
-                            bg_color="bg-danger"
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger"
                             attrs="{'invisible': [('active', '=', True)]}"/>
                     <div class="oe_title">
                         <h1 name="header_type">
@@ -132,19 +123,20 @@
                         <group>
                             <label for="start_stage_id"/>
                             <div>
-                                <field name="start_stage_id"
-                                       attrs="{'invisible': [('start_stage_id', '=', False)]}"/>
-                                <button name="action_create_default_stage_and_routes"
-                                        type="object"
+                                <field name="start_stage_id" attrs="{'invisible': [('start_stage_id', '=', False)]}"/>
+                                <button name="action_create_default_stage_and_routes" type="object"
                                         string="Create default"
                                         attrs="{'invisible': ['|', ('start_stage_id', '!=', False), ('id', '=', False)]}"
-                                        class="btn-primary"
-                                        style="padding-top: 0; padding-bottom: 0;"/>
+                                        class="btn-primary" style="padding-top: 0; padding-bottom: 0;"/>
                             </div>
                         </group>
                         <group>
                             <field name="model_id"/>
                         </group>
+                    </group>
+                    <group>
+                        <field name="access_group_ids" widget="many2many_tags"
+                               options="{'no_create': true, 'no_quick_create': true}"/>
                     </group>
                     <group>
                         <field name="color" widget="color"/>
@@ -154,27 +146,30 @@
                             <field name="description" options="{'collaborative': true, 'resizable': false}"
                                    placeholder="Description..."/>
                         </page>
-<!--                        <page name="page_notifications" string="Notifications">-->
-<!--                            <div>-->
-<!--                                <table class="table table-bordered" name="table-notification-settings">-->
-<!--                                    <thead>-->
-<!--                                        <tr>-->
-<!--                                            <th class="text-center" colspan="2">Send Notification</th>-->
-<!--                                        </tr>-->
-<!--                                    </thead>-->
-<!--                                    <tbody class="text-center">-->
-<!--                                        <tr name="tr-notification-created">-->
-<!--                                            <td class="text-left">Created</td>-->
-<!--                                            <td><field name="send_created_notification" style="width: 25%"/></td>-->
-<!--                                        </tr>-->
-<!--                                        <tr name="tr-notification-closed">-->
-<!--                                            <td class="text-left">Closed</td>-->
-<!--                                            <td><field name="send_closed_notification" style="width: 25%"/></td>-->
-<!--                                        </tr>-->
-<!--                                    </tbody>-->
-<!--                                </table>-->
-<!--                            </div>-->
-<!--                        </page>-->
+                        <page name="page_notifications" string="Notifications">
+                            <div class="task-separator task_overdue_control" name="task_overdue_control">
+                                <span class="task-separator-text">Deadline Control</span>
+                            </div>
+                            <div class="row mt16 o_settings_container">
+                                <div class="col-12 col-lg-6 o_setting_box">
+                                    <div class="o_setting_left_pane">
+                                        <field name="employee_overdue_reminder"/>
+                                    </div>
+                                    <div class="o_setting_right_pane" id="employee_overdue_reminder">
+                                        <label for="employee_overdue_reminder"/>
+                                        <div class="text-muted">
+                                            Send a periodical email reminder to tasks assignees
+                                        </div>
+                                        <div class="content-group">
+                                            <div class="mt16">
+                                                <field name="days_before" class="oe_inline"/>
+                                                days before deadline
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </page>
                     </notebook>
                 </sheet>
             </form>
@@ -187,15 +182,10 @@
         <field name="type">diagram_plus</field>
         <field name="arch" type="xml">
             <diagram_plus auto_layout="false">
-                <node object="task.stage"
-                      bgcolor="gray:closed"
-                      bg_color_field="res_bg_color"
+                <node object="task.stage" bgcolor="gray:closed" bg_color_field="res_bg_color"
                       d_position_field="diagram_position">
                 </node>
-                <arrow object="task.stage.route"
-                       source="stage_from_id"
-                       destination="stage_to_id"
-                       label="['name']">
+                <arrow object="task.stage.route" source="stage_from_id" destination="stage_to_id" label="['name']">
                 </arrow>
             </diagram_plus>
         </field>

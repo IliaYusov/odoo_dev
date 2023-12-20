@@ -13,11 +13,22 @@
         <field name="users" eval="[(4, ref('base.user_admin'))]"/>
     </record>
 
-    <data>
-        <record model="ir.rule" id="task_task_company_rule">
+    <data noupdate="1">
+        <record id="task_task_company_rule" model="ir.rule">
             <field name="name">Task multi-company</field>
             <field name="model_id" ref="model_task_task"/>
             <field name="domain_force">['|', ('company_ids','=',False), ('company_ids', 'in', company_ids)]</field>
+        </record>
+
+        <record id="task_type_access_group_rule" model="ir.rule">
+            <field name="name">Task types for access groups</field>
+            <field name="model_id" ref="model_task_type"/>
+            <field name="domain_force">['|', ('access_group_ids', '=', False), ('access_group_ids.users.id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field eval="0" name="perm_unlink"/>
+            <field eval="0" name="perm_write"/>
+            <field eval="1" name="perm_read"/>
+            <field eval="0" name="perm_create"/>
         </record>
 
 <!--        <record model="ir.rule" id="task_user_rule">-->
@@ -31,7 +42,7 @@
 <!--            <field name="groups" eval="[(4,ref('base.group_user'))]"/>-->
 <!--        </record>-->
 
-        <record model="ir.rule" id="task_manager_rule">
+        <record id="task_manager_rule" model="ir.rule">
             <field name="name">Task manager: see all</field>
             <field name="model_id" ref="model_task_task"/>
             <field name="domain_force">[(1, '=', 1)]</field>

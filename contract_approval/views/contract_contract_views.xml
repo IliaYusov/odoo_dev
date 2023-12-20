@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="contract_contract_view_tree_inherit_contract_approval" model="ir.ui.view">
+        <field name="name">contract.contract.view.tree.inherit.contract_approval</field>
+        <field name="model">contract.contract</field>
+        <field name="inherit_id" ref="contract.contract_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='responsible_id']" position="after">
+                <field name="process_state" widget="badge"
+                       decoration-muted="process_state == 'on_registration'"
+                       decoration-info="process_state == 'started'"
+                       decoration-success="process_state == 'finished'"
+                       decoration-danger="process_state == 'break'"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="contract_contract_view_form_inherit_contract_approval" model="ir.ui.view">
+        <field name="name">contract.contract.view.form.inherit.contract_approval</field>
+        <field name="model">contract.contract</field>
+        <field name="inherit_id" ref="contract.contract_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']/button[@name='action_open_attachments']" position="before">
+                <button class="oe_stat_button" type="object" name="action_open_processing"
+                        icon="fa-spinner" string="Processing">
+                </button>
+            </xpath>
+            <xpath expr="//div[@name='button_box']" position="after">
+                <field name="process_id" class="position-relative" widget="processingbar" readonly="1" nolabel="1"
+                           style="width:100%" attrs="{'invisible': [('process_id', '=', False)]}"/>
+            </xpath>
+            <xpath expr="//page[@name='description_page']" position="after">
+                <page name="access_page" string="Access">
+                    <field name="access_ids" mode="tree"/>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

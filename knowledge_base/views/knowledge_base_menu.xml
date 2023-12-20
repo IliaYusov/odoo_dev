@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <menuitem id="knowledge_base_menu" name="Knowledge base" sequence="20" groups="base.group_user"/>
+
+    <menuitem id="knowledge_base_menu_tree_articles" parent="knowledge_base_menu" name="Articles"
+              action="action_view_all_articles" groups="base.group_user"/>
+
+    <menuitem id="knowledge_base_menu_tree_sections" parent="knowledge_base_menu" name="Sections"
+              action="action_view_all_sections" groups="knowledge_base.knowledge_base_admin"/>
+
+    <menuitem id="knowledge_base_menu_tree_tags" parent="knowledge_base_menu" name="Tags"
+              action="action_view_all_tags" groups="knowledge_base.knowledge_base_admin"/>
+</odoo>

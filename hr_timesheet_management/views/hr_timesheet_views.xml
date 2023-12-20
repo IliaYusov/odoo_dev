@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="hr_timesheet_account_analytic_line_view_search" model="ir.ui.view">
+            <field name="name">hr_timesheet.account.analytic.line.search</field>
+            <field name="model">account.analytic.line</field>
+            <field name="arch" type="xml">
+                <search string="Timesheet">
+                    <field name="date"/>
+                    <field name="employee_id"/>
+                    <field name="project_id"/>
+                    <field name="task_id"/>
+                    <field name="name"/>
+                    <field name="manager_id"/>
+                    <filter name="mine" string="My Timesheets" domain="[('user_id', '=', uid)]"/>
+                    <separator/>
+                    <filter name="month" string="Date" date="date"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Project" name="group_by_project" domain="[]" context="{'group_by': 'project_id'}"/>
+                        <filter string="Task" name="group_by_task" domain="[]" context="{'group_by': 'task_id'}"/>
+                        <filter string="Date" name="group_by_date" domain="[]" context="{'group_by': 'date'}" help="Timesheet by Date"/>
+                        <filter string="Manager" name="group_by_manager" domain="[]" context="{'group_by': 'manager_id'}"/>
+                        <filter string="Employee" name="group_by_employee" domain="[]" context="{'group_by': 'employee_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="hr_timesheet_account_analytic_line_view_search_mine" model="ir.ui.view">
+            <field name="name">hr_timesheet.account.analytic.line.search.mine</field>
+            <field name="model">account.analytic.line</field>
+            <field name="inherit_id" ref="hr_timesheet_account_analytic_line_view_search"/>
+            <field name="mode">primary</field>
+            <field name="arch" type="xml">
+                <field name="employee_id" position="replace"/>
+                <field name="manager_id" position="replace"/>
+                <filter name="mine" position="replace"/>
+                <filter name="group_by_manager" position="replace"/>
+                <filter name="group_by_employee" position="replace"/>
+            </field>
+        </record>
+
+        <record id="hr_timesheet_account_analytic_line_view_tree" model="ir.ui.view">
+            <field name="name">hr_timesheet.account.analytic.line.tree</field>
+            <field name="model">account.analytic.line</field>
+            <field name="arch" type="xml">
+                <tree string="Timesheets" editable="bottom">
+                    <field name="date"/>
+                    <field name="employee_id" widget="many2one_avatar_employee" context="{'active_test': True}" required="1"/>
+                    <field name="project_id" options="{'no_create_edit': True, 'no_open': 1}"/>
+                    <field name="task_id" options="{'no_create_edit': True, 'no_open': True}" widget="task_with_hours"/>
+                    <field name="name" required="0"/>
+                    <field name="unit_amount" sum="Total" decoration-danger="unit_amount &gt; 24 or unit_amount &lt; 0"/>
+                    <field name="company_id" invisible="1"/>
+                    <field name="user_id" invisible="1"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="hr_timesheet_account_analytic_line_view_tree_mine" model="ir.ui.view">
+            <field name="name">hr_timesheet.account.analytic.line.view.tree.mine</field>
+            <field name="model">account.analytic.line</field>
+            <field name="inherit_id" ref="hr_timesheet_account_analytic_line_view_tree"/>
+            <field name="mode">primary</field>
+            <field name="priority">10</field>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='employee_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                    <attribute name="required">0</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="hr_timesheet_account_analytic_line_view_pivot" model="ir.ui.view">
+            <field name="name">hr_timesheet.account.analytic.line.pivot</field>
+            <field name="model">account.analytic.line</field>
+            <field name="arch" type="xml">
+                <pivot string="Timesheets" sample="1">
+                    <field name="employee_id" type="row"/>
+                    <field name="date" interval="month" type="col"/>
+                    <field name="unit_amount" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
+        <record id="hr_timesheet_account_analytic_line_view_pivot_mine" model="ir.ui.view">
+            <field name="name">hr_timesheet.account.analytic.line.pivot.mine</field>
+            <field name="model">account.analytic.line</field>
+            <field name="arch" type="xml">
+                <pivot string="Timesheet" sample="1">
+                    <field name="date" interval="week" type="row"/>
+                    <field name="unit_amount" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
+        <!-- Actions -->
+
+        <record id="action_hr_timesheet_account_analytic_line_form_mine" model="ir.actions.act_window">
+            <field name="name">My Timesheets</field>
+            <field name="res_model">account.analytic.line</field>
+            <field name="view_mode">tree,form,pivot</field>
+            <field name="domain">[('user_id', '=', uid)]</field>
+            <field name="context">{"search_default_week": 1}</field>
+            <field name="search_view_id" ref="hr_timesheet_account_analytic_line_view_search"/>
+            <field name="view_id" ref="hr_timesheet_account_analytic_line_view_tree"/>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                No activities found. Let's start a new one!
+              </p>
+              <p>
+                Track your working hours by projects every day.
+              </p>
+            </field>
+        </record>
+
+        <record id="action_hr_timesheet_account_analytic_line_form_all" model="ir.actions.act_window">
+            <field name="name">All Timesheets</field>
+            <field name="res_model">account.analytic.line</field>
+            <field name="view_mode">tree,form,pivot</field>
+            <field name="search_view_id" ref="hr_timesheet_account_analytic_line_view_search"/>
+            <field name="domain">[]</field>
+            <field name="context">{'search_default_week': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No activities found. Let's start a new one!
+                </p>
+                <p>
+                    Track your working hours by projects every day.
+                </p>
+            </field>
+        </record>
+
+        <record id="action_hr_timesheet_account_analytic_line_view_tree_mine" model="ir.actions.act_window.view">
+            <field name="view_mode">tree</field>
+            <field name="sequence" eval="1"/>
+            <field name="view_id" ref="hr_timesheet_account_analytic_line_view_tree_mine"/>
+            <field name="act_window_id" ref="action_hr_timesheet_account_analytic_line_form_mine"/>
+        </record>
+
+        <record id="action_hr_timesheet_account_analytic_line_view_pivot_mine" model="ir.actions.act_window.view">
+            <field name="view_mode">pivot</field>
+            <field name="sequence" eval="3"/>
+            <field name="view_id" ref="hr_timesheet_account_analytic_line_view_pivot_mine"/>
+            <field name="act_window_id" ref="action_hr_timesheet_account_analytic_line_form_mine"/>
+        </record>
+
+        <record id="action_hr_timesheet_account_analytic_line_view_tree_all" model="ir.actions.act_window.view">
+            <field name="view_mode">tree</field>
+            <field name="sequence" eval="1"/>
+            <field name="view_id" ref="hr_timesheet_account_analytic_line_view_tree"/>
+            <field name="act_window_id" ref="action_hr_timesheet_account_analytic_line_form_all"/>
+        </record>
+
+        <record id="action_hr_timesheet_account_analytic_line_view_pivot_all" model="ir.actions.act_window.view">
+            <field name="view_mode">pivot</field>
+            <field name="sequence" eval="3"/>
+            <field name="view_id" ref="hr_timesheet_account_analytic_line_view_pivot"/>
+            <field name="act_window_id" ref="action_hr_timesheet_account_analytic_line_form_all"/>
+        </record>
+    </data>
+</odoo>

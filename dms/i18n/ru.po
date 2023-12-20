@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-19 08:07+0000\n"
-"PO-Revision-Date: 2023-10-19 08:07+0000\n"
+"POT-Creation-Date: 2023-11-22 20:07+0000\n"
+"PO-Revision-Date: 2023-11-22 20:07+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -31,9 +31,75 @@ msgid "Attachments"
 msgstr "Вложения"
 
 #. module: dms
+#: model:ir.ui.menu,name:dms.menu_attachment_version_config
+#: model_terms:ir.ui.view,arch_db:dms.dms_version_config_view_tree
+msgid "Attachments Version Config"
+msgstr "Настройки версионности вложений"
+
+#. module: dms
+#: model:ir.model.fields,field_description:dms.field_dms_version_config__company_id
+msgid "Company"
+msgstr "Компания"
+
+#. module: dms
+#: model:ir.model.fields,field_description:dms.field_dms_version_config__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: dms
+#: model:ir.model.fields,field_description:dms.field_dms_version_config__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: dms
 #: model:ir.model.fields,field_description:dms.field_ir_attachment__current_version_id
 msgid "Current Version"
 msgstr "Актуальная версия"
+
+#. module: dms
+#: model:ir.model,name:dms.model_dms_version_config
+msgid "DMS Version Config"
+msgstr "Система управления версиями: настройка версионности"
+
+#. module: dms
+#: model:ir.model.fields,field_description:dms.field_dms_version_config__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: dms
+#: model:ir.ui.menu,name:dms.menu_technical_document_versioning
+msgid "Document Versioning"
+msgstr "Управление версиями документов"
+
+#. module: dms
+#: model:ir.model.fields,field_description:dms.field_dms_version_config__id
+msgid "ID"
+msgstr ""
+
+#. module: dms
+#: model:ir.model.fields,field_description:dms.field_dms_version_config____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: dms
+#: model:ir.model.fields,field_description:dms.field_dms_version_config__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: dms
+#: model:ir.model.fields,field_description:dms.field_dms_version_config__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: dms
+#: model:ir.model.fields,field_description:dms.field_dms_version_config__model_id
+msgid "Model"
+msgstr "Модель"
+
+#. module: dms
+#: model:ir.model.fields,field_description:dms.field_dms_version_config__model_name
+msgid "Model Description"
+msgstr "Описание"
 
 #. module: dms
 #: model:ir.model.fields,field_description:dms.field_ir_attachment__version_ids
@@ -42,10 +108,20 @@ msgid "Previous Versions"
 msgstr "Предыдущие версии"
 
 #. module: dms
+#: model_terms:ir.ui.view,arch_db:dms.ir_attachment_view_search_inherit_dms
+msgid "Resource Model"
+msgstr "Модель ресурса"
+
+#. module: dms
 #: model:ir.model.fields,field_description:dms.field_ir_attachment__version
 #: model_terms:ir.ui.view,arch_db:dms.ir_attachment_view_form_inherit_dms
 msgid "Version"
 msgstr "Версия"
+
+#. module: dms
+#: model:ir.actions.act_window,name:dms.action_dms_version_config_form
+msgid "Version Config"
+msgstr "Настройка версионности"
 
 #. module: dms
 #: model:ir.model.fields,field_description:dms.field_ir_attachment__version_count

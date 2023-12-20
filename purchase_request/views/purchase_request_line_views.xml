@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="purchase_request_line_view_tree" model="ir.ui.view">
+        <field name="name">purchase.request.line.tree</field>
+        <field name="model">purchase.request.line</field>
+        <field name="arch" type="xml">
+            <tree string="Purchase Request Lines">
+                <field name="sequence" widget="handle"/>
+                <field name="vendor_id"/>
+                <field name="request_id" invisible="1"/>
+                <field name="product_uom_category_id" invisible="1"/>
+                <field name="product_barcode"/>
+                <field name="product_id"/>
+                <field name="product_uom_id"/>
+                <field name="product_uom_qty"/>
+                <field name="guarantee_on_demand"/>
+                <field name="software_certification"/>
+                <field name="licence_start_date"/>
+                <field name="licence_end_date"/>
+                <field name="estimation_count"/>
+                <button name="action_open_estimations" type="object" icon="fa-dollar" title="Open Estimates"
+                        groups="purchase.group_purchase_manager"/>
+                <field name="company_id" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="purchase_request_line_view_form" model="ir.ui.view">
+        <field name="name">purchase.request.line.form</field>
+        <field name="model">purchase.request.line</field>
+        <field name="arch" type="xml">
+            <form string="Purchase Request Line">
+                <sheet string="Purchase Request Line">
+                    <group invisible="1">
+                        <field name="request_id"/>
+                        <field name="product_uom_category_id"/>
+                        <field name="sequence"/>
+                        <field name="position_type"/>
+                    </group>
+                    <group col="4">
+                        <group>
+                            <field name="vendor_id"/>
+                        </group>
+                        <group>
+                            <field name="product_id"/>
+                        </group>
+                        <group>
+                            <field name="product_uom_id"/>
+                        </group>
+                        <group>
+                            <field name="product_uom_qty"/>
+                        </group>
+                    </group>
+                    <group col="4">
+                        <group>
+                            <label for="guarantee_on_demand"/>
+                            <div name="guarantee_on_demand">
+                                <field name="guarantee_on_demand" class="oe_inline"/>
+                                months
+                            </div>
+                        </group>
+                        <group>
+                            <field name="software_certification"/>
+                        </group>
+                        <group>
+                            <field name="licence_start_date"/>
+                        </group>
+                        <group>
+                            <field name="licence_end_date"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="technical_requirements" widget="boolean_toggle" options="{'autosave': False}"/>
+                    </group>
+                    <group>
+                        <field name="company_id" invisible="1" groups="!base.group_multi_company"/>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                    </group>
+                    <notebook>
+                        <page name="component_line" string="Components" attrs="{'invisible': [('technical_requirements', '=', True)]}">
+                            <field name="component_ids" mode="tree" widget="section_and_note_one2many"
+                                   context="{'default_sequence': len(component_ids), 'default_vendor_id': vendor_id}"/>
+                        </page>
+                        <page name="characteristic_line" string="Characteristics" attrs="{'invisible': [('technical_requirements', '=', False)]}">
+                            <field name="characteristic_ids" mode="tree" widget="section_and_note_one2many"
+                                   context="{'default_sequence': len(characteristic_ids)}"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

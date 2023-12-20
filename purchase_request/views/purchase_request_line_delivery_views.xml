@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="purchase_request_line_delivery_view_tree" model="ir.ui.view">
+        <field name="name">purchase.request.line.delivery.tree</field>
+        <field name="model">purchase.request.line.delivery</field>
+        <field name="arch" type="xml">
+            <tree string="Purchase Request Lines Delivery" editable="bottom" create="0">
+                <field name="request_id" invisible="1"/>
+                <field name="request_line_id" invisible="1"/>
+                <field name="product_id"/>
+                <field name="product_uom_qty"/>
+                <field name="delivery_address_id" context="{'show_address': 1}" options="{'always_reload': True}"/>
+                <field name="cargo_insurance_service"/>
+                <field name="unloading_service"/>
+                <field name="rise_floor_service"/>
+                <field name="comment"/>
+            </tree>
+        </field>
+    </record>
+</odoo>

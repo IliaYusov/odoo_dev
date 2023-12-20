@@ -1,14 +1,13 @@
 {
     'name': 'HR Replacement',
-    'version': '16.0.1.0.0',
-    'category': '',
+    'version': '1.0.1',
+    'category': 'Human Resources/Employees',
     'depends': ['hr'],
     'description': 'HR replacements employees',
     'author': '',
     'support': '',
-    'application': True,
     'installable': True,
-    'auto_install': False,
+    'auto_install': True,
     'images': ['static/description/icon.png'],
     'assets': {
         'web.assets_backend': [

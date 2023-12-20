@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="document_flow_document_kind_type_view_tree" model="ir.ui.view">
+        <field name="name">document_flow.document.kind.type.tree</field>
+        <field name="model">document_flow.document.kind.type</field>
+        <field name="arch" type="xml">
+            <tree string="Kind Types" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_document_flow_document_kind_template_view_form" model="ir.actions.act_window">
+        <field name="name">Document Kinds</field>
+        <field name="res_model">document_flow.document.kind.template</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No document kinds found. Let's create one!
+            </p>
+        </field>
+    </record>
+
+    <record id="document_flow_document_kind_template_view_tree" model="ir.ui.view">
+        <field name="name">document_flow.document.kind.template.tree</field>
+        <field name="model">document_flow.document.kind.template</field>
+        <field name="arch" type="xml">
+            <tree string="Document Kinds" multi_edit="1" sample="1">
+                <field name="name"/>
+                <field name="sequence_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="document_flow_document_kind_template_view_form" model="ir.ui.view">
+        <field name="name">document_flow.document.kind.template.form</field>
+        <field name="model">document_flow.document.kind.template</field>
+        <field name="arch" type="xml">
+            <form string="Document Kind">
+                <sheet string="Document Kind">
+                    <div class="oe_title">
+                        <h1 class="d-flex flex-row">
+                            <field name="name" class="o_text_overflow" placeholder="Document Kind Title..."/>
+                        </h1>
+                    </div>
+                    <group>
+                        <field name="sequence_id"/>
+                    </group>
+                    <group>
+                        <field name="keep_records_by_type" widget="boolean_toggle" options="{'autosave': False}"/>
+                    </group>
+                    <notebook>
+                        <page name="access_settings_page" string="Accessibility Settings">
+                            <field name="access_setting_ids" mode="tree"/>
+                        </page>
+                        <page name="types_page" string="Types" attrs="{'invisible': [('keep_records_by_type', '=', False)]}">
+                            <field name="type_ids" mode="tree"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="document_flow_document_kind_accessibility_setting_view_tree" model="ir.ui.view">
+        <field name="name">document_flow.document.kind.accessibility.setting.tree</field>
+        <field name="model">document_flow.document.kind.accessibility.setting</field>
+        <field name="arch" type="xml">
+            <tree string="Accessibility Settings" editable="bottom">
+                <field name="template_id" invisible="1"/>
+                <field name="user_ref"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </tree>
+        </field>
+    </record>
+</odoo>

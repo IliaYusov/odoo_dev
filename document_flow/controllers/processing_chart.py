@@ -4,12 +4,14 @@ from odoo.http import request
 
 
 class ProcessingChartController(http.Controller):
+
+    #TODO: sudo для доступа к задачам? Аунется в форме истории
     def _prepare_process_data(self, process):
         return dict(
             id=process.id,
             name=process.name,
             date_end=process.date_end,
-            tasks=[self._prepare_task_data(task) for task in process.task_ids],
+            tasks=[self._prepare_task_data(task) for task in process.sudo().task_ids],
             link='/mail/view?model=%s&res_id=%s' % ('document_flow.process', process.id),
             state='done' if process.state == 'finished' else 'cancel' if process.state == 'break' else 'todo'
         )

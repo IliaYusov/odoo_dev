@@ -6,7 +6,7 @@
         <field name="inherit_id" ref="base.view_attachment_form"/>
         <field name="arch" type="xml">
             <xpath expr="//group[@name='description_group']" position="before">
-                <group string="Version">
+                <group string="Version" attrs="{'invisible': [('version', '=', 0)]}">
                     <field name="version_count" invisible="1"/>
                     <field name="version"/>
                 </group>
@@ -44,6 +44,9 @@
             <xpath expr="//field[@name='file_size']" position="before">
                 <field name="version"/>
             </xpath>
+			<xpath expr="//field[@name='create_date']" position="after">
+                <field name="description" class="text-wrap"/>
+            </xpath>
         </field>
     </record>
 
@@ -53,11 +56,25 @@
         <field name="inherit_id" ref="mail.view_document_file_kanban"/>
         <field name="arch" type="xml">
             <xpath expr="//div[hasclass('o_kanban_record_title')]" position="after">
-                <div>
+                <t t-if="record.version.raw_value != '0'">
                     <a>Version:
                         <field name="version"/>
                     </a>
-                </div>
+                </t>
+            </xpath>
+            <xpath expr="//div/time[hasclass('oe_kanban_bottom_left')]/field[@name='create_date']" position="attributes">
+                <attribute name="widget">datetime</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="ir_attachment_view_search_inherit_dms" model="ir.ui.view">
+        <field name="name">ir.attachment.search.inherit.dms</field>
+        <field name="model">ir.attachment</field>
+        <field name="inherit_id" ref="base.view_attachment_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search/group/filter[@name='creation_month']" position="after">
+                <filter string="Resource Model" name="group_by_res_model" domain="[]" context="{'group_by':'res_model'}"/>
             </xpath>
         </field>
     </record>

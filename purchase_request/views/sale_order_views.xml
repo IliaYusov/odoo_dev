@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sale_order_view_form_inherit_purchase_request" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.purchase.request</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/group/group[@name='order_details']" position="replace">
+                <group>
+                    <field name="validity_date" attrs="{'invisible': [('state', 'in', ['sale', 'done'])]}"/>
+                    <field name="date_order"/>
+                    <field name="show_update_pricelist" invisible="1"/>
+                    <label for="pricelist_id" groups="product.group_product_pricelist"/>
+                    <div groups="product.group_product_pricelist" class="o_row">
+                        <field name="pricelist_id" options="{'no_open':True,'no_create': True}"/>
+                        <button name="action_update_prices" type="object"
+                                string=" Update Prices"
+                                help="Recompute all prices based on this pricelist"
+                                class="btn-link mb-1 px-0" icon="fa-refresh"
+                                confirm="This will update all unit prices based on the currently set pricelist."
+                                attrs="{'invisible': ['|', ('show_update_pricelist', '=', False), ('state', 'in', ['sale', 'done', 'cancel'])]}"/>
+                    </div>
+                    <field name="company_id" invisible="1"/>
+                    <field name="currency_id" readonly="0"/>
+                    <label for="conversion_percent"/>
+                    <div name="conversion_percent">
+                        <field name="conversion_percent" class="oe_inline"/>
+                        %
+                    </div>
+                    <field name="pricelist_id" invisible="1"/>
+                    <field name="tax_country_id" invisible="1"/>
+                    <field name="payment_term_id" options="{'no_open':True,'no_create': True}"/>
+                </group>
+            </xpath>
+            <xpath expr="//page/field[@name='order_line']/form/field[@name='display_type']" position="before">
+                <field name="hide_characteristics" invisible="1"/>
+            </xpath>
+            <xpath expr="//page/field[@name='order_line']/form" position="inside">
+                <field name="currency_rate" invisible="1"/>
+                <notebook>
+                    <page name="component_line" string="Components">
+                        <group>
+                            <field name="technical_requirements" invisible="1"/>
+                        </group>
+<!--                        <field name="component_ids" mode="tree" widget="section_and_note_one2many"-->
+<!--                               context="{'default_sequence': len(component_ids), 'default_sale_order_line_id': active_id}"/>-->
+                    </page>
+                </notebook>
+            </xpath>
+            <xpath expr="//page/field[@name='order_line']/form/label[@for='name']" position="before">
+                <group attrs="{'invisible': [('display_type', '!=', False)]}" col="3">
+                    <group>
+                        <label for="delivery_time"/>
+                        <div name="delivery_time">
+                            <field name="delivery_time" class="oe_inline"/>
+                            weeks
+                        </div>
+                    </group>
+                    <group>
+                        <label for="vendor_guarantee"/>
+                        <div name="vendor_guarantee">
+                            <field name="vendor_guarantee" class="oe_inline"/>
+                            months
+                        </div>
+                    </group>
+                </group>
+                <group attrs="{'invisible': [('display_type', '!=', False)]}" col="3">
+                    <group>
+                        <field name="payment_term_id"/>
+                    </group>
+                    <group>
+                        <field name="comment"/>
+                    </group>
+                    <group>
+                        <field name="supplier_id"/>
+                    </group>
+                </group>
+            </xpath>
+<!--            <xpath expr="//field[@name='currency_id']" position="attributes">-->
+<!--                <attribute name="invisible"/>-->
+<!--                <attribute name="readonly">0</attribute>-->
+<!--            </xpath>-->
+<!--            <xpath expr="//field[@name='pricelist_id']" position="attributes">-->
+<!--                <attribute name="attrs">{'invisible': 1}</attribute>-->
+<!--            </xpath>-->
+            <xpath expr="//page[@name='other_information']/group/group[@name='sales_person']/label" position="attributes">
+                <attribute name="attrs">{'invisible': 1}</attribute>
+            </xpath>
+            <xpath expr="//page[@name='other_information']/group/group[@name='sales_person']/div" position="attributes">
+                <attribute name="attrs">{'invisible': 1}</attribute>
+            </xpath>
+            <xpath expr="//page[@name='other_information']/group/group[@name='sales_person']/field[@name='client_order_ref']" position="attributes">
+                <attribute name="attrs">{'invisible': 1}</attribute>
+            </xpath>
+            <xpath expr="//page[@name='other_information']/group/group[@name='sales_person']" position="before">
+                <group name="deal_info" string="Deal">
+                    <field name="deal_id"/>
+                    <field name="purchase_request_id"/>
+                </group>
+            </xpath>
+            <xpath expr="//page[@name='other_information']/group/group[@name='sale_info']" position="attributes">
+                <attribute name="attrs">{'invisible': 1}</attribute>
+            </xpath>
+            <xpath expr="//page[@name='other_information']/group/group[@name='sale_shipping']" position="attributes">
+                <attribute name="attrs">{'invisible': 1}</attribute>
+            </xpath>
+            <xpath expr="//page[@name='other_information']/group/group[@name='sale_reporting']" position="attributes">
+                <attribute name="attrs">{'invisible': 1}</attribute>
+            </xpath>
+<!--            <xpath expr="//page[@name='optional_products']" position="attributes">-->
+<!--                <attribute name="attrs">{'invisible': 1}</attribute>-->
+<!--            </xpath>-->
+            <xpath expr="//page/field[@name='order_line']/form/group/group/div[@name='lead']" position="attributes">
+                <attribute name="attrs">{'invisible': 1}</attribute>
+            </xpath>
+            <xpath expr="//page/field[@name='order_line']/form/group/group/field[@name='price_unit']" position="before">
+                <field name="currency_id" readonly="0"/>
+            </xpath>
+            <xpath expr="//page/field[@name='order_line']/form/div[@name='invoice_lines']" position="attributes">
+                <attribute name="attrs">{'invisible': 1}</attribute>
+            </xpath>
+            <xpath expr="//page/field[@name='order_line']/tree" position="attributes">
+                <attribute name="editable"/>
+            </xpath>
+            <xpath expr="//page/field[@name='order_line']/tree/field[@name='price_subtotal']" position="attributes">
+                <attribute name="widget">float</attribute>
+            </xpath>
+            <xpath expr="//page/field[@name='order_line']/tree/field[@name='price_total']" position="attributes">
+                <attribute name="widget">float</attribute>
+            </xpath>
+<!--            <xpath expr="//page/field[@name='order_line']/tree/field[@name='price_subtotal']" position="replace">-->
+<!--                <field name="price_subtotal" widget="float" groups="account.group_show_line_subtotals_tax_excluded" attrs="{'invisible': [('is_downpayment', '=', True)]}"/>-->
+<!--            </xpath>-->
+<!--            <xpath expr="//page/field[@name='order_line']/tree/field[@name='price_total']" position="replace">-->
+<!--                <field name="price_total" widget="float" groups="account.group_show_line_subtotals_tax_included" attrs="{'invisible': [('is_downpayment', '=', True)]}"/>-->
+<!--            </xpath>-->
+            <xpath expr="//page/field[@name='order_line']/tree/field[@name='product_template_id']" position="before">
+                <field name="vendor_id"/>
+            </xpath>
+            <xpath expr="//page/field[@name='order_line']/tree/field[@name='price_unit']" position="attributes">
+                <attribute name="widget">monetary</attribute>
+            </xpath>
+            <xpath expr="//page/field[@name='order_line']/tree/field[@name='price_unit']" position="after">
+                <field name="currency_rate" invisible="1"/>
+            </xpath>
+            <xpath expr="//page/field[@name='order_line']/tree/field[@name='price_total']" position="after">
+                <field name="delivery_time"/>
+                <field name="vendor_guarantee"/>
+                <field name="payment_term_id"/>
+                <field name="comment"/>
+                <field name="supplier_id"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

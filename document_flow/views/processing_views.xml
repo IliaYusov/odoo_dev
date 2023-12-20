@@ -7,19 +7,20 @@
             <form string="Processing">
                 <header>
                     <button string="Start processing" type="object" name="action_start_processing" class="oe_highlight"
-                            attrs="{'invisible': [('process_id', '!=', False)]}"/>
+                            attrs="{'invisible': ['|', ('state', '!=', False), ('action_count', '=', 0)]}"/>
                     <button string="Break processing" type="object" name="break_processing" class="oe_highlight"
-                            attrs="{'invisible': ['|', ('process_id', '=', False), ('state', '!=', 'started')]}"/>
-                    <button string="Resume processing" type="object" name="resume_processing_from_last_stage" class="oe_highlight"
-                            attrs="{'invisible': ['|', ('process_id', '=', False), ('state', '!=', 'break')]}"/>
+                            attrs="{'invisible': ['|', ('state', '=', False), ('state', '!=', 'started')]}"/>
+                    <button string="Resume processing" type="action"
+                            name="%(action_document_flow_processing_wizard_resume)d" class="oe_highlight"
+                            attrs="{'invisible': ['|', ('state', '=', False), ('state', '!=', 'break')]}"/>
                 </header>
                 <sheet string="Processing">
                     <group attrs="{'invisible': 1}">
-                        <field name="process_id"/>
                         <field name="state"/>
                         <field name="parent_ref_type"/>
                         <field name="parent_ref_id"/>
-                        <field name="document_type_id"/>
+                        <field name="document_kind_id"/>
+                        <field name="action_count"/>
                     </group>
                     <div id="o_process_container" class="d-lg-flex">
                         <div id="o_processing_main" class="flex-grow-1">
@@ -28,10 +29,10 @@
                             </group>
                             <div col="2" class="o_row">
                                 <group>
-                                    <field name="template_id" attrs="{'readonly': [('process_id', '!=', False)]}"/>
+                                    <field name="template_id" attrs="{'readonly': [('state', '!=', False)]}"/>
                                 </group>
                                 <button name="fill_by_template" type="object" class="btn btn-link"
-                                        attrs="{'invisible': [('process_id', '!=', False)]}">
+                                        attrs="{'invisible': [('state', '!=', False)]}">
                                     <span class="fa fa-refresh"></span>
                                     <span>Fill by template</span>
                                 </button>
@@ -41,11 +42,11 @@
                     <notebook>
                         <page name="actions_page" string="Actions">
                             <field name="action_ids" widget="section_and_note_one2many" mode="tree"
-                                   attrs="{'readonly': [('process_id', '!=', False)]}"
+                                   attrs="{'readonly': [('state', '!=', False)]}"
                                    context="{'default_parent_ref_type': 'document_flow.processing','default_parent_ref_id': active_id}"/>
                         </page>
                         <page name="processing_history_page" string="Processing History">
-                            <field name="task_history_ids" mode="tree" attrs="{'readonly': 1}"/>
+                            <field name="task_history_ids" mode="tree" style="pointer-events:none;"/>
                         </page>
                     </notebook>
                 </sheet>

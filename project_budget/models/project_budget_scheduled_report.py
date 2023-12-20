@@ -25,7 +25,7 @@ class ScheduledReport(models.Model):
 
         report_name = self.with_context(
             lang=self.env.user.lang).report_id.print_report_name if self.report_id.print_report_name else self.with_context(
-            lang=self.env.user.lang).report_id.name
+            lang=self.env.user.lang).report_id.name + '_'+self.company_id.name
         ext = '.' + report_format
         if not report_name.endswith(ext):
             report_name += ext

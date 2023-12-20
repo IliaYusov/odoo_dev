@@ -193,8 +193,8 @@
                                 </group>
                             </h5>
                             <group>
-                                <field name="currency_id" options="{'no_open': True}" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
-<!--                                <field name="currency_id" attrs="{'readonly': True}" options="{'no_open': True}"/>-->
+<!--                                <field name="currency_id" options="{'no_open': True}" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>-->
+                                <field name="currency_id" attrs="{'readonly': True}" options="{'no_open': True}"/>
                             </group>
                             <group>
                                 <field name="dogovor_number" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
@@ -785,7 +785,7 @@
                     <field name="etalon_budget" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
                     <field name="budget_state" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
                     <field name="commercial_budget_id"   optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
-                    <field name="currency_id" invisible="1" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                    <field name="currency_id" attrs="{'readonly': [('budget_state', '=', 'fixed')]}" />
                     <field name="project_office_id" force_save="1" options="{'no_open': True,}" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
                     <field name="project_supervisor_id" force_save="1" widget="many2one_avatar" options="{'no_open': True,}" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
                     <field name="project_manager_id" force_save="1" widget="many2one_avatar" options="{'no_open': True,}" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>

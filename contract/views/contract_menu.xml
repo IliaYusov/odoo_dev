@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="action_contract_template_form" model="ir.actions.act_window">
+        <field name="name">Contract Templates</field>
+        <field name="res_model">mail.template</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="mail.email_template_tree"/>
+        <field name="search_view_id" ref="mail.view_email_template_search"/>
+        <field name="domain">[('model_id', '=', 'contract.contract')]</field>
+        <field name="context">{'default_model': 'contract.contract'}</field>
+    </record>
+
+    <menuitem id="menu_contract_management" name="Contracts" sequence="14"/>
+
+    <menuitem id="menu_contract_contract" name="Contract Management" parent="menu_contract_management" sequence="5">
+        <menuitem id="menu_contacts" name="Contracts" sequence="1" action="action_contract_form"/>
+    </menuitem>
+
+    <menuitem id="menu_contract_configuration" parent="menu_contract_management" name="Configuration" sequence="100"
+              groups="base.group_system">
+        <menuitem id="menu_contract_templates" name="Templates" sequence="1" action="action_contract_template_form"/>
+        <menuitem id="menu_contract_types" name="Contract Types" sequence="2" action="action_contract_type_form"/>
+    </menuitem>
+</odoo>

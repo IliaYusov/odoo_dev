@@ -1,7 +1,7 @@
 {
     "name": "Document Management System",
     "summary": """Document Management System""",
-    "version": "16.0.1.0.1",
+    "version": "1.0.4",
     "category": "Document Management",
     "license": "LGPL-3",
     "website": "",
@@ -9,7 +9,11 @@
     "depends": [
     ],
     "data": [
-        'views/ir_attachment_views.xml'
+        'security/ir.model.access.csv',
+        'security/dms_security.xml',
+        'views/ir_attachment_views.xml',
+        'views/dms_version_config_views.xml',
+        'views/dms_menu.xml'
     ],
     "assets": {
         "web.assets_backend": [

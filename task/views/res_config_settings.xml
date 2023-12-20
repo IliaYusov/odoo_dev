@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="res_config_settings_view_form_inherit_task" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.task</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="50"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('settings')]" position="inside">
+                <div class="app_settings_block" data-string="Task Management" string="Task Management" data-key="task"
+                     groups="base.group_system">
+                    <div name="task_settings">
+                        <h2>Tasks Management</h2>
+                        <div class="row mt16 o_settings_container" name="tasks_management">
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane">
+                                    <field name="assign_task_only_to_subordinates"/>
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="assign_task_only_to_subordinates"/>
+                                    <div class="text-muted">
+                                        Allows the user assign task only for subordinates
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_task_config_settings" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="context">{'module' : 'task'}</field>
+    </record>
+</odoo>

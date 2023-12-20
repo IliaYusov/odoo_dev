@@ -34,14 +34,9 @@ class Task(models.Model):
         for task in self:
             parent_ref = False
             if task.parent_ref_type and task.parent_ref_type.startswith('document_flow.') and task.parent_ref:
-                parent_ref = self.env['document_flow.process.parent_object'].search([
-                    ('process_id', '=', task.parent_ref.id)
+                parent_ref = self.env['document_flow.processing'].search([
+                    ('process_ids', 'in', task.parent_ref._get_mainprocess_id_by_process_id().get(task.parent_ref.id, None))
                 ]).parent_ref
-                if not parent_ref:
-                    parent_ref = self.env['document_flow.processing'].search([
-                        ('process_id', '=', task.parent_ref._get_mainprocess_id_by_process_id().get(task.parent_ref.id, None))
-                    ]).parent_ref
-                task.parent_obj_ref = parent_ref
             task.parent_obj_ref = parent_ref
 
     @api.model
@@ -54,30 +49,36 @@ class Task(models.Model):
             return False
 
     @api.model
-    def get_tasks_count(self):
+    def get_tasks_count(self, allowed_company_ids):
         my_tasks_to_do_count = self.env['task.task'].search_count([
             ('parent_ref_type', 'like', 'document_flow.%'),
             ('is_closed', '=', False),
             ('date_deadline', '>=', fields.Datetime.now()),
-            ('user_ids', 'in', self.env.uid)
+            '|', ('user_ids', '=', self.env.uid),
+            ('user_ids', 'in', self.env.user.employee_ids.get_replaceable_user_ids()),
+            '|', ('company_ids', '=', False), ('company_ids', 'in', allowed_company_ids)
         ])
         my_tasks_overdue_count = self.env['task.task'].search_count([
             ('parent_ref_type', 'like', 'document_flow.%'),
             ('is_closed', '=', False),
             ('date_deadline', '<', fields.Datetime.now()),
-            ('user_ids', 'in', self.env.uid)
+            '|', ('user_ids', '=', self.env.uid),
+            ('user_ids', 'in', self.env.user.employee_ids.get_replaceable_user_ids()),
+            '|', ('company_ids', '=', False), ('company_ids', 'in', allowed_company_ids)
         ])
         by_me_tasks_to_do_count = self.env['task.task'].search_count([
             ('parent_ref_type', 'like', 'document_flow.%'),
             ('is_closed', '=', False),
             ('date_deadline', '>=', fields.Datetime.now()),
-            ('author_id', '=', self.env.uid)
+            ('author_id', '=', self.env.uid),
+            '|', ('company_ids', '=', False), ('company_ids', 'in', allowed_company_ids)
         ])
         by_me_tasks_overdue_count = self.env['task.task'].search_count([
             ('parent_ref_type', 'like', 'document_flow.%'),
             ('is_closed', '=', False),
             ('date_deadline', '<', fields.Datetime.now()),
-            ('author_id', '=', self.env.uid)
+            ('author_id', '=', self.env.uid),
+            '|', ('company_ids', '=', False), ('company_ids', 'in', allowed_company_ids)
         ])
 
         roles = self.env['document_flow.role_executor'].search([
@@ -88,22 +89,31 @@ class Task(models.Model):
             ('is_closed', '=', False),
             ('date_deadline', '>=', fields.Datetime.now()),
             ('user_ids', '=', False),
-            ('role_executor_id', 'in', roles.ids)
+            ('role_executor_id', 'in', roles.ids),
+            '|', ('company_ids', '=', False), ('company_ids', 'in', allowed_company_ids)
         ])
         group_tasks_overdue_count = self.env['task.task'].search_count([
             ('parent_ref_type', 'like', 'document_flow.%'),
             ('is_closed', '=', False),
             ('date_deadline', '<', fields.Datetime.now()),
             ('user_ids', '=', False),
-            ('role_executor_id', 'in', roles.ids)
+            ('role_executor_id', 'in', roles.ids),
+            '|', ('company_ids', '=', False), ('company_ids', 'in', allowed_company_ids)
         ])
-
-        # tasks = self.env['task.task'].search([
-        #     ('state', 'in', ['to_do', 'assigned', 'in_progress'])
-        # ])
-        # p_tasks = []
-        # for task in tasks:
-        #     p_tasks.append(task.name)
+        subordinates_tasks_to_do_count = self.env['task.task'].search_count([
+            ('parent_ref_type', 'like', 'document_flow.%'),
+            ('is_closed', '=', False),
+            ('date_deadline', '>=', fields.Datetime.now()),
+            ('user_ids', 'in', self.env.user.employee_id.subordinate_ids.user_id.ids),
+            '|', ('company_ids', '=', False), ('company_ids', 'in', allowed_company_ids)
+        ])
+        subordinates_tasks_overdue_count = self.env['task.task'].search_count([
+            ('parent_ref_type', 'like', 'document_flow.%'),
+            ('is_closed', '=', False),
+            ('date_deadline', '<', fields.Datetime.now()),
+            ('user_ids', 'in', self.env.user.employee_id.subordinate_ids.user_id.ids),
+            '|', ('company_ids', '=', False), ('company_ids', 'in', allowed_company_ids)
+        ])
 
         values = {
             'my_tasks_count': my_tasks_to_do_count + my_tasks_overdue_count,
@@ -114,7 +124,10 @@ class Task(models.Model):
             'by_me_overdue_count': by_me_tasks_overdue_count,
             'group_tasks_count': group_tasks_to_do_count + group_tasks_overdue_count,
             'group_to_do_count': group_tasks_to_do_count,
-            'group_overdue_count': group_tasks_overdue_count
+            'group_overdue_count': group_tasks_overdue_count,
+            'subordinates_tasks_count': subordinates_tasks_to_do_count + subordinates_tasks_overdue_count,
+            'subordinates_to_do_count': subordinates_tasks_to_do_count,
+            'subordinates_overdue_count': subordinates_tasks_overdue_count
         }
         return values
 
