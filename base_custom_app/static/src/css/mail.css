@@ -1,0 +1,117 @@
+/* Sidebar Mailbox Style */
+.o_DiscussSidebarMailbox {
+    padding: 10px !important;
+}
+
+/* Sidebar New Message Style */
+.o_DiscussSidebarMailbox .o-starred-box .o_DiscussSidebarMailbox_counter{
+    border-color: #0F5F8B;
+    background-color: #fff;
+    color: #0F5F8B;
+}
+
+/* Sidebar Category Message Style */
+.o_DiscussSidebarCategory_header{
+    background-color: #40404060;
+    padding: 5px;
+}
+.o_DiscussSidebarCategory_header span,.o_DiscussSidebarCategory_header i{
+    color: #fff;
+}
+
+/* New Category Message Input Style */
+.o_DiscussSidebarCategory_itemNewInput{
+    display: block;
+    width: 100%;
+    padding: 0.4rem 1rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.4;
+    border: 1px solid #0F5F8B;
+    color: #677788;
+    background-color: #fff;
+    background-clip: padding-box;
+    border-radius: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+/* New Category Message Input Placeholder Style */
+.o_DiscussSidebarCategory_itemNewInput::placeholder{
+    color: rgba(0, 0, 0, 0.4);
+    font-weight: 700;
+    font-size: 12px;
+    padding: 5px 0;
+}
+
+/* Background MessageList Style */
+.o_MessageList{
+    background-color: #fff !important;
+}
+
+/* Date MessageList Style */
+.o_MessageList_separatorLabel{
+    background-color: transparent;
+}
+.o_MessageList_separatorDate{
+    background-color: #fff !important;
+    padding-top: 0px !important;
+}
+
+/* Message Box Image Style */
+.o_AttachmentList .o_AttachmentList_partialList .o_AttachmentList_attachment .o_AttachmentImage img{
+    border-radius: 5px;
+}
+
+/* Message Box Avatar Style */
+.o_MessageList_item:not(.o-squashed) .o_Message_sidebarItem{
+    position: absolute !important;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+}
+.o_MessageList_item .o-squashed .o-message-squashed .o_Message_sidebarItem{
+    position: absolute;
+    left: 10px;
+    top: 0px;
+    border: none;
+}
+
+/* Message Action Button Style */
+.o_ThreadView_core .o_MessageList .o_Message_custom .o_Message_actionListContainer{
+    position: absolute;
+    right: auto !important;
+    top: -30px;
+    left: 0;
+    padding-left: 1rem !important;
+    padding-right: 3rem !important;
+}
+.o_ThreadView_core .o_MessageList .o_Message_custom.current_user .o_Message_actionListContainer{
+    position: absolute;
+    right: 0 !important;
+    top: -30px;
+}
+.o_MessageActionList{
+    background-color: #fff;
+    color: #0F5F8B;
+    border: 1px solid #0F5F8B;
+    border-radius: 3px;
+}
+.o_MessageActionList_action:hover{
+    color: #0F5F8B;
+}
+@media (max-width: 767.98px){
+    .o_ThreadView_core .o_MessageList .o_Message_custom .o_Message_actionListContainer{
+        right: auto !important;
+        top: -15px !important;
+    }
+    .o_ThreadView_core .o_MessageList .o_Message_custom.current_user .o_Message_actionListContainer{
+        right: auto !important;
+        top: -15px !important;
+        left: 50% !important;
+    }
+    .o_ThreadView_core .o_MessageList .o-not-discussion .o_Message_custom.current_user .o_Message_actionListContainer{
+        right: auto !important;
+        top: -15px !important;
+        left: 70% !important;
+    }
+}
