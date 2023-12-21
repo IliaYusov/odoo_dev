@@ -20,3 +20,13 @@
 .o_list_view .o_optional_columns .o_optional_columns_dropdown .dropdown-item label{
     padding-top: 5px;
 }
+
+/* List Grouping Caret Style */
+.o_group_caret.fa.fa-fw.fa-caret-down.me-1, .o_group_caret.fa.fa-fw.me-1.fa-caret-right{
+    margin-top: 4px;
+}
+
+/* Header checkbox */
+th.o_list_record_selector.o_list_controller.align-middle.pe-1.cursor-pointer{
+    padding-left: 16px;
+}

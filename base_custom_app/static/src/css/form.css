@@ -59,6 +59,9 @@
 .o_arrow_button {
     text-transform: none !important;
 }
+div.oe_left.button_box{
+    margin: 6px;
+}
 
 /* Avatar Form Style */
 .o_form_view .oe_avatar > img{
@@ -212,7 +215,7 @@ select.o_field_widget.o_wrap_input{
 
 /* Dropdown Item Style */
 .ui-widget.ui-autocomplete .ui-menu-item > a.dropdown-item{
-    padding: 8px 20px;
+    padding: 5px 15px;
 }
 
 /* Dropdown Tag Toggle style */

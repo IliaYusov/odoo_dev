@@ -141,7 +141,7 @@
 }
 
 .ui-widget.ui-autocomplete .ui-menu-item > a.dropdown-item{
-    padding: 8px 20px;
+    padding: 5px 15px;
 }
 
 
@@ -267,7 +267,7 @@ select.o_field_widget.o_input{
     cursor: default;
 }
 .dropdown-item{
-    padding: 8px 20px;
+    padding: 5px 15px;
 }
 .o_MessagingMenu_counter,.o_mail_systray_item .o_notification_counter{
     background-color: #FF8800;

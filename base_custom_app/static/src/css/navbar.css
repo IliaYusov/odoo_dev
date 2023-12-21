@@ -9,6 +9,10 @@
     color: #fff;
 }
 
+.dropdown-toggle{
+    padding-left: 15px !important;
+}
+
 /* Navbar Dropdown Menu Style */
 .dropdown-menu{
     border-radius: 5px;
@@ -16,7 +20,7 @@
 
 /* Navbar Dropdown Menu Item Style */
 .dropdown-item{
-    padding: 8px 20px;
+    padding: 5px 15px;
 }
 
 /* Navbar Dropdown Menu Header Style */

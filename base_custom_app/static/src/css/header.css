@@ -121,7 +121,7 @@
 
 /* Filter Dropdown Toggle Style */
 button.dropdown-toggle.dropdown-item::after, button.dropdown-toggle.dropdown-item::before, span.dropdown-item.o_menu_item.selected::before, span.dropdown-item.o_item_option.selected::before{
-    top: 7px !important;
+    top: 3px !important;
 }
 
 /* Custom Filter Style */
