@@ -219,7 +219,7 @@ class projects(models.Model):
 
     customer_organization_id = fields.Many2one('project_budget.customer_organization', string='customer_organization',
                                                required=True, copy=True,tracking=True)
-    partner_id = fields.Many2one('res.partner', string='customer_organization', copy=True, required=True, tracking=True, domain="[('is_company','=',True)]")
+    partner_id = fields.Many2one('res.partner', string='customer_organization', copy=True, tracking=True, domain="[('is_company','=',True)]")
     customer_status_id = fields.Many2one('project_budget.customer_status', string='customer_status',
                                          copy=True, tracking=True)
     industry_id = fields.Many2one('project_budget.industry', string='industry', required=True, copy=True,tracking=True)

@@ -36,11 +36,11 @@ class tenders(models.Model):
     url_contract = fields.Html(string='url of contract', default="", tracking=True)
     customer_organization_id = fields.Many2one('project_budget.customer_organization', string='customer_organization',
                                                 copy=True,tracking=True)
-    partner_id = fields.Many2one('res.partner', string='customer_organization', copy=True, required=True, tracking=True,
+    partner_id = fields.Many2one('res.partner', string='customer_organization', copy=True, tracking=True,
                                  domain="[('is_company','=',True)]")
     organizer_id = fields.Many2one('project_budget.customer_organization', string='organizer',
                                                 copy=True, tracking=True)
-    organizer_partner_id = fields.Many2one('res.partner', string='organizer', copy=True, required=True, tracking=True,
+    organizer_partner_id = fields.Many2one('res.partner', string='organizer', copy=True, tracking=True,
                                            domain="[('is_company','=',True)]")
 
     contact_information = fields.Text(string='contact_information', default = "",tracking=True)
