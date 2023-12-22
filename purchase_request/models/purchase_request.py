@@ -23,7 +23,7 @@ class PurchaseRequest(models.Model):
                              default='draft')
     project_id = fields.Many2one('project_budget.projects', string='Project', copy=True, required=True, tracking=True,
                                  domain="[('budget_state', '=', 'work')]")
-    partner_id = fields.Many2one('res.partner', related='project_id.customer_organization_id.partner_id',
+    partner_id = fields.Many2one('res.partner', related='project_id.partner_id',
                                  string='Partner', copy=False, readonly=True, required=True)
     partner_vat = fields.Char(related='partner_id.vat', string='Vat', copy=False, readonly=True, required=True)
     request_type_id = fields.Many2one('purchase.request.type', string='Request Type', copy=True, required=True)

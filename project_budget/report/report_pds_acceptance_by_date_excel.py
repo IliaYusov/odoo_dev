@@ -182,7 +182,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                     column += 1
                     sheet.write_string(row, column, step.estimated_probability_id.name, row_format)
                     column += 1
-                    sheet.write_string(row, column, project.customer_organization_id.name, row_format)
+                    sheet.write_string(row, column, project.partner_id.name, row_format)
                     column += 1
                     sheet.write_string(row, column, project.project_id, row_format)
                     column += 1
@@ -216,7 +216,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                 column += 1
                 sheet.write_string(row, column, project.estimated_probability_id.name, row_format)
                 column += 1
-                sheet.write_string(row, column, project.customer_organization_id.name, row_format)
+                sheet.write_string(row, column, project.partner_id.name, row_format)
                 column += 1
                 sheet.write_string(row, column, project.project_id, row_format)
                 column += 1

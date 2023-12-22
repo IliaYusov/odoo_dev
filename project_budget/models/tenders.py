@@ -36,7 +36,7 @@ class tenders(models.Model):
     url_contract = fields.Html(string='url of contract', default="", tracking=True)
     customer_organization_id = fields.Many2one('project_budget.customer_organization', string='customer_organization',
                                                 copy=True,tracking=True)
-    partner_id = fields.Many2one('res.partner', string='customer_organization', copy=True, tracking=True,
+    partner_id = fields.Many2one('res.partner', string='customer_organization', required=True, copy=True, tracking=True,
                                  domain="[('is_company','=',True)]")
     organizer_id = fields.Many2one('project_budget.customer_organization', string='organizer',
                                                 copy=True, tracking=True)
@@ -78,10 +78,10 @@ class tenders(models.Model):
         return super().create(vals_list)
 
 
-    @api.depends('date_of_filling_in','customer_organization_id','name_of_the_purchase')
+    @api.depends('date_of_filling_in','partner_id','name_of_the_purchase')
     def _get_name_to_show(self):
         for tender in self:
-            tender.name_to_show = tender.date_of_filling_in.strftime('%Y-%m-%d') + '|'+ (tender.customer_organization_id.name or '') + '|' + (tender.name_of_the_purchase[:30] or '')+'...'
+            tender.name_to_show = tender.date_of_filling_in.strftime('%Y-%m-%d') + '|'+ (tender.partner_id.name or '') + '|' + (tender.name_of_the_purchase or '')+'...'
 
     def _compute_attachment_count(self):
         for tender in self:
@@ -118,9 +118,9 @@ class tenders(models.Model):
             #     row.date_of_filling_in = fields.datetime.now()
 
     @api.onchange('projects_id')
-    def _check_customer_organization_id(self):
+    def _check_partner_id(self):
         for row in self:
-            row.customer_organization_id = row.projects_id.customer_organization_id
+            row.partner_id = row.projects_id.partner_id
 
 
 

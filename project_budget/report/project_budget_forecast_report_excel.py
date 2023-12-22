@@ -1511,7 +1511,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                             column += 1
                                             sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
                                             column += 1
-                                            sheet.write_string(row, column, spec.customer_organization_id.name, cur_row_format)
+                                            sheet.write_string(row, column, spec.partner_id.name, cur_row_format)
                                             column += 1
                                             sheet.write_string(row, column, (step.essence_project or ''), cur_row_format)
                                             column += 1
@@ -1556,7 +1556,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                     column += 1
                                     sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
                                     column += 1
-                                    sheet.write_string(row, column, spec.customer_organization_id.name, cur_row_format)
+                                    sheet.write_string(row, column, spec.partner_id.name, cur_row_format)
                                     column += 1
                                     sheet.write_string(row, column, (spec.essence_project or ''), cur_row_format)
                                     column += 1

@@ -135,7 +135,7 @@ class report_projects_overdue_excel(models.AbstractModel):
                 sheet.write_string(row, column, "", row_format)
             column += 1
 
-            sheet.write_string(row, column, (spec.customer_organization_id.name or '') , row_format)
+            sheet.write_string(row, column, (spec.partner_id.name or '') , row_format)
             column += 1
             sheet.write_string(row, column, (spec.essence_project or ''), row_format)
             column += 1

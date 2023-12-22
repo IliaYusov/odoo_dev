@@ -156,9 +156,12 @@ class report_tender_excel(models.AbstractModel):
             column += 1
             sheet.write_string(row, column, (tender.auction_number or ''), row_format_text)
             column += 1
-            sheet.write_string(row, column, (tender.url_tender.striptags() or ''), row_format_text)
+            if tender.url_tender:
+                sheet.write_string(row, column, (tender.url_tender.striptags() or ''), row_format_text)
+            else:
+                sheet.write_string(row, column, '', row_format_text)
             column += 1
-            sheet.write_string(row, column, (tender.customer_organization_id.name or ''), row_format_text)
+            sheet.write_string(row, column, (tender.partner_id.name or ''), row_format_text)
             column += 1
             if is_report_for_management == False:
                 sheet.write_string(row, column, (tender.contact_information or ''), row_format_text)

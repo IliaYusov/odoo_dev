@@ -11,7 +11,7 @@
                     <field name="cost_price"/>
                     <field name="budget_state"/>
                     <field name="specification_state"/>
-                    <field name="customer_organization_id"/>
+                    <field name="partner_id"/>
                     <field name="legal_entity_signing_id"/>
                     <field name="end_sale_project_quarter"/>
                     <field name="end_presale_project_quarter"/>
@@ -51,7 +51,7 @@
                                         <a>Revenue: <field name="total_amount_of_revenue"/></a>
                                     </div>
                                     <div>
-                                        <field name="customer_organization_id" widget="many2one_avatar"/>
+                                        <field name="partner_id" widget="many2one_avatar"/>
                                     </div>
                                     <div>
                                         <a>Legal sign: <field name="legal_entity_signing_id"/></a>
@@ -254,7 +254,7 @@
                                 </h4>
                                 <group col="6">
                                     <group colspan="3">
-                                        <field name="customer_organization_id" force_save="1" widget="many2one_avatar" options="{'no_open': True,}" placeholder="select costomer/organization"
+                                        <field name="partner_id" force_save="1" widget="many2one_avatar" options="{'no_open': True,}" placeholder="select costomer/organization"
                                                attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
 <!--                                        <field name="customer_status_id" force_save="1" options="{'no_open': True,}" placeholder="select customer state"-->
 <!--                                               attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>-->
@@ -588,7 +588,7 @@
                                             <field name="project_manager_id"  widget="many2one_avatar" options="{'no_open': True,}" optional="show" readonly="1"/>
                                             <field name="rukovoditel_project_id"  widget="many2one_avatar" options="{'no_open': True,}" optional="show" readonly="1"/>
                                             <field name="industry_id"  options="{'no_open': True,}" optional="hide" readonly="1"/>
-                                            <field name="customer_organization_id" widget="many2one_avatar"  options="{'no_open': True,}" optional="show" readonly="1"/>
+                                            <field name="partner_id" widget="many2one_avatar"  options="{'no_open': True,}" optional="show" readonly="1"/>
                                             <field name="essence_project" optional="show" readonly="1"/>
                                             <field name="end_presale_project_month" optional="show" readonly="1"/>
                                             <field name="end_sale_project_month" optional="show" readonly="1"/>
@@ -799,7 +799,7 @@
                     <field name="rukovoditel_project_id" force_save="1" widget="many2one_avatar" options="{'no_open': True,}" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
                     <field name="industry_id" force_save="1" options="{'no_open': True,}" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
 <!--                    <field name="customer_status_id" force_save="1" options="{'no_open': True,}"  optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>-->
-                    <field name="customer_organization_id" widget="many2one_avatar" force_save="1" options="{'no_open': True,}" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                    <field name="partner_id" widget="many2one_avatar" force_save="1" options="{'no_open': True,}" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
                     <field name="essence_project" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
                     <field name="end_presale_project_month"  optional="show" readonly="1"/>
                     <field name="end_sale_project_month"  optional="show" readonly="1"/>
@@ -879,7 +879,7 @@
                     <field name="rukovoditel_project_id"/>
                     <field name="industry_id"/>
 <!--                    <field name="customer_status_id"/>-->
-                    <field name="customer_organization_id"/>
+                    <field name="partner_id"/>
                     <field name="essence_project"/>
                     <field name="end_presale_project_quarter"/>
                     <field name="end_sale_project_quarter" />

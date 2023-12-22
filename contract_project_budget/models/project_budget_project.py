@@ -23,5 +23,5 @@ class Project(models.Model):
         result = action.sudo().read()[0]
         result['domain'] = [('project_id', '=', self.id)]
         result['context'] = {'default_project_id': self.id,
-                             'default_partner_id': self.customer_organization_id.partner_id.id}
+                             'default_partner_id': self.partner_id.id}
         return result
