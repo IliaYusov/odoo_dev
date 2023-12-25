@@ -2743,6 +2743,11 @@ msgid "customer_status"
 msgstr "Статус заказчика"
 
 #. module: project_budget
+#: model:ir.actions.act_window,name:project_budget.partners_tree_action
+msgid "partners_tree_action"
+msgstr "Контакты"
+
+#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_customer_status__code
 msgid "customer_status code"
 msgstr "Код"
