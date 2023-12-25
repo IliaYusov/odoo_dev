@@ -155,7 +155,7 @@
 }
 
 .nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link{
-    color: #66598f;
+    color: #0F5F8B;
     background-color: #fff;
     border-color: #0F5F8B #0F5F8B #dee2e6;
     border-radius: 5px 5px 0 0;
@@ -261,7 +261,7 @@ select.o_field_widget.o_input{
     margin-right: 10px;
 }
 .dropdown-header{
-    background-color: #40404060;
+    background-color: #0F5F8B60;
     color: #fff;
     padding: 0.4rem 20px;
     cursor: default;

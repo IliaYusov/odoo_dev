@@ -25,13 +25,13 @@
 
 /* Navbar Dropdown Menu Header Style */
 .dropdown-header{
-    background-color: #40404060;
+    background-color: #0F5F8B60;
     color: #fff;
     padding: 0.4rem 20px;
     cursor: default;
 }
 .o_main_navbar .o_menu_sections .o_more_dropdown_section_group{
-    background-color: #40404060 !important;
+    background-color: #0F5F8B60 !important;
 }
 
 /* Navbar Badge Icon Style */
