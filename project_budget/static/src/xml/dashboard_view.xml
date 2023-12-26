@@ -9,7 +9,7 @@
 
     <t t-name="ProjectDashboard">
         <link rel="stylesheet" href="/project_budget/static/src/css/dashboard.css"/>
-        <div class="row row-cols-1 row-cols-sm-1 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4 mt-1">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4 mt-1">
             <div class="col potential">
                 <div class="card text-dark">
                     <div class="card-header">
@@ -17,10 +17,10 @@
                     </div>
                     <div class="card-body">
                         <div class="row g-0">
-                            <div class="col-md-4 d-flex justify-content-center align-items-center">
+                            <div class="col-md-4 col-sm-4 col-4 d-flex justify-content-center align-items-center">
                                 <button type="button" class="btn btn-primary">Projects: <br/> <span id="potential_count"/></button>
                             </div>
-                            <div class="col-md-8 text-end">
+                            <div class="col-md-8 col-sm-8 col-8 text-end">
                                 <p class="card-text">Revenue: <span class="projects_sum" id="potential_revenue"/></p>
                                 <p class="card-text">Cost: <span class="projects_sum" id="potential_cost"/></p>
                                 <p class="card-text">Margin: <span class="projects_sum" id="potential_margin"/></p>
@@ -36,10 +36,10 @@
                     </div>
                     <div class="card-body">
                         <div class="row g-0">
-                            <div class="col-md-4 d-flex justify-content-center align-items-center">
+                            <div class="col-md-4 col-sm-4 col-4 d-flex justify-content-center align-items-center">
                                 <button type="button" class="btn btn-primary">Projects: <br/> <span id="opportunity_count"/></button>
                             </div>
-                            <div class="col-md-8 text-end">
+                            <div class="col-md-8 col-sm-8 col-8 text-end">
                                 <p class="card-text">Revenue: <span class="projects_sum" id="opportunity_revenue"/></p>
                                 <p class="card-text">Cost: <span class="projects_sum" id="opportunity_cost"/></p>
                                 <p class="card-text">Margin: <span class="projects_sum" id="opportunity_margin"/></p>
@@ -55,10 +55,10 @@
                     </div>
                     <div class="card-body">
                         <div class="row g-0">
-                            <div class="col-md-4 d-flex justify-content-center align-items-center">
+                            <div class="col-md-4 col-sm-4 col-4 d-flex justify-content-center align-items-center">
                                 <button type="button" class="btn btn-primary">Projects: <br/> <span id="reserve_count"/></button>
                             </div>
-                            <div class="col-md-8 text-end">
+                            <div class="col-md-8 col-sm-8 col-8 text-end">
                                 <p class="card-text">Revenue: <span class="projects_sum" id="reserve_revenue"/></p>
                                 <p class="card-text">Cost: <span class="projects_sum" id="reserve_cost"/></p>
                                 <p class="card-text">Margin: <span class="projects_sum" id="reserve_margin"/></p>
@@ -74,10 +74,10 @@
                     </div>
                     <div class="card-body">
                         <div class="row g-0">
-                            <div class="col-md-4 d-flex justify-content-center align-items-center">
+                            <div class="col-md-4 col-sm-4 col-4 d-flex justify-content-center align-items-center">
                                 <button type="button" class="btn btn-primary">Projects: <br/> <span id="commitment_count"/></button>
                             </div>
-                            <div class="col-md-8 text-end">
+                            <div class="col-md-8 col-sm-8 col-8 text-end">
                                 <p class="card-text">Revenue: <span class="projects_sum" id="commitment_revenue"/></p>
                                 <p class="card-text">Cost: <span class="projects_sum" id="commitment_cost"/></p>
                                 <p class="card-text">Margin: <span class="projects_sum" id="commitment_margin"/></p>
@@ -93,10 +93,10 @@
                     </div>
                     <div class="card-body">
                         <div class="row g-0">
-                            <div class="col-md-4 d-flex justify-content-center align-items-center">
+                            <div class="col-md-4 col-sm-4 col-4 d-flex justify-content-center align-items-center">
                                 <button type="button" class="btn btn-primary">Projects: <br/> <span id="execution_count"/></button>
                             </div>
-                            <div class="col-md-8 text-end">
+                            <div class="col-md-8 col-sm-8 col-8 text-end">
                                 <p class="card-text">Revenue: <span class="projects_sum" id="execution_revenue"/></p>
                                 <p class="card-text">Cost: <span class="projects_sum" id="execution_cost"/></p>
                                 <p class="card-text">Margin: <span class="projects_sum" id="execution_margin"/></p>
@@ -106,7 +106,7 @@
                 </div>
             </div>
         </div>
-        <div class="row row-cols-1 row-cols-sm-1 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4 mt-1">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4 mt-1">
             <div class="col canceled">
                 <div class="card text-dark">
                     <div class="card-header" style="background-color: #dc3545; opacity: 50;">
@@ -114,10 +114,10 @@
                     </div>
                     <div class="card-body">
                         <div class="row g-0">
-                            <div class="col-md-4 d-flex justify-content-center align-items-center">
+                            <div class="col-md-4 col-sm-4 col-4 d-flex justify-content-center align-items-center">
                                 <button type="button" class="btn btn-primary">Projects: <br/> <span id="canceled_count"/></button>
                             </div>
-                            <div class="col-md-8 text-end">
+                            <div class="col-md-8 col-sm-8 col-8 text-end">
                                 <p class="card-text">Revenue: <span class="projects_sum" id="canceled_revenue"/></p>
                                 <p class="card-text">Cost: <span class="projects_sum" id="canceled_cost"/></p>
                                 <p class="card-text">Margin: <span class="projects_sum" id="canceled_margin"/></p>
@@ -133,10 +133,10 @@
                     </div>
                     <div class="card-body">
                         <div class="row g-0">
-                            <div class="col-md-4 d-flex justify-content-center align-items-center">
+                            <div class="col-md-4 col-sm-4 col-4 d-flex justify-content-center align-items-center">
                                 <button type="button" class="btn btn-primary">Projects: <br/> <span id="done_count"/></button>
                             </div>
-                            <div class="col-md-8 text-end">
+                            <div class="col-md-8 col-sm-8 col-8 text-end">
                                 <p class="card-text">Revenue: <span class="projects_sum" id="done_revenue"/></p>
                                 <p class="card-text">Cost: <span class="projects_sum" id="done_cost"/></p>
                                 <p class="card-text">Margin: <span class="projects_sum" id="done_margin"/></p>
