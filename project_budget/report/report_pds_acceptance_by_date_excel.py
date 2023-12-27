@@ -42,7 +42,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
 
         return sum_cash
 
-    def print_worksheet(self, workbook, budget, sheet_name, date_start, date_end, pds_accept):
+    def print_worksheet(self, workbook, budget, sheet_name, date_start, date_end, pds_accept, legal_entity_shift):
 
         sheet = workbook.add_worksheet(sheet_name)
 
@@ -88,21 +88,23 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
             'fg_color': '#C6E0B4',
             'num_format': '#,##0',
         })
-        row_format = workbook.add_format({
+        row_format_light = workbook.add_format({
             'border': 1,
             'font_size': 11,
             'font_name': 'Calibri',
             'num_format': '#,##0',
         })
 
-        row = 0
+        row_format_dark = workbook.add_format({
+            'border': 1,
+            'font_size': 11,
+            'font_name': 'Calibri',
+            'num_format': '#,##0',
+            'fg_color': '#d9d9d9',
+        })
+
+        row = 1
         column = 0
-
-        sheet.merge_range(row, column, row, column + 10, 'Прогноз: ' + self.pds_accept_str[pds_accept] + ' (' +
-                          date.strftime(date_start, '%d.%m.%y') + '-' +
-                          date.strftime(date_end, '%d.%m.%y') + ')', head_format)
-
-        row += 1
 
         sheet.write_string(row, column, 'Компания', title_format)
         sheet.set_column(column, column, 23)
@@ -133,9 +135,6 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
         column += 1
         sheet.write_string(row, column, 'Юрлицо, подписывающее договор', title_format)
         sheet.set_column(column, column, 35)
-        column += 1
-        sheet.write_string(row, column, 'Сумма, ' + self.pds_accept_str[pds_accept], title_format)
-        sheet.set_column(column, column, 25)
 
         sheet.freeze_panes(2, 0)
 
@@ -156,9 +155,35 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                  ]
             )
 
+        shift = 0
+        for entity_id in cur_budget_projects.legal_entity_signing_id:
+            if entity_id.name not in legal_entity_shift:
+                legal_entity_shift[entity_id.name] = shift
+                column += 1
+                sheet.write_string(row, column, self.pds_accept_str[pds_accept] + ', ' + entity_id.name, title_format)
+                sheet.set_column(column, column, 15)
+                shift += 1
+
+        for entity_id in cur_budget_projects.project_steps_ids.legal_entity_signing_id:
+            if entity_id.name not in legal_entity_shift:
+                legal_entity_shift[entity_id.name] = shift
+                column += 1
+                sheet.write_string(row, column, self.pds_accept_str[pds_accept] + ', ' + entity_id.name, title_format)
+                sheet.set_column(column, column, 15)
+                shift += 1
+
+        sheet.merge_range(0, 0, 0, column, 'Прогноз: ' + self.pds_accept_str[pds_accept] + ' (' +
+                          date.strftime(date_start, '%d.%m.%y') + '-' +
+                          date.strftime(date_end, '%d.%m.%y') + ')', head_format)
+
         for project in cur_budget_projects:
             if project.project_steps_ids:
                 for step in project.project_steps_ids:
+
+                    if step.legal_entity_signing_id.name == project.company_id.name:
+                        row_format = row_format_light
+                    else:
+                        row_format = row_format_dark
 
                     if pds_accept == 'pds':
                         summ = self.get_sum_plan_pds_project_step(project, step, date_start, date_end)
@@ -193,10 +218,18 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                     sheet.write_string(row, column, step.essence_project , row_format)
                     column += 1
                     sheet.write_string(row, column, step.legal_entity_signing_id.name, row_format)
-                    column += 1
+                    for shift in range(len(legal_entity_shift)):
+                        sheet.write_number(row, column + 1 + shift, 0, row_format)
+                    column += 1 + legal_entity_shift[step.legal_entity_signing_id.name]
                     sheet.write_number(row, column, summ, row_format)
 
             else:
+
+                if project.legal_entity_signing_id.name == project.company_id.name:
+                    row_format = row_format_light
+                else:
+                    row_format = row_format_dark
+
                 if pds_accept == 'pds':
                     summ = self.get_sum_plan_pds_project_step(project, False, date_start, date_end)
                 else:
@@ -227,12 +260,17 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                 sheet.write_string(row, column, project.essence_project, row_format)
                 column += 1
                 sheet.write_string(row, column, project.legal_entity_signing_id.name, row_format)
-                column += 1
+                for shift in range(len(legal_entity_shift)):
+                    sheet.write_number(row, column + 1 + shift, 0, row_format)
+                column += 1 + legal_entity_shift[project.legal_entity_signing_id.name]
                 sheet.write_number(row, column, summ, row_format)
 
         row += 1
         sheet.merge_range(row, 0, row, 9, 'ИТОГО', total_format)
-        sheet.write_formula(row, column, '=sum({0}{1}:{0}{2})'.format(xl_col_to_name(column), 3, row), total_num_format)
+        for shift in range(len(legal_entity_shift)):
+            sheet.write_formula(row, 10 + shift, '=sum({0}{1}:{0}{2})'.format(xl_col_to_name(10 + shift), 3, row), total_num_format)
+
+        sheet.autofilter(1, 0, 1, 9)
 
     def generate_xlsx_report(self, workbook, data, budgets):
 
@@ -240,7 +278,8 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
         date_start = datetime.strptime(data['date_start'], '%Y-%m-%d').date()
         date_end = datetime.strptime(data['date_end'], '%Y-%m-%d').date()
         pds_accept = data['pds_accept']
+        legal_entity_shift = {}  # таблица сдвига столбца с суммой в таблице в зависимости от юр лица
 
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
 
-        self.print_worksheet(workbook, budget, self.pds_accept_str[pds_accept], date_start, date_end, pds_accept)
+        self.print_worksheet(workbook, budget, self.pds_accept_str[pds_accept], date_start, date_end, pds_accept, legal_entity_shift)
