@@ -4,7 +4,7 @@
         <menuitem id="project_budget_budgets" parent ="project_budget_menu" name = "Budgets/Projects"/>
 <!--        <menuitem id="project_budget_budgets_comercial_budget_kandan" parent ="project_budget_budgets" name = "project_budget_estimated_probability_action" action="project_budget_estimated_probability_action" sequence="1"/>-->
         <menuitem id="project_budget_menu_dashboard" parent="project_budget.project_budget_menu" name="work place" sequence="1"
-              action="action_project_budget_dashboard"/>
+              action="dashboard"/>
         <menuitem id="project_budget_budgets_comercial_budget_spec" parent ="project_budget_budgets" name = "Projects" action="show_comercial_budget_spec" sequence="2"/>
         <menuitem id="project_budget_budgets_comercial_budget_spec_all" parent ="project_budget_budgets" name = "Projects all budgets" action="show_comercial_budget_spec_all" sequence="3" groups="project_budget.project_budget_admin"/>
         <menuitem id="project_budget_budgets_comercial_budget" parent ="project_budget_budgets" name = "Comercial budgets" action="show_comercial_budgets" sequence="5" groups="project_budget.project_budget_admin"/>
