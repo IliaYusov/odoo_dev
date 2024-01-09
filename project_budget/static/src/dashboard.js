@@ -7,6 +7,8 @@ import { useService } from "@web/core/utils/hooks";
 import { Domain } from "@web/core/domain";
 import { Card } from "./card/card";
 import { PieChart } from "./pie_chart/pie_chart";
+import { Counter } from "./counter/counter";
+import { TodoList } from "./todo_list/todo_list";
 
 const { Component, useSubEnv, onWillStart } = owl;
 
@@ -21,6 +23,8 @@ class ProjectBudgetDashboard extends Component {
             },
         });
 
+        this.todo = { id: 3, description: "buy milk", done: false };
+
         this.display = {
             controlPanel: { "top-right": false, "bottom-right": false },
         };
@@ -29,7 +33,7 @@ class ProjectBudgetDashboard extends Component {
         this.project_budget_service = useService("project_budget_service");
 
         this.keyToString = {
-            average_quantity: "average_quantity",
+            contracting_total_plan: "Contracting Total Plan",
         };
         onWillStart(async () => {
             this.statistics = await this.project_budget_service.loadStatistics();
@@ -44,7 +48,7 @@ class ProjectBudgetDashboard extends Component {
         this.action.doAction({
             type: "ir.actions.act_window",
             name: title,
-            res_model: "awesome_tshirt.order",
+            res_model: "project_budget.projects",
             domain: new Domain(domain).toList(),
             views: [
                 [false, "list"],
@@ -60,12 +64,12 @@ class ProjectBudgetDashboard extends Component {
 
     openLast7DaysCancelledOrders() {
         const domain =
-            "[('create_date','>=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d')), ('state','=', 'cancelled')]";
-        this.openOrders("Last 7 days cancelled orders", domain);
+            "[('specification_state','=', 'cancel')]";
+        this.openOrders("Cancelled orders", domain);
     }
 }
 
-ProjectBudgetDashboard.components = { Layout, Card, PieChart };
+ProjectBudgetDashboard.components = { Layout, Card, Counter, TodoList, PieChart };
 ProjectBudgetDashboard.template = "project_budget.clientaction";
 
 registry.category("actions").add("project_budget.dashboard", ProjectBudgetDashboard);

@@ -5,20 +5,42 @@
     <Layout display="display">
         <t t-set-slot="control-panel-bottom-left">
             <button class="btn btn-primary" t-on-click="openCustomerView"> Customers </button>
-            <button class="btn btn-primary" t-on-click="openLast7DaysOrders"> New Orders </button>
-            <button class="btn btn-primary" t-on-click="openLast7DaysCancelledOrders"> Cancelled Orders </button>
+            <button class="btn btn-primary" t-on-click="openLast7DaysOrders"> New Projects </button>
+            <button class="btn btn-primary" t-on-click="openLast7DaysCancelledOrders"> Cancelled Projects </button>
         </t>
     </Layout>
 
+<!--    <div class="p-3">-->
+<!--        <Counter class="mt-3"/>-->
+<!--        <Card>-->
+<!--            <t t-set-slot="title">My card</t>-->
+<!--            Some quick example text...-->
+<!--        </Card>-->
+<!--        <TodoList/>-->
+<!--    </div>-->
+
     <t t-call="project_budget.clientaction.statistics"/>
 
-    <div class="m-3">
-        <Card className="'w-50'">
-            <t t-set-slot="title">Projects</t>
-            <PieChart data="statistics['projects']" label="'Projects'"/>
-        </Card>
+    <div class="m-3 container">
+        <div class="row">
+            <Card className="'w-25'">
+                <t t-set-slot="title">Q1 Contracting</t>
+                <PieChart data="statistics['plan_q1']"/>
+            </Card>
+            <Card className="'w-25'">
+                <t t-set-slot="title">Q2 Contracting</t>
+                <PieChart data="statistics['plan_q2']"/>
+            </Card>
+            <Card className="'w-25'">
+                <t t-set-slot="title">Q3 Contracting</t>
+                <PieChart data="statistics['plan_q3']"/>
+            </Card>
+            <Card className="'w-25'">
+                <t t-set-slot="title">Q4 Contracting</t>
+                <PieChart data="statistics['plan_q4']"/>
+            </Card>
+         </div>
     </div>
-
 </t>
 
 <t t-name="project_budget.clientaction.statistics" owl="1">

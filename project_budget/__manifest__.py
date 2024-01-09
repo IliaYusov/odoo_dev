@@ -19,6 +19,13 @@
             'project_budget/static/src/card/card.xml',
             'project_budget/static/src/pie_chart/pie_chart.js',
             'project_budget/static/src/pie_chart/pie_chart.xml',
+            'project_budget/static/src/counter/counter.js',
+            'project_budget/static/src/counter/counter.xml',
+            'project_budget/static/src/todo/todo.js',
+            'project_budget/static/src/todo/todo.xml',
+            'project_budget/static/src/todo_list/todo_list.js',
+            'project_budget/static/src/todo_list/todo_list.xml',
+            'project_budget/static/src/utils.js',
         ],
     },
     'data': [

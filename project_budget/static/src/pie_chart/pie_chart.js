@@ -9,11 +9,9 @@ export class PieChart extends Component {
     setup() {
         this.canvasRef = useRef("canvas");
 
-        this.labels = Object.keys(this.props.data);
-        this.data = Object.values(this.props.data);
-        this.color = this.labels.map((_, index) => {
-            return getColor(index);
-        });
+        this.labels = this.props.data[0];
+        this.data = this.props.data[1];
+        this.color = this.props.data[2];
 
         onWillStart(() => {
             return loadJS(["/web/static/lib/Chart/Chart.js"]);

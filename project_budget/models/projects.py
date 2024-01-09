@@ -1446,16 +1446,35 @@ class projects(models.Model):
 
     @api.model
     def get_statistics(self):
-
+        plans = self.env['project_budget.budget_plan_supervisor_spec'].search([('budget_plan_supervisor_id', '=', 1),('type_row', '=', 'contracting')])
+        if plans['q1_fact'] > plans['q1_plan']:
+            plan_q1 = [
+                ['Fact', 'Plan'],
+                [(plans['q1_fact'] - plans['q1_plan']), plans['q1_plan']],
+                ['#00dd00', '#0F5F8B'],
+            ]
+        else:
+            plan_q1 = [
+                ['Fact', 'Plan'],
+                [plans['q1_fact'], (plans['q1_plan'] - plans['q1_fact'])],
+                ['#0F5F8B', '#dd0000'],
+            ]
+        plan_q2 = [['Fact', 'Plan'], [plans['q2_fact'], (plans['q2_plan'] - plans['q2_fact'])], ['#0F5F8B', '#dd0000']]
+        plan_q3 = [['Fact', 'Plan'], [plans['q3_fact'], (plans['q3_plan'] - plans['q3_fact'])], ['#0F5F8B', '#dd0000']]
+        plan_q4 = [['Fact', 'Plan'], [plans['q4_fact'], (plans['q4_plan'] - plans['q4_fact'])], ['#0F5F8B', '#dd0000']]
         grouped_projects = self.read_group([], [], ['project_office_id'], lazy=False)
         office = self.env['project_budget.project_office']
-        res = {}
+        total_amount_of_revenue = {}
+        margin_income = {}
         for p in grouped_projects:
-            res[str(p['project_office_id'][1])] = p['total_amount_of_revenue']
-
-        print(res)
-
+            total_amount_of_revenue[str(p['project_office_id'][1])] = p['total_amount_of_revenue']
+            margin_income[str(p['project_office_id'][1])] = p['margin_income']
         return {
-            'average_quantity': 1,
-            'projects': res,
+            'contracting_total_plan': (plans['q1_plan'] + plans['q2_plan'] + plans['q3_plan'] + plans['q4_plan']),
+            'total_amount_of_revenue': total_amount_of_revenue,
+            'margin_income': margin_income,
+            'plan_q1': plan_q1,
+            'plan_q2': plan_q2,
+            'plan_q3': plan_q3,
+            'plan_q4': plan_q4,
         }
