@@ -268,11 +268,11 @@ $chatter_zone_width: 28% !important;
     }
 }
 
-body:not(.o_statusbar_buttons) {
-    .oe-toolbar {
-        z-index: 0 !important;
-    }
-}
+// body:not(.o_statusbar_buttons) {
+//     .oe-toolbar {
+//         z-index: 0 !important;
+//     }
+// }
 
 .o_inner_group > .mb-sm-0 {
     margin-bottom: 0 !important;
