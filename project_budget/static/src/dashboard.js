@@ -7,6 +7,7 @@ import { useService } from "@web/core/utils/hooks";
 import { Domain } from "@web/core/domain";
 import { Card } from "./card/card";
 import { PieChart } from "./pie_chart/pie_chart";
+import { BarChart } from "./bar_chart/bar_chart";
 import { Counter } from "./counter/counter";
 import { TodoList } from "./todo_list/todo_list";
 
@@ -69,7 +70,7 @@ class ProjectBudgetDashboard extends Component {
     }
 }
 
-ProjectBudgetDashboard.components = { Layout, Card, Counter, TodoList, PieChart };
+ProjectBudgetDashboard.components = { Layout, Card, Counter, TodoList, PieChart, BarChart};
 ProjectBudgetDashboard.template = "project_budget.clientaction";
 
 registry.category("actions").add("project_budget.dashboard", ProjectBudgetDashboard);

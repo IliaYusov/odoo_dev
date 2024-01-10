@@ -11,6 +11,7 @@ Card.props = {
         shape: {
             default: Object,
             title: { type: Object, optional: true },
+            legend: { type: Object, optional: true },
         },
     },
     className: {

@@ -26,18 +26,54 @@
             <Card className="'w-25'">
                 <t t-set-slot="title">Q1 Contracting</t>
                 <PieChart data="statistics['plan_q1']"/>
+                <h4 style="width: 100%; height: 40px; position: absolute; top: 50%; left: 0; margin-top: 0px; line-height: 6px; text-align: center; z-index: 999999999999999">
+                    <t t-esc="statistics['plan_q1'][3]"/>
+                </h4>
+                <t t-set-slot="legend" t-esc="statistics['plan_q1'][4]"/>
             </Card>
             <Card className="'w-25'">
                 <t t-set-slot="title">Q2 Contracting</t>
                 <PieChart data="statistics['plan_q2']"/>
+                <h4 style="width: 100%; height: 40px; position: absolute; top: 50%; left: 0; margin-top: 0px; line-height: 6px; text-align: center; z-index: 999999999999999">
+                    <t t-esc="statistics['plan_q2'][3]"/>
+                </h4>
+                <t t-set-slot="legend" t-esc="statistics['plan_q2'][4]"/>
             </Card>
             <Card className="'w-25'">
                 <t t-set-slot="title">Q3 Contracting</t>
                 <PieChart data="statistics['plan_q3']"/>
+                <h4 style="width: 100%; height: 40px; position: absolute; top: 50%; left: 0; margin-top: 0px; line-height: 6px; text-align: center; z-index: 999999999999999">
+                    <t t-esc="statistics['plan_q3'][3]"/>
+                </h4>
+                <t t-set-slot="legend" t-esc="statistics['plan_q3'][4]"/>
             </Card>
             <Card className="'w-25'">
                 <t t-set-slot="title">Q4 Contracting</t>
                 <PieChart data="statistics['plan_q4']"/>
+                <h4 style="width: 100%; height: 40px; position: absolute; top: 50%; left: 0; margin-top: 0px; line-height: 6px; text-align: center; z-index: 999999999999999">
+                    <t t-esc="statistics['plan_q4'][3]"/>
+                </h4>
+                <t t-set-slot="legend" t-esc="statistics['plan_q4'][4]"/>
+            </Card>
+         </div>
+    </div>
+    <div class="m-3 container">
+        <div class="row">
+            <Card className="'w-25'">
+                <t t-set-slot="title">Q1 Contracting</t>
+                <BarChart data="statistics['kam_plan_q1']"/>
+            </Card>
+            <Card className="'w-25'">
+                <t t-set-slot="title">Q2 Contracting</t>
+                <BarChart data="statistics['kam_plan_q2']"/>
+            </Card>
+            <Card className="'w-25'">
+                <t t-set-slot="title">Q3 Contracting</t>
+                <BarChart data="statistics['kam_plan_q3']"/>
+            </Card>
+            <Card className="'w-25'">
+                <t t-set-slot="title">Q4 Contracting</t>
+                <BarChart data="statistics['kam_plan_q4']"/>
             </Card>
          </div>
     </div>

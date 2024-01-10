@@ -19,6 +19,8 @@
             'project_budget/static/src/card/card.xml',
             'project_budget/static/src/pie_chart/pie_chart.js',
             'project_budget/static/src/pie_chart/pie_chart.xml',
+            'project_budget/static/src/bar_chart/bar_chart.js',
+            'project_budget/static/src/bar_chart/bar_chart.xml',
             'project_budget/static/src/counter/counter.js',
             'project_budget/static/src/counter/counter.xml',
             'project_budget/static/src/todo/todo.js',

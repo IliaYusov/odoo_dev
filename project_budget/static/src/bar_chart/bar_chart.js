@@ -5,7 +5,7 @@ import { getColor } from "@web/views/graph/colors";
 
 const { Component, onWillStart, useRef, onMounted, onWillUnmount } = owl;
 
-export class PieChart extends Component {
+export class BarChart extends Component {
     setup() {
         this.canvasRef = useRef("canvas");
 
@@ -33,7 +33,7 @@ export class PieChart extends Component {
             this.chart.destroy();
         }
         this.chart = new Chart(this.canvasRef.el, {
-            type: "doughnut",
+            type: "horizontalBar",
             data: {
                 labels: this.labels,
                 datasets: [
@@ -53,10 +53,21 @@ export class PieChart extends Component {
                 },
                 tooltips: {
                     enabled: false,
-                }
+                },
+                scales: {
+                    xAxes: [{
+                        ticks: {
+                            max: 140,
+                            min: 0,
+                            stepSize: 20,
+                            beginAtZero: true,
+                        }
+                    }]
+                },
             }
+
         });
     }
 }
 
-PieChart.template = "project_budget.PieChart";
+BarChart.template = "project_budget.BarChart";

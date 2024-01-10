@@ -6,7 +6,10 @@
                 <t t-if="props.slots.title"> 
                     <h5 class="card-title"><t t-slot="title"/></h5>
                 </t>
-                <p class="card-text"><t t-slot="default"/></p>
+                <div class="card-text"><t t-slot="default"/></div>
+                <t t-if="props.slots.legend">
+                    <div class="card-legend"><t t-slot="legend"/></div>
+                </t>
             </div>
         </div>
     </t>
