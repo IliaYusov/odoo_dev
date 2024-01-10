@@ -235,8 +235,6 @@ select.o_field_widget.o_wrap_input{
     display: block;
     width: 100%;
     padding: 0.7rem 1rem;
-    font-size: 1rem;
-    font-weight: 400;
     line-height: 1.4;
     color: #677788;
     background-color: #fff;
@@ -248,8 +246,6 @@ select.o_field_widget.o_wrap_input{
 /* Editor Placeholder Style */
 .note-editable p{
     color: rgba(0, 0, 0, 0.8);
-    font-weight: 700;
-    font-size: 12px;
     padding: 0.25rem;
 }
 .oe-hint:before{
@@ -267,8 +263,6 @@ select.o_field_widget.o_wrap_input{
 }
 .note-editable:focus-within p{
     color: rgba(0, 0, 0, 0.8);
-    font-weight: 700;
-    font-size: 12px;
 }
 
 /* External Form Button Style */
