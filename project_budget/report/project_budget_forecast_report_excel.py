@@ -19,7 +19,7 @@ class report_budget_forecast_excel(models.AbstractModel):
     def isStepinYear(self, project, step):
         global YEARint
         global year_end
-
+# TODO
         if project:
             if step:
                 if (step.end_presale_project_month.year >= YEARint and step.end_presale_project_month.year <= year_end)\
@@ -46,7 +46,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
     def isProjectinYear(self, project):
         global YEARint
-
+# TODO
         if project:
             if project.project_have_steps == False:
                 if (project.end_presale_project_month.year >= YEARint and project.end_presale_project_month.year <= year_end)\
@@ -1400,7 +1400,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         cur_budget_projects = self.env['project_budget.projects'].search([
             ('commercial_budget_id', '=', budget.id),
         ])
-
+        # TODO
         # cur_project_offices = project_offices.filtered(lambda r: r in cur_budget_projects.project_office_id or r in {office.parent_id for office in cur_budget_projects.project_office_id if office.parent_id in project_offices})
         cur_project_offices = project_offices
         cur_project_managers = project_managers.filtered(lambda r: r in cur_budget_projects.project_manager_id)
