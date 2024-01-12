@@ -2,9 +2,8 @@
 <odoo>
     <data>
         <record id="dashboard" model="ir.actions.client">
-            <field name="name">Project Budget</field>
+            <field name="name">Project Budget Dashboard</field>
             <field name="tag">project_budget.dashboard</field>
         </record>
     </data>
-
 </odoo>

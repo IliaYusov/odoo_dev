@@ -1446,81 +1446,95 @@ class projects(models.Model):
 
     @api.model
     def get_statistics(self):
-        plans = self.env['project_budget.budget_plan_supervisor_spec'].search(
-            [('budget_plan_supervisor_id', '=', 1),('type_row', '=', 'contracting')]
+        plans = self.env['project_budget.budget_plan_supervisor'].search(
+            [('year', '=', datetime.datetime.today().year)]
         )
-        kam_plans = self.env['project_budget.budget_plan_kam_spec'].search(
-            [('budget_plan_kam_id.plan_supervisor_id', '=', 1), ('type_row', '=', 'contracting')]
-        )
-        if plans['q1_fact'] > plans['q1_plan']:
-            plan_q1 = [
-                ['Fact', 'Plan'],
-                [(plans['q1_fact'] - plans['q1_plan']), plans['q1_plan'] - ((plans['q1_fact'] - plans['q1_plan']))],
-                ['#00dd00', '#0F5F8B'],
-                f"{plans['q1_fact'] / plans['q1_plan']:.0%}",
-                'Plan: ' + f"{plans['q1_plan']:,.0f}" + '  Fact: ' + f"{plans['q1_fact']:,.0f}",
-            ]
-        else:
-            plan_q1 = [
-                ['Fact', 'Plan'],
-                [plans['q1_fact'], (plans['q1_plan'] - plans['q1_fact'])],
-                ['#0F5F8B', '#dd0000'],
-                f"{plans['q1_fact'] / plans['q1_plan']:.0%}",
-                'Plan: ' + f"{plans['q1_plan']:,.0f}" + '  Fact: ' + f"{plans['q1_fact']:,.0f}",
-            ]
-        plan_q2 = [
-            ['Fact', 'Plan'],
-            [plans['q2_fact'], (plans['q2_plan'] - plans['q2_fact'])],
-            ['#0F5F8B', '#dd0000'],
-            f"{plans['q2_fact'] / plans['q2_plan']:.0%}",
-            'Plan: ' + f"{plans['q2_plan']:,.0f}" + '  Fact: ' + f"{plans['q2_fact']:,.0f}",
-        ]
-        plan_q3 = [
-            ['Fact', 'Plan'],
-            [plans['q3_fact'], (plans['q3_plan'] - plans['q3_fact'])],
-            ['#0F5F8B', '#dd0000'],
-            f"{plans['q3_fact'] / plans['q3_plan']:.0%}",
-            'Plan: ' + f"{plans['q3_plan']:,.0f}" + '  Fact: ' + f"{plans['q3_fact']:,.0f}",
-        ]
-        plan_q4 = [
-            ['Fact', 'Plan'],
-            [plans['q4_fact'], (plans['q4_plan'] - plans['q4_fact'])],
-            ['#0F5F8B', '#dd0000'],
-            f"{plans['q4_fact'] / plans['q4_plan']:.0%}",
-            'Plan: ' + f"{plans['q4_plan']:,.0f}" + '  Fact: ' + f"{plans['q4_fact']:,.0f}",
-        ]
+        # kam_plans = self.env['project_budget.budget_plan_kam_spec'].search(
+        #     [('budget_plan_kam_id.plan_supervisor_id', '=', 1), ('type_row', '=', 'contracting')]
+        # )
+        plans_data = {}
+        for spec in plans.budget_plan_supervisor_spec_ids:
+            office = plans_data.setdefault(spec.budget_plan_supervisor_id.project_office_id.name, {})
+            type = office.setdefault(spec.type_row, {})
+            type['Q1'] = [[spec.q1_plan, spec.q1_fact],['#dd0000', '#0F5F8B']]
+            type['Q2'] = [[spec.q2_plan, spec.q2_fact],['#dd0000', '#0F5F8B']]
+            type['Q3'] = [[spec.q3_plan, spec.q3_fact],['#dd0000', '#0F5F8B']]
+            type['Q4'] = [[spec.q4_plan, spec.q4_fact],['#dd0000', '#0F5F8B']]
+            type['Y'] = [[spec.q1_plan + spec.q2_plan + spec.q3_plan + spec.q4_plan, spec.q1_fact + spec.q2_fact + spec.q3_fact + spec.q4_fact], ['#dd0000', '#0F5F8B']]
+            summary = office.setdefault('summary', {})
+            summary_type = summary.setdefault(spec.type_row, [[0, 0],['#dd0000', '#0F5F8B']])
+            summary_type[0][0] += (spec.q1_plan + spec.q2_plan + spec.q3_plan + spec.q4_plan)
+            summary_type[0][1] += (spec.q1_fact + spec.q2_fact + spec.q3_fact + spec.q4_fact)
+
+        # if plans['q1_fact'] > plans['q1_plan']:
+        #     plan_q1 = [
+        #         ['Fact', 'Plan'],
+        #         [(plans['q1_fact'] - plans['q1_plan']), plans['q1_plan'] - ((plans['q1_fact'] - plans['q1_plan']))],
+        #         ['#00dd00', '#0F5F8B'],
+        #         f"{plans['q1_fact'] / plans['q1_plan']:.0%}",
+        #         'Plan: ' + f"{plans['q1_plan']:,.0f}" + '  Fact: ' + f"{plans['q1_fact']:,.0f}",
+        #     ]
+        # else:
+        #     plan_q1 = [
+        #         ['Fact', 'Plan'],
+        #         [plans['q1_fact'], (plans['q1_plan'] - plans['q1_fact'])],
+        #         ['#0F5F8B', '#dd0000'],
+        #         f"{plans['q1_fact'] / plans['q1_plan']:.0%}",
+        #         'Plan: ' + f"{plans['q1_plan']:,.0f}" + '  Fact: ' + f"{plans['q1_fact']:,.0f}",
+        #     ]
+        # plan_q2 = [
+        #     ['Fact', 'Plan'],
+        #     [plans['q2_fact'], (plans['q2_plan'] - plans['q2_fact'])],
+        #     ['#0F5F8B', '#dd0000'],
+        #     f"{plans['q2_fact'] / plans['q2_plan']:.0%}",
+        #     'Plan: ' + f"{plans['q2_plan']:,.0f}" + '  Fact: ' + f"{plans['q2_fact']:,.0f}",
+        # ]
+        # plan_q3 = [
+        #     ['Fact', 'Plan'],
+        #     [plans['q3_fact'], (plans['q3_plan'] - plans['q3_fact'])],
+        #     ['#0F5F8B', '#dd0000'],
+        #     f"{plans['q3_fact'] / plans['q3_plan']:.0%}",
+        #     'Plan: ' + f"{plans['q3_plan']:,.0f}" + '  Fact: ' + f"{plans['q3_fact']:,.0f}",
+        # ]
+        # plan_q4 = [
+        #     ['Fact', 'Plan'],
+        #     [plans['q4_fact'], (plans['q4_plan'] - plans['q4_fact'])],
+        #     ['#0F5F8B', '#dd0000'],
+        #     f"{plans['q4_fact'] / plans['q4_plan']:.0%}",
+        #     'Plan: ' + f"{plans['q4_plan']:,.0f}" + '  Fact: ' + f"{plans['q4_fact']:,.0f}",
+        # ]
         kam_plan_q1 = [[],[],[]]
         kam_plan_q2 = [[],[],[]]
         kam_plan_q3 = [[],[],[]]
         kam_plan_q4 = [[],[],[]]
-        for kam_plan in kam_plans:
-            kam_plan_q1[0].append(kam_plan['budget_plan_kam_id']['kam_id']['name'])
-            kam_plan_q2[0].append(kam_plan['budget_plan_kam_id']['kam_id']['name'])
-            kam_plan_q3[0].append(kam_plan['budget_plan_kam_id']['kam_id']['name'])
-            kam_plan_q4[0].append(kam_plan['budget_plan_kam_id']['kam_id']['name'])
-            kam_plan_q1[1].append(kam_plan['q1_fact'] / kam_plan['q1_plan'] * 100)
-            kam_plan_q2[1].append(kam_plan['q2_fact'] / kam_plan['q2_plan'] * 100)
-            kam_plan_q3[1].append(kam_plan['q3_fact'] / kam_plan['q3_plan'] * 100)
-            kam_plan_q4[1].append(kam_plan['q4_fact'] / kam_plan['q4_plan'] * 100)
-            if kam_plan['q1_fact'] / kam_plan['q1_plan'] > 1:
-                kam_plan_q1[2].append('#00dd00')
-            else:
-                kam_plan_q1[2].append('#0F5F8B')
-
-            if kam_plan['q2_fact'] / kam_plan['q2_plan'] > 1:
-                kam_plan_q2[2].append('#00dd00')
-            else:
-                kam_plan_q2[2].append('#0F5F8B')
-
-            if kam_plan['q3_fact'] / kam_plan['q3_plan'] > 1:
-                kam_plan_q3[2].append('#00dd00')
-            else:
-                kam_plan_q3[2].append('#0F5F8B')
-
-            if kam_plan['q4_fact'] / kam_plan['q4_plan'] > 1:
-                kam_plan_q4[2].append('#00dd00')
-            else:
-                kam_plan_q4[2].append('#0F5F8B')
+        # for kam_plan in kam_plans:
+        #     kam_plan_q1[0].append(kam_plan['budget_plan_kam_id']['kam_id']['name'])
+        #     kam_plan_q2[0].append(kam_plan['budget_plan_kam_id']['kam_id']['name'])
+        #     kam_plan_q3[0].append(kam_plan['budget_plan_kam_id']['kam_id']['name'])
+        #     kam_plan_q4[0].append(kam_plan['budget_plan_kam_id']['kam_id']['name'])
+        #     kam_plan_q1[1].append(kam_plan['q1_fact'] / kam_plan['q1_plan'] * 100)
+        #     kam_plan_q2[1].append(kam_plan['q2_fact'] / kam_plan['q2_plan'] * 100)
+        #     kam_plan_q3[1].append(kam_plan['q3_fact'] / kam_plan['q3_plan'] * 100)
+        #     kam_plan_q4[1].append(kam_plan['q4_fact'] / kam_plan['q4_plan'] * 100)
+        #     if kam_plan['q1_fact'] / kam_plan['q1_plan'] > 1:
+        #         kam_plan_q1[2].append('#00dd00')
+        #     else:
+        #         kam_plan_q1[2].append('#0F5F8B')
+        #
+        #     if kam_plan['q2_fact'] / kam_plan['q2_plan'] > 1:
+        #         kam_plan_q2[2].append('#00dd00')
+        #     else:
+        #         kam_plan_q2[2].append('#0F5F8B')
+        #
+        #     if kam_plan['q3_fact'] / kam_plan['q3_plan'] > 1:
+        #         kam_plan_q3[2].append('#00dd00')
+        #     else:
+        #         kam_plan_q3[2].append('#0F5F8B')
+        #
+        #     if kam_plan['q4_fact'] / kam_plan['q4_plan'] > 1:
+        #         kam_plan_q4[2].append('#00dd00')
+        #     else:
+        #         kam_plan_q4[2].append('#0F5F8B')
 
         grouped_projects = self.read_group([], [], ['project_office_id'], lazy=False)
         office = self.env['project_budget.project_office']
@@ -1530,13 +1544,15 @@ class projects(models.Model):
             total_amount_of_revenue[str(p['project_office_id'][1])] = p['total_amount_of_revenue']
             margin_income[str(p['project_office_id'][1])] = p['margin_income']
         return {
-            'contracting_total_plan': (plans['q1_plan'] + plans['q2_plan'] + plans['q3_plan'] + plans['q4_plan']),
+            # 'contracting_total_plan': (plans['q1_plan'] + plans['q2_plan'] + plans['q3_plan'] + plans['q4_plan']),
             'total_amount_of_revenue': total_amount_of_revenue,
             'margin_income': margin_income,
-            'plan_q1': plan_q1,
-            'plan_q2': plan_q2,
-            'plan_q3': plan_q3,
-            'plan_q4': plan_q4,
+            'plans_data': plans_data,
+            'year': datetime.datetime.today().year,
+            # 'plan_q1': plan_q1,
+            # 'plan_q2': plan_q2,
+            # 'plan_q3': plan_q3,
+            # 'plan_q4': plan_q4,
             'kam_plan_q1': kam_plan_q1,
             'kam_plan_q2': kam_plan_q2,
             'kam_plan_q3': kam_plan_q3,

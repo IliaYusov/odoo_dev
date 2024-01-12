@@ -11,7 +11,7 @@ import { BarChart } from "./bar_chart/bar_chart";
 import { Counter } from "./counter/counter";
 import { TodoList } from "./todo_list/todo_list";
 
-const { Component, useSubEnv, onWillStart } = owl;
+const { Component, useSubEnv, onWillStart, useState } = owl;
 
 class ProjectBudgetDashboard extends Component {
     setup() {
@@ -23,6 +23,11 @@ class ProjectBudgetDashboard extends Component {
                 ...this.env.config,
             },
         });
+
+        this.state = useState({
+            period: 'Y',
+            type: 'contracting',
+        })
 
         this.todo = { id: 3, description: "buy milk", done: false };
 
@@ -41,6 +46,16 @@ class ProjectBudgetDashboard extends Component {
         });
     }
 
+    async onChangePeriod(){
+        await this.getQuotations()
+    }
+
+    async getQuotations(){
+    }
+
+    async onChangeType(){
+    }
+
     openCustomerView() {
         this.action.doAction("base.action_partner_form");
     }
@@ -57,6 +72,7 @@ class ProjectBudgetDashboard extends Component {
             ],
         });
     }
+
     openLast7DaysOrders() {
         const domain =
             "[('create_date','>=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]";
