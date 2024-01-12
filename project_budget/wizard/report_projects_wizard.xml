@@ -13,12 +13,12 @@
                         <group>
                         </group>
                         <group>
-                            <field name="use_koeff_reserve" attrs="{'invisible': [('type_report', 'not in', ('forecast', 'management_committee', 'pds_weekly'))]}"/>
+                            <field name="use_koeff_reserve" attrs="{'invisible': [('type_report', 'not in', ('forecast', 'forecast_star', 'management_committee', 'pds_weekly'))]}"/>
                             <field name="pds_accept" attrs="{'invisible': [('type_report', 'not in', ('pds_acceptance_by_date'))]}"/>
                         </group>
                         <group>
-                            <field name="koeff_reserve" attrs="{'invisible': ['|',('type_report', 'not in', ('forecast', 'management_committee', 'pds_weekly')),('use_koeff_reserve','=',False)]}"/>
-                            <field name="koeff_potential" attrs="{'invisible': ['|',('type_report', 'not in', ('forecast', 'management_committee', 'pds_weekly')),('use_koeff_reserve','=',False)]}"/>
+                            <field name="koeff_reserve" attrs="{'invisible': ['|',('type_report', 'not in', ('forecast', 'forecast_star', 'management_committee', 'pds_weekly')),('use_koeff_reserve','=',False)]}"/>
+                            <field name="koeff_potential" attrs="{'invisible': ['|',('type_report', 'not in', ('forecast', 'forecast_star', 'management_committee', 'pds_weekly')),('use_koeff_reserve','=',False)]}"/>
                         </group>
                     </group>
                     <group col ="2">
@@ -82,6 +82,15 @@
             name="project_budget.report_budget_forecast_excel"
             menu="False"
             file = "project_budget.report_budget_forecast_excel"
+    />
+
+        <report id="action_projects_list_report_xlsx_forecast_star"
+            string="Projects Report forecast star"
+            model="project_budget.projects.report.wizard"
+            report_type="xlsx"
+            name="project_budget.report_budget_forecast_star_excel"
+            menu="False"
+            file = "project_budget.report_budget_forecast_star_excel"
     />
 
     <report id="action_projects_list_report_xlsx_svod"
