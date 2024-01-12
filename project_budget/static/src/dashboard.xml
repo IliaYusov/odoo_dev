@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <templates xml:space="preserve">
 
-<t t-name="project_budget.clientaction" owl="1">
+<t t-name="project_budget.dashboard_template" owl="1">
     <div class="row">
         <div class="col m-0 p-0">
             <div class="shadow-sm border m-2 p-4 bg-white">
@@ -22,7 +22,6 @@
                 <option value="cash">Cash</option>
                 <option value="acceptance">Acceptance</option>
                 <option value="margin_income">Margin</option>
-                <option value="margin3_income">Margin3</option>
             </select>
             <select style="width:100px" class="form-select" t-model="state.period" t-on-change="onChangePeriod">
                 <option value="Y">Year</option>
@@ -48,16 +47,20 @@
     <div class="m-3 container">
         <t t-foreach="statistics['plans_data']" t-as="office" t-key="office">
             <div class="row">
-                <t t-foreach="statistics['plans_data'][office]['summary']" t-as="type" t-key="type">
-                    <t t-if="state.period == 'Y'">
-                        <Card className="'w-25'">
-                            <t t-set-slot="title" t-esc="office + ' ' + type + ' ' + ' ' + statistics['year'] + state.period"/>
-                            <PieChart data="statistics['plans_data'][office]" period="state.period" type="state.type"/>
-        <!--                    <h4 style="width: 100%; height: 40px; position: absolute; top: 50%; left: 0; margin-top: 0px; line-height: 6px; text-align: center; z-index: 999999999999999">-->
-        <!--                        <t t-esc="statistics['plan_q1'][3]"/>-->
-        <!--                    </h4>-->
-                            <t t-set-slot="legend" t-esc="'Plan: ' + statistics['plans_data'][office]['summary'][type][0][0] + '  Fact: ' + statistics['plans_data'][office]['summary'][type][0][1]"/>
-                        </Card>
+                <t t-foreach="['contracting', 'cash', 'acceptance', 'margin_income']" t-as="type" t-key="type">
+                    <t t-if="state.type == type or state.type == 'summary'">
+                        <t t-foreach="['Y', 'Q1', 'Q2', 'Q3', 'Q4']" t-as="period" t-key="period">
+                            <t t-if="(state.period == period and period != 'Y') or (state.period == 'Y' and state.type != 'summary' and period != 'Y') or (state.type == 'summary' and state.period == period and period == 'Y')">
+                                <Card className="'w-25'">
+                                    <t t-set-slot="title" t-esc="office + ' ' + type + ' ' + ' ' + statistics['year'] + period"/>
+                                    <PieChart data="statistics['plans_data'][office]" period="period" type="type"/>
+                <!--                    <h4 style="width: 100%; height: 40px; position: absolute; top: 50%; left: 0; margin-top: 0px; line-height: 6px; text-align: center; z-index: 999999999999999">-->
+                <!--                        <t t-esc="statistics['plan_q1'][3]"/>-->
+                <!--                    </h4>-->
+                                    <t t-set-slot="legend" t-esc="'Plan: ' + statistics['plans_data'][office][type][period][0][0] + '  Fact: ' + statistics['plans_data'][office][type][period][0][1]"/>
+                                </Card>
+                            </t>
+                        </t>
                     </t>
                 </t>
             </div>

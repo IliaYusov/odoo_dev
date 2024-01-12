@@ -26,7 +26,7 @@ class ProjectBudgetDashboard extends Component {
 
         this.state = useState({
             period: 'Y',
-            type: 'contracting',
+            type: 'summary',
         })
 
         this.todo = { id: 3, description: "buy milk", done: false };
@@ -87,6 +87,6 @@ class ProjectBudgetDashboard extends Component {
 }
 
 ProjectBudgetDashboard.components = { Layout, Card, Counter, TodoList, PieChart, BarChart};
-ProjectBudgetDashboard.template = "project_budget.clientaction";
+ProjectBudgetDashboard.template = "project_budget.dashboard_template";
 
 registry.category("actions").add("project_budget.dashboard", ProjectBudgetDashboard);

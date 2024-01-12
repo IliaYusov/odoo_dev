@@ -1462,9 +1462,15 @@ class projects(models.Model):
             type['Q4'] = [[spec.q4_plan, spec.q4_fact],['#dd0000', '#0F5F8B']]
             type['Y'] = [[spec.q1_plan + spec.q2_plan + spec.q3_plan + spec.q4_plan, spec.q1_fact + spec.q2_fact + spec.q3_fact + spec.q4_fact], ['#dd0000', '#0F5F8B']]
             summary = office.setdefault('summary', {})
-            summary_type = summary.setdefault(spec.type_row, [[0, 0],['#dd0000', '#0F5F8B']])
-            summary_type[0][0] += (spec.q1_plan + spec.q2_plan + spec.q3_plan + spec.q4_plan)
-            summary_type[0][1] += (spec.q1_fact + spec.q2_fact + spec.q3_fact + spec.q4_fact)
+            summary['Q1'] = [[spec.q1_plan, spec.q1_fact],['#dd0000', '#0F5F8B']]
+            summary['Q2'] = [[spec.q2_plan, spec.q2_fact],['#dd0000', '#0F5F8B']]
+            summary['Q3'] = [[spec.q3_plan, spec.q3_fact],['#dd0000', '#0F5F8B']]
+            summary['Q4'] = [[spec.q4_plan, spec.q4_fact],['#dd0000', '#0F5F8B']]
+            summary['Y'] = [[spec.q1_plan + spec.q2_plan + spec.q3_plan + spec.q4_plan,
+                          spec.q1_fact + spec.q2_fact + spec.q3_fact + spec.q4_fact], ['#dd0000', '#0F5F8B']]
+            # summary_type = summary.setdefault(spec.type_row, [[0, 0],['#dd0000', '#0F5F8B']])
+            # summary_type[0][0] += (spec.q1_plan + spec.q2_plan + spec.q3_plan + spec.q4_plan)
+            # summary_type[0][1] += (spec.q1_fact + spec.q2_fact + spec.q3_fact + spec.q4_fact)
 
         # if plans['q1_fact'] > plans['q1_plan']:
         #     plan_q1 = [
