@@ -1006,6 +1006,12 @@ msgid "Forecast"
 msgstr "Прогноз"
 
 #. module: project_budget
+#: model:ir.model.fields.selection,name:project_budget.selection__project_budget_projects_report_wizard__type_report__forecast_star
+#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
+msgid "Forecast*"
+msgstr "Прогноз*"
+
+#. module: project_budget
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_planned_acceptance_flow__forecast__from_project
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_planned_cash_flow__forecast__from_project
 msgid "From project/step"
@@ -1919,6 +1925,11 @@ msgstr "Прогноз ПДС Валовая выручка"
 #: model:ir.actions.report,name:project_budget.action_projects_list_report_xlsx_forecast
 msgid "Projects Report forecast"
 msgstr "Прогноз"
+
+#. module: project_budget
+#: model:ir.actions.report,name:project_budget.action_projects_list_report_xlsx_forecast_star
+msgid "Projects Report forecast star"
+msgstr "Прогноз_звездочка"
 
 #. module: project_budget
 #: model:ir.actions.report,name:project_budget.action_projects_list_report_xlsx_kb

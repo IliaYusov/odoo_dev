@@ -1361,12 +1361,26 @@ class report_budget_forecast_excel(models.AbstractModel):
         })
         row_format_number.set_num_format('#,##0')
 
+        row_format_date = workbook.add_format({
+            'border': 1,
+            'font_size': 9,
+        })
+        row_format_date.set_num_format('dd.mm.yyyy')
+
         row_format_number_canceled_project = workbook.add_format({
             'border': 1,
             'font_size': 9,
         })
         row_format_number_canceled_project.set_num_format('#,##0')
         row_format_number_canceled_project.set_font_color('red')
+
+        row_date_number_canceled_project = workbook.add_format({
+            'border': 1,
+            'font_size': 9,
+        })
+        row_date_number_canceled_project.set_num_format('dd.mm.yyyy')
+        row_date_number_canceled_project.set_font_color('red')
+
 
         row_format_number_itogo = workbook.add_format({
             'border': 1,
@@ -1498,11 +1512,13 @@ class report_budget_forecast_excel(models.AbstractModel):
                                             # print('setrow  level = ', level)
                                             cur_row_format = row_format
                                             cur_row_format_number = row_format_number
+                                            cur_row_format_date = row_format_date
                                             # print('step.estimated_probability_id.name = ' + step.estimated_probability_id.name)
                                             if step.estimated_probability_id.name == '0':
                                                 # print('row_format_canceled_project')
                                                 cur_row_format = row_format_canceled_project
                                                 cur_row_format_number = row_format_number_canceled_project
+                                                cur_row_format_date = row_format_date_canceled_project
                                             column = 0
                                             if spec.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id:
                                                 sheet.write_string(row, column, step.project_office_id.name, cur_row_format)
@@ -1519,7 +1535,10 @@ class report_budget_forecast_excel(models.AbstractModel):
                                             column += 1
                                             sheet.write_string(row, column, self.get_estimated_probability_name_forecast(step.estimated_probability_id.name), cur_row_format)
                                             column += 1
-                                            sheet.write_string(row, column, step.end_presale_project_month, cur_row_format_number)
+                                            if step.estimated_probability_id.name == '100':
+                                                sheet.write_datetime(row, column, step.end_presale_project_month, cur_row_format_date)
+                                            else:
+                                                sheet.write(row, column, None, cur_row_format)
                                             column += 1
                                             sheet.write_number(row, column, step.total_amount_of_revenue_with_vat*cur_project_rate, cur_row_format_number)
                                             column += 1
@@ -1548,11 +1567,13 @@ class report_budget_forecast_excel(models.AbstractModel):
 
                                     cur_row_format = row_format
                                     cur_row_format_number = row_format_number
+                                    cur_row_format_date = row_format_date
                                     # print('spec.estimated_probability_id.name = ' + spec.estimated_probability_id.name)
                                     if spec.estimated_probability_id.name == '0':
                                         # print('row_format_canceled_project')
                                         cur_row_format = row_format_canceled_project
                                         cur_row_format_number = row_format_number_canceled_project
+                                        cur_row_format_date = row_format_date_canceled_project
                                     column = 0
                                     sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
                                     column += 1
@@ -1565,6 +1586,11 @@ class report_budget_forecast_excel(models.AbstractModel):
                                     sheet.write_string(row, column, (spec.step_project_number or '')+ ' | ' +(spec.project_id or ''), cur_row_format)
                                     column += 1
                                     sheet.write_string(row, column, self.get_estimated_probability_name_forecast(spec.estimated_probability_id.name), cur_row_format)
+                                    column += 1
+                                    if spec.estimated_probability_id.name == '100':
+                                        sheet.write_datetime(row, column, spec.end_presale_project_month, cur_row_format_date)
+                                    else:
+                                        sheet.write(row, column, None, cur_row_format)
                                     column += 1
                                     sheet.write_number(row, column, spec.total_amount_of_revenue_with_vat*cur_project_rate, cur_row_format_number)
                                     column += 1
@@ -1588,9 +1614,9 @@ class report_budget_forecast_excel(models.AbstractModel):
                         sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
 
                         formulaProjectManager = formulaProjectManager + ',{0}' + str(row + 1)
-                        for colFormula in range(1, 12):
+                        for colFormula in range(1, 13):
                             sheet.write_string(row, colFormula, '', row_format_probability)
-                        for colFormula in range(12, 303):
+                        for colFormula in range(13, 304):
                             formula = '=sum({2}{0}:{2}{1})'.format(begRowProjectsByProbability + 2, row,
                                                                    xl_col_to_name(colFormula))
                             sheet.write_formula(row, colFormula, formula, row_format_probability)
@@ -1612,10 +1638,10 @@ class report_budget_forecast_excel(models.AbstractModel):
 
                     formulaProjectOffice = formulaProjectOffice + ',{0}'+str(row + 1)
 
-                    for colFormula in range(1, 12):
+                    for colFormula in range(1, 13):
                         sheet.write_string(row, colFormula, '', row_format_manager)
 
-                    for colFormula in range(12, 303):
+                    for colFormula in range(13, 304):
                         formula = formulaProjectManager.format(xl_col_to_name(colFormula)) + ')'
                         sheet.write_formula(row, colFormula, formula, row_format_manager)
 
@@ -1653,19 +1679,19 @@ class report_budget_forecast_excel(models.AbstractModel):
                 # print('project_office = ', project_office, dict_formula)
                 formulaItogo = formulaItogo + ',{0}' + str(row + 1)
                 # print('formulaProjectOffice = ',formulaProjectOffice)
-                for colFormula in range(1, 12):
+                for colFormula in range(1, 13):
                     sheet.write_string(row, colFormula, '', row_format_office)
 
-                for colFormula in range(12, 303):
+                for colFormula in range(13, 304):
                     formula = formulaProjectOffice.format(xl_col_to_name(colFormula))
                     # print('formula = ', formula)
                     sheet.write_formula(row, colFormula, formula, row_format_office)
 
                 # планы офисов
-                revenue_shift = 27
-                pds_shift = 129
-                acceptance_shift = 216
-                margin_shift = 260
+                revenue_shift = 28
+                pds_shift = 130
+                acceptance_shift = 217
+                margin_shift = 261
 
                 plan_revenue = self.env['project_budget.budget_plan_supervisor_spec'].search([
                     ('budget_plan_supervisor_id.year', '=', YEARint),
@@ -1871,7 +1897,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         # sheet.set_column(column, column, 16.88)
         column += 1
         sheet.write_string(row, column, "", head_format)
-        sheet.write_string(row+1, column, "Год контрактования", head_format_1)
+        sheet.write_string(row+1, column, "Дата контрактования", head_format_1)
         sheet.write_string(row + 2, column, "", head_format_1)
         # sheet.set_column(column, column, 16.88)
         column += 1
@@ -1899,14 +1925,14 @@ class report_budget_forecast_excel(models.AbstractModel):
         sheet.write_string(row+1, column, "НДС", head_format_1)
         sheet.write_string(row + 2, column, "", head_format_1)
         # sheet.set_column(column, column, 7)
-        sheet.set_column(4, 10, False, False, {'hidden': 1, 'level': 1})
+        sheet.set_column(4, 11, False, False, {'hidden': 1, 'level': 1})
         column += 1
         sheet.write_string(row, column, "", head_format)
         sheet.write_string(row+1, column, "", head_format_1)
         sheet.write_string(row + 2, column, "", head_format_1)
         sheet.set_column(column, column, 2)
 
-        sheet.freeze_panes(9, 12)
+        sheet.freeze_panes(9, 13)
         column += 1
         column = self.print_month_head_contract_pds(workbook, sheet, row, column)
         column = self.print_month_head_revenue_margin(workbook, sheet, row, column)
@@ -1924,9 +1950,9 @@ class report_budget_forecast_excel(models.AbstractModel):
         formulaItogo = formulaItogo + ')'
         if 'project_office_0' in dict_formula:
             formulaItogo = '=sum('+dict_formula['project_office_0'] + ')'
-        for colFormula in range(1, 12):
+        for colFormula in range(1, 13):
             sheet.write_string(row, colFormula, '', row_format_number_itogo)
-        for colFormula in range(12, 303):
+        for colFormula in range(13, 304):
             formula = formulaItogo.format(xl_col_to_name(colFormula))
             # print('formula = ', formula)
             sheet.write_formula(row, colFormula, formula, row_format_number_itogo)
