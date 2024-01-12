@@ -3618,6 +3618,13 @@ msgstr "'Комплексный' проект должен иметь этапн
 #. odoo-python
 #: code:addons/project_budget/models/projects.py:0
 #, python-format
+msgid "Can't 'cancel' project with step {0} in {1} state"
+msgstr "Нельзя перевести проект в статус 'Отменен', этап {0} в статусе '{1}'"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/projects.py:0
+#, python-format
 msgid ""
 "only project admin or supervisor or project office manager can reopen "
 "projects"

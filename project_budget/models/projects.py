@@ -457,6 +457,10 @@ class projects(models.Model):
                 row.specification_state = 'cancel'
                 if row.project_steps_ids:
                     for step in row.project_steps_ids:
+                        if step.estimated_probability_id.name in ['100', '100(done)']:
+                            raisetext = _("Can't 'cancel' project with step {0} in {1} state")
+                            raisetext = raisetext.format(step.step_id, step.estimated_probability_id.name)
+                            raise ValidationError(raisetext)
                         step.estimated_probability_id = row.estimated_probability_id
                     # return self.show_message(_('all stages have a probability of 0'))
             if row.estimated_probability_id.name == '10':
@@ -473,7 +477,7 @@ class projects(models.Model):
                 row.specification_state = 'done'
                 if row.project_steps_ids:
                     for step in row.project_steps_ids:
-                        if row.estimated_probability_id.name != '0':
+                        if step.estimated_probability_id.name != '0':
                             step.estimated_probability_id = row.estimated_probability_id
                     # return self.show_message(_('all stages have a probability of 100(done)'))
 
