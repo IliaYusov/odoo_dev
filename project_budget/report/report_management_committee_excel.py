@@ -28,6 +28,15 @@ class report_management_committee_excel(models.AbstractModel):
 
         if project:
             if step:
+                if step.estimated_probability_id.name == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
+                    last_fixed_step = self.env['project_budget.project_steps'].search(
+                        [('projects_id.commercial_budget_id.year', '<', YEARint),
+                         ('budget_state', '=', 'fixed'),
+                         ('step_id', '=', step.step_id),
+                         ], limit=1, order='date_actual desc')
+                    if last_fixed_step and last_fixed_step.estimated_probability_id.name == '0':
+                        return False
+
                 if step.end_presale_project_month.year in years or step.end_sale_project_month.year in years:
                     return True
                 for pds in project.planned_cash_flow_ids:
@@ -55,6 +64,15 @@ class report_management_committee_excel(models.AbstractModel):
         years = (YEARint, YEARint + 1, YEARint + 2)
 
         if project:
+            if project.estimated_probability_id.name == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
+                last_fixed_project = self.env['project_budget.projects'].search(
+                    [('commercial_budget_id.year', '<', YEARint),
+                     ('budget_state', '=', 'fixed'),
+                     ('project_id', '=', project.project_id),
+                     ], limit=1, order='date_actual desc')
+                if last_fixed_project and last_fixed_project.estimated_probability_id.name == '0':
+                    return False
+
             if project.project_have_steps == False:
                 if project.end_presale_project_month.year in years or project.end_sale_project_month.year in years:
                     return True
