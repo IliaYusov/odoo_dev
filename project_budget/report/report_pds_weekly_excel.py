@@ -29,7 +29,7 @@ class report_pds_weekly_excel(models.AbstractModel):
             if step:
                 if step.estimated_probability_id.name == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
                     last_fixed_step = self.env['project_budget.project_steps'].search(
-                        [('projects_id.commercial_budget_id.year', '<', YEARint),
+                        [('date_actual', '<', datetime.date(YEARint,1,1)),
                          ('budget_state', '=', 'fixed'),
                          ('step_id', '=', step.step_id),
                          ], limit=1, order='date_actual desc')
@@ -72,7 +72,7 @@ class report_pds_weekly_excel(models.AbstractModel):
         if project:
             if project.estimated_probability_id.name == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
                 last_fixed_project = self.env['project_budget.projects'].search(
-                    [('commercial_budget_id.year', '<', YEARint),
+                    [('date_actual', '<', datetime.date(YEARint,1,1)),
                      ('budget_state', '=', 'fixed'),
                      ('project_id', '=', project.project_id),
                      ], limit=1, order='date_actual desc')
