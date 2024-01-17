@@ -141,17 +141,19 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
         if pds_accept == 'pds':
             cur_budget_projects = self.env[
                 'project_budget.projects'].search(
-                ['&',
+                ['&','&',
                  ('commercial_budget_id', '=', budget.id),
                  ('id', 'in', [pds.projects_id.id for pds in self.env['project_budget.planned_cash_flow'].search([]) if date_start <= pds.date_cash <= date_end]),
+                 ('estimated_probability_id.name', 'not in', ('0', '10')),
                  ]
             )
         else:
             cur_budget_projects = self.env[
                 'project_budget.projects'].search(
-                ['&',
+                ['&','&',
                  ('commercial_budget_id', '=', budget.id),
                  ('id', 'in', [acc.projects_id.id for acc in self.env['project_budget.planned_acceptance_flow'].search([]) if date_start <= acc.date_cash <= date_end]),
+                 ('estimated_probability_id.name', 'not in', ('0', '10')),
                  ]
             )
 
