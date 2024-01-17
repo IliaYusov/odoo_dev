@@ -906,6 +906,10 @@ class report_budget_forecast_excel(models.AbstractModel):
             else:
                 profitability = step.profitability
 
+            margin_rate_for_child = 1
+            if project.is_child_project:
+                margin_rate_for_child = (1 - project.margin_rate_for_parent)
+
             sum = self.get_sum_planned_acceptance_project_step_quater(project_etalon, step_etalon, element_name)
             margin_sum = self.get_sum_planned_margin_project_step_quater(project_etalon, step_etalon, element_name)
             if step and not step_etalon:
@@ -914,18 +918,14 @@ class report_budget_forecast_excel(models.AbstractModel):
 
             if sum:
                 sheet.write_number(row, column + 0, sum.get('commitment', 0), row_format_number)
-                sheet.write_number(row, column + 0 + 44, margin_sum.get('commitment', 0), row_format_number)
+                sheet.write_number(row, column + 0 + 44, margin_sum.get('commitment', 0) * margin_rate_for_child, row_format_number)
                 sum75tmpetalon += sum.get('commitment', 0)
                 sheet.write_number(row, column + 1, sum.get('reserve', 0) * koeff_reserve, row_format_number)
-                sheet.write_number(row, column + 1 + 44 , margin_sum.get('reserve', 0) * koeff_reserve, row_format_number)
+                sheet.write_number(row, column + 1 + 44 , margin_sum.get('reserve', 0) * koeff_reserve * margin_rate_for_child, row_format_number)
                 sum50tmpetalon += sum.get('reserve', 0) * koeff_reserve
 
             sum100tmp = self.get_sum_fact_acceptance_project_step_quater(project, step, element_name)
             margin100tmp = self.get_sum_fact_margin_project_step_quarter(project, step, element_name)
-
-            margin_rate_for_child = 1
-            if project.is_child_project:
-                margin_rate_for_child = (1 - project.margin_rate_for_parent)
 
             if sum100tmp:
                 sheet.write_number(row, column + 2, sum100tmp, row_format_number_color_fact)
