@@ -623,11 +623,11 @@ class report_budget_forecast_excel(models.AbstractModel):
         if month:
             project_etalon = self.get_etalon_project(project, self.get_quater_from_month(month))
             step_etalon = self.get_etalon_step(step, self.get_quater_from_month(month))
-            sum = {'commitment': 0, 'reserve':0}
+            sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
             sum = self.get_sum_plan_pds_project_step_month(project_etalon, step_etalon, month)
 
             if (step) and (not step_etalon): # есть этап сейчас, но нет в эталоне
-                sum = {'commitment': 0, 'reserve':0}
+                sum = {'commitment': 0, 'reserve':0, 'potential': 0}
 
             if sum:
                 sheet.write_number(row, column + 0, sum.get('commitment', 0), row_format_number)
@@ -655,7 +655,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
             # print('after: sum = ', sum)
             # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-            sum_ostatok_pds = {'commitment': 0, 'reserve':0}
+            sum_ostatok_pds = {'commitment': 0, 'reserve':0, 'potential': 0}
             sum_distribution_pds = 0
             for planned_cash_flow in project.planned_cash_flow_ids:
                 if step:
@@ -697,11 +697,6 @@ class report_budget_forecast_excel(models.AbstractModel):
         sum_cash = 0
         months = self.get_months_from_quater(element_name)
         if months:
-            acceptance_list = False
-            # if step == False:
-            #     acceptance_list = self.env['project_budget.fact_acceptance_flow'].search([('projects_id', '=', project.id)])
-            # else:
-            #     acceptance_list = self.env['project_budget.fact_acceptance_flow'].search([('project_steps_id', '=', step.id)])
             acceptance_list = project.fact_acceptance_flow_ids
             if acceptance_list:
                 for acceptance in acceptance_list:
@@ -718,6 +713,15 @@ class report_budget_forecast_excel(models.AbstractModel):
         global year_end
         sum_cash = 0
         months = self.get_months_from_quater(element_name)
+        if project.is_parent_project:
+            for child_project in project.child_project_ids:
+                if child_project.project_have_steps:
+                    for child_step in child_project.project_steps_ids:
+                        sum_cash += self.get_sum_fact_margin_project_step_quarter(child_project, child_step,
+                                                                                  element_name) * child_project.margin_rate_for_parent
+                else:
+                    sum_cash += self.get_sum_fact_margin_project_step_quarter(child_project, False, element_name) * child_project.margin_rate_for_parent
+            return sum_cash
         if months:
             acceptance_list = project.fact_acceptance_flow_ids
             if acceptance_list:
@@ -733,16 +737,11 @@ class report_budget_forecast_excel(models.AbstractModel):
     def get_sum_planned_acceptance_project_step_quater(self, project, step, element_name):
         global YEARint
         global year_end
-        sum_acceptance = {'commitment': 0, 'reserve':0}
+        sum_acceptance = {'commitment': 0, 'reserve':0, 'potential': 0}
 
         months = self.get_months_from_quater(element_name)
 
         if months:
-            # if step == False:
-            #     acceptance_list = self.env['project_budget.planned_acceptance_flow'].search([('projects_id', '=', project.id)])
-            # else:
-            #     acceptance_list = self.env['project_budget.planned_acceptance_flow'].search([('project_steps_id', '=', step.id),('projects_id', '=', project.id)])
-
             acceptance_list = project.planned_acceptance_flow_ids
             if acceptance_list:
                 for acceptance in acceptance_list:
@@ -765,7 +764,47 @@ class report_budget_forecast_excel(models.AbstractModel):
                             sum_acceptance[acceptance.forecast] = sum_acceptance.get(acceptance.forecast, 0) + acceptance.sum_cash_without_vat
         return sum_acceptance
 
-    def get_margin_forecast_from_distributions(self, planned_acceptance, margin_plan, project, step):
+    def get_sum_planned_margin_project_step_quater(self, project, step, element_name):
+        global YEARint
+        global year_end
+        sum_margin = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
+        months = self.get_months_from_quater(element_name)
+        if project.is_parent_project:
+            for child_project in project.child_project_ids:
+                if child_project.project_have_steps:
+                    for child_step in child_project.project_steps_ids:
+                        for key in sum_margin:
+                            sum_margin[key] += self.get_sum_planned_margin_project_step_quater(child_project, child_step,
+                                                                                  element_name)[key] * child_project.margin_rate_for_parent
+                else:
+                    for key in sum_margin:
+                        sum_margin[key] += self.get_sum_planned_margin_project_step_quater(child_project, False, element_name)[key] * child_project.margin_rate_for_parent
+            return sum_margin
+        if months:
+            acceptance_list = project.planned_acceptance_flow_ids
+            if acceptance_list:
+                for acceptance in acceptance_list:
+                    if step:
+                        if acceptance.project_steps_id.id != step.id: continue
+                        estimated_probability_id_name = step.estimated_probability_id.name
+                        profitability = step.profitability
+                    else:
+                        estimated_probability_id_name = project.estimated_probability_id.name
+                        profitability = project.profitability
+                    if acceptance.date_cash.month in months \
+                            and acceptance.date_cash.year >= YEARint\
+                            and acceptance.date_cash.year <= year_end:
+                        if acceptance.forecast == 'from_project':
+                            if estimated_probability_id_name in ('75', '100', '100(done)'):
+                                sum_margin['commitment'] += acceptance.sum_cash_without_vat * profitability / 100
+                            elif estimated_probability_id_name == '50':
+                                sum_margin['reserve'] += acceptance.sum_cash_without_vat * profitability / 100
+                        else:
+                            sum_margin[acceptance.forecast] += acceptance.sum_cash_without_vat * profitability / 100
+        return sum_margin
+
+    def get_margin_forecast_from_distributions(self, planned_acceptance, margin_plan, project, step, margin_rate_for_parent):
         # суммируем доли маржи фактов в соотношении (сумма распределения/суммы факта)
         margin_distribution = 0
         for distribution in planned_acceptance.distribution_acceptance_ids:
@@ -776,12 +815,82 @@ class report_budget_forecast_excel(models.AbstractModel):
             if step:
                 estimated_probability_id_name = step.estimated_probability_id.name
             if estimated_probability_id_name in ('75', '100', '100(done)'):
-                margin_plan['commitment'] -= margin_distribution
+                margin_plan['commitment'] -= margin_distribution * margin_rate_for_parent
             elif estimated_probability_id_name == '50':
-                margin_plan['reserve'] -= margin_distribution
+                margin_plan['reserve'] -= margin_distribution * margin_rate_for_parent
         else:
-            margin_plan[planned_acceptance.forecast] -= margin_distribution
+            margin_plan[planned_acceptance.forecast] -= margin_distribution * margin_rate_for_parent
         return  margin_plan
+
+    def get_sum_planned_acceptance_project_step_from_distribution(self, project, step, element_name):
+        # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
+        sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
+        sum_distribution_acceptance = 0
+        months = self.get_months_from_quater(element_name)
+        for planned_acceptance_flow in project.planned_acceptance_flow_ids:
+            if step:
+                if planned_acceptance_flow.project_steps_id.id != step.id: continue
+            if planned_acceptance_flow.date_cash.month in months \
+                    and planned_acceptance_flow.date_cash.year >= YEARint \
+                    and planned_acceptance_flow.date_cash.year <= year_end:
+                sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+
+                if planned_acceptance_flow.forecast == 'from_project':
+
+                    estimated_probability_id_name = project.estimated_probability_id.name
+                    if step:
+                        estimated_probability_id_name = step.estimated_probability_id.name
+
+                    if estimated_probability_id_name in ('75', '100', '100(done)'):
+                        sum_ostatok_acceptance['commitment'] = sum_ostatok_acceptance.get('commitment',
+                                                                                          0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                    elif estimated_probability_id_name == '50':
+                        sum_ostatok_acceptance['reserve'] = sum_ostatok_acceptance.get('reserve',
+                                                                                       0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                else:
+                    sum_ostatok_acceptance[planned_acceptance_flow.forecast] = sum_ostatok_acceptance.get(
+                        planned_acceptance_flow.forecast,
+                        0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
+        if sum_distribution_acceptance:  # если есть распределение, то остаток = остатку распределения
+            return sum_ostatok_acceptance
+        else:
+            return False
+
+    def get_sum_planned_margin_project_step_from_distribution(self, project, step, element_name, margin_plan, margin_rate_for_parent):
+        # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
+        sum_distribution_acceptance = 0
+        new_margin_plan = margin_plan.copy()
+        months = self.get_months_from_quater(element_name)
+
+        if project.is_parent_project:
+            for child_project in project.child_project_ids:
+                if child_project.project_have_steps:
+                    for child_step in child_project.project_steps_ids:
+                        new_margin_plan =  self.get_sum_planned_margin_project_step_from_distribution(child_project, child_step,
+                                                                              element_name, margin_plan, child_project.margin_rate_for_parent)
+                        if new_margin_plan:
+                            margin_plan = new_margin_plan
+                else:
+                    new_margin_plan = self.get_sum_planned_margin_project_step_from_distribution(child_project, False, element_name, margin_plan, child_project.margin_rate_for_parent)
+                    if new_margin_plan:
+                        margin_plan = new_margin_plan
+
+            return margin_plan
+
+        for planned_acceptance_flow in project.planned_acceptance_flow_ids:
+            if step:
+                if planned_acceptance_flow.project_steps_id.id != step.id: continue
+            if planned_acceptance_flow.date_cash.month in months \
+                    and planned_acceptance_flow.date_cash.year >= YEARint \
+                    and planned_acceptance_flow.date_cash.year <= year_end:
+                sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+
+                new_margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow, new_margin_plan, project,
+                                                                          step, margin_rate_for_parent)
+        if sum_distribution_acceptance:  # если есть распределение, то остаток = остатку распределения
+            return new_margin_plan
+        else:
+            return False
 
     def print_quater_planned_acceptance_project(self, sheet, row, column, element_name, project, step, row_format_number, row_format_number_color_fact):
         global YEARint
@@ -797,43 +906,42 @@ class report_budget_forecast_excel(models.AbstractModel):
             else:
                 profitability = step.profitability
 
-            if step_etalon == False:
-                profitability_etalon = project_etalon.profitability
-            else:
-                profitability_etalon = step_etalon.profitability
-
             sum = self.get_sum_planned_acceptance_project_step_quater(project_etalon, step_etalon, element_name)
-            if (step ) and (not step_etalon):
-                sum = {'commitment': 0, 'reserve':0}
+            margin_sum = self.get_sum_planned_margin_project_step_quater(project_etalon, step_etalon, element_name)
+            if step and not step_etalon:
+                sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
+                margin_sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
             if sum:
                 sheet.write_number(row, column + 0, sum.get('commitment', 0), row_format_number)
-                sheet.write_number(row, column + 0 + 44, sum.get('commitment', 0) * profitability_etalon / 100, row_format_number)
+                sheet.write_number(row, column + 0 + 44, margin_sum.get('commitment', 0), row_format_number)
                 sum75tmpetalon += sum.get('commitment', 0)
                 sheet.write_number(row, column + 1, sum.get('reserve', 0) * koeff_reserve, row_format_number)
-                sheet.write_number(row, column + 1 + 44 , sum.get('reserve', 0) * profitability_etalon * koeff_reserve / 100, row_format_number)
+                sheet.write_number(row, column + 1 + 44 , margin_sum.get('reserve', 0) * koeff_reserve, row_format_number)
                 sum50tmpetalon += sum.get('reserve', 0) * koeff_reserve
 
             sum100tmp = self.get_sum_fact_acceptance_project_step_quater(project, step, element_name)
             margin100tmp = self.get_sum_fact_margin_project_step_quarter(project, step, element_name)
 
+            margin_rate_for_child = 1
+            if project.is_child_project:
+                margin_rate_for_child = (1 - project.margin_rate_for_parent)
+
             if sum100tmp:
                 sheet.write_number(row, column + 2, sum100tmp, row_format_number_color_fact)
 
             if margin100tmp:
-                sheet.write_number(row, column + 2 + 44, margin100tmp, row_format_number_color_fact)
+                sheet.write_number(row, column + 2 + 44, margin100tmp * margin_rate_for_child, row_format_number_color_fact)
 
             sum = self.get_sum_planned_acceptance_project_step_quater(project, step, element_name)
+            margin_sum = self.get_sum_planned_margin_project_step_quater(project, step, element_name)
 
-            margin_sum = {'commitment': 0, 'reserve': 0}
-            margin_plan = {'commitment': 0, 'reserve': 0}
+            margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
-            if sum:
-                for key in sum:
-                    margin_plan[key] = sum[key] * profitability / 100
-                    margin_sum[key] = sum[key] * profitability / 100
+            if margin_sum:
+                margin_plan = margin_sum.copy()
 
-            if not project.is_correction_project:
+            if not project.is_correction_project and not project.is_parent_project:
 
                 if sum100tmp >= sum.get('commitment', 0):
                     sum100tmp_ostatok = sum100tmp - sum['commitment']
@@ -849,52 +957,27 @@ class report_budget_forecast_excel(models.AbstractModel):
                 else:
                     margin_sum['commitment'] = margin_plan['commitment'] - margin100tmp
 
-            # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-            sum_ostatok_acceptance = {'commitment': 0, 'reserve':0}
-            sum_distribution_acceptance = 0
-            months = self.get_months_from_quater(element_name)
-            for planned_acceptance_flow in project.planned_acceptance_flow_ids:
-                if step:
-                    if planned_acceptance_flow.project_steps_id.id != step.id: continue
-                if planned_acceptance_flow.date_cash.month in months \
-                        and planned_acceptance_flow.date_cash.year >= YEARint\
-                        and planned_acceptance_flow.date_cash.year <= year_end:
-                    sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+            sum_ostatok_acceptance = self.get_sum_planned_acceptance_project_step_from_distribution(project, step, element_name)
+            new_margin_plan = self.get_sum_planned_margin_project_step_from_distribution(project, step, element_name, margin_plan, 1)
 
-                    margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow, margin_plan, project, step)
-
-                    if planned_acceptance_flow.forecast == 'from_project':
-
-                        estimated_probability_id_name = project.estimated_probability_id.name
-                        if step:
-                            estimated_probability_id_name = step.estimated_probability_id.name
-
-                        if estimated_probability_id_name in ('75', '100', '100(done)'):
-                            sum_ostatok_acceptance['commitment'] = sum_ostatok_acceptance.get('commitment',
-                                                                                0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                        elif estimated_probability_id_name == '50':
-                            sum_ostatok_acceptance['reserve'] = sum_ostatok_acceptance.get('reserve',
-                                                                             0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                    else:
-                        sum_ostatok_acceptance[planned_acceptance_flow.forecast] = sum_ostatok_acceptance.get(planned_acceptance_flow.forecast, 0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
-
-            if sum_distribution_acceptance != 0 : # если есть распределение, то остаток = остатку распределения
+            if sum_ostatok_acceptance:
                 sum = sum_ostatok_acceptance
-                margin_sum = margin_plan
-                for key in sum:
-                    if  not project.is_correction_project:
-                        sum[key] = max(sum[key], 0)
-                        margin_sum[key] = max(margin_sum[key], 0)
+            if new_margin_plan:
+                margin_sum = new_margin_plan
+
+            for key in sum:
+                if not project.is_correction_project:
+                    sum[key] = max(sum[key], 0)
+                    margin_sum[key] = max(margin_sum[key], 0)
 
             if sum:
                 sheet.write_number(row, column + 3, sum.get('commitment', 0), row_format_number)
-                sheet.write_number(row, column + 3 + 44, margin_sum.get('commitment', 0), row_format_number)
+                sheet.write_number(row, column + 3 + 44, margin_sum.get('commitment', 0) * margin_rate_for_child, row_format_number)
                 sum75tmp += sum.get('commitment', 0)
                 sheet.write_number(row, column + 4, sum.get('reserve', 0) * koeff_reserve, row_format_number)
-                sheet.write_number(row, column + 4 + 44, margin_sum.get('reserve', 0) * koeff_reserve, row_format_number)
+                sheet.write_number(row, column + 4 + 44, margin_sum.get('reserve', 0) * koeff_reserve * margin_rate_for_child, row_format_number)
                 sum50tmp += sum.get('reserve', 0) * koeff_reserve
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
-
 
     def get_month_number_rus(self, monthNameRus):
         if monthNameRus == 'Январь': return 1
