@@ -48,7 +48,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                             return True
                 for act in project.fact_acceptance_flow_ids:
                     if act.project_steps_id.id == step.id:
-                        if act.date_cash.year >= YEARint and act.date_cash.year <= year_end:
+                        if act.date_cash.year >= YEARint and act.date_cash.year <= YEARint + 2:
                             return True
         return False
 
@@ -310,7 +310,6 @@ class report_budget_forecast_excel(models.AbstractModel):
 
     def get_sum_plan_acceptance_step_month(self,project, step, year, month):
         global YEARint
-        global year_end
         sum_cash = 0
         # if project.project_have_steps == False:
         #     acceptance_list = self.env['project_budget.planned_acceptance_flow'].search([('projects_id', '=', project.id)])
@@ -1088,7 +1087,6 @@ class report_budget_forecast_excel(models.AbstractModel):
 
     def print_row_values(self, workbook, sheet, row, column,  project, step, margin_shift, next_margin_shift):
         global YEARint
-        global year_end
 
         row_format_number = workbook.add_format({
             'border': 1,
@@ -1640,7 +1638,6 @@ class report_budget_forecast_excel(models.AbstractModel):
 
     def print_row(self, sheet, workbook, project_offices, project_managers, estimated_probabilitys, budget, row, formulaItogo, level):
         global YEARint
-        global year_end
         global dict_formula
         head_format = workbook.add_format({
             'bold': True,
@@ -2362,7 +2359,6 @@ class report_budget_forecast_excel(models.AbstractModel):
 
     def printworksheet(self,workbook,budget,namesheet, estimated_probabilities):
         global YEARint
-        global year_end
         print('YEARint=',YEARint)
 
         report_name = budget.name
