@@ -18,7 +18,6 @@ class report_budget_forecast_excel(models.AbstractModel):
     year_end = 2023
     def isStepinYear(self, project, step):
         global YEARint
-        global year_end
 
         if project:
             if step:
@@ -31,21 +30,21 @@ class report_budget_forecast_excel(models.AbstractModel):
                     if last_fixed_step and last_fixed_step.estimated_probability_id.name == '0':
                         return False
 
-                if (step.end_presale_project_month.year >= YEARint and step.end_presale_project_month.year <= year_end)\
-                        or (step.end_sale_project_month.year >= YEARint and step.end_sale_project_month.year <= year_end)\
-                        or (step.end_presale_project_month.year <= YEARint and step.end_sale_project_month.year >= year_end):
+                if (step.end_presale_project_month.year >= YEARint and step.end_presale_project_month.year <= YEARint + 2)\
+                        or (step.end_sale_project_month.year >= YEARint and step.end_sale_project_month.year <= YEARint + 2)\
+                        or (step.end_presale_project_month.year <= YEARint and step.end_sale_project_month.year >= YEARint + 2):
                     return True
                 for pds in project.planned_cash_flow_ids:
                     if pds.project_steps_id.id == step.id:
-                        if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end :
+                        if pds.date_cash.year >= YEARint and pds.date_cash.year <= YEARint + 2 :
                             return True
                 for pds in project.fact_cash_flow_ids:
                     if pds.project_steps_id.id == step.id:
-                        if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end:
+                        if pds.date_cash.year >= YEARint and pds.date_cash.year <= YEARint + 2:
                             return True
                 for act in project.planned_acceptance_flow_ids:
                     if act.project_steps_id.id == step.id:
-                        if act.date_cash.year >= YEARint and act.date_cash.year <= year_end:
+                        if act.date_cash.year >= YEARint and act.date_cash.year <= YEARint + 2:
                             return True
                 for act in project.fact_acceptance_flow_ids:
                     if act.project_steps_id.id == step.id:
@@ -67,32 +66,32 @@ class report_budget_forecast_excel(models.AbstractModel):
                     return False
 
             if project.project_have_steps == False:
-                if (project.end_presale_project_month.year >= YEARint and project.end_presale_project_month.year <= year_end)\
-                        or (project.end_sale_project_month.year >= YEARint and project.end_sale_project_month.year <= year_end)\
-                        or (project.end_presale_project_month.year <= YEARint and project.end_sale_project_month.year >= year_end):
+                if (project.end_presale_project_month.year >= YEARint and project.end_presale_project_month.year <= YEARint + 2)\
+                        or (project.end_sale_project_month.year >= YEARint and project.end_sale_project_month.year <= YEARint + 2)\
+                        or (project.end_presale_project_month.year <= YEARint and project.end_sale_project_month.year >= YEARint + 2):
                     return True
                 for pds in project.planned_cash_flow_ids:
-                    if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end:
+                    if pds.date_cash.year >= YEARint and pds.date_cash.year <= YEARint + 2:
                         return True
                 for pds in project.fact_cash_flow_ids:
-                    if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end:
+                    if pds.date_cash.year >= YEARint and pds.date_cash.year <= YEARint + 2:
                         return True
                 for act in project.planned_acceptance_flow_ids:
-                    if act.date_cash.year >= YEARint and act.date_cash.year <= year_end:
+                    if act.date_cash.year >= YEARint and act.date_cash.year <= YEARint + 2:
                         return True
                 for act in project.fact_acceptance_flow_ids:
-                    if act.date_cash.year >= YEARint and act.date_cash.year <= year_end:
+                    if act.date_cash.year >= YEARint and act.date_cash.year <= YEARint + 2:
                         return True
             else:
                 for step in project.project_steps_ids:
                     if self.isStepinYear(project, step):
                         return True
 
-            etalon_project = self.get_etalon_project_first(project) # поищем первый эталон в году и если контрактование или последняя отгрузка были в году, то надо проект в отчете показывать
-            if etalon_project:
-                if (etalon_project.end_presale_project_month.year >= YEARint and  etalon_project.end_presale_project_month.year <= year_end)\
-                        or (project.end_sale_project_month.year >= YEARint and project.end_sale_project_month.year <= year_end):
-                    return True
+            # etalon_project = self.get_etalon_project_first(project) # поищем первый эталон в году и если контрактование или последняя отгрузка были в году, то надо проект в отчете показывать
+            # if etalon_project:
+            #     if (etalon_project.end_presale_project_month.year >= YEARint and  etalon_project.end_presale_project_month.year <= year_end)\
+            #             or (project.end_sale_project_month.year >= YEARint and project.end_sale_project_month.year <= year_end):
+            #         return True
 
         return False
 
@@ -257,10 +256,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             logger.info(f' end get_etalon_step')
         return etalon_step
 
-    def get_sum_fact_pds_project_step_month(self,project, step, month):
-        global YEARint
-        global year_end
-
+    def get_sum_fact_pds_project_step_month(self,project, step, year, month):
         sum_cash = 0
         if month:
             pds_list = project.fact_cash_flow_ids
@@ -271,13 +267,11 @@ class report_budget_forecast_excel(models.AbstractModel):
             for pds in pds_list:
                 if step:
                     if pds.project_steps_id.id != step.id: continue
-                if pds.date_cash.month == month and pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end:
+                if pds.date_cash.month == month and pds.date_cash.year == year:
                     sum_cash += pds.sum_cash
         return sum_cash
 
-    def get_sum_plan_pds_project_step_month(self,project, step, month):
-        global YEARint
-        global year_end
+    def get_sum_plan_pds_project_step_month(self,project, step, year, month):
         sum_cash = {'commitment': 0, 'reserve':0}
         if month:
             # if step:
@@ -288,7 +282,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             for pds in pds_list:
                 if step:
                     if pds.project_steps_id.id != step.id: continue
-                if pds.date_cash.month == month and pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end:
+                if pds.date_cash.month == month and pds.date_cash.year == year:
                     if pds.forecast == 'from_project':
                         if step:
                             estimated_probability_id_name = step.estimated_probability_id.name
@@ -314,7 +308,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             #                 sum_cash = step.total_amount_of_revenue_with_vat
         return sum_cash
 
-    def get_sum_plan_acceptance_step_month(self,project, step, month):
+    def get_sum_plan_acceptance_step_month(self,project, step, year, month):
         global YEARint
         global year_end
         sum_cash = 0
@@ -327,13 +321,11 @@ class report_budget_forecast_excel(models.AbstractModel):
         for acceptance in acceptance_list:
             if step:
                 if acceptance.project_steps_id.id != step.id: continue
-            if acceptance.date_cash.month == month:
+            if acceptance.date_cash.month == month and acceptance.date_cash.year == year:
                 sum_cash += acceptance.sum_cash_without_vat
         return sum_cash
 
-    def print_month_head_contract(self,workbook,sheet,row,column):
-        global YEARint
-        global year_end
+    def print_month_head_contract(self, workbook, sheet, row, column, year, elements, next):
 
         x = {'name': 'Контрактование, с НДС', 'color': '#FFD966'}
 
@@ -380,10 +372,8 @@ class report_budget_forecast_excel(models.AbstractModel):
         colbegH= column
         colbegY= column
 
-        for elementone in self.month_rus_name_contract_pds:
-            strYEARprint = str(YEARint)
-            if year_end != YEARint:
-                strYEARprint = strYEARprint + " - " +str(year_end)
+        for elementone in elements:
+            strYEARprint = str(year)
 
             element = elementone.replace('YEAR',strYEARprint)
             if element.find('итого') != -1:
@@ -391,7 +381,12 @@ class report_budget_forecast_excel(models.AbstractModel):
                     sheet.set_column(column, column + 4, False, False, {'hidden': 1, 'level': 2})
                 if elementone.find('HY') != -1:
                     sheet.set_column(column, column + 4, False, False, {'hidden': 1, 'level': 1})
-                sheet.merge_range(row, column, row, column + 4, element, head_format_month)
+
+                if next:
+                    sheet.merge_range(row, column, row, column + 3, element, head_format_month)
+                else:
+                    sheet.merge_range(row, column, row, column + 4, element, head_format_month)
+
                 sheet.merge_range(row + 1, column, row + 2, column, "План "+element.replace('итого',''), head_format_month_itogo)
                 column += 1
             else:
@@ -402,8 +397,9 @@ class report_budget_forecast_excel(models.AbstractModel):
             # column += 1
             # sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail)
             # column += 1
-            sheet.merge_range(row+1, column, row+2, column, 'Факт', head_format_month_detail_fact)
-            column += 1
+            if not next:
+                sheet.merge_range(row+1, column, row+2, column, 'Факт', head_format_month_detail_fact)
+                column += 1
             sheet.merge_range(row + 1, column, row + 1, column + 2, 'Прогноз до конца периода (на дату отчета)',head_format_month_detail)
             sheet.write_string(row + 2, column, 'Обязательство', head_format_month_detail)
             column += 1
@@ -420,9 +416,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         return column
 
-    def print_month_head_pds(self,workbook,sheet,row,column):
-        global YEARint
-        global year_end
+    def print_month_head_pds(self, workbook, sheet, row, column, year, elements, next):
 
         x = {'name': 'Поступление денежных средсв, с НДС', 'color': '#D096BF'}
 
@@ -469,10 +463,8 @@ class report_budget_forecast_excel(models.AbstractModel):
         colbegH= column
         colbegY= column
 
-        for elementone in self.month_rus_name_contract_pds:
-            strYEARprint = str(YEARint)
-            if year_end != YEARint:
-                strYEARprint = strYEARprint + " - " +str(year_end)
+        for elementone in elements:
+            strYEARprint = str(year)
 
             element = elementone.replace('YEAR',strYEARprint)
             if element.find('итого') != -1:
@@ -480,7 +472,12 @@ class report_budget_forecast_excel(models.AbstractModel):
                     sheet.set_column(column, column + 3, False, False, {'hidden': 1, 'level': 2})
                 if elementone.find('HY') != -1:
                     sheet.set_column(column, column + 3, False, False, {'hidden': 1, 'level': 1})
-                sheet.merge_range(row, column, row, column + 3, element, head_format_month)
+
+                if next:
+                    sheet.merge_range(row, column, row, column + 2, element, head_format_month)
+                else:
+                    sheet.merge_range(row, column, row, column + 3, element, head_format_month)
+
                 sheet.merge_range(row + 1, column, row + 2, column, "План "+element.replace('итого',''), head_format_month_itogo)
                 column += 1
             else:
@@ -491,8 +488,9 @@ class report_budget_forecast_excel(models.AbstractModel):
             # column += 1
             # sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail)
             # column += 1
-            sheet.merge_range(row+1, column, row+2, column, 'Факт', head_format_month_detail_fact)
-            column += 1
+            if not next:
+                sheet.merge_range(row+1, column, row+2, column, 'Факт', head_format_month_detail_fact)
+                column += 1
             sheet.merge_range(row + 1, column, row + 1, column + 1, 'Прогноз до конца периода (на дату отчета)',head_format_month_detail)
             sheet.write_string(row + 2, column, 'Обязательство', head_format_month_detail)
             column += 1
@@ -507,8 +505,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         return column
 
-    def print_month_head_revenue_margin(self,workbook,sheet,row,column):
-        global YEARint
+    def print_month_head_revenue_margin(self, workbook, sheet, row, column, year, elements, next):
 
         for x in self.dict_revenue_margin.items():
             y = list(x[1].values())
@@ -549,12 +546,10 @@ class report_budget_forecast_excel(models.AbstractModel):
                 "font_size": 8,
             })
 
-            strYEARprint = str(YEARint)
-            if year_end != YEARint:
-                strYEARprint = strYEARprint + " - " + str(year_end)
+            strYEARprint = str(year)
 
             colbeg = column
-            for elementone in self.month_rus_name_revenue_margin:
+            for elementone in elements:
                 element = elementone.replace('YEAR', strYEARprint)
 
                 addcolumn = potential_column = 0
@@ -569,7 +564,11 @@ class report_budget_forecast_excel(models.AbstractModel):
                 if elementone.find('HY') != -1:
                     sheet.set_column(column, column + 3 + addcolumn, False, False, {'hidden': 1, 'level': 1})
 
-                sheet.merge_range(row, column, row, column + 3 + addcolumn + potential_column, element, head_format_month)
+                if next:
+                    sheet.merge_range(row, column, row, column + 2 + addcolumn + potential_column, element, head_format_month)
+                else:
+                    sheet.merge_range(row, column, row, column + 3 + addcolumn + potential_column, element,
+                                      head_format_month)
 
 
                 sheet.merge_range(row + 1, column, row + 2, column, "План " + element.replace('итого', ''),
@@ -588,8 +587,9 @@ class report_budget_forecast_excel(models.AbstractModel):
                 # column += 1
                 # sheet.write_string(row + 2, column , 'Резерв', head_format_month_detail)
                 # column += 1
-                sheet.merge_range(row + 1, column , row + 2, column , 'Факт', head_format_month_detail_fact)
-                column += 1
+                if not next:
+                    sheet.merge_range(row + 1, column , row + 2, column , 'Факт', head_format_month_detail_fact)
+                    column += 1
 
                 if element == strYEARprint and x[0] == 1:
                     sheet.merge_range(row + 1, column, row + 1, column + 2,
@@ -617,9 +617,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         project_currency_rates = self.env['project_budget.project_currency_rates']
         return project_currency_rates._get_currency_rate_for_project_in_company_currency(project)
 
-    def print_month_revenue_project(self, sheet, row, column, month, project, step, row_format_number,row_format_number_color_fact):
-        global YEARint
-        global year_end
+    def print_month_revenue_project(self, sheet, row, column, month, project, step, year, row_format_number,row_format_number_color_fact, next):
         global koeff_reserve
         global koeff_potential
 
@@ -645,22 +643,28 @@ class report_budget_forecast_excel(models.AbstractModel):
             #                 sheet.write_number(row, column + 1, project_etalon.total_amount_of_revenue_with_vat * koeff_reserve*currency_rate, row_format_number)
             #                 sum50tmpetalon += project_etalon.total_amount_of_revenue_with_vat * koeff_reserve*currency_rate
 
-                if month == project.end_presale_project_month.month \
-                        and project.end_presale_project_month.year >= YEARint \
-                        and project.end_presale_project_month.year <= year_end:
+                if month == project.end_presale_project_month.month and project.end_presale_project_month.year == year:
                     currency_rate = self.get_currency_rate_by_project(project)
-                    if project.estimated_probability_id.name in ('100','100(done)'):
-                        sheet.write_number(row, column + 0, project.total_amount_of_revenue_with_vat * currency_rate, row_format_number_color_fact)
-                        sum100tmp += project.total_amount_of_revenue_with_vat * currency_rate
-                    if project.estimated_probability_id.name == '75':
-                        sheet.write_number(row, column + 1, project.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
-                        sum75tmp += project.total_amount_of_revenue_with_vat * currency_rate
-                    if project.estimated_probability_id.name == '50':
-                        sheet.write_number(row, column + 2, project.total_amount_of_revenue_with_vat * koeff_reserve * currency_rate, row_format_number)
-                        sum50tmp += project.total_amount_of_revenue_with_vat * koeff_reserve*currency_rate
-                    if project.estimated_probability_id.name == '30':
-                        sheet.write_number(row, column + 3, project.total_amount_of_revenue_with_vat * koeff_potential * currency_rate, row_format_number)
-                        sum30tmp += project.total_amount_of_revenue_with_vat * koeff_potential * currency_rate
+                    if not next:
+                        if project.estimated_probability_id.name in ('100','100(done)'):
+                            sheet.write_number(row, column + 0, project.total_amount_of_revenue_with_vat * currency_rate, row_format_number_color_fact)
+                            sum100tmp += project.total_amount_of_revenue_with_vat * currency_rate
+                        if project.estimated_probability_id.name == '75':
+                            sheet.write_number(row, column + 1, project.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
+                            sum75tmp += project.total_amount_of_revenue_with_vat * currency_rate
+                        if project.estimated_probability_id.name == '50':
+                            sheet.write_number(row, column + 2, project.total_amount_of_revenue_with_vat * koeff_reserve * currency_rate, row_format_number)
+                            sum50tmp += project.total_amount_of_revenue_with_vat * koeff_reserve*currency_rate
+                        if project.estimated_probability_id.name == '30':
+                            sheet.write_number(row, column + 3, project.total_amount_of_revenue_with_vat * koeff_potential * currency_rate, row_format_number)
+                            sum30tmp += project.total_amount_of_revenue_with_vat * koeff_potential * currency_rate
+                    else:
+                        if project.estimated_probability_id.name == '75':
+                            sheet.write_number(row, column + 0, project.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
+                        if project.estimated_probability_id.name == '50':
+                            sheet.write_number(row, column + 1, project.total_amount_of_revenue_with_vat * koeff_reserve * currency_rate, row_format_number)
+                        if project.estimated_probability_id.name == '30':
+                            sheet.write_number(row, column + 2, project.total_amount_of_revenue_with_vat * koeff_potential * currency_rate, row_format_number)
             else:
                 # step_etalon  = self.get_etalon_step(step, self.get_quater_from_month(month))
                 # if step_etalon:
@@ -689,28 +693,31 @@ class report_budget_forecast_excel(models.AbstractModel):
                 #                                    row_format_number)
                 #                 sum50tmpetalon += project_etalon.total_amount_of_revenue_with_vat * koeff_reserve*currency_rate
 
-                if month == step.end_presale_project_month.month \
-                        and step.end_presale_project_month.year >= YEARint\
-                        and step.end_presale_project_month.year <= year_end:
+                if month == step.end_presale_project_month.month and step.end_presale_project_month.year == year:
                     currency_rate = self.get_currency_rate_by_project(step.projects_id)
-                    if step.estimated_probability_id.name in ('100','100(done)'):
-                        sheet.write_number(row, column + 0, step.total_amount_of_revenue_with_vat * currency_rate, row_format_number_color_fact)
-                        sum100tmp = step.total_amount_of_revenue_with_vat * currency_rate
-                    if step.estimated_probability_id.name == '75':
-                        sheet.write_number(row, column + 1, step.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
-                        sum75tmp = step.total_amount_of_revenue_with_vat * currency_rate
-                    if step.estimated_probability_id.name == '50':
-                        sheet.write_number(row, column + 2, step.total_amount_of_revenue_with_vat * koeff_reserve * currency_rate, row_format_number)
-                        sum50tmp = step.total_amount_of_revenue_with_vat * koeff_reserve * currency_rate
-                    if step.estimated_probability_id.name == '30':
-                        sheet.write_number(row, column + 3, step.total_amount_of_revenue_with_vat * koeff_potential * currency_rate, row_format_number)
-                        sum30tmp = step.total_amount_of_revenue_with_vat * koeff_potential * currency_rate
-
+                    if not next:
+                        if step.estimated_probability_id.name in ('100','100(done)'):
+                            sheet.write_number(row, column + 0, step.total_amount_of_revenue_with_vat * currency_rate, row_format_number_color_fact)
+                            sum100tmp = step.total_amount_of_revenue_with_vat * currency_rate
+                        if step.estimated_probability_id.name == '75':
+                            sheet.write_number(row, column + 1, step.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
+                            sum75tmp = step.total_amount_of_revenue_with_vat * currency_rate
+                        if step.estimated_probability_id.name == '50':
+                            sheet.write_number(row, column + 2, step.total_amount_of_revenue_with_vat * koeff_reserve * currency_rate, row_format_number)
+                            sum50tmp = step.total_amount_of_revenue_with_vat * koeff_reserve * currency_rate
+                        if step.estimated_probability_id.name == '30':
+                            sheet.write_number(row, column + 3, step.total_amount_of_revenue_with_vat * koeff_potential * currency_rate, row_format_number)
+                            sum30tmp = step.total_amount_of_revenue_with_vat * koeff_potential * currency_rate
+                    else:
+                        if step.estimated_probability_id.name == '75':
+                            sheet.write_number(row, column + 0, step.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
+                        if step.estimated_probability_id.name == '50':
+                            sheet.write_number(row, column + 1, step.total_amount_of_revenue_with_vat * koeff_reserve * currency_rate, row_format_number)
+                        if step.estimated_probability_id.name == '30':
+                            sheet.write_number(row, column + 2, step.total_amount_of_revenue_with_vat * koeff_potential * currency_rate, row_format_number)
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp, sum30tmp
 
-    def print_month_pds_project(self, sheet, row, column, month, project, step, row_format_number, row_format_number_color_fact):
-        global YEARint
-        global year_end
+    def print_month_pds_project(self, sheet, row, column, month, project, step, year, row_format_number, row_format_number_color_fact, next):
         global koeff_reserve
 
         sum75tmpetalon = sum50tmpetalon = sum100tmp = sum75tmp = sum50tmp = 0
@@ -729,12 +736,13 @@ class report_budget_forecast_excel(models.AbstractModel):
             #     sheet.write_number(row, column + 1, sum.get('reserve', 0) * koeff_reserve, row_format_number)
             #     sum50tmpetalon += sum.get('reserve', 0) * koeff_reserve
 
-            sum100tmp = self.get_sum_fact_pds_project_step_month(project, step, month)
+            sum100tmp = self.get_sum_fact_pds_project_step_month(project, step, year, month)
 
             if sum100tmp:
-                sheet.write_number(row, column + 0, sum100tmp, row_format_number_color_fact)
+                if not next:
+                    sheet.write_number(row, column + 0, sum100tmp, row_format_number_color_fact)
 
-            sum = self.get_sum_plan_pds_project_step_month(project, step, month)
+            sum = self.get_sum_plan_pds_project_step_month(project, step, year, month)
             # print('----- project.id=',project.id)
             # print('sum100tmp = ',sum100tmp)
             # print('sum = ', sum)
@@ -754,9 +762,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             for planned_cash_flow in project.planned_cash_flow_ids:
                 if step:
                     if planned_cash_flow.project_steps_id.id != step.id: continue
-                if planned_cash_flow.date_cash.month == month \
-                        and planned_cash_flow.date_cash.year >= YEARint\
-                        and planned_cash_flow.date_cash.year <= year_end:
+                if planned_cash_flow.date_cash.month == month and planned_cash_flow.date_cash.year == year:
                     sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
                     if planned_cash_flow.forecast == 'from_project':
 
@@ -778,16 +784,20 @@ class report_budget_forecast_excel(models.AbstractModel):
                         sum[key] = 0
 
             if sum:
-                sheet.write_number(row, column + 1, sum.get('commitment', 0), row_format_number)
-                sum75tmp += sum.get('commitment', 0)
-                sheet.write_number(row, column + 2, sum.get('reserve', 0) * koeff_reserve, row_format_number)
-                sum50tmp += sum.get('reserve', 0) * koeff_reserve
+                if not next:
+                    sheet.write_number(row, column + 1, sum.get('commitment', 0), row_format_number)
+                    sum75tmp += sum.get('commitment', 0)
+                    sheet.write_number(row, column + 2, sum.get('reserve', 0) * koeff_reserve, row_format_number)
+                    sum50tmp += sum.get('reserve', 0) * koeff_reserve
+                else:
+                    sheet.write_number(row, column + 0, sum.get('commitment', 0), row_format_number)
+                    sum75tmp += sum.get('commitment', 0)
+                    sheet.write_number(row, column + 1, sum.get('reserve', 0) * koeff_reserve, row_format_number)
+                    sum50tmp += sum.get('reserve', 0) * koeff_reserve
 
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
-    def get_sum_fact_acceptance_project_step_quater(self, project, step, element_name):
-        global YEARint
-        global year_end
+    def get_sum_fact_acceptance_project_step_quater(self, project, step, year, element_name):
         sum_cash = 0
         months = self.get_months_from_quater(element_name)
         if months:
@@ -796,25 +806,21 @@ class report_budget_forecast_excel(models.AbstractModel):
                 for acceptance in acceptance_list:
                     if step:
                         if acceptance.project_steps_id.id != step.id: continue
-                    if acceptance.date_cash.month in months \
-                            and acceptance.date_cash.year >= YEARint\
-                            and acceptance.date_cash.year <= year_end:
+                    if acceptance.date_cash.month in months and acceptance.date_cash.year == year:
                         sum_cash += acceptance.sum_cash_without_vat
         return sum_cash
 
-    def get_sum_fact_margin_project_step_quarter(self, project, step, element_name):
-        global YEARint
-        global year_end
+    def get_sum_fact_margin_project_step_quarter(self, project, step, year, element_name):
         sum_cash = 0
         months = self.get_months_from_quater(element_name)
         if project.is_parent_project:
             for child_project in project.child_project_ids:
                 if child_project.project_have_steps:
                     for child_step in child_project.project_steps_ids:
-                        sum_cash += self.get_sum_fact_margin_project_step_quarter(child_project, child_step,
+                        sum_cash += self.get_sum_fact_margin_project_step_quarter(child_project, child_step, year,
                                                                                   element_name) * child_project.margin_rate_for_parent
                 else:
-                    sum_cash += self.get_sum_fact_margin_project_step_quarter(child_project, False, element_name) * child_project.margin_rate_for_parent
+                    sum_cash += self.get_sum_fact_margin_project_step_quarter(child_project, False, year, element_name) * child_project.margin_rate_for_parent
             return sum_cash
         if months:
             acceptance_list = project.fact_acceptance_flow_ids
@@ -822,15 +828,11 @@ class report_budget_forecast_excel(models.AbstractModel):
                 for acceptance in acceptance_list:
                     if step:
                         if acceptance.project_steps_id.id != step.id: continue
-                    if acceptance.date_cash.month in months \
-                            and acceptance.date_cash.year >= YEARint\
-                            and acceptance.date_cash.year <= year_end:
+                    if acceptance.date_cash.month in months and acceptance.date_cash.year == year:
                         sum_cash += acceptance.margin
         return sum_cash
 
-    def get_sum_planned_acceptance_project_step_quater(self, project, step, element_name):
-        global YEARint
-        global year_end
+    def get_sum_planned_acceptance_project_step_quater(self, project, step, year, element_name):
         sum_acceptance = {'commitment': 0, 'reserve':0, 'potential': 0}
 
         months = self.get_months_from_quater(element_name)
@@ -841,9 +843,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 for acceptance in acceptance_list:
                     if step:
                         if acceptance.project_steps_id.id != step.id: continue
-                    if acceptance.date_cash.month in months \
-                            and acceptance.date_cash.year >= YEARint\
-                            and acceptance.date_cash.year <= year_end:
+                    if acceptance.date_cash.month in months and acceptance.date_cash.year == year:
                         if acceptance.forecast == 'from_project':
                             if step:
                                 estimated_probability_id_name = step.estimated_probability_id.name
@@ -858,9 +858,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                             sum_acceptance[acceptance.forecast] = sum_acceptance.get(acceptance.forecast, 0) + acceptance.sum_cash_without_vat
         return sum_acceptance
 
-    def get_sum_planned_margin_project_step_quater(self, project, step, element_name):
-        global YEARint
-        global year_end
+    def get_sum_planned_margin_project_step_quater(self, project, step, year, element_name):
         sum_margin = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
         months = self.get_months_from_quater(element_name)
@@ -869,11 +867,11 @@ class report_budget_forecast_excel(models.AbstractModel):
                 if child_project.project_have_steps:
                     for child_step in child_project.project_steps_ids:
                         for key in sum_margin:
-                            sum_margin[key] += self.get_sum_planned_margin_project_step_quater(child_project, child_step,
+                            sum_margin[key] += self.get_sum_planned_margin_project_step_quater(child_project, child_step, year,
                                                                                   element_name)[key] * child_project.margin_rate_for_parent
                 else:
                     for key in sum_margin:
-                        sum_margin[key] += self.get_sum_planned_margin_project_step_quater(child_project, False, element_name)[key] * child_project.margin_rate_for_parent
+                        sum_margin[key] += self.get_sum_planned_margin_project_step_quater(child_project, False, year, element_name)[key] * child_project.margin_rate_for_parent
             return sum_margin
         if months:
             acceptance_list = project.planned_acceptance_flow_ids
@@ -886,9 +884,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                     else:
                         estimated_probability_id_name = project.estimated_probability_id.name
                         profitability = project.profitability
-                    if acceptance.date_cash.month in months \
-                            and acceptance.date_cash.year >= YEARint\
-                            and acceptance.date_cash.year <= year_end:
+                    if acceptance.date_cash.month in months and acceptance.date_cash.year == year:
                         if acceptance.forecast == 'from_project':
                             if estimated_probability_id_name in ('75', '100', '100(done)'):
                                 sum_margin['commitment'] += acceptance.sum_cash_without_vat * profitability / 100
@@ -916,7 +912,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             margin_plan[planned_acceptance.forecast] -= margin_distribution * margin_rate_for_parent
         return  margin_plan
 
-    def get_sum_planned_acceptance_project_step_from_distribution(self, project, step, element_name):
+    def get_sum_planned_acceptance_project_step_from_distribution(self, project, step, year, element_name):
         # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
         sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
         sum_distribution_acceptance = 0
@@ -924,9 +920,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         for planned_acceptance_flow in project.planned_acceptance_flow_ids:
             if step:
                 if planned_acceptance_flow.project_steps_id.id != step.id: continue
-            if planned_acceptance_flow.date_cash.month in months \
-                    and planned_acceptance_flow.date_cash.year >= YEARint \
-                    and planned_acceptance_flow.date_cash.year <= year_end:
+            if planned_acceptance_flow.date_cash.month in months and planned_acceptance_flow.date_cash.year == year:
                 sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
 
                 if planned_acceptance_flow.forecast == 'from_project':
@@ -950,7 +944,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         else:
             return False
 
-    def get_sum_planned_margin_project_step_from_distribution(self, project, step, element_name, margin_plan, margin_rate_for_parent):
+    def get_sum_planned_margin_project_step_from_distribution(self, project, step, year, element_name, margin_plan, margin_rate_for_parent):
         # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
         sum_distribution_acceptance = 0
         new_margin_plan = margin_plan.copy()
@@ -960,12 +954,12 @@ class report_budget_forecast_excel(models.AbstractModel):
             for child_project in project.child_project_ids:
                 if child_project.project_have_steps:
                     for child_step in child_project.project_steps_ids:
-                        new_margin_plan =  self.get_sum_planned_margin_project_step_from_distribution(child_project, child_step,
+                        new_margin_plan =  self.get_sum_planned_margin_project_step_from_distribution(child_project, child_step, year,
                                                                               element_name, margin_plan, child_project.margin_rate_for_parent)
                         if new_margin_plan:
                             margin_plan = new_margin_plan
                 else:
-                    new_margin_plan = self.get_sum_planned_margin_project_step_from_distribution(child_project, False, element_name, margin_plan, child_project.margin_rate_for_parent)
+                    new_margin_plan = self.get_sum_planned_margin_project_step_from_distribution(child_project, False, year, element_name, margin_plan, child_project.margin_rate_for_parent)
                     if new_margin_plan:
                         margin_plan = new_margin_plan
 
@@ -974,9 +968,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         for planned_acceptance_flow in project.planned_acceptance_flow_ids:
             if step:
                 if planned_acceptance_flow.project_steps_id.id != step.id: continue
-            if planned_acceptance_flow.date_cash.month in months \
-                    and planned_acceptance_flow.date_cash.year >= YEARint \
-                    and planned_acceptance_flow.date_cash.year <= year_end:
+            if planned_acceptance_flow.date_cash.month in months and planned_acceptance_flow.date_cash.year == year:
                 sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
 
                 new_margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow, new_margin_plan, project,
@@ -986,9 +978,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         else:
             return False
 
-    def print_quater_planned_acceptance_project(self, sheet, row, column, element_name, project, step, row_format_number, row_format_number_color_fact):
-        global YEARint
-        global year_end
+    def print_quater_planned_acceptance_project(self, sheet, row, column, element_name, project, step, year, row_format_number, row_format_number_color_fact,margin_shift,next):
 
         sum75tmpetalon = sum50tmpetalon = sum100tmp = sum75tmp = sum50tmp = 0
         if element_name in ('Q1','Q2','Q3','Q4'):
@@ -1018,17 +1008,17 @@ class report_budget_forecast_excel(models.AbstractModel):
             #     sheet.write_number(row, column + 1 + margin_shift , margin_sum.get('reserve', 0) * koeff_reserve * margin_rate_for_child, row_format_number)
             #     sum50tmpetalon += sum.get('reserve', 0) * koeff_reserve
 
-            sum100tmp = self.get_sum_fact_acceptance_project_step_quater(project, step, element_name)
-            margin100tmp = self.get_sum_fact_margin_project_step_quarter(project, step, element_name)
+            sum100tmp = self.get_sum_fact_acceptance_project_step_quater(project, step, year, element_name)
+            margin100tmp = self.get_sum_fact_margin_project_step_quarter(project, step, year, element_name)
 
-            if sum100tmp:
-                sheet.write_number(row, column + 0, sum100tmp, row_format_number_color_fact)
+            if not next:
+                if sum100tmp:
+                    sheet.write_number(row, column + 0, sum100tmp, row_format_number_color_fact)
+                if margin100tmp:
+                    sheet.write_number(row, column + 0 + margin_shift, margin100tmp * margin_rate_for_child, row_format_number_color_fact)
 
-            if margin100tmp:
-                sheet.write_number(row, column + 0 + margin_shift, margin100tmp * margin_rate_for_child, row_format_number_color_fact)
-
-            sum = self.get_sum_planned_acceptance_project_step_quater(project, step, element_name)
-            margin_sum = self.get_sum_planned_margin_project_step_quater(project, step, element_name)
+            sum = self.get_sum_planned_acceptance_project_step_quater(project, step, year, element_name)
+            margin_sum = self.get_sum_planned_margin_project_step_quater(project, step, year, element_name)
 
             margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
@@ -1051,8 +1041,8 @@ class report_budget_forecast_excel(models.AbstractModel):
                 else:
                     margin_sum['commitment'] = margin_plan['commitment'] - margin100tmp
 
-            sum_ostatok_acceptance = self.get_sum_planned_acceptance_project_step_from_distribution(project, step, element_name)
-            new_margin_plan = self.get_sum_planned_margin_project_step_from_distribution(project, step, element_name, margin_plan, 1)
+            sum_ostatok_acceptance = self.get_sum_planned_acceptance_project_step_from_distribution(project, step, year, element_name)
+            new_margin_plan = self.get_sum_planned_margin_project_step_from_distribution(project, step, year, element_name, margin_plan, 1)
 
             if sum_ostatok_acceptance:
                 sum = sum_ostatok_acceptance
@@ -1065,12 +1055,20 @@ class report_budget_forecast_excel(models.AbstractModel):
                     margin_sum[key] = max(margin_sum[key], 0)
 
             if sum:
-                sheet.write_number(row, column + 1, sum.get('commitment', 0), row_format_number)
-                sheet.write_number(row, column + 1 + margin_shift, margin_sum.get('commitment', 0) * margin_rate_for_child, row_format_number)
-                sum75tmp += sum.get('commitment', 0)
-                sheet.write_number(row, column + 2, sum.get('reserve', 0) * koeff_reserve, row_format_number)
-                sheet.write_number(row, column + 2 + margin_shift, margin_sum.get('reserve', 0) * koeff_reserve * margin_rate_for_child, row_format_number)
-                sum50tmp += sum.get('reserve', 0) * koeff_reserve
+                if not next:
+                    sheet.write_number(row, column + 1, sum.get('commitment', 0), row_format_number)
+                    sheet.write_number(row, column + 1 + margin_shift, margin_sum.get('commitment', 0) * margin_rate_for_child, row_format_number)
+                    sum75tmp += sum.get('commitment', 0)
+                    sheet.write_number(row, column + 2, sum.get('reserve', 0) * koeff_reserve, row_format_number)
+                    sheet.write_number(row, column + 2 + margin_shift, margin_sum.get('reserve', 0) * koeff_reserve * margin_rate_for_child, row_format_number)
+                    sum50tmp += sum.get('reserve', 0) * koeff_reserve
+                else:
+                    sheet.write_number(row, column + 0, sum.get('commitment', 0), row_format_number)
+                    sheet.write_number(row, column + 0 + margin_shift, margin_sum.get('commitment', 0) * margin_rate_for_child, row_format_number)
+                    sum75tmp += sum.get('commitment', 0)
+                    sheet.write_number(row, column + 1, sum.get('reserve', 0) * koeff_reserve, row_format_number)
+                    sheet.write_number(row, column + 1 + margin_shift, margin_sum.get('reserve', 0) * koeff_reserve * margin_rate_for_child, row_format_number)
+                    sum50tmp += sum.get('reserve', 0) * koeff_reserve
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
     def get_month_number_rus(self, monthNameRus):
@@ -1088,7 +1086,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         if monthNameRus == 'Декабрь' : return 12
         return False
 
-    def print_row_values(self, workbook, sheet, row, column,  project, step):
+    def print_row_values(self, workbook, sheet, row, column,  project, step, margin_shift, next_margin_shift):
         global YEARint
         global year_end
 
@@ -1150,6 +1148,16 @@ class report_budget_forecast_excel(models.AbstractModel):
         sumYear50 = 0
         sumYear30 = 0
 
+        for shifts in plan_shift.values():
+            sheet.write_string(row, shifts['NEXT'], "", head_format_month_itogo)
+            sheet.write_string(row, shifts['AFTER_NEXT'], "", head_format_month_itogo)
+        sheet.write_string(row, 217 + 0, "", row_format_number)
+        sheet.write_string(row, 217 + 1, "", row_format_number)
+        sheet.write_string(row, 217 + 2, "", row_format_number)
+        sheet.write_string(row, 232 + 0, "", row_format_number)
+        sheet.write_string(row, 232 + 1, "", row_format_number)
+        sheet.write_string(row, 232 + 2, "", row_format_number)
+
         # печать Контрактование, с НДС
         for element in self.month_rus_name_contract_pds:
             column += 1
@@ -1165,7 +1173,11 @@ class report_budget_forecast_excel(models.AbstractModel):
             fact_columns.add(column)
 
             sumQ75tmpetalon, sumQ50tmpetalon, sumQ100tmp, sumQ75tmp, sumQ50tmp, sumQ30tmp= self.print_month_revenue_project(sheet, row, column, self.get_month_number_rus(element),
-                                                                                    project,step, row_format_number, row_format_number_color_fact)
+                                                                                    project,step, YEARint, row_format_number, row_format_number_color_fact, False)
+            _, _, _, _, _, _= self.print_month_revenue_project(sheet, row, 217, self.get_month_number_rus(element),
+                                                                                    project,step, YEARint + 1, row_format_number, row_format_number_color_fact, True)
+            _, _, _, _, _, _= self.print_month_revenue_project(sheet, row, 232, self.get_month_number_rus(element),
+                                                                                    project,step, YEARint + 2, row_format_number, row_format_number_color_fact, True)
             sumQ75etalon += sumQ75tmpetalon
             sumQ50etalon += sumQ50tmpetalon
             sumQ100 += sumQ100tmp
@@ -1265,7 +1277,11 @@ class report_budget_forecast_excel(models.AbstractModel):
 
 
             sumQ75tmpetalon, sumQ50tmpetalon, sumQ100tmp, sumQ75tmp, sumQ50tmp = self.print_month_pds_project(sheet, row, column, self.get_month_number_rus(element)
-                                                                                        ,project, step, row_format_number, row_format_number_color_fact)
+                                                                                        ,project, step, YEARint, row_format_number, row_format_number_color_fact, False)
+            _, _, _, _, _ = self.print_month_pds_project(sheet, row, 221, self.get_month_number_rus(element)
+                                                                                        ,project, step, YEARint + 1, row_format_number, row_format_number_color_fact, True)
+            _, _, _, _, _ = self.print_month_pds_project(sheet, row, 236, self.get_month_number_rus(element)
+                                                                                        ,project, step, YEARint + 2, row_format_number, row_format_number_color_fact, True)
 
             sumQ75etalon += sumQ75tmpetalon
             sumQ50etalon += sumQ50tmpetalon
@@ -1381,7 +1397,9 @@ class report_budget_forecast_excel(models.AbstractModel):
             fact_columns.add(column + margin_shift)
 
             sumQ75etalon, sumQ50etalon, sumQ100, sumQ75, sumQ50 = self.print_quater_planned_acceptance_project(sheet,row,column,element
-                                                                                                              ,project,step,row_format_number,row_format_number_color_fact)
+                                                                                                              ,project,step,YEARint,row_format_number,row_format_number_color_fact,margin_shift, False)
+            _, _, _, _, _ = self.print_quater_planned_acceptance_project(sheet,row,224,element,project,step,YEARint + 1,row_format_number,row_format_number_color_fact,next_margin_shift, True)
+            _, _, _, _, _ = self.print_quater_planned_acceptance_project(sheet,row,239,element,project,step,YEARint + 2,row_format_number,row_format_number_color_fact,next_margin_shift, True)
 
             sumHY100etalon += sumQ100etalon
             sumHY75etalon += sumQ75etalon
@@ -1469,38 +1487,9 @@ class report_budget_forecast_excel(models.AbstractModel):
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 15), xl_col_to_name(column - 2))
                 sheet.write_formula(row, column + 2, formula, row_format_number)
 
-                #  Потенциал валовой выручки
-                year_acceptance_30 = 0
-                if step:
-                    potential_acceptances = self.env['project_budget.planned_acceptance_flow'].search(['&', '&', '&',
-                        ('project_steps_id', '=', step.id),
-                        ('date_cash', '>=', datetime.date(YEARint, 1, 1)),
-                        ('date_cash', '<=', datetime.date(year_end, 12, 31)),
-                        '|', ('forecast', '=', 'potential'),
-                        '&', ('forecast', '=', 'from_project'),
-                        ('project_steps_id.estimated_probability_id.name', '=', '30'),
-                    ])
-                    if potential_acceptances:
-                        for acceptance in potential_acceptances:
-                            year_acceptance_30 += acceptance.sum_cash_without_vat
-                    elif step.estimated_probability_id.name == '30' and YEARint <= step.end_sale_project_month.year <= year_end:
-                        year_acceptance_30 = step.total_amount_of_revenue
-                else:
-                    potential_acceptances = self.env['project_budget.planned_acceptance_flow'].search(['&', '&', '&',
-                        ('projects_id', '=', project.id),
-                        ('date_cash', '>=', datetime.date(YEARint, 1, 1)),
-                        ('date_cash', '<=', datetime.date(year_end, 12, 31)),
-                        '|', ('forecast', '=', 'potential'),
-                        '&', ('forecast', '=', 'from_project'),
-                        ('projects_id.estimated_probability_id.name', '=', '30'),
-                    ])
-                    if potential_acceptances:
-                        for acceptance in potential_acceptances:
-                            year_acceptance_30 += acceptance.sum_cash_without_vat
-                    elif project.estimated_probability_id.name == '30' and YEARint <= project.end_sale_project_month.year <= year_end:
-                        year_acceptance_30 = project.total_amount_of_revenue
-
-                sheet.write_number(row, column + 3, year_acceptance_30, row_format_number)
+                self.print_acceptance_potential(sheet, row, column, project, step, YEARint, row_format_number)
+                self.print_acceptance_potential(sheet, row, 223, project, step, YEARint + 1, row_format_number)
+                self.print_acceptance_potential(sheet, row, 238, project, step, YEARint + 2, row_format_number)
 
                 # formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 25 + margin_shift), xl_col_to_name(column - 6 + margin_shift))
                 # sheet.write_formula(row, column + 0 + margin_shift, formula, row_format_number)
@@ -1516,12 +1505,63 @@ class report_budget_forecast_excel(models.AbstractModel):
             column += 2
         # end Валовая Выручка, без НДС
 
+    def print_acceptance_potential(self, sheet, row, column, project, step, year, format):
+        year_acceptance_30 = 0
+        if step:
+            potential_acceptances = self.env['project_budget.planned_acceptance_flow'].search(['&', '&', '&',
+                                                                                               ('project_steps_id', '=',
+                                                                                                step.id),
+                                                                                               ('date_cash', '>=',
+                                                                                                datetime.date(year,
+                                                                                                              1, 1)),
+                                                                                               ('date_cash', '<=',
+                                                                                                datetime.date(year,
+                                                                                                              12, 31)),
+                                                                                               '|', ('forecast', '=',
+                                                                                                     'potential'),
+                                                                                               '&', ('forecast', '=',
+                                                                                                     'from_project'),
+                                                                                               (
+                                                                                               'project_steps_id.estimated_probability_id.name',
+                                                                                               '=', '30'),
+                                                                                               ])
+            if potential_acceptances:
+                for acceptance in potential_acceptances:
+                    year_acceptance_30 += acceptance.sum_cash_without_vat
+            elif step.estimated_probability_id.name == '30' and step.end_sale_project_month.year == year:
+                year_acceptance_30 = step.total_amount_of_revenue
+        else:
+            potential_acceptances = self.env['project_budget.planned_acceptance_flow'].search(['&', '&', '&',
+                                                                                               ('projects_id', '=',
+                                                                                                project.id),
+                                                                                               ('date_cash', '>=',
+                                                                                                datetime.date(year,
+                                                                                                              1, 1)),
+                                                                                               ('date_cash', '<=',
+                                                                                                datetime.date(year,
+                                                                                                              12, 31)),
+                                                                                               '|', ('forecast', '=',
+                                                                                                     'potential'),
+                                                                                               '&', ('forecast', '=',
+                                                                                                     'from_project'),
+                                                                                               (
+                                                                                               'projects_id.estimated_probability_id.name',
+                                                                                               '=', '30'),
+                                                                                               ])
+            if potential_acceptances:
+                for acceptance in potential_acceptances:
+                    year_acceptance_30 += acceptance.sum_cash_without_vat
+            elif project.estimated_probability_id.name == '30' and project.end_sale_project_month.year == year:
+                year_acceptance_30 = project.total_amount_of_revenue
+
+        sheet.write_number(row, column + 3, year_acceptance_30, format)
+
     def print_estimated_rows(self, sheet, row, format, format_cross):
 
         for colFormula in range(2, 9):
             sheet.write_string(row, colFormula, '', format)
 
-        for colFormula in range(9, 215):
+        for colFormula in list(range(9, 215)) + list(range(216, 230)) + list(range(231, 245)):
             sheet.write_string(row, colFormula, '', format)
 
         for type in plan_shift:  # формулы расчетных планов
@@ -1533,7 +1573,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 elif type == 'pds':
                     start_column += 83
                     width = 3
-                for element in range(19):
+                for element in range(len(self.month_rus_name_contract_pds)):
                     if element in [3, 7, 8, 12, 16, 17, 18]:  # учитываем колонки планов
                         shift += 1
                     formula = '=({1}{0}+{2}{0})*D1+{3}{0}*D2'.format(
@@ -1561,7 +1601,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 elif type == 'margin':
                     start_column += 178
                     width = 4
-                for element in range(7):
+                for element in range(len(self.month_rus_name_revenue_margin)):
                     if element in [5]:  # учитываем колонки планов
                         shift += 1
                     formula = '=({1}{0}+{2}{0})*D1+{3}{0}*D2'.format(
@@ -1581,6 +1621,22 @@ class report_budget_forecast_excel(models.AbstractModel):
                 if type == 'acceptance':
                     sheet.write_string(row, start_column + shift + element * width + 3, '',
                                        format_cross)
+        for type,shifts in plan_shift.items():
+            formula = '={1}{0}*D1+{2}{0}*D2'.format(
+                row,
+                xl_col_to_name(shifts['NEXT'] + 1),
+                xl_col_to_name(shifts['NEXT'] + 2),
+            )
+            sheet.merge_range(row, shifts['NEXT'] + 1, row, shifts['NEXT'] + 2, formula, format)
+            formula = '={1}{0}*D1+{2}{0}*D2'.format(
+                row,
+                xl_col_to_name(shifts['AFTER_NEXT'] + 1),
+                xl_col_to_name(shifts['AFTER_NEXT'] + 2),
+            )
+            sheet.merge_range(row, shifts['AFTER_NEXT'] + 1, row, shifts['AFTER_NEXT'] + 2, formula, format)
+            if type in ('revenue', 'acceptance'):
+                sheet.write_string(row, shifts['NEXT'] + 3, '', format_cross)
+                sheet.write_string(row, shifts['AFTER_NEXT'] + 3, '', format_cross)
 
     def print_row(self, sheet, workbook, project_offices, project_managers, estimated_probabilitys, budget, row, formulaItogo, level):
         global YEARint
@@ -1848,7 +1904,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                             or ((not spec.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and spec.project_office_id == project_office)):
 
                                         if step.estimated_probability_id == estimated_probability:
-                                            if self.isStepinYear( spec, step) == False:
+                                            if self.isStepinYear(spec, step) == False:
                                                 continue
                                             isFoundProjectsByManager = True
                                             isFoundProjectsByOffice = True
@@ -1887,7 +1943,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                             sheet.write_number(row, column, step.profitability, cur_row_format_number)
                                             column += 1
                                             sheet.write_string(row, column, '', head_format_1)
-                                            self.print_row_values(workbook, sheet, row, column,  spec, step)
+                                            self.print_row_values(workbook, sheet, row, column,  spec, step, 30, 4)
                                             dict_formula['printed_steps'].add(step.id)
                             else:
                                 if spec.project_office_id == project_office and spec.estimated_probability_id == estimated_probability:
@@ -1926,7 +1982,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                     sheet.write_number(row, column, spec.profitability, cur_row_format_number)
                                     column += 1
                                     sheet.write_string(row, column, '', head_format_1)
-                                    self.print_row_values(workbook, sheet, row, column,  spec, False)
+                                    self.print_row_values(workbook, sheet, row, column,  spec, False, 30, 4)
                                     dict_formula['printed_projects'].add(spec.id)
 
                     if isFoundProjectsByProbability:
@@ -1941,15 +1997,13 @@ class report_budget_forecast_excel(models.AbstractModel):
                         formulaProjectManager = formulaProjectManager + ',{0}' + str(row + 1)
                         for colFormula in range(2, 9):
                             sheet.write_string(row, colFormula, '', row_format_probability)
-                        for colFormula in range(9, 215):
+                        for colFormula in list(range(9, 215)) + list(range(216, 230)) + list(range(231, 245)):
                             formula = '=sum({2}{0}:{2}{1})'.format(begRowProjectsByProbability + 2, row,
                                                                    xl_col_to_name(colFormula))
-                            sheet.write_formula(row, colFormula, formula, row_format_probability)
-
-                        if estimated_probability.name not in ('100', '100(done)'): # кресты в фактах где вероятности < 100
-                            for c in fact_columns:
-                                sheet.write_string(row, c, '', row_format_fact_cross)
-
+                            if colFormula in fact_columns and estimated_probability.name not in ('100', '100(done)'):
+                                sheet.write_formula(row, colFormula, formula, row_format_fact_cross)  # кресты в фактах где вероятности < 100
+                            else:
+                                sheet.write_formula(row, colFormula, formula, row_format_probability)
 
                         for type in plan_shift: # кресты в планах
                             for c in plan_shift[type].values():
@@ -1969,7 +2023,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                     for colFormula in range(2, 9):
                         sheet.write_string(row, colFormula, '', row_format_manager)
 
-                    for colFormula in range(9, 215):
+                    for colFormula in list(range(9, 215)) + list(range(216, 230)) + list(range(231, 245)):
                         formula = formulaProjectManager.format(xl_col_to_name(colFormula)) + ')'
                         sheet.write_formula(row, colFormula, formula, row_format_manager)
 
@@ -2009,6 +2063,47 @@ class report_budget_forecast_excel(models.AbstractModel):
                         ('type_row', '=', 'margin_income'),
                     ])
 
+                    plan_revenue_next = self.env['project_budget.budget_plan_kam_spec'].search([
+                        ('budget_plan_kam_id.year', '=', YEARint + 1),
+                        ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                        ('type_row', '=', 'contracting'),
+                    ])
+                    plan_pds_next = self.env['project_budget.budget_plan_kam_spec'].search([
+                        ('budget_plan_kam_id.year', '=', YEARint + 1),
+                        ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                        ('type_row', '=', 'cash'),
+                    ])
+                    plan_acceptance_next = self.env['project_budget.budget_plan_kam_spec'].search([
+                        ('budget_plan_kam_id.year', '=', YEARint + 1),
+                        ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                        ('type_row', '=', 'acceptance'),
+                    ])
+                    plan_margin_next = self.env['project_budget.budget_plan_kam_spec'].search([
+                        ('budget_plan_kam_id.year', '=', YEARint + 1),
+                        ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                        ('type_row', '=', 'margin_income'),
+                    ])
+                    plan_revenue_after_next = self.env['project_budget.budget_plan_kam_spec'].search([
+                        ('budget_plan_kam_id.year', '=', YEARint + 2),
+                        ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                        ('type_row', '=', 'contracting'),
+                    ])
+                    plan_pds_after_next = self.env['project_budget.budget_plan_kam_spec'].search([
+                        ('budget_plan_kam_id.year', '=', YEARint + 2),
+                        ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                        ('type_row', '=', 'cash'),
+                    ])
+                    plan_acceptance_after_next = self.env['project_budget.budget_plan_kam_spec'].search([
+                        ('budget_plan_kam_id.year', '=', YEARint + 2),
+                        ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                        ('type_row', '=', 'acceptance'),
+                    ])
+                    plan_margin_after_next = self.env['project_budget.budget_plan_kam_spec'].search([
+                        ('budget_plan_kam_id.year', '=', YEARint + 2),
+                        ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                        ('type_row', '=', 'margin_income'),
+                    ])
+
                     for plan in (
                             {'column': plan_shift['revenue']['Q1'], 'formula': f'{plan_revenue.q1_plan}'},
                             {'column': plan_shift['revenue']['Q2'], 'formula': f'{plan_revenue.q2_plan}'},
@@ -2030,6 +2125,22 @@ class report_budget_forecast_excel(models.AbstractModel):
                             {'column': plan_shift['margin']['Q4'], 'formula': f'{plan_margin.q4_plan}'},
                             {'column': plan_shift['margin']['6+6'],
                              'formula': f'{plan_margin.q3_plan_6_6} + {plan_margin.q4_plan_6_6}'},
+                            {'column': plan_shift['revenue']['NEXT'],
+                             'formula': f'{plan_revenue_next.q1_plan + plan_revenue_next.q2_plan + plan_revenue_next.q3_plan + plan_revenue_next.q4_plan}'},
+                            {'column': plan_shift['pds']['NEXT'],
+                             'formula': f'{plan_pds_next.q1_plan + plan_pds_next.q2_plan + plan_pds_next.q3_plan + plan_pds_next.q4_plan}'},
+                            {'column': plan_shift['acceptance']['NEXT'],
+                             'formula': f'{plan_acceptance_next.q1_plan + plan_acceptance_next.q2_plan + plan_acceptance_next.q3_plan + plan_acceptance_next.q4_plan}'},
+                            {'column': plan_shift['margin']['NEXT'],
+                             'formula': f'{plan_margin_next.q1_plan + plan_margin_next.q2_plan + plan_margin_next.q3_plan + plan_margin_next.q4_plan}'},
+                            {'column': plan_shift['revenue']['AFTER_NEXT'],
+                             'formula': f'{plan_revenue_after_next.q1_plan + plan_revenue_after_next.q2_plan + plan_revenue_after_next.q3_plan + plan_revenue_after_next.q4_plan}'},
+                            {'column': plan_shift['pds']['AFTER_NEXT'],
+                             'formula': f'{plan_pds_after_next.q1_plan + plan_pds_after_next.q2_plan + plan_pds_after_next.q3_plan + plan_pds_after_next.q4_plan}'},
+                            {'column': plan_shift['acceptance']['AFTER_NEXT'],
+                             'formula': f'{plan_acceptance_after_next.q1_plan + plan_acceptance_after_next.q2_plan + plan_acceptance_after_next.q3_plan + plan_acceptance_after_next.q4_plan}'},
+                            {'column': plan_shift['margin']['AFTER_NEXT'],
+                             'formula': f'{plan_margin_after_next.q1_plan + plan_margin_after_next.q2_plan + plan_margin_after_next.q3_plan + plan_margin_after_next.q4_plan}'},
                     ):
 
                         kam_formula = '(' + plan['formula'] + ')'
@@ -2090,7 +2201,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 for colFormula in range(2, 9):
                     sheet.write_string(row, colFormula, '', row_format_office)
 
-                for colFormula in range(9, 215):
+                for colFormula in list(range(9, 215)) + list(range(216, 230)) + list(range(231, 245)):
                     formula = formulaProjectOffice.format(xl_col_to_name(colFormula))
                     # print('formula = ', formula)
                     sheet.write_formula(row, colFormula, formula, row_format_office)
@@ -2131,6 +2242,46 @@ class report_budget_forecast_excel(models.AbstractModel):
                     ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
                     ('type_row', '=', 'margin_income'),
                 ])
+                plan_revenue_next = self.env['project_budget.budget_plan_supervisor_spec'].search([
+                    ('budget_plan_supervisor_id.year', '=', YEARint + 1),
+                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('type_row', '=', 'contracting'),
+                ])
+                plan_pds_next = self.env['project_budget.budget_plan_supervisor_spec'].search([
+                    ('budget_plan_supervisor_id.year', '=', YEARint + 1),
+                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('type_row', '=', 'cash'),
+                ])
+                plan_acceptance_next = self.env['project_budget.budget_plan_supervisor_spec'].search([
+                    ('budget_plan_supervisor_id.year', '=', YEARint + 1),
+                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('type_row', '=', 'acceptance'),
+                ])
+                plan_margin_next = self.env['project_budget.budget_plan_supervisor_spec'].search([
+                    ('budget_plan_supervisor_id.year', '=', YEARint + 1),
+                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('type_row', '=', 'margin_income'),
+                ])
+                plan_revenue_after_next = self.env['project_budget.budget_plan_supervisor_spec'].search([
+                    ('budget_plan_supervisor_id.year', '=', YEARint + 2),
+                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('type_row', '=', 'contracting'),
+                ])
+                plan_pds_after_next = self.env['project_budget.budget_plan_supervisor_spec'].search([
+                    ('budget_plan_supervisor_id.year', '=', YEARint + 2),
+                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('type_row', '=', 'cash'),
+                ])
+                plan_acceptance_after_next = self.env['project_budget.budget_plan_supervisor_spec'].search([
+                    ('budget_plan_supervisor_id.year', '=', YEARint + 2),
+                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('type_row', '=', 'acceptance'),
+                ])
+                plan_margin_after_next = self.env['project_budget.budget_plan_supervisor_spec'].search([
+                    ('budget_plan_supervisor_id.year', '=', YEARint + 2),
+                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('type_row', '=', 'margin_income'),
+                ])
 
                 for plan in (
                         {'column': plan_shift['revenue']['Q1'], 'formula': f'{plan_revenue.q1_plan}'},
@@ -2153,6 +2304,23 @@ class report_budget_forecast_excel(models.AbstractModel):
                         {'column': plan_shift['margin']['Q4'], 'formula': f'{plan_margin.q4_plan}'},
                         {'column': plan_shift['margin']['6+6'],
                          'formula': f'{plan_margin.q3_plan_6_6} + {plan_margin.q4_plan_6_6}'},
+                        {'column': plan_shift['revenue']['NEXT'],
+                         'formula': f'{plan_revenue_next.q1_plan + plan_revenue_next.q2_plan + plan_revenue_next.q3_plan + plan_revenue_next.q4_plan}'},
+                        {'column': plan_shift['pds']['NEXT'],
+                         'formula': f'{plan_pds_next.q1_plan + plan_pds_next.q2_plan + plan_pds_next.q3_plan + plan_pds_next.q4_plan}'},
+                        {'column': plan_shift['acceptance']['NEXT'],
+                         'formula': f'{plan_acceptance_next.q1_plan + plan_acceptance_next.q2_plan + plan_acceptance_next.q3_plan + plan_acceptance_next.q4_plan}'},
+                        {'column': plan_shift['margin']['NEXT'],
+                         'formula': f'{plan_margin_next.q1_plan + plan_margin_next.q2_plan + plan_margin_next.q3_plan + plan_margin_next.q4_plan}'},
+                        {'column': plan_shift['revenue']['AFTER_NEXT'],
+                         'formula': f'{plan_revenue_after_next.q1_plan + plan_revenue_after_next.q2_plan + plan_revenue_after_next.q3_plan + plan_revenue_after_next.q4_plan}'},
+                        {'column': plan_shift['pds']['AFTER_NEXT'],
+                         'formula': f'{plan_pds_after_next.q1_plan + plan_pds_after_next.q2_plan + plan_pds_after_next.q3_plan + plan_pds_after_next.q4_plan}'},
+                        {'column': plan_shift['acceptance']['AFTER_NEXT'],
+                         'formula': f'{plan_acceptance_after_next.q1_plan + plan_acceptance_after_next.q2_plan + plan_acceptance_after_next.q3_plan + plan_acceptance_after_next.q4_plan}'},
+                        {'column': plan_shift['margin']['AFTER_NEXT'],
+                         'formula': f'{plan_margin_after_next.q1_plan + plan_margin_after_next.q2_plan + plan_margin_after_next.q3_plan + plan_margin_after_next.q4_plan}'},
+
                 ):
 
                     child_office_formula = dict_formula.get(str_project_office_id, '')
@@ -2211,6 +2379,22 @@ class report_budget_forecast_excel(models.AbstractModel):
             'align': 'center',
             'valign': 'vcenter',
             'fg_color': '#FFFF00'
+        })
+        summary_format = workbook.add_format({
+            'bold': True,
+            'border': 1,
+            'font_size': 12,
+            'text_wrap': True,
+            'valign': 'vcenter',
+            "num_format": '#,##0',
+        })
+        summary_format_percent = workbook.add_format({
+            'bold': True,
+            'border': 1,
+            'font_size': 12,
+            'text_wrap': True,
+            'valign': 'vcenter',
+            "num_format": '0%',
         })
         head_format_1 = workbook.add_format({
             'border': 1,
@@ -2331,19 +2515,19 @@ class report_budget_forecast_excel(models.AbstractModel):
         sheet.write_string(row + 2, column, "", head_format_1)
         sheet.set_column(column, column, 21.5)
         column += 1
-        sheet.merge_range(row - 2, column, row - 1, column, "Расчетный План:", row_format)
+        sheet.merge_range(row - 2, column, row - 1, column, "Расчетный План:", summary_format)
         sheet.write_string(row + 1, column, "КАМ", head_format_1)
         sheet.write_string(row + 2, column, "", head_format_1)
         sheet.set_column(column, column, 19.75)
         column += 1
-        sheet.write_string(row - 2, column, "Обязательство", row_format)
-        sheet.write_string(row - 1, column, "Резерв", row_format)
+        sheet.write_string(row - 2, column, "Обязательство", summary_format)
+        sheet.write_string(row - 1, column, "Резерв", summary_format)
         sheet.write_string(row + 1, column, "Заказчик", head_format_1)
         sheet.write_string(row + 2, column, "", head_format_1)
         sheet.set_column(column, column, 25)
         column += 1
-        sheet.write_number(row - 2, column, 1, row_format)
-        sheet.write_number(row - 1, column, 0.6, row_format)
+        sheet.write_number(row - 2, column, 1, summary_format_percent)
+        sheet.write_number(row - 1, column, 0.6, summary_format_percent)
         sheet.write_string(row + 1, column, "Наименование Проекта", head_format_1)
         sheet.write_string(row + 2, column, "", head_format_1)
         sheet.set_column(column, column, 12.25)
@@ -2376,9 +2560,15 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         sheet.freeze_panes(5, 9)
         column += 1
-        column = self.print_month_head_contract(workbook, sheet, row, column)
-        column = self.print_month_head_pds(workbook, sheet, row, column)
-        column = self.print_month_head_revenue_margin(workbook, sheet, row, column)
+        column = self.print_month_head_contract(workbook, sheet, row, column, YEARint, self.month_rus_name_contract_pds, False)
+        column = self.print_month_head_pds(workbook, sheet, row, column, YEARint, self.month_rus_name_contract_pds, False)
+        column = self.print_month_head_revenue_margin(workbook, sheet, row, column, YEARint, self.month_rus_name_revenue_margin, False)
+        column = self.print_month_head_contract(workbook, sheet, row, column + 1, YEARint + 1, ['YEAR итого',], True)
+        column = self.print_month_head_pds(workbook, sheet, row, column, YEARint + 1, ['YEAR итого',], True)
+        column = self.print_month_head_revenue_margin(workbook, sheet, row, column, YEARint + 1, ['YEAR',], True)
+        column = self.print_month_head_contract(workbook, sheet, row, column + 1, YEARint + 2, ['YEAR итого',], True)
+        column = self.print_month_head_pds(workbook, sheet, row, column, YEARint + 2, ['YEAR итого',], True)
+        column = self.print_month_head_revenue_margin(workbook, sheet, row, column, YEARint + 2, ['YEAR',], True)
         row += 2
         project_offices = self.env['project_budget.project_office'].search([('parent_id', '=', False)], order='name')  # для сортировки так делаем + берем сначала только верхние элементы
         project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
@@ -2397,7 +2587,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             formula_plan = '=sum(,' + ','.join(('{0}' + str(int(c[3:]) + 1)) for c in dict_formula['project_office_0'].strip(',').split(',')) + ')'  # увеличиваем все номера строк на 1
         for colFormula in range(2, 9):
             sheet.write_string(row, colFormula, '', row_format_number_itogo)
-        for colFormula in range(9, 215):
+        for colFormula in list(range(9, 215)) + list(range(216, 230)) + list(range(231, 245)):
             formula = formulaItogo.format(xl_col_to_name(colFormula))
             # print('formula = ', formula)
             sheet.write_formula(row, colFormula, formula, row_format_number_itogo)
@@ -2417,6 +2607,23 @@ class report_budget_forecast_excel(models.AbstractModel):
                 sheet.write_string(row - 1, c, '', row_format_plan_cross)
                 sheet.write_formula(row, c, formula, row_format_plan)
 
+        sheet.merge_range(row + 2, 1, row + 2, 2, f'Контрактование по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format)
+        sheet.write_formula(row + 2, 3, '=CK{0}+CL{0}+CM{0}+HJ{0}+HY{0}'.format(row), summary_format)
+        sheet.merge_range(row + 3, 1, row + 3, 2, f'Контрактование Расчетный План по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format)
+        sheet.write_formula(row + 3, 3, '=CK{0}+HJ{0}+HY{0}'.format(row + 1), summary_format)
+        sheet.merge_range(row + 5, 1, row + 5, 2, f'Валовая Выручка по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format)
+        sheet.write_formula(row + 5, 3, '=GA{0}+GB{0}+GC{0}+HQ{0}+HR{0}+IF{0}+IG{0}'.format(row), summary_format)
+        sheet.merge_range(row + 6, 1, row + 6, 2, f'Валовая Выручка Расчетный План по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format)
+        sheet.write_formula(row + 6, 3, '=GA{0}+HQ{0}+IF{0}'.format(row + 1), summary_format)
+        sheet.merge_range(row + 8, 1, row + 8, 2, f'ПДС по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format)
+        sheet.write_formula(row + 8, 3, '=EX{0}+EY{0}+EZ{0}+HN{0}+HO{0}+IC{0}+ID{0}'.format(row), summary_format)
+        sheet.merge_range(row + 9, 1, row + 9, 2, f'ПДС Расчетный План по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format)
+        sheet.write_formula(row + 9, 3, '=EX{0}+HN{0}+IC{0}'.format(row + 1), summary_format)
+        sheet.merge_range(row + 11, 1, row + 11, 2, f'М1 по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format)
+        sheet.write_formula(row + 11, 3, '=HE{0}+HF{0}+HG{0}+HU{0}+HV{0}+IJ{0}+IK{0}'.format(row), summary_format)
+        sheet.merge_range(row + 12, 1, row + 12, 2, f'М1 Расчетный План по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format)
+        sheet.write_formula(row + 12, 3, '=HE{0}+HU{0}+IJ{0}'.format(row + 1), summary_format)
+
         print('dict_formula = ', dict_formula)
 
     def generate_xlsx_report(self, workbook, data, budgets):
@@ -2434,7 +2641,6 @@ class report_budget_forecast_excel(models.AbstractModel):
         global fact_columns
         koeff_reserve = data['koeff_reserve']
         koeff_potential = data['koeff_potential']
-        margin_shift = 30
         fact_columns = set()
 
         plan_shift = {
@@ -2446,6 +2652,8 @@ class report_budget_forecast_excel(models.AbstractModel):
                 'Q4': 21 + 56,
                 'HY2': 21 + 61,
                 'Y': 21 + 66,
+                'NEXT': 216,
+                'AFTER_NEXT': 231,
             },
             'pds': {
                 'Q1': 101,
@@ -2455,6 +2663,8 @@ class report_budget_forecast_excel(models.AbstractModel):
                 'Q4': 101 + 43,
                 'HY2': 101 + 47,
                 'Y': 101 + 51,
+                'NEXT': 220,
+                'AFTER_NEXT': 235,
             },
             'acceptance': {
                 'Q1': 156,
@@ -2465,6 +2675,8 @@ class report_budget_forecast_excel(models.AbstractModel):
                 'HY2': 156 + 20,
                 '6+6': 156 + 21,
                 'Y': 156 + 25,
+                'NEXT': 223,
+                'AFTER_NEXT': 238,
             },
             'margin': {
                 'Q1': 186,
@@ -2475,6 +2687,8 @@ class report_budget_forecast_excel(models.AbstractModel):
                 'HY2': 186 + 20,
                 '6+6': 186 + 21,
                 'Y': 186 + 25,
+                'NEXT': 227,
+                'AFTER_NEXT': 242,
             },
         }
 
