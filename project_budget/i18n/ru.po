@@ -2710,8 +2710,8 @@ msgstr "Статус"
 
 #. module: project_budget
 #: model:ir.actions.act_window,name:project_budget.show_customer_organization
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__customer_organization_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__customer_organization_id
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__partner_id
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__partner_id
 #: model:ir.ui.menu,name:project_budget.project_budget_catalogs_customer_organization
 #: model_terms:ir.ui.view,arch_db:project_budget.show_customer_organization_form
 #: model_terms:ir.ui.view,arch_db:project_budget.show_customer_organization_tree
@@ -2741,7 +2741,7 @@ msgstr "Наименование"
 
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.view_tender_search
-msgid "customer_organization_id"
+msgid "partner_id"
 msgstr "Организация"
 
 #. module: project_budget
@@ -2752,6 +2752,11 @@ msgstr "Организация"
 #: model_terms:ir.ui.view,arch_db:project_budget.show_customer_status_tree
 msgid "customer_status"
 msgstr "Статус заказчика"
+
+#. module: project_budget
+#: model:ir.actions.act_window,name:project_budget.partners_tree_action
+msgid "partners_tree_action"
+msgstr "Контакты"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_customer_status__code
@@ -3678,7 +3683,7 @@ msgid "organization"
 msgstr "Заказчик"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__organizer_id
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__organizer_partner_id
 #: model_terms:ir.ui.view,arch_db:project_budget.view_tender_search
 msgid "organizer"
 msgstr "Организатор"

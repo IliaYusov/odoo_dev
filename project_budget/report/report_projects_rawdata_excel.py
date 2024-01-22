@@ -217,7 +217,7 @@ class report_projects_rawdata_excel(models.AbstractModel):
                     column += 1
                     # sheet.write_string(row, column, spec.customer_status_id.name, row_format)
                     # column += 1
-                    sheet.write_string(row, column, spec.customer_organization_id.name, row_format)
+                    sheet.write_string(row, column, spec.partner_id.name, row_format)
                     column += 1
                     sheet.write_string(row, column, (spec.essence_project or ""), row_format)
                     column += 1
@@ -332,7 +332,7 @@ class report_projects_rawdata_excel(models.AbstractModel):
                         column += 1
                         # sheet.write_string(row, column, spec.customer_status_id.name, row_format)
                         # column += 1
-                        sheet.write_string(row, column, spec.customer_organization_id.name, row_format)
+                        sheet.write_string(row, column, spec.partner_id.name, row_format)
                         column += 1
                         sheet.write_string(row, column, (spec.essence_project or ""), row_format)
                         column += 1

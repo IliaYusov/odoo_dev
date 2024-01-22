@@ -19,7 +19,7 @@
         <menuitem id="project_budget_catalogs_project_manager" parent ="project_budget_catalogs" name = "project_manager" action="show_project_manager"/>
         <menuitem id="project_budget_catalogs_rukovoditel_project" parent ="project_budget_catalogs" name = "rukovoditel_project" action="show_rukovoditel_project"/>
 
-        <menuitem id="project_budget_catalogs_customer_organization" parent ="project_budget_catalogs" name = "customer_organization" action="show_customer_organization"/>
+        <menuitem id="project_budget_catalogs_customer_organization" parent="project_budget_catalogs" name="customer_organization" action="partners_tree_action"/>
         <menuitem id="project_budget_catalogs_customer_status" parent ="project_budget_catalogs" name = "customer_status" action="show_customer_status"/>
         <menuitem id="project_budget_catalogs_industry" parent ="project_budget_catalogs" name = "industry" action="show_industry"/>
         <menuitem id="project_budget_catalogs_vat_attribute" parent ="project_budget_catalogs" name = "vat_attribute" action="show_vat_attribute"/>

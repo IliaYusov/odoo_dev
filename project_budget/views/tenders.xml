@@ -183,7 +183,7 @@
             <field name="name">project_budget.tenders.tree</field>
             <field name="model">project_budget.tenders</field>
             <field name="arch" type="xml">
-                <tree string="tenders">
+                <tree string="tenders" default_order="date_of_filling_in desc">
                     <field name="tender_id" optional="hide"/>
                     <field name="projects_id" optional="show"/>
 <!--                    <field name="currency_id" optional="show"/>-->
@@ -191,8 +191,8 @@
                     <field name="participant_id" optional="show"/>
                     <field name="auction_number" optional="show"/>
                     <field name="url_tender" widget="html" optional="show" class="text-wrap"/>
-                    <field name="customer_organization_id" optional="show" class="text-wrap"/>
-                    <field name="organizer_id" optional="show" class="text-wrap"/>
+                    <field name="partner_id" optional="show" class="text-wrap"/>
+                    <field name="organizer_partner_id" optional="show" class="text-wrap"/>
                     <field name="contact_information" optional="hide"/>
                     <field name="name_of_the_purchase" optional="show"/>
                     <field name="responsible_ids" widget="many2many_avatar_user" optional="show"/>
@@ -271,8 +271,8 @@
                         </group>
                         <group>
                             <group>
-                                <field name="customer_organization_id" options="{'no_open': True,}"/>
-                                <field name="organizer_id" options="{'no_open': True,}"/>
+                                <field name="partner_id" options="{'no_open': True,}"/>
+                                <field name="organizer_partner_id" options="{'no_open': True,}"/>
                             </group>
                             <group>
                                 <field name="contact_information"/>

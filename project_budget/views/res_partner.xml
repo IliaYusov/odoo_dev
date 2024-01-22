@@ -1,0 +1,11 @@
+<odoo>
+    <data>
+        <record id="partners_tree_action" model="ir.actions.act_window">
+            <field name="name">partners_tree_action</field>
+            <field name="res_model">res.partner</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_mode">tree,form,kanban</field>
+            <field name="context">{"search_default_type_company":1}</field>
+        </record>
+    </data>
+</odoo>

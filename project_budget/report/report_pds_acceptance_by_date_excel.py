@@ -141,7 +141,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
         if pds_accept == 'pds':
             cur_budget_projects = self.env[
                 'project_budget.projects'].search(
-                ['&','&',
+                ['&', '&',
                  ('commercial_budget_id', '=', budget.id),
                  ('id', 'in', [pds.projects_id.id for pds in self.env['project_budget.planned_cash_flow'].search([]) if date_start <= pds.date_cash <= date_end]),
                  ('estimated_probability_id.name', 'not in', ('0', '10')),
@@ -150,7 +150,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
         else:
             cur_budget_projects = self.env[
                 'project_budget.projects'].search(
-                ['&','&',
+                ['&', '&',
                  ('commercial_budget_id', '=', budget.id),
                  ('id', 'in', [acc.projects_id.id for acc in self.env['project_budget.planned_acceptance_flow'].search([]) if date_start <= acc.date_cash <= date_end]),
                  ('estimated_probability_id.name', 'not in', ('0', '10')),
@@ -209,7 +209,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                     column += 1
                     sheet.write_string(row, column, step.estimated_probability_id.name, row_format)
                     column += 1
-                    sheet.write_string(row, column, project.customer_organization_id.name, row_format)
+                    sheet.write_string(row, column, project.partner_id.name, row_format)
                     column += 1
                     sheet.write_string(row, column, project.project_id, row_format)
                     column += 1
@@ -251,7 +251,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                 column += 1
                 sheet.write_string(row, column, project.estimated_probability_id.name, row_format)
                 column += 1
-                sheet.write_string(row, column, project.customer_organization_id.name, row_format)
+                sheet.write_string(row, column, project.partner_id.name, row_format)
                 column += 1
                 sheet.write_string(row, column, project.project_id, row_format)
                 column += 1

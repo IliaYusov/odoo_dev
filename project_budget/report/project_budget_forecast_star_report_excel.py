@@ -269,6 +269,18 @@ class report_budget_forecast_excel(models.AbstractModel):
                     if pds.project_steps_id.id != step.id: continue
                 if pds.date_cash.month == month and pds.date_cash.year == year:
                     sum_cash += pds.sum_cash
+        if month == False:
+            pds_list = project.fact_cash_flow_ids
+            # if step:
+            #     pds_list = self.env['project_budget.fact_cash_flow'].search([('project_steps_id', '=', step.id)])
+            # else:
+            #     pds_list = self.env['project_budget.fact_cash_flow'].search([('projects_id', '=', project.id)])
+            for pds in pds_list:
+                if step:
+                    if pds.project_steps_id.id != step.id: continue
+                if pds.date_cash.year == year:
+                    sum_cash += pds.sum_cash
+
         return sum_cash
 
     def get_sum_plan_pds_project_step_month(self,project, step, year, month):
@@ -283,6 +295,39 @@ class report_budget_forecast_excel(models.AbstractModel):
                 if step:
                     if pds.project_steps_id.id != step.id: continue
                 if pds.date_cash.month == month and pds.date_cash.year == year:
+                    if pds.forecast == 'from_project':
+                        if step:
+                            estimated_probability_id_name = step.estimated_probability_id.name
+                        else:
+                            estimated_probability_id_name = project.estimated_probability_id.name
+
+                        if estimated_probability_id_name in ('75', '100', '100(done)'):
+                            sum_cash['commitment'] = sum_cash.get('commitment', 0) + pds.sum_cash
+                        elif estimated_probability_id_name == '50':
+                            sum_cash['reserve'] = sum_cash.get('reserve', 0) + pds.sum_cash
+                    else:
+                        sum_cash[pds.forecast] = sum_cash.get(pds.forecast, 0) + pds.sum_cash
+            # else: # если нихрена нет планового ПДС, то берем сумму общую по дате окончания sale или по дате этапа
+            #     print('step = ',step)
+            #     print('project = ',project)
+            #     if step == False or step == False:
+            #         if project:
+            #             if project.end_sale_project_month.month == month and project.end_sale_project_month.year == YEARint:
+            #                 sum_cash = project.total_amount_of_revenue_with_vat
+            #     else:
+            #         if step:
+            #             if step.end_sale_project_month.month == month and step.end_sale_project_month.year == YEARint:
+            #                 sum_cash = step.total_amount_of_revenue_with_vat
+        if month == False:
+            # if step:
+            #     pds_list = self.env['project_budget.planned_cash_flow'].search([('project_steps_id', '=', step.id)])
+            # else:
+            #     pds_list = self.env['project_budget.planned_cash_flow'].search([('projects_id', '=', project.id)])
+            pds_list = project.planned_cash_flow_ids
+            for pds in pds_list:
+                if step:
+                    if pds.project_steps_id.id != step.id: continue
+                if pds.date_cash.year == year:
                     if pds.forecast == 'from_project':
                         if step:
                             estimated_probability_id_name = step.estimated_probability_id.name
@@ -336,7 +381,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             'valign': 'vcenter',
             "bold" : True,
             "fg_color" : y[1],
-            "font_size" : 11,
+            "font_size" : 10,
         })
         head_format_month_itogo = workbook.add_format({
             'border': 1,
@@ -345,7 +390,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             'valign': 'vcenter',
             "bold": True,
             "fg_color": '#DCE6F1',
-            "font_size": 12,
+            "font_size": 10,
         })
         head_format_month_detail = workbook.add_format({
             'border': 1,
@@ -427,7 +472,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             'valign': 'vcenter',
             "bold" : True,
             "fg_color" : y[1],
-            "font_size" : 11,
+            "font_size" : 10,
         })
         head_format_month_itogo = workbook.add_format({
             'border': 1,
@@ -435,8 +480,8 @@ class report_budget_forecast_excel(models.AbstractModel):
             'align': 'center',
             'valign': 'vcenter',
             "bold": True,
-            "fg_color": '#D9E1F2',
-            "font_size": 12,
+            "fg_color": '#DCE6F1',
+            "font_size": 10,
         })
         head_format_month_detail = workbook.add_format({
             'border': 1,
@@ -445,7 +490,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             'valign': 'vcenter',
             "bold": False,
             "fg_color": '#E2EFDA',
-            "font_size": 8,
+            "font_size": 10,
         })
         head_format_month_detail_fact = workbook.add_format({
             'border': 1,
@@ -454,7 +499,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             'valign': 'vcenter',
             "bold": True,
             "fg_color": '#C6E0B4',
-            "font_size": 8,
+            "font_size": 10,
         })
 
         colbeg = column
@@ -523,7 +568,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 'align': 'center',
                 'valign': 'vcenter',
                 "bold": True,
-                "fg_color": '#D9E1F2',
+                "fg_color": '#DCE6F1',
                 "font_size": 12,
             })
             head_format_month_detail = workbook.add_format({
@@ -716,6 +761,79 @@ class report_budget_forecast_excel(models.AbstractModel):
                             sheet.write_number(row, column + 2, step.total_amount_of_revenue_with_vat * koeff_potential * currency_rate, row_format_number)
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp, sum30tmp
 
+    def print_year_pds_project(self, sheet, row, column, project, step, year, row_format_number, row_format_number_color_fact, next):
+        global koeff_reserve
+
+        sum75tmpetalon = sum50tmpetalon = sum100tmp = sum75tmp = sum50tmp = 0
+        if year:
+            # project_etalon = self.get_etalon_project(project, self.get_quater_from_month(month))
+            # step_etalon = self.get_etalon_step(step, self.get_quater_from_month(month))
+            sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
+            # sum = self.get_sum_plan_pds_project_step_month(project_etalon, step_etalon, month)
+            #
+            # if (step) and (not step_etalon): # есть этап сейчас, но нет в эталоне
+            #     sum = {'commitment': 0, 'reserve':0, 'potential': 0}
+            #
+            # if sum:
+            #     sheet.write_number(row, column + 0, sum.get('commitment', 0), row_format_number)
+            #     sum75tmpetalon += sum.get('commitment', 0)
+            #     sheet.write_number(row, column + 1, sum.get('reserve', 0) * koeff_reserve, row_format_number)
+            #     sum50tmpetalon += sum.get('reserve', 0) * koeff_reserve
+
+            sum100tmp = self.get_sum_fact_pds_project_step_month(project, step, year, False)
+
+            if sum100tmp:
+                if not next:
+                    sheet.write_number(row, column + 0, sum100tmp, row_format_number_color_fact)
+
+            sum = self.get_sum_plan_pds_project_step_month(project, step, year, False)
+            # print('----- project.id=',project.id)
+            # print('sum100tmp = ',sum100tmp)
+            # print('sum = ', sum)
+
+            if not project.is_correction_project:
+                if sum100tmp >= sum.get('commitment', 0):
+                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                    sum['commitment'] = 0
+                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
+                else:
+                    sum['commitment'] = sum['commitment'] - sum100tmp
+
+            # print('after: sum = ', sum)
+            # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
+            sum_ostatok_pds = {'commitment': 0, 'reserve':0, 'potential': 0}
+            sum_distribution_pds = 0
+            for planned_cash_flow in project.planned_cash_flow_ids:
+                if step:
+                    if planned_cash_flow.project_steps_id.id != step.id: continue
+                if planned_cash_flow.date_cash.year == year:
+                    sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
+                    if planned_cash_flow.forecast == 'from_project':
+
+                        estimated_probability_id_name = project.estimated_probability_id.name
+                        if step:
+                            estimated_probability_id_name = step.estimated_probability_id.name
+
+                        if estimated_probability_id_name in ('75', '100', '100(done)'):
+                            sum_ostatok_pds['commitment'] = sum_ostatok_pds.get('commitment', 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
+                        elif estimated_probability_id_name == '50':
+                            sum_ostatok_pds['reserve'] = sum_ostatok_pds.get('reserve', 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
+                    else:
+                        sum_ostatok_pds[planned_cash_flow.forecast] = sum_ostatok_pds.get(planned_cash_flow.forecast, 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
+
+            if sum_distribution_pds != 0 : # если есть распределение, то остаток = остатку распределения
+                sum = sum_ostatok_pds
+                for key in sum:
+                    if sum[key] < 0 and not project.is_correction_project:
+                        sum[key] = 0
+
+            if sum:
+                sheet.write_number(row, column + 0, sum.get('commitment', 0), row_format_number)
+                sum75tmp += sum.get('commitment', 0)
+                sheet.write_number(row, column + 1, sum.get('reserve', 0) * koeff_reserve, row_format_number)
+                sum50tmp += sum.get('reserve', 0) * koeff_reserve
+
+        return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
     def print_month_pds_project(self, sheet, row, column, month, project, step, year, row_format_number, row_format_number_color_fact, next):
         global koeff_reserve
 
@@ -807,6 +925,14 @@ class report_budget_forecast_excel(models.AbstractModel):
                         if acceptance.project_steps_id.id != step.id: continue
                     if acceptance.date_cash.month in months and acceptance.date_cash.year == year:
                         sum_cash += acceptance.sum_cash_without_vat
+        if element_name == False:
+            acceptance_list = project.fact_acceptance_flow_ids
+            if acceptance_list:
+                for acceptance in acceptance_list:
+                    if step:
+                        if acceptance.project_steps_id.id != step.id: continue
+                    if acceptance.date_cash.year == year:
+                        sum_cash += acceptance.sum_cash_without_vat
         return sum_cash
 
     def get_sum_fact_margin_project_step_quarter(self, project, step, year, element_name):
@@ -829,6 +955,15 @@ class report_budget_forecast_excel(models.AbstractModel):
                         if acceptance.project_steps_id.id != step.id: continue
                     if acceptance.date_cash.month in months and acceptance.date_cash.year == year:
                         sum_cash += acceptance.margin
+        if element_name == False:
+            acceptance_list = project.fact_acceptance_flow_ids
+            if acceptance_list:
+                for acceptance in acceptance_list:
+                    if step:
+                        if acceptance.project_steps_id.id != step.id: continue
+                    if acceptance.date_cash.year == year:
+                        sum_cash += acceptance.margin
+
         return sum_cash
 
     def get_sum_planned_acceptance_project_step_quater(self, project, step, year, element_name):
@@ -843,6 +978,25 @@ class report_budget_forecast_excel(models.AbstractModel):
                     if step:
                         if acceptance.project_steps_id.id != step.id: continue
                     if acceptance.date_cash.month in months and acceptance.date_cash.year == year:
+                        if acceptance.forecast == 'from_project':
+                            if step:
+                                estimated_probability_id_name = step.estimated_probability_id.name
+                            else:
+                                estimated_probability_id_name = project.estimated_probability_id.name
+
+                            if estimated_probability_id_name in ('75', '100', '100(done)'):
+                                sum_acceptance['commitment'] = sum_acceptance.get('commitment', 0) + acceptance.sum_cash_without_vat
+                            elif estimated_probability_id_name == '50':
+                                sum_acceptance['reserve'] = sum_acceptance.get('reserve', 0) + acceptance.sum_cash_without_vat
+                        else:
+                            sum_acceptance[acceptance.forecast] = sum_acceptance.get(acceptance.forecast, 0) + acceptance.sum_cash_without_vat
+        if element_name == False:
+            acceptance_list = project.planned_acceptance_flow_ids
+            if acceptance_list:
+                for acceptance in acceptance_list:
+                    if step:
+                        if acceptance.project_steps_id.id != step.id: continue
+                    if acceptance.date_cash.year == year:
                         if acceptance.forecast == 'from_project':
                             if step:
                                 estimated_probability_id_name = step.estimated_probability_id.name
@@ -891,6 +1045,25 @@ class report_budget_forecast_excel(models.AbstractModel):
                                 sum_margin['reserve'] += acceptance.sum_cash_without_vat * profitability / 100
                         else:
                             sum_margin[acceptance.forecast] += acceptance.sum_cash_without_vat * profitability / 100
+        if element_name == False:
+            acceptance_list = project.planned_acceptance_flow_ids
+            if acceptance_list:
+                for acceptance in acceptance_list:
+                    if step:
+                        if acceptance.project_steps_id.id != step.id: continue
+                        estimated_probability_id_name = step.estimated_probability_id.name
+                        profitability = step.profitability
+                    else:
+                        estimated_probability_id_name = project.estimated_probability_id.name
+                        profitability = project.profitability
+                    if acceptance.date_cash.year == year:
+                        if acceptance.forecast == 'from_project':
+                            if estimated_probability_id_name in ('75', '100', '100(done)'):
+                                sum_margin['commitment'] += acceptance.sum_cash_without_vat * profitability / 100
+                            elif estimated_probability_id_name == '50':
+                                sum_margin['reserve'] += acceptance.sum_cash_without_vat * profitability / 100
+                        else:
+                            sum_margin[acceptance.forecast] += acceptance.sum_cash_without_vat * profitability / 100
         return sum_margin
 
     def get_margin_forecast_from_distributions(self, planned_acceptance, margin_plan, project, step, margin_rate_for_parent):
@@ -916,28 +1089,54 @@ class report_budget_forecast_excel(models.AbstractModel):
         sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
         sum_distribution_acceptance = 0
         months = self.get_months_from_quater(element_name)
-        for planned_acceptance_flow in project.planned_acceptance_flow_ids:
-            if step:
-                if planned_acceptance_flow.project_steps_id.id != step.id: continue
-            if planned_acceptance_flow.date_cash.month in months and planned_acceptance_flow.date_cash.year == year:
-                sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+        if months:
+            for planned_acceptance_flow in project.planned_acceptance_flow_ids:
+                if step:
+                    if planned_acceptance_flow.project_steps_id.id != step.id: continue
+                if planned_acceptance_flow.date_cash.month in months and planned_acceptance_flow.date_cash.year == year:
+                    sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
 
-                if planned_acceptance_flow.forecast == 'from_project':
+                    if planned_acceptance_flow.forecast == 'from_project':
 
-                    estimated_probability_id_name = project.estimated_probability_id.name
-                    if step:
-                        estimated_probability_id_name = step.estimated_probability_id.name
+                        estimated_probability_id_name = project.estimated_probability_id.name
+                        if step:
+                            estimated_probability_id_name = step.estimated_probability_id.name
 
-                    if estimated_probability_id_name in ('75', '100', '100(done)'):
-                        sum_ostatok_acceptance['commitment'] = sum_ostatok_acceptance.get('commitment',
-                                                                                          0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                    elif estimated_probability_id_name == '50':
-                        sum_ostatok_acceptance['reserve'] = sum_ostatok_acceptance.get('reserve',
-                                                                                       0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                else:
-                    sum_ostatok_acceptance[planned_acceptance_flow.forecast] = sum_ostatok_acceptance.get(
-                        planned_acceptance_flow.forecast,
-                        0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                        if estimated_probability_id_name in ('75', '100', '100(done)'):
+                            sum_ostatok_acceptance['commitment'] = sum_ostatok_acceptance.get('commitment',
+                                                                                              0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                        elif estimated_probability_id_name == '50':
+                            sum_ostatok_acceptance['reserve'] = sum_ostatok_acceptance.get('reserve',
+                                                                                           0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                    else:
+                        sum_ostatok_acceptance[planned_acceptance_flow.forecast] = sum_ostatok_acceptance.get(
+                            planned_acceptance_flow.forecast,
+                            0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
+
+        if element_name == False:
+            for planned_acceptance_flow in project.planned_acceptance_flow_ids:
+                if step:
+                    if planned_acceptance_flow.project_steps_id.id != step.id: continue
+                if planned_acceptance_flow.date_cash.year == year:
+                    sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+
+                    if planned_acceptance_flow.forecast == 'from_project':
+
+                        estimated_probability_id_name = project.estimated_probability_id.name
+                        if step:
+                            estimated_probability_id_name = step.estimated_probability_id.name
+
+                        if estimated_probability_id_name in ('75', '100', '100(done)'):
+                            sum_ostatok_acceptance['commitment'] = sum_ostatok_acceptance.get('commitment',
+                                                                                              0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                        elif estimated_probability_id_name == '50':
+                            sum_ostatok_acceptance['reserve'] = sum_ostatok_acceptance.get('reserve',
+                                                                                           0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                    else:
+                        sum_ostatok_acceptance[planned_acceptance_flow.forecast] = sum_ostatok_acceptance.get(
+                            planned_acceptance_flow.forecast,
+                            0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
+
         if sum_distribution_acceptance:  # если есть распределение, то остаток = остатку распределения
             return sum_ostatok_acceptance
         else:
@@ -963,20 +1162,115 @@ class report_budget_forecast_excel(models.AbstractModel):
                         margin_plan = new_margin_plan
 
             return margin_plan
+        if months:
+            for planned_acceptance_flow in project.planned_acceptance_flow_ids:
+                if step:
+                    if planned_acceptance_flow.project_steps_id.id != step.id: continue
+                if planned_acceptance_flow.date_cash.month in months and planned_acceptance_flow.date_cash.year == year:
+                    sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
 
-        for planned_acceptance_flow in project.planned_acceptance_flow_ids:
-            if step:
-                if planned_acceptance_flow.project_steps_id.id != step.id: continue
-            if planned_acceptance_flow.date_cash.month in months and planned_acceptance_flow.date_cash.year == year:
-                sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
+                    new_margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow, new_margin_plan, project,
+                                                                              step, margin_rate_for_parent)
+        if element_name == False:
+            for planned_acceptance_flow in project.planned_acceptance_flow_ids:
+                if step:
+                    if planned_acceptance_flow.project_steps_id.id != step.id: continue
+                if planned_acceptance_flow.date_cash.year == year:
+                    sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
 
-                new_margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow, new_margin_plan, project,
-                                                                          step, margin_rate_for_parent)
+                    new_margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow,
+                                                                                  new_margin_plan, project,
+                                                                                  step, margin_rate_for_parent)
+
         if sum_distribution_acceptance:  # если есть распределение, то остаток = остатку распределения
             return new_margin_plan
         else:
             return False
 
+    def print_year_planned_acceptance_project(self, sheet, row, column, project, step, year, row_format_number, row_format_number_color_fact,margin_shift,next):
+
+        sum75tmpetalon = sum50tmpetalon = sum100tmp = sum75tmp = sum50tmp = 0
+        if year:
+            # project_etalon = self.get_etalon_project(project, element_name)
+            # step_etalon = self.get_etalon_step(step, element_name)
+
+            if step == False:
+                profitability = project.profitability
+            else:
+                profitability = step.profitability
+
+            margin_rate_for_child = 1
+            if project.is_child_project:
+                margin_rate_for_child = (1 - project.margin_rate_for_parent)
+
+            # sum = self.get_sum_planned_acceptance_project_step_quater(project_etalon, step_etalon, element_name)
+            # margin_sum = self.get_sum_planned_margin_project_step_quater(project_etalon, step_etalon, element_name)
+            # if step and not step_etalon:
+            #     sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
+            #     margin_sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
+            # if sum:
+            #     sheet.write_number(row, column + 0, sum.get('commitment', 0), row_format_number)
+            #     sheet.write_number(row, column + 0 + margin_shift, margin_sum.get('commitment', 0) * margin_rate_for_child, row_format_number)
+            #     sum75tmpetalon += sum.get('commitment', 0)
+            #     sheet.write_number(row, column + 1, sum.get('reserve', 0) * koeff_reserve, row_format_number)
+            #     sheet.write_number(row, column + 1 + margin_shift , margin_sum.get('reserve', 0) * koeff_reserve * margin_rate_for_child, row_format_number)
+            #     sum50tmpetalon += sum.get('reserve', 0) * koeff_reserve
+
+            sum100tmp = self.get_sum_fact_acceptance_project_step_quater(project, step, year, False)
+            margin100tmp = self.get_sum_fact_margin_project_step_quarter(project, step, year, False)
+
+            if not next:
+                if sum100tmp:
+                    sheet.write_number(row, column + 0, sum100tmp, row_format_number_color_fact)
+                if margin100tmp:
+                    sheet.write_number(row, column + 0 + margin_shift, margin100tmp * margin_rate_for_child, row_format_number_color_fact)
+
+            sum = self.get_sum_planned_acceptance_project_step_quater(project, step, year, False)
+            margin_sum = self.get_sum_planned_margin_project_step_quater(project, step, year, False)
+
+            margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
+            if margin_sum:
+                margin_plan = margin_sum.copy()
+
+            if not project.is_correction_project and not project.is_parent_project:
+
+                if sum100tmp >= sum.get('commitment', 0):
+                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                    sum['commitment'] = 0
+                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
+                else:
+                    sum['commitment'] = sum['commitment'] - sum100tmp
+
+                if margin100tmp >= margin_plan['commitment']:  # маржа если нет распределения
+                    margin100tmp_ostatok = margin100tmp - margin_plan['commitment']
+                    margin_sum['commitment'] = 0
+                    margin_sum['reserve'] = max(margin_plan['reserve'] - margin100tmp_ostatok, 0)
+                else:
+                    margin_sum['commitment'] = margin_plan['commitment'] - margin100tmp
+
+            sum_ostatok_acceptance = self.get_sum_planned_acceptance_project_step_from_distribution(project, step, year, False)
+            new_margin_plan = self.get_sum_planned_margin_project_step_from_distribution(project, step, year, False, margin_plan, 1)
+
+            if sum_ostatok_acceptance:
+                sum = sum_ostatok_acceptance
+            if new_margin_plan:
+                margin_sum = new_margin_plan
+
+            for key in sum:
+                if not project.is_correction_project:
+                    sum[key] = max(sum[key], 0)
+                    margin_sum[key] = max(margin_sum[key], 0)
+
+            if sum:
+                sheet.write_number(row, column + 0, sum.get('commitment', 0), row_format_number)
+                sheet.write_number(row, column + 0 + margin_shift, margin_sum.get('commitment', 0) * margin_rate_for_child, row_format_number)
+                sum75tmp += sum.get('commitment', 0)
+                sheet.write_number(row, column + 1, sum.get('reserve', 0) * koeff_reserve, row_format_number)
+                sheet.write_number(row, column + 1 + margin_shift, margin_sum.get('reserve', 0) * koeff_reserve * margin_rate_for_child, row_format_number)
+                sum50tmp += sum.get('reserve', 0) * koeff_reserve
+        return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
     def print_quater_planned_acceptance_project(self, sheet, row, column, element_name, project, step, year, row_format_number, row_format_number_color_fact,margin_shift,next):
 
         sum75tmpetalon = sum50tmpetalon = sum100tmp = sum75tmp = sum50tmp = 0
@@ -1106,7 +1400,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         })
         head_format_month_itogo = workbook.add_format({
             'border': 1,
-            "fg_color": '#D9E1F2',
+            "fg_color": '#DCE6F1',
             'diag_type': 3,
         })
 
@@ -1276,10 +1570,8 @@ class report_budget_forecast_excel(models.AbstractModel):
 
             sumQ75tmpetalon, sumQ50tmpetalon, sumQ100tmp, sumQ75tmp, sumQ50tmp = self.print_month_pds_project(sheet, row, column, self.get_month_number_rus(element)
                                                                                         ,project, step, YEARint, row_format_number, row_format_number_color_fact, False)
-            _, _, _, _, _ = self.print_month_pds_project(sheet, row, 221, self.get_month_number_rus(element)
-                                                                                        ,project, step, YEARint + 1, row_format_number, row_format_number_color_fact, True)
-            _, _, _, _, _ = self.print_month_pds_project(sheet, row, 236, self.get_month_number_rus(element)
-                                                                                        ,project, step, YEARint + 2, row_format_number, row_format_number_color_fact, True)
+            # _, _, _, _, _ = self.print_year_pds_project(sheet, row, 221, project, step, YEARint + 1, row_format_number, row_format_number_color_fact, True)
+            # _, _, _, _, _ = self.print_yesr_pds_project(sheet, row, 236, project, step, YEARint + 2, row_format_number, row_format_number_color_fact, True)
 
             sumQ75etalon += sumQ75tmpetalon
             sumQ50etalon += sumQ50tmpetalon
@@ -1352,6 +1644,11 @@ class report_budget_forecast_excel(models.AbstractModel):
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 32), xl_col_to_name(column - 2))
                 sheet.write_formula(row, column + 2, formula, row_format_number)
             column += 2
+        _, _, _, _, _ = self.print_year_pds_project(sheet, row, 221, project, step, YEARint + 1, row_format_number,
+                                                    row_format_number_color_fact, True)
+        _, _, _, _, _ = self.print_year_pds_project(sheet, row, 236, project, step, YEARint + 2, row_format_number,
+                                                    row_format_number_color_fact, True)
+
         # end Поступление денежных средсв, с НДС
 
         # Валовая Выручка, без НДС
@@ -1396,8 +1693,6 @@ class report_budget_forecast_excel(models.AbstractModel):
 
             sumQ75etalon, sumQ50etalon, sumQ100, sumQ75, sumQ50 = self.print_quater_planned_acceptance_project(sheet,row,column,element
                                                                                                               ,project,step,YEARint,row_format_number,row_format_number_color_fact,margin_shift, False)
-            _, _, _, _, _ = self.print_quater_planned_acceptance_project(sheet,row,224,element,project,step,YEARint + 1,row_format_number,row_format_number_color_fact,next_margin_shift, True)
-            _, _, _, _, _ = self.print_quater_planned_acceptance_project(sheet,row,239,element,project,step,YEARint + 2,row_format_number,row_format_number_color_fact,next_margin_shift, True)
 
             sumHY100etalon += sumQ100etalon
             sumHY75etalon += sumQ75etalon
@@ -1501,6 +1796,9 @@ class report_budget_forecast_excel(models.AbstractModel):
                 sheet.write_formula(row, column + 2 + margin_shift, formula, row_format_number)
 
             column += 2
+        _, _, _, _, _ = self.print_year_planned_acceptance_project(sheet,row,224,project,step,YEARint + 1,row_format_number,row_format_number_color_fact,next_margin_shift, True)
+        _, _, _, _, _ = self.print_year_planned_acceptance_project(sheet,row,239,project,step,YEARint + 2,row_format_number,row_format_number_color_fact,next_margin_shift, True)
+
         # end Валовая Выручка, без НДС
 
     def print_acceptance_potential(self, sheet, row, column, project, step, year, format):
@@ -1659,12 +1957,12 @@ class report_budget_forecast_excel(models.AbstractModel):
         })
         row_format_date_month = workbook.add_format({
             'border': 1,
-            'font_size': 9,
+            'font_size': 10,
         })
 
         row_format_manager = workbook.add_format({
             'border': 1,
-            'font_size': 9,
+            'font_size': 10,
             "bold": True,
             "fg_color": '#D9D9D9',
         })
@@ -1672,7 +1970,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         row_format_manager_estimated_plan = workbook.add_format({
             'border': 1,
-            'font_size': 9,
+            'font_size': 10,
             "bold": True,
             "fg_color": '#FDE9D9',
             "num_format": '#,##0',
@@ -1681,7 +1979,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         row_format_manager_estimated_plan_cross = workbook.add_format({
             'border': 1,
-            'font_size': 9,
+            'font_size': 10,
             "bold": True,
             "fg_color": '#FDE9D9',
             "num_format": '#,##0',
@@ -1692,7 +1990,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         row_format_office = workbook.add_format({
             'border': 1,
-            'font_size': 9,
+            'font_size': 10,
             "bold": True,
             "fg_color": '#8DB4E2',
         })
@@ -1700,7 +1998,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         row_format_office_estimated_plan = workbook.add_format({
             'border': 1,
-            'font_size': 9,
+            'font_size': 10,
             "bold": True,
             "fg_color": '#CCC0DA',
             "num_format": '#,##0',
@@ -1709,7 +2007,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         row_format_office_estimated_plan_cross = workbook.add_format({
             'border': 1,
-            'font_size': 9,
+            'font_size': 10,
             "bold": True,
             "fg_color": '#CCC0DA',
             "num_format": '#,##0',
@@ -1719,7 +2017,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         row_format_plan = workbook.add_format({
             'border': 1,
-            'font_size': 9,
+            'font_size': 10,
             "bold": True,
             "fg_color": '#DCE6F1',
             "num_format": '#,##0',
@@ -1727,7 +2025,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         row_format_probability = workbook.add_format({
             'border': 1,
-            'font_size': 9,
+            'font_size': 10,
             "bold": True,
             "fg_color": '#F2DCDB',
             "num_format": '#,##0',
@@ -1737,37 +2035,37 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         row_format = workbook.add_format({
             'border': 1,
-            'font_size': 9
+            'font_size': 10
         })
 
         row_format_canceled_project = workbook.add_format({
             'border': 1,
-            'font_size': 9
+            'font_size': 10
         })
         row_format_canceled_project.set_font_color('red')
 
         row_format_number = workbook.add_format({
             'border': 1,
-            'font_size': 9,
+            'font_size': 10,
         })
         row_format_number.set_num_format('#,##0')
 
         row_format_date = workbook.add_format({
             'border': 1,
-            'font_size': 9,
+            'font_size': 10,
         })
         row_format_date.set_num_format('dd.mm.yyyy')
 
         row_format_number_canceled_project = workbook.add_format({
             'border': 1,
-            'font_size': 9,
+            'font_size': 10,
         })
         row_format_number_canceled_project.set_num_format('#,##0')
         row_format_number_canceled_project.set_font_color('red')
 
         row_format_date_canceled_project = workbook.add_format({
             'border': 1,
-            'font_size': 9,
+            'font_size': 10,
         })
         row_format_date_canceled_project.set_num_format('dd.mm.yyyy')
         row_format_date_canceled_project.set_font_color('red')
@@ -1775,7 +2073,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         row_format_number_itogo = workbook.add_format({
             'border': 1,
-            'font_size': 9,
+            'font_size': 10,
             "bold": True,
             "fg_color": '#A9D08E',
 
@@ -1788,8 +2086,8 @@ class report_budget_forecast_excel(models.AbstractModel):
             'align': 'center',
             'valign': 'vcenter',
             "bold": True,
-            "fg_color": '#D9E1F2',
-            "font_size": 9,
+            "fg_color": '#DCE6F1',
+            "font_size": 10,
         })
         head_format_month_itogo.set_num_format('#,##0')
 
@@ -1924,7 +2222,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                             column += 1
                                             sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
                                             column += 1
-                                            sheet.write_string(row, column, spec.customer_organization_id.name, cur_row_format)
+                                            sheet.write_string(row, column, spec.partner_id.name, cur_row_format)
                                             column += 1
                                             sheet.write_string(row, column, (step.essence_project or ''), cur_row_format)
                                             column += 1
@@ -1963,7 +2261,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                     column += 1
                                     sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
                                     column += 1
-                                    sheet.write_string(row, column, spec.customer_organization_id.name, cur_row_format)
+                                    sheet.write_string(row, column, spec.partner_id.name, cur_row_format)
                                     column += 1
                                     sheet.write_string(row, column, (spec.essence_project or ''), cur_row_format)
                                     column += 1
@@ -2379,7 +2677,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         summary_format = workbook.add_format({
             'bold': True,
             'border': 1,
-            'font_size': 12,
+            'font_size': 10,
             'text_wrap': True,
             'valign': 'vcenter',
             "num_format": '#,##0',
@@ -2387,7 +2685,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         summary_format_percent = workbook.add_format({
             'bold': True,
             'border': 1,
-            'font_size': 12,
+            'font_size': 10,
             'text_wrap': True,
             'valign': 'vcenter',
             "num_format": '0%',
@@ -2463,7 +2761,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             'align': 'center',
             'valign': 'vcenter',
             "bold": True,
-            "fg_color": '#D9E1F2',
+            "fg_color": '#DCE6F1',
             "font_size": 9,
         })
         head_format_month_itogo.set_num_format('#,##0')

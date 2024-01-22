@@ -218,7 +218,8 @@ class projects(models.Model):
                                          copy=True,  tracking=True, check_company=True)
 
     customer_organization_id = fields.Many2one('project_budget.customer_organization', string='customer_organization',
-                                               required=True, copy=True,tracking=True)
+                                               required=False, copy=True,tracking=True)
+    partner_id = fields.Many2one('res.partner', string='customer_organization', required=True, copy=True, tracking=True, domain="[('is_company','=',True)]")
     customer_status_id = fields.Many2one('project_budget.customer_status', string='customer_status',
                                          copy=True, tracking=True)
     industry_id = fields.Many2one('project_budget.industry', string='industry', required=True, copy=True,tracking=True)
@@ -457,7 +458,7 @@ class projects(models.Model):
                 row.specification_state = 'cancel'
                 if row.project_steps_ids:
                     for step in row.project_steps_ids:
-                        if step.estimated_probability_id.name in ['100', '100(done)']:
+                        if step.estimated_probability_id.name in ('100', '100(done)'):
                             raisetext = _("Can't 'cancel' project with step {0} in {1} state")
                             raisetext = raisetext.format(step.step_id, step.estimated_probability_id.name)
                             raise ValidationError(raisetext)
