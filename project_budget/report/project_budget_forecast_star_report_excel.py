@@ -98,7 +98,7 @@ class report_budget_forecast_excel(models.AbstractModel):
     month_rus_name_contract_pds = ['Январь','Февраль','Март','Q1 итого','Апрель','Май','Июнь','Q2 итого','HY1/YEAR итого',
                                     'Июль','Август','Сентябрь','Q3 итого','Октябрь','Ноябрь','Декабрь','Q4 итого',
                                    'HY2/YEAR итого','YEAR итого']
-    month_rus_name_revenue_margin = ['Q1','Q2','HY1/YEAR','Q3','Q4','HY2/YEAR','YEAR']
+    month_rus_name_revenue_margin = ['Q1','Q2','HY1/YEAR','Q3','Q4','HY2/YEAR','YEAR итого']
 
     # array_col_itogi = [28, 49, 55, 76, 97, 103, 109, 130, 151, 157, 178, 199, 205, 211, 217, 223, 229, 235, 241, 254, 260, 266, 272, 278, 284, 297,]
     #
@@ -381,7 +381,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             'valign': 'vcenter',
             "bold" : True,
             "fg_color" : y[1],
-            "font_size" : 10,
+            "font_size" : 12,
         })
         head_format_month_itogo = workbook.add_format({
             'border': 1,
@@ -390,7 +390,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             'valign': 'vcenter',
             "bold": True,
             "fg_color": '#DCE6F1',
-            "font_size": 10,
+            "font_size": 12,
         })
         head_format_month_detail = workbook.add_format({
             'border': 1,
@@ -431,7 +431,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 else:
                     sheet.merge_range(row, column, row, column + 4, element, head_format_month)
 
-                sheet.merge_range(row + 1, column, row + 2, column, "План "+element.replace('итого',''), head_format_month_itogo)
+                sheet.merge_range(row + 1, column, row + 2, column, "План "+element.replace(' итого',''), head_format_month_itogo)
                 column += 1
             else:
                 sheet.merge_range(row, column, row, column + 3, element, head_format_month)
@@ -472,7 +472,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             'valign': 'vcenter',
             "bold" : True,
             "fg_color" : y[1],
-            "font_size" : 10,
+            "font_size" : 12,
         })
         head_format_month_itogo = workbook.add_format({
             'border': 1,
@@ -481,7 +481,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             'valign': 'vcenter',
             "bold": True,
             "fg_color": '#DCE6F1',
-            "font_size": 10,
+            "font_size": 12,
         })
         head_format_month_detail = workbook.add_format({
             'border': 1,
@@ -490,7 +490,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             'valign': 'vcenter',
             "bold": False,
             "fg_color": '#E2EFDA',
-            "font_size": 10,
+            "font_size": 8,
         })
         head_format_month_detail_fact = workbook.add_format({
             'border': 1,
@@ -499,7 +499,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             'valign': 'vcenter',
             "bold": True,
             "fg_color": '#C6E0B4',
-            "font_size": 10,
+            "font_size": 8,
         })
 
         colbeg = column
@@ -522,7 +522,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 else:
                     sheet.merge_range(row, column, row, column + 3, element, head_format_month)
 
-                sheet.merge_range(row + 1, column, row + 2, column, "План "+element.replace('итого',''), head_format_month_itogo)
+                sheet.merge_range(row + 1, column, row + 2, column, "План "+element.replace(' итого',''), head_format_month_itogo)
                 column += 1
             else:
                 sheet.merge_range(row, column, row, column + 2, element, head_format_month)
@@ -560,7 +560,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 'valign': 'vcenter',
                 "bold" : True,
                 "fg_color" : y[1],
-                "font_size" : 11,
+                "font_size" : 12,
             })
             head_format_month_itogo = workbook.add_format({
                 'border': 1,
@@ -599,7 +599,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 addcolumn = potential_column = 0
                 if element.find('HY2') != -1:
                     addcolumn = 1
-                elif element == strYEARprint and x[0] == 1:
+                elif 'итого' in element and x[0] == 1:
                     potential_column = 1
 
                 if elementone.find('Q') != -1:
@@ -615,7 +615,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                       head_format_month)
 
 
-                sheet.merge_range(row + 1, column, row + 2, column, "План " + element.replace('итого', ''),
+                sheet.merge_range(row + 1, column, row + 2, column, "План " + element.replace(' итого', ''),
                                   head_format_month_itogo)
                 column += 1
 
@@ -635,7 +635,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                     sheet.merge_range(row + 1, column , row + 2, column , 'Факт', head_format_month_detail_fact)
                     column += 1
 
-                if element == strYEARprint and x[0] == 1:
+                if 'итого' in element and x[0] == 1:
                     sheet.merge_range(row + 1, column, row + 1, column + 2,
                                       'Прогноз до конца периода (на дату отчета)',
                                       head_format_month_detail)
@@ -1753,7 +1753,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
 
 
-            if element == 'YEAR':  # 'YEAR итого'
+            if element == 'YEAR итого':  # 'YEAR итого'
                 # if sumYear75etalon != 0:
                 #     sheet.write_number(row, column + 0, sumYear75etalon, row_format_number)
                 #     sheet.write_number(row, column + 0 + margin_shift, sumYear75etalon*profitability / 100, row_format_number)
@@ -1940,7 +1940,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         head_format = workbook.add_format({
             'bold': True,
             'border': 1,
-            'font_size': 11,
+            'font_size': 10,
             'text_wrap': True,
             'align': 'center',
             'valign': 'vcenter',
@@ -1977,6 +1977,14 @@ class report_budget_forecast_excel(models.AbstractModel):
             'align': 'center',
         })
 
+        row_format_manager_estimated_plan_left = workbook.add_format({
+            'border': 1,
+            'font_size': 10,
+            "bold": True,
+            "fg_color": '#FDE9D9',
+            "num_format": '#,##0',
+        })
+
         row_format_manager_estimated_plan_cross = workbook.add_format({
             'border': 1,
             'font_size': 10,
@@ -2003,6 +2011,14 @@ class report_budget_forecast_excel(models.AbstractModel):
             "fg_color": '#CCC0DA',
             "num_format": '#,##0',
             'align': 'center',
+        })
+
+        row_format_office_estimated_plan_left = workbook.add_format({
+            'border': 1,
+            'font_size': 10,
+            "bold": True,
+            "fg_color": '#CCC0DA',
+            "num_format": '#,##0',
         })
 
         row_format_office_estimated_plan_cross = workbook.add_format({
@@ -2180,7 +2196,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                         if not ((spec.project_office_id == project_office or (spec.legal_entity_signing_id.different_project_offices_in_steps and spec.project_have_steps)) and spec.project_manager_id == project_manager):
                             continue
                         # if spec.estimated_probability_id.name != '0':
-                        if spec.is_framework == True and spec.project_have_steps == False: continue # рамка без этапов - пропускаем
+                        # if spec.is_framework == True and spec.project_have_steps == False: continue # рамка без этапов - пропускаем
                         if spec.vgo == '-':
                             cur_project_rate = self.get_currency_rate_by_project(spec)
 
@@ -2206,7 +2222,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                             isFoundProjectsByProbability = True
 
                                             row += 1
-                                            sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 1})
+                                            sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 2})
                                             cur_row_format = row_format
                                             cur_row_format_number = row_format_number
                                             cur_row_format_date = row_format_date
@@ -2248,7 +2264,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                     isFoundProjectsByManager = True
                                     isFoundProjectsByOffice = True
                                     isFoundProjectsByProbability = True
-                                    sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 1})
+                                    sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 2})
                                     cur_row_format = row_format
                                     cur_row_format_number = row_format_number
                                     cur_row_format_date = row_format_date
@@ -2287,7 +2303,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                            + ' %', row_format_probability)
                         sheet.write_string(row, column + 1, project_manager.name + ' ' + estimated_probability.name
                                            + ' %', row_format_probability)
-                        sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 1})
+                        sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 2})
 
                         formulaProjectManager = formulaProjectManager + ',{0}' + str(row + 1)
                         for colFormula in range(2, 9):
@@ -2307,9 +2323,9 @@ class report_budget_forecast_excel(models.AbstractModel):
                 if isFoundProjectsByManager:
                     row += 1
                     column = 0
-                    sheet.write_string(row, column, 'ИТОГО ' + project_manager.name, row_format_manager)
-                    sheet.write_string(row, column + 1, 'ИТОГО ' + project_manager.name, row_format_manager)
-                    sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
+                    sheet.write_string(row, column, 'ИТОГО: ' + project_manager.name, row_format_manager)
+                    sheet.write_string(row, column + 1, 'ИТОГО: ' + project_manager.name, row_format_manager)
+                    sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 1})
                     # print('setrow manager  row = ', row)
                     # print('setrow manager level = ', level)
 
@@ -2325,8 +2341,8 @@ class report_budget_forecast_excel(models.AbstractModel):
                     # расчетный план КАМа
                     row += 1
                     column = 0
-                    sheet.write_string(row, column, 'ИТОГО: Расчетный План по ' + project_manager.name, row_format_manager_estimated_plan)
-                    sheet.write_string(row, column + 1, 'ИТОГО: Расчетный План по ' + project_manager.name, row_format_manager_estimated_plan)
+                    sheet.write_string(row, column, 'ИТОГО: Расчетный План по ' + project_manager.name, row_format_manager_estimated_plan_left)
+                    sheet.write_string(row, column + 1, 'ИТОГО: Расчетный План по ' + project_manager.name, row_format_manager_estimated_plan_left)
                     sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
 
                     self.print_estimated_rows(sheet, row, row_format_manager_estimated_plan, row_format_manager_estimated_plan_cross)
@@ -2441,6 +2457,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                         kam_formula = '(' + plan['formula'] + ')'
 
                         sheet.write_formula(row, plan['column'], kam_formula, row_format_plan)
+                        sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 1})
 
                     for plan in (
                             {'column': plan_shift['revenue']['HY1'],
@@ -2475,6 +2492,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 column = 0
                 sheet.write_string(row, column, 'ИТОГО ' + project_office.name, row_format_office)
                 sheet.write_string(row, column + 1, 'ИТОГО ' + project_office.name, row_format_office)
+                sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
                 str_project_office_id = 'project_office_' + str(int(project_office.parent_id))
                 if str_project_office_id in dict_formula:
                     dict_formula[str_project_office_id] = dict_formula[str_project_office_id] + ',{0}' + str(row+1)
@@ -2510,8 +2528,8 @@ class report_budget_forecast_excel(models.AbstractModel):
                 column = 0
                 # sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
                 # print('setrow level1 row = ', row)
-                sheet.write_string(row, column, 'ИТОГО ' + project_office.name + ' Расчетный План:', row_format_office_estimated_plan)
-                sheet.write_string(row, column + 1, 'ИТОГО ' + project_office.name  + ' Расчетный План:', row_format_office_estimated_plan)
+                sheet.write_string(row, column, 'ИТОГО ' + project_office.name + ' Расчетный План:', row_format_office_estimated_plan_left)
+                sheet.write_string(row, column + 1, 'ИТОГО ' + project_office.name  + ' Расчетный План:', row_format_office_estimated_plan_left)
 
                 self.print_estimated_rows(sheet, row, row_format_office_estimated_plan,
                                           row_format_office_estimated_plan_cross)
@@ -2668,7 +2686,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         head_format = workbook.add_format({
             'bold': True,
             'border': 1,
-            'font_size': 11,
+            'font_size': 10,
             'text_wrap': True,
             'align': 'center',
             'valign': 'vcenter',
@@ -2677,7 +2695,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         summary_format = workbook.add_format({
             'bold': True,
             'border': 1,
-            'font_size': 10,
+            'font_size': 12,
             'text_wrap': True,
             'valign': 'vcenter',
             "num_format": '#,##0',
@@ -2685,7 +2703,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         summary_format_percent = workbook.add_format({
             'bold': True,
             'border': 1,
-            'font_size': 10,
+            'font_size': 12,
             'text_wrap': True,
             'valign': 'vcenter',
             "num_format": '0%',
@@ -2701,12 +2719,12 @@ class report_budget_forecast_excel(models.AbstractModel):
         })
         row_format_date_month = workbook.add_format({
             'border': 1,
-            'font_size': 9,
+            'font_size': 10,
         })
 
         row_format_manager = workbook.add_format({
             'border': 1,
-            'font_size': 9,
+            'font_size': 10,
             "bold": True,
             "fg_color": '#D9D9D9',
         })
@@ -2714,7 +2732,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         row_format_office = workbook.add_format({
             'border': 1,
-            'font_size': 9,
+            'font_size': 10,
             "bold": True,
             "fg_color": '#8497B0',
         })
@@ -2724,31 +2742,31 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         row_format = workbook.add_format({
             'border': 1,
-            'font_size': 9
+            'font_size': 10
         })
 
         row_format_canceled_project = workbook.add_format({
             'border': 1,
-            'font_size': 9
+            'font_size': 10
         })
         row_format_canceled_project.set_font_color('red')
 
         row_format_number = workbook.add_format({
             'border': 1,
-            'font_size': 9,
+            'font_size': 10,
         })
         row_format_number.set_num_format('#,##0')
 
         row_format_number_canceled_project = workbook.add_format({
             'border': 1,
-            'font_size': 9,
+            'font_size': 10,
         })
         row_format_number_canceled_project.set_num_format('#,##0')
         row_format_number_canceled_project.set_font_color('red')
 
         row_format_number_itogo = workbook.add_format({
             'border': 1,
-            'font_size': 9,
+            'font_size': 10,
             "bold": True,
             "fg_color": '#A9D08E',
 
@@ -2762,13 +2780,13 @@ class report_budget_forecast_excel(models.AbstractModel):
             'valign': 'vcenter',
             "bold": True,
             "fg_color": '#DCE6F1',
-            "font_size": 9,
+            "font_size": 10,
         })
         head_format_month_itogo.set_num_format('#,##0')
 
         row_format_plan = workbook.add_format({
             'border': 1,
-            'font_size': 9,
+            'font_size': 10,
             "bold": True,
             "fg_color": '#DCE6F1',
             "num_format": '#,##0',
@@ -2776,16 +2794,24 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         row_format_itogo_estimated_plan = workbook.add_format({
             'border': 1,
-            'font_size': 9,
+            'font_size': 10,
             "bold": True,
             "fg_color": '#FFFF00',
             "num_format": '#,##0',
             'align': 'center',
         })
 
+        row_format_itogo_estimated_plan_left = workbook.add_format({
+            'border': 1,
+            'font_size': 10,
+            "bold": True,
+            "fg_color": '#FFFF00',
+            "num_format": '#,##0',
+        })
+
         row_format_itogo_estimated_plan_cross = workbook.add_format({
             'border': 1,
-            'font_size': 9,
+            'font_size': 10,
             "bold": True,
             "fg_color": '#FFFF00',
             "num_format": '#,##0',
@@ -2859,10 +2885,10 @@ class report_budget_forecast_excel(models.AbstractModel):
         column = self.print_month_head_revenue_margin(workbook, sheet, row, column, YEARint, self.month_rus_name_revenue_margin, False)
         column = self.print_month_head_contract(workbook, sheet, row, column + 1, YEARint + 1, ['YEAR итого',], True)
         column = self.print_month_head_pds(workbook, sheet, row, column, YEARint + 1, ['YEAR итого',], True)
-        column = self.print_month_head_revenue_margin(workbook, sheet, row, column, YEARint + 1, ['YEAR',], True)
+        column = self.print_month_head_revenue_margin(workbook, sheet, row, column, YEARint + 1, ['YEAR итого',], True)
         column = self.print_month_head_contract(workbook, sheet, row, column + 1, YEARint + 2, ['YEAR итого',], True)
         column = self.print_month_head_pds(workbook, sheet, row, column, YEARint + 2, ['YEAR итого',], True)
-        column = self.print_month_head_revenue_margin(workbook, sheet, row, column, YEARint + 2, ['YEAR',], True)
+        column = self.print_month_head_revenue_margin(workbook, sheet, row, column, YEARint + 2, ['YEAR итого',], True)
         row += 2
         project_offices = self.env['project_budget.project_office'].search([('parent_id', '=', False)], order='name')  # для сортировки так делаем + берем сначала только верхние элементы
         project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
@@ -2875,6 +2901,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         column = 0
         sheet.write_string(row, column, 'ИТОГО по отчету' , row_format_number_itogo)
         sheet.write_string(row, column + 1, 'ИТОГО по отчету', row_format_number_itogo)
+        sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
         formulaItogo = formulaItogo + ')'
         if 'project_office_0' in dict_formula:
             formulaItogo = '=sum(' + dict_formula['project_office_0'] + ')'
@@ -2889,8 +2916,8 @@ class report_budget_forecast_excel(models.AbstractModel):
         # расчетный план по отчету
         row += 1
         column = 0
-        sheet.write_string(row, column, 'ИТОГО: Расчетный План по отчету' , row_format_itogo_estimated_plan)
-        sheet.write_string(row, column + 1, 'ИТОГО: Расчетный План по отчету', row_format_itogo_estimated_plan)
+        sheet.write_string(row, column, 'ИТОГО: Расчетный План по отчету' , row_format_itogo_estimated_plan_left)
+        sheet.write_string(row, column + 1, 'ИТОГО: Расчетный План по отчету', row_format_itogo_estimated_plan_left)
 
         self.print_estimated_rows(sheet, row, row_format_itogo_estimated_plan,
                                   row_format_itogo_estimated_plan_cross)
