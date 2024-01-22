@@ -295,18 +295,20 @@ class report_budget_forecast_excel(models.AbstractModel):
                 if step:
                     if pds.project_steps_id.id != step.id: continue
                 if pds.date_cash.month == month and pds.date_cash.year == year:
+                    if step:
+                        estimated_probability_id_name = step.estimated_probability_id.name
+                    else:
+                        estimated_probability_id_name = project.estimated_probability_id.name
+
                     if pds.forecast == 'from_project':
-                        if step:
-                            estimated_probability_id_name = step.estimated_probability_id.name
-                        else:
-                            estimated_probability_id_name = project.estimated_probability_id.name
 
                         if estimated_probability_id_name in ('75', '100', '100(done)'):
                             sum_cash['commitment'] = sum_cash.get('commitment', 0) + pds.sum_cash
                         elif estimated_probability_id_name == '50':
                             sum_cash['reserve'] = sum_cash.get('reserve', 0) + pds.sum_cash
                     else:
-                        sum_cash[pds.forecast] = sum_cash.get(pds.forecast, 0) + pds.sum_cash
+                        if estimated_probability_id_name != '0':
+                            sum_cash[pds.forecast] = sum_cash.get(pds.forecast, 0) + pds.sum_cash
             # else: # если нихрена нет планового ПДС, то берем сумму общую по дате окончания sale или по дате этапа
             #     print('step = ',step)
             #     print('project = ',project)
@@ -328,18 +330,19 @@ class report_budget_forecast_excel(models.AbstractModel):
                 if step:
                     if pds.project_steps_id.id != step.id: continue
                 if pds.date_cash.year == year:
-                    if pds.forecast == 'from_project':
-                        if step:
-                            estimated_probability_id_name = step.estimated_probability_id.name
-                        else:
-                            estimated_probability_id_name = project.estimated_probability_id.name
+                    if step:
+                        estimated_probability_id_name = step.estimated_probability_id.name
+                    else:
+                        estimated_probability_id_name = project.estimated_probability_id.name
 
+                    if pds.forecast == 'from_project':
                         if estimated_probability_id_name in ('75', '100', '100(done)'):
                             sum_cash['commitment'] = sum_cash.get('commitment', 0) + pds.sum_cash
                         elif estimated_probability_id_name == '50':
                             sum_cash['reserve'] = sum_cash.get('reserve', 0) + pds.sum_cash
                     else:
-                        sum_cash[pds.forecast] = sum_cash.get(pds.forecast, 0) + pds.sum_cash
+                        if estimated_probability_id_name != '0':
+                            sum_cash[pds.forecast] = sum_cash.get(pds.forecast, 0) + pds.sum_cash
             # else: # если нихрена нет планового ПДС, то берем сумму общую по дате окончания sale или по дате этапа
             #     print('step = ',step)
             #     print('project = ',project)
@@ -808,18 +811,18 @@ class report_budget_forecast_excel(models.AbstractModel):
                     if planned_cash_flow.project_steps_id.id != step.id: continue
                 if planned_cash_flow.date_cash.year == year:
                     sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
+                    estimated_probability_id_name = project.estimated_probability_id.name
+                    if step:
+                        estimated_probability_id_name = step.estimated_probability_id.name
+
                     if planned_cash_flow.forecast == 'from_project':
-
-                        estimated_probability_id_name = project.estimated_probability_id.name
-                        if step:
-                            estimated_probability_id_name = step.estimated_probability_id.name
-
                         if estimated_probability_id_name in ('75', '100', '100(done)'):
                             sum_ostatok_pds['commitment'] = sum_ostatok_pds.get('commitment', 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
                         elif estimated_probability_id_name == '50':
                             sum_ostatok_pds['reserve'] = sum_ostatok_pds.get('reserve', 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
                     else:
-                        sum_ostatok_pds[planned_cash_flow.forecast] = sum_ostatok_pds.get(planned_cash_flow.forecast, 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
+                        if estimated_probability_id_name != '0':
+                            sum_ostatok_pds[planned_cash_flow.forecast] = sum_ostatok_pds.get(planned_cash_flow.forecast, 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
 
             if sum_distribution_pds != 0 : # если есть распределение, то остаток = остатку распределения
                 sum = sum_ostatok_pds
@@ -881,18 +884,18 @@ class report_budget_forecast_excel(models.AbstractModel):
                     if planned_cash_flow.project_steps_id.id != step.id: continue
                 if planned_cash_flow.date_cash.month == month and planned_cash_flow.date_cash.year == year:
                     sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
+                    estimated_probability_id_name = project.estimated_probability_id.name
+                    if step:
+                        estimated_probability_id_name = step.estimated_probability_id.name
+
                     if planned_cash_flow.forecast == 'from_project':
-
-                        estimated_probability_id_name = project.estimated_probability_id.name
-                        if step:
-                            estimated_probability_id_name = step.estimated_probability_id.name
-
                         if estimated_probability_id_name in ('75', '100', '100(done)'):
                             sum_ostatok_pds['commitment'] = sum_ostatok_pds.get('commitment', 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
                         elif estimated_probability_id_name == '50':
                             sum_ostatok_pds['reserve'] = sum_ostatok_pds.get('reserve', 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
                     else:
-                        sum_ostatok_pds[planned_cash_flow.forecast] = sum_ostatok_pds.get(planned_cash_flow.forecast, 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
+                        if estimated_probability_id_name != '0':
+                            sum_ostatok_pds[planned_cash_flow.forecast] = sum_ostatok_pds.get(planned_cash_flow.forecast, 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
 
             if sum_distribution_pds != 0 : # если есть распределение, то остаток = остатку распределения
                 sum = sum_ostatok_pds
@@ -978,18 +981,19 @@ class report_budget_forecast_excel(models.AbstractModel):
                     if step:
                         if acceptance.project_steps_id.id != step.id: continue
                     if acceptance.date_cash.month in months and acceptance.date_cash.year == year:
-                        if acceptance.forecast == 'from_project':
-                            if step:
-                                estimated_probability_id_name = step.estimated_probability_id.name
-                            else:
-                                estimated_probability_id_name = project.estimated_probability_id.name
+                        if step:
+                            estimated_probability_id_name = step.estimated_probability_id.name
+                        else:
+                            estimated_probability_id_name = project.estimated_probability_id.name
 
+                        if acceptance.forecast == 'from_project':
                             if estimated_probability_id_name in ('75', '100', '100(done)'):
                                 sum_acceptance['commitment'] = sum_acceptance.get('commitment', 0) + acceptance.sum_cash_without_vat
                             elif estimated_probability_id_name == '50':
                                 sum_acceptance['reserve'] = sum_acceptance.get('reserve', 0) + acceptance.sum_cash_without_vat
                         else:
-                            sum_acceptance[acceptance.forecast] = sum_acceptance.get(acceptance.forecast, 0) + acceptance.sum_cash_without_vat
+                            if estimated_probability_id_name != '0':
+                                sum_acceptance[acceptance.forecast] = sum_acceptance.get(acceptance.forecast, 0) + acceptance.sum_cash_without_vat
         if element_name == False:
             acceptance_list = project.planned_acceptance_flow_ids
             if acceptance_list:
@@ -997,18 +1001,19 @@ class report_budget_forecast_excel(models.AbstractModel):
                     if step:
                         if acceptance.project_steps_id.id != step.id: continue
                     if acceptance.date_cash.year == year:
-                        if acceptance.forecast == 'from_project':
-                            if step:
-                                estimated_probability_id_name = step.estimated_probability_id.name
-                            else:
-                                estimated_probability_id_name = project.estimated_probability_id.name
+                        if step:
+                            estimated_probability_id_name = step.estimated_probability_id.name
+                        else:
+                            estimated_probability_id_name = project.estimated_probability_id.name
 
+                        if acceptance.forecast == 'from_project':
                             if estimated_probability_id_name in ('75', '100', '100(done)'):
                                 sum_acceptance['commitment'] = sum_acceptance.get('commitment', 0) + acceptance.sum_cash_without_vat
                             elif estimated_probability_id_name == '50':
                                 sum_acceptance['reserve'] = sum_acceptance.get('reserve', 0) + acceptance.sum_cash_without_vat
                         else:
-                            sum_acceptance[acceptance.forecast] = sum_acceptance.get(acceptance.forecast, 0) + acceptance.sum_cash_without_vat
+                            if estimated_probability_id_name !='0' :
+                                sum_acceptance[acceptance.forecast] = sum_acceptance.get(acceptance.forecast, 0) + acceptance.sum_cash_without_vat
         return sum_acceptance
 
     def get_sum_planned_margin_project_step_quater(self, project, step, year, element_name):
@@ -1044,7 +1049,8 @@ class report_budget_forecast_excel(models.AbstractModel):
                             elif estimated_probability_id_name == '50':
                                 sum_margin['reserve'] += acceptance.sum_cash_without_vat * profitability / 100
                         else:
-                            sum_margin[acceptance.forecast] += acceptance.sum_cash_without_vat * profitability / 100
+                            if estimated_probability_id_name != '0':
+                                sum_margin[acceptance.forecast] += acceptance.sum_cash_without_vat * profitability / 100
         if element_name == False:
             acceptance_list = project.planned_acceptance_flow_ids
             if acceptance_list:
@@ -1063,7 +1069,8 @@ class report_budget_forecast_excel(models.AbstractModel):
                             elif estimated_probability_id_name == '50':
                                 sum_margin['reserve'] += acceptance.sum_cash_without_vat * profitability / 100
                         else:
-                            sum_margin[acceptance.forecast] += acceptance.sum_cash_without_vat * profitability / 100
+                            if estimated_probability_id_name != '0':
+                                sum_margin[acceptance.forecast] += acceptance.sum_cash_without_vat * profitability / 100
         return sum_margin
 
     def get_margin_forecast_from_distributions(self, planned_acceptance, margin_plan, project, step, margin_rate_for_parent):
@@ -1072,16 +1079,18 @@ class report_budget_forecast_excel(models.AbstractModel):
         for distribution in planned_acceptance.distribution_acceptance_ids:
             if distribution.fact_acceptance_flow_id.sum_cash_without_vat != 0:
                 margin_distribution += distribution.fact_acceptance_flow_id.margin * distribution.distribution_sum_without_vat / distribution.fact_acceptance_flow_id.sum_cash_without_vat
+        estimated_probability_id_name = project.estimated_probability_id.name
+        if step:
+            estimated_probability_id_name = step.estimated_probability_id.name
+
         if planned_acceptance.forecast == 'from_project':
-            estimated_probability_id_name = project.estimated_probability_id.name
-            if step:
-                estimated_probability_id_name = step.estimated_probability_id.name
             if estimated_probability_id_name in ('75', '100', '100(done)'):
                 margin_plan['commitment'] -= margin_distribution * margin_rate_for_parent
             elif estimated_probability_id_name == '50':
                 margin_plan['reserve'] -= margin_distribution * margin_rate_for_parent
         else:
-            margin_plan[planned_acceptance.forecast] -= margin_distribution * margin_rate_for_parent
+            if estimated_probability_id_name != '0':
+                margin_plan[planned_acceptance.forecast] -= margin_distribution * margin_rate_for_parent
         return  margin_plan
 
     def get_sum_planned_acceptance_project_step_from_distribution(self, project, step, year, element_name):
@@ -1096,12 +1105,11 @@ class report_budget_forecast_excel(models.AbstractModel):
                 if planned_acceptance_flow.date_cash.month in months and planned_acceptance_flow.date_cash.year == year:
                     sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
 
+                    estimated_probability_id_name = project.estimated_probability_id.name
+                    if step:
+                        estimated_probability_id_name = step.estimated_probability_id.name
+
                     if planned_acceptance_flow.forecast == 'from_project':
-
-                        estimated_probability_id_name = project.estimated_probability_id.name
-                        if step:
-                            estimated_probability_id_name = step.estimated_probability_id.name
-
                         if estimated_probability_id_name in ('75', '100', '100(done)'):
                             sum_ostatok_acceptance['commitment'] = sum_ostatok_acceptance.get('commitment',
                                                                                               0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
@@ -1109,9 +1117,10 @@ class report_budget_forecast_excel(models.AbstractModel):
                             sum_ostatok_acceptance['reserve'] = sum_ostatok_acceptance.get('reserve',
                                                                                            0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
                     else:
-                        sum_ostatok_acceptance[planned_acceptance_flow.forecast] = sum_ostatok_acceptance.get(
-                            planned_acceptance_flow.forecast,
-                            0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                        if estimated_probability_id_name != '0':
+                            sum_ostatok_acceptance[planned_acceptance_flow.forecast] = sum_ostatok_acceptance.get(
+                                planned_acceptance_flow.forecast,
+                                0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
 
         if element_name == False:
             for planned_acceptance_flow in project.planned_acceptance_flow_ids:
@@ -1120,12 +1129,11 @@ class report_budget_forecast_excel(models.AbstractModel):
                 if planned_acceptance_flow.date_cash.year == year:
                     sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
 
+                    estimated_probability_id_name = project.estimated_probability_id.name
+                    if step:
+                        estimated_probability_id_name = step.estimated_probability_id.name
+
                     if planned_acceptance_flow.forecast == 'from_project':
-
-                        estimated_probability_id_name = project.estimated_probability_id.name
-                        if step:
-                            estimated_probability_id_name = step.estimated_probability_id.name
-
                         if estimated_probability_id_name in ('75', '100', '100(done)'):
                             sum_ostatok_acceptance['commitment'] = sum_ostatok_acceptance.get('commitment',
                                                                                               0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
@@ -1133,9 +1141,10 @@ class report_budget_forecast_excel(models.AbstractModel):
                             sum_ostatok_acceptance['reserve'] = sum_ostatok_acceptance.get('reserve',
                                                                                            0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
                     else:
-                        sum_ostatok_acceptance[planned_acceptance_flow.forecast] = sum_ostatok_acceptance.get(
-                            planned_acceptance_flow.forecast,
-                            0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                        if estimated_probability_id_name != '0':
+                            sum_ostatok_acceptance[planned_acceptance_flow.forecast] = sum_ostatok_acceptance.get(
+                                planned_acceptance_flow.forecast,
+                                0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
 
         if sum_distribution_acceptance:  # если есть распределение, то остаток = остатку распределения
             return sum_ostatok_acceptance
@@ -1872,7 +1881,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 for element in range(len(self.month_rus_name_contract_pds)):
                     if element in [3, 7, 8, 12, 16, 17, 18]:  # учитываем колонки планов
                         shift += 1
-                    formula = '=({1}{0}+{2}{0})*D1+{3}{0}*D2'.format(
+                    formula = '={1}{0}+{2}{0}*D1+{3}{0}*D2'.format(
                         row,
                         xl_col_to_name(start_column + shift + element * width),
                         xl_col_to_name(start_column + shift + element * width + 1),
@@ -1900,7 +1909,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 for element in range(len(self.month_rus_name_revenue_margin)):
                     if element in [5]:  # учитываем колонки планов
                         shift += 1
-                    formula = '=({1}{0}+{2}{0})*D1+{3}{0}*D2'.format(
+                    formula = '={1}{0}+{2}{0}*D1+{3}{0}*D2'.format(
                         row,
                         xl_col_to_name(start_column + shift + element * width),
                         xl_col_to_name(start_column + shift + element * width + 1),
