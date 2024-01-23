@@ -1337,7 +1337,7 @@ class report_svod_excel(models.AbstractModel):
                         )
                     for spec in cur_budget_projects:
                         if spec.project_office_id == project_office or spec.legal_entity_signing_id.different_project_offices_in_steps and any(step.project_office_id == project_office for step in spec.project_steps_ids):
-                            if spec.is_framework == True and spec.project_have_steps == False: continue # рамка без этапов - пропускаем
+                            # if spec.is_framework == True and spec.project_have_steps == False: continue # рамка без этапов - пропускаем
                             if self.isProjectinYear(spec) == False : continue
                             if (spec.vgo == '-'):
                                 if isFoundProjectsByOffice == False:  # первый вход

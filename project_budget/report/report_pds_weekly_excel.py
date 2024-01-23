@@ -339,19 +339,17 @@ class report_pds_weekly_excel(models.AbstractModel):
             if step:
                 if pds.project_steps_id.id != step.id: continue
             if pds.date_cash.month in months and pds.date_cash.year == YEARint:
+                estimated_probability_id_name = project.estimated_probability_id.name
+                if step:
+                    estimated_probability_id_name = step.estimated_probability_id.name
                 if pds.forecast == 'from_project':
-                    if step:
-                        if step.estimated_probability_id.name in ('100(done)', '100', '75'):
-                            sum_cash['commitment'] += pds.sum_cash
-                        elif step.estimated_probability_id.name == '50':
-                            sum_cash['reserve'] += pds.sum_cash
-                    else:
-                        if project.estimated_probability_id.name in ('100(done)', '100', '75'):
-                            sum_cash['commitment'] += pds.sum_cash
-                        elif project.estimated_probability_id.name == '50':
-                            sum_cash['reserve'] += pds.sum_cash
+                    if estimated_probability_id_name in ('100(done)', '100', '75'):
+                        sum_cash['commitment'] += pds.sum_cash
+                    elif estimated_probability_id_name == '50':
+                        sum_cash['reserve'] += pds.sum_cash
                 else:
-                    sum_cash[pds.forecast] += pds.sum_cash
+                    if estimated_probability_id_name != '0':
+                        sum_cash[pds.forecast] += pds.sum_cash
         # else: # если нихрена нет планового ПДС, то берем сумму общую по дате окончания sale или по дате этапа
         #     print('step = ',step)
         #     print('project = ',project)
@@ -376,19 +374,17 @@ class report_pds_weekly_excel(models.AbstractModel):
             if step:
                 if pds.project_steps_id.id != step.id: continue
             if pds.date_cash.isocalendar()[1] == week_number and pds.date_cash.isocalendar()[0] == YEARint:
+                estimated_probability_id_name = project.estimated_probability_id.name
+                if step:
+                    estimated_probability_id_name = step.estimated_probability_id.name
                 if pds.forecast == 'from_project':
-                    if step:
-                        if step.estimated_probability_id.name in ('100(done)', '100', '75'):
-                            sum_cash['commitment'] += pds.sum_cash
-                        elif step.estimated_probability_id.name == '50':
-                            sum_cash['reserve'] += pds.sum_cash
-                    else:
-                        if project.estimated_probability_id.name in ('100(done)', '100', '75'):
-                            sum_cash['commitment'] += pds.sum_cash
-                        elif project.estimated_probability_id.name == '50':
-                            sum_cash['reserve'] += pds.sum_cash
+                    if estimated_probability_id_name in ('100(done)', '100', '75'):
+                        sum_cash['commitment'] += pds.sum_cash
+                    elif estimated_probability_id_name == '50':
+                        sum_cash['reserve'] += pds.sum_cash
                 else:
-                    sum_cash[pds.forecast] += pds.sum_cash
+                    if estimated_probability_id_name != '0':
+                        sum_cash[pds.forecast] += pds.sum_cash
         return sum_cash
 
     def get_sum_plan_pds_project_step_year(self, project, step, year):
@@ -403,19 +399,17 @@ class report_pds_weekly_excel(models.AbstractModel):
             if step:
                 if pds.project_steps_id.id != step.id: continue
             if pds.date_cash.year == year:
+                estimated_probability_id_name = project.estimated_probability_id.name
+                if step:
+                    estimated_probability_id_name = step.estimated_probability_id.name
                 if pds.forecast == 'from_project':
-                    if step:
-                        if step.estimated_probability_id.name in ('100(done)', '100', '75'):
-                            sum_cash['commitment'] += pds.sum_cash
-                        elif step.estimated_probability_id.name == '50':
-                            sum_cash['reserve'] += pds.sum_cash
-                    else:
-                        if project.estimated_probability_id.name in ('100(done)', '100', '75'):
-                            sum_cash['commitment'] += pds.sum_cash
-                        elif project.estimated_probability_id.name == '50':
-                            sum_cash['reserve'] += pds.sum_cash
+                    if estimated_probability_id_name in ('100(done)', '100', '75'):
+                        sum_cash['commitment'] += pds.sum_cash
+                    elif estimated_probability_id_name == '50':
+                        sum_cash['reserve'] += pds.sum_cash
                 else:
-                    sum_cash[pds.forecast] += pds.sum_cash
+                    if estimated_probability_id_name != '0':
+                        sum_cash[pds.forecast] += pds.sum_cash
         return sum_cash
 
     # def get_sum_plan_acceptance_step_month(self,project, step, month):
@@ -854,19 +848,17 @@ class report_pds_weekly_excel(models.AbstractModel):
             if step:
                 if planned_cash_flow.project_steps_id.id != step.id: continue
             if planned_cash_flow.date_cash.isocalendar()[1] == week_number and planned_cash_flow.date_cash.isocalendar()[0] == YEARint:
+                estimated_probability_id_name = project.estimated_probability_id.name
+                if step:
+                    estimated_probability_id_name = step.estimated_probability_id.name
                 if planned_cash_flow.forecast == 'from_project':
-                    if step:
-                        if step.estimated_probability_id.name in ('100(done)', '100', '75'):
-                            sum_ostatok_pds['commitment'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                        elif step.estimated_probability_id.name == '50':
-                            sum_ostatok_pds['reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                    else:
-                        if project.estimated_probability_id.name in ('100(done)', '100', '75'):
-                            sum_ostatok_pds['commitment'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                        elif project.estimated_probability_id.name == '50':
-                            sum_ostatok_pds['reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
+                    if estimated_probability_id_name in ('100(done)', '100', '75'):
+                        sum_ostatok_pds['commitment'] += planned_cash_flow.distribution_sum_with_vat_ostatok
+                    elif estimated_probability_id_name == '50':
+                        sum_ostatok_pds['reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
                 else:
-                    sum_ostatok_pds[planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
+                    if estimated_probability_id_name != '0':
+                        sum_ostatok_pds[planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
 
                 sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
 
@@ -944,8 +936,9 @@ class report_pds_weekly_excel(models.AbstractModel):
                                 elif step.estimated_probability_id.name == '50':
                                     sum_ostatok_pds['reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
                             else:
-                                sum_ostatok_pds[
-                                    planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
+                                if step.estimated_probability_id.name != '0':
+                                    sum_ostatok_pds[
+                                        planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
 
                     if sum_distribution_pds != 0 : # если есть распределение, то остаток = остатку распределения
                         sum = sum_ostatok_pds
@@ -991,8 +984,9 @@ class report_pds_weekly_excel(models.AbstractModel):
                             elif project.estimated_probability_id.name == '50':
                                 sum_ostatok_pds['reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
                         else:
-                            sum_ostatok_pds[
-                                planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
+                            if project.estimated_probability_id.name != '0':
+                                sum_ostatok_pds[
+                                    planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
 
                 if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
                     sum = sum_ostatok_pds
@@ -1033,8 +1027,9 @@ class report_pds_weekly_excel(models.AbstractModel):
                                 elif step.estimated_probability_id.name == '30':
                                     sum_ostatok_pds['potential'] += planned_cash_flow.distribution_sum_with_vat_ostatok
                             else:
-                                sum_ostatok_pds[
-                                    planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
+                                if step.estimated_probability_id.name != '0':
+                                    sum_ostatok_pds[
+                                        planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
 
                     if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
                         sum = sum_ostatok_pds
@@ -1072,8 +1067,9 @@ class report_pds_weekly_excel(models.AbstractModel):
                             elif project.estimated_probability_id.name == '30':
                                 sum_ostatok_pds['potential'] += planned_cash_flow.distribution_sum_with_vat_ostatok
                         else:
-                            sum_ostatok_pds[
-                                planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
+                            if project.estimated_probability_id.name != '0':
+                                sum_ostatok_pds[
+                                    planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
 
                 if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
                     sum = sum_ostatok_pds
@@ -1115,8 +1111,9 @@ class report_pds_weekly_excel(models.AbstractModel):
                                 elif step.estimated_probability_id.name == '30':
                                     sum_ostatok_pds['potential'] += planned_cash_flow.distribution_sum_with_vat_ostatok
                             else:
-                                sum_ostatok_pds[
-                                    planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
+                                if step.estimated_probability_id.name != '0':
+                                    sum_ostatok_pds[
+                                        planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
                     if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
                         sum = sum_ostatok_pds
                         for key in sum:
@@ -1154,8 +1151,9 @@ class report_pds_weekly_excel(models.AbstractModel):
                             elif project.estimated_probability_id.name == '30':
                                 sum_ostatok_pds['potential'] += planned_cash_flow.distribution_sum_with_vat_ostatok
                         else:
-                            sum_ostatok_pds[
-                                planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
+                            if project.estimated_probability_id.name != '0':
+                                sum_ostatok_pds[
+                                    planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
 
                 if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
                     sum = sum_ostatok_pds
@@ -1216,8 +1214,9 @@ class report_pds_weekly_excel(models.AbstractModel):
                                 elif step.estimated_probability_id.name == '50':
                                     sum_ostatok_pds['reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
                             else:
-                                sum_ostatok_pds[
-                                    planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
+                                if step.estimated_probability_id.name != '0':
+                                    sum_ostatok_pds[
+                                        planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
 
                     if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
                         sum = sum_ostatok_pds
@@ -1250,8 +1249,9 @@ class report_pds_weekly_excel(models.AbstractModel):
                         elif project.estimated_probability_id.name == '50':
                             sum_ostatok_pds['reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
                     else:
-                        sum_ostatok_pds[
-                            planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
+                        if project.estimated_probability_id.name != '0':
+                            sum_ostatok_pds[
+                                planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
 
             if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
                 sum = sum_ostatok_pds
@@ -2760,7 +2760,7 @@ class report_pds_weekly_excel(models.AbstractModel):
                     # sheet.write_string(row, column, project_office.name, row_format)
 
                 for spec in cur_budget_projects.filtered(lambda r: r.project_office_id == project_office or (r.legal_entity_signing_id.different_project_offices_in_steps and r.project_have_steps)):
-                    if spec.is_framework is True and spec.project_have_steps is False: continue # рамка без этапов - пропускаем
+                    # if spec.is_framework is True and spec.project_have_steps is False: continue # рамка без этапов - пропускаем
                     if spec.vgo == '-':
 
                         if begRowProjectsByOffice == 0:
