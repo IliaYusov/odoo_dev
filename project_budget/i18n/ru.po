@@ -3620,6 +3620,20 @@ msgstr "Пожалуйста добавьте Финансовые показа�
 #. odoo-python
 #: code:addons/project_budget/models/projects.py:0
 #, python-format
+msgid "Please enter forecast for cash or acceptance to project {0}"
+msgstr "Пожалуйста добавьте Прогноз актирования или ПДС в проект {0}, его вероятность больше 30%"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/project_steps.py:0
+#, python-format
+msgid "Please enter forecast for cash or acceptance to project {0} step {1}"
+msgstr "Пожалуйста добавьте Прогноз актирования или ПДС в этап {1} проекта {0}, его вероятность больше 30%"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/projects.py:0
+#, python-format
 msgid "Project with steps should be 'Complex' type"
 msgstr "При наличии этапа проект должен иметь тип 'Комплексный'"
 

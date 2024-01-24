@@ -275,6 +275,15 @@ class project_steps(models.Model):
                                         copy=True, tracking=True, check_company=True,
                                         domain="[('is_prohibit_selection','=', False)]",
                                         )
+    planned_cash_flow_ids = fields.One2many(
+        comodel_name='project_budget.planned_cash_flow',
+        inverse_name='project_steps_id',
+        string="planned cash flow", auto_join=True)
+
+    planned_acceptance_flow_ids = fields.One2many(
+        comodel_name='project_budget.planned_acceptance_flow',
+        inverse_name='project_steps_id',
+        string="planned acceptance flow", auto_join=True)
 
     is_revenue_from_the_sale_of_works = fields.Boolean(related='project_steps_type_id.is_revenue_from_the_sale_of_works', readonly=True)
     is_revenue_from_the_sale_of_goods = fields.Boolean(related='project_steps_type_id.is_revenue_from_the_sale_of_goods', readonly=True)

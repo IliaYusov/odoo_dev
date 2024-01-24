@@ -850,7 +850,7 @@ class projects(models.Model):
             return False
         else: return True
 
-    @api.constrains('estimated_probability_id', 'total_amount_of_revenue', 'cost_price')
+    @api.constrains('estimated_probability_id', 'total_amount_of_revenue', 'cost_price', 'planned_acceptance_flow_ids', 'planned_cash_flow_ids')
     def _check_financial_data_is_present(self):
         for project in self:
             if (project.estimated_probability_id.name in ('50', '75', '100')
@@ -863,6 +863,26 @@ class projects(models.Model):
                 raisetext = _("Please enter financial data to project {0}")
                 raisetext = raisetext.format(project.project_id)
                 raise ValidationError(raisetext)
+            if project.project_have_steps:
+                for step in project.project_steps_ids:
+                    if (step.estimated_probability_id.name in ('50', '75', '100')
+                            and not step.planned_acceptance_flow_ids
+                            and not step.planned_cash_flow_ids
+                            and step.projects_id.budget_state == 'work'
+                            and not step.projects_id.is_correction_project):
+                        raisetext = _("Please enter forecast for cash or acceptance to project {0} step {1}")
+                        raisetext = raisetext.format(step.projects_id.project_id, step.step_id)
+                        raise ValidationError(raisetext)
+            else:
+                if (project.estimated_probability_id.name in ('50', '75', '100')
+                        and not project.planned_acceptance_flow_ids
+                        and not project.planned_cash_flow_ids
+                        and not project.is_parent_project
+                        and project.budget_state == 'work'
+                        and not project.is_correction_project):
+                    raisetext = _("Please enter forecast for cash or acceptance to project {0}")
+                    raisetext = raisetext.format(project.project_id)
+                    raise ValidationError(raisetext)
 
     @api.constrains('project_have_steps', 'project_type_id')
     def _check_project_with_steps_is_complex(self):
