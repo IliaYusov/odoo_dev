@@ -76,9 +76,10 @@ export class BarChart extends Component {
                         fontColor: 'rgb(255, 99, 132)'
                     }
                 },
-//                tooltips: {
-//                    enabled: false,
-//                },
+                tooltips: {
+                    enabled: true,
+                    xAlign: "center",
+                },
                 scales: {
                     xAxes: [{
                         ticks: {

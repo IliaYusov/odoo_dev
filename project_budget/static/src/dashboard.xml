@@ -2,15 +2,6 @@
 <templates xml:space="preserve">
 
 <t t-name="project_budget.dashboard_template" owl="1">
-<!--    <div class="row">-->
-<!--        <div class="col m-0 p-0">-->
-<!--            <div class="shadow-sm border m-2 p-4 bg-white">-->
-<!--                <div class="d-flex align-items-center justify-content-between">-->
-<!--                    <h1 class="text-primary fw-bold">Project Budget Dashboard</h1>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
     <Layout display="display">
         <t t-set-slot="control-panel-bottom-left">
             <button class="btn btn-primary" t-on-click="openCustomerView"> Customers </button>
@@ -32,17 +23,6 @@
             </select>
         </t>
     </Layout>
-
-<!--    <div class="p-3">-->
-<!--        <Counter class="mt-3"/>-->
-<!--        <Card>-->
-<!--            <t t-set-slot="title">My card</t>-->
-<!--            Some quick example text...-->
-<!--        </Card>-->
-<!--        <TodoList/>-->
-<!--    </div>-->
-
-<!--    <t t-call="project_budget.clientaction.statistics"/>-->
 
     <div class="m-2 container-fluid">
         <t t-foreach="statistics['offices']" t-as="office" t-key="office">
@@ -90,26 +70,6 @@
             <hr/>
         </t>
     </div>
-<!--    <div class="m-2 container-fluid">-->
-<!--        <div class="row">-->
-<!--            <Card className="'col-2 col-md-3 shadow-sm border m-2 bg-white'">-->
-<!--                <t t-set-slot="title">Q1 Contracting</t>-->
-<!--                <BarChart data="statistics['kam_plan_q1']" kam_height="statistics['kam_height']"/>-->
-<!--            </Card>-->
-<!--            <Card className="'col-2 col-md-3 shadow-sm border m-2 bg-white'">-->
-<!--                <t t-set-slot="title">Q2 Contracting</t>-->
-<!--                <BarChart data="statistics['kam_plan_q2']" kam_height="statistics['kam_height']"/>-->
-<!--            </Card>-->
-<!--            <Card className="'col-2 col-md-3 shadow-sm border m-2 bg-white'">-->
-<!--                <t t-set-slot="title">Q3 Contracting</t>-->
-<!--                <BarChart data="statistics['kam_plan_q3']" kam_height="statistics['kam_height']"/>-->
-<!--            </Card>-->
-<!--            <Card className="'col-2 col-md-3 shadow-sm border m-2 bg-white'">-->
-<!--                <t t-set-slot="title">Q4 Contracting</t>-->
-<!--                <BarChart data="statistics['kam_plan_q4']" kam_height="statistics['kam_height']"/>-->
-<!--            </Card>-->
-<!--         </div>-->
-<!--    </div>-->
 </t>
 
 <t t-name="project_budget.clientaction.statistics" owl="1">

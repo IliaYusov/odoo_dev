@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <templates xml:space="preserve">
     <t t-name="project_budget.Card" owl="1">
-        <div class="card" style="width: 30rem;" t-att-class="props.className">
+        <div class="card" style="width: 30rem; height: fit-content" t-att-class="props.className">
             <div class="card-body">
                 <t t-if="props.slots.title"> 
                     <h5 class="card-title"><t t-slot="title"/></h5>

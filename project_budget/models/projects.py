@@ -1451,9 +1451,11 @@ class projects(models.Model):
             [('year', '=', datetime.datetime.today().year)]
         )
 
-        kam_plans = self.env['project_budget.budget_plan_kam'].search(
-            [('plan_supervisor_id', '=', 1)]
+        kam_plans_all = self.env['project_budget.budget_plan_kam'].search(
+            [('plan_supervisor_id', '!=', False)]
         )
+
+        kam_plans = kam_plans_all.sudo().filtered(lambda r: r.plan_supervisor_id.year == datetime.datetime.today().year)
 
         offices = set()
 
@@ -1527,7 +1529,7 @@ class projects(models.Model):
         return [
             ["{:,}".format(int(plan)).replace(',',' '), "{:,}".format(int(fact)).replace(',',' ')],
             ['#0F5F8B', '#dd0000'] if fact <= plan else ['#00dd00', '#0F5F8B'] ,
-            [fact, plan - fact] if fact <= plan else [fact - plan, plan - (fact - plan)],
+            [fact, plan - fact] if fact <= plan else [fact - plan, max(plan - (fact - plan), 0)],
             "{:.2%}".format(0 if plan == 0 else fact / plan)
         ]
 
