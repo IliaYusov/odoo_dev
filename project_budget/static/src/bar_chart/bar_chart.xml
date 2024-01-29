@@ -3,7 +3,7 @@
     <t t-name="project_budget.BarChart" owl="1">
         <div t-att-class="'h-100 ' + props.class" t-ref="root">
             <div class="h-100 position-relative" t-ref="container">
-                <canvas t-ref="canvas" />
+                <canvas t-ref="canvas" t-att-height="props.chart_height"/>
             </div>
         </div>
     </t>

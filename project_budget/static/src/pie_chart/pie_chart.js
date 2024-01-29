@@ -10,9 +10,9 @@ export class PieChart extends Component {
     setup() {
         this.canvasRef = useRef("canvas");
 
-        this.data = this.props.data[this.props.type][this.props.period][0];
+        this.data = this.props.data[this.props.type][this.props.period][2];
         this.color = this.props.data[this.props.type][this.props.period][1];
-        this.labels = this.props.data[this.props.type][this.props.period][2];
+        this.labels = this.props.data[this.props.type][this.props.period][4];
 
         onWillStart(() => {
             return loadJS(["/web/static/lib/Chart/Chart.js"]);
@@ -36,6 +36,13 @@ export class PieChart extends Component {
         this.actionService = useService("action")
     }
 
+    onPieClick(ev, chartElem) {
+        if (chartElem[0]) {
+            const clickedIndex = chartElem[0]._index;
+            alert(this.color[clickedIndex]);
+        }
+    }
+
     renderChart() {
         if (this.chart) {
             this.chart.destroy();
@@ -53,17 +60,19 @@ export class PieChart extends Component {
                 ],
             },
             options: {
-                onClick: (e) => {
-                    this.actionService.doAction({
-                        type: "ir.actions.act_window",
-                        name: this.props.title,
-                        res_model: "project_budget.projects",
-                        views: [
-                            [false, "list"],
-                            [false, "form"],
-                        ],
-                    })
-                },
+//                onClick: (e) => {
+//                    this.actionService.doAction({
+//                        type: "ir.actions.act_window",
+//                        name: this.props.title,
+//                        res_model: "project_budget.projects",
+//                        views: [
+//                            [false, "list"],
+//                            [false, "form"],
+//                        ],
+//                    })
+//                },
+
+                onClick: this.onPieClick.bind(this),
 
                 legend: {
                     display: false,
