@@ -1447,65 +1447,71 @@ class projects(models.Model):
     @api.model
     def get_statistics(self):
 
-        plans = self.env['project_budget.budget_plan_supervisor'].search(
-            [('year', '=', datetime.datetime.today().year)]
-        )
+        current_year = datetime.datetime.today().year
+        offices = {current_year - 1: set(), current_year: set(), current_year + 1: set()}
+        plans_data = {current_year - 1: {}, current_year: {}, current_year + 1: {}}
+        kam_plans_data = {current_year - 1: {}, current_year: {}, current_year + 1: {}}
 
-        kam_plans_all = self.env['project_budget.budget_plan_kam'].search(
-            [('plan_supervisor_id', '!=', False)]
-        )
+        for year in (current_year - 1, current_year, current_year + 1):
 
-        kam_plans = kam_plans_all.sudo().filtered(lambda r: r.plan_supervisor_id.year == datetime.datetime.today().year)
-
-        offices = set()
-
-        plans_data = {}
-        for spec in plans.budget_plan_supervisor_spec_ids:
-            office = plans_data.setdefault(spec.budget_plan_supervisor_id.project_office_id.name, {})
-            offices.add(spec.budget_plan_supervisor_id.project_office_id.name)
-            type = office.setdefault(spec.type_row, {})
-            type['Q1'] = self.get_statistics_data(spec.q1_plan, spec.q1_fact)
-            type['Q2'] = self.get_statistics_data(spec.q2_plan, spec.q2_fact)
-            type['Q3'] = self.get_statistics_data(spec.q3_plan, spec.q3_fact)
-            type['Q4'] = self.get_statistics_data(spec.q4_plan, spec.q4_fact)
-            type['Y'] = self.get_statistics_data(spec.q1_plan + spec.q2_plan + spec.q3_plan + spec.q4_plan, spec.q1_fact + spec.q2_fact + spec.q3_fact + spec.q4_fact)
-            summary = type.setdefault('summary', {})
-            summary['Q1'] = self.get_statistics_data(spec.q1_plan, spec.q1_fact)
-            summary['Q2'] = self.get_statistics_data(spec.q2_plan, spec.q2_fact)
-            summary['Q3'] = self.get_statistics_data(spec.q3_plan, spec.q3_fact)
-            summary['Q4'] = self.get_statistics_data(spec.q4_plan, spec.q4_fact)
-            summary['Y'] = self.get_statistics_data(spec.q1_plan + spec.q2_plan + spec.q3_plan + spec.q4_plan, spec.q1_fact + spec.q2_fact + spec.q3_fact + spec.q4_fact)
-
-        kam_plans_data = {}
-        for spec in kam_plans.budget_plan_kam_spec_ids:
-            office = kam_plans_data.setdefault(spec.budget_plan_kam_id.project_office_id.name, {})
-            offices.add(spec.budget_plan_kam_id.project_office_id.name)
-            type = office.setdefault(spec.type_row, {})
-            type['Q1'] = self.get_statistics_data_kam(type.get('Q1', [[],[],[]]), spec.budget_plan_kam_id.kam_id.name, spec.q1_plan, spec.q1_fact)
-            type['Q2'] = self.get_statistics_data_kam(type.get('Q2', [[],[],[]]), spec.budget_plan_kam_id.kam_id.name, spec.q2_plan, spec.q2_fact)
-            type['Q3'] = self.get_statistics_data_kam(type.get('Q3', [[],[],[]]), spec.budget_plan_kam_id.kam_id.name, spec.q3_plan, spec.q3_fact)
-            type['Q4'] = self.get_statistics_data_kam(type.get('Q4', [[],[],[]]), spec.budget_plan_kam_id.kam_id.name, spec.q4_plan, spec.q4_fact)
-            type['Y'] = self.get_statistics_data_kam(
-                type.get('Y', [[],[],[]]),
-                spec.budget_plan_kam_id.kam_id.name,
-                spec.q1_plan + spec.q2_plan + spec.q3_plan + spec.q4_plan,
-                spec.q1_fact + spec.q2_fact + spec.q3_fact + spec.q4_fact
-            )
-            summary = type.setdefault('summary', {})
-            summary['Q1'] = self.get_statistics_data_kam(summary.get('Q1', [[],[],[]]), spec.budget_plan_kam_id.kam_id.name, spec.q1_plan, spec.q1_fact)
-            summary['Q2'] = self.get_statistics_data_kam(summary.get('Q2', [[],[],[]]), spec.budget_plan_kam_id.kam_id.name, spec.q2_plan, spec.q2_fact)
-            summary['Q3'] = self.get_statistics_data_kam(summary.get('Q3', [[],[],[]]), spec.budget_plan_kam_id.kam_id.name, spec.q3_plan, spec.q3_fact)
-            summary['Q4'] = self.get_statistics_data_kam(summary.get('Q4', [[],[],[]]), spec.budget_plan_kam_id.kam_id.name, spec.q4_plan, spec.q4_fact)
-            summary['Y'] = self.get_statistics_data_kam(
-                summary.get('Y', [[],[],[]]),
-                spec.budget_plan_kam_id.kam_id.name,
-                spec.q1_plan + spec.q2_plan + spec.q3_plan + spec.q4_plan,
-                spec.q1_fact + spec.q2_fact + spec.q3_fact + spec.q4_fact
+            plans = self.env['project_budget.budget_plan_supervisor'].search(
+                [('year', '=', year)]
             )
 
-        kam_height = {}
-        for office in kam_plans_data:
-            kam_height[office] = str((len(kam_plans_data[office]['contracting']['Q1'][0]) + 2) * 25) + 'px'
+            for spec in plans.budget_plan_supervisor_spec_ids:
+                office = plans_data[year].setdefault(spec.budget_plan_supervisor_id.project_office_id.name, {})
+                offices[year].add(spec.budget_plan_supervisor_id.project_office_id.name)
+                type = office.setdefault(spec.type_row, {})
+                type['Q1'] = self.get_statistics_data(spec.q1_plan, spec.q1_fact)
+                type['Q2'] = self.get_statistics_data(spec.q2_plan, spec.q2_fact)
+                type['Q3'] = self.get_statistics_data(spec.q3_plan, spec.q3_fact)
+                type['Q4'] = self.get_statistics_data(spec.q4_plan, spec.q4_fact)
+                type['Y'] = self.get_statistics_data(spec.q1_plan + spec.q2_plan + spec.q3_plan + spec.q4_plan, spec.q1_fact + spec.q2_fact + spec.q3_fact + spec.q4_fact)
+                summary = type.setdefault('summary', {})
+                summary['Q1'] = self.get_statistics_data(spec.q1_plan, spec.q1_fact)
+                summary['Q2'] = self.get_statistics_data(spec.q2_plan, spec.q2_fact)
+                summary['Q3'] = self.get_statistics_data(spec.q3_plan, spec.q3_fact)
+                summary['Q4'] = self.get_statistics_data(spec.q4_plan, spec.q4_fact)
+                summary['Y'] = self.get_statistics_data(spec.q1_plan + spec.q2_plan + spec.q3_plan + spec.q4_plan, spec.q1_fact + spec.q2_fact + spec.q3_fact + spec.q4_fact)
+
+            kam_plans_all = self.env['project_budget.budget_plan_kam'].search(
+                [('plan_supervisor_id', '!=', False)]
+            )
+
+            kam_plans = kam_plans_all.sudo().filtered(
+                lambda r: r.plan_supervisor_id.year == year)
+
+            for spec in kam_plans.budget_plan_kam_spec_ids:
+                office = kam_plans_data[year].setdefault(spec.budget_plan_kam_id.project_office_id.name, {})
+                offices[year].add(spec.budget_plan_kam_id.project_office_id.name)
+                type = office.setdefault(spec.type_row, {})
+                type['Q1'] = self.get_statistics_data_kam(type.get('Q1', [[],[],[]]), spec.budget_plan_kam_id.kam_id.name, spec.q1_plan, spec.q1_fact)
+                type['Q2'] = self.get_statistics_data_kam(type.get('Q2', [[],[],[]]), spec.budget_plan_kam_id.kam_id.name, spec.q2_plan, spec.q2_fact)
+                type['Q3'] = self.get_statistics_data_kam(type.get('Q3', [[],[],[]]), spec.budget_plan_kam_id.kam_id.name, spec.q3_plan, spec.q3_fact)
+                type['Q4'] = self.get_statistics_data_kam(type.get('Q4', [[],[],[]]), spec.budget_plan_kam_id.kam_id.name, spec.q4_plan, spec.q4_fact)
+                type['Y'] = self.get_statistics_data_kam(
+                    type.get('Y', [[],[],[]]),
+                    spec.budget_plan_kam_id.kam_id.name,
+                    spec.q1_plan + spec.q2_plan + spec.q3_plan + spec.q4_plan,
+                    spec.q1_fact + spec.q2_fact + spec.q3_fact + spec.q4_fact
+                )
+                summary = type.setdefault('summary', {})
+                summary['Q1'] = self.get_statistics_data_kam(summary.get('Q1', [[],[],[]]), spec.budget_plan_kam_id.kam_id.name, spec.q1_plan, spec.q1_fact)
+                summary['Q2'] = self.get_statistics_data_kam(summary.get('Q2', [[],[],[]]), spec.budget_plan_kam_id.kam_id.name, spec.q2_plan, spec.q2_fact)
+                summary['Q3'] = self.get_statistics_data_kam(summary.get('Q3', [[],[],[]]), spec.budget_plan_kam_id.kam_id.name, spec.q3_plan, spec.q3_fact)
+                summary['Q4'] = self.get_statistics_data_kam(summary.get('Q4', [[],[],[]]), spec.budget_plan_kam_id.kam_id.name, spec.q4_plan, spec.q4_fact)
+                summary['Y'] = self.get_statistics_data_kam(
+                    summary.get('Y', [[],[],[]]),
+                    spec.budget_plan_kam_id.kam_id.name,
+                    spec.q1_plan + spec.q2_plan + spec.q3_plan + spec.q4_plan,
+                    spec.q1_fact + spec.q2_fact + spec.q3_fact + spec.q4_fact
+                )
+
+        kam_height = {current_year - 1: {}, current_year: {}, current_year + 1: {}}
+        for year in (current_year - 1, current_year, current_year + 1):
+            offices[year] = sorted(list(offices[year]))
+            for office in kam_plans_data[year]:
+                kam_height[year][office] = str((len(kam_plans_data[year][office]['contracting']['Q1'][0]) + 2) * 25) + 'px'
 
         grouped_projects = self.read_group([], [], ['project_office_id'], lazy=False)
         office = self.env['project_budget.project_office']
@@ -1514,13 +1520,14 @@ class projects(models.Model):
         for p in grouped_projects:
             total_amount_of_revenue[str(p['project_office_id'][1])] = p['total_amount_of_revenue']
             margin_income[str(p['project_office_id'][1])] = p['margin_income']
+
         return {
             'total_amount_of_revenue': total_amount_of_revenue,
             'margin_income': margin_income,
             'plans_data': plans_data,
             'year': datetime.datetime.today().year,
             'kam_plans_data': kam_plans_data,
-            'offices': sorted(list(offices)),
+            'offices': offices,
             'kam_height': kam_height,
         }
 

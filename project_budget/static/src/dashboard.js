@@ -25,6 +25,7 @@ class ProjectBudgetDashboard extends Component {
         this.state = useState({
             period: 'Y',
             type: 'summary',
+            year: new Date().getFullYear(),
         });
 
         this.display = {
@@ -52,6 +53,9 @@ class ProjectBudgetDashboard extends Component {
     }
 
     async onChangeType(){
+    }
+
+    async onChangeYear(){
     }
 
     openCustomerView() {
