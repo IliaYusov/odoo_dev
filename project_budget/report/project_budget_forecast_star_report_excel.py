@@ -2695,6 +2695,39 @@ class report_budget_forecast_excel(models.AbstractModel):
             'valign': 'vcenter',
             "num_format": '#,##0',
         })
+        summary_format_border_top = workbook.add_format({
+            'bold': True,
+            'font_size': 12,
+            'text_wrap': True,
+            'valign': 'vcenter',
+            "num_format": '#,##0',
+            'top': 2,
+            'left': 2,
+            'right': 2,
+        })
+        summary_format_border_top_center = workbook.add_format({
+            'bold': True,
+            'font_size': 12,
+            'text_wrap': True,
+            'valign': 'vcenter',
+            'align': 'center',
+            "num_format": '#,##0',
+            'top': 2,
+            'left': 2,
+            'right': 2,
+        })
+        summary_format_border_bottom = workbook.add_format({
+            'bold': True,
+            'font_size': 12,
+            'text_wrap': True,
+            'valign': 'vjustify',
+            'text_wrap': True,
+            "num_format": '#,##0',
+            'top': 1,
+            'bottom': 2,
+            'left': 2,
+            'right': 2,
+        })
         summary_format_percent = workbook.add_format({
             'bold': True,
             'border': 1,
@@ -2923,22 +2956,115 @@ class report_budget_forecast_excel(models.AbstractModel):
                 sheet.write_string(row - 1, c, '', row_format_plan_cross)
                 sheet.write_formula(row, c, formula, row_format_plan)
 
-        sheet.merge_range(row + 2, 1, row + 2, 2, f'Контрактование по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format)
-        sheet.write_formula(row + 2, 3, '=CK{0}+CL{0}+CM{0}+HJ{0}+HY{0}'.format(row), summary_format)
-        sheet.merge_range(row + 3, 1, row + 3, 2, f'Контрактование Расчетный План по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format)
-        sheet.write_formula(row + 3, 3, '=CK{0}+HJ{0}+HY{0}'.format(row + 1), summary_format)
-        sheet.merge_range(row + 5, 1, row + 5, 2, f'Валовая Выручка по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format)
-        sheet.write_formula(row + 5, 3, '=GA{0}+GB{0}+GC{0}+HQ{0}+HR{0}+IF{0}+IG{0}'.format(row), summary_format)
-        sheet.merge_range(row + 6, 1, row + 6, 2, f'Валовая Выручка Расчетный План по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format)
-        sheet.write_formula(row + 6, 3, '=GA{0}+HQ{0}+IF{0}'.format(row + 1), summary_format)
-        sheet.merge_range(row + 8, 1, row + 8, 2, f'ПДС по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format)
-        sheet.write_formula(row + 8, 3, '=EX{0}+EY{0}+EZ{0}+HN{0}+HO{0}+IC{0}+ID{0}'.format(row), summary_format)
-        sheet.merge_range(row + 9, 1, row + 9, 2, f'ПДС Расчетный План по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format)
-        sheet.write_formula(row + 9, 3, '=EX{0}+HN{0}+IC{0}'.format(row + 1), summary_format)
-        sheet.merge_range(row + 11, 1, row + 11, 2, f'М1 по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format)
-        sheet.write_formula(row + 11, 3, '=HE{0}+HF{0}+HG{0}+HU{0}+HV{0}+IJ{0}+IK{0}'.format(row), summary_format)
-        sheet.merge_range(row + 12, 1, row + 12, 2, f'М1 Расчетный План по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format)
-        sheet.write_formula(row + 12, 3, '=HE{0}+HU{0}+IJ{0}'.format(row + 1), summary_format)
+        last_row = row
+        row += 2
+        sheet.merge_range(row, 1, row, 2, 'Контрактование, с НДС', summary_format_border_top_center)
+        sheet.write_string(row, 3, '', summary_format_border_top)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint)}:', summary_format_border_top)
+        sheet.write_formula(row, 3, '=CK{0}+CL{0}+CM{0}'.format(last_row), summary_format_border_top)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint)}:', summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=CK{0}'.format(last_row + 1), summary_format_border_bottom)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint + 1)}:', summary_format_border_top)
+        sheet.write_formula(row, 3, '=HJ{0}+HK{0}'.format(last_row), summary_format_border_top)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint + 1)}:', summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=HJ{0}'.format(last_row + 1), summary_format_border_bottom)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint + 2)}:', summary_format_border_top)
+        sheet.write_formula(row, 3, '=HY{0}+HZ{0}'.format(last_row), summary_format_border_top)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint + 2)}:', summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=HY{0}'.format(last_row + 1), summary_format_border_bottom)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Итого по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format_border_top)
+        sheet.write_formula(row, 3, '=D{0}+D{1}+D{2}'.format(row - 1, row - 3, row - 5), summary_format_border_top)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Итого Расчетный План по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=CK{0}+HJ{0}+HY{0}'.format(last_row + 1), summary_format_border_bottom)
+        row += 2
+        sheet.merge_range(row, 1, row, 2, 'Валовая выручка, без НДС', summary_format_border_top_center)
+        sheet.write_string(row, 3, '', summary_format_border_top)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint)}:', summary_format_border_top)
+        sheet.write_formula(row, 3, '=GA{0}+GB{0}+GC{0}'.format(last_row), summary_format_border_top)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint)}:', summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=GA{0}'.format(last_row + 1), summary_format_border_bottom)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint + 1)}:', summary_format_border_top)
+        sheet.write_formula(row, 3, '=HQ{0}+HR{0}'.format(last_row), summary_format_border_top)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint + 1)}:', summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=HQ{0}'.format(last_row + 1), summary_format_border_bottom)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint + 2)}:', summary_format_border_top)
+        sheet.write_formula(row, 3, '=IF{0}+IG{0}'.format(last_row), summary_format_border_top)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint + 2)}:', summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=IF{0}'.format(last_row + 1), summary_format_border_bottom)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Итого по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format_border_top)
+        sheet.write_formula(row, 3, '=D{0}+D{1}+D{2}'.format(row - 1, row - 3, row - 5), summary_format_border_top)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Итого Расчетный План по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=D{0}+D{1}+D{2}'.format(row - 1, row - 3, row - 5), summary_format_border_bottom)
+        row += 2
+        sheet.merge_range(row, 1, row, 2, 'ПДС, с НДС', summary_format_border_top_center)
+        sheet.write_string(row, 3, '', summary_format_border_top)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint)}:', summary_format_border_top)
+        sheet.write_formula(row, 3, '=EX{0}+EY{0}+EZ{0}'.format(last_row), summary_format_border_top)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint)}:', summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=EX{0}'.format(last_row + 1), summary_format_border_bottom)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint + 1)}:', summary_format_border_top)
+        sheet.write_formula(row, 3, '=HN{0}+HO{0}'.format(last_row), summary_format_border_top)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint + 1)}:', summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=HN{0}'.format(last_row + 1), summary_format_border_bottom)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint + 2)}:', summary_format_border_top)
+        sheet.write_formula(row, 3, '=IC{0}+ID{0}'.format(last_row), summary_format_border_top)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint + 2)}:', summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=IC{0}'.format(last_row + 1), summary_format_border_bottom)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Итого по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format_border_top)
+        sheet.write_formula(row, 3, '=D{0}+D{1}+D{2}'.format(row - 1, row - 3, row - 5), summary_format_border_top)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Итого Расчетный План по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=D{0}+D{1}+D{2}'.format(row - 1, row - 3, row - 5), summary_format_border_bottom)
+        row += 2
+        sheet.merge_range(row, 1, row, 2, 'Валовая прибыль (М1), без НДС', summary_format_border_top_center)
+        sheet.write_string(row, 3, '', summary_format_border_top)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint)}:', summary_format_border_top)
+        sheet.write_formula(row, 3, '=HE{0}+HF{0}+HG{0}'.format(last_row), summary_format_border_top)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint)}:', summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=HE{0}'.format(last_row + 1), summary_format_border_bottom)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint + 1)}:', summary_format_border_top)
+        sheet.write_formula(row, 3, '=HU{0}+HV{0}'.format(last_row), summary_format_border_top)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint + 1)}:', summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=HU{0}'.format(last_row + 1), summary_format_border_bottom)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint + 2)}:', summary_format_border_top)
+        sheet.write_formula(row, 3, '=IJ{0}+IK{0}'.format(last_row), summary_format_border_top)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint + 2)}:', summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=IJ{0}'.format(last_row + 1), summary_format_border_bottom)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Итого по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format_border_top)
+        sheet.write_formula(row, 3, '=D{0}+D{1}+D{2}'.format(row - 1, row - 3, row - 5), summary_format_border_top)
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Итого Расчетный План по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=D{0}+D{1}+D{2}'.format(row - 1, row - 3, row - 5), summary_format_border_bottom)
 
         print('dict_formula = ', dict_formula)
 
