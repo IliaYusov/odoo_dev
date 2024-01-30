@@ -22,9 +22,9 @@
                 <option value="Q4">Q4</option>
             </select>
             <select style="width:100px" class="form-select" t-model="state.year" t-on-change="onChangeYear">
-                <option value="2023">2023</option>
-                <option value="2024">2024</option>
-                <option value="2025">2025</option>
+                <option t-att-value="new Date().getFullYear() - 1"><span t-esc="new Date().getFullYear() - 1"/></option>
+                <option t-att-value="new Date().getFullYear()"><span t-esc="new Date().getFullYear()"/></option>
+                <option t-att-value="new Date().getFullYear() + 1"><span t-esc="new Date().getFullYear() + 1"/></option>
             </select>
         </t>
     </Layout>
