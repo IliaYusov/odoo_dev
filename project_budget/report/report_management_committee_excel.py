@@ -444,17 +444,21 @@ class report_management_committee_excel(models.AbstractModel):
                     # column += 1
                     # sheet.write_string(row + 2, column, 'Потенциал', head_format_month_detail_next)
                     # column += 1
-
-                    sheet.merge_range(row, column, row, column + 2,str(YEARint + 1), head_format_month)
-                    sheet.set_column(column, column + 3, 13, False, {'hidden': 1, 'level': 1})
-                    sheet.merge_range(row + 1, column, row + 1, column + 2, 'Прогноз ' + str(YEARint + 1),
-                                      head_format_month_detail_next)
+                    if x[0] == 2:  # ПДС
+                        sheet.merge_range(row, column, row, column + 1,str(YEARint + 1), head_format_month)
+                        sheet.set_column(column, column + 2, 13, False, {'hidden': 1, 'level': 1})
+                        sheet.merge_range(row + 1, column, row + 1, column + 1, 'Прогноз ' + str(YEARint + 1), head_format_month_detail_next)
+                    else:
+                        sheet.merge_range(row, column, row, column + 2,str(YEARint + 1), head_format_month)
+                        sheet.set_column(column, column + 3, 13, False, {'hidden': 1, 'level': 1})
+                        sheet.merge_range(row + 1, column, row + 1, column + 2, 'Прогноз ' + str(YEARint + 1), head_format_month_detail_next)
                     sheet.write_string(row + 2, column, 'Обязательство', head_format_month_detail_next)
                     column += 1
                     sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail_next)
                     column += 1
-                    sheet.write_string(row + 2, column, 'Потенциал', head_format_month_detail_next)
-                    column += 1
+                    if x[0] != 2:
+                        sheet.write_string(row + 2, column, 'Потенциал', head_format_month_detail_next)
+                        column += 1
 
                 elif element == 'AFTER NEXT':
                     sheet.write_string(row, column, str(YEARint + 2), head_format_month)
@@ -1142,8 +1146,8 @@ class report_management_committee_excel(models.AbstractModel):
                     sum_next_75_tmp += sum['commitment']
                     sheet.write_number(row, column + 1, sum['reserve'] * params['50'], row_format_number)
                     sum_next_50_tmp += sum['reserve'] * params['50']
-                    sheet.write_number(row, column + 2, sum['potential'] * params['30'], row_format_number)
-                    sum_next_30_tmp += sum['potential'] * params['30']
+                    # sheet.write_number(row, column + 2, sum['potential'] * params['30'], row_format_number)
+                    # sum_next_30_tmp += sum['potential'] * params['30']
             else:
                 sum100tmp_q1 = self.get_sum_fact_pds_project_step_year_quarter(project, False, YEARint + 1, 'Q1')
                 sum100tmp = self.get_sum_fact_pds_project_step_year_quarter(project, False, YEARint + 1, False)
@@ -1187,8 +1191,8 @@ class report_management_committee_excel(models.AbstractModel):
                 sum_next_75_tmp += sum['commitment']
                 sheet.write_number(row, column + 1, sum['reserve'] * params['50'], row_format_number)
                 sum_next_50_tmp += sum['reserve'] * params['50']
-                sheet.write_number(row, column + 2, sum['potential'] * params['30'], row_format_number)
-                sum_next_30_tmp += sum['potential'] * params['30']
+                # sheet.write_number(row, column + 2, sum['potential'] * params['30'], row_format_number)
+                # sum_next_30_tmp += sum['potential'] * params['30']
 
         elif element == 'AFTER NEXT':
             if step:
@@ -1215,7 +1219,7 @@ class report_management_committee_excel(models.AbstractModel):
 
                     sum_after_next_tmp += sum['commitment']
                     sum_after_next_tmp += sum['reserve'] * params['50']
-                    sum_after_next_tmp += sum['potential'] * params['30']
+                    # sum_after_next_tmp += sum['potential'] * params['30']
                     sheet.write_number(row, column + 0, sum_after_next_tmp, row_format_number)
 
             else:
@@ -1235,7 +1239,7 @@ class report_management_committee_excel(models.AbstractModel):
 
                 sum_after_next_tmp += sum['commitment']
                 sum_after_next_tmp += sum['reserve'] * params['50']
-                sum_after_next_tmp += sum['potential'] * params['30']
+                # sum_after_next_tmp += sum['potential'] * params['30']
                 sheet.write_number(row, column + 0, sum_after_next_tmp, row_format_number)
 
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
@@ -1342,11 +1346,11 @@ class report_management_committee_excel(models.AbstractModel):
 
                         sum_next_75_q1_tmp += sum_q1['commitment']
                         sum_next_50_q1_tmp += sum_q1['reserve'] * params['50']
-                        sum_next_30_q1_tmp += sum_q1['potential'] * params['30']
+                        # sum_next_30_q1_tmp += sum_q1['potential'] * params['30']
 
                         sum_next_75_tmp += sum['commitment']
                         sum_next_50_tmp += sum['reserve'] * params['50']
-                        sum_next_30_tmp += sum['potential'] * params['30']
+                        # sum_next_30_tmp += sum['potential'] * params['30']
             else:
                 sum100tmp_q1 = self.get_sum_fact_pds_project_step_year_quarter(project, False, YEARint + 1, 'Q1')
                 sum100tmp = self.get_sum_fact_pds_project_step_year_quarter(project, False, YEARint + 1, False)
@@ -1374,11 +1378,11 @@ class report_management_committee_excel(models.AbstractModel):
 
                 sum_next_75_q1_tmp += sum_q1['commitment']
                 sum_next_50_q1_tmp += sum_q1['reserve'] * params['50']
-                sum_next_30_q1_tmp += sum_q1['potential'] * params['30']
+                # sum_next_30_q1_tmp += sum_q1['potential'] * params['30']
 
                 sum_next_75_tmp += sum['commitment']
                 sum_next_50_tmp += sum['reserve'] * params['50']
-                sum_next_30_tmp += sum['potential'] * params['30']
+                # sum_next_30_tmp += sum['potential'] * params['30']
 
         elif element == 'AFTER NEXT':
             if project.project_have_steps:
@@ -1406,7 +1410,7 @@ class report_management_committee_excel(models.AbstractModel):
 
                         sum_after_next_tmp += sum['commitment']
                         sum_after_next_tmp += sum['reserve'] * params['50']
-                        sum_after_next_tmp += sum['potential'] * params['30']
+                        # sum_after_next_tmp += sum['potential'] * params['30']
 
             else:
                 sum100tmp = self.get_sum_fact_pds_project_step_year_quarter(project, False, YEARint + 2, False)
@@ -1425,7 +1429,7 @@ class report_management_committee_excel(models.AbstractModel):
 
                 sum_after_next_tmp += sum['commitment']
                 sum_after_next_tmp += sum['reserve'] * params['50']
-                sum_after_next_tmp += sum['potential'] * params['30']
+                # sum_after_next_tmp += sum['potential'] * params['30']
 
         return (sum75tmpetalon, sum50tmpetalon,
                 sum100tmp, sum75tmp, sum50tmp,
@@ -2689,9 +2693,6 @@ class report_management_committee_excel(models.AbstractModel):
                 sheet.write_string(row, column + 0, "", row_format_number)
                 sheet.write_string(row, column + 1, "", row_format_number)
                 sheet.write_string(row, column + 2, "", row_format_number)
-                sheet.write_string(row, column + 3, "", row_format_number)
-
-
 
             sumQ75tmpetalon, sumQ50tmpetalon, sumQ100tmp, sumQ75tmp, sumQ50tmp = self.print_quarter_pds_project(sheet, row, column, element,
                                                                                     project, step, project_office, params, row_format_number, row_format_number_color_fact)
@@ -2783,7 +2784,7 @@ class report_management_committee_excel(models.AbstractModel):
                 column += 1
 
             elif element == 'NEXT':
-                column -= 2
+                column -= 3
             column += 4
         column -= 4
         # end Поступление денежных средсв, с НДС
@@ -3420,11 +3421,11 @@ class report_management_committee_excel(models.AbstractModel):
 
                 f_sum_next_75 = 'sum(' + str(sum_next_75) + child_offices_rows.format(xl_col_to_name(column)) + ')'
                 f_sum_next_50 = 'sum(' + str(sum_next_50) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')'
-                f_sum_next_30 = 'sum(' + str(sum_next_30) + child_offices_rows.format(xl_col_to_name(column + 2)) + ')'
+                # f_sum_next_30 = 'sum(' + str(sum_next_30) + child_offices_rows.format(xl_col_to_name(column + 2)) + ')'
                 sheet.write_formula(row, column, f_sum_next_75, row_format_number_color_next)
                 sheet.write_formula(row, column + 1, f_sum_next_50, row_format_number_color_next)
-                sheet.write_formula(row, column + 2, f_sum_next_30, row_format_number_color_next)
-                column -= 2
+                # sheet.write_formula(row, column + 2, f_sum_next_30, row_format_number_color_next)
+                column -= 3
 
             elif element == 'AFTER NEXT':
                 f_sum_after_next = 'sum(' + str(sum_after_next) + child_offices_rows.format(
@@ -4345,9 +4346,15 @@ class report_management_committee_excel(models.AbstractModel):
                         formula = formulaProjectCompany.format(xl_col_to_name(i * (params["margin_shift"] - 6) + colFormula * 5 + 5 + shift))
                         sheet.write_formula(company_row, i * (params["margin_shift"] - 6) + colFormula * 5 + 5 + shift, formula,
                                             row_format_company_forecast)
-                    for x in range(4):
-                        formula = formulaProjectCompany.format(xl_col_to_name((i + 1) * (params["margin_shift"] - 6) + x + shift + 1))
-                        sheet.write_formula(company_row, (i + 1) * (params["margin_shift"] - 6) + x + shift + 1, formula, row_format_company_next)
+                    if i == 1:  # ПДС
+                        for x in range(3):
+                            formula = formulaProjectCompany.format(xl_col_to_name((i + 1) * (params["margin_shift"] - 6) + x + shift + 1))
+                            sheet.write_formula(company_row, (i + 1) * (params["margin_shift"] - 6) + x + shift + 1, formula, row_format_company_next)
+                        shift -= 1
+                    else:
+                        for x in range(4):
+                            formula = formulaProjectCompany.format(xl_col_to_name((i + 1) * (params["margin_shift"] - 6) + x + shift + 1))
+                            sheet.write_formula(company_row, (i + 1) * (params["margin_shift"] - 6) + x + shift + 1, formula, row_format_company_next)
                     shift += 4
 
         return row, formulaItogo
@@ -4576,10 +4583,12 @@ class report_management_committee_excel(models.AbstractModel):
         for company_row in dict_formula['company_ids'].values():
             formulaItogo += ',{0}' + str(company_row + 1)
         formulaItogo = formulaItogo + ')'
-        for colFormula in range(1 + params["shift"] , 165 + params["shift"] ):
+        for colFormula in range(1 + params["shift"] , 164 + params["shift"] ):
             formula = formulaItogo.format(xl_col_to_name(colFormula))
             sheet.write_formula(row, colFormula, formula, row_format_number_itogo)
         for i in range(4):  # формулы для процентов выполнения
+            if i == 2:  # сдвиг после удаления потенциала ПДС
+                params["shift"] -= 1
             for j in (14, (params["margin_shift"] - 6)):
                 formula = f'=IFERROR({xl_col_to_name(i * params["margin_shift"] + j + params["shift"] - 1)}{row + 1}/{xl_col_to_name(i * params["margin_shift"] + j + params["shift"] - 2)}{row + 1}, " ")'
                 sheet.write_formula(row, i * params['margin_shift'] + j + params['shift'], formula, row_format_number_itogo_percent)
