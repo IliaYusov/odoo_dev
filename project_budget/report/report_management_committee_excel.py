@@ -1426,19 +1426,13 @@ class report_management_committee_excel(models.AbstractModel):
                     sum_q1 = self.get_pds_forecast_from_distributions(sum_q1, project, False, YEARint + 1, self.get_months_from_quarter('Q1'))
                     sum = self.get_pds_forecast_from_distributions(sum, project, False, YEARint + 1, False)
 
-                sum_next_75_q1_tmp += sum_q1['commitment']
-                sum_next_50_q1_tmp += sum_q1['reserve'] * params['50']
-                # sum_next_30_q1_tmp += sum_q1['potential'] * params['30']
                     sum_next_75_q1_tmp += sum_q1['commitment']
                     sum_next_50_q1_tmp += sum_q1['reserve'] * params['50']
-                    sum_next_30_q1_tmp += sum_q1['potential'] * params['30']
+                    # sum_next_30_q1_tmp += sum_q1['potential'] * params['30']
 
-                sum_next_75_tmp += sum['commitment']
-                sum_next_50_tmp += sum['reserve'] * params['50']
-                # sum_next_30_tmp += sum['potential'] * params['30']
                     sum_next_75_tmp += sum['commitment']
                     sum_next_50_tmp += sum['reserve'] * params['50']
-                    sum_next_30_tmp += sum['potential'] * params['30']
+                    # sum_next_30_tmp += sum['potential'] * params['30']
 
         elif element == 'AFTER NEXT':
             if project.project_have_steps:
@@ -1488,12 +1482,9 @@ class report_management_committee_excel(models.AbstractModel):
                     # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                     sum = self.get_pds_forecast_from_distributions(sum, project, False, YEARint + 2, False)
 
-                sum_after_next_tmp += sum['commitment']
-                sum_after_next_tmp += sum['reserve'] * params['50']
-                # sum_after_next_tmp += sum['potential'] * params['30']
                     sum_after_next_tmp += sum['commitment']
                     sum_after_next_tmp += sum['reserve'] * params['50']
-                    sum_after_next_tmp += sum['potential'] * params['30']
+                    # sum_after_next_tmp += sum['potential'] * params['30']
 
         return (sum75tmpetalon, sum50tmpetalon,
                 sum100tmp, sum75tmp, sum50tmp,
