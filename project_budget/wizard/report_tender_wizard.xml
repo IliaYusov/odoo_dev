@@ -8,6 +8,9 @@
                 <sheet>
                     <group>
                         <group>
+                            <field name="type_report"/>
+                        </group>
+                        <group>
                             <field name="date_from"/>
                             <field name="date_to"/>
                         </group>
@@ -39,5 +42,14 @@
             print_report_name = "'Tenders_%s' % object.FileName"
             menu="False"
             file = "project_budget.report_tender_xlsx"
+    />
+    <report id="action_new_tender_list_report_xlsx"
+            string="New tender Report"
+            model="project_budget.tender.report.wizard"
+            report_type="xlsx"
+            name="project_budget.report_new_tender_xlsx"
+            print_report_name = "'Tenders_%s' % object.FileName"
+            menu="False"
+            file = "project_budget.report_new_tender_xlsx"
     />
 </odoo>
