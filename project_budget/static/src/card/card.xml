@@ -4,7 +4,7 @@
         <div class="card" style="width: 30rem; height: fit-content" t-att-class="props.className">
             <div class="card-body">
                 <t t-if="props.slots.title"> 
-                    <h5 class="card-title"><t t-slot="title"/></h5>
+                    <h5 class="card-title text-truncate"><t t-slot="title"/></h5>
                 </t>
                 <div class="card-text"><t t-slot="default"/></div>
                 <t t-if="props.slots.legend">
