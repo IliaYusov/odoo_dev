@@ -6,6 +6,7 @@
             <field name="arch" type="xml">
             <search string="Search projects">
                 <field name="project_id" filter_domain="[('project_id','ilike',self)]" string="project_id"/>
+                <field name="step_project_number" filter_domain="[('step_project_number','ilike',self)]" string="step project number"/>
                 <field name="essence_project" filter_domain="[('essence_project','ilike',self)]" string="essence_project"/>
                 <field name="project_office_id" filter_domain="[('project_office_id.name','ilike',self)]" string="project_office"/>
                 <field name="project_supervisor_id" filter_domain="[('project_supervisor_id.name','ilike',self)]" string="project_supervisor"/>

@@ -4639,6 +4639,10 @@ msgstr ""
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__step_project_number
+#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budgets_tree
+#: model_terms:ir.ui.view,arch_db:project_budget.show_project_office_form
+#: model_terms:ir.ui.view,arch_db:project_budget.show_project_office_tree
+#: model_terms:ir.ui.view,arch_db:project_budget.view_projects_search
 msgid "step project number"
 msgstr "Номер этапа проекта"
 
