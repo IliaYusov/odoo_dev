@@ -104,6 +104,17 @@ class report_new_tender_excel(models.AbstractModel):
             'num_format': '[$€-x-euro2] #,##0.00'
         })
 
+        row_format_text_offer_cny = workbook.add_format({
+            'border': 1,
+            'font_size': 9,
+            'text_wrap': True,
+            'font_name': 'Times New Roman',
+            'align': 'center',
+            'valign': 'vcenter',
+            'font_color': 'red',
+            'num_format': '[$¥-zh-CN] #,##0.00'
+        })
+
         row_format_text_red = workbook.add_format({
             'border': 1,
             'font_size': 9,
@@ -231,6 +242,8 @@ class report_new_tender_excel(models.AbstractModel):
                         row_format_text_offer = row_format_text_offer_usd
                     elif tendersum.participants_offer_currency_id.name == 'EUR':
                         row_format_text_offer = row_format_text_offer_eur
+                    elif tendersum.participants_offer_currency_id.name == 'CNY':
+                        row_format_text_offer = row_format_text_offer_cny
 
                 if tender.is_need_initial_maximum_contract_price == True:
                     sheet.write_string(row, column, sum_initial_maximum_contract_price.strip(), row_format_text)
@@ -277,7 +290,7 @@ class report_new_tender_excel(models.AbstractModel):
                     str_comment += comment.date_comment.strftime("%d.%m.%Y") + ' ' + (comment.type_comment_id.name or '') + ' ' + (comment.text_comment or '') + '\n'
                 sheet.write_string(row, column, str_comment.strip(), row_format_text_comments)
                 column += 1
-                sheet.write_string(row, column, (tender.projects_id.name_to_show or ''), row_format_text_left)
+                sheet.write_string(row, column, (tender.projects_id.project_id or ''), row_format_text_left)
 
     def generate_xlsx_report(self, workbook, data, lines):
         print('data = ', data)
@@ -285,10 +298,12 @@ class report_new_tender_excel(models.AbstractModel):
         date_to = datetime.strptime(data['date_to'], "%d-%m-%Y").date()
         global is_report_for_management
         is_report_for_management = data['is_report_for_management']
-        if is_report_for_management:
+        if data['include_old_open_tenders']:
             tenders_list = self.env['project_budget.tenders'].search([
                 '|',
                 ('date_of_filling_in', '>=', date_from),
+                '&',
+                ('date_of_filling_in', '<', date_from),
                 ('current_status.code', '=', 'в работе'),
                 ('date_of_filling_in', '<=', date_to),
             ], order='date_of_filling_in desc')

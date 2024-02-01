@@ -3,12 +3,14 @@ from odoo.exceptions import UserError
 from io import BytesIO
 from datetime import date
 
+
 class report_tender_wizard(models.TransientModel):
     _name = 'project_budget.tender.report.wizard'
     _description = 'Tender report Wizard'
     date_from = fields.Date(string='event date from', required=True, default=date(date.today().year, 1, 1))
     date_to = fields.Date(string='event  date to', required=True, default=fields.datetime.now())
-    is_report_for_management = fields.Boolean(string="is_report_for_management", default = False)
+    is_report_for_management = fields.Boolean(string="is_report_for_management", default=False)
+    include_old_open_tenders = fields.Boolean(string="include_old_open_tenders", default=False)
     FileName = fields.Char('File name', compute='_getFileName')
     type_report = fields.Selection([
         ('tender', 'Tender report'),
@@ -35,6 +37,7 @@ class report_tender_wizard(models.TransientModel):
         datas['date_from'] = str(self.date_from.strftime("%d-%m-%Y"),)
         datas['date_to'] = str(self.date_to.strftime("%d-%m-%Y"),)
         datas['is_report_for_management'] = self.is_report_for_management
+        datas['include_old_open_tenders'] = self.include_old_open_tenders
         print('data=', datas)
         print('FileName = ', self.FileName)
         report_name = 'Tender_list_'+self.date_from.strftime("%d-%m-%Y")+'_'+self.date_to.strftime("%d-%m-%Y")+'.xlsx'

@@ -16,6 +16,7 @@
                         </group>
                         <group>
                             <field name="is_report_for_management"/>
+                            <field name="include_old_open_tenders" attrs="{'invisible': [('type_report', 'not in', ('new_tender'))]}"/>
                         </group>
                     </group>
                 </sheet>
