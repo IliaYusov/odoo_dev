@@ -278,9 +278,15 @@ class report_new_tender_excel(models.AbstractModel):
                         else: sheet.write(row, column, 'НЕТ', row_format_text)
                         column += 1
                     row += 1
-                    column -= 7
+                    if is_report_for_management:
+                        column -= 5
+                    else:
+                        column -= 7
                 row -= (tendersum_qty + 1)
-                column += 7
+                if is_report_for_management:
+                    column += 5
+                else:
+                    column += 7
                 str_responsible = ''
                 for responsible in tender.responsible_ids:
                     str_responsible += (responsible.name or '') + '\n'
@@ -386,7 +392,7 @@ class report_new_tender_excel(models.AbstractModel):
                 column += 1
                 if is_report_for_management == False:
                     if tender.is_need_provision_of_GO == True:
-                        sheet.merge_range(row, column, sum_provision_of_GO.strip(), row_format_text)
+                        sheet.write(row, column, sum_provision_of_GO.strip(), row_format_text)
                     else:
                         sheet.write(row, column, 'НЕТ', row_format_text)
                     column += 1
