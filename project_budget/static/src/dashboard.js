@@ -26,6 +26,7 @@ class ProjectBudgetDashboard extends Component {
             period: 'Y',
             type: 'summary',
             year: new Date().getFullYear(),
+            office: false,
         });
 
         this.display = {
@@ -42,6 +43,9 @@ class ProjectBudgetDashboard extends Component {
 
         onWillStart(async () => {
             this.statistics = await this.project_budget_service.loadStatistics();
+            if (this.props.action.context.office) {
+                this.state.office = this.props.action.context.office
+            }
         });
     }
 

@@ -30,50 +30,103 @@
     </Layout>
 
     <div class="m-2 container-fluid">
-        <t t-foreach="statistics['offices'][state.year]" t-as="office" t-key="office">
-            <h4 t-esc="office"/>
-            <t t-if="statistics['plans_data'][state.year][office]">
-                <div class="row">
-                    <t t-foreach="['contracting', 'cash', 'acceptance', 'margin_income']" t-as="type" t-key="type">
-                        <t t-if="state.type == type or state.type == 'summary'">
-                            <t t-foreach="['Y', 'Q1', 'Q2', 'Q3', 'Q4']" t-as="period" t-key="period">
-                                <t t-if="(state.period == period and period != 'Y') or (state.period == 'Y' and state.type != 'summary' and period != 'Y') or (state.type == 'summary' and state.period == period and period == 'Y')">
-                                    <Card className="'col-2 col-md-3 shadow-sm border m-2 bg-white'">
-                                        <t t-set-slot="title" t-esc="state.year + period + ' ' + type + ' ' + office"/>
-                                        <PieChart data="statistics['plans_data'][state.year][office]" period="period" type="type" office="office"/>
-                                        <h2 style="width: 100%; height: 40px; position: absolute; top: 49%; left: 4px; margin-top: 0px; line-height: 6px; text-align: center; z-index: 999999999999999">
-                                            <t t-esc="statistics['plans_data'][state.year][office][type][period][3]"/>
-                                        </h2>
-                                        <t t-set-slot="legend" t-esc="'Plan: ' + statistics['plans_data'][state.year][office][type][period][0][0] + ' / Fact: ' + statistics['plans_data'][state.year][office][type][period][0][1]"/>
-                                    </Card>
-                                    <Card t-if="statistics['kam_plans_data'][state.year][office] and state.period != 'Y' and state.type != 'summary'" className="'col-2 col-md-3 shadow-sm border m-2 bg-white'">
-                                        <t t-set-slot="title" t-esc="office + ' ' + type + ' ' + ' ' + state.year + period"/>
-                                        <BarChart data="statistics['kam_plans_data'][state.year][office]" period="period" type="type" chart_height="statistics['kam_height'][state.year][office]"/>
-                                    </Card>
+        <t t-if="statistics['show_company'][state.year]">
+            <t t-if="state.office === false">
+                <t t-foreach="statistics['companies'][state.year]" t-as="company" t-key="company">
+                    <h4 t-esc="company"/>
+                    <t t-if="statistics['company_plans_data'][state.year][company]">
+                        <div class="row">
+                            <t t-foreach="['contracting', 'cash', 'acceptance', 'margin_income']" t-as="type" t-key="type">
+                                <t t-if="state.type == type or state.type == 'summary'">
+                                    <t t-foreach="['Y', 'Q1', 'Q2', 'Q3', 'Q4']" t-as="period" t-key="period">
+                                        <t t-if="(state.period == period and period != 'Y') or (state.period == 'Y' and state.type != 'summary' and period != 'Y') or (state.type == 'summary' and state.period == period and period == 'Y')">
+                                            <Card className="'col-2 col-md-3 shadow-sm border m-2 bg-primary'">
+                                                <t t-set-slot="title" t-esc="state.year + period + ' ' + type + ' ' + company"/>
+                                                <PieChart data="statistics['company_plans_data'][state.year][company]" period="period" type="type" office="company"/>
+                                                <h2 style="width: 100%; height: 40px; position: absolute; top: 49%; left: 4px; margin-top: 0px; line-height: 6px; text-align: center; z-index: 999999999999999">
+                                                    <t t-esc="statistics['company_plans_data'][state.year][company][type][period][3]"/>
+                                                </h2>
+                                                <t t-set-slot="legend" t-esc="'Plan: ' + statistics['company_plans_data'][state.year][company][type][period][0][0] + ' / Fact: ' + statistics['company_plans_data'][state.year][company][type][period][0][1]"/>
+                                            </Card>
+                                            <Card t-if="statistics['company_office_plans_data'][state.year][company] and state.period != 'Y' and state.type != 'summary'" className="'col-2 col-md-3 shadow-sm border m-2 bg-primary'">
+                                                <t t-set-slot="title" t-esc="state.year + period + ' ' + type + ' ' + company"/>
+                                                <BarChart data="statistics['company_office_plans_data'][state.year][company]" period="period" type="type" chart_height="statistics['office_height'][state.year][company]"/>
+                                            </Card>
+                                        </t>
+                                    </t>
                                 </t>
                             </t>
-                        </t>
+                        </div>
                     </t>
-                </div>
-            </t>
-            <t t-if="statistics['kam_plans_data'][state.year][office] and (state.period == 'Y' or state.type == 'summary') or statistics['kam_plans_data'][state.year][office] and statistics['plans_data'][state.year][office] == False">
-                <div class="row">
-                    <t t-foreach="['contracting', 'cash', 'acceptance', 'margin_income']" t-as="type" t-key="type">
-                        <t t-if="state.type == type or state.type == 'summary'">
-                            <t t-foreach="['Y', 'Q1', 'Q2', 'Q3', 'Q4']" t-as="period" t-key="period">
-                                <t t-if="(state.period == period and period != 'Y') or (state.period == 'Y' and state.type != 'summary' and period != 'Y') or (state.type == 'summary' and state.period == period and period == 'Y')">
-                                    <Card className="'col-2 col-md-3 shadow-sm border m-2 bg-white'">
-                                        <t t-set-slot="title" t-esc="office + ' ' + type + ' ' + ' ' + state.year + period"/>
-                                        <BarChart data="statistics['kam_plans_data'][state.year][office]" period="period" type="type" chart_height="statistics['kam_height'][state.year][office]"/>
-                                    </Card>
+                    <t t-if="statistics['company_office_plans_data'][state.year][company] and (state.period == 'Y' or state.type == 'summary') or statistics['company_office_plans_data'][state.year][company] and statistics['company_plans_data'][state.year][company] == False">
+                        <div class="row">
+                            <t t-foreach="['contracting', 'cash', 'acceptance', 'margin_income']" t-as="type" t-key="type">
+                                <t t-if="state.type == type or state.type == 'summary'">
+                                    <t t-foreach="['Y', 'Q1', 'Q2', 'Q3', 'Q4']" t-as="period" t-key="period">
+                                        <t t-if="(state.period == period and period != 'Y') or (state.period == 'Y' and state.type != 'summary' and period != 'Y') or (state.type == 'summary' and state.period == period and period == 'Y')">
+                                            <Card className="'col-2 col-md-3 shadow-sm border m-2 bg-primary'">
+                                                <t t-set-slot="title" t-esc="state.year + period + ' ' + type + ' ' + company"/>
+                                                <BarChart data="statistics['company_office_plans_data'][state.year][company]" period="period" type="type" chart_height="statistics['office_height'][state.year][company]"/>
+                                            </Card>
+                                        </t>
+                                    </t>
                                 </t>
                             </t>
-                        </t>
+                        </div>
                     </t>
-                </div>
+                    <hr/>
+                </t>
+                <hr/>
             </t>
-            <hr/>
         </t>
+<!--        <t t-if="statistics['show_company'][state.year] === false">-->
+        <t t-foreach="statistics['offices'][state.year]" t-as="office" t-key="office">
+            <t t-if="state.office == office">
+                <t t-if="statistics['plans_data'][state.year][office]">
+                    <h4 t-esc="office"/>
+                    <div class="row">
+                        <t t-foreach="['contracting', 'cash', 'acceptance', 'margin_income']" t-as="type" t-key="type">
+                            <t t-if="state.type == type or state.type == 'summary'">
+                                <t t-foreach="['Y', 'Q1', 'Q2', 'Q3', 'Q4']" t-as="period" t-key="period">
+                                    <t t-if="(state.period == period and period != 'Y') or (state.period == 'Y' and state.type != 'summary' and period != 'Y') or (state.type == 'summary' and state.period == period and period == 'Y')">
+                                        <Card className="'col-2 col-md-3 shadow-sm border m-2 bg-white'">
+                                            <t t-set-slot="title" t-esc="state.year + period + ' ' + type + ' ' + office"/>
+                                            <PieChart data="statistics['plans_data'][state.year][office]" period="period" type="type" office="office"/>
+                                            <h2 style="width: 100%; height: 40px; position: absolute; top: 49%; left: 4px; margin-top: 0px; line-height: 6px; text-align: center; z-index: 999999999999999">
+                                                <t t-esc="statistics['plans_data'][state.year][office][type][period][3]"/>
+                                            </h2>
+                                            <t t-set-slot="legend" t-esc="'Plan: ' + statistics['plans_data'][state.year][office][type][period][0][0] + ' / Fact: ' + statistics['plans_data'][state.year][office][type][period][0][1]"/>
+                                        </Card>
+                                        <Card t-if="statistics['kam_plans_data'][state.year][office] and state.period != 'Y' and state.type != 'summary'" className="'col-2 col-md-3 shadow-sm border m-2 bg-white'">
+                                            <t t-set-slot="title" t-esc="state.year + period + ' ' + type + ' ' + office"/>
+                                            <BarChart data="statistics['kam_plans_data'][state.year][office]" period="period" type="type" chart_height="statistics['kam_height'][state.year][office]"/>
+                                        </Card>
+                                    </t>
+                                </t>
+                            </t>
+                        </t>
+                    </div>
+                </t>
+                <t t-if="statistics['kam_plans_data'][state.year][office] and (state.period == 'Y' or state.type == 'summary') or statistics['kam_plans_data'][state.year][office] and statistics['plans_data'][state.year][office] == False">
+                    <div class="row">
+                        <t t-foreach="['contracting', 'cash', 'acceptance', 'margin_income']" t-as="type" t-key="type">
+                            <t t-if="state.type == type or state.type == 'summary'">
+                                <t t-foreach="['Y', 'Q1', 'Q2', 'Q3', 'Q4']" t-as="period" t-key="period">
+                                    <t t-if="(state.period == period and period != 'Y') or (state.period == 'Y' and state.type != 'summary' and period != 'Y') or (state.type == 'summary' and state.period == period and period == 'Y')">
+                                        <Card className="'col-2 col-md-3 shadow-sm border m-2 bg-white'">
+                                            <t t-set-slot="title" t-esc="state.year + period + ' ' + type + ' ' + office"/>
+                                            <BarChart data="statistics['kam_plans_data'][state.year][office]" period="period" type="type" chart_height="statistics['kam_height'][state.year][office]"/>
+                                        </Card>
+                                    </t>
+                                </t>
+                            </t>
+                        </t>
+                    </div>
+                </t>
+                <hr/>
+            </t>
+        </t>
+<!--        </t>-->
     </div>
 </t>
 

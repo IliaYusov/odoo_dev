@@ -25,7 +25,7 @@ export class PieChart extends Component {
 
         useEffect(() => {
             this.renderChart()
-        }, () => [this.props.period, this.props.type]
+        }, () => [this.props.period, this.props.type, this.props.year, this.env.config.test]
            );
 
         onWillUnmount(() => {

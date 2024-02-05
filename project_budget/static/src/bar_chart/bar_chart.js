@@ -5,7 +5,7 @@ import { getColor } from "@web/views/graph/colors";
 import { useService } from "@web/core/utils/hooks"
 import { Domain } from "@web/core/domain";
 
-const { Component, onWillStart, useRef, onMounted, onWillUnmount } = owl;
+const { Component, onWillStart, useRef, onMounted, onWillUnmount, useEffect } = owl;
 
 export class BarChart extends Component {
     setup() {
@@ -27,27 +27,46 @@ export class BarChart extends Component {
             this.renderChart();
         });
 
+        useEffect(() => {
+            this.renderChart()
+        }, () => [this.props.period, this.props.type, this.props.year]
+           );
+
         onWillUnmount(() => {
             if (this.chart) {
                 this.chart.destroy();
             }
         });
-        this.actionService = useService("action")
+
+        this.action = useService("action")
     }
 
-    onPieClick(ev, chartElem) {
+//    onPieClick(ev, chartElem) {
+//        if (chartElem[0]) {
+//            const clickedIndex = chartElem[0]._index;
+//            const kam = this.labels[clickedIndex];
+//            this.actionService.doAction({
+//                type: "ir.actions.act_window",
+//                name: kam,
+//                res_model: "project_budget.projects",
+//                domain: new Domain("[('project_manager_id.name','=','" + kam + "'),('budget_state', '=', 'work')]").toList(),
+//                views: [
+//                    [false, "list"],
+//                    [false, "form"],
+//                ],
+//            })
+//        }
+//    }
+
+        onBarClick(ev, chartElem) {
         if (chartElem[0]) {
             const clickedIndex = chartElem[0]._index;
-            const kam = this.labels[clickedIndex];
-            this.actionService.doAction({
-                type: "ir.actions.act_window",
-                name: kam,
-                res_model: "project_budget.projects",
-                domain: new Domain("[('project_manager_id.name','=','" + kam + "'),('budget_state', '=', 'work')]").toList(),
-                views: [
-                    [false, "list"],
-                    [false, "form"],
-                ],
+            const office = this.labels[clickedIndex];
+            this.action.doAction({
+                type: "ir.actions.client",
+                name: office,
+                tag: "project_budget.dashboard",
+                context: {'office': office},
             })
         }
     }
@@ -69,7 +88,7 @@ export class BarChart extends Component {
                 ],
             },
             options: {
-                onClick: this.onPieClick.bind(this),
+                onClick: this.onBarClick.bind(this),
                 legend: {
                     display: false,
                     labels: {
