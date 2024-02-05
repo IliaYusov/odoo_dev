@@ -194,27 +194,30 @@ class report_new_tender_excel(models.AbstractModel):
         sheet.set_column(column, column, 31.45)
         column += 1
 
+        row += 1
+
         for tender in tenders:
-            for tendersum in tender.tender_sums_ids or [0,]:
-                row += 1
+            tendersum_qty = max(len(tender.tender_sums_ids), 1) - 1
+            tendersum = False
+            if tendersum_qty:
                 column = 0
-                sheet.write_string(row, column, tender.date_of_filling_in.strftime("%d.%m.%Y"), row_format_text)
+                sheet.merge_range(row, column, row + tendersum_qty, column, tender.date_of_filling_in.strftime("%d.%m.%Y"), row_format_text)
                 column += 1
-                sheet.write_string(row, column, (tender.participant_id.name or ''), row_format_text)
+                sheet.merge_range(row, column, row + tendersum_qty, column, (tender.participant_id.name or ''), row_format_text)
                 column += 1
-                sheet.write_string(row, column, (tender.auction_number or ''), row_format_text)
+                sheet.merge_range(row, column, row + tendersum_qty, column, (tender.auction_number or ''), row_format_text)
                 column += 1
                 if tender.url_tender:
-                    sheet.write_string(row, column, (tender.url_tender.striptags() or ''), row_format_text)
+                    sheet.merge_range(row, column, row + tendersum_qty, column, (tender.url_tender.striptags() or ''), row_format_text)
                 else:
-                    sheet.write_string(row, column, '', row_format_text)
+                    sheet.merge_range(row, column, row + tendersum_qty, column, '', row_format_text)
                 column += 1
-                sheet.write_string(row, column, (tender.partner_id.name or ''), row_format_text)
+                sheet.merge_range(row, column, row + tendersum_qty, column, (tender.partner_id.name or ''), row_format_text)
                 column += 1
                 if is_report_for_management == False:
-                    sheet.write_string(row, column, (tender.contact_information or ''), row_format_text)
+                    sheet.merge_range(row, column, row + tendersum_qty, column, (tender.contact_information or ''), row_format_text)
                     column += 1
-                sheet.write_string(row, column, (tender.name_of_the_purchase or ''), row_format_text)
+                sheet.merge_range(row, column, row + tendersum_qty, column, (tender.name_of_the_purchase or ''), row_format_text)
                 column += 1
 
                 participants_offer = 0
@@ -226,15 +229,129 @@ class report_new_tender_excel(models.AbstractModel):
                 sum_provision_of_GO = ''
                 sum_site_payment = ''
 
-                if tendersum:
+                for tendersum in tender.tender_sums_ids:
+                    if tendersum:
+                        participants_offer = tendersum.participants_offer
+                        participants_offer_descr = tendersum.participants_offer_descr
+                        sum_initial_maximum_contract_price = monetary_format(tendersum.initial_maximum_contract_price_currency_id.symbol, (tendersum.initial_maximum_contract_price or 0)) + ' ' + (tendersum.initial_maximum_contract_price_descr or '') + '\n'
+                        sum_payment_for_the_victory = monetary_format(tendersum.payment_for_the_victory_currency_id.symbol, (tendersum.payment_for_the_victory or 0)) + ' ' + (tendersum.payment_for_the_victory_descr or '') + '\n'
+                        sum_securing_the_application = monetary_format(tendersum.securing_the_application_currency_id.symbol, (tendersum.securing_the_application or 0)) + ' ' + (tendersum.securing_the_application_descr or '') + '\n'
+                        sum_contract_security = monetary_format(tendersum.contract_security_currency_id.symbol, (tendersum.contract_security or 0)) + ' ' + (tendersum.contract_security_descr or '') + '\n'
+                        sum_provision_of_GO = monetary_format(tendersum.provision_of_GO_currency_id.symbol, (tendersum.provision_of_GO or 0)) + ' ' + (tendersum.provision_of_GO_descr or '') + '\n'
+                        sum_site_payment = monetary_format(tendersum.site_payment_currency_id.symbol, (tendersum.site_payment or 0)) + ' ' + (tendersum.site_payment_descr or '') + '\n'
+
+                        if tendersum.participants_offer_currency_id.name == 'RUB':
+                            row_format_text_offer = row_format_text_offer_rub
+                        elif tendersum.participants_offer_currency_id.name == 'USD':
+                            row_format_text_offer = row_format_text_offer_usd
+                        elif tendersum.participants_offer_currency_id.name == 'EUR':
+                            row_format_text_offer = row_format_text_offer_eur
+                        elif tendersum.participants_offer_currency_id.name == 'CNY':
+                            row_format_text_offer = row_format_text_offer_cny
+
+                    if tender.is_need_initial_maximum_contract_price == True:
+                        sheet.write(row, column, sum_initial_maximum_contract_price.strip(), row_format_text)
+                    else: sheet.write(row, column, 'НЕТ', row_format_text)
+                    column += 1
+                    if participants_offer:
+                        sheet.write(row, column, participants_offer, row_format_text_offer)
+                    else:
+                        sheet.write(row, column, '', row_format_text_offer)
+                    column += 1
+                    sheet.write(row, column, (participants_offer_descr or '').strip(), row_format_text_offer)
+                    column += 1
+                    if tender.is_need_securing_the_application == True:
+                        sheet.write(row, column, sum_securing_the_application.strip(), row_format_text)
+                    else: sheet.write(row, column, 'НЕТ', row_format_text)
+                    column += 1
+                    if tender.is_need_contract_security == True:
+                        sheet.write(row, column, sum_contract_security.strip(), row_format_text)
+                    else: sheet.write(row, column, 'НЕТ', row_format_text)
+                    column += 1
+                    if is_report_for_management == False:
+                        if tender.is_need_provision_of_GO == True:
+                            sheet.write(row, column, sum_provision_of_GO.strip(), row_format_text)
+                        else: sheet.write(row, column, 'НЕТ', row_format_text)
+                        column += 1
+                        if tender.is_need_licenses_SRO == True:
+                            sheet.write(row, column, (tender.licenses_SRO or ''), row_format_text)
+                        else: sheet.write(row, column, 'НЕТ', row_format_text)
+                        column += 1
+                    row += 1
+                    column -= 7
+                row -= (tendersum_qty + 1)
+                column += 7
+                str_responsible = ''
+                for responsible in tender.responsible_ids:
+                    str_responsible += (responsible.name or '') + '\n'
+                sheet.merge_range(row, column, row + tendersum_qty, column, str_responsible.strip(), row_format_text)
+                column += 1
+                if tender.current_status.highlight:
+                    sheet.merge_range(row, column, row + tendersum_qty, column, (tender.current_status.name or ''), row_format_text_red)
+                else:
+                    sheet.merge_range(row, column, row + tendersum_qty, column, (tender.current_status.name or ''), row_format_text)
+                column += 1
+                str_comment = ''
+                for comment in tender.tender_comments_ids:
+                    str_comment += comment.date_comment.strftime("%d.%m.%Y") + ' ' + (comment.type_comment_id.name or '') + ' ' + (comment.text_comment or '') + '\n'
+                sheet.merge_range(row, column, row + tendersum_qty, column, str_comment.strip(), row_format_text_comments)
+                column += 1
+                sheet.merge_range(row, column, row + tendersum_qty, column, (tender.projects_id.project_id or ''), row_format_text_left)
+                row += 1 + tendersum_qty
+            else:
+                column = 0
+                sheet.write(row, column, tender.date_of_filling_in.strftime("%d.%m.%Y"), row_format_text)
+                column += 1
+                sheet.write(row, column, (tender.participant_id.name or ''), row_format_text)
+                column += 1
+                sheet.write(row, column, (tender.auction_number or ''), row_format_text)
+                column += 1
+                if tender.url_tender:
+                    sheet.write(row, column, (tender.url_tender.striptags() or ''), row_format_text)
+                else:
+                    sheet.write(row, column, '', row_format_text)
+                column += 1
+                sheet.write(row, column, (tender.partner_id.name or ''), row_format_text)
+                column += 1
+                if is_report_for_management == False:
+                    sheet.write(row, column, (tender.contact_information or ''), row_format_text)
+                    column += 1
+                sheet.write(row, column, (tender.name_of_the_purchase or ''), row_format_text)
+                column += 1
+
+                participants_offer = 0
+                participants_offer_descr = ''
+                sum_initial_maximum_contract_price = ''
+                sum_payment_for_the_victory = ''
+                sum_securing_the_application = ''
+                sum_contract_security = ''
+                sum_provision_of_GO = ''
+                sum_site_payment = ''
+
+                if tender.tender_sums_ids:
+                    tendersum = tender.tender_sums_ids[0]
                     participants_offer = tendersum.participants_offer
                     participants_offer_descr = tendersum.participants_offer_descr
-                    sum_initial_maximum_contract_price = monetary_format(tendersum.initial_maximum_contract_price_currency_id.symbol, (tendersum.initial_maximum_contract_price or 0)) + ' ' + (tendersum.initial_maximum_contract_price_descr or '') + '\n'
-                    sum_payment_for_the_victory = monetary_format(tendersum.payment_for_the_victory_currency_id.symbol, (tendersum.payment_for_the_victory or 0)) + ' ' + (tendersum.payment_for_the_victory_descr or '') + '\n'
-                    sum_securing_the_application = monetary_format(tendersum.securing_the_application_currency_id.symbol, (tendersum.securing_the_application or 0)) + ' ' + (tendersum.securing_the_application_descr or '') + '\n'
-                    sum_contract_security = monetary_format(tendersum.contract_security_currency_id.symbol, (tendersum.contract_security or 0)) + ' ' + (tendersum.contract_security_descr or '') + '\n'
-                    sum_provision_of_GO = monetary_format(tendersum.provision_of_GO_currency_id.symbol, (tendersum.provision_of_GO or 0)) + ' ' + (tendersum.provision_of_GO_descr or '') + '\n'
-                    sum_site_payment = monetary_format(tendersum.site_payment_currency_id.symbol, (tendersum.site_payment or 0)) + ' ' + (tendersum.site_payment_descr or '') + '\n'
+                    sum_initial_maximum_contract_price = monetary_format(
+                        tendersum.initial_maximum_contract_price_currency_id.symbol,
+                        (tendersum.initial_maximum_contract_price or 0)) + ' ' + (
+                                                                     tendersum.initial_maximum_contract_price_descr or '') + '\n'
+                    sum_payment_for_the_victory = monetary_format(tendersum.payment_for_the_victory_currency_id.symbol,
+                                                                  (tendersum.payment_for_the_victory or 0)) + ' ' + (
+                                                              tendersum.payment_for_the_victory_descr or '') + '\n'
+                    sum_securing_the_application = monetary_format(
+                        tendersum.securing_the_application_currency_id.symbol,
+                        (tendersum.securing_the_application or 0)) + ' ' + (
+                                                               tendersum.securing_the_application_descr or '') + '\n'
+                    sum_contract_security = monetary_format(tendersum.contract_security_currency_id.symbol,
+                                                            (tendersum.contract_security or 0)) + ' ' + (
+                                                        tendersum.contract_security_descr or '') + '\n'
+                    sum_provision_of_GO = monetary_format(tendersum.provision_of_GO_currency_id.symbol,
+                                                          (tendersum.provision_of_GO or 0)) + ' ' + (
+                                                      tendersum.provision_of_GO_descr or '') + '\n'
+                    sum_site_payment = monetary_format(tendersum.site_payment_currency_id.symbol,
+                                                       (tendersum.site_payment or 0)) + ' ' + (
+                                                   tendersum.site_payment_descr or '') + '\n'
 
                     if tendersum.participants_offer_currency_id.name == 'RUB':
                         row_format_text_offer = row_format_text_offer_rub
@@ -246,51 +363,57 @@ class report_new_tender_excel(models.AbstractModel):
                         row_format_text_offer = row_format_text_offer_cny
 
                 if tender.is_need_initial_maximum_contract_price == True:
-                    sheet.write_string(row, column, sum_initial_maximum_contract_price.strip(), row_format_text)
-                else: sheet.write_string(row, column, 'НЕТ', row_format_text)
+                    sheet.write(row, column, sum_initial_maximum_contract_price.strip(), row_format_text)
+                else:
+                    sheet.write(row, column, 'НЕТ', row_format_text)
                 column += 1
                 if participants_offer:
-                    sheet.write_number(row, column, participants_offer, row_format_text_offer)
+                    sheet.write(row, column, participants_offer, row_format_text_offer)
                 else:
-                    sheet.write_string(row, column, '', row_format_text_offer)
+                    sheet.write(row, column, '', row_format_text_offer)
                 column += 1
-                sheet.write_string(row, column, (participants_offer_descr or '').strip(), row_format_text_offer)
+                sheet.write(row, column, (participants_offer_descr or '').strip(), row_format_text_offer)
                 column += 1
                 if tender.is_need_securing_the_application == True:
-                    sheet.write_string(row, column, sum_securing_the_application.strip(), row_format_text)
-                else: sheet.write_string(row, column, 'НЕТ', row_format_text)
+                    sheet.write(row, column, sum_securing_the_application.strip(), row_format_text)
+                else:
+                    sheet.write(row, column, 'НЕТ', row_format_text)
                 column += 1
                 if tender.is_need_contract_security == True:
-                    sheet.write_string(row, column, sum_contract_security.strip(), row_format_text)
-                else: sheet.write_string(row, column, 'НЕТ', row_format_text)
+                    sheet.write(row, column, sum_contract_security.strip(), row_format_text)
+                else:
+                    sheet.write(row, column, 'НЕТ', row_format_text)
                 column += 1
                 if is_report_for_management == False:
                     if tender.is_need_provision_of_GO == True:
-                        sheet.write_string(row, column, sum_provision_of_GO.strip(), row_format_text)
-                    else: sheet.write_string(row, column, 'НЕТ', row_format_text)
+                        sheet.merge_range(row, column, sum_provision_of_GO.strip(), row_format_text)
+                    else:
+                        sheet.write(row, column, 'НЕТ', row_format_text)
                     column += 1
                     if tender.is_need_licenses_SRO == True:
-                        sheet.write_string(row, column, (tender.licenses_SRO or ''), row_format_text)
-                    else: sheet.write_string(row, column, 'НЕТ', row_format_text)
+                        sheet.write(row, column, (tender.licenses_SRO or ''), row_format_text)
+                    else:
+                        sheet.write(row, column, 'НЕТ', row_format_text)
                     column += 1
                 str_responsible = ''
                 for responsible in tender.responsible_ids:
-                    print('responsible = ', responsible.name)
                     str_responsible += (responsible.name or '') + '\n'
-                print('str_responsible = ', str_responsible)
-                sheet.write_string(row, column, str_responsible.strip(), row_format_text)
+                sheet.write(row, column, str_responsible.strip(), row_format_text)
                 column += 1
                 if tender.current_status.highlight:
-                    sheet.write_string(row, column, (tender.current_status.name or ''), row_format_text_red)
+                    sheet.write(row, column, (tender.current_status.name or ''), row_format_text_red)
                 else:
-                    sheet.write_string(row, column, (tender.current_status.name or ''), row_format_text)
+                    sheet.write(row, column, (tender.current_status.name or ''), row_format_text)
                 column += 1
                 str_comment = ''
                 for comment in tender.tender_comments_ids:
-                    str_comment += comment.date_comment.strftime("%d.%m.%Y") + ' ' + (comment.type_comment_id.name or '') + ' ' + (comment.text_comment or '') + '\n'
-                sheet.write_string(row, column, str_comment.strip(), row_format_text_comments)
+                    str_comment += comment.date_comment.strftime("%d.%m.%Y") + ' ' + (
+                                comment.type_comment_id.name or '') + ' ' + (comment.text_comment or '') + '\n'
+                sheet.write(row, column, str_comment.strip(), row_format_text_comments)
                 column += 1
-                sheet.write_string(row, column, (tender.projects_id.project_id or ''), row_format_text_left)
+                sheet.write(row, column, (tender.projects_id.project_id or ''), row_format_text_left)
+                row += 1
+
 
     def generate_xlsx_report(self, workbook, data, lines):
         print('data = ', data)
