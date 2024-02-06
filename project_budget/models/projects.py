@@ -863,6 +863,18 @@ class projects(models.Model):
                 raisetext = _("Please enter financial data to project {0}")
                 raisetext = raisetext.format(project.project_id)
                 raise ValidationError(raisetext)
+            elif (project.estimated_probability_id.name in ('50', '75', '100')
+                  and not (
+                            project.planned_acceptance_flow_sum == project.total_amount_of_revenue_without_vat
+                            and project.planned_cash_flow_sum == project.total_amount_of_revenue_with_vat
+                    )
+                  and not project.is_parent_project
+                  and project.budget_state == 'work'
+                  and not project.is_correction_project):
+                raisetext = _("Forecast sum is not equal total amout of revenue")
+                raisetext = raisetext.format(project.project_id)
+                raise ValidationError(raisetext)
+
             if project.project_have_steps:
                 for step in project.project_steps_ids:
                     if (step.estimated_probability_id.name in ('50', '75', '100')
