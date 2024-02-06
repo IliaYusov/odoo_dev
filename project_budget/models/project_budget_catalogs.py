@@ -190,6 +190,7 @@ class technological_direction(models.Model):
     name = fields.Char(string="technological_direction name", required=True, translate=True)
     code = fields.Char(string="technological_direction code", required=True)
     descr = fields.Char(string="technological_direction description", translate=True)
+    recurring_payments = fields.Boolean(string="recurring_payments", default=False)
 
 class tender_current_status(models.Model):
     _name = 'project_budget.tender_current_status'

@@ -4743,6 +4743,11 @@ msgid "technological_direction name"
 msgstr "Наименование"
 
 #. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_technological_direction__recurring_payments
+msgid "recurring_payments"
+msgstr "Повторяющиеся платежи"
+
+#. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_projects_tenders_form
 msgid "tender"
 msgstr "Тендер"
