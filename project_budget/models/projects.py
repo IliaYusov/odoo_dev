@@ -326,6 +326,10 @@ class projects(models.Model):
     dogovor_number = fields.Char(string='Dogovor number', store=True, tracking=True)
     planned_acceptance_flow_sum = fields.Monetary(string='planned_acceptance_flow_sum',
                                                   compute='_compute_planned_acceptance_flow_sum',store=False, tracking=True)
+    planned_acceptance_flow_sum_without_vat = fields.Monetary(
+        string='planned_acceptance_flow_sum_without_vat',
+        compute='_compute_planned_acceptance_flow_sum',store=False, tracking=True
+    )
     planned_acceptance_flow_ids = fields.One2many(
         comodel_name='project_budget.planned_acceptance_flow',
         inverse_name='projects_id',
@@ -338,6 +342,10 @@ class projects(models.Model):
         string="fact cash flow", auto_join=True, copy=True)
     fact_acceptance_flow_sum = fields.Monetary(string='fact_acceptance_flow_sum', compute='_compute_fact_acceptance_flow_sum',
                                                store=False, tracking=True)
+    fact_acceptance_flow_sum_without_vat = fields.Monetary(
+        string='fact_acceptance_flow_sum_without_vat',
+        compute='_compute_fact_acceptance_flow_sum', store=False, tracking=True
+    )
     fact_acceptance_flow_ids = fields.One2many(
         comodel_name='project_budget.fact_acceptance_flow',
         inverse_name='projects_id',
@@ -542,8 +550,10 @@ class projects(models.Model):
     def _compute_planned_acceptance_flow_sum(self):
         for row in self:
             row.planned_acceptance_flow_sum = 0
+            row.planned_acceptance_flow_sum_without_vat = 0
             for row_flow in row.planned_acceptance_flow_ids:
-                row.planned_acceptance_flow_sum = row.planned_acceptance_flow_sum + row_flow.sum_cash
+                row.planned_acceptance_flow_sum += row_flow.sum_cash
+                row.planned_acceptance_flow_sum_without_vat += row_flow.sum_cash_without_vat
 
     @api.depends("fact_cash_flow_ids.sum_cash")
     def _compute_fact_cash_flow_sum(self):
@@ -556,9 +566,10 @@ class projects(models.Model):
     def _compute_fact_acceptance_flow_sum(self):
         for row in self:
             row.fact_acceptance_flow_sum = 0
+            row.fact_acceptance_flow_sum_without_vat = 0
             for row_flow in row.fact_acceptance_flow_ids:
-                row.fact_acceptance_flow_sum = row.fact_acceptance_flow_sum + row_flow.sum_cash
-
+                row.fact_acceptance_flow_sum += row_flow.sum_cash
+                row.fact_acceptance_flow_sum_without_vat += row_flow.sum_cash_without_vat
 
     def _culculate_all_sums(self, project):
         if project.project_have_steps == False:
@@ -863,15 +874,19 @@ class projects(models.Model):
                 raisetext = _("Please enter financial data to project {0}")
                 raisetext = raisetext.format(project.project_id)
                 raise ValidationError(raisetext)
-            elif (project.estimated_probability_id.name in ('50', '75', '100')
-                  and not (
-                            project.planned_acceptance_flow_sum == project.total_amount_of_revenue_without_vat
-                            and project.planned_cash_flow_sum == project.total_amount_of_revenue_with_vat
-                    )
-                  and not project.is_parent_project
-                  and project.budget_state == 'work'
-                  and not project.is_correction_project):
-                raisetext = _("Forecast sum is not equal total amout of revenue")
+            elif (
+                project.estimated_probability_id.name in ('50', '75', '100')
+                and not
+                (
+                        abs(project.planned_acceptance_flow_sum_without_vat - project.total_amount_of_revenue) < 1  # учитываем различия в рассчете НДС
+                        and abs(project.planned_cash_flow_sum - project.total_amount_of_revenue_with_vat) < 1
+                )
+                and not project.technological_direction_id.recurring_payments
+                and not project.is_parent_project
+                and project.budget_state == 'work'
+                and not project.is_correction_project
+            ):
+                raisetext = _("Acting and/or cash forecast sum is not equal total amout of revenue")
                 raisetext = raisetext.format(project.project_id)
                 raise ValidationError(raisetext)
 
