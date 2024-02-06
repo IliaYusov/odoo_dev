@@ -56,6 +56,8 @@ class tenders(models.Model):
     current_status = fields.Many2one('project_budget.tender_current_status', required=True, tracking=True)
 
     responsible_ids = fields.Many2many('hr.employee', relation='tender_employee_rel', column1='tender_id', column2='employee_id', string='responsibles')
+    responsible_dkp_ids = fields.Many2many('hr.employee', relation='dkp_employee_rel', column1='tender_id',
+                                       column2='employee_id', string='responsibles_dkp')
 
     is_need_payment_for_the_victory = fields.Boolean(string="is_need_payment_for_the_victory", copy=True, default = False)
     is_need_site_payment  = fields.Boolean(string="is_need_site_payment", copy=True, default = False,tracking=True)

@@ -4380,6 +4380,12 @@ msgid "responsibles"
 msgstr "Ответственные"
 
 #. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__responsible_dkp_ids
+#: model_terms:ir.ui.view,arch_db:project_budget.view_tender_search
+msgid "responsibles_dkp"
+msgstr "Ответственные от ДКП"
+
+#. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_estimated_probability_kanban
 msgid "revenue"
 msgstr "Выручка"

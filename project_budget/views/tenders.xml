@@ -196,6 +196,7 @@
                     <field name="contact_information" optional="hide"/>
                     <field name="name_of_the_purchase" optional="show"/>
                     <field name="responsible_ids" widget="many2many_avatar_user" optional="show"/>
+                    <field name="responsible_dkp_ids" widget="many2many_avatar_user" optional="hide"/>
                     <field name="vat_attribute_id" optional="hide"/>
 <!--                    <field name="initial_maximum_contract_price" optional="show"/>-->
 <!--                    <field name="participants_offer" optional="hide"/>-->
@@ -229,25 +230,30 @@
                             </button>
                         </div>
                         <field name="tender_id" readonly="1"/>
-                        <group col = "3">
-                            <group>
+                        <group col="6">
+                            <group colspan="2">
                                 <field string= "main currency" name="currency_id"/>
                             </group>
-                            <group>
+                            <group colspan="1">
                                 <field name="is_need_projects" widget="boolean_toggle" />
                             </group>
-                            <group>
+                            <group colspan="2">
                                 <field name="projects_id" attrs="{'invisible': [('is_need_projects', '=', False)],'required': [('is_need_projects', '=', True)]}"/>
                             </group>
+                            <group colspan="1">
+                                <field name="project_manager_id"/>
+                            </group>
                         </group>
-                        <group>
-                            <group>
+                        <group col="6">
+                            <group colspan="3">
                                 <field name="responsible_ids" options="{'no_open': True, 'no_quick_create': True}"
                                   widget="many2many_avatar_user"
                                 />
                             </group>
-                            <group>
-                                <field name="project_manager_id"/>
+                            <group colspan="3">
+                                <field name="responsible_dkp_ids" options="{'no_open': True, 'no_quick_create': True}"
+                                  widget="many2many_avatar_user"
+                                />
                             </group>
                         </group>
                         <group>
