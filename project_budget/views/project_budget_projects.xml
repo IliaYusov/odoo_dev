@@ -609,10 +609,17 @@
                             </page>
                             <page string="Forecast" attrs="{'invisible': [('is_parent_project', '=', True)]}">
                                 <h4>
-                                <group>
-                                    <group  string="planned_acceptance_flow">
+                                <group col="6">
+                                    <group string="planned_acceptance_flow" colspan="2">
                                     </group>
-                                    <group>
+                                    <group colspan="2">
+                                        <field name="planned_acceptance_flow_sum_without_vat"
+                                        decoration-bf="1"
+                                        decoration-success="total_amount_of_revenue == planned_acceptance_flow_sum_without_vat"
+                                        decoration-danger="total_amount_of_revenue != planned_acceptance_flow_sum_without_vat"
+                                        />
+                                    </group>
+                                    <group colspan="2">
                                         <field name="planned_acceptance_flow_sum"
                                         decoration-bf="1"
                                         decoration-success="total_amount_of_revenue_with_vat == planned_acceptance_flow_sum"
@@ -682,10 +689,17 @@
                             </page>
                             <page string="Fact" attrs="{'invisible': [('is_parent_project', '=', True)]}">
                                 <h4>
-                                <group>
-                                    <group col="1" string="fact_acceptance_flow">
+                                <group col="6">
+                                    <group string="fact_acceptance_flow" colspan="2">
                                     </group>
-                                    <group>
+                                    <group colspan="2">
+                                        <field name="fact_acceptance_flow_sum_without_vat"
+                                        decoration-bf="1"
+                                        decoration-success="total_amount_of_revenue == fact_acceptance_flow_sum_without_vat"
+                                        decoration-danger="total_amount_of_revenue != fact_acceptance_flow_sum_without_vat"
+                                        />
+                                    </group>
+                                    <group colspan="2">
                                         <field name="fact_acceptance_flow_sum"
                                         decoration-bf="1"
                                         decoration-success="total_amount_of_revenue_with_vat == fact_acceptance_flow_sum"

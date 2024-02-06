@@ -3148,7 +3148,12 @@ msgstr ""
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__fact_acceptance_flow_sum
 msgid "fact_acceptance_flow_sum"
-msgstr "Сумма актов"
+msgstr "Сумма актов с НДС"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__fact_acceptance_flow_sum_without_vat
+msgid "fact_acceptance_flow_sum_without_vat"
+msgstr "Сумма актов без НДС"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_distribution_cash__fact_cash_flow_id
@@ -3820,7 +3825,12 @@ msgstr ""
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__planned_acceptance_flow_sum
 msgid "planned_acceptance_flow_sum"
-msgstr "Сумма актирования"
+msgstr "Сумма актирования с НДС"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__planned_acceptance_flow_sum_without_vat
+msgid "planned_acceptance_flow_sum_without_vat"
+msgstr "Сумма актирования без НДС"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_distribution_cash__planned_cash_flow_id
