@@ -2720,6 +2720,12 @@ msgid "customer_organization"
 msgstr "Заказчик/организация"
 
 #. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__company_partner_id
+#: model_terms:ir.ui.view,arch_db:project_budget.view_projects_search
+msgid "Partner"
+msgstr "Партнер"
+
+#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_customer_organization__code
 msgid "customer_organization code"
 msgstr "Код"
@@ -5147,3 +5153,8 @@ msgstr ""
 #: model:project_budget.project_steps_type,name:project_budget.project_steps_type_Service
 msgid "Услуги"
 msgstr ""
+
+#. module: currency_rate_update
+#: model:ir.model.fields,field_description:project_budget.field_res_company__is_vendor
+msgid "Is Vendor"
+msgstr "Является вендором"

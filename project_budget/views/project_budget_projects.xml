@@ -269,6 +269,17 @@
 <!--                                        <field name="vgo" force_save="1" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>-->
                                     </group>
                                 </group>
+                                <group col="3">
+                                    <group colspan="2">
+                                    </group>
+                                    <group colspan="1">
+                                        <field name="company_is_vendor" invisible="1"/>
+                                        <field name="company_partner_id" attrs="{
+                                        'required': [('company_is_vendor', '=', True)],
+                                        'invisible': [('company_is_vendor', '=', False)]
+                                        }"/>
+                                    </group>
+                                </group>
                                 <h4>
                                     <group string="Dates">
                                     </group>
@@ -814,6 +825,7 @@
                     <field name="industry_id" force_save="1" options="{'no_open': True,}" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
 <!--                    <field name="customer_status_id" force_save="1" options="{'no_open': True,}"  optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>-->
                     <field name="partner_id" widget="many2one_avatar" force_save="1" options="{'no_open': True,}" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
+                    <field name="company_partner_id" widget="many2one_avatar" optional="hide"/>
                     <field name="essence_project" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
                     <field name="end_presale_project_month"  optional="show" readonly="1"/>
                     <field name="end_sale_project_month"  optional="show" readonly="1"/>

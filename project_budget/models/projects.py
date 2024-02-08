@@ -182,6 +182,13 @@ class projects(models.Model):
                     [('id', '=', manager_access[0].project_manager_id.id)])
         return None
 
+    @api.onchange("partner_id")
+    def _get_partner_id(self):
+        if not self.company_partner_id:
+            partner = self.partner_id
+            if partner:
+                return {'value': {'company_partner_id': self.partner_id}}
+
     company_id = fields.Many2one('res.company', required=True, default=lambda self: self.env.company)
     project_id = fields.Char(string="Project_ID", required=True, index=True, copy=True, group_operator = 'count',
                              default='ID') #lambda self: self.env['ir.sequence'].sudo().next_by_code('project_budget.projects'))
@@ -222,6 +229,8 @@ class projects(models.Model):
     partner_id = fields.Many2one('res.partner', string='customer_organization', required=True, copy=True, tracking=True, domain="[('is_company','=',True)]")
     customer_status_id = fields.Many2one('project_budget.customer_status', string='customer_status',
                                          copy=True, tracking=True)
+    company_partner_id = fields.Many2one('res.partner', string='Partner', copy=True, tracking=True, domain="[('is_company','=',True)]", default=_get_partner_id)
+    company_is_vendor = fields.Boolean(string="Company Is Vendor", related="company_id.is_vendor", store=False)
     industry_id = fields.Many2one('project_budget.industry', string='industry', required=True, copy=True,tracking=True)
     essence_project = fields.Text(string='essence_project', default = "",tracking=True)
     end_presale_project_quarter = fields.Char(string='End date of the Presale project(quarter)', compute='_compute_quarter', store=True, tracking=True)
