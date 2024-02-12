@@ -1450,6 +1450,7 @@ class projects(models.Model):
         current_year = datetime.datetime.today().year
         offices = {current_year - 1: set(), current_year: set(), current_year + 1: set()}
         companies = {current_year - 1: set(), current_year: set(), current_year + 1: set()}
+        companies_names = {}
         show_company = {current_year - 1: False, current_year: False, current_year + 1: False}
         plans_data = {current_year - 1: {}, current_year: {}, current_year + 1: {}}
         kam_plans_data = {current_year - 1: {}, current_year: {}, current_year + 1: {}}
@@ -1457,6 +1458,9 @@ class projects(models.Model):
         company_office_plans_data = {current_year - 1: {}, current_year: {}, current_year + 1: {}}
         q1_plan = q2_plan = q3_plan = q4_plan = y_plan = 0
         q1_fact = q2_fact = q3_fact = q4_fact = y_fact = 0
+
+        for company in self.env['res.company'].search([]):
+            companies_names[company.id] = company.name
 
         for year in (current_year - 1, current_year, current_year + 1):
 
@@ -1480,8 +1484,8 @@ class projects(models.Model):
                 summary['Q4'] = self.get_statistics_data(spec.q4_plan, spec.q4_fact)
                 summary['Y'] = self.get_statistics_data(spec.q1_plan + spec.q2_plan + spec.q3_plan + spec.q4_plan, spec.q1_fact + spec.q2_fact + spec.q3_fact + spec.q4_fact)
 
-                company = company_plans_data[year].setdefault(spec.budget_plan_supervisor_id.company_id.name, {})
-                companies[year].add(spec.budget_plan_supervisor_id.company_id.name)
+                company = company_plans_data[year].setdefault(spec.budget_plan_supervisor_id.company_id.id, {})
+                companies[year].add(spec.budget_plan_supervisor_id.company_id.id)
                 type = company.setdefault(spec.type_row, {})
                 type['Q1'] = self.get_statistics_data_company(
                     type.get('Q1', [[0,0],[],[]])[0][0] + spec.q1_plan,
@@ -1525,7 +1529,7 @@ class projects(models.Model):
                     summary.get('Y', [[0,0],[],[]])[0][1] + spec.q1_fact + spec.q2_fact + spec.q3_fact + spec.q4_fact
                 )
 
-                company = company_office_plans_data[year].setdefault(spec.budget_plan_supervisor_id.company_id.name, {})
+                company = company_office_plans_data[year].setdefault(spec.budget_plan_supervisor_id.company_id.id, {})
                 type = company.setdefault(spec.type_row, {})
                 type['Q1'] = self.get_statistics_data_kam(type.get('Q1', [[],[],[]]), spec.budget_plan_supervisor_id.project_office_id.name, spec.q1_plan, spec.q1_fact)
                 type['Q2'] = self.get_statistics_data_kam(type.get('Q2', [[],[],[]]), spec.budget_plan_supervisor_id.project_office_id.name, spec.q2_plan, spec.q2_fact)
@@ -1618,6 +1622,7 @@ class projects(models.Model):
             'company_office_plans_data': company_office_plans_data,
             'companies': companies,
             'show_company': show_company,
+            'companies_names': companies_names,
         }
 
     @api.model

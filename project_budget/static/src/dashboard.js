@@ -27,6 +27,7 @@ class ProjectBudgetDashboard extends Component {
             type: 'summary',
             year: new Date().getFullYear(),
             office: false,
+            allowed_companies: false,
         });
 
         this.display = {
@@ -46,6 +47,7 @@ class ProjectBudgetDashboard extends Component {
             if (this.props.action.context.office) {
                 this.state.office = this.props.action.context.office
             }
+            this.state.allowed_companies = require('web.session').user_context.allowed_company_ids
         });
     }
 

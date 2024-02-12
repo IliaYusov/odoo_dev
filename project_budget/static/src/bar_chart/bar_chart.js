@@ -41,33 +41,31 @@ export class BarChart extends Component {
         this.action = useService("action")
     }
 
-//    onPieClick(ev, chartElem) {
-//        if (chartElem[0]) {
-//            const clickedIndex = chartElem[0]._index;
-//            const kam = this.labels[clickedIndex];
-//            this.actionService.doAction({
-//                type: "ir.actions.act_window",
-//                name: kam,
-//                res_model: "project_budget.projects",
-//                domain: new Domain("[('project_manager_id.name','=','" + kam + "'),('budget_state', '=', 'work')]").toList(),
-//                views: [
-//                    [false, "list"],
-//                    [false, "form"],
-//                ],
-//            })
-//        }
-//    }
-
         onBarClick(ev, chartElem) {
         if (chartElem[0]) {
             const clickedIndex = chartElem[0]._index;
-            const office = this.labels[clickedIndex];
-            this.action.doAction({
+            const clickedBar = this.labels[clickedIndex];
+            console.log
+            if (this.props.chart == 'office') {
+                this.action.doAction({
                 type: "ir.actions.client",
-                name: office,
+                name: clickedBar,
                 tag: "project_budget.dashboard",
-                context: {'office': office},
+                context: {'office': clickedBar},
             })
+            }
+            else {
+                this.action.doAction({
+                type: "ir.actions.act_window",
+                name: clickedBar,
+                res_model: "project_budget.projects",
+                domain: new Domain("[('project_manager_id.name','=','" + clickedBar + "'),('budget_state', '=', 'work')]").toList(),
+                views: [
+                    [false, "list"],
+                    [false, "form"],
+                ],
+            })
+            }
         }
     }
 
@@ -90,6 +88,9 @@ export class BarChart extends Component {
             options: {
                 onClick: this.onBarClick.bind(this),
                 legend: {
+                    'onClick' : function (evt, item) {
+                    console.log ('legend onClick', evt, item);
+                    },
                     display: false,
                     labels: {
                         fontColor: 'rgb(255, 99, 132)'
