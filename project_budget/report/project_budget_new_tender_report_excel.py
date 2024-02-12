@@ -27,7 +27,6 @@ class report_new_tender_excel(models.AbstractModel):
 
     def printworksheet(self, workbook, tenders):
         global is_report_for_management
-        print('printworksheet is_report_for_management', is_report_for_management)
             # One sheet by partner
         sheet = workbook.add_worksheet('tenders')
         head_format = workbook.add_format({
@@ -131,6 +130,8 @@ class report_new_tender_excel(models.AbstractModel):
             'text_wrap': True,
             'font_name': 'Times New Roman',
             'fg_color': '#FFFFCC',
+            'align': 'left',
+            'valign': 'top',
         })
 
         date_format = workbook.add_format({'num_format': 'd mmmm yyyy'})
@@ -208,7 +209,8 @@ class report_new_tender_excel(models.AbstractModel):
                 sheet.merge_range(row, column, row + tendersum_qty, column, (tender.auction_number or ''), row_format_text)
                 column += 1
                 if tender.url_tender:
-                    sheet.merge_range(row, column, row + tendersum_qty, column, (tender.url_tender.striptags() or ''), row_format_text)
+                    url = tender.url_tender.striptags()
+                    sheet.merge_range(row, column, row + tendersum_qty, column, (url or ''), row_format_text)
                 else:
                     sheet.merge_range(row, column, row + tendersum_qty, column, '', row_format_text)
                 column += 1
@@ -219,6 +221,23 @@ class report_new_tender_excel(models.AbstractModel):
                     column += 1
                 sheet.merge_range(row, column, row + tendersum_qty, column, (tender.name_of_the_purchase or ''), row_format_text)
                 column += 1
+
+                # прикидываем высоту строки
+                max_cell_size = max(
+                    len(url or ''),
+                    len(tender.partner_id.name or ''),
+                    len(tender.contact_information or ''),
+                    len(tender.name_of_the_purchase or ''),
+                    len(tender.licenses_SRO or ''),
+                )
+                str_comment = ''
+                comment_rows = 0
+                for comment in tender.tender_comments_ids:
+                    comment_line = comment.date_comment.strftime("%d.%m.%Y") + ' ' + (
+                                comment.type_comment_id.name or '') + ' ' + ' '.join((comment.text_comment or '').split('\n'))
+                    comment_rows += int(len(comment_line) / 55) + 1  # 55 символов в строке комментариев
+                    str_comment += comment_line + '\n'
+                row_height_calculated = max(14.5, (max((max_cell_size / 25), comment_rows) * 12) / (tendersum_qty + 1)) # 25 символов строке, 12 высота строки
 
                 participants_offer = 0
                 participants_offer_descr = ''
@@ -277,6 +296,7 @@ class report_new_tender_excel(models.AbstractModel):
                             sheet.write(row, column, (tender.licenses_SRO or ''), row_format_text)
                         else: sheet.write(row, column, 'НЕТ', row_format_text)
                         column += 1
+                    sheet.set_row(row, row_height_calculated)
                     row += 1
                     if is_report_for_management:
                         column -= 5
@@ -297,9 +317,6 @@ class report_new_tender_excel(models.AbstractModel):
                 else:
                     sheet.merge_range(row, column, row + tendersum_qty, column, (tender.current_status.name or ''), row_format_text)
                 column += 1
-                str_comment = ''
-                for comment in tender.tender_comments_ids:
-                    str_comment += comment.date_comment.strftime("%d.%m.%Y") + ' ' + (comment.type_comment_id.name or '') + ' ' + (comment.text_comment or '') + '\n'
                 sheet.merge_range(row, column, row + tendersum_qty, column, str_comment.strip(), row_format_text_comments)
                 column += 1
                 sheet.merge_range(row, column, row + tendersum_qty, column, (tender.projects_id.project_id or ''), row_format_text_left)
@@ -422,7 +439,6 @@ class report_new_tender_excel(models.AbstractModel):
 
 
     def generate_xlsx_report(self, workbook, data, lines):
-        print('data = ', data)
         date_from = datetime.strptime(data['date_from'], "%d-%m-%Y").date()
         date_to = datetime.strptime(data['date_to'], "%d-%m-%Y").date()
         global is_report_for_management
@@ -442,7 +458,6 @@ class report_new_tender_excel(models.AbstractModel):
                 ('date_of_filling_in', '<=', date_to),
             ], order='date_of_filling_in desc')
 
-        print('is_report_for_management =', is_report_for_management)
         self.printworksheet(workbook, tenders_list)
 
 
