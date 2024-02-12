@@ -179,7 +179,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                           date.strftime(date_end, '%d.%m.%y') + ')', head_format)
 
         for project in cur_budget_projects:
-            if project.project_steps_ids:
+            if project.project_have_steps:
                 for step in project.project_steps_ids:
 
                     if step.legal_entity_signing_id.name == project.company_id.name:
