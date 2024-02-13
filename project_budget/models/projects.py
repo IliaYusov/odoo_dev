@@ -580,7 +580,6 @@ class projects(models.Model):
                 row.fact_acceptance_flow_sum += row_flow.sum_cash
                 row.fact_acceptance_flow_sum_without_vat += row_flow.sum_cash_without_vat
 
-
     def _culculate_all_sums(self, project):
         if project.project_have_steps == False:
             self._compute_sums_from_amount_spec()
@@ -884,6 +883,22 @@ class projects(models.Model):
                 raisetext = _("Please enter financial data to project {0}")
                 raisetext = raisetext.format(project.project_id)
                 raise ValidationError(raisetext)
+            elif (
+                project.estimated_probability_id.name in ('50', '75', '100')
+                and not
+                (
+                        abs(project.planned_acceptance_flow_sum_without_vat - project.total_amount_of_revenue) < 1  # учитываем различия в рассчете НДС
+                        and abs(project.planned_cash_flow_sum - project.total_amount_of_revenue_with_vat) < 1
+                )
+                and not project.technological_direction_id.recurring_payments
+                and not project.is_parent_project
+                and project.budget_state == 'work'
+                and not project.is_correction_project
+            ):
+                raisetext = _("Acting and/or cash forecast sum is not equal total amout of revenue")
+                raisetext = raisetext.format(project.project_id)
+                raise ValidationError(raisetext)
+
             if project.project_have_steps:
                 for step in project.project_steps_ids:
                     if (step.estimated_probability_id.name in ('50', '75', '100')
