@@ -1469,8 +1469,9 @@ class projects(models.Model):
             ])
 
             for spec in plans.budget_plan_supervisor_spec_ids:
-                office = plans_data[year].setdefault(spec.budget_plan_supervisor_id.project_office_id.name, {})
-                offices[year].add(spec.budget_plan_supervisor_id.project_office_id.name)
+                office_name = spec.budget_plan_supervisor_id.project_office_id.name
+                office = plans_data[year].setdefault(office_name, {})
+                offices[year].add(office_name)
                 type = office.setdefault(spec.type_row, {})
                 type['Q1'] = self.get_statistics_data(spec.q1_plan, spec.q1_fact)
                 type['Q2'] = self.get_statistics_data(spec.q2_plan, spec.q2_fact)
@@ -1531,10 +1532,10 @@ class projects(models.Model):
 
                 company = company_office_plans_data[year].setdefault(spec.budget_plan_supervisor_id.company_id.id, {})
                 type = company.setdefault(spec.type_row, {})
-                type['Q1'] = self.get_statistics_data_kam(type.get('Q1', [[],[],[]]), spec.budget_plan_supervisor_id.project_office_id.name, spec.q1_plan, spec.q1_fact)
-                type['Q2'] = self.get_statistics_data_kam(type.get('Q2', [[],[],[]]), spec.budget_plan_supervisor_id.project_office_id.name, spec.q2_plan, spec.q2_fact)
-                type['Q3'] = self.get_statistics_data_kam(type.get('Q3', [[],[],[]]), spec.budget_plan_supervisor_id.project_office_id.name, spec.q3_plan, spec.q3_fact)
-                type['Q4'] = self.get_statistics_data_kam(type.get('Q4', [[],[],[]]), spec.budget_plan_supervisor_id.project_office_id.name, spec.q4_plan, spec.q4_fact)
+                type['Q1'] = self.get_statistics_data_kam(type.get('Q1', [[],[],[]]), office_name, spec.q1_plan, spec.q1_fact)
+                type['Q2'] = self.get_statistics_data_kam(type.get('Q2', [[],[],[]]), office_name, spec.q2_plan, spec.q2_fact)
+                type['Q3'] = self.get_statistics_data_kam(type.get('Q3', [[],[],[]]), office_name, spec.q3_plan, spec.q3_fact)
+                type['Q4'] = self.get_statistics_data_kam(type.get('Q4', [[],[],[]]), office_name, spec.q4_plan, spec.q4_fact)
                 type['Y'] = self.get_statistics_data_kam(
                     type.get('Y', [[],[],[]]),
                     spec.budget_plan_supervisor_id.project_office_id.name,
@@ -1542,10 +1543,10 @@ class projects(models.Model):
                     spec.q1_fact + spec.q2_fact + spec.q3_fact + spec.q4_fact
                 )
                 summary = type.setdefault('summary', {})
-                summary['Q1'] = self.get_statistics_data_kam(summary.get('Q1', [[],[],[]]), spec.budget_plan_supervisor_id.project_office_id.name, spec.q1_plan, spec.q1_fact)
-                summary['Q2'] = self.get_statistics_data_kam(summary.get('Q2', [[],[],[]]), spec.budget_plan_supervisor_id.project_office_id.name, spec.q2_plan, spec.q2_fact)
-                summary['Q3'] = self.get_statistics_data_kam(summary.get('Q3', [[],[],[]]), spec.budget_plan_supervisor_id.project_office_id.name, spec.q3_plan, spec.q3_fact)
-                summary['Q4'] = self.get_statistics_data_kam(summary.get('Q4', [[],[],[]]), spec.budget_plan_supervisor_id.project_office_id.name, spec.q4_plan, spec.q4_fact)
+                summary['Q1'] = self.get_statistics_data_kam(summary.get('Q1', [[],[],[]]), office_name, spec.q1_plan, spec.q1_fact)
+                summary['Q2'] = self.get_statistics_data_kam(summary.get('Q2', [[],[],[]]), office_name, spec.q2_plan, spec.q2_fact)
+                summary['Q3'] = self.get_statistics_data_kam(summary.get('Q3', [[],[],[]]), office_name, spec.q3_plan, spec.q3_fact)
+                summary['Q4'] = self.get_statistics_data_kam(summary.get('Q4', [[],[],[]]), office_name, spec.q4_plan, spec.q4_fact)
                 summary['Y'] = self.get_statistics_data_kam(
                     summary.get('Y', [[],[],[]]),
                     spec.budget_plan_supervisor_id.project_office_id.name,
@@ -1637,7 +1638,7 @@ class projects(models.Model):
 
     @api.model
     def get_statistics_data_kam(self, data, name, plan, fact):
-        data[0].append(name)
+        data[0].append([name[i:i+20] for i in range(0, len(name), 20)])
         data[1].append(0 if plan == 0 else round(fact / plan * 100))
         data[2].append('#00dd00' if (plan != 0 and fact / plan >= 1) else '#0F5F8B')
         return data

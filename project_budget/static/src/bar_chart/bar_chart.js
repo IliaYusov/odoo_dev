@@ -5,7 +5,7 @@ import { getColor } from "@web/views/graph/colors";
 import { useService } from "@web/core/utils/hooks"
 import { Domain } from "@web/core/domain";
 
-const { Component, onWillStart, useRef, onMounted, onWillUnmount, useEffect } = owl;
+const { Component, onWillStart, useRef, onMounted, onWillUnmount, useEffect, } = owl;
 
 export class BarChart extends Component {
     setup() {
@@ -44,14 +44,18 @@ export class BarChart extends Component {
         onBarClick(ev, chartElem) {
         if (chartElem[0]) {
             const clickedIndex = chartElem[0]._index;
-            const clickedBar = this.labels[clickedIndex];
-            console.log
+            const clickedBar = this.labels[clickedIndex].join('');
             if (this.props.chart == 'office') {
                 this.action.doAction({
                 type: "ir.actions.client",
                 name: clickedBar,
                 tag: "project_budget.dashboard",
-                context: {'office': clickedBar},
+                context: {
+                'office': clickedBar,
+                'type': this.props.state.type,
+                'period': this.props.state.period,
+                'year': this.props.state.year,
+                },
             })
             }
             else {

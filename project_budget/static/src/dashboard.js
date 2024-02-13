@@ -44,24 +44,36 @@ class ProjectBudgetDashboard extends Component {
 
         onWillStart(async () => {
             this.statistics = await this.project_budget_service.loadStatistics();
+            console.log(this)
             if (this.props.action.context.office) {
-                this.state.office = this.props.action.context.office
+                this.state.office = this.props.action.context.office;
+            }
+            if (this.props.action.context.period) {
+                this.state.period = this.props.action.context.period;
+            }
+            if (this.props.action.context.type) {
+                this.state.type = this.props.action.context.type;
+            }
+            if (this.props.action.context.year) {
+                this.state.year = this.props.action.context.year;
             }
             this.state.allowed_companies = require('web.session').user_context.allowed_company_ids
         });
     }
 
-    async onChangePeriod(){
-        await this.getQuotations()
-    }
-
     async getQuotations(){
     }
 
+    async onChangePeriod(){
+        this.props.action.context.period = this.state.period
+    }
+
     async onChangeType(){
+        this.props.action.context.type = this.state.type
     }
 
     async onChangeYear(){
+        this.props.action.context.year = this.state.year
     }
 
     openCustomerView() {
@@ -80,6 +92,21 @@ class ProjectBudgetDashboard extends Component {
             ],
         });
     }
+
+//    openCompanyDashboard(title, domain) {
+//        this.action.doAction({
+//            type: "ir.actions.client",
+//            name: "Project Budget Dashboard",
+//            tag: "project_budget.dashboard",
+//            target: "main",
+//            context: {
+//            'office': false,
+//            'type': this.state.type,
+//            'period': this.state.period,
+//            'year': this.state.year,
+//            },
+//        });
+//    }
 
     openLast7DaysOrders() {
         const domain =
