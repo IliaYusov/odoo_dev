@@ -102,6 +102,14 @@ export class BarChart extends Component {
                 tooltips: {
                     enabled: true,
                     xAlign: "center",
+                    callbacks: {
+                        title: function(tooltipItem, data) {
+                            return false;
+                        },
+                        label: function(tooltipItem, data) {
+                            return tooltipItem.xLabel + '%';
+                        }
+                    }
                 },
                 scales: {
                     xAxes: [{

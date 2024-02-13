@@ -1597,10 +1597,10 @@ class projects(models.Model):
                 show_company[year] = len(offices[year])
             for office in kam_plans_data[year]:
                 kam_height[year][office] = str(
-                    (len(kam_plans_data[year][office]['contracting']['Q1'][0]) + 2) * 25) + 'px'
+                    len(kam_plans_data[year][office]['contracting']['Q1'][0]) * 30 + 45) + 'px'
             for company in company_office_plans_data[year]:
                 office_height[year][company] = str(
-                    (len(company_office_plans_data[year][company]['contracting']['Q1'][0]) + 2) * 25) + 'px'
+                    len(company_office_plans_data[year][company]['contracting']['Q1'][0]) * 30 + 45) + 'px'
 
         grouped_projects = self.read_group([], [], ['project_office_id'], lazy=False)
         office = self.env['project_budget.project_office']
@@ -1638,8 +1638,8 @@ class projects(models.Model):
 
     @api.model
     def get_statistics_data_kam(self, data, name, plan, fact):
-        data[0].append([name[i:i+20] for i in range(0, len(name), 20)])
-        data[1].append(0 if plan == 0 else round(fact / plan * 100))
+        data[0].append([name[i:i+18] for i in range(0, len(name), 18)])
+        data[1].append(0 if plan == 0 else round(fact / plan * 100, 2))
         data[2].append('#00dd00' if (plan != 0 and fact / plan >= 1) else '#0F5F8B')
         return data
 
