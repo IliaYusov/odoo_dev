@@ -3629,6 +3629,13 @@ msgstr "Пожалуйста добавьте Финансовые показа�
 
 #. module: project_budget
 #. odoo-python
+#: code:addons/project_budget/models/project_steps.py:0
+#, python-format
+msgid "Acting and/or cash forecast sum is not equal total amout of revenue"
+msgstr "Сумма прогноза актирования и/или ПДС не совпадает с финансовыми показателями"
+
+#. module: project_budget
+#. odoo-python
 #: code:addons/project_budget/models/projects.py:0
 #, python-format
 msgid "Please enter forecast for cash or acceptance to project {0}"
@@ -4757,6 +4764,11 @@ msgstr "Описание"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_technological_direction__name
 msgid "technological_direction name"
 msgstr "Наименование"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_technological_direction__recurring_payments
+msgid "recurring_payments"
+msgstr "Оплата по факту использования"
 
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_projects_tenders_form
