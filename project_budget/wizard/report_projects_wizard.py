@@ -15,7 +15,7 @@ class report_projects_wizard(models.TransientModel):
         ('kb', 'KB'),
         ('kb_fin', 'KB fin'),
         ('forecast', 'Forecast'),
-        ('forecast_star', 'Forecast*'),
+        ('forecast_v2', 'Forecast_v2'),
         ('svod', 'Svod'),
         ('raw_data', 'Raw Data'),
         ('overdue', 'Overdue'),
@@ -65,8 +65,8 @@ class report_projects_wizard(models.TransientModel):
         if self.type_report == 'forecast':
             return self.env.ref('project_budget.action_projects_list_report_xlsx_forecast').report_action(self, data=datas)
 
-        if self.type_report == 'forecast_star':
-            return self.env.ref('project_budget.action_projects_list_report_xlsx_forecast_star').report_action(self, data=datas)
+        if self.type_report == 'forecast_v2':
+            return self.env.ref('project_budget.action_projects_list_report_xlsx_forecast_v2').report_action(self, data=datas)
 
         if self.type_report == 'svod':
             return self.env.ref('project_budget.action_projects_list_report_xlsx_svod').report_action(self, data=datas)

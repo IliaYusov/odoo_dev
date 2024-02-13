@@ -8,8 +8,8 @@ isdebug = False
 logger = logging.getLogger("*___forecast_report___*")
 
 class report_budget_forecast_excel(models.AbstractModel):
-    _name = 'report.project_budget.report_budget_forecast_star_excel'
-    _description = 'project_budget.report_budget_forecast_star_excel'
+    _name = 'report.project_budget.report_budget_forecast_v2_excel'
+    _description = 'project_budget.report_budget_forecast_v2_excel'
     _inherit = 'report.report_xlsx.abstract'
 
 

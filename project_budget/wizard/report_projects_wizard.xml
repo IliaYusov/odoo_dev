@@ -13,12 +13,12 @@
                         <group>
                         </group>
                         <group>
-                            <field name="use_koeff_reserve" attrs="{'invisible': [('type_report', 'not in', ('forecast', 'forecast_star', 'management_committee', 'pds_weekly'))]}"/>
+                            <field name="use_koeff_reserve" attrs="{'invisible': [('type_report', 'not in', ('forecast', 'forecast_v2', 'management_committee', 'pds_weekly'))]}"/>
                             <field name="pds_accept" attrs="{'invisible': [('type_report', 'not in', ('pds_acceptance_by_date'))]}"/>
                         </group>
                         <group>
-                            <field name="koeff_reserve" attrs="{'invisible': ['|',('type_report', 'not in', ('forecast', 'forecast_star', 'management_committee', 'pds_weekly')),('use_koeff_reserve','=',False)]}"/>
-                            <field name="koeff_potential" attrs="{'invisible': ['|',('type_report', 'not in', ('forecast', 'forecast_star', 'management_committee', 'pds_weekly')),('use_koeff_reserve','=',False)]}"/>
+                            <field name="koeff_reserve" attrs="{'invisible': ['|',('type_report', 'not in', ('forecast', 'forecast_v2', 'management_committee', 'pds_weekly')),('use_koeff_reserve','=',False)]}"/>
+                            <field name="koeff_potential" attrs="{'invisible': ['|',('type_report', 'not in', ('forecast', 'forecast_v2', 'management_committee', 'pds_weekly')),('use_koeff_reserve','=',False)]}"/>
                         </group>
                     </group>
                     <group col ="2">
@@ -35,7 +35,7 @@
                             <field string="from date" name="date_start" attrs="{'invisible': [('type_report', 'not in', ('pds_acceptance_by_date'))]}"/>
                         </group>
                         <group>
-                            <field string="year to" name="year_end" attrs="{'invisible': [('type_report', 'in', ('raw_data','overdue','management_committee','pds_acceptance_by_date', 'pds_weekly', 'forecast_star'))]}"/>
+                            <field string="year to" name="year_end" attrs="{'invisible': [('type_report', 'in', ('raw_data','overdue','management_committee','pds_acceptance_by_date', 'pds_weekly', 'forecast_v2'))]}"/>
                             <field string="to date" name="date_end" attrs="{'invisible': [('type_report', 'not in', ('pds_acceptance_by_date'))]}"/>
                         </group>
                         <group></group>
@@ -84,13 +84,13 @@
             file = "project_budget.report_budget_forecast_excel"
     />
 
-        <report id="action_projects_list_report_xlsx_forecast_star"
-            string="Projects Report forecast star"
+        <report id="action_projects_list_report_xlsx_forecast_v2"
+            string="Projects Report forecast v2"
             model="project_budget.projects.report.wizard"
             report_type="xlsx"
-            name="project_budget.report_budget_forecast_star_excel"
+            name="project_budget.report_budget_forecast_v2_excel"
             menu="False"
-            file = "project_budget.report_budget_forecast_star_excel"
+            file = "project_budget.report_budget_forecast_v2_excel"
     />
 
     <report id="action_projects_list_report_xlsx_svod"
