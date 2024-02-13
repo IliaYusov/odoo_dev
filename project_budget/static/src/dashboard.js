@@ -44,7 +44,6 @@ class ProjectBudgetDashboard extends Component {
 
         onWillStart(async () => {
             this.statistics = await this.project_budget_service.loadStatistics();
-            console.log(this)
             if (this.props.action.context.office) {
                 this.state.office = this.props.action.context.office;
             }

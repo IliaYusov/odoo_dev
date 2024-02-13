@@ -93,7 +93,6 @@ export class BarChart extends Component {
                 onClick: this.onBarClick.bind(this),
                 legend: {
                     'onClick' : function (evt, item) {
-                    console.log ('legend onClick', evt, item);
                     },
                     display: false,
                     labels: {
