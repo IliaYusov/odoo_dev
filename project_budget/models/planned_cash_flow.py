@@ -65,7 +65,7 @@ class planned_cash_flow(models.Model):
         for prj in self:
             prj.name_to_show = prj.date_cash.strftime("%d/%m/%Y") + _(' | cash ') + prj.cash_id + _(' | sum cash ') + f'{prj.sum_cash:_.2f}'
             if prj.project_have_steps == True:
-                prj.name_to_show += _(' | step ') + (prj.project_steps_id.step_id or '') + _(' | code ') + (prj.project_steps_id.code or '')
+                prj.name_to_show += _(' | step ') + (prj.project_steps_id.step_id or '') + _(' | code ') + (prj.project_steps_id.code or '') + _(' | essence_project ') + (prj.project_steps_id.essence_project or '')
 
 
     @ api.depends('projects_id.currency_id')

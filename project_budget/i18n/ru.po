@@ -47,6 +47,14 @@ msgstr " | этап "
 
 #. module: project_budget
 #. odoo-python
+#: code:addons/project_budget/models/planned_acceptance_flow.py:0
+#: code:addons/project_budget/models/planned_cash_flow.py:0
+#, python-format
+msgid " | essence_project "
+msgstr " | "
+
+#. module: project_budget
+#. odoo-python
 #: code:addons/project_budget/models/planned_cash_flow.py:0
 #, python-format
 msgid " | sum cash "
