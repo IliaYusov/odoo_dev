@@ -142,6 +142,10 @@ class report_projects_rawdata_excel(models.AbstractModel):
         column += 1
         sheet.write_string(row, column, "Сумма выручки с НДС", row_format_number)
         column += 1
+        sheet.write_string(row, column, "Сумма прогноза актирования без НДС", row_format_number)
+        column += 1
+        sheet.write_string(row, column, "Сумма прогноза ПДС с НДС", row_format_number)
+        column += 1
         sheet.write_string(row, column, "Выручка от реализации работ(услуг)", row_format_number)
         column += 1
         sheet.write_string(row, column, "Выручка от реализации товара", row_format_number)
@@ -255,6 +259,10 @@ class report_projects_rawdata_excel(models.AbstractModel):
                     sheet.write_number(row, column, spec.total_amount_of_revenue, row_format_number)
                     column += 1
                     sheet.write_number(row, column, spec.total_amount_of_revenue_with_vat, row_format_number )
+                    column += 1
+                    sheet.write_number(row, column, spec.planned_acceptance_flow_sum_without_vat, row_format_number )
+                    column += 1
+                    sheet.write_number(row, column, spec.planned_cash_flow_sum , row_format_number )
                     column += 1
                     sheet.write_number(row, column, spec.revenue_from_the_sale_of_works, row_format_number )
                     column += 1
@@ -370,6 +378,10 @@ class report_projects_rawdata_excel(models.AbstractModel):
                         sheet.write_number(row, column, step.total_amount_of_revenue, row_format_number)
                         column += 1
                         sheet.write_number(row, column, step.total_amount_of_revenue_with_vat, row_format_number)
+                        column += 1
+                        sheet.write(row, column, '', row_format_number)
+                        column += 1
+                        sheet.write(row, column, '', row_format_number)
                         column += 1
                         sheet.write_number(row, column, step.revenue_from_the_sale_of_works, row_format_number)
                         column += 1
