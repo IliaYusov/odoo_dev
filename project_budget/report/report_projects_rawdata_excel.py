@@ -379,9 +379,9 @@ class report_projects_rawdata_excel(models.AbstractModel):
                         column += 1
                         sheet.write_number(row, column, step.total_amount_of_revenue_with_vat, row_format_number)
                         column += 1
-                        sheet.write(row, column, '', row_format_number)
+                        sheet.write_number(row, column, step.planned_acceptance_flow_sum_without_vat, row_format_number)
                         column += 1
-                        sheet.write(row, column, '', row_format_number)
+                        sheet.write_number(row, column, step.planned_cash_flow_sum, row_format_number)
                         column += 1
                         sheet.write_number(row, column, step.revenue_from_the_sale_of_works, row_format_number)
                         column += 1

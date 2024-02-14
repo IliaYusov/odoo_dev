@@ -275,16 +275,26 @@ class project_steps(models.Model):
                                         copy=True, tracking=True, check_company=True,
                                         domain="[('is_prohibit_selection','=', False)]",
                                         )
+    planned_cash_flow_sum = fields.Monetary(
+        string='planned_cash_flow_sum',
+        compute='_compute_planned_cash_flow_sum',
+        store=False, tracking=True
+    )
     planned_cash_flow_ids = fields.One2many(
         comodel_name='project_budget.planned_cash_flow',
         inverse_name='project_steps_id',
-        string="planned cash flow", auto_join=True)
-
+        string="planned cash flow", auto_join=True
+    )
+    planned_acceptance_flow_sum_without_vat = fields.Monetary(
+        string='planned_acceptance_flow_sum_without_vat',
+        compute='_compute_planned_acceptance_flow_sum',
+        store=False, tracking=True
+    )
     planned_acceptance_flow_ids = fields.One2many(
         comodel_name='project_budget.planned_acceptance_flow',
         inverse_name='project_steps_id',
-        string="planned acceptance flow", auto_join=True)
-
+        string="planned acceptance flow", auto_join=True
+    )
     is_revenue_from_the_sale_of_works = fields.Boolean(related='project_steps_type_id.is_revenue_from_the_sale_of_works', readonly=True)
     is_revenue_from_the_sale_of_goods = fields.Boolean(related='project_steps_type_id.is_revenue_from_the_sale_of_goods', readonly=True)
     is_cost_of_goods = fields.Boolean(related='project_steps_type_id.is_cost_of_goods', readonly=True)
@@ -395,6 +405,20 @@ class project_steps(models.Model):
                 raisetext = _("Please enter financial data to project {0} step {1}")
                 raisetext = raisetext.format(step.projects_id.project_id, step.step_id)
                 raise ValidationError(raisetext)
+
+    @api.depends("planned_cash_flow_ids.sum_cash")
+    def _compute_planned_cash_flow_sum(self):
+        for row in self:
+            row.planned_cash_flow_sum = 0
+            for row_flow in row.planned_cash_flow_ids:
+                row.planned_cash_flow_sum = row.planned_cash_flow_sum + row_flow.sum_cash
+
+    @api.depends("planned_acceptance_flow_ids.sum_cash")
+    def _compute_planned_acceptance_flow_sum(self):
+        for row in self:
+            row.planned_acceptance_flow_sum_without_vat = 0
+            for row_flow in row.planned_acceptance_flow_ids:
+                row.planned_acceptance_flow_sum_without_vat += row_flow.sum_cash_without_vat
 
     @api.depends('essence_project', 'step_id')
     def _get_name_to_show(self):
