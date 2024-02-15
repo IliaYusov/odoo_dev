@@ -1867,7 +1867,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 for element in range(len(self.month_rus_name_contract_pds)):
                     if element in [3, 7, 8, 12, 16, 17, 18]:  # учитываем колонки планов
                         shift += 1
-                    formula = '={1}{0}+{2}{0}*D1+{3}{0}*D2'.format(
+                    formula = '={1}{0}+{2}{0}*$D$1+{3}{0}*$D$2'.format(
                         row,
                         xl_col_to_name(start_column + shift + element * width),
                         xl_col_to_name(start_column + shift + element * width + 1),
@@ -1895,7 +1895,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 for element in range(len(self.month_rus_name_revenue_margin)):
                     if element in [5]:  # учитываем колонки планов
                         shift += 1
-                    formula = '={1}{0}+{2}{0}*D1+{3}{0}*D2'.format(
+                    formula = '={1}{0}+{2}{0}*$D$1+{3}{0}*$D$2'.format(
                         row,
                         xl_col_to_name(start_column + shift + element * width),
                         xl_col_to_name(start_column + shift + element * width + 1),
@@ -1913,13 +1913,13 @@ class report_budget_forecast_excel(models.AbstractModel):
                     sheet.write_string(row, start_column + shift + element * width + 3, '',
                                        format_cross)
         for type,shifts in plan_shift.items():
-            formula = '={1}{0}*D1+{2}{0}*D2'.format(
+            formula = '={1}{0}*$D$1+{2}{0}*$D$2'.format(
                 row,
                 xl_col_to_name(shifts['NEXT'] + 1),
                 xl_col_to_name(shifts['NEXT'] + 2),
             )
             sheet.merge_range(row, shifts['NEXT'] + 1, row, shifts['NEXT'] + 2, formula, format)
-            formula = '={1}{0}*D1+{2}{0}*D2'.format(
+            formula = '={1}{0}*$D$1+{2}{0}*$D$2'.format(
                 row,
                 xl_col_to_name(shifts['AFTER_NEXT'] + 1),
                 xl_col_to_name(shifts['AFTER_NEXT'] + 2),
