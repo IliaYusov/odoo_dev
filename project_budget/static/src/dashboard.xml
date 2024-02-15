@@ -47,7 +47,7 @@
                                                 <h2 style="width: 100%; height: 40px; position: absolute; top: 49%; left: 4px; margin-top: 0px; line-height: 6px; text-align: center; z-index: 999999999999999">
                                                     <t t-esc="statistics['company_plans_data'][state.year][company][type][period][3]"/>
                                                 </h2>
-                                                <t t-set-slot="legend" t-esc="'Plan: ' + statistics['company_plans_data'][state.year][company][type][period][0][0] + ' / Fact: ' + statistics['company_plans_data'][state.year][company][type][period][0][1]"/>
+                                                <t t-set-slot="legend" t-esc="'Plan: ' + statistics['company_plans_data'][state.year][company][type][period][4][0] + ' / Fact: ' + statistics['company_plans_data'][state.year][company][type][period][4][1]"/>
                                             </Card>
                                             <Card t-if="statistics['company_office_plans_data'][state.year][company] and state.period != 'Y' and state.type != 'summary'" className="'col-2 col-md-3 shadow-sm border m-2 bg-primary'">
                                                 <t t-set-slot="title" t-esc="state.year + period + ' ' + type + ' ' + statistics['companies_names'][company]"/>
@@ -95,7 +95,7 @@
                                             <h2 style="width: 100%; height: 40px; position: absolute; top: 49%; left: 4px; margin-top: 0px; line-height: 6px; text-align: center; z-index: 999999999999999">
                                                 <t t-esc="statistics['plans_data'][state.year][office][type][period][3]"/>
                                             </h2>
-                                            <t t-set-slot="legend" t-esc="'Plan: ' + statistics['plans_data'][state.year][office][type][period][0][0] + ' / Fact: ' + statistics['plans_data'][state.year][office][type][period][0][1]"/>
+                                            <t t-set-slot="legend" t-esc="'Plan: ' + statistics['plans_data'][state.year][office][type][period][4][0] + ' / Fact: ' + statistics['plans_data'][state.year][office][type][period][4][1]"/>
                                         </Card>
                                         <Card t-if="statistics['kam_plans_data'][state.year][office] and state.period != 'Y' and state.type != 'summary'" className="'col-2 col-md-3 shadow-sm border m-2 bg-white'">
                                             <t t-set-slot="title" t-esc="state.year + period + ' ' + type + ' ' + office"/>

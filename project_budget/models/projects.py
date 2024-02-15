@@ -1532,23 +1532,23 @@ class projects(models.Model):
 
                 company = company_office_plans_data[year].setdefault(spec.budget_plan_supervisor_id.company_id.id, {})
                 type = company.setdefault(spec.type_row, {})
-                type['Q1'] = self.get_statistics_data_kam(type.get('Q1', [[],[],[]]), office_name, spec.q1_plan, spec.q1_fact)
-                type['Q2'] = self.get_statistics_data_kam(type.get('Q2', [[],[],[]]), office_name, spec.q2_plan, spec.q2_fact)
-                type['Q3'] = self.get_statistics_data_kam(type.get('Q3', [[],[],[]]), office_name, spec.q3_plan, spec.q3_fact)
-                type['Q4'] = self.get_statistics_data_kam(type.get('Q4', [[],[],[]]), office_name, spec.q4_plan, spec.q4_fact)
+                type['Q1'] = self.get_statistics_data_kam(type.get('Q1', [[],[],[],{}]), office_name, spec.q1_plan, spec.q1_fact)
+                type['Q2'] = self.get_statistics_data_kam(type.get('Q2', [[],[],[],{}]), office_name, spec.q2_plan, spec.q2_fact)
+                type['Q3'] = self.get_statistics_data_kam(type.get('Q3', [[],[],[],{}]), office_name, spec.q3_plan, spec.q3_fact)
+                type['Q4'] = self.get_statistics_data_kam(type.get('Q4', [[],[],[],{}]), office_name, spec.q4_plan, spec.q4_fact)
                 type['Y'] = self.get_statistics_data_kam(
-                    type.get('Y', [[],[],[]]),
+                    type.get('Y', [[],[],[],{}]),
                     spec.budget_plan_supervisor_id.project_office_id.name,
                     spec.q1_plan + spec.q2_plan + spec.q3_plan + spec.q4_plan,
                     spec.q1_fact + spec.q2_fact + spec.q3_fact + spec.q4_fact
                 )
                 summary = type.setdefault('summary', {})
-                summary['Q1'] = self.get_statistics_data_kam(summary.get('Q1', [[],[],[]]), office_name, spec.q1_plan, spec.q1_fact)
-                summary['Q2'] = self.get_statistics_data_kam(summary.get('Q2', [[],[],[]]), office_name, spec.q2_plan, spec.q2_fact)
-                summary['Q3'] = self.get_statistics_data_kam(summary.get('Q3', [[],[],[]]), office_name, spec.q3_plan, spec.q3_fact)
-                summary['Q4'] = self.get_statistics_data_kam(summary.get('Q4', [[],[],[]]), office_name, spec.q4_plan, spec.q4_fact)
+                summary['Q1'] = self.get_statistics_data_kam(summary.get('Q1', [[],[],[],{}]), office_name, spec.q1_plan, spec.q1_fact)
+                summary['Q2'] = self.get_statistics_data_kam(summary.get('Q2', [[],[],[],{}]), office_name, spec.q2_plan, spec.q2_fact)
+                summary['Q3'] = self.get_statistics_data_kam(summary.get('Q3', [[],[],[],{}]), office_name, spec.q3_plan, spec.q3_fact)
+                summary['Q4'] = self.get_statistics_data_kam(summary.get('Q4', [[],[],[],{}]), office_name, spec.q4_plan, spec.q4_fact)
                 summary['Y'] = self.get_statistics_data_kam(
-                    summary.get('Y', [[],[],[]]),
+                    summary.get('Y', [[],[],[],{}]),
                     spec.budget_plan_supervisor_id.project_office_id.name,
                     spec.q1_plan + spec.q2_plan + spec.q3_plan + spec.q4_plan,
                     spec.q1_fact + spec.q2_fact + spec.q3_fact + spec.q4_fact
@@ -1565,23 +1565,23 @@ class projects(models.Model):
                 office = kam_plans_data[year].setdefault(spec.budget_plan_kam_id.project_office_id.name, {})
                 offices[year].add(spec.budget_plan_kam_id.project_office_id.name)
                 type = office.setdefault(spec.type_row, {})
-                type['Q1'] = self.get_statistics_data_kam(type.get('Q1', [[],[],[]]), spec.budget_plan_kam_id.kam_id.name, spec.q1_plan, spec.q1_fact)
-                type['Q2'] = self.get_statistics_data_kam(type.get('Q2', [[],[],[]]), spec.budget_plan_kam_id.kam_id.name, spec.q2_plan, spec.q2_fact)
-                type['Q3'] = self.get_statistics_data_kam(type.get('Q3', [[],[],[]]), spec.budget_plan_kam_id.kam_id.name, spec.q3_plan, spec.q3_fact)
-                type['Q4'] = self.get_statistics_data_kam(type.get('Q4', [[],[],[]]), spec.budget_plan_kam_id.kam_id.name, spec.q4_plan, spec.q4_fact)
+                type['Q1'] = self.get_statistics_data_kam(type.get('Q1', [[],[],[],{}]), spec.budget_plan_kam_id.kam_id.name, spec.q1_plan, spec.q1_fact)
+                type['Q2'] = self.get_statistics_data_kam(type.get('Q2', [[],[],[],{}]), spec.budget_plan_kam_id.kam_id.name, spec.q2_plan, spec.q2_fact)
+                type['Q3'] = self.get_statistics_data_kam(type.get('Q3', [[],[],[],{}]), spec.budget_plan_kam_id.kam_id.name, spec.q3_plan, spec.q3_fact)
+                type['Q4'] = self.get_statistics_data_kam(type.get('Q4', [[],[],[],{}]), spec.budget_plan_kam_id.kam_id.name, spec.q4_plan, spec.q4_fact)
                 type['Y'] = self.get_statistics_data_kam(
-                    type.get('Y', [[],[],[]]),
+                    type.get('Y', [[],[],[],{}]),
                     spec.budget_plan_kam_id.kam_id.name,
                     spec.q1_plan + spec.q2_plan + spec.q3_plan + spec.q4_plan,
                     spec.q1_fact + spec.q2_fact + spec.q3_fact + spec.q4_fact
                 )
                 summary = type.setdefault('summary', {})
-                summary['Q1'] = self.get_statistics_data_kam(summary.get('Q1', [[],[],[]]), spec.budget_plan_kam_id.kam_id.name, spec.q1_plan, spec.q1_fact)
-                summary['Q2'] = self.get_statistics_data_kam(summary.get('Q2', [[],[],[]]), spec.budget_plan_kam_id.kam_id.name, spec.q2_plan, spec.q2_fact)
-                summary['Q3'] = self.get_statistics_data_kam(summary.get('Q3', [[],[],[]]), spec.budget_plan_kam_id.kam_id.name, spec.q3_plan, spec.q3_fact)
-                summary['Q4'] = self.get_statistics_data_kam(summary.get('Q4', [[],[],[]]), spec.budget_plan_kam_id.kam_id.name, spec.q4_plan, spec.q4_fact)
+                summary['Q1'] = self.get_statistics_data_kam(summary.get('Q1', [[],[],[],{}]), spec.budget_plan_kam_id.kam_id.name, spec.q1_plan, spec.q1_fact)
+                summary['Q2'] = self.get_statistics_data_kam(summary.get('Q2', [[],[],[],{}]), spec.budget_plan_kam_id.kam_id.name, spec.q2_plan, spec.q2_fact)
+                summary['Q3'] = self.get_statistics_data_kam(summary.get('Q3', [[],[],[],{}]), spec.budget_plan_kam_id.kam_id.name, spec.q3_plan, spec.q3_fact)
+                summary['Q4'] = self.get_statistics_data_kam(summary.get('Q4', [[],[],[],{}]), spec.budget_plan_kam_id.kam_id.name, spec.q4_plan, spec.q4_fact)
                 summary['Y'] = self.get_statistics_data_kam(
-                    summary.get('Y', [[],[],[]]),
+                    summary.get('Y', [[],[],[],{}]),
                     spec.budget_plan_kam_id.kam_id.name,
                     spec.q1_plan + spec.q2_plan + spec.q3_plan + spec.q4_plan,
                     spec.q1_fact + spec.q2_fact + spec.q3_fact + spec.q4_fact
@@ -1630,24 +1630,27 @@ class projects(models.Model):
     def get_statistics_data(self, plan, fact):
         return [
             [plan, fact],
-            # ["{:,}".format(int(plan)).replace(',',' '), "{:,}".format(int(fact)).replace(',',' ')],
             ['#0F5F8B', '#dd0000'] if fact <= plan else ['#00dd00', '#0F5F8B'] ,
             [fact, plan - fact] if fact <= plan else [fact - plan, max(plan - (fact - plan), 0)],
-            "{:.2%}".format(0 if plan == 0 else fact / plan)
+            "{:.2%}".format(0 if plan == 0 else fact / plan),
+            ["{:,}".format(int(plan)).replace(',',' '), "{:,}".format(int(fact)).replace(',',' ')],
         ]
 
     @api.model
     def get_statistics_data_kam(self, data, name, plan, fact):
-        data[0].append([name[i:i+18] for i in range(0, len(name), 18)])
+        name_cut = [name[i:i+18] for i in range(0, len(name), 18)]
+        data[0].append(name_cut)
         data[1].append(0 if plan == 0 else round(fact / plan * 100, 2))
         data[2].append('#00dd00' if (plan != 0 and fact / plan >= 1) else '#0F5F8B')
+        data[3][','.join(name_cut)] = str(round(fact / 1000000, 3)) + 'M'
         return data
 
     @api.model
     def get_statistics_data_company(self, plan, fact):
         return [
             [plan, fact],
-            ['#0F5F8B', '#dd0000'] if fact <= plan else ['#00dd00', '#0F5F8B'] ,
+            ['#0F5F8B', '#dd0000'] if fact <= plan else ['#00dd00', '#0F5F8B'],
             [fact, plan - fact] if fact <= plan else [fact - plan, max(plan - (fact - plan), 0)],
-            "{:.2%}".format(0 if plan == 0 else fact / plan)
+            "{:.2%}".format(0 if plan == 0 else fact / plan),
+            ["{:,}".format(int(plan)).replace(',',' '), "{:,}".format(int(fact)).replace(',',' ')],
         ]

@@ -18,6 +18,7 @@ export class BarChart extends Component {
         this.data = this.props.data[this.props.type][this.props.period][1];
         this.color = this.props.data[this.props.type][this.props.period][2];
         this.labels = this.props.data[this.props.type][this.props.period][0];
+        this.fact = this.props.data[this.props.type][this.props.period][3];
 
         onWillStart(() => {
             return loadJS(["/web/static/lib/Chart/Chart.js"]);
@@ -77,6 +78,7 @@ export class BarChart extends Component {
         if (this.chart) {
             this.chart.destroy();
         }
+        const fact = this.fact;
         this.chart = new Chart(this.canvasRef.el, {
             type: "horizontalBar",
             data: {
@@ -107,7 +109,7 @@ export class BarChart extends Component {
                             return false;
                         },
                         label: function(tooltipItem, data) {
-                            return tooltipItem.xLabel + '%';
+                            return tooltipItem.xLabel + '% ' + fact[tooltipItem.yLabel];
                         }
                     }
                 },
