@@ -4045,6 +4045,7 @@ class report_management_committee_excel(models.AbstractModel):
             ('commercial_budget_id', '=', budget.id),
             ('is_parent_project', '=', False),
             ('estimated_probability_id.name', '!=', '0'),
+            ('is_not_for_mc_report', '=', False),
         ]).sorted(key=lambda r: (r.project_manager_id.name, r.estimated_probability_id.code))
 
         # cur_project_offices = project_offices.filtered(lambda r: r in cur_budget_projects.project_office_id or r in {office.parent_id for office in cur_budget_projects.project_office_id if office.parent_id in project_offices})
@@ -4309,6 +4310,7 @@ class report_management_committee_excel(models.AbstractModel):
                                         ('estimated_probability_id.name', '!=', '0'),
                                         ('commercial_budget_id', '=', budget.id),
                                         ('is_parent_project', '=', False),
+                                        ('is_not_for_mc_report', '=', False),
                                         '|',('project_office_id', '=', project_office.id),
                                         '&',('legal_entity_signing_id.different_project_offices_in_steps','=', True),
                                         ('project_have_steps', '=', True),
@@ -4665,6 +4667,7 @@ class report_management_committee_excel(models.AbstractModel):
             ('commercial_budget_id', '=', budget.id),
             ('is_parent_project', '=', False),
             ('estimated_probability_id.name', '!=', '0'),
+            ('is_not_for_mc_report', '=', False),
         ])
 
         #  считаем max_level

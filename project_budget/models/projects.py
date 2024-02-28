@@ -393,6 +393,7 @@ class projects(models.Model):
     margin_for_parent_project = fields.Monetary(string="margin for parent project", compute='_compute_margin_for_parent_project')
 
     is_correction_project = fields.Boolean(string="project for corrections", default=False)
+    is_not_for_mc_report = fields.Boolean(string="project is not for MC report", default=False)
 
     user_is_admin = fields.Boolean(string="user is admin", compute='_check_user_is_admin')
 

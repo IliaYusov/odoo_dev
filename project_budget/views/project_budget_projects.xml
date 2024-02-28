@@ -292,6 +292,7 @@
                                     <group colspan="4">
                                         <field name="comments" placeholder="type comments for the project" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
                                         <field name="is_correction_project" attrs="{'readonly': [('user_is_admin', '!=', True)]}"/>
+                                        <field name="is_not_for_mc_report" attrs="{'readonly': [('user_is_admin', '!=', True)]}"/>
                                     </group>
                                 </group>
                             </page>
