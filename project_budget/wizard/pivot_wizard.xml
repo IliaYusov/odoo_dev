@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="project_budget_pivot_wizard_form" model="ir.ui.view">
+        <field name="name">Pivot Wizard Pivot</field>
+        <field name="model">project_budget.pivot_wizard</field>
+        <field name="arch" type="xml">
+            <button name="create_fields" string="Submit" type="object" class="btn-primary"/>
+            <form>
+                <field name="project_id"/>
+            </form>
+        </field>
+    </record>
+
+    <record id="project_budget_pivot_wizard_pivot" model="ir.ui.view">
+        <field name="name">Pivot Wizard Tree</field>
+        <field name="model">project_budget.pivot_wizard</field>
+        <field name="arch" type="xml">
+            <pivot>
+                <field name="name"/>
+                <field name="company_id"/>
+                <field name="project_office_id"/>
+                <field name="total_amount_of_revenue" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_pivot_wizard_form" model="ir.actions.act_window">
+        <field name="name">Pivot wizard</field>
+        <field name="res_model">project_budget.pivot_wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <record id="action_pivot_wizard_pivot" model="ir.actions.act_window">
+        <field name="name">Pivot wizard</field>
+        <field name="res_model">project_budget.pivot_wizard</field>
+        <field name="view_mode">pivot</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

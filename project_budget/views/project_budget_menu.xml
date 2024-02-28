@@ -12,7 +12,6 @@
         <menuitem id="project_budget_catalogs_budget_plan_kam" parent ="project_budget_budgets" name = "budget_plan_kam" action="show_budget_plan_kam"/>
         <menuitem id="project_budget_budgets_tenders" parent ="project_budget_budgets" name = "Tenders" action="show_projects_tenders" sequence="5"/>
 
-
         <menuitem id="project_budget_catalogs" parent ="project_budget_menu" name = "Catalogs"/>
         <menuitem id="project_budget_catalogs_project_supervisor" parent ="project_budget_catalogs" name = "project_supervisor" action="show_project_supervisor"/>
         <menuitem id="project_budget_catalogs_project_office" parent ="project_budget_catalogs" name = "project_office" action="show_project_office"/>
@@ -41,6 +40,8 @@
 
         <menuitem id="project_budget_projects_report" parent ="project_budget_reports" name = "Projects" groups="project_budget_users,project_budget_admin,project_budget_users_readonly"/>
         <menuitem id="project_budget_projects_print_report" parent ="project_budget_projects_report" name = "Print projects" action="action_projects_print_report" groups="project_budget_users,project_budget_admin,project_budget_users_readonly"/>
+
+        <menuitem id="project_budget_pivot_wizard" parent ="project_budget_menu" name = "Pivot Wizard" action="action_pivot_wizard_form" groups="project_budget_users,project_budget_admin,project_budget_users_readonly"/>
 
 		<menuitem id="menu_project_budget_configuration" parent="project_budget_menu" name="Configuration"
                   sequence="100" groups="project_budget_admin">

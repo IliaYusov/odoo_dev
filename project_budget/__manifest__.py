@@ -45,6 +45,7 @@
         'wizard/report_tender_wizard.xml',
         'wizard/report_projects_wizard.xml',
         'wizard/message_wizard.xml',
+        'wizard/pivot_wizard.xml',
         'views/dashboard_view.xml',
         'views/project_budget_menu.xml',
         'views/res_company.xml',
