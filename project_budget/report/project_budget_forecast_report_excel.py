@@ -959,6 +959,20 @@ class report_budget_forecast_excel(models.AbstractModel):
                     margin_sum['reserve'] = max(margin_plan['reserve'] - margin100tmp_ostatok, 0)
                 else:
                     margin_sum['commitment'] = margin_plan['commitment'] - margin100tmp
+                #
+                # if margin100tmp:  # маржа если нет распределения
+                #     if margin_plan['commitment']:
+                #         margin_sum['commitment'] = margin_plan['commitment'] - margin100tmp
+                #         if abs(margin_plan['commitment']) - abs(margin_sum['commitment']) != abs(margin_plan['commitment'] - margin_sum['commitment']):  # факт больше обязательства
+                #             margin_sum['commitment'] = 0
+                #             if margin_plan['reserve']:
+                #                 margin_sum['reserve'] = margin_plan['reserve'] - margin100tmp + margin_plan['commitment']
+                #                 if abs(margin_plan['reserve']) - abs(margin_sum['reserve']) != abs(margin_plan['reserve'] - margin_sum['reserve']):  # остаток больше резерва
+                #                     margin_sum['commitment'] = 0
+                #     if margin_plan['reserve']:
+                #         margin_sum['reserve'] = margin_plan['reserve'] - margin100tmp
+                #         if abs(margin_plan['reserve']) - abs(margin_sum['reserve']) != abs(margin_plan['reserve'] - margin_sum['reserve']):  # факт больше резерва
+                #             margin_sum['commitment'] = 0
 
             sum_ostatok_acceptance = self.get_sum_planned_acceptance_project_step_from_distribution(project, step, element_name)
             new_margin_plan = self.get_sum_planned_margin_project_step_from_distribution(project, step, element_name, margin_plan, 1)
@@ -971,7 +985,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             for key in sum:
                 if not project.is_correction_project:
                     sum[key] = max(sum[key], 0)
-                    margin_sum[key] = max(margin_sum[key], 0)
+                    # margin_sum[key] = max(margin_sum[key], 0)
 
             if sum:
                 sheet.write_number(row, column + 3, sum.get('commitment', 0), row_format_number)
