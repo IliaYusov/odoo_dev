@@ -874,7 +874,7 @@ class projects(models.Model):
     @api.constrains('estimated_probability_id', 'total_amount_of_revenue', 'cost_price', 'planned_acceptance_flow_ids', 'planned_cash_flow_ids')
     def _check_financial_data_is_present(self):
         for project in self:
-            if (project.estimated_probability_id.name in ('50', '75', '100')
+            if (project.estimated_probability_id.name in ('30', '50', '75', '100')
                     and project.total_amount_of_revenue == 0
                     and project.cost_price == 0
                     and not project.project_have_steps
