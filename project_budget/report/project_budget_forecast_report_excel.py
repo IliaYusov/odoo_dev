@@ -985,7 +985,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             for key in sum:
                 if not project.is_correction_project:
                     sum[key] = max(sum[key], 0)
-                    # margin_sum[key] = max(margin_sum[key], 0)
+                    margin_sum[key] = max(margin_sum[key], 0)
 
             if sum:
                 sheet.write_number(row, column + 3, sum.get('commitment', 0), row_format_number)
