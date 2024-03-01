@@ -179,6 +179,8 @@ class report_projects_rawdata_excel(models.AbstractModel):
         sheet.write_string(row, column, "Рентабельность", row_format_number)
         column += 1
         sheet.write_string(row, column, "Вероятность", row_format_number)
+        column += 1
+        sheet.write_string(row, column, "Вероятность проекта", row_format_number)
 
         cur_budget_projects = self.env['project_budget.projects'].search([('commercial_budget_id', '=', budget.id)])
 
@@ -296,7 +298,9 @@ class report_projects_rawdata_excel(models.AbstractModel):
                     column += 1
                     sheet.write_number(row, column, spec.profitability, row_format_number )
                     column += 1
-                    sheet.write_string(row, column, spec.estimated_probability_id.name, row_format_number )
+                    sheet.write_string(row, column, spec.estimated_probability_id.name, row_format_number)
+                    column += 1
+                    sheet.write_string(row, column, spec.estimated_probability_id.name, row_format_number)
 
             if spec.project_have_steps == True:
                 for step in spec.project_steps_ids:
@@ -416,6 +420,8 @@ class report_projects_rawdata_excel(models.AbstractModel):
                         sheet.write_number(row, column, step.profitability, row_format_number)
                         column += 1
                         sheet.write_string(row, column, step.estimated_probability_id.name, row_format_number)
+                        column += 1
+                        sheet.write_string(row, column, spec.estimated_probability_id.name, row_format_number)
 
 
     def generate_xlsx_report(self, workbook, data, budgets):
