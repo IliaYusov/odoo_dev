@@ -41,7 +41,7 @@
         <menuitem id="project_budget_projects_report" parent ="project_budget_reports" name = "Projects" groups="project_budget_users,project_budget_admin,project_budget_users_readonly"/>
         <menuitem id="project_budget_projects_print_report" parent ="project_budget_projects_report" name = "Print projects" action="action_projects_print_report" groups="project_budget_users,project_budget_admin,project_budget_users_readonly"/>
 
-        <menuitem id="project_budget_pivot_wizard" parent ="project_budget_menu" name = "Pivot Wizard" action="action_pivot_wizard_form" groups="project_budget_users,project_budget_admin,project_budget_users_readonly"/>
+        <menuitem id="project_budget_pivot_wizard" parent ="project_budget_menu" name = "Pivot Wizard" action="action_pivot_wizard_pivot" groups="project_budget_users,project_budget_admin,project_budget_users_readonly"/>
 
 		<menuitem id="menu_project_budget_configuration" parent="project_budget_menu" name="Configuration"
                   sequence="100" groups="project_budget_admin">
