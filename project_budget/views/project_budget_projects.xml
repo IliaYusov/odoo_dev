@@ -627,15 +627,15 @@
                                     <group colspan="2">
                                         <field name="planned_acceptance_flow_sum_without_vat"
                                         decoration-bf="1"
-                                        decoration-success="total_amount_of_revenue == planned_acceptance_flow_sum_without_vat"
-                                        decoration-danger="total_amount_of_revenue != planned_acceptance_flow_sum_without_vat"
+                                        decoration-success="((total_amount_of_revenue - planned_acceptance_flow_sum_without_vat) * (total_amount_of_revenue - planned_acceptance_flow_sum_without_vat)) &lt; 0.1"
+                                        decoration-danger="((total_amount_of_revenue - planned_acceptance_flow_sum_without_vat) * (total_amount_of_revenue - planned_acceptance_flow_sum_without_vat)) &gt;= 0.1"
                                         />
                                     </group>
                                     <group colspan="2">
                                         <field name="planned_acceptance_flow_sum"
                                         decoration-bf="1"
-                                        decoration-success="total_amount_of_revenue_with_vat == planned_acceptance_flow_sum"
-                                        decoration-danger="total_amount_of_revenue_with_vat != planned_acceptance_flow_sum"
+                                        decoration-success="((total_amount_of_revenue_with_vat - planned_acceptance_flow_sum) * (total_amount_of_revenue_with_vat - planned_acceptance_flow_sum)) &lt; 0.1"
+                                        decoration-danger="((total_amount_of_revenue_with_vat - planned_acceptance_flow_sum) * (total_amount_of_revenue_with_vat - planned_acceptance_flow_sum)) &gt;= 0.1"
                                         />
                                     </group>
                                 </group>
@@ -669,8 +669,8 @@
                                     <group>
                                         <field name="planned_cash_flow_sum"
                                         decoration-bf="1"
-                                        decoration-success="total_amount_of_revenue_with_vat == planned_cash_flow_sum"
-                                        decoration-danger="total_amount_of_revenue_with_vat != planned_cash_flow_sum"
+                                        decoration-success="((total_amount_of_revenue_with_vat - planned_cash_flow_sum) * (total_amount_of_revenue_with_vat - planned_cash_flow_sum)) &lt; 0.1"
+                                        decoration-danger="((total_amount_of_revenue_with_vat - planned_cash_flow_sum) * (total_amount_of_revenue_with_vat - planned_cash_flow_sum)) &gt;= 0.1"
                                         />
                                     </group>
                                 </group>
@@ -707,15 +707,15 @@
                                     <group colspan="2">
                                         <field name="fact_acceptance_flow_sum_without_vat"
                                         decoration-bf="1"
-                                        decoration-success="total_amount_of_revenue == fact_acceptance_flow_sum_without_vat"
-                                        decoration-danger="total_amount_of_revenue != fact_acceptance_flow_sum_without_vat"
+                                        decoration-success="((total_amount_of_revenue - fact_acceptance_flow_sum_without_vat) * (total_amount_of_revenue - fact_acceptance_flow_sum_without_vat)) &lt; 0.1"
+                                        decoration-danger="((total_amount_of_revenue - fact_acceptance_flow_sum_without_vat) * (total_amount_of_revenue - fact_acceptance_flow_sum_without_vat)) &gt;= 0.1"
                                         />
                                     </group>
                                     <group colspan="2">
                                         <field name="fact_acceptance_flow_sum"
                                         decoration-bf="1"
-                                        decoration-success="total_amount_of_revenue_with_vat == fact_acceptance_flow_sum"
-                                        decoration-danger="total_amount_of_revenue_with_vat != fact_acceptance_flow_sum"
+                                        decoration-success="((total_amount_of_revenue_with_vat - fact_acceptance_flow_sum) * (total_amount_of_revenue_with_vat - fact_acceptance_flow_sum)) &lt; 0.1"
+                                        decoration-danger="((total_amount_of_revenue_with_vat - fact_acceptance_flow_sum) * (total_amount_of_revenue_with_vat - fact_acceptance_flow_sum)) &gt;= 0.1"
                                         />
                                     </group>
                                 </group>
@@ -731,8 +731,8 @@
                                     <group>
                                         <field name="fact_cash_flow_sum"
                                         decoration-bf="1"
-                                        decoration-success="total_amount_of_revenue_with_vat == fact_cash_flow_sum"
-                                        decoration-danger="total_amount_of_revenue_with_vat != fact_cash_flow_sum"
+                                        decoration-success="((total_amount_of_revenue_with_vat - fact_cash_flow_sum) * (total_amount_of_revenue_with_vat - fact_cash_flow_sum)) &lt; 0.1"
+                                        decoration-danger="((total_amount_of_revenue_with_vat - fact_cash_flow_sum) * (total_amount_of_revenue_with_vat - fact_cash_flow_sum)) &gt;= 0.1"
                                         />
                                     </group>
                                 </group>
