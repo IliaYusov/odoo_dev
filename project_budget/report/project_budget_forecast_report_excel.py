@@ -963,7 +963,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 # if margin100tmp:  # маржа если нет распределения
                 #     if margin_plan['commitment']:
                 #         margin_sum['commitment'] = margin_plan['commitment'] - margin100tmp
-                #         if abs(margin_plan['commitment']) - abs(margin_sum['commitment']) != abs(margin_plan['commitment'] - margin_sum['commitment']):  # факт больше обязательства
+                #         if abs(margin_plan['commitment']) + abs(margin_sum['commitment']) != abs(margin_plan['commitment'] + margin_sum['commitment']):  # факт больше обязательства
                 #             margin_sum['commitment'] = 0
                 #             if margin_plan['reserve']:
                 #                 margin_sum['reserve'] = margin_plan['reserve'] - margin100tmp + margin_plan['commitment']
@@ -971,7 +971,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 #                     margin_sum['commitment'] = 0
                 #     if margin_plan['reserve']:
                 #         margin_sum['reserve'] = margin_plan['reserve'] - margin100tmp
-                #         if abs(margin_plan['reserve']) - abs(margin_sum['reserve']) != abs(margin_plan['reserve'] - margin_sum['reserve']):  # факт больше резерва
+                #         if abs(margin_plan['reserve']) + abs(margin_sum['reserve']) != abs(margin_plan['reserve'] + margin_sum['reserve']):  # факт больше резерва
                 #             margin_sum['commitment'] = 0
 
             sum_ostatok_acceptance = self.get_sum_planned_acceptance_project_step_from_distribution(project, step, element_name)
