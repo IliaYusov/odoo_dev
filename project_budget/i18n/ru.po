@@ -5188,3 +5188,23 @@ msgstr ""
 #: model:ir.model.fields,field_description:project_budget.field_res_company__is_vendor
 msgid "Is Vendor"
 msgstr "Является вендором"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_res_config_settings__tender_department_id
+msgid "Tender department ID"
+msgstr "Тендерный отдел"
+
+#. module: project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.res_config_settings_view_form_inherit_project_budget
+msgid "Select tender department"
+msgstr "Выберите тендерный отдел"
+
+#. module: project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.res_config_settings_view_form_inherit_project_budget
+msgid "Tender department ID"
+msgstr "Тендерный отдел"
+
+#. module: project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.res_config_settings_view_form_inherit_project_budget
+msgid "Project budget"
+msgstr "Управление проектами"
