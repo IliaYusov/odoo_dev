@@ -42,6 +42,7 @@
         'views/tenders.xml',
         'views/res_partner.xml',
         'views/scheduled_report_views.xml',
+        'views/res_config_settings.xml',
         'wizard/report_tender_wizard.xml',
         'wizard/report_projects_wizard.xml',
         'wizard/message_wizard.xml',

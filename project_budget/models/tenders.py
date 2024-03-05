@@ -12,6 +12,13 @@ class tenders(models.Model):
     _order = 'date_of_filling_in'
     # _rec_names_search = ['project_id', 'essence_project']
 
+    def _get_responsible_dkp_domain(self):
+        domain = False
+        dkp_department_id = self.env['ir.config_parameter'].sudo().get_param('project_budget.tender_department_id', False)
+        if dkp_department_id:
+            domain = [('department_id', '=', int(dkp_department_id))]
+        return domain
+
     tender_id = fields.Char(string="Tender ID", required=True, index=True, copy=True, group_operator = 'count',
                              default='ID') #lambda self: self.env['ir.sequence'].sudo().next_by_code('project_budget.projects'))
     company_id = fields.Many2one('res.company', required=True, default=lambda self: self.env.company)
@@ -57,7 +64,7 @@ class tenders(models.Model):
 
     responsible_ids = fields.Many2many('hr.employee', relation='tender_employee_rel', column1='tender_id', column2='employee_id', string='responsibles')
     responsible_dkp_ids = fields.Many2many('hr.employee', relation='dkp_employee_rel', column1='tender_id',
-                                       column2='employee_id', string='responsibles_dkp')
+                                       column2='employee_id', string='responsibles_dkp', domain=_get_responsible_dkp_domain)
 
     is_need_payment_for_the_victory = fields.Boolean(string="is_need_payment_for_the_victory", copy=True, default = False)
     is_need_site_payment  = fields.Boolean(string="is_need_site_payment", copy=True, default = False,tracking=True)
