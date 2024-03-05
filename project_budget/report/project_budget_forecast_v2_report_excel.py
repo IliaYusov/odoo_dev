@@ -1078,7 +1078,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         margin_distribution = 0
         for distribution in planned_acceptance.distribution_acceptance_ids:
             if distribution.fact_acceptance_flow_id.sum_cash_without_vat != 0:
-                margin_distribution += distribution.fact_acceptance_flow_id.margin * distribution.distribution_sum_without_vat / distribution.fact_acceptance_flow_id.sum_cash_without_vat
+                margin_distribution += distribution.fact_acceptance_flow_id.margin * distribution.sum_cash_without_vat / distribution.fact_acceptance_flow_id.sum_cash_without_vat
         estimated_probability_id_name = project.estimated_probability_id.name
         if step:
             estimated_probability_id_name = step.estimated_probability_id.name
