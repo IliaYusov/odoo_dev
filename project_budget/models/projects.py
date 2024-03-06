@@ -1035,7 +1035,7 @@ class projects(models.Model):
                             raisetext = raisetext.format(project.project_id, step.step_id, str(end_sale_project_month))
                             return False, raisetext, {'step_id':step.step_id,'end_sale_project_month':str(end_sale_project_month)}
 
-            if project.estimated_probability_id.name in ('0', '100(done)'):
+            if estimated_probability_id_name in ('0', '100(done)'):
                if project.project_have_steps == False:
                    return True, "", {}
 
