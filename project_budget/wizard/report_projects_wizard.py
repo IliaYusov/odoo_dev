@@ -34,8 +34,9 @@ class report_projects_wizard(models.TransientModel):
     date_start = fields.Date(string='start of report', default=date.today(), required=True)
     date_end = fields.Date(string='end of report', default=date.today() + delta, required=True)
     pds_accept = fields.Selection([('pds', 'PDS'), ('accept', 'Acceptance')], string='PDS Accept', default='pds', required=True)
-    report_with_projects = fields.Boolean(string='detailed report', default = True)
-
+    report_with_projects = fields.Boolean(string='detailed report', default=True)
+    project_office_ids = fields.Many2many('project_budget.project_office', relation='report_project_office_rel',
+                                          column1='id', column2='project_office_id', string='Project offices')
 
     def action_print_report(self):
         self.ensure_one()
@@ -52,8 +53,9 @@ class report_projects_wizard(models.TransientModel):
         datas['koeff_potential'] = 1 if not self.use_koeff_reserve else self.koeff_potential
         datas['pds_accept'] = self.pds_accept
         datas['report_with_projects'] = self.report_with_projects
+        datas['project_office_ids'] = self.env['project_budget.project_office'].search([]).ids if not self.project_office_ids.ids else self.project_office_ids.ids
 
-        print('data=',datas)
+        print('data=', datas)
         report_name = 'Project_list_' + str(self.year) + '_' + self.type_report + '.xlsx'
 
         if self.type_report == 'kb':

@@ -24,6 +24,11 @@
                     <group col ="2">
                         <group>
                             <field name="commercial_budget_id"/>
+                            <field name="project_office_ids" widget="many2many_tags"
+                                   options="{'no_create_edit': True}"
+                                   attrs="{'invisible': [('type_report', 'not in', ('forecast_v2'))]}"
+                                   placeholder="All POs if none selected"
+                            />
                         </group>
                         <group>
                             <field name="report_with_projects" attrs="{'invisible': [('type_report', 'not in', ('management_committee'))]}"/>

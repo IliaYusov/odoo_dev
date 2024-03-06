@@ -2143,7 +2143,8 @@ class report_budget_forecast_excel(models.AbstractModel):
             print('project_office.name = ', project_office.name)
             row0 = row
 
-            child_project_offices = self.env['project_budget.project_office'].search([('parent_id', '=', project_office.id)], order='name')
+            child_project_offices = self.env['project_budget.project_office'].search(
+                [('id','in',project_office_ids),('parent_id', '=', project_office.id)], order='name')
 
             row0, formulaItogo = self.print_row(sheet, workbook, child_project_offices, project_managers, estimated_probabilitys, budget, row, formulaItogo, level)
 
@@ -2918,7 +2919,9 @@ class report_budget_forecast_excel(models.AbstractModel):
         column = self.print_month_head_pds(workbook, sheet, row, column, YEARint + 2, ['YEAR итого',], True)
         column = self.print_month_head_revenue_margin(workbook, sheet, row, column, YEARint + 2, ['YEAR итого',], True)
         row += 2
-        project_offices = self.env['project_budget.project_office'].search([('parent_id', '=', False)], order='name')  # для сортировки так делаем + берем сначала только верхние элементы
+
+        project_offices = self.env['project_budget.project_office'].search([
+            ('id','in',project_office_ids),('parent_id', '=', False)], order='name')  # для сортировки так делаем + берем сначала только верхние элементы
         project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
 
         formulaItogo = '=sum(0'
@@ -2931,6 +2934,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         sheet.write_string(row, column + 1, 'ИТОГО по отчету', row_format_number_itogo)
         sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
         formulaItogo = formulaItogo + ')'
+        formula_plan = False
         if 'project_office_0' in dict_formula:
             formulaItogo = '=sum(' + dict_formula['project_office_0'] + ')'
             formula_plan = '=sum(,' + ','.join(('{0}' + str(int(c[3:]) + 1)) for c in dict_formula['project_office_0'].strip(',').split(',')) + ')'  # увеличиваем все номера строк на 1
@@ -2952,9 +2956,10 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         for type in plan_shift:  # кресты в планах
             for c in plan_shift[type].values():
-                formula = formula_plan.format(xl_col_to_name(c))
-                sheet.write_string(row - 1, c, '', row_format_plan_cross)
-                sheet.write_formula(row, c, formula, row_format_plan)
+                if formula_plan:
+                    formula = formula_plan.format(xl_col_to_name(c))
+                    sheet.write_string(row - 1, c, '', row_format_plan_cross)
+                    sheet.write_formula(row, c, formula, row_format_plan)
 
         last_row = row
         row += 2
@@ -3081,9 +3086,11 @@ class report_budget_forecast_excel(models.AbstractModel):
         global margin_shift
         global plan_shift
         global fact_columns
+        global project_office_ids
         koeff_reserve = data['koeff_reserve']
         koeff_potential = data['koeff_potential']
         fact_columns = set()
+        project_office_ids=data['project_office_ids']
 
         plan_shift = {
             'revenue': {
