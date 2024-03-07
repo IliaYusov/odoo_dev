@@ -182,6 +182,9 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
             if project.project_have_steps:
                 for step in project.project_steps_ids:
 
+                    if step.estimated_probability_id.name in ('0', '10'):
+                        continue
+
                     if step.legal_entity_signing_id.name == project.company_id.name:
                         row_format = row_format_light
                     else:
