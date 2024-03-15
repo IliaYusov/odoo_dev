@@ -114,6 +114,17 @@ class report_new_tender_excel(models.AbstractModel):
             'num_format': '[$¥-zh-CN] #,##0.00'
         })
 
+        row_format_text_offer_aed = workbook.add_format({
+            'border': 1,
+            'font_size': 9,
+            'text_wrap': True,
+            'font_name': 'Times New Roman',
+            'align': 'center',
+            'valign': 'vcenter',
+            'font_color': 'red',
+            'num_format': '#,##0.00 [$AED]'
+        })
+
         row_format_text_red = workbook.add_format({
             'border': 1,
             'font_size': 9,
@@ -267,6 +278,8 @@ class report_new_tender_excel(models.AbstractModel):
                             row_format_text_offer = row_format_text_offer_eur
                         elif tendersum.participants_offer_currency_id.name == 'CNY':
                             row_format_text_offer = row_format_text_offer_cny
+                        elif tendersum.participants_offer_currency_id.name == 'AED':
+                            row_format_text_offer = row_format_text_offer_aed
 
                     if tender.is_need_initial_maximum_contract_price == True:
                         sheet.write(row, column, sum_initial_maximum_contract_price.strip(), row_format_text)
@@ -384,6 +397,8 @@ class report_new_tender_excel(models.AbstractModel):
                         row_format_text_offer = row_format_text_offer_eur
                     elif tendersum.participants_offer_currency_id.name == 'CNY':
                         row_format_text_offer = row_format_text_offer_cny
+                    elif tendersum.participants_offer_currency_id.name == 'AED':
+                        row_format_text_offer = row_format_text_offer_aed
 
                 if tender.is_need_initial_maximum_contract_price == True:
                     sheet.write(row, column, sum_initial_maximum_contract_price.strip(), row_format_text)
