@@ -70,6 +70,17 @@ class report_new_tender_excel(models.AbstractModel):
             'font_color': 'red'
         })
 
+        row_format_text_offer_unknown = workbook.add_format({
+            'border': 1,
+            'font_size': 9,
+            'text_wrap': True,
+            'font_name': 'Times New Roman',
+            'align': 'center',
+            'valign': 'vcenter',
+            'font_color': 'red',
+            'num_format': '#,##0.00',
+        })
+
         row_format_text_offer_rub = workbook.add_format({
             'border': 1,
             'font_size': 9,
@@ -260,6 +271,7 @@ class report_new_tender_excel(models.AbstractModel):
                 sum_site_payment = ''
 
                 for tendersum in tender.tender_sums_ids:
+                    row_format_text_offer = row_format_text_offer_unknown
                     if tendersum:
                         participants_offer = tendersum.participants_offer
                         participants_offer_descr = tendersum.participants_offer_descr
@@ -364,6 +376,7 @@ class report_new_tender_excel(models.AbstractModel):
                 sum_provision_of_GO = ''
                 sum_site_payment = ''
 
+                row_format_text_offer = row_format_text_offer_unknown
                 if tender.tender_sums_ids:
                     tendersum = tender.tender_sums_ids[0]
                     participants_offer = tendersum.participants_offer
