@@ -243,6 +243,8 @@ def monetary_format(currency_symbol, amount):
     if currency_symbol:
         if currency_symbol == 'руб':
             return '{:,.2f}'.format(amount).replace(',', ' ') + ' ' + currency_symbol
+        elif currency_symbol == 'د.إ':
+            return '{:,.2f}'.format(amount).replace(',', ' ') + ' AED'
         else:
             return currency_symbol + ' ' + '{:,.2f}'.format(amount).replace(',', ' ')
     else: return ""
