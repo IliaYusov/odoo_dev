@@ -2144,7 +2144,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             row0 = row
 
             child_project_offices = self.env['project_budget.project_office'].search(
-                [('id','in',project_office_ids),('parent_id', '=', project_office.id)], order='name')
+                [('parent_id', '=', project_office.id)], order='name')
 
             row0, formulaItogo = self.print_row(sheet, workbook, child_project_offices, project_managers, estimated_probabilitys, budget, row, formulaItogo, level)
 
@@ -2920,8 +2920,12 @@ class report_budget_forecast_excel(models.AbstractModel):
         column = self.print_month_head_revenue_margin(workbook, sheet, row, column, YEARint + 2, ['YEAR итого',], True)
         row += 2
 
-        project_offices = self.env['project_budget.project_office'].search([
-            ('id','in',project_office_ids),('parent_id', '=', False)], order='name')  # для сортировки так делаем + берем сначала только верхние элементы
+        if project_office_ids:
+            project_offices = self.env['project_budget.project_office'].search([
+                ('id','in',project_office_ids), ('parent_id', 'not in', project_office_ids)], order='name')  # для сортировки так делаем + берем сначала только верхние элементы
+        else:
+            project_offices = self.env['project_budget.project_office'].search([
+                ('parent_id', '=', False)], order='name')
         project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
 
         formulaItogo = '=sum(0'
