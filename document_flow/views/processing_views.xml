@@ -21,6 +21,7 @@
                         <field name="parent_ref_id"/>
                         <field name="document_kind_id"/>
                         <field name="action_count"/>
+                        <field name="template_id_domain"/>
                     </group>
                     <div id="o_process_container" class="d-lg-flex">
                         <div id="o_processing_main" class="flex-grow-1">
@@ -29,7 +30,8 @@
                             </group>
                             <div col="2" class="o_row">
                                 <group>
-                                    <field name="template_id" attrs="{'readonly': [('state', '!=', False)]}"/>
+                                    <field name="template_id" domain="template_id_domain"
+                                           attrs="{'readonly': [('state', '!=', False), ('state', '!=', 'break')]}"/>
                                 </group>
                                 <button name="fill_by_template" type="object" class="btn btn-link"
                                         attrs="{'invisible': [('state', '!=', False)]}">
@@ -42,7 +44,7 @@
                     <notebook>
                         <page name="actions_page" string="Actions">
                             <field name="action_ids" widget="section_and_note_one2many" mode="tree"
-                                   attrs="{'readonly': [('state', '!=', False)]}"
+                                   attrs="{'readonly': [('state', '!=', False), ('state', '!=', 'break')]}"
                                    context="{'default_parent_ref_type': 'document_flow.processing','default_parent_ref_id': active_id}"/>
                         </page>
                         <page name="processing_history_page" string="Processing History">

@@ -126,14 +126,17 @@
             <field name="groups" eval="[(4,ref('document_flow.group_document_flow_manager'))]"/>
         </record>
 
-        <record model="ir.rule" id="document_flow_user_my_document_rule">
+        <record id="document_flow_user_my_document_rule" model="ir.rule">
             <field name="name">Document flow: see my document</field>
             <field name="model_id" ref="model_document_flow_document"/>
-            <field name="domain_force">['|', '|', '|',
-                ('create_uid', '=', user.id),
-                ('access_ids.user_id', '=', user.id),
-                ('access_ids.role_executor_id.member_ids', '=', user.id),
-                ('access_ids.user_id', 'in', user.employee_id.replaceable_employee_ids.replaceable_employee_id.user_id.ids)]</field>
+            <field name="domain_force">
+                [
+                    '|', '|',
+                    ('create_uid', '=', user.id),
+                    ('access_ids.user_id', '=', user.id),
+                    ('access_ids.user_id', 'in', user.employee_id.replaceable_employee_ids.replaceable_employee_id.user_id.ids)
+                ]
+            </field>
             <field name="groups" eval="[(4,ref('document_flow.group_document_flow_user'))]"/>
         </record>
 

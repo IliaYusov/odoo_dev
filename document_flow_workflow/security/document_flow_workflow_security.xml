@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="document_flow.document_flow_document_user_my_contract_rule" model="ir.rule">
+            <field name="name">Document flow: see my document</field>
+            <field name="model_id" ref="model_document_flow_document"/>
+            <field name="domain_force">
+                [
+                    '|', '|', '|', '|', '|',
+                    ('create_uid', '=', user.id),
+                    ('access_ids.user_id', '=', user.id),
+                    ('access_ids.group_executors_id.member_ids', '=', user.id),
+                    ('access_ids.user_id', 'in', user.employee_id.replaceable_employee_ids.replaceable_employee_id.user_id.ids)
+                ]
+            </field>
+            <field name="groups" eval="[(4,ref('document_flow.group_document_flow_user'))]"/>
+        </record>
+
+        <record id="document_flow_document_user_read_rule" model="ir.rule">
+            <field name="name">Contract: read all</field>
+            <field name="model_id" ref="model_document_flow_document"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4,ref('workflow.group_workflow_manager'))]"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+    </data>
+</odoo>

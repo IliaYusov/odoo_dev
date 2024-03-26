@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_workflow_processes" model="ir.actions.act_window">
+        <field name="name">Processes</field>
+        <field name="res_model">workflow.process</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">
+            [
+                ('workflow_id', '=', active_id)
+            ]
+        </field>
+        <field name="context">
+            {
+                'default_workflow_id': active_id
+            }
+        </field>
+    </record>
+
+    <record id="action_workflow_activities" model="ir.actions.act_window">
+        <field name="name">Activities</field>
+        <field name="res_model">workflow.activity</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">
+            [
+                ('workflow_id', '=', active_id)
+            ]
+        </field>
+        <field name="context">
+            {
+                'default_workflow_id': active_id
+            }
+        </field>
+    </record>
+
+    <record id="action_workflow_transitions" model="ir.actions.act_window">
+        <field name="name">Transitions</field>
+        <field name="res_model">workflow.transition</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">
+            [
+                ('workflow_id', '=', active_id)
+            ]
+        </field>
+        <field name="context">
+            {
+                'default_workflow_id': active_id
+            }
+        </field>
+    </record>
+
+    <record id="workflow_view_search" model="ir.ui.view">
+        <field name="name">workflow.workflow.search</field>
+        <field name="model">workflow.workflow</field>
+        <field name="arch" type="xml">
+            <search string="Workflows">
+                <field name="name" filter_domain="['|', ('name', 'ilike', self), ('id', 'ilike', self)]"/>
+                <field name="model_id" filter_domain="[('model_id.model', 'ilike', self)]"/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+                <group name="group_by" expand="0" string="Group by...">
+                    <filter name="group_by_model" string="Model" domain="[]" context="{'group_by':'model_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="workflow_view_tree" model="ir.ui.view">
+        <field name="name">workflow.workflow.tree</field>
+        <field name="model">workflow.workflow</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="model_id"/>
+                <field name="model_name"/>
+                <field name="active"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="workflow_view_form" model="ir.ui.view">
+        <field name="name">workflow.workflow.form</field>
+        <field name="model">workflow.workflow</field>
+        <field name="arch" type="xml">
+            <form string="Workflow">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(action_workflow_processes)d" type="action" class="oe_stat_button"
+                                icon="fa-bars">
+                            <field string="Processes" name="process_count" widget="statinfo"
+                                   context="
+                                   {
+                                       'default_workflow_id': active_id
+                                   }"/>
+                        </button>
+                        <button name="%(action_workflow_activities)d" type="action" class="oe_stat_button"
+                                icon="fa-gear">
+                            <field string="Activities" name="activity_count" widget="statinfo"/>
+                        </button>
+                        <button name="%(action_workflow_transitions)d" type="action" class="oe_stat_button"
+                                icon="fa-random">
+                            <field string="Transitions" name="transition_count" widget="statinfo"/>
+                        </button>
+                    </div>
+                    <field name="active" invisible="1"/>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger"
+                            attrs="{'invisible': [('active', '=', True)]}"/>
+                    <div class="oe_title">
+                        <h1 name="header_type">
+                            <group>
+                                <field name="name" placeholder="Workflow name..."/>
+                            </group>
+                        </h1>
+                    </div>
+                    <group name="model_settings" col="2">
+                        <group>
+                            <field name="model_id"/>
+                        </group>
+                        <group>
+                            <field name="model_name"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                    </group>
+                    <notebook>
+                        <page name="page_description" string="Description">
+                            <field name="description" options="{'collaborative': true, 'resizable': false}"
+                                   placeholder="Description..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_workflow_main" model="ir.actions.act_window">
+        <field name="name">Workflows</field>
+        <field name="res_model">workflow.workflow</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">
+            {
+                'create_default_activities': True,
+                'search_default_group_by_model': True
+            }
+        </field>
+    </record>
+</odoo>

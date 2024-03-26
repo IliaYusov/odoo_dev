@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="category_workflow_security" model="ir.module.category">
+            <field name="name">Workflow</field>
+        </record>
+
+        <record id="group_workflow_manager" model="res.groups">
+            <field name="name">Manager</field>
+            <field name="category_id" ref="category_workflow_security"/>
+            <field name="users" eval="[(4, ref('base.user_admin'))]"/>
+        </record>
+
+        <!-- Workflows rules -->
+
+        <record id="workflow_company_rule" model="ir.rule">
+            <field name="name">Workflow multi-company</field>
+            <field name="model_id" ref="model_workflow_workflow"/>
+            <field name="domain_force">
+                [
+                    '|', ('company_id', '=', False), ('company_id', 'in', company_ids)
+                ]
+            </field>
+        </record>
+
+        <!-- Processes rules -->
+
+        <record id="workflow_process_company_rule" model="ir.rule">
+            <field name="name">Process multi-company</field>
+            <field name="model_id" ref="model_workflow_process"/>
+            <field name="domain_force">
+                [
+                    '|', ('company_id', '=', False), ('company_id', 'in', company_ids)
+                ]
+            </field>
+        </record>
+
+        <!-- Activities rules -->
+
+        <record id="workflow_activity_company_rule" model="ir.rule">
+            <field name="name">Activity multi-company</field>
+            <field name="model_id" ref="model_workflow_activity"/>
+            <field name="domain_force">
+                [
+                    '|', ('company_id', '=', False), ('company_id', 'in', company_ids)
+                ]
+            </field>
+        </record>
+
+        <!-- Task rules -->
+
+        <record id="workflow_task_user_rule" model="ir.rule">
+            <field name="name">Task user: see my tasks</field>
+            <field name="model_id" ref="model_task_task"/>
+            <field name="domain_force">
+                [
+                    '|', '|', '|', '|', '|',
+                    ('author_id', '=', user.id),
+                    ('author_id', 'in', user.employee_id.subordinate_ids.user_id.ids),
+                    ('user_ids', '=', user.id),
+                    ('user_ids', 'in', user.employee_id.subordinate_ids.user_id.ids),
+                    ('user_ids', 'in', user.employee_id.replaceable_employee_ids.replaceable_employee_id.user_id.ids),
+                    ('group_executors_id.member_ids', '=', user.id)
+                ]
+            </field>
+            <field name="groups" eval="[(4,ref('base.group_user'))]"/>
+        </record>
+    </data>
+</odoo>

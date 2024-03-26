@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="document_flow_document_kind_type_view_tree" model="ir.ui.view">
-        <field name="name">document_flow.document.kind.type.tree</field>
+        <field name="name">document.flow.document.kind.type.tree</field>
         <field name="model">document_flow.document.kind.type</field>
         <field name="arch" type="xml">
             <tree string="Kind Types" editable="bottom">
@@ -23,7 +23,7 @@
     </record>
 
     <record id="document_flow_document_kind_template_view_tree" model="ir.ui.view">
-        <field name="name">document_flow.document.kind.template.tree</field>
+        <field name="name">document.flow.document.kind.template.tree</field>
         <field name="model">document_flow.document.kind.template</field>
         <field name="arch" type="xml">
             <tree string="Document Kinds" multi_edit="1" sample="1">
@@ -34,7 +34,7 @@
     </record>
 
     <record id="document_flow_document_kind_template_view_form" model="ir.ui.view">
-        <field name="name">document_flow.document.kind.template.form</field>
+        <field name="name">document.flow.document.kind.template.form</field>
         <field name="model">document_flow.document.kind.template</field>
         <field name="arch" type="xml">
             <form string="Document Kind">
@@ -64,7 +64,7 @@
     </record>
 
     <record id="document_flow_document_kind_accessibility_setting_view_tree" model="ir.ui.view">
-        <field name="name">document_flow.document.kind.accessibility.setting.tree</field>
+        <field name="name">document.flow.document.kind.accessibility.setting.tree</field>
         <field name="model">document_flow.document.kind.accessibility.setting</field>
         <field name="arch" type="xml">
             <tree string="Accessibility Settings" editable="bottom">

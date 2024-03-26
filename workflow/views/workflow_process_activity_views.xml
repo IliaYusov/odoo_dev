@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="workflow_process_activity_view_tree" model="ir.ui.view">
+        <field name="name">workflow.process.activity.tree</field>
+        <field name="model">workflow.process.activity</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="activity_id"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="duration"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+<!--    <record id="workflow_action_view_form" model="ir.ui.view">-->
+<!--        <field name="name">workflow.action.form</field>-->
+<!--        <field name="model">workflow.action</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <form string="Action">-->
+<!--                <sheet string="Action">-->
+<!--                    <group invisible="1">-->
+<!--                        <field name="active"/>-->
+<!--                        <field name="model_id"/>-->
+<!--                    </group>-->
+<!--                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger"-->
+<!--                            attrs="{'invisible': [('active', '=', True)]}"/>-->
+<!--                    <div class="oe_title">-->
+<!--                        <h1>-->
+<!--                            <group>-->
+<!--                                <field name="name"/>-->
+<!--                            </group>-->
+<!--                        </h1>-->
+<!--                    </div>-->
+<!--                    <group>-->
+<!--                        <field name="type"/>-->
+<!--                    </group>-->
+<!--                    <group name="group_task_settings" col="6">-->
+<!--                        <group colspan="1" attrs="{'invisible': [('type', '!=', 'task')]}">-->
+<!--                            <field name="task_type_id" options="{'no_create_edit': True}"/>-->
+<!--                        </group>-->
+<!--                        <group colspan="2" attrs="{'invisible': [('type', '!=', 'task')]}">-->
+<!--                            <label for="period"/>-->
+<!--                            <div name="period">-->
+<!--                                <field name="period" class="oe_inline"/>-->
+<!--                                hours-->
+<!--                            </div>-->
+<!--                        </group>-->
+<!--                        <group colspan="3" attrs="{'invisible': [('type', '!=', 'task')]}">-->
+<!--                            <field name="user_ids" widget="many2many_tags" options="{'no_open': True}"/>-->
+<!--                        </group>-->
+<!--                    </group>-->
+<!--                    <notebook>-->
+<!--                        <page name="page_code" string="Code" attrs="{'invisible': [('type', '!=', 'code')]}">-->
+<!--                            <field name="code" widget="ace" options="{'mode': 'python'}"/>-->
+<!--                        </page>-->
+<!--                    </notebook>-->
+<!--                </sheet>-->
+<!--            </form>-->
+<!--        </field>-->
+<!--    </record>-->
+</odoo>

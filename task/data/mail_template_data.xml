@@ -36,6 +36,10 @@
                     <ul style="padding:0 0 0 24px;margin:0px 0 12px 0;box-sizing:border-box;">
                         <li>Subject: "<t t-esc="object.name">Task subject</t>"
                         </li>
+                        <t t-if="object.parent_ref and object.parent_ref_type != 'document_flow.process'">
+                            <li>Parent: "<t t-esc="object.parent_ref.name">Parent</t>"
+                            </li>
+                        </t>
                         <li>Priority: <t t-esc="object.priority">Medium</t>
                         </li>
                         <li>Deadline: <t t-esc="object.date_deadline">01.01.2023</t>
@@ -83,6 +87,10 @@
                     <ul style="padding:0 0 0 24px;margin:0px 0 12px 0;box-sizing:border-box;">
                         <li>Subject: "<t t-esc="object.name">Task subject</t>"
                         </li>
+                        <t t-if="object.parent_ref and object.parent_ref_type != 'document_flow.process'">
+                            <li>Parent: "<t t-esc="object.parent_ref.name">Parent</t>"
+                            </li>
+                        </t>
                         <li>Priority: <t t-esc="object.priority">Medium</t>
                         </li>
                         <li>Deadline: <t t-esc="object.date_deadline">01.01.2023</t>

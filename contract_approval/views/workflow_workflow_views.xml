@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="workflow_workflow_view_form_inherit_contract_approval" model="ir.ui.view">
+        <field name="name">workflow.workflow.form.inherit.contract.approval</field>
+        <field name="model">workflow.workflow</field>
+        <field name="inherit_id" ref="workflow.workflow_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form/sheet/group[@name='model_settings']" position="after">
+                <group name="contract_settings" col="2">
+                    <group>
+                        <field name="contract_type_id"
+                               attrs="{'invisible': [('model_name', '!=', 'contract.contract')]}"
+                               options="{'no_create_edit': True, 'no_open': True}"/>
+                    </group>
+                    <group>
+                        <field name="contract_kind_id"
+                               attrs="{'invisible': [('model_name', '!=', 'contract.contract')]}"
+                               options="{'no_create_edit': True, 'no_open': True}"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

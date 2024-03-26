@@ -1,0 +1,946 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* workflow
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-03-19 19:41+0000\n"
+"PO-Revision-Date: 2024-03-19 19:41+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: workflow
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_process_view_form
+msgid ""
+"<span class=\"o_stat_text\">Related\n"
+"                                    <br/>\n"
+"                                    Record\n"
+"                                </span>"
+msgstr ""
+"<span class=\"o_stat_text\">Связанная\n"
+"                                    <br/>\n"
+"                                    запись\n"
+"                                </span>"
+
+#. module: workflow
+#. odoo-python
+#: code:addons/workflow/models/task_stage.py:0
+#: model:ir.model.fields.selection,name:workflow.selection__task_stage__processing_result__accepted
+#, python-format
+msgid "Accepted"
+msgstr "Согласовано"
+
+#. module: workflow
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_parent_access_view_tree
+msgid "Access"
+msgstr "Доступ"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__active
+#: model:ir.model.fields,field_description:workflow.field_workflow_auto_substitution__active
+#: model:ir.model.fields,field_description:workflow.field_workflow_group_executors__active
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity__active
+#: model:ir.model.fields,field_description:workflow.field_workflow_workflow__active
+msgid "Active"
+msgstr "Активна"
+
+#. module: workflow
+#: model:ir.actions.act_window,name:workflow.action_workflow_activities
+#: model:ir.model.fields,field_description:workflow.field_workflow_process__activity_ids
+#: model:ir.model.fields,field_description:workflow.field_workflow_workflow__activity_ids
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_process_view_form
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_view_form
+msgid "Activities"
+msgstr "Задачи"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_task_task__activity_id
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity__activity_id
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity_history__activity_id
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_activity_view_form
+msgid "Activity"
+msgstr "Задача"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_workflow__activity_count
+msgid "Activity Count"
+msgstr ""
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__type
+msgid "Activity Type"
+msgstr "Тип задачи"
+
+#. module: workflow
+#: model:ir.model.constraint,message:workflow.constraint_workflow_activity_activity_name_uniq
+msgid "Activity name must be uniq for workflow"
+msgstr "Наименование задачи должно быть уникально в рамках workflow"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity_history__actual_executor_id
+msgid "Actual Executor"
+msgstr "Фактический исполнитель"
+
+#. module: workflow
+#: model:ir.model.fields.selection,name:workflow.selection__workflow_activity__join_mode__and
+msgid "And"
+msgstr ""
+
+#. module: workflow
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_activity_view_form
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_auto_substitution_view_form
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_group_executors_view_form
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_view_form
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_view_search
+msgid "Archived"
+msgstr "В архиве"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__user_ids
+msgid "Assignees"
+msgstr "Исполнители"
+
+#. module: workflow
+#: model:workflow.auto.substitution,name:workflow.workflow_auto_substitution_author
+msgid "Author of the document"
+msgstr "Автор документа"
+
+#. module: workflow
+#: model:ir.actions.act_window,name:workflow.action_workflow_auto_substitution_main
+#: model:ir.model,name:workflow.model_workflow_auto_substitution
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__auto_substitution_id
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_auto_substitution_view_form
+msgid "Auto-substitution"
+msgstr "Автоподстановка"
+
+#. module: workflow
+#: model:ir.ui.menu,name:workflow.menu_workflow_auto_substitution
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_auto_substitution_view_tree
+msgid "Auto-substitutions"
+msgstr "Автоподстановки"
+
+#. module: workflow
+#. odoo-python
+#: code:addons/workflow/models/workflow_process.py:0
+#: model:ir.model.fields.selection,name:workflow.selection__workflow_process__state__break
+#, python-format
+msgid "Break"
+msgstr "Прерван"
+
+#. module: workflow
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_process_resume_wizard_view_form
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_process_stop_wizard_view_form
+msgid "Cancel"
+msgstr "Отменить"
+
+#. module: workflow
+#. odoo-python
+#: code:addons/workflow/models/workflow_process.py:0
+#: code:addons/workflow/models/workflow_process_activity.py:0
+#: code:addons/workflow/models/workflow_process_activity_history.py:0
+#: model:ir.model.fields.selection,name:workflow.selection__workflow_process__state__canceled
+#: model:ir.model.fields.selection,name:workflow.selection__workflow_process_activity__state__canceled
+#: model:ir.model.fields.selection,name:workflow.selection__workflow_process_activity_history__state__canceled
+#, python-format
+msgid "Canceled"
+msgstr "Отменен"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_process__code
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_activity_view_form
+msgid "Code"
+msgstr "Код"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity_history__comment
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_resume_wizard__comment
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_process_resume_wizard_view_form
+msgid "Comment"
+msgstr "Комментарий"
+
+#. module: workflow
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_process_resume_wizard_view_form
+msgid "Comment..."
+msgstr "Комментарий..."
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__company_id
+#: model:ir.model.fields,field_description:workflow.field_workflow_group_executors__company_id
+#: model:ir.model.fields,field_description:workflow.field_workflow_process__company_id
+#: model:ir.model.fields,field_description:workflow.field_workflow_workflow__company_id
+msgid "Company"
+msgstr "Компания"
+
+#. module: workflow
+#. odoo-python
+#: code:addons/workflow/models/workflow_process.py:0
+#: code:addons/workflow/models/workflow_process_activity.py:0
+#: model:ir.model.fields.selection,name:workflow.selection__workflow_process__state__completed
+#: model:ir.model.fields.selection,name:workflow.selection__workflow_process_activity__state__completed
+#, python-format
+msgid "Completed"
+msgstr "Завершен"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_transition__condition
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_transition_view_form
+msgid "Condition"
+msgstr "Условие"
+
+#. module: workflow
+#: model:ir.model.fields,help:workflow.field_workflow_transition__condition
+msgid "Condition to pass thru this transition."
+msgstr ""
+
+#. module: workflow
+#: model:ir.ui.menu,name:workflow.menu_workflow_configuration
+msgid "Configuration"
+msgstr "Настройки"
+
+#. module: workflow
+#. odoo-python
+#: code:addons/workflow/models/workflow.py:0
+#, python-format
+msgid "Copy_%s"
+msgstr "Копия_%s"
+
+#. module: workflow
+#. odoo-python
+#: code:addons/workflow/models/workflow_process_activity.py:0
+#, python-format
+msgid "Could not be determined '%s'. Check the route or settings."
+msgstr "Не удалось определить '%s'. Проверьте маршрут или настройки."
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__create_uid
+#: model:ir.model.fields,field_description:workflow.field_workflow_auto_substitution__create_uid
+#: model:ir.model.fields,field_description:workflow.field_workflow_group_executors__create_uid
+#: model:ir.model.fields,field_description:workflow.field_workflow_parent_access__create_uid
+#: model:ir.model.fields,field_description:workflow.field_workflow_process__create_uid
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity__create_uid
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity_history__create_uid
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_resume_wizard__create_uid
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_stop_wizard__create_uid
+#: model:ir.model.fields,field_description:workflow.field_workflow_transition__create_uid
+#: model:ir.model.fields,field_description:workflow.field_workflow_workflow__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__create_date
+#: model:ir.model.fields,field_description:workflow.field_workflow_auto_substitution__create_date
+#: model:ir.model.fields,field_description:workflow.field_workflow_group_executors__create_date
+#: model:ir.model.fields,field_description:workflow.field_workflow_parent_access__create_date
+#: model:ir.model.fields,field_description:workflow.field_workflow_process__create_date
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity__create_date
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity_history__create_date
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_resume_wizard__create_date
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_stop_wizard__create_date
+#: model:ir.model.fields,field_description:workflow.field_workflow_transition__create_date
+#: model:ir.model.fields,field_description:workflow.field_workflow_workflow__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_process__date_end
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity__date_end
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity_history__date_end
+msgid "Date End"
+msgstr "Дата завершения"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_process__date_start
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity__date_start
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity_history__date_start
+msgid "Date Start"
+msgstr "Дата начала"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__period_days
+msgid "Days"
+msgstr "Дней"
+
+#. module: workflow
+#. odoo-python
+#: code:addons/workflow/models/task_stage.py:0
+#: code:addons/workflow/models/workflow_process_activity_history.py:0
+#: model:ir.model.fields.selection,name:workflow.selection__task_stage__processing_result__declined
+#: model:ir.model.fields.selection,name:workflow.selection__workflow_process_activity_history__state__declined
+#, python-format
+msgid "Declined"
+msgstr "Отклонено"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__description
+#: model:ir.model.fields,field_description:workflow.field_workflow_auto_substitution__description
+#: model:ir.model.fields,field_description:workflow.field_workflow_process__description
+#: model:ir.model.fields,field_description:workflow.field_workflow_workflow__description
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_auto_substitution_view_form
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_view_form
+msgid "Description"
+msgstr "Описание"
+
+#. module: workflow
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_auto_substitution_view_form
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_view_form
+msgid "Description..."
+msgstr "Описание..."
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__display_name
+#: model:ir.model.fields,field_description:workflow.field_workflow_auto_substitution__display_name
+#: model:ir.model.fields,field_description:workflow.field_workflow_group_executors__display_name
+#: model:ir.model.fields,field_description:workflow.field_workflow_parent_access__display_name
+#: model:ir.model.fields,field_description:workflow.field_workflow_process__display_name
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity__display_name
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity_history__display_name
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_resume_wizard__display_name
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_stop_wizard__display_name
+#: model:ir.model.fields,field_description:workflow.field_workflow_transition__display_name
+#: model:ir.model.fields,field_description:workflow.field_workflow_workflow__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: workflow
+#. odoo-python
+#: code:addons/workflow/models/workflow_process_activity_history.py:0
+#: model:ir.model.fields.selection,name:workflow.selection__workflow_process_activity_history__state__done
+#, python-format
+msgid "Done"
+msgstr "Выполнено"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_process__duration
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity__duration
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity_history__duration
+msgid "Duration"
+msgstr "Продолжительность"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity_history__executors
+msgid "Executors"
+msgstr "Исполнители"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_auto_substitution__expression
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_auto_substitution_view_form
+msgid "Expression"
+msgstr "Выражение"
+
+#. module: workflow
+#. odoo-python
+#: code:addons/workflow/models/workflow.py:0
+#, python-format
+msgid "Finished"
+msgstr ""
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__flow_start
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity__flow_start
+msgid "Flow Start"
+msgstr "Начало обработки"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__flow_stop
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity__flow_stop
+msgid "Flow Stop"
+msgstr "Завершение обработки"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_transition__activity_from_id
+msgid "From"
+msgstr "Из"
+
+#. module: workflow
+#. odoo-python
+#: code:addons/workflow/models/workflow_parent_access.py:0
+#: model:ir.model.fields,field_description:workflow.field_task_task__group_executors_id
+#: model:ir.model.fields,field_description:workflow.field_workflow_parent_access__group_executors_id
+#, python-format
+msgid "Group"
+msgstr "Группа исполнителей"
+
+#. module: workflow
+#: model:ir.model,name:workflow.model_workflow_group_executors
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__group_executors_id
+msgid "Group Executors"
+msgstr "Группа исполнителей"
+
+#. module: workflow
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_group_executors_view_form
+msgid "Group Of Executors"
+msgstr "Группа исполнителей"
+
+#. module: workflow
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_view_search
+msgid "Group by..."
+msgstr "Группировать по..."
+
+#. module: workflow
+#: model:ir.actions.act_window,name:workflow.action_workflow_group_executors_main
+#: model:ir.ui.menu,name:workflow.menu_workflow_group_executors
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_group_executors_view_tree
+msgid "Groups Of Executors"
+msgstr "Группы исполнителей"
+
+#. module: workflow
+#: model:workflow.auto.substitution,name:workflow.workflow_auto_substitution_head_project_office
+msgid "Head of project office"
+msgstr "Руководитель проектного офиса"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_process__activity_history_ids
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_process_view_form
+msgid "History"
+msgstr "История"
+
+#. module: workflow
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_process_activity_history_view_form
+msgid "History Record"
+msgstr "Запись истории"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__period_hours
+msgid "Hours"
+msgstr "Часов"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__id
+#: model:ir.model.fields,field_description:workflow.field_workflow_auto_substitution__id
+#: model:ir.model.fields,field_description:workflow.field_workflow_group_executors__id
+#: model:ir.model.fields,field_description:workflow.field_workflow_parent_access__id
+#: model:ir.model.fields,field_description:workflow.field_workflow_process__id
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity__id
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity_history__id
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_resume_wizard__id
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_stop_wizard__id
+#: model:ir.model.fields,field_description:workflow.field_workflow_transition__id
+#: model:ir.model.fields,field_description:workflow.field_workflow_workflow__id
+msgid "ID"
+msgstr ""
+
+#. module: workflow
+#. odoo-python
+#: code:addons/workflow/models/workflow_process.py:0
+#: code:addons/workflow/models/workflow_process_activity.py:0
+#: code:addons/workflow/models/workflow_process_activity_history.py:0
+#: model:ir.model.fields.selection,name:workflow.selection__workflow_process__state__in_progress
+#: model:ir.model.fields.selection,name:workflow.selection__workflow_process_activity__state__in_progress
+#: model:ir.model.fields.selection,name:workflow.selection__workflow_process_activity_history__state__in_progress
+#, python-format
+msgid "In Progress"
+msgstr "В работе"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__in_transition_ids
+msgid "Incoming Transitions"
+msgstr "Входящие маршруты"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__join_mode
+msgid "Join Mode"
+msgstr ""
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_process__last_activity_id
+msgid "Last Activity"
+msgstr ""
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity____last_update
+#: model:ir.model.fields,field_description:workflow.field_workflow_auto_substitution____last_update
+#: model:ir.model.fields,field_description:workflow.field_workflow_group_executors____last_update
+#: model:ir.model.fields,field_description:workflow.field_workflow_parent_access____last_update
+#: model:ir.model.fields,field_description:workflow.field_workflow_process____last_update
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity____last_update
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity_history____last_update
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_resume_wizard____last_update
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_stop_wizard____last_update
+#: model:ir.model.fields,field_description:workflow.field_workflow_transition____last_update
+#: model:ir.model.fields,field_description:workflow.field_workflow_workflow____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__write_uid
+#: model:ir.model.fields,field_description:workflow.field_workflow_auto_substitution__write_uid
+#: model:ir.model.fields,field_description:workflow.field_workflow_group_executors__write_uid
+#: model:ir.model.fields,field_description:workflow.field_workflow_parent_access__write_uid
+#: model:ir.model.fields,field_description:workflow.field_workflow_process__write_uid
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity__write_uid
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity_history__write_uid
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_resume_wizard__write_uid
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_stop_wizard__write_uid
+#: model:ir.model.fields,field_description:workflow.field_workflow_transition__write_uid
+#: model:ir.model.fields,field_description:workflow.field_workflow_workflow__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__write_date
+#: model:ir.model.fields,field_description:workflow.field_workflow_auto_substitution__write_date
+#: model:ir.model.fields,field_description:workflow.field_workflow_group_executors__write_date
+#: model:ir.model.fields,field_description:workflow.field_workflow_parent_access__write_date
+#: model:ir.model.fields,field_description:workflow.field_workflow_process__write_date
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity__write_date
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity_history__write_date
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_resume_wizard__write_date
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_stop_wizard__write_date
+#: model:ir.model.fields,field_description:workflow.field_workflow_transition__write_date
+#: model:ir.model.fields,field_description:workflow.field_workflow_workflow__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: workflow
+#: model:res.groups,name:workflow.group_workflow_manager
+msgid "Manager"
+msgstr "Администратор"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_group_executors__member_ids
+msgid "Members"
+msgstr "Участники"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__model_id
+#: model:ir.model.fields,field_description:workflow.field_workflow_workflow__model_id
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_view_search
+msgid "Model"
+msgstr "Модель"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_workflow__model_name
+msgid "Model Name"
+msgstr "Наименование модели"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__name
+#: model:ir.model.fields,field_description:workflow.field_workflow_auto_substitution__name
+#: model:ir.model.fields,field_description:workflow.field_workflow_group_executors__name
+#: model:ir.model.fields,field_description:workflow.field_workflow_process__name
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity__activity_name
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity_history__activity_name
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity_history__name
+#: model:ir.model.fields,field_description:workflow.field_workflow_transition__name
+#: model:ir.model.fields,field_description:workflow.field_workflow_workflow__name
+msgid "Name"
+msgstr "Наименование"
+
+#. module: workflow
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_transition_view_form
+msgid "Name..."
+msgstr "Наименование..."
+
+#. module: workflow
+#. odoo-python
+#: code:addons/workflow/models/workflow_process.py:0
+#: code:addons/workflow/models/workflow_process.py:0
+#: code:addons/workflow/models/workflow_process.py:0
+#: code:addons/workflow/models/workflow_process.py:0
+#, python-format
+msgid "New"
+msgstr "Новый"
+
+#. module: workflow
+#: model_terms:ir.actions.act_window,help:workflow.action_workflow_auto_substitution_main
+msgid "No auto-substitution found. Let's create one!"
+msgstr "Автоподстановки не найдены. Давайте создадим первую!"
+
+#. module: workflow
+#: model_terms:ir.actions.act_window,help:workflow.action_workflow_group_executors_main
+msgid "No groups of executors found. Let's create one!"
+msgstr "Группы исполнителей не найдены. Давайте создадим первую!"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__out_transition_ids
+msgid "Outgoing Transitions"
+msgstr "Исходящие маршруты"
+
+#. module: workflow
+#: model:ir.model,name:workflow.model_workflow_parent_access
+msgid "Parent Access"
+msgstr ""
+
+#. module: workflow
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_activity_view_form
+msgid "Period"
+msgstr "Срок"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_resume_wizard__process_id
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_stop_wizard__process_id
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_process_view_form
+msgid "Process"
+msgstr "Процесс"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_workflow__process_count
+msgid "Process Count"
+msgstr ""
+
+#. module: workflow
+#: model:ir.actions.act_window,name:workflow.action_workflow_processes
+#: model:ir.model.fields,field_description:workflow.field_workflow_workflow__process_ids
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_view_form
+msgid "Processes"
+msgstr "Процессы"
+
+#. module: workflow
+#. odoo-python
+#: code:addons/workflow/models/workflow.py:0
+#, python-format
+msgid "Processing \"%s\""
+msgstr "Обработка \"%s\""
+
+#. module: workflow
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_process_activity_history_view_tree
+msgid "Processing History"
+msgstr "История обработки"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_task_stage__processing_result
+msgid "Processing Result"
+msgstr "Результат обработки"
+
+#. module: workflow
+#. odoo-python
+#: code:addons/workflow/models/workflow_activity.py:0
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__code
+#: model:ir.model.fields.selection,name:workflow.selection__workflow_activity__type__python_code
+#, python-format
+msgid "Python Code"
+msgstr "Код Python"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_stop_wizard__cancel_reason
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_process_stop_wizard_view_form
+msgid "Reason For The Cancellation"
+msgstr "Причина отмены"
+
+#. module: workflow
+#. odoo-python
+#: code:addons/workflow/wizard/workflow_process_stop_wizard.py:0
+#, python-format
+msgid "Reason for the cancellation is required!"
+msgstr "Необходимо заполнить причину отмены!"
+
+#. module: workflow
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_process_stop_wizard_view_form
+msgid "Reason for the cancellation..."
+msgstr "Причина отмены..."
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_process__res_ref
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity__res_ref
+msgid "Resource"
+msgstr ""
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_parent_access__res_id
+#: model:ir.model.fields,field_description:workflow.field_workflow_process__res_id
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity__res_id
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity_history__res_id
+msgid "Resource ID"
+msgstr ""
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_parent_access__res_model
+#: model:ir.model.fields,field_description:workflow.field_workflow_process__res_model
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity__res_model
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity_history__res_model
+msgid "Resource Model"
+msgstr ""
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity_history__attachment_ids
+msgid "Response Attachments"
+msgstr ""
+
+#. module: workflow
+#: model:ir.actions.act_window,name:workflow.action_workflow_process_resume_wizard
+msgid "Resume"
+msgstr ""
+
+#. module: workflow
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_process_resume_wizard_view_form
+msgid "Resume from last stage"
+msgstr ""
+
+#. module: workflow
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_process_view_form
+msgid "Resume processing"
+msgstr "Возобновить обработку"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__sequence
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity__sequence
+#: model:ir.model.fields,field_description:workflow.field_workflow_transition__sequence
+msgid "Sequence"
+msgstr "Последовательность"
+
+#. module: workflow
+#. odoo-python
+#: code:addons/workflow/models/workflow_activity.py:0
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__server_action_id
+#: model:ir.model.fields.selection,name:workflow.selection__workflow_activity__type__srv_action
+#, python-format
+msgid "Server Action"
+msgstr "Серверное действие"
+
+#. module: workflow
+#. odoo-python
+#: code:addons/workflow/models/workflow.py:0
+#, python-format
+msgid "Start"
+msgstr "Начать"
+
+#. module: workflow
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_process_resume_wizard_view_form
+msgid "Start from the beginning"
+msgstr "Начать с начала"
+
+#. module: workflow
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_process_view_form
+msgid "Start processing"
+msgstr "Начать обработку"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_process__state
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity__state
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity_history__state
+msgid "State"
+msgstr "Статус"
+
+#. module: workflow
+#. odoo-python
+#: code:addons/workflow/models/workflow.py:0
+#: model:ir.actions.act_window,name:workflow.action_workflow_process_stop_wizard
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_process_stop_wizard_view_form
+#, python-format
+msgid "Stop"
+msgstr "Остановить"
+
+#. module: workflow
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_process_view_form
+msgid "Stop processing"
+msgstr "Остановить обработку"
+
+#. module: workflow
+#. odoo-python
+#: code:addons/workflow/models/workflow_activity.py:0
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__sub_flow_id
+#: model:ir.model.fields.selection,name:workflow.selection__workflow_activity__type__sub_flow
+#, python-format
+msgid "Sub-flow"
+msgstr "Подпроцесс"
+
+#. module: workflow
+#: model:ir.model.constraint,message:workflow.constraint_workflow_transition_workflow_activity_from_activity_to_uniq
+msgid "Such transition already present in this workflow"
+msgstr "Такой маршрут уже присутствует в данном workflow"
+
+#. module: workflow
+#. odoo-python
+#: code:addons/workflow/models/workflow_activity.py:0
+#: model:ir.model,name:workflow.model_task_task
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity_history__task_id
+#: model:ir.model.fields.selection,name:workflow.selection__workflow_activity__type__task
+#, python-format
+msgid "Task"
+msgstr "Задача"
+
+#. module: workflow
+#: model:ir.ui.menu,name:workflow.menu_workflow_task_executor
+msgid "Task Executors Settings"
+msgstr "Настройки исполнителей задачи"
+
+#. module: workflow
+#: model:ir.model,name:workflow.model_task_stage
+msgid "Task Stage"
+msgstr "Статус задачи"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__task_type_id
+msgid "Task Type"
+msgstr "Тип задачи"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_process__task_ids
+msgid "Tasks"
+msgstr "Задачи"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_transition__activity_to_id
+msgid "To"
+msgstr "В"
+
+#. module: workflow
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_transition_view_form
+msgid "Transition"
+msgstr "Маршрут"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_workflow__transition_count
+msgid "Transition Count"
+msgstr ""
+
+#. module: workflow
+#: model:ir.actions.act_window,name:workflow.action_workflow_transitions
+#: model:ir.model.fields,field_description:workflow.field_workflow_workflow__transition_ids
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_view_form
+msgid "Transitions"
+msgstr "Маршруты"
+
+#. module: workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity__type
+msgid "Type"
+msgstr "Тип"
+
+#. module: workflow
+#. odoo-python
+#: code:addons/workflow/models/workflow_parent_access.py:0
+#: model:ir.model.fields,field_description:workflow.field_workflow_parent_access__user_id
+#: model:ir.model.fields,field_description:workflow.field_workflow_parent_access__user_ref
+#, python-format
+msgid "User"
+msgstr "Пользователь"
+
+#. module: workflow
+#. odoo-python
+#: code:addons/workflow/models/workflow_activity.py:0
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__window_act_id
+#: model:ir.model.fields.selection,name:workflow.selection__workflow_activity__type__win_action
+#, python-format
+msgid "Window Action"
+msgstr "Действие формы"
+
+#. module: workflow
+#: model:ir.model,name:workflow.model_workflow_workflow
+#: model:ir.model.fields,field_description:workflow.field_workflow_activity__workflow_id
+#: model:ir.model.fields,field_description:workflow.field_workflow_process__workflow_id
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity__workflow_id
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity_history__workflow_id
+#: model:ir.model.fields,field_description:workflow.field_workflow_transition__workflow_id
+#: model:ir.module.category,name:workflow.category_workflow_security
+#: model:ir.ui.menu,name:workflow.menu_workflow
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_view_form
+msgid "Workflow"
+msgstr ""
+
+#. module: workflow
+#: model:ir.model,name:workflow.model_workflow_activity
+msgid "Workflow Activity"
+msgstr ""
+
+#. module: workflow
+#: model:ir.model,name:workflow.model_workflow_process
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity__workflow_process_id
+#: model:ir.model.fields,field_description:workflow.field_workflow_process_activity_history__workflow_process_id
+msgid "Workflow Process"
+msgstr ""
+
+#. module: workflow
+#: model:ir.model,name:workflow.model_workflow_process_activity
+msgid "Workflow Process Activity"
+msgstr ""
+
+#. module: workflow
+#: model:ir.model,name:workflow.model_workflow_process_activity_history
+msgid "Workflow Process Activity History"
+msgstr ""
+
+#. module: workflow
+#: model:ir.model,name:workflow.model_workflow_process_resume_wizard
+msgid "Workflow Process Wizard: Resume"
+msgstr ""
+
+#. module: workflow
+#: model:ir.model,name:workflow.model_workflow_process_stop_wizard
+msgid "Workflow Process Wizard: Stop"
+msgstr ""
+
+#. module: workflow
+#: model:ir.model,name:workflow.model_workflow_transition
+msgid "Workflow Transition"
+msgstr ""
+
+#. module: workflow
+#. odoo-python
+#: code:addons/workflow/models/workflow.py:0
+#, python-format
+msgid "Workflow must have only one start activity."
+msgstr "Workflow должен иметь только одну начальную задачу."
+
+#. module: workflow
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_view_form
+msgid "Workflow name..."
+msgstr "Наименование workflow..."
+
+#. module: workflow
+#. odoo-python
+#: code:addons/workflow/models/workflow_process.py:0
+#, python-format
+msgid "Workflow process must have at least one start activity."
+msgstr "Workflow должен иметь хотя бы одну начальную задачу."
+
+#. module: workflow
+#. odoo-python
+#: code:addons/workflow/models/workflow_process.py:0
+#, python-format
+msgid "Workflow process must have only one start activity."
+msgstr ""
+
+#. module: workflow
+#: model:ir.actions.act_window,name:workflow.action_workflow_main
+#: model:ir.ui.menu,name:workflow.menu_workflows
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_view_search
+msgid "Workflows"
+msgstr ""
+
+#. module: workflow
+#. odoo-python
+#: code:addons/workflow/models/workflow_process_activity.py:0
+#, python-format
+msgid ""
+"Wrong python code defined.\n"
+"\n"
+"Error: %s\n"
+"Line: %s, Column: %s\n"
+"\n"
+"%s"
+msgstr ""
+"Неверный код python.\n"
+"\n"
+"Ошибка: %s\n"
+"Строка: %s, Столбец: %s\n"
+"\n"
+"%s"
+
+#. module: workflow
+#: model:ir.model.fields.selection,name:workflow.selection__workflow_activity__join_mode__xor
+msgid "Xor"
+msgstr ""
+
+#. module: workflow
+#. odoo-python
+#: code:addons/workflow/models/workflow_process.py:0
+#, python-format
+msgid "You cannot delete this process because some activities were completed."
+msgstr ""
+"Вы не можете удалить данный процесс, т.к. некоторые задачи были завершены."
+
+#. module: workflow
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_activity_view_form
+msgid "days"
+msgstr "дня(-ей)"
+
+#. module: workflow
+#: model_terms:ir.ui.view,arch_db:workflow.workflow_activity_view_form
+msgid "hours"
+msgstr "часа(-ов)"

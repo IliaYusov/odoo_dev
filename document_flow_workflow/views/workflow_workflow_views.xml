@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="workflow_workflow_view_form_inherit_document_flow" model="ir.ui.view">
+        <field name="name">workflow.workflow.form.inherit.document.flow</field>
+        <field name="model">workflow.workflow</field>
+        <field name="inherit_id" ref="workflow.workflow_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form/sheet/group[@name='model_settings']" position="after">
+                <group name="document_settings">
+                    <field name="document_kind_id" options="{'no_create_edit': True, 'no_open': True}"
+                           attrs="{'invisible': [('model_name', '!=', 'document_flow.document')]}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

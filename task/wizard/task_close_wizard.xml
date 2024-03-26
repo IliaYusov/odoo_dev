@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="task_close_wizard_view_form" model="ir.ui.view">
+        <field name="name">task.close.wizard.form</field>
+        <field name="model">task.close.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <group invisible="1">
+                    <field name="task_id"/>
+                    <field name="require_comment"/>
+                </group>
+                <sheet>
+                    <group>
+                        <field name="comment" string="Comment" type="html" class="text_high"
+                               options="{'collaborative': true, 'resizable': false}"
+                               placeholder="Comment..."/>
+                        <field name="attachment_ids" widget="many2many_binary"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button string="Done" name="action_close_task" class="btn-success" type="object"/>
+                    <button string="Cancel" class="btn-danger" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_task_close_wizard" model="ir.actions.act_window">
+        <field name="name">Close</field>
+        <field name="res_model">task.close.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

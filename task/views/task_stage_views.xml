@@ -49,7 +49,7 @@
                             <field name="type_id"/>
                         </group>
                     </group>
-                    <group col="3">
+                    <group name="processing_settings" col="3">
                         <group>
                             <field name="closed"/>
                         </group>

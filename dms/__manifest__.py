@@ -1,26 +1,34 @@
 {
-    "name": "Document Management System",
-    "summary": """Document Management System""",
-    "version": "1.0.4",
-    "category": "Document Management",
-    "license": "LGPL-3",
-    "website": "",
-    "author": "",
-    "depends": [
-    ],
-    "data": [
-        'security/ir.model.access.csv',
-        'security/dms_security.xml',
-        'views/ir_attachment_views.xml',
-        'views/dms_version_config_views.xml',
-        'views/dms_menu.xml'
-    ],
-    "assets": {
-        "web.assets_backend": [
-        ]
+    'name': "DMS",
+    'summary': """Document Management System""",
+    'version': "2.2.1",
+    'category': "Document Management",
+    'license': "LGPL-3",
+    'website': "",
+    'author': "",
+    'depends': ['base', 'mail', 'portal'],
+    'assets': {
+        'web.assets_backend': [
+            'dms/static/src/scss/*',
+            'dms/static/src/views/**/*.js',
+            'dms/static/src/views/**/*.xml',
+            'dms/static/src/views/**/*.xml',
+            'dms/static/src/js/test_widget.js',
+        ],
     },
-    "demo": [
+    'data': [
+        'data/dms_data.xml',
+        'security/dms_security.xml',
+        'security/ir.model.access.csv',
+        'views/dms_storage_views.xml',
+        'views/dms_directory_views.xml',
+        'views/dms_document_views.xml',
+        'views/dms_document_version_views.xml',
+        'views/dms_version_config_views.xml',
+        'views/res_partner_views.xml',
+        'views/dms_menu.xml',
+        # 'views/portal_templates.xml'
     ],
-    "images": ["static/description/banner.png"],
-    "application": True
+    'images': ['static/description/banner.png'],
+    'application': True
 }

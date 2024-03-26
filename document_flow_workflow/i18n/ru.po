@@ -1,0 +1,161 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* document_flow_workflow
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-03-19 08:09+0000\n"
+"PO-Revision-Date: 2024-03-19 08:09+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: document_flow_workflow
+#: model:ir.actions.report,print_report_name:document_flow_workflow.action_report_document_approval_form
+msgid "'Approval form \"%s\"' % object.name"
+msgstr "'Лист согласования \"%s\"' % object.name"
+
+#. module: document_flow_workflow
+#: model:ir.model.fields,field_description:document_flow_workflow.field_document_flow_document__access_ids
+#: model_terms:ir.ui.view,arch_db:document_flow_workflow.document_flow_document_view_form_inherit_workflow
+msgid "Access"
+msgstr "Доступ"
+
+#. module: document_flow_workflow
+#. odoo-python
+#: code:addons/document_flow_workflow/report/approval_form.py:0
+#, python-format
+msgid "Actual executor"
+msgstr "Фактический исполнитель"
+
+#. module: document_flow_workflow
+#. odoo-python
+#: code:addons/document_flow_workflow/report/approval_form.py:0
+#, python-format
+msgid "Agreed"
+msgstr "Согласовано"
+
+#. module: document_flow_workflow
+#. odoo-python
+#: code:addons/document_flow_workflow/report/approval_form.py:0
+#, python-format
+msgid "Approval form"
+msgstr "Лист согласования"
+
+#. module: document_flow_workflow
+#: model:ir.actions.report,name:document_flow_workflow.action_report_document_approval_form
+msgid "Approval form (docx)"
+msgstr "Лист согласования (docx)"
+
+#. module: document_flow_workflow
+#. odoo-python
+#: code:addons/document_flow_workflow/report/approval_form.py:0
+#, python-format
+msgid "Comment"
+msgstr "Комментарий"
+
+#. module: document_flow_workflow
+#. odoo-python
+#: code:addons/document_flow_workflow/report/approval_form.py:0
+#, python-format
+msgid "Date"
+msgstr "Дата"
+
+#. module: document_flow_workflow
+#: model:ir.model,name:document_flow_workflow.model_document_flow_document
+msgid "Document"
+msgstr "Документ"
+
+#. module: document_flow_workflow
+#. odoo-python
+#: code:addons/document_flow_workflow/report/approval_form.py:0
+#, python-format
+msgid "Document \"%s\" from %s"
+msgstr "Документ \"%s\" от %s"
+
+#. module: document_flow_workflow
+#: model:ir.model.fields,field_description:document_flow_workflow.field_workflow_workflow__document_kind_id
+msgid "Document Kind"
+msgstr "Вид документа"
+
+#. module: document_flow_workflow
+#: model:ir.model.fields,help:document_flow_workflow.field_document_flow_document__workflow_id_domain
+msgid "Dynamic domain used for the workflow"
+msgstr ""
+
+#. module: document_flow_workflow
+#. odoo-python
+#: code:addons/document_flow_workflow/report/approval_form.py:0
+#, python-format
+msgid "Full name"
+msgstr "ФИО"
+
+#. module: document_flow_workflow
+#: model:ir.model.fields,field_description:document_flow_workflow.field_document_flow_document__activity_history_ids
+msgid "History"
+msgstr "История обработки"
+
+#. module: document_flow_workflow
+#. odoo-python
+#: code:addons/document_flow_workflow/report/approval_form.py:0
+#, python-format
+msgid "Not agreed"
+msgstr "Не согласовано"
+
+#. module: document_flow_workflow
+#: model:ir.model.fields,field_description:document_flow_workflow.field_document_flow_document__workflow_process_id
+msgid "Process"
+msgstr "Процесс"
+
+#. module: document_flow_workflow
+#: model_terms:ir.ui.view,arch_db:document_flow_workflow.document_flow_document_view_form_inherit_workflow
+msgid "Processing"
+msgstr "Обработка"
+
+#. module: document_flow_workflow
+#. odoo-python
+#: code:addons/document_flow_workflow/report/approval_form.py:0
+#, python-format
+msgid "Result"
+msgstr "Результат"
+
+#. module: document_flow_workflow
+#: model_terms:ir.ui.view,arch_db:document_flow_workflow.document_flow_document_view_form_inherit_workflow
+msgid "Resume processing"
+msgstr "Возобновить обработку"
+
+#. module: document_flow_workflow
+#: model_terms:ir.ui.view,arch_db:document_flow_workflow.document_flow_document_view_form_inherit_workflow
+msgid "Start processing"
+msgstr "Запустить обработку"
+
+#. module: document_flow_workflow
+#: model:ir.model.fields,field_description:document_flow_workflow.field_document_flow_document__workflow_process_state
+msgid "State"
+msgstr "Статус"
+
+#. module: document_flow_workflow
+#: model_terms:ir.ui.view,arch_db:document_flow_workflow.document_flow_document_view_form_inherit_workflow
+msgid "Stop processing"
+msgstr "Остановить обработку"
+
+#. module: document_flow_workflow
+#: model:ir.model,name:document_flow_workflow.model_workflow_workflow
+#: model:ir.model.fields,field_description:document_flow_workflow.field_document_flow_document__workflow_id
+msgid "Workflow"
+msgstr "Шаблон согласования"
+
+#. module: document_flow_workflow
+#: model:ir.model.fields,field_description:document_flow_workflow.field_document_flow_document__workflow_id_domain
+msgid "Workflow Domain"
+msgstr ""
+
+#. module: document_flow_workflow
+#: model:ir.model,name:document_flow_workflow.model_report_document_flow_document_approval_form
+msgid "document_flow.document.approval.form"
+msgstr ""

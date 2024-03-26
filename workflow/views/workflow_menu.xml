@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <menuitem id="menu_workflow" name="Workflow" sequence="300" groups="group_workflow_manager">
+        <menuitem id="menu_workflows" name="Workflows" sequence="10" action="action_workflow_main"/>
+
+        <menuitem id="menu_workflow_configuration" name="Configuration" sequence="100"
+              groups="group_workflow_manager">
+            <menuitem id="menu_workflow_task_executor" name="Task Executors Settings" sequence="10">
+                <menuitem id="menu_workflow_group_executors" name="Groups Of Executors" sequence="10"
+                          action="action_workflow_group_executors_main"/>
+                <menuitem id="menu_workflow_auto_substitution" name="Auto-substitutions" sequence="20"
+                          action="action_workflow_auto_substitution_main"/>
+            </menuitem>
+        </menuitem>
+    </menuitem>
+</odoo>

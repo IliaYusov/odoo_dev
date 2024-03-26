@@ -1,10 +1,134 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <record model="ir.rule" id="dms_version_config_company_rule">
+        <record id="category_dms_security" model="ir.module.category">
+            <field name="name">Documents</field>
+            <field name="description">Allows you to manage your documents.</field>
+        </record>
+
+        <record id="group_dms_user" model="res.groups">
+            <field name="name">User</field>
+            <field name="category_id" ref="category_dms_security"/>
+            <field name="users" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <record id="group_dms_manager" model="res.groups">
+            <field name="name">Manager</field>
+            <field name="category_id" ref="category_dms_security"/>
+            <field name="implied_ids" eval="[(4, ref('group_dms_user'))]"/>
+            <field name="users" eval="[(4, ref('base.user_admin'))]"/>
+        </record>
+
+        <record id="dms_version_config_company_rule" model="ir.rule">
             <field name="name">Version config multi-company</field>
             <field name="model_id" ref="model_dms_version_config"/>
-            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="domain_force">
+                [
+                    '|', ('company_id', '=', False), ('company_id', 'in', company_ids)
+                ]
+            </field>
+        </record>
+
+        <record id="dms_storage_company_rule" model="ir.rule">
+            <field name="name">DMS Storage multi-company</field>
+            <field name="model_id" ref="model_dms_storage"/>
+            <field name="domain_force">
+                [
+                    '|', ('company_id', '=', False), ('company_id', 'in', company_ids)
+                ]
+            </field>
+        </record>
+
+        <!-- Directories rules -->
+
+        <record id="dms_directory_company_rule" model="ir.rule">
+            <field name="name">DMS Directory multi-company</field>
+            <field name="model_id" ref="model_dms_directory"/>
+            <field name="domain_force">
+                [
+                    '|', ('company_id', '=', False), ('company_id', 'in', company_ids)
+                ]
+            </field>
+        </record>
+
+        <record id="dms_directory_my_groups_rule" model="ir.rule">
+            <field name="name">DMS Directory: available directories</field>
+            <field name="model_id" ref="model_dms_directory"/>
+            <field name="groups" eval="[(4, ref('group_dms_user'))]"/>
+            <field name="domain_force">
+                [
+                    '|', '|',
+                        '&amp;', ('read_group_ids', '=', False), ('group_ids', '=', False),
+                        ('group_ids', 'in', [group.id for group in user.groups_id]),
+                        ('read_group_ids', 'in', [group.id for group in user.groups_id]),
+                ]
+            </field>
+        </record>
+
+        <record id="dms_directory_manager_rule" model="ir.rule">
+            <field name="name">DMS Directory: all directories</field>
+            <field name="model_id" ref="model_dms_directory"/>
+            <field name="groups" eval="[(4, ref('group_dms_manager'))]"/>
+            <field name="domain_force">
+                [
+                    (1, '=', 1)
+                ]
+            </field>
+        </record>
+
+        <!-- Documents rules -->
+
+        <record id="dms_document_company_rule" model="ir.rule">
+            <field name="name">DMS Document multi-company</field>
+            <field name="model_id" ref="model_dms_document"/>
+            <field name="domain_force">
+                [
+                    '|', ('company_id', '=', False), ('company_id', 'in', company_ids)
+                ]
+            </field>
+        </record>
+
+        <record id="dms_document_readonly_rule" model="ir.rule">
+            <field name="name">DMS Document: readonly rule</field>
+            <field name="model_id" ref="model_dms_document"/>
+            <field name="groups" eval="[(4, ref('group_dms_user'))]"/>
+            <field name="domain_force">
+                [
+                    ('directory_id.read_group_ids', 'in', [group.id for group in user.groups_id])
+                ]
+            </field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="dms_document_write_rule" model="ir.rule">
+            <field name="name">DMS Document: CRUD rule</field>
+            <field name="model_id" ref="model_dms_document"/>
+            <field name="groups" eval="[(4, ref('group_dms_user'))]"/>
+            <field name="domain_force">
+                [
+                    '|',
+                        ('directory_id.group_ids', 'in', [group.id for group in user.groups_id]),
+                        '&amp;', ('directory_id.read_group_ids', '=', False), ('directory_id.group_ids', '=', False)
+                ]
+            </field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <record id="dms_document_manager_rule" model="ir.rule">
+            <field name="name">DMS Document: all documents</field>
+            <field name="model_id" ref="model_dms_document"/>
+            <field name="groups" eval="[(4, ref('group_dms_manager'))]"/>
+            <field name="domain_force">
+                [
+                    (1, '=', 1)
+                ]
+            </field>
         </record>
     </data>
 </odoo>

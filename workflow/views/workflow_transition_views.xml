@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="workflow_transition_view_tree" model="ir.ui.view">
+        <field name="name">workflow.transition.tree</field>
+        <field name="model">workflow.transition</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="activity_from_id"/>
+                <field name="activity_to_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="workflow_transition_view_form" model="ir.ui.view">
+        <field name="name">workflow.transition.form</field>
+        <field name="model">workflow.transition</field>
+        <field name="arch" type="xml">
+            <form string="Transition">
+                <sheet string="Transition">
+                    <div class="oe_button_box" name="button_box">
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="display_name" class="oe_read_only"/>
+                            <field name="name" class="oe_edit_only" placeholder="Name..."/>
+                        </h1>
+                    </div>
+                    <group col="3">
+                        <group>
+                            <field name="workflow_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="activity_from_id" options="{'no_create_edit': True}"
+                                   domain="
+                                   [
+                                       ('workflow_id', '=', workflow_id),
+                                       ('id', '!=', activity_to_id)
+                                   ]"/>
+                        </group>
+                        <group>
+                            <field name="activity_to_id" options="{'no_create_edit': True}"
+                                   domain="
+                                   [
+                                       ('workflow_id', '=', workflow_id),
+                                       ('id', '!=', activity_from_id)
+                                   ]"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="sequence"/>
+                    </group>
+                    <notebook>
+                        <page name="page_condition" string="Condition">
+                            <field name="condition" widget="ace" options="{'mode': 'python'}"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

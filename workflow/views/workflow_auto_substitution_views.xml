@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_workflow_auto_substitution_main" model="ir.actions.act_window">
+        <field name="name">Auto-substitution</field>
+        <field name="res_model">workflow.auto.substitution</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{"active_test": False}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No auto-substitution found. Let's create one!
+            </p>
+        </field>
+    </record>
+
+    <record id="workflow_auto_substitution_view_tree" model="ir.ui.view">
+        <field name="name">workflow.auto.substitution.tree</field>
+        <field name="model">workflow.auto.substitution</field>
+        <field name="arch" type="xml">
+            <tree string="Auto-substitutions">
+                <field name="name"/>
+                <field name="expression"/>
+                <field name="description" optional="hide"/>
+                <field name="active" widget="boolean_toggle"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="workflow_auto_substitution_view_form" model="ir.ui.view">
+        <field name="name">workflow.auto.substitution.form</field>
+        <field name="model">workflow.auto.substitution</field>
+        <field name="arch" type="xml">
+            <form string="Auto-substitution">
+                <sheet string="Auto-substitution">
+                    <group invisible="1">
+                        <field name="active"/>
+                    </group>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger"
+                            attrs="{'invisible': [('active', '=', True)]}"/>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                    <notebook>
+                        <page name="expression_page" string="Expression">
+                            <field name="expression" widget="ace" options="{'mode': 'python'}"/>
+                        </page>
+                        <page name="description_page" string="Description">
+                            <field name="description" type="html" options="{'collaborative': true, 'resizable': false}"
+                                   placeholder="Description..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

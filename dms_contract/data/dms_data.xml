@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="dms_directory_contract_directory" model="dms.directory">
+            <field name="name">Contracts</field>
+            <field name="storage_id" ref="dms.dms_storage_internal_storage"/>
+        </record>
+    </data>
+
+    <function model="contract.contract" name="_init_contract_document_directory" eval="[]"/>
+</odoo>

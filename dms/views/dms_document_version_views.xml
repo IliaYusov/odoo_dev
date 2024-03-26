@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="dms_document_version_view_tree" model="ir.ui.view">
+        <field name="name">dms.document.version.tree</field>
+        <field name="model">dms.document.version</field>
+        <field name="arch" type="xml">
+            <tree string="Versions" create="0" edit="0" delete="0" duplicate="0">
+                <field name="author_id"/>
+                <field name="creation_date"/>
+                <field name="name"/>
+                <field name="version"/>
+                <field name="file_size"/>
+                <field name="description"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </tree>
+        </field>
+    </record>
+</odoo>

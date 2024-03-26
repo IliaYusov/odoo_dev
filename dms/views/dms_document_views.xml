@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_dms_document_form" model="ir.actions.act_window">
+        <field name="name">Documents</field>
+        <field name="res_model">dms.document</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="domain">[("is_hidden", "=", False)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">Upload <span class="fw-normal">a file or</span> drag
+                <span class="fw-normal">it here.</span>
+            </p>
+        </field>
+    </record>
+
+    <record id="dms_document_view_search" model="ir.ui.view">
+        <field name="name">dms.document.search</field>
+        <field name="model">dms.document</field>
+        <field name="arch" type="xml">
+            <search string="Documents">
+                <field name="name" string="Document"/>
+                <field name="create_uid" string="Created by"/>
+                <field name="partner_id" string="Partner"/>
+                <filter name="filter_my_documents" string="My Documents" domain="[('create_uid', '=', uid)]"/>
+                <filter name="filter_my_favorites" string="My Favorites" domain="[('favorited_ids', 'in', uid)]"/>
+                <separator/>
+                <filter name="filter_pdf_doc" string="PDF/Document" domain="['|', ('mimetype', 'ilike', 'pdf'), ('name', 'ilike', '.doc')]"/>
+                <filter name="filter_img_video" string="Image/Video" domain="['|', ('mimetype', 'ilike', 'image'), ('mimetype', 'ilike', 'video')]"/>
+                <separator/>
+                <filter name="filter_locked" string="Locked" domain="['|', ('locker_id', '=', uid), ('locker_id', '!=', False)]"/>
+                <separator/>
+                <filter name="filter_archived" string="Archived" domain="[('active', '=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter name="partner_id" string="Partner" domain="[]" context="{'group_by': 'partner_id'}"/>
+                    <filter name="by_model" string="Model" domain="[]" context="{'group_by': 'res_model'}"/>
+                    <filter name="creation_month" string="Creation Date" domain="[]" context="{'group_by':'create_date'}"/>
+                </group>
+                <searchpanel>
+                    <field name="directory_id" icon="fa-folder" limit="0" operator="=" enable_counters="1"/>
+<!--                    <field name="res_model" select="multi" string="Attached To" icon="fa-file-text" color="#338FFC" enable_counters="1"/>-->
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+
+    <record id="dms_document_view_kanban" model="ir.ui.view">
+        <field name="name">dms.document.kanban</field>
+        <field name="model">dms.document</field>
+        <field name="arch" type="xml">
+            <kanban js_class="document_kanban"
+                    class="dms_document_kanban_view o_kanban_small_column align-content-start" create="false">
+                <field name="id"/>
+                <field name="attachment_id"/>
+                <field name="name"/>
+                <field name="active"/>
+                <field name="mimetype"/>
+                <field name="checksum"/>
+                <field name="create_uid"/>
+                <field name="write_date"/>
+                <field name="locker_id"/>
+                <field name="is_locked"/>
+                <field name="favorited_ids"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_global_click" t-att-data-id="record.id.raw_value">
+                            <div class="o_dropdown_kanban dropdown">
+                                <a class="dropdown-toggle o-no-caret btn" href="#" role="button"
+                                   data-toggle="dropdown" aria-label="Dropdown menu" title="Dropdown menu">
+                                    <span class="fa fa-ellipsis-v"/>
+                                </a>
+                                <div class="dropdown-menu" role="menu">
+                                    <div class="row">
+                                        <div class="col-6 dms_document_kanban_operations">
+                                            <h6 class="dropdown-header">
+                                                Operations
+                                            </h6>
+<!--                                            <a-->
+<!--                                                t-if="record.permission_write.raw_value and !record.is_locked.raw_value"-->
+<!--                                                role="menuitem"-->
+<!--                                                name="lock"-->
+<!--                                                type="object"-->
+<!--                                                class="dropdown-item"-->
+<!--                                            >-->
+<!--                                                <i class="fa fa-lock" />-->
+<!--                                                Lock-->
+<!--                                            </a>-->
+<!--                                            <a-->
+<!--                                                t-if="record.is_locked.raw_value  and record.is_lock_editor.raw_value"-->
+<!--                                                role="menuitem"-->
+<!--                                                name="unlock"-->
+<!--                                                type="object"-->
+<!--                                                class="dropdown-item"-->
+<!--                                            >-->
+<!--                                                <i class="fa fa-unlock-alt" />-->
+<!--                                                Unlock-->
+<!--                                            </a>-->
+                                            <a t-if="widget.editable and record.active.raw_value"
+                                               class="dropdown-item" name="toggle_active" role="menuitem" type="object">
+                                                <i class="fa fa-archive"/>
+                                                Archive
+                                            </a>
+                                            <a t-if="widget.editable and !record.active.raw_value"
+                                               class="dropdown-item" name="toggle_active" role="menuitem" type="object">
+                                                <i class="fa fa-archive"/>
+                                                Unarchive
+                                            </a>
+                                            <a class="dropdown-item" role="menuitem"
+                                               t-attf-href="/web/content?id=#{record.id.raw_value}&amp;field=datas&amp;model=dms.document&amp;filename_field=name&amp;download=true">
+                                                <i class="fa fa-download"/>
+                                                Download
+                                            </a>
+                                        </div>
+                                        <div class="col-6 border-left dms_document_kanban_actions">
+                                            <h6 class="dropdown-header">
+                                                Actions
+                                            </h6>
+                                            <a class="dropdown-item" role="menuitem" type="open">
+                                                <i class="fa fa-external-link"/>
+                                                Open
+                                            </a>
+                                            <a t-if="widget.editable"
+                                               class="dropdown-item" role="menuitem" type="edit">
+                                                <i class="fa fa-pencil-square-o"/>
+                                                Edit
+                                            </a>
+                                            <a t-if="widget.deletable"
+                                               class="dropdown-item" role="menuitem" type="delete">
+                                                <i class="fa fa-trash-o"/>
+                                                Delete
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_image">
+                                    <t t-set="binaryPreviewable" t-value="new RegExp('(image|video|application/pdf|text)').test(record.mimetype.value)"/>
+                                    <div t-attf-class="o_kanban_image_wrapper #{(webimage or binaryPreviewable) ? 'o_kanban_previewer' : ''}">
+                                        <t t-set="webimage" t-value="new RegExp('image.*(gif|jpeg|jpg|png)').test(record.mimetype.value)"/>
+                                        <img t-if="webimage" t-attf-src="/dms/image/#{record.id.raw_value}" width="100" height="100" alt="Document" class="o_attachment_image"/>
+                                        <div t-else="!webimage" class="o_image o_image_thumbnail" t-att-data-mimetype="record.mimetype.value"/>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_details">
+                                    <div class="o_kanban_details_wrapper">
+                                        <div class="o_kanban_record_title o_text_overflow">
+                                            <field name="name"/>
+                                        </div>
+                                        <div class="o_kanban_record_body">
+                                            <t t-if="record.version.raw_value != '0'">
+                                                <a>Version:
+                                                    <field name="version"/>
+                                                </a>
+                                            </t>
+                                        </div>
+                                        <div class="o_kanban_record_bottom">
+                                            <time class="oe_kanban_bottom_left">
+                                                <field name="write_date" widget="datetime"/>
+                                            </time>
+                                            <div class="oe_kanban_bottom_right">
+                                                <span t-if="record.is_locked.raw_value" class="dms_document_kanban_lock">
+                                                    <i t-attf-class="fa #{(record.is_locked.raw_value and !record.is_lock_editor.raw_value) ? 'fa-lock' : ''} #{((record.is_locked.raw_value and record.is_locker_editor.raw_value)) ? 'fa-unlock-alt' : ''}"
+                                                       t-att-title="record.locker_id.value"/>
+                                                </span>
+                                                <field name="is_favorited" nolabel="1" widget="boolean_favorite"/>
+                                                <div class="oe_kanban_bottom_right">
+                                                    <field name="create_uid" widget="many2one_avatar_user"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="dms_document_view_form" model="ir.ui.view">
+        <field name="name">dms.document.form</field>
+        <field name="model">dms.document</field>
+        <field name="priority" eval="1"/>
+        <field name="arch" type="xml">
+            <form create="false">
+                <sheet>
+                    <group invisible="1">
+                        <field name="is_locked"/>
+                        <field name="active"/>
+                        <field name="res_id"/>
+                        <field name="res_model"/>
+                        <field name="version_count"/>
+                    </group>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="open_resource" type="object" class="oe_stat_button" icon="fa-external-link"
+                                attrs="{'invisible': ['|', ('res_id', '=', False), ('res_model', 'in', [False, 'dms.document'])]}">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_text">Related
+                                    <br/>
+                                    Record
+                                </span>
+                            </div>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                    <field name="thumbnail" nolabel="1" widget="image" class="oe_avatar"
+                           options="{&quot;preview_image&quot;:&quot;thumbnail&quot;}"
+                           attrs="{'invisible': [('thumbnail', '=', False)]}"/>
+                    <div class="oe_title" aria-label="Name">
+                        <h1>
+                            <field name="name" class="oe_inline" placeholder="Document Name" attrs="{'readonly': [('is_locked', '=', True)]}" required="True"/>&amp;nbsp;
+                            <i class="fa fa-lock oe_inline" title="Locked" attrs="{'invisible': [('locker_id', '=', False)]}"/>
+                        </h1>
+                    </div>
+                    <group name="content">
+                        <field name="datas" filename="name" mimetype="mimetype"/>
+                        <field name="directory_id" attrs="{'readonly': [('is_locked', '=', True)]}"/>
+                        <field name="partner_id"/>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="directory_id" attrs="{'readonly': [('is_locked', '=', True)]}"/>
+                            <field name="storage_id" options="{'no_create_edit': True}" groups="dms.group_dms_manager" />
+                        </group>
+                        <group>
+                            <field name="create_date"/>
+                            <field name="create_uid"/>
+                            <field name="locker_id" readonly="1" attrs="{'invisible': [('locker_id', '=', False)]}"/>
+                        </group>
+                    </group>
+                    <group name="description_group" string="Description" colspan="4">
+                        <field name="description" nolabel="1" colspan="2"/>
+                    </group>
+                    <group groups="base.group_no_one">
+                        <field name="company_id" groups="base.group_multi_company"/>
+                        <field name="size"/>
+                        <field name="mimetype"/>
+                        <field name="progress_value"/>
+                    </group>
+                    <notebook>
+                        <page name="page_previous_versions" string="Previous Versions"
+                              attrs="{'invisible': [('version_count', '=', 0)]}">
+                            <field name="version_ids" mode="tree" widget="section_and_note_one2many" readonly="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="dms_document_view_tree" model="ir.ui.view">
+        <field name="name">dms.document.tree</field>
+        <field name="model">dms.document</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="id" optional="hide" groups="base.group_no_one"/>
+                <field name="name" string="Document" required="True"/>
+                <field name="partner_id"/>
+                <field name="locker_id" optional="hide"/>
+                <field name="create_date" widget="datetime"/>
+            </tree>
+        </field>
+    </record>
+</odoo>

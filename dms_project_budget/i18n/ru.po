@@ -1,0 +1,42 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* dms_project_budget
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-03-19 19:36+0000\n"
+"PO-Revision-Date: 2024-03-19 19:36+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: dms_project_budget
+#: model:ir.model.fields,field_description:dms_project_budget.field_project_budget_projects__directory_id
+msgid "Directory"
+msgstr "Каталог"
+
+#. module: dms_project_budget
+#: model:ir.model.fields,field_description:dms_project_budget.field_project_budget_projects__document_ids
+#: model_terms:ir.ui.view,arch_db:dms_project_budget.project_budget_project_view_form_inherit_dms
+msgid "Documents"
+msgstr "Документы"
+
+#. module: dms_project_budget
+#: model:ir.model.fields,field_description:dms_project_budget.field_project_budget_projects__document_count
+msgid "Documents Count"
+msgstr "Количество документов"
+
+#. module: dms_project_budget
+#: model:dms.directory,name:dms_project_budget.dms_directory_project_directory
+msgid "Projects"
+msgstr "Проекты"
+
+#. module: dms_project_budget
+#: model:ir.model,name:dms_project_budget.model_project_budget_projects
+msgid "project_office commercial budget projects"
+msgstr "Проекты"

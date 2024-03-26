@@ -6,5 +6,5 @@ class DmsVersionConfig(models.Model):
     _description = 'DMS Version Config'
 
     model_id = fields.Many2one('ir.model', string='Model', copy=False)
-    model_name = fields.Char(related='model_id.name', string='Model Description', copy=False, readonly=True)
+    model_name = fields.Char(related='model_id.model', string='Model Name', copy=False, readonly=True)
     company_id = fields.Many2one('res.company', string='Company', copy=False)

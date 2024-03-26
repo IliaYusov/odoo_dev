@@ -9,15 +9,15 @@ RESULT_TYPES = [
 
 
 class TaskStage(models.Model):
-    _name = "task.stage"
-    _description = "Task Stage"
-    _order = "sequence"
+    _name = 'task.stage'
+    _description = 'Task Stage'
+    _order = 'sequence'
 
     name = fields.Char(required=True, string='Name', translate=True)
     code = fields.Char(required=True, string='Code')
 
-    type_id = fields.Many2one('task.stage.type', string="Stage Type", required=True, index=True, ondelete="restrict")
-    task_type_id = fields.Many2one('task.type', string='Task Type', ondelete='cascade', required=True, index=True)
+    type_id = fields.Many2one('task.stage.type', string='Stage Type', index=True, ondelete='restrict', required=True)
+    task_type_id = fields.Many2one('task.type', string='Task Type', index=True, ondelete='cascade', required=True)
     mail_template_id = fields.Many2one('mail.template', string='Email Template', domain=[('model', '=', 'task.task')],
                                        help='If set, an email will be automatically sent to the customer when the task reaches this stage.')
 
@@ -25,10 +25,10 @@ class TaskStage(models.Model):
     sequence = fields.Integer(default=5, index=True)
 
     description = fields.Text()
-    bg_color = fields.Char(default=DEFAULT_BG_COLOR, string="Background Color")
+    bg_color = fields.Char(default=DEFAULT_BG_COLOR, string='Background Color')
 
     use_custom_colors = fields.Boolean()
-    res_bg_color = fields.Char(string="Background Color", compute='_compute_custom_colors', readonly=True)
+    res_bg_color = fields.Char(string='Background Color', compute='_compute_custom_colors', readonly=True)
 
     route_in_ids = fields.One2many('task.stage.route', 'stage_to_id', string='Incoming Routes')
     route_out_ids = fields.One2many('task.stage.route', 'stage_from_id', string='Outgoing Routes')

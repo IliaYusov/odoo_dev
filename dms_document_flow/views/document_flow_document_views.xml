@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="document_flow_document_view_form_inherit_dms" model="ir.ui.view">
+        <field name="name">document.flow.document.view.form.inherit.dms</field>
+        <field name="model">document_flow.document</field>
+        <field name="inherit_id" ref="document_flow.document_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_open_documents" type="object" class="oe_stat_button"
+                        groups="dms.group_dms_user" icon="fa-files-o">
+                    <field name="document_count" string="Documents" widget="statinfo"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>

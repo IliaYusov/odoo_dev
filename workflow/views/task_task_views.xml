@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="task_task_view_form_inherit_workflow" model="ir.ui.view">
+        <field name="name">task.task.form.inherit.workflow</field>
+        <field name="model">task.task</field>
+        <field name="inherit_id" ref="task.task_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <field name="activity_id" invisible="1"/>
+            </xpath>
+            <xpath expr="//field[@name='parent_ref']" position="attributes">
+                <attribute name="attrs">{'readonly': ['|', ('activity_id', '!=', False), ('can_edit', '=', False)]}
+                </attribute>
+            </xpath>
+            <xpath expr="//field[@name='user_ids']" position="before">
+                <field name="group_executors_id" options="{'no_quick_create': True}"
+                       attrs="{'readonly': [('can_edit', '=', False)], 'invisible': [('group_executors_id', '=', False)]}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

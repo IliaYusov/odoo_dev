@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_dms_partner_documents" model="ir.actions.act_window">
+        <field name="name">Documents</field>
+        <field name="res_model">dms.document</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="domain">
+            [
+                ('partner_id', '=', active_id),
+                ('is_hidden', '=', False)
+            ]
+        </field>
+        <field name="context">
+            {
+                'default_partner_id': active_id
+            }
+        </field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Upload <span class="fw-normal">a file or</span> drag
+                <span class="fw-normal">it here.</span>
+            </p>
+        </field>
+    </record>
+
+    <record id="res_partner_view_form_inherit_dms" model="ir.ui.view">
+        <field name="name">res.partner.view.form.inherit.dms</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+<!--                <button name="%(action_dms_partner_documents)d" type="action" class="oe_stat_button"-->
+<!--                        icon="fa-files-o">-->
+<!--                    <field name="document_count" string="Documents" widget="statinfo"/>-->
+<!--                </button>-->
+            </xpath>
+        </field>
+    </record>
+</odoo>

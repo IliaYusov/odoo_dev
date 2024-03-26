@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <menuitem name="Document Versioning" id="menu_technical_document_versioning" parent="base.menu_custom"
-              sequence="11">
-        <menuitem name="Attachments Version Config" id="menu_attachment_version_config"
-                  action="action_dms_version_config_form" sequence="1"/>
+    <menuitem id="menu_dms" name="Documents" sequence="65" groups="group_dms_manager">
+        <menuitem id="menu_dms_document" name="Documents" sequence="10" action="action_dms_document_form"/>
+        <menuitem id="menu_dms_config" name="Configuration" sequence="100">
+            <menuitem id="menu_dms_storage" name="Storages" sequence="10" action="action_dms_storage_form"/>
+            <menuitem id="menu_dms_directory" name="Directories" sequence="20" action="action_dms_directory_form"/>
+            <menuitem id="menu_dms_document_versioning" name="Document Versioning" sequence="100">
+                <menuitem id="menu_dms_version_config" name="Version Config" sequence="1"
+                          action="action_dms_version_config_main"/>
+            </menuitem>
+        </menuitem>
     </menuitem>
 </odoo>

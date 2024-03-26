@@ -1,3 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 
-access_contract_access,contract.access,model_contract_access,base.group_user,1,1,1,1
+access_contract_type_accessibility_setting_user,contract.type.accessibility.setting,model_contract_type_accessibility_setting,base.group_user,1,0,0,0
+access_contract_type_accessibility_setting_admin,contract.type.accessibility.setting,model_contract_type_accessibility_setting,base.group_system,1,1,1,1

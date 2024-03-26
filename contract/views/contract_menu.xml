@@ -20,5 +20,6 @@
               groups="base.group_system">
         <menuitem id="menu_contract_templates" name="Templates" sequence="1" action="action_contract_template_form"/>
         <menuitem id="menu_contract_types" name="Contract Types" sequence="2" action="action_contract_type_form"/>
+        <menuitem id="menu_contract_kinds" name="Contract Kinds" sequence="3" action="action_contract_kind_form"/>
     </menuitem>
 </odoo>

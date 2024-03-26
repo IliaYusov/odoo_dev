@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="workflow_process_view_tree" model="ir.ui.view">
+        <field name="name">workflow.process.tree</field>
+        <field name="model">workflow.process</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="id" groups="base.no_group_one" options="hide"/>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="res_ref"/>
+                <field name="state"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="workflow_process_view_form" model="ir.ui.view">
+        <field name="name">workflow.process.form</field>
+        <field name="model">workflow.process</field>
+        <field name="arch" type="xml">
+            <form string="Process">
+                <header>
+                    <button name="run" type="object" class="oe_highlight" icon="fa-play"
+                            attrs="{'invisible': [('state', '!=', False)]}" help="Start processing"/>
+                    <button name="workflow.action_workflow_process_stop_wizard" class="oe_highlight" type="action"
+                            icon="fa-stop" attrs="{'invisible': [('state', '!=', 'in_progress')]}"
+                            context="{'default_process_id': active_id}" help="Stop processing"/>
+                    <button name="workflow.action_workflow_process_resume_wizard" class="oe_highlight" type="action"
+                            icon="fa-play" attrs="{'invisible': [('state', '!=', 'break')]}"
+                            context="{'default_process_id': active_id}" help="Resume processing"/>
+                    <field name="state" widget="statusbar" options="{'clickable': False, 'fold_field': 'fold'}"/>
+                </header>
+                <sheet string="Process">
+                    <div class="oe_button_box" name="button_box">
+                        <button name="open_resource" type="object" class="oe_stat_button" icon="fa-external-link">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_text">Related
+                                    <br/>
+                                    Record
+                                </span>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <field name="code" readonly="1"/>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <group>
+                                <field name="name"/>
+                            </group>
+                        </h1>
+                    </div>
+                    <group>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                    </group>
+                    <notebook>
+                        <page name="page_activities" string="Activities">
+                            <field name="activity_ids" mode="tree"
+                                   domain="
+                                   [
+                                       ('flow_start', '=', False),
+                                       ('flow_stop', '=', False)
+                                   ]"
+                                   context="
+                                   {
+                                       'active_test': False,
+                                       'default_workflow_process_id': active_id
+                                   }"/>
+                        </page>
+                        <page name="page_history" string="History">
+                            <field name="activity_history_ids" mode="tree"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -36,10 +36,17 @@
         <field name="res_model">task.task</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="task.task_view_search"/>
-        <field name="domain">[('id', 'child_of', active_id), ('id', '!=', active_id)]</field>
-        <field name="context">{
-            'show_parent_ref_update': False,
-            'default_parent_id': active_id}
+        <field name="domain">
+            [
+                ('id', 'child_of', active_id),
+                ('id', '!=', active_id)
+            ]
+        </field>
+        <field name="context">
+            {
+                'show_parent_ref_update': False,
+                'default_parent_id': active_id
+            }
         </field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
@@ -66,7 +73,8 @@
                     <field name="parent_ref_type"/>
                     <field name="parent_ref_id"/>
                     <field name="active"/>
-                    <field name="company_ids" widget="many2many_tags" groups="!base.group_multi_company"/>
+                    <field name="can_edit"/>
+                    <field name="company_ids"/>
                 </group>
                 <header>
                     <div class="stages_wrapper">
@@ -77,6 +85,10 @@
                 </header>
                 <sheet string="Task">
                     <div class="oe_button_box" name="button_box">
+                        <div class="oe_left button_box">
+                            <button name="action_assign_to_me" type="object" string="Assign To Me"
+                                    attrs="{'invisible': &quot;['|', '|', ('user_ids', 'in', uid), ('is_closed', '=', True), ('active', '=', False)]&quot;}"/>
+                        </div>
                         <button name="action_open_attachments" class="oe_stat_button" type="object"
                                 icon="fa-files-o">
                             <field string="Attachments" name="attachment_count" widget="statinfo"/>
@@ -84,7 +96,7 @@
                         <button name="action_open_parent_task" type="object" class="oe_stat_button" icon="fa-tasks"
                                 string="Parent Task" attrs="{'invisible': [('parent_id', '=', False)]}"/>
                         <button name="%(task_action_sub_task)d" type="action" class="oe_stat_button" icon="fa-tasks"
-                            attrs="{'invisible' : ['|', ('id', '=', False), ('subtask_count', '=', 0)]}" context="{'default_user_ids': user_ids}">
+                            attrs="{'invisible': ['|', ('id', '=', False), ('subtask_count', '=', 0)]}" context="{'default_user_ids': user_ids}">
                             <div class="o_field_widget o_stat_info">
                                 <span class="o_stat_value">
                                     <field name="subtask_count" widget="statinfo" nolabel="1"/>
@@ -93,55 +105,66 @@
                             </div>
                         </button>
                     </div>
-                    <widget name="web_ribbon" title="Archived"
-                            bg_color="bg-danger"
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger"
                             attrs="{'invisible': [('active', '=', True)]}"/>
                     <div class="oe_title">
                         <field name="code" readonly="1"/>
                     </div>
                     <h2>
-                        <field name="name" style="width:100%" placeholder="Task Title..."/>
+                        <field name="name" style="width:100%" placeholder="Task Title..."
+                               attrs="{'readonly': [('can_edit', '=', False)]}"/>
                     </h2>
                     <group>
+                        <field name="parent_ref" attrs="{'readonly': [('can_edit', '=', False)]}"
+                               options="{'no_quick_create': True, 'no_create_edit': True}"/>
+                    </group>
+                    <group>
                         <group>
-                            <field name="author_id"/>
-                            <field name="parent_ref" options="{'no_quick_create': True}"/>
                             <field name="type_id" attrs="{'readonly': [('id', '!=', False)]}"
+                                   options="{'no_open': True, 'no_quick_create': True}"/>
+                            <field name="user_ids" widget="many2many_avatar_user"
+                                   attrs="{'readonly': [('can_edit', '=', False)]}"
                                    options="{'no_open': True, 'no_quick_create': True}"/>
                         </group>
                         <group>
-                            <field name="priority" widget="priority"/>
-                            <field name="user_ids" options="{'no_open': True, 'no_quick_create': True}"
-                                   widget="many2many_avatar_user"/>
-                            <field name="date_deadline"/>
+                            <field name="priority" widget="priority" attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                            <field name="date_deadline" attrs="{'readonly': [('can_edit', '=', False)]}"/>
                         </group>
-                    </group>
-                    <group>
-                        <field name="company_ids" widget="many2many_tags" groups="base.group_multi_company"/>
                     </group>
                     <notebook>
                         <page name="description_page" string="Description">
                             <field name="description" type="html" options="{'collaborative': true, 'resizable': false}"
-                                   placeholder="Task description..."/>
-                            <div class="task-separator task-separator-execution-result" name="task_execution_result"
+                                   placeholder="Task description..." attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                            <div class="task-separator task-separator-execution-result" name="task_result_separator"
                                  attrs="{'invisible': [('execution_result', '=', False)]}">
                                 <span class="task-separator-text">Execution result</span>
                             </div>
                             <field name="execution_result" colspan="4" readonly="1"
                                    attrs="{'invisible': [('execution_result', '=', False)]}"/>
+                            <field name="execution_result_attachment_ids" widget="many2many_binary" readonly="1"
+                                   attrs="{'invisible': [('execution_result_attachment_ids', '=', [])]}"/>
+                        </page>
+                        <page name="page_extra_info" string="Extra Information">
+                            <group>
+                                <field name="author_id"/>
+                                <field name="company_ids" widget="many2many_tags" groups="base.group_multi_company"/>
+                            </group>
                         </page>
                         <page name="sub_tasks_page" string="Sub-tasks">
-                            <field name="child_ids"
-                                   context="{
+                            <field name="child_ids" widget="many2many"
+                                   context="
+                                   {
                                         'search_view_ref' : 'task.task_view_search',
                                         'default_user_ids': user_ids, 'default_parent_id': id,
                                         'default_parent_ref_type': parent_ref_type, 'default_parent_ref_id': parent_ref_id,
-                                        'search_default_parent_ref': parent_ref}"
-                                   widget="many2many" domain="['!', ('id', 'parent_of', id)]">
+                                        'search_default_parent_ref': parent_ref
+                                   }"
+                                   domain="['!', ('id', 'parent_of', id)]"
+                                   attrs="{'readonly': [('can_edit', '=', False)]}">
                                 <tree editable="bottom">
                                     <field name="name"/>
                                     <field name="user_ids" widget="many2many_avatar_user" optional="show" domain="[('share', '=', False), ('active', '=', True)]"/>
-                                    <field name="date_deadline" optional="show"/>
+                                    <field name="date_deadline"/>
                                     <field name="stage_id"/>
                                     <button name="action_open_task" type="object" title="View Task" string="View Task" class="btn btn-link float-end"/>
                                 </tree>
@@ -263,11 +286,18 @@
         <field name="name">Tasks</field>
         <field name="res_model">task.task</field>
         <field name="view_mode">tree,calendar,form</field>
-        <field name="domain">[('parent_ref_id', '=', active_id), ('parent_id', '=', False)]</field>
-        <field name="context">{
-            'default_parent_ref': 'project_budget.projects,%s' % active_id,
-            'default_parent_ref_type': 'project_budget.projects',
-            'default_parent_ref_id': active_id}
+        <field name="domain">
+            [
+                ('parent_ref_id', '=', active_id),
+                ('parent_id', '=', False)
+            ]
+        </field>
+        <field name="context">
+            {
+                'default_parent_ref': 'project_budget.projects,%s' % active_id,
+                'default_parent_ref_type': 'project_budget.projects',
+                'default_parent_ref_id': active_id
+            }
         </field>
         <field name="help" type="html">
             <p>

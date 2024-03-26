@@ -1,15 +1,15 @@
-from odoo import api, Command, fields, models
+from odoo import api, fields, models
 from .document_flow_process import selection_executor_model
 
 
 class DocumentKindType(models.Model):
-    _name = "document_flow.document.kind.type"
-    _description = "Document Kind Type"
+    _name = 'document_flow.document.kind.type'
+    _description = 'Document Kind Type'
     _order = 'sequence, id'
 
     template_id = fields.Many2one('document_flow.document.kind.template', index=True, ondelete='cascade', required=True)
-    name = fields.Char('Type', required=True)
-    sequence = fields.Integer('Sequence', help='Determine the display order', index=True)
+    name = fields.Char(string='Type', required=True)
+    sequence = fields.Integer('Sequence', index=True)
 
     def _get_type_name(self):
         return '%s - %s' % (self.template_id.name, self.name)

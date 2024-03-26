@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="seq_workflow_process" model="ir.sequence">
+            <field name="name">Process Number</field>
+            <field name="code">workflow.process</field>
+            <field name="prefix">PRS-</field>
+            <field name="padding">10</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="workflow_auto_substitution_author" model="workflow.auto.substitution">
+            <field name="name">Author of the document</field>
+            <field name="expression">result = record.create_uid</field>
+            <field name="active">True</field>
+        </record>
+
+        <record id="workflow_auto_substitution_head_project_office" model="workflow.auto.substitution">
+            <field name="name">Head of project office</field>
+            <field name="expression">result = record.project_id.project_office_id.user_id</field>
+            <field name="active">True</field>
+        </record>
+    </data>
+</odoo>

@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-11 11:18+0000\n"
-"PO-Revision-Date: 2023-12-11 11:18+0000\n"
+"POT-Creation-Date: 2024-03-12 09:21+0000\n"
+"PO-Revision-Date: 2024-03-12 09:21+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -132,7 +132,7 @@ msgstr ""
 "                                               </span>\n"
 "                                           </td>\n"
 "                                           <td style=\"border: 1pt solid black; border-collapse: collapse; text-align:center; padding: 7px;\">\n"
-"                                               <a t-att-href=\"(task._compute_url())\" style=\"background-color: #0f5f8b; height:18px;                                                width:80px; color: white; padding-top:1px;                                                border: none; border-radius: 5px;                                                text-align: center; text-decoration: none;                                                display: inline-block; font-size: 12px;\">Открыть\n"
+"                                               <a t-att-href=\"(task._compute_url())\" style=\"background-color: #0f5f8b; height:18px;                                                width:80px; color: white; padding-top:1px;                                                border: none; border-radius: 5px;                                                text-align: center; text-decoration: none;                                                display: inline-block; font-size: 12px;\">Открыть задачу\n"
 "                                               </a>\n"
 "                                           </td>\n"
 "                                       </tr>\n"
@@ -153,7 +153,7 @@ msgstr ""
 "                                               </span>\n"
 "                                           </td>\n"
 "                                           <td style=\"border: 1pt solid black; border-collapse: collapse; text-align:center; padding: 7px;\">\n"
-"                                               <a t-att-href=\"(task._compute_url())\" style=\"background-color: #0f5f8b; height:18px;                                                width:80px; color: white; padding-top:1px;                                                border: none; border-radius: 5px;                                                text-align: center; text-decoration: none;                                                display: inline-block; font-size: 12px;\">Открыть\n"
+"                                               <a t-att-href=\"(task._compute_url())\" style=\"background-color: #0f5f8b; height:18px;                                                width:80px; color: white; padding-top:1px;                                                border: none; border-radius: 5px;                                                text-align: center; text-decoration: none;                                                display: inline-block; font-size: 12px;\">Открыть задачу\n"
 "                                               </a>\n"
 "                                           </td>\n"
 "                                       </tr>\n"
@@ -174,7 +174,7 @@ msgstr "<span class=\"o_stat_text\">Подзадачи</span>"
 #. module: task
 #: model_terms:ir.ui.view,arch_db:task.task_type_view_form
 msgid "<span class=\"task-separator-text\">Deadline Control</span>"
-msgstr "<span class=\"task-separator-text\">Контроль срока исполнения</span>"
+msgstr "Deadline Control"
 
 #. module: task
 #: model_terms:ir.ui.view,arch_db:task.task_view_form
@@ -207,6 +207,10 @@ msgid ""
 "                    <ul style=\"padding:0 0 0 24px;margin:0px 0 12px 0;box-sizing:border-box;\">\n"
 "                        <li>Subject: \"<t t-esc=\"object.name\">Task subject</t>\"\n"
 "                        </li>\n"
+"                        <t t-if=\"object.parent_ref and object.parent_ref_type != 'document_flow.process'\">\n"
+"                            <li>Parent: \"<t t-esc=\"object.parent_ref.name\">Parent</t>\"\n"
+"                            </li>\n"
+"                        </t>\n"
 "                        <li>Priority: <t t-esc=\"object.priority\">Medium</t>\n"
 "                        </li>\n"
 "                        <li>Deadline: <t t-esc=\"object.date_deadline\">01.01.2023</t>\n"
@@ -231,16 +235,20 @@ msgstr ""
 "                </table>\n"
 "                <div style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
 "                    <br>\n"
-"                    Уважаемый(ая) <t t-out=\"object.user_id.name or ''\">пользователь</t>,\n"
+"                    Уважаемый(ая) <t t-out=\"ctx['user_id'].name or ''\">пользователь</t>,\n"
 "                    <br>\n"
 "                    <br>\n"
 "                    <p style=\"margin:0px 0 12px 0;box-sizing:border-box;\">\n"
-"                        <t t-out=\"object.author_id.name or ''\">автор</t>,\n"
+"                        <t t-out=\"object.write_uid.name or ''\">автор</t>,\n"
 "                        назначил Вам следующую задачу:\n"
 "                    </p>\n"
 "                    <ul style=\"padding:0 0 0 24px;margin:0px 0 12px 0;box-sizing:border-box;\">\n"
 "                        <li>Тема: \"<t t-esc=\"object.name\">Тема задачи</t>\"\n"
 "                        </li>\n"
+"                        <t t-if=\"object.parent_ref and object.parent_ref_type != 'document_flow.process'\">\n"
+"                            <li>Родитель: \"<t t-esc=\"object.parent_ref.name\">Родитель</t>\"\n"
+"                            </li>\n"
+"                        </t>\n"
 "                        <li>Приоритет: <t t-esc=\"object.priority\">Средний</t>\n"
 "                        </li>\n"
 "                        <li>Срок исполнения: <t t-esc=\"object.date_deadline\">01.01.2023</t>\n"
@@ -278,6 +286,10 @@ msgid ""
 "                    <ul style=\"padding:0 0 0 24px;margin:0px 0 12px 0;box-sizing:border-box;\">\n"
 "                        <li>Subject: \"<t t-esc=\"object.name\">Task subject</t>\"\n"
 "                        </li>\n"
+"                        <t t-if=\"object.parent_ref and object.parent_ref_type != 'document_flow.process'\">\n"
+"                            <li>Parent: \"<t t-esc=\"object.parent_ref.name\">Parent</t>\"\n"
+"                            </li>\n"
+"                        </t>\n"
 "                        <li>Priority: <t t-esc=\"object.priority\">Medium</t>\n"
 "                        </li>\n"
 "                        <li>Deadline: <t t-esc=\"object.date_deadline\">01.01.2023</t>\n"
@@ -319,6 +331,10 @@ msgstr ""
 "                    <ul style=\"padding:0 0 0 24px;margin:0px 0 12px 0;box-sizing:border-box;\">\n"
 "                        <li>Тема: \"<t t-esc=\"object.name\">Тема задачи</t>\"\n"
 "                        </li>\n"
+"                        <t t-if=\"object.parent_ref and object.parent_ref_type != 'document_flow.process'\">\n"
+"                            <li>Родитель: \"<t t-esc=\"object.parent_ref.name\">Родитель</t>\"\n"
+"                            </li>\n"
+"                        </t>\n"
 "                        <li>Приоритет: <t t-esc=\"object.priority\">Средний</t>\n"
 "                        </li>\n"
 "                        <li>Срок исполнения: <t t-esc=\"object.date_deadline\">01.01.2023</t>\n"
@@ -404,9 +420,9 @@ msgid "Assign Task Only To Subordinates"
 msgstr "Назначать задачи только на подчиненных"
 
 #. module: task
-#: model:ir.model.fields,field_description:task.field_task_task__user_id
-msgid "Assigned"
-msgstr "Исполнитель"
+#: model_terms:ir.ui.view,arch_db:task.task_view_form
+msgid "Assign To Me"
+msgstr "Назначить на меня"
 
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_task__user_ids
@@ -414,6 +430,7 @@ msgid "Assignees"
 msgstr "Исполнители"
 
 #. module: task
+#: model:ir.model.fields,field_description:task.field_task_task__attachment_count
 #: model:ir.model.fields,field_description:task.field_task_task__message_attachment_count
 msgid "Attachment Count"
 msgstr "Количество вложений"
@@ -421,8 +438,8 @@ msgstr "Количество вложений"
 #. module: task
 #. odoo-python
 #: code:addons/task/models/task.py:0
-#: model:ir.model.fields,field_description:task.field_task_task__attachment_count
-#: model:ir.model.fields,field_description:task.field_task_wizard_done__attachment_ids
+#: model:ir.model.fields,field_description:task.field_task_close_wizard__attachment_ids
+#: model:ir.model.fields,field_description:task.field_task_task__attachment_ids
 #: model_terms:ir.ui.view,arch_db:task.task_view_form
 #, python-format
 msgid "Attachments"
@@ -446,8 +463,13 @@ msgid "Button style"
 msgstr "Стиль кнопки"
 
 #. module: task
+#: model:ir.model.fields,field_description:task.field_task_task__can_edit
+msgid "Can Edit"
+msgstr ""
+
+#. module: task
 #: model:task.stage.type,name:task.task_stage_type_cancel
-#: model_terms:ir.ui.view,arch_db:task.task_wizard_done_view_form
+#: model_terms:ir.ui.view,arch_db:task.task_close_wizard_view_form
 msgid "Cancel"
 msgstr "Отменить"
 
@@ -493,6 +515,11 @@ msgid "Child Text"
 msgstr "Дочерний текст"
 
 #. module: task
+#: model:ir.actions.act_window,name:task.action_task_close_wizard
+msgid "Close"
+msgstr "Закрыть"
+
+#. module: task
 #: model:ir.model.fields,field_description:task.field_task_stage__closed
 #: model:ir.model.fields,field_description:task.field_task_stage_route__close
 #: model:ir.model.fields,field_description:task.field_task_task__is_closed
@@ -523,20 +550,20 @@ msgid "Color"
 msgstr "Цвет"
 
 #. module: task
-#: model:ir.model.fields,field_description:task.field_task_wizard_done__comment
-#: model_terms:ir.ui.view,arch_db:task.task_wizard_done_view_form
+#: model:ir.model.fields,field_description:task.field_task_close_wizard__comment
+#: model_terms:ir.ui.view,arch_db:task.task_close_wizard_view_form
 msgid "Comment"
 msgstr "Комментарий"
 
 #. module: task
 #. odoo-python
-#: code:addons/task/wizard/task_wizard_done.py:0
+#: code:addons/task/wizard/task_close_wizard.py:0
 #, python-format
 msgid "Comment is required!"
 msgstr "Комментарий обязателен для заполнения!"
 
 #. module: task
-#: model_terms:ir.ui.view,arch_db:task.task_wizard_done_view_form
+#: model_terms:ir.ui.view,arch_db:task.task_close_wizard_view_form
 msgid "Comment..."
 msgstr "Комментарий..."
 
@@ -554,7 +581,7 @@ msgstr "Компания"
 #. module: task
 #: model:ir.model,name:task.model_res_config_settings
 msgid "Config Settings"
-msgstr "Конфигурационные настройки"
+msgstr "Настройки"
 
 #. module: task
 #: model:ir.ui.menu,name:task.task_configuration_menu
@@ -567,12 +594,12 @@ msgid "Create default"
 msgstr "Заполнить по умолчанию"
 
 #. module: task
+#: model:ir.model.fields,field_description:task.field_task_close_wizard__create_uid
 #: model:ir.model.fields,field_description:task.field_task_stage__create_uid
 #: model:ir.model.fields,field_description:task.field_task_stage_route__create_uid
 #: model:ir.model.fields,field_description:task.field_task_stage_type__create_uid
 #: model:ir.model.fields,field_description:task.field_task_task__create_uid
 #: model:ir.model.fields,field_description:task.field_task_type__create_uid
-#: model:ir.model.fields,field_description:task.field_task_wizard_done__create_uid
 msgid "Created by"
 msgstr "Автор"
 
@@ -582,12 +609,12 @@ msgid "Created by me"
 msgstr "Созданные мной"
 
 #. module: task
+#: model:ir.model.fields,field_description:task.field_task_close_wizard__create_date
 #: model:ir.model.fields,field_description:task.field_task_stage__create_date
 #: model:ir.model.fields,field_description:task.field_task_stage_route__create_date
 #: model:ir.model.fields,field_description:task.field_task_stage_type__create_date
 #: model:ir.model.fields,field_description:task.field_task_task__create_date
 #: model:ir.model.fields,field_description:task.field_task_type__create_date
-#: model:ir.model.fields,field_description:task.field_task_wizard_done__create_date
 msgid "Created on"
 msgstr "Создано"
 
@@ -639,12 +666,12 @@ msgid "Diagram Position"
 msgstr ""
 
 #. module: task
+#: model:ir.model.fields,field_description:task.field_task_close_wizard__display_name
 #: model:ir.model.fields,field_description:task.field_task_stage__display_name
 #: model:ir.model.fields,field_description:task.field_task_stage_route__display_name
 #: model:ir.model.fields,field_description:task.field_task_stage_type__display_name
 #: model:ir.model.fields,field_description:task.field_task_task__display_name
 #: model:ir.model.fields,field_description:task.field_task_type__display_name
-#: model:ir.model.fields,field_description:task.field_task_wizard_done__display_name
 msgid "Display Name"
 msgstr "Представление"
 
@@ -652,17 +679,16 @@ msgstr "Представление"
 #. odoo-python
 #: code:addons/task/models/task_type.py:0
 #: code:addons/task/models/task_type.py:0
-#: model:ir.actions.act_window,name:task.action_task_wizard_done
 #: model:task.stage.type,name:task.task_stage_type_done
-#: model_terms:ir.ui.view,arch_db:task.task_wizard_done_view_form
+#: model_terms:ir.ui.view,arch_db:task.task_close_wizard_view_form
 #, python-format
 msgid "Done"
 msgstr "Выполнено"
 
 #. module: task
-#: model:ir.model.fields,field_description:task.field_task_wizard_done__route_id
+#: model:ir.model.fields,field_description:task.field_task_close_wizard__route_id
 msgid "Done As"
-msgstr "Выполнено как"
+msgstr ""
 
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_stage__mail_template_id
@@ -706,6 +732,11 @@ msgstr "Результат выполнения"
 #: model:ir.model.fields,field_description:task.field_task_task__actual_executor_id
 msgid "Executor"
 msgstr "Фактический исполнитель"
+
+#. module: task
+#: model_terms:ir.ui.view,arch_db:task.task_view_form
+msgid "Extra Information"
+msgstr "Дополнительная информация"
 
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_task__message_follower_ids
@@ -753,12 +784,12 @@ msgid "Highest"
 msgstr ""
 
 #. module: task
+#: model:ir.model.fields,field_description:task.field_task_close_wizard__id
 #: model:ir.model.fields,field_description:task.field_task_stage__id
 #: model:ir.model.fields,field_description:task.field_task_stage_route__id
 #: model:ir.model.fields,field_description:task.field_task_stage_type__id
 #: model:ir.model.fields,field_description:task.field_task_task__id
 #: model:ir.model.fields,field_description:task.field_task_type__id
-#: model:ir.model.fields,field_description:task.field_task_wizard_done__id
 msgid "ID"
 msgstr ""
 
@@ -793,8 +824,8 @@ msgstr ""
 "когда задача перейдет в этот статус."
 
 #. module: task
+#: model:ir.model.fields,help:task.field_task_close_wizard__require_comment
 #: model:ir.model.fields,help:task.field_task_stage_route__require_comment
-#: model:ir.model.fields,help:task.field_task_wizard_done__require_comment
 msgid "If set, then user will be asked for comment on this route"
 msgstr ""
 "Если установлено, то поле комментарий становится обязательным для заполнения"
@@ -811,7 +842,7 @@ msgstr ""
 #. module: task
 #: model:task.stage.type,name:task.task_stage_type_in_progress
 msgid "In Progress"
-msgstr ""
+msgstr "В работе"
 
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_stage__route_in_ids
@@ -840,32 +871,32 @@ msgstr ""
 "                Для большей эффективности, сотрудничайте в чате в режиме реального времени или по электронной почте."
 
 #. module: task
+#: model:ir.model.fields,field_description:task.field_task_close_wizard____last_update
 #: model:ir.model.fields,field_description:task.field_task_stage____last_update
 #: model:ir.model.fields,field_description:task.field_task_stage_route____last_update
 #: model:ir.model.fields,field_description:task.field_task_stage_type____last_update
 #: model:ir.model.fields,field_description:task.field_task_task____last_update
 #: model:ir.model.fields,field_description:task.field_task_type____last_update
-#: model:ir.model.fields,field_description:task.field_task_wizard_done____last_update
 msgid "Last Modified on"
 msgstr "Дата последнего изменения"
 
 #. module: task
+#: model:ir.model.fields,field_description:task.field_task_close_wizard__write_uid
 #: model:ir.model.fields,field_description:task.field_task_stage__write_uid
 #: model:ir.model.fields,field_description:task.field_task_stage_route__write_uid
 #: model:ir.model.fields,field_description:task.field_task_stage_type__write_uid
 #: model:ir.model.fields,field_description:task.field_task_task__write_uid
 #: model:ir.model.fields,field_description:task.field_task_type__write_uid
-#: model:ir.model.fields,field_description:task.field_task_wizard_done__write_uid
 msgid "Last Updated by"
 msgstr "Автор последнего изменения"
 
 #. module: task
+#: model:ir.model.fields,field_description:task.field_task_close_wizard__write_date
 #: model:ir.model.fields,field_description:task.field_task_stage__write_date
 #: model:ir.model.fields,field_description:task.field_task_stage_route__write_date
 #: model:ir.model.fields,field_description:task.field_task_stage_type__write_date
 #: model:ir.model.fields,field_description:task.field_task_task__write_date
 #: model:ir.model.fields,field_description:task.field_task_type__write_date
-#: model:ir.model.fields,field_description:task.field_task_wizard_done__write_date
 msgid "Last Updated on"
 msgstr "Дата последнего изменения"
 
@@ -1076,10 +1107,15 @@ msgid "Reminder email for tasks deadline"
 msgstr "Уведомление об истечении сроков выполнения задач"
 
 #. module: task
+#: model:ir.model.fields,field_description:task.field_task_close_wizard__require_comment
 #: model:ir.model.fields,field_description:task.field_task_stage_route__require_comment
-#: model:ir.model.fields,field_description:task.field_task_wizard_done__require_comment
 msgid "Require Comment"
 msgstr "Комментарий обязателен"
+
+#. module: task
+#: model:ir.model.fields,field_description:task.field_task_task__execution_result_attachment_ids
+msgid "Response Attachments"
+msgstr ""
 
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_task__activity_user_id
@@ -1112,7 +1148,8 @@ msgstr ""
 #. module: task
 #: model_terms:ir.ui.view,arch_db:task.task_type_view_form
 msgid "Send a periodical email reminder to tasks assignees"
-msgstr "Отправлять периодические напоминания исполнителям о просроченных задачах"
+msgstr ""
+"Отправлять периодические напоминания исполнителям о просроченных задачах"
 
 #. module: task
 #: model:ir.model.fields,field_description:task.field_task_stage__sequence
@@ -1224,7 +1261,7 @@ msgstr "Такой маршрут уже присутствует в этоп т
 
 #. module: task
 #: model:ir.model,name:task.model_task_task
-#: model:ir.model.fields,field_description:task.field_task_wizard_done__task_id
+#: model:ir.model.fields,field_description:task.field_task_close_wizard__task_id
 #: model_terms:ir.ui.view,arch_db:task.task_view_form
 #: model_terms:ir.ui.view,arch_db:task.task_view_search
 msgid "Task"
@@ -1267,8 +1304,8 @@ msgid "Task Type"
 msgstr "Тип задачи"
 
 #. module: task
-#: model:ir.model,name:task.model_task_wizard_done
-msgid "Task Wizard: Done"
+#: model:ir.model,name:task.model_task_close_wizard
+msgid "Task Wizard: Close"
 msgstr ""
 
 #. module: task
@@ -1420,14 +1457,7 @@ msgid "Website communication history"
 msgstr ""
 
 #. module: task
-#. odoo-python
-#: code:addons/task/models/task.py:0
-#, python-format
-msgid "You have been assigned to task %s"
-msgstr "Вы были назначены исполнителем задачи %s"
-
-#. module: task
-#: model:ir.model.fields,help:task.field_task_wizard_done__attachment_ids
+#: model:ir.model.fields,help:task.field_task_close_wizard__attachment_ids
 msgid "You may attach files to comment"
 msgstr "Вы можете приложить файлы к комментарию"
 

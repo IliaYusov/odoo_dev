@@ -18,7 +18,6 @@ class Processing(models.Model):
                                  index=True)
     process_ids = fields.Many2many('document_flow.process', relation='document_flow_processing_process_rel',
                                    column1='processing_id', column2='process_id', string='Processes', copy=False)
-    # state = fields.Selection(string='State', related='process_id.state', readonly=True)
     state = fields.Char(string='State', compute='_compute_state')
     parent_ref = fields.Reference(string='Parent', selection='_selection_parent_model', ondelete='restrict',
                                   required=True, readonly=True)
@@ -27,8 +26,9 @@ class Processing(models.Model):
 
     document_kind_id = fields.Many2one('document_flow.document.kind', string='Document Kind')
 
-    template_id = fields.Many2one('document_flow.process.template', string='Template',
-                                  domain="[('model_id.model', '=', parent_ref_type), ('document_kind_id', '=', document_kind_id)]")
+    template_id = fields.Many2one('document_flow.process.template', string='Template')
+    template_id_domain = fields.Binary(string='Template Domain', compute='_compute_template_id_domain',
+                                       help='Dynamic domain used for the template')
     action_ids = fields.One2many('document_flow.action', 'parent_ref_id', string='Actions',
                                  domain=_get_action_ids_domain)
     action_count = fields.Integer(compute='_compute_action_count', string='Action Count')
@@ -49,6 +49,14 @@ class Processing(models.Model):
             recompute_sequence_actions(self.env['document_flow.action'], vals.get('action_ids'))
         res = super(Processing, self).write(vals)
         return res
+
+    @api.depends('parent_ref_type', 'document_kind_id')
+    def _compute_template_id_domain(self):
+        for rec in self:
+            rec.template_id_domain = [
+                ('model_id.model', '=', rec.parent_ref_type),
+                ('document_kind_id', '=', rec.document_kind_id.id)
+            ]
 
     @api.depends('process_ids.state')
     def _compute_state(self):

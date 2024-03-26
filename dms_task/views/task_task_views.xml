@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="task_task_view_form_inherit_dms" model="ir.ui.view">
+        <field name="name">task.task.form.inherit.dms</field>
+        <field name="model">task.task</field>
+        <field name="inherit_id" ref="task.task_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form/sheet/notebook" position="before">
+                <div class="o_task_files_title" attrs="{'invisible': [('file_ids', '=', [])]}">
+                    <span>Documents &amp; Files</span>
+                </div>
+                <field name="file_ids" mode="kanban" attrs="{'invisible': [('file_ids', '=', [])]}">
+                    <kanban js_class="document_kanban"
+                            class="dms_document_kanban_view o_kanban_small_column align-content-start" create="false">
+                        <field name="id"/>
+                        <field name="attachment_id"/>
+                        <field name="name"/>
+                        <field name="active"/>
+                        <field name="mimetype"/>
+                        <field name="checksum"/>
+                        <field name="create_uid"/>
+                        <field name="write_date"/>
+                        <templates>
+                            <t t-name="kanban-box">
+                                <div t-attf-class="oe_kanban_global_click" t-att-data-id="record.id.raw_value">
+                                    <div class="o_dropdown_kanban dropdown">
+                                        <a class="dropdown-toggle o-no-caret btn" href="#" role="button"
+                                           data-toggle="dropdown" aria-label="Dropdown menu" title="Dropdown menu">
+                                            <span class="fa fa-ellipsis-v"/>
+                                        </a>
+                                        <div class="dropdown-menu" role="menu">
+                                            <div class="row">
+                                                <div class="col-6 dms_document_kanban_operations">
+                                                    <a class="dropdown-item" role="menuitem"
+                                                       t-attf-href="/web/content?id=#{record.id.raw_value}&amp;field=datas&amp;model=dms.document&amp;filename_field=name&amp;download=true">
+                                                        <i class="fa fa-download"/>
+                                                        Download
+                                                    </a>
+                                                </div>
+                                                <div class="col-6 border-left dms_document_kanban_actions">
+                                                    <a class="dropdown-item" role="menuitem" type="open">
+                                                        <i class="fa fa-external-link"/>
+                                                        Open
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="oe_kanban_content">
+                                        <div class="o_kanban_image">
+                                            <t t-set="binaryPreviewable"
+                                               t-value="new RegExp('(image|video|application/pdf|text)').test(record.mimetype.value)"/>
+                                            <div t-attf-class="o_kanban_image_wrapper #{(webimage or binaryPreviewable) ? 'o_kanban_previewer' : ''}">
+                                                <t t-set="webimage"
+                                                   t-value="new RegExp('image.*(gif|jpeg|jpg|png)').test(record.mimetype.value)"/>
+                                                <img t-if="webimage" t-attf-src="/dms/image/#{record.id.raw_value}"
+                                                     width="100" height="100" alt="Document"
+                                                     class="o_attachment_image"/>
+                                                <div t-else="!webimage" class="o_image o_image_thumbnail"
+                                                     t-att-data-mimetype="record.mimetype.value"/>
+                                            </div>
+                                        </div>
+                                        <div class="o_kanban_details">
+                                            <div class="o_kanban_details_wrapper">
+                                                <div class="o_kanban_record_title o_text_overflow">
+                                                    <field name="name"/>
+                                                </div>
+                                                <div class="o_kanban_record_body">
+                                                    <t t-if="record.version.raw_value != '0'">
+                                                        <a>Version:
+                                                            <field name="version"/>
+                                                        </a>
+                                                    </t>
+                                                </div>
+                                                <div class="o_kanban_record_bottom">
+                                                    <time class="oe_kanban_bottom_left">
+                                                        <field name="write_date" widget="datetime"/>
+                                                    </time>
+                                                    <div class="oe_kanban_bottom_right">
+                                                        <div class="oe_kanban_bottom_right">
+                                                            <field name="create_uid" widget="many2one_avatar_user"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </templates>
+                    </kanban>
+                </field>
+            </xpath>
+        </field>
+    </record>
+</odoo>

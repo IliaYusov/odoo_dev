@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="task_stage_view_form_inherit_workflow" model="ir.ui.view">
+        <field name="name">task.stage.form.inherit.workflow</field>
+        <field name="model">task.stage</field>
+        <field name="inherit_id" ref="task.task_stage_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/group[@name='processing_settings']" position="replace">
+                <group name="processing_settings" col="4">
+                    <group>
+                        <field name="closed"/>
+                    </group>
+                    <group>
+                        <field name="result_type"/>
+                    </group>
+                    <group>
+                        <field name="processing_result"/>
+                    </group>
+                    <group>
+                        <field name="use_custom_colors"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="dms_directory_project_directory" model="dms.directory">
+            <field name="name">Projects</field>
+            <field name="storage_id" ref="dms.dms_storage_internal_storage"/>
+        </record>
+    </data>
+
+    <function model="project_budget.projects" name="_init_project_document_directory" eval="[]"/>
+</odoo>

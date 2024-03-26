@@ -1,6 +1,6 @@
 {
     'name': 'Task Management',
-    'version': '1.2.4',
+    'version': '1.2.5',
     'category': '',
     'depends': ['base', 'mail', 'crnd_web_diagram_plus', 'hr'],
     'external_dependencies': {'python': ['html2text']},
@@ -31,7 +31,7 @@
         'views/task_stage_route_views.xml',
         'views/res_config_settings.xml',
         'views/task_menu.xml',
-        'wizard/task_wizard_done.xml'
+        'wizard/task_close_wizard.xml'
     ],
     'demo': [
     ],

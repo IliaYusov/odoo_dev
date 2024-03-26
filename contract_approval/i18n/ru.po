@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-13 14:23+0000\n"
-"PO-Revision-Date: 2023-12-13 14:23+0000\n"
+"POT-Creation-Date: 2024-03-12 15:26+0000\n"
+"PO-Revision-Date: 2024-03-12 15:26+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -22,10 +22,16 @@ msgstr "'Лист согласования \"%s\"' % object.name"
 
 #. module: contract_approval
 #: model:ir.model.fields,field_description:contract_approval.field_contract_contract__access_ids
-#: model_terms:ir.ui.view,arch_db:contract_approval.contract_access_view_tree
 #: model_terms:ir.ui.view,arch_db:contract_approval.contract_contract_view_form_inherit_contract_approval
 msgid "Access"
 msgstr "Доступ"
+
+#. module: contract_approval
+#: model:ir.model.fields,field_description:contract_approval.field_contract_type__access_setting_ids
+#: model_terms:ir.ui.view,arch_db:contract_approval.contract_type_accessibility_setting_view_tree
+#: model_terms:ir.ui.view,arch_db:contract_approval.contract_type_view_form_inherit_contract_approval
+msgid "Accessibility Settings"
+msgstr "Настройки доступности"
 
 #. module: contract_approval
 #. odoo-python
@@ -61,12 +67,7 @@ msgid "Comment"
 msgstr "Комментарий"
 
 #. module: contract_approval
-#. odoo-python
-#: code:addons/contract_approval/models/document_flow_processing.py:0
-#: code:addons/contract_approval/models/task_task.py:0
 #: model:ir.model,name:contract_approval.model_contract_contract
-#: model:ir.model.fields,field_description:contract_approval.field_contract_access__contract_id
-#, python-format
 msgid "Contract"
 msgstr "Договор"
 
@@ -78,17 +79,29 @@ msgid "Contract \"%s\" from %s"
 msgstr "Договор \"%s\" от %s"
 
 #. module: contract_approval
-#: model:ir.model,name:contract_approval.model_contract_access
-msgid "Contract Access"
+#: model:ir.model.fields,field_description:contract_approval.field_workflow_workflow__contract_kind_id
+msgid "Contract Kind"
+msgstr "Тип договора"
+
+#. module: contract_approval
+#: model:ir.model,name:contract_approval.model_contract_type
+#: model:ir.model.fields,field_description:contract_approval.field_contract_type_accessibility_setting__type_id
+#: model:ir.model.fields,field_description:contract_approval.field_workflow_workflow__contract_type_id
+msgid "Contract Type"
+msgstr "Вид договора"
+
+#. module: contract_approval
+#: model:ir.model,name:contract_approval.model_contract_type_accessibility_setting
+msgid "Contract Type Accessibility Setting"
 msgstr ""
 
 #. module: contract_approval
-#: model:ir.model.fields,field_description:contract_approval.field_contract_access__create_uid
+#: model:ir.model.fields,field_description:contract_approval.field_contract_type_accessibility_setting__create_uid
 msgid "Created by"
 msgstr ""
 
 #. module: contract_approval
-#: model:ir.model.fields,field_description:contract_approval.field_contract_access__create_date
+#: model:ir.model.fields,field_description:contract_approval.field_contract_type_accessibility_setting__create_date
 msgid "Created on"
 msgstr ""
 
@@ -100,8 +113,13 @@ msgid "Date"
 msgstr "Дата"
 
 #. module: contract_approval
-#: model:ir.model.fields,field_description:contract_approval.field_contract_access__display_name
+#: model:ir.model.fields,field_description:contract_approval.field_contract_type_accessibility_setting__display_name
 msgid "Display Name"
+msgstr ""
+
+#. module: contract_approval
+#: model:ir.model.fields,help:contract_approval.field_contract_contract__workflow_id_domain
+msgid "Dynamic domain used for the workflow"
 msgstr ""
 
 #. module: contract_approval
@@ -112,27 +130,35 @@ msgid "Full name"
 msgstr "ФИО"
 
 #. module: contract_approval
-#: model:ir.model.fields,field_description:contract_approval.field_contract_access__role_executor_id
+#. odoo-python
+#: code:addons/contract_approval/models/contract_contract_type.py:0
+#: model:ir.model.fields,field_description:contract_approval.field_contract_type_accessibility_setting__group_executors_id
+#, python-format
 msgid "Group"
 msgstr "Группа"
 
 #. module: contract_approval
-#: model:ir.model.fields,field_description:contract_approval.field_contract_access__id
+#: model:ir.model.fields,field_description:contract_approval.field_contract_contract__activity_history_ids
+msgid "History"
+msgstr "История обработки"
+
+#. module: contract_approval
+#: model:ir.model.fields,field_description:contract_approval.field_contract_type_accessibility_setting__id
 msgid "ID"
 msgstr ""
 
 #. module: contract_approval
-#: model:ir.model.fields,field_description:contract_approval.field_contract_access____last_update
+#: model:ir.model.fields,field_description:contract_approval.field_contract_type_accessibility_setting____last_update
 msgid "Last Modified on"
 msgstr ""
 
 #. module: contract_approval
-#: model:ir.model.fields,field_description:contract_approval.field_contract_access__write_uid
+#: model:ir.model.fields,field_description:contract_approval.field_contract_type_accessibility_setting__write_uid
 msgid "Last Updated by"
 msgstr ""
 
 #. module: contract_approval
-#: model:ir.model.fields,field_description:contract_approval.field_contract_access__write_date
+#: model:ir.model.fields,field_description:contract_approval.field_contract_type_accessibility_setting__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -144,12 +170,11 @@ msgid "Not agreed"
 msgstr "Не согласовано"
 
 #. module: contract_approval
-#: model:ir.model.fields,field_description:contract_approval.field_contract_contract__process_id
+#: model:ir.model.fields,field_description:contract_approval.field_contract_contract__workflow_process_id
 msgid "Process"
-msgstr ""
+msgstr "Процесс"
 
 #. module: contract_approval
-#: model:ir.model,name:contract_approval.model_document_flow_processing
 #: model_terms:ir.ui.view,arch_db:contract_approval.contract_contract_view_form_inherit_contract_approval
 msgid "Processing"
 msgstr "Обработка"
@@ -162,30 +187,46 @@ msgid "Result"
 msgstr "Результат"
 
 #. module: contract_approval
-#: model:ir.model.fields,field_description:contract_approval.field_contract_contract__process_state
+#: model_terms:ir.ui.view,arch_db:contract_approval.contract_contract_view_form_inherit_contract_approval
+msgid "Resume processing"
+msgstr "Возобновить обработку"
+
+#. module: contract_approval
+#: model_terms:ir.ui.view,arch_db:contract_approval.contract_contract_view_form_inherit_contract_approval
+msgid "Start processing"
+msgstr "Запустить обработку"
+
+#. module: contract_approval
+#: model:ir.model.fields,field_description:contract_approval.field_contract_contract__workflow_process_state
 msgid "State"
 msgstr "Статус"
 
 #. module: contract_approval
-#: model:ir.model,name:contract_approval.model_task_task
-msgid "Task"
-msgstr "Задача"
+#: model_terms:ir.ui.view,arch_db:contract_approval.contract_contract_view_form_inherit_contract_approval
+msgid "Stop processing"
+msgstr "Остановить обработку"
 
 #. module: contract_approval
-#: model:ir.model.fields,field_description:contract_approval.field_contract_access__user_id
-#: model:ir.model.fields,field_description:contract_approval.field_contract_access__user_ref
+#. odoo-python
+#: code:addons/contract_approval/models/contract_contract_type.py:0
+#: model:ir.model.fields,field_description:contract_approval.field_contract_type_accessibility_setting__user_id
+#: model:ir.model.fields,field_description:contract_approval.field_contract_type_accessibility_setting__user_ref
+#, python-format
 msgid "User"
 msgstr "Пользователь"
 
 #. module: contract_approval
-#. odoo-python
-#: code:addons/contract_approval/models/contract_contract.py:0
-#, python-format
-msgid "You cannot delete this contract because some tasks were closed."
+#: model:ir.model,name:contract_approval.model_workflow_workflow
+#: model:ir.model.fields,field_description:contract_approval.field_contract_contract__workflow_id
+msgid "Workflow"
+msgstr "Шаблон согласования"
+
+#. module: contract_approval
+#: model:ir.model.fields,field_description:contract_approval.field_contract_contract__workflow_id_domain
+msgid "Workflow Domain"
 msgstr ""
-"Вы не можете удалить данный договор, т.к. по нему есть закрытые задачи."
 
 #. module: contract_approval
 #: model:ir.model,name:contract_approval.model_report_contract_contract_approval_form
-msgid "contract.contract_approval_form"
+msgid "contract.contract.approval.form"
 msgstr ""

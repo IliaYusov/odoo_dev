@@ -17,10 +17,16 @@
         <field name="model">contract.contract</field>
         <field name="arch" type="xml">
             <search string="Contracts">
-                <field name="name" string="Name" filter_domain="['|', ('name', 'ilike', self), ('id', 'ilike', self)]"/>
+                <field name="name" string="Name" filter_domain="[('name', 'ilike', self)]"/>
                 <field name="code" string="Internal Number" filter_domain="[('code', 'ilike', self)]"/>
                 <field name="num" string="Number" filter_domain="[('num', 'ilike', self)]"/>
-                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
+                <field name="partner_id" string="Partner" filter_domain="[('partner_id.name', 'ilike', self)]"/>
+                <field name="author_id" string="Author" filter_domain="[('author_id.name', 'ilike', self)]"/>
+                <field name="responsible_id" string="Responsible" filter_domain="[('responsible_id.name', 'ilike', self)]"/>
+                <field name="description" filter_domain="[('description', 'ilike', self)]"/>
+                <filter name="my_contracts" string="My Contracts" domain="[('author_id', '=', uid)]"/>
+                <separator/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
             </search>
         </field>
     </record>
@@ -32,8 +38,11 @@
             <tree string="Contracts">
                 <field name="code" string="Internal Number"/>
                 <field name="num"/>
+                <field name="date" widget="date"/>
                 <field name="type_id" options="{'no_create_edit': True, 'no_open': True}"/>
+                <field name="kind_id" options="{'no_create_edit': True, 'no_open': True}"/>
                 <field name="name"/>
+                <field name="partner_id" widget="many2one_avatar" options="{'no_create_edit': True}"/>
                 <field name="date_begin" string="Date Start" widget="date"/>
                 <field name="date_end" string="Date End" widget="date"/>
                 <field name="responsible_id" widget="many2one_avatar_employee" options="{'no_create_edit': True}"/>
@@ -62,13 +71,17 @@
                     <widget name="web_ribbon" title="Archived"
                             bg_color="bg-danger"
                             attrs="{'invisible': [('active', '=', True)]}"/>
+                    <group>
+                        <field name="code" string="Internal Number" attrs="{'invisible': [('id', '=', False)]}"/>
+                    </group>
                     <group col="2">
                         <group>
                             <field name="type_id" options="{'no_create_edit': True, 'no_open': True}"
                                 attrs="{'readonly': [('can_edit', '=', False)]}"/>
                         </group>
                         <group>
-                            <field name="code" string="Internal Number" attrs="{'invisible': [('id', '=', False)]}"/>
+                            <field name="kind_id" options="{'no_create_edit': True, 'no_open': True}"
+                                attrs="{'readonly': [('can_edit', '=', False)]}"/>
                         </group>
                     </group>
                     <group>
@@ -117,7 +130,7 @@
                                    attrs="{'readonly': [('can_edit', '=', False)]}"/>
                         </group>
                         <group>
-                            <field name="partner_id" options="{'no_create_edit': True}"
+                            <field name="partner_id" widget="many2one_avatar" options="{'no_create_edit': True}"
                                    attrs="{'readonly': [('can_edit', '=', False)]}"/>
                         </group>
                     </group>

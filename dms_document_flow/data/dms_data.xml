@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="dms_directory_document_directory" model="dms.directory">
+            <field name="name">Documents</field>
+            <field name="storage_id" ref="dms.dms_storage_internal_storage"/>
+        </record>
+    </data>
+</odoo>

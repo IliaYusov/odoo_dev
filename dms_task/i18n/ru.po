@@ -1,0 +1,64 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* dms_task
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-03-06 10:45+0000\n"
+"PO-Revision-Date: 2024-03-06 10:45+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: dms_task
+#: model_terms:ir.ui.view,arch_db:dms_task.task_task_view_form_inherit_dms
+msgid ""
+"<i class=\"fa fa-download\"/>\n"
+"                                                        Download"
+msgstr ""
+"<i class=\"fa fa-download\"/>\n"
+"                                                        Скачать"
+
+#. module: dms_task
+#: model_terms:ir.ui.view,arch_db:dms_task.task_task_view_form_inherit_dms
+msgid ""
+"<i class=\"fa fa-external-link\"/>\n"
+"                                                        Open"
+msgstr ""
+"<i class=\"fa fa-external-link\"/>\n"
+"                                                      Открыть"
+
+#. module: dms_task
+#: model_terms:ir.ui.view,arch_db:dms_task.task_task_view_form_inherit_dms
+msgid "<span>Documents &amp; Files</span>"
+msgstr "<span>Документы &amp; Файлы</span>"
+
+#. module: dms_task
+#: model_terms:ir.ui.view,arch_db:dms_task.task_task_view_form_inherit_dms
+msgid "Document"
+msgstr "Документ"
+
+#. module: dms_task
+#: model:ir.model.fields,field_description:dms_task.field_task_task__file_ids
+msgid "Documents & Files"
+msgstr "Документы & Файлы"
+
+#. module: dms_task
+#: model_terms:ir.ui.view,arch_db:dms_task.task_task_view_form_inherit_dms
+msgid "Dropdown menu"
+msgstr ""
+
+#. module: dms_task
+#: model:ir.model,name:dms_task.model_task_task
+msgid "Task"
+msgstr "Задача"
+
+#. module: dms_task
+#: model_terms:ir.ui.view,arch_db:dms_task.task_task_view_form_inherit_dms
+msgid "Version:"
+msgstr "Версия:"

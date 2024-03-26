@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="contract_type_view_form_inherit_contract_approval" model="ir.ui.view">
+        <field name="name">contract.type.view.form.inherit.contract.approval</field>
+        <field name="model">contract.type</field>
+        <field name="inherit_id" ref="contract.contract_type_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <notebook>
+                    <page name="access_settings_page" string="Accessibility Settings">
+                        <field name="access_setting_ids" mode="tree"/>
+                    </page>
+                </notebook>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="contract_type_accessibility_setting_view_tree" model="ir.ui.view">
+        <field name="name">contract.type.accessibility.setting.tree</field>
+        <field name="model">contract.type.accessibility.setting</field>
+        <field name="arch" type="xml">
+            <tree string="Accessibility Settings" editable="bottom">
+                <field name="type_id" invisible="1"/>
+                <field name="user_ref"/>
+            </tree>
+        </field>
+    </record>
+</odoo>

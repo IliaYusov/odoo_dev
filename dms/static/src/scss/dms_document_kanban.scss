@@ -1,0 +1,99 @@
+$o-kanban-attachment-image-size: 80px;
+
+.dms_document_kanban_view {
+    height: 100%;
+    .o_kanban_record {
+        > div:nth-child(1) {
+            padding: 0 5px !important;
+        }
+
+        padding: 0;
+        .o_kanban_image {
+            width: $o-kanban-attachment-image-size;
+
+            + div {
+                padding-left: $o-kanban-attachment-image-size + $o-kanban-inside-hgutter;
+                @include media-breakpoint-down(md) {
+                    padding-left:  $o-kanban-attachment-image-size + $o-kanban-inside-hgutter-mobile;
+                }
+            }
+
+            .o_kanban_image_wrapper {
+                min-height: $o-kanban-attachment-image-size;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .o_attachment_image {
+                width: $o-kanban-attachment-image-size;
+                height: $o-kanban-attachment-image-size;
+            }
+
+            .o_image {
+                width: $o-kanban-attachment-image-size*0.7;
+                height: $o-kanban-attachment-image-size*0.7;
+            }
+        }
+        .o_kanban_details .o_kanban_details_wrapper {
+            padding: 4px 4px 4px 0;
+            .o_kanban_record_title {
+                font-weight: bold;
+                padding-right: 16px;
+            }
+            .o_kanban_record_body {
+                max-height: 12px;
+                .o_kanban_tags {
+                    @include o-text-overflow;
+                }
+            }
+            .oe_kanban_avatar {
+                margin-left: 0px;
+            }
+            .dms_document_kanban_lock {
+                margin-top: 2px;
+                font-size: 1.2rem;
+                line-height: 20px;
+                margin-right: 6px;
+            }
+        }
+        .o_dropdown_kanban {
+            .dropdown-menu {
+                min-width: 22rem;
+                .dms_document_kanban_operations {
+                    padding-right: 8px;
+                }
+                .dms_document_kanban_actions {
+                    padding-left: 8px;
+                }
+                .fa {
+                    min-width: 12px;
+                    padding-right: 2px;
+                    text-align: center;
+                }
+                .oe_kanban_colorpicker {
+                    max-width: none;
+                    margin: 5px 5px;
+                    padding: 10px 0 0 25px;
+                    border-top: 1px solid gray("300");
+                }
+            }
+        }
+    }
+}
+
+.o_dropzone {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    background-color: #aaaa;
+    z-index: 2;
+    left: 0;
+    top: 0;
+    i {
+        justify-content: center;
+        display: flex;
+        align-items: center;
+        height: 100%;
+    }
+}

@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <xpath expr="//separator[@name='contracting_parties']" position="before">
                 <group>
-                    <field name="project_id" options="{'no_create_edit': True, 'no_open': True}"
+                    <field name="project_id" options="{'no_create_edit': True}"
                            attrs="{'readonly': [('can_edit', '=', False)]}"/>
                 </group>
             </xpath>

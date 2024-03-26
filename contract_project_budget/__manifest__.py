@@ -1,6 +1,6 @@
 {
     'name': 'Contract: Project Budget',
-    'version': '1.0.0',
+    'version': '1.0.1',
     'category': '',
     'depends': ['base', 'contract', 'project_budget'],
     'description': """

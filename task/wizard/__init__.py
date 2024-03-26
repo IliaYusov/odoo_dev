@@ -1,1 +1,1 @@
-from . import task_wizard_done
+from . import task_close_wizard

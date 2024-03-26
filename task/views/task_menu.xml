@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <menuitem id="task_root_menu" name="Task Management" sequence="20" groups="task.group_task_manager"/>
+    <menuitem id="task_root_menu" name="Task Management" sequence="30" groups="task.group_task_manager"/>
 
     <menuitem id="tasks_menu" parent="task_root_menu" sequence="10" name="Tasks"/>
     <menuitem id="task_tasks_menu" parent="tasks_menu" action="action_view_all_task"/>

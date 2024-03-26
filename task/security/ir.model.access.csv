@@ -13,4 +13,4 @@ access_task_stage_type_manager,access_task_stage_type,model_task_stage_type,task
 access_task_stage_route,access_task_stage_route,model_task_stage_route,base.group_user,1,0,0,0
 access_task_stage_route_manager,access_task_stage_route,model_task_stage_route,task.group_task_manager,1,1,1,1
 
-access_task_wizard_done,access_task_wizard_done,model_task_wizard_done,base.group_user,1,1,1,1
+access_task_close_wizard,task.close.wizard,model_task_close_wizard,base.group_user,1,1,1,1

@@ -1,19 +1,22 @@
 from odoo import _, models
 from docx.shared import Pt, Mm
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
-from html2text import html2text
+
+import pytz
 
 
 class ApprovalForm(models.AbstractModel):
-    _name = 'report.contract.contract_approval_form'
-    _description = 'contract.contract_approval_form'
-    _inherit = "report.report_docx.abstract"
+    _name = 'report.contract.contract.approval.form'
+    _description = 'contract.contract.approval.form'
+    _inherit = 'report.report_docx.abstract'
 
     def generate_docx_report(self, doc, data, objs):
         contract = objs[0]
-        if contract:
-            processes = contract.process_id.child_ids.filtered(lambda pr: pr.type == 'agreement')
-            if any(processes):
+        if contract and contract.workflow_process_id:
+            activities = contract.workflow_process_id.activity_ids.filtered(
+                lambda act: not act.flow_start and not act.flow_stop and
+                            act.activity_id.task_type_id.code == 'sys_df_agreement')
+            if any(activities):
                 style = doc.styles['Normal']
                 style.font.name = 'Calibri'
                 style.font.size = Pt(11)
@@ -35,12 +38,24 @@ class ApprovalForm(models.AbstractModel):
                     p.add_run(item).bold = True
                     p.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
-                for task in processes.task_ids.filtered(
-                        lambda t: not t.parent_id and t.stage_id.result_type != 'error'):
+                tasks = self.env['task.task'].sudo().search([
+                    ('activity_id', 'in', activities.ids)
+                ])
+
+                for activity in activities:
+                    task = tasks.filtered(lambda t: t.activity_id.id == activity.id)[-1:]
                     row = table.add_row().cells
-                    row[0].text = task.role_executor_id.name if task.role_executor_id else ', '.join(
-                        task.user_ids.mapped('name'))
-                    row[1].text = task.actual_executor_id.name if task.actual_executor_id else ''
-                    row[2].text = _('Agreed') if task.is_closed else _('Not agreed')
-                    row[3].text = task.date_closed.strftime('%d.%m.%Y %H:%M:%S') if task.is_closed else ''
-                    row[4].text = html2text(task.execution_result) if task.execution_result else ''
+                    if task:
+                        full_name = task.group_executors_id.name if task.group_executors_id else ', '.join(
+                            task.user_ids.mapped('name'))
+                    else:
+                        full_name = activity.activity_id.group_executors_id.name \
+                            if activity.activity_id.group_executors_id else ', '.join(
+                                activity.activity_id.user_ids.mapped('name'))
+                    row[0].text = full_name
+                    row[1].text = task.actual_executor_id.name if task and task.actual_executor_id else ''
+                    row[2].text = _('Agreed') if task and task.is_closed else _('Not agreed')
+                    row[3].text = pytz.utc.localize(task.date_closed).astimezone(
+                        pytz.timezone(self.env.user.tz) or pytz.utc).strftime(
+                        '%d.%m.%Y') if task and task.is_closed else ''
+                    row[4].text = task.execution_result_text if task and task.execution_result else ''

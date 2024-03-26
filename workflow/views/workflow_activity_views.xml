@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="workflow_activity_view_tree" model="ir.ui.view">
+        <field name="name">workflow.activity.tree</field>
+        <field name="model">workflow.activity</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="sequence" widget="handle"/>
+                <field name="visible_sequence"/>
+                <field name="name"/>
+                <field name="type"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="workflow_activity_view_form" model="ir.ui.view">
+        <field name="name">workflow.activity.form</field>
+        <field name="model">workflow.activity</field>
+        <field name="arch" type="xml">
+            <form string="Activity">
+                <sheet string="Activity">
+                    <group invisible="1">
+                        <field name="active"/>
+                        <field name="model_id"/>
+                        <field name="company_id"/>
+                    </group>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger"
+                            attrs="{'invisible': [('active', '=', True)]}"/>
+                    <div class="oe_title">
+                        <h1>
+                            <group>
+                                <field name="name"/>
+                            </group>
+                        </h1>
+                    </div>
+                    <group>
+                        <field name="type"/>
+                    </group>
+                    <group col="2">
+                        <group>
+                            <field name="flow_start"/>
+                        </group>
+                        <group>
+                            <field name="flow_stop"/>
+                        </group>
+                    </group>
+                    <group name="group_task_settings">
+                        <group attrs="{'invisible': [('type', '!=', 'task')]}">
+                            <field name="task_type_id" options="{'no_create_edit': True}"/>
+                        </group>
+                        <group attrs="{'invisible': [('type', '!=', 'task')]}">
+                            <label for="period_days" string="Period"/>
+                            <div>
+                                <field name="period_days" class="oe_inline"/>
+                                days
+                                <field name="period_hours" class="oe_inline"/>
+                                hours
+                            </div>
+                        </group>
+                    </group>
+                    <group col="3" name="group_task_executors" attrs="{'invisible': [('type', '!=', 'task')]}">
+                        <group>
+                            <field name="user_ids" widget="many2many_tags" options="{'no_open': True}"/>
+                        </group>
+                        <group>
+                            <field name="group_executors_id" options="{'no_create_edit': True}"/>
+                        </group>
+                        <group>
+                            <field name="auto_substitution_id" options="{'no_create_edit': True}"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="server_action_id" attrs="{'invisible': [('type', '!=', 'srv_action')]}"/>
+                    </group>
+                    <group>
+                        <field name="window_act_id" attrs="{'invisible': [('type', '!=', 'win_action')]}"/>
+                    </group>
+                    <group>
+                        <field name="sub_flow_id" attrs="{'invisible': [('type', '!=', 'sub_flow')]}"/>
+                    </group>
+                    <notebook>
+                        <page name="page_code" string="Code" attrs="{'invisible': [('type', '!=', 'python_code')]}">
+                            <field name="code" widget="ace" options="{'mode': 'python'}"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

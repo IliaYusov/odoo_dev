@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="dms_storage_internal_storage" model="dms.storage">
+            <field name="name">Internal</field>
+            <field name="save_type">attachment</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo>

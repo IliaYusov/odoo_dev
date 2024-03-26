@@ -1,3 +1,15 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 
 access_dms_version_config,dms.version.config,model_dms_version_config,base.group_no_one,1,1,1,1
+
+access_dms_storage_user,dms.storage.user,model_dms_storage,group_dms_user,1,0,0,0
+access_dms_storage_manager,dms.storage.manager,model_dms_storage,group_dms_manager,1,1,1,1
+access_dms_storage_portal,dms.storage.manager,model_dms_storage,base.group_portal,1,0,0,0
+
+access_dms_directory_user,dms.directory.user,model_dms_directory,group_dms_user,1,1,1,1
+access_dms_directory_portal,dms.directory.portal,model_dms_directory,base.group_portal,1,0,0,0
+
+access_dms_document_user,dms.document.user,model_dms_document,group_dms_user,1,1,1,1
+access_dms_document_portal,dms.document.user,model_dms_document,base.group_portal,1,0,0,0
+
+access_dms_document_version_user,dms.document.version.user,model_dms_document_version,group_dms_user,1,1,1,1

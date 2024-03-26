@@ -1,8 +1,8 @@
 {
     'name': 'Document Flow',
-    'version': '1.5.1',
+    'version': '1.5.4',
     'category': '',
-    'depends': ['base', 'mail', 'task', 'dms', 'hr', 'project_budget'],
+    'depends': ['base', 'mail', 'task', 'dms', 'hr'],
     'external_dependencies': {'python': ['htmldocx', 'html2text']},
     'description': """
     """,
@@ -14,7 +14,6 @@
     'images': ['static/description/icon.png'],
     'assets': {
         'web.assets_backend': [
-            'document_flow/static/src/css/html_fields.css',
             'document_flow/static/src/css/dashboard.css',
             'document_flow/static/src/js/lib/Chart.bundle.js',
             'document_flow/static/src/xml/dashboard_view.xml',
@@ -40,8 +39,7 @@
         'views/process_views.xml',
         'views/process_template_views.xml',
         'views/document_kind_template_views.xml',
-        'views/document_views.xml',
-        'views/document_access_views.xml',
+        'views/document_flow_document_views.xml',
         'wizard/document_flow_processing_wizard_resume.xml',
         'views/processing_views.xml',
         'views/task_history_views.xml',

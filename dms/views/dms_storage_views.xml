@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="action_dms_storage_directories" model="ir.actions.act_window">
+        <field name="name">Directories</field>
+        <field name="res_model">dms.directory</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="domain">
+            [
+                ("storage_id", "=", active_id),
+                ("is_hidden", "=", False)
+            ]
+        </field>
+        <field name="context">{'default_storage_id': active_id}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Click to add a new directory.
+            </p>
+            <p>
+                Directories can be used to structure and organize documents.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_dms_storage_documents" model="ir.actions.act_window">
+        <field name="name">Documents</field>
+        <field name="res_model">dms.document</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="domain">
+            [
+                ("storage_id", "=", active_id),
+                ("is_hidden", "=", False)
+            ]
+        </field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Click to add a new document.
+            </p>
+            <p>
+                Documents are used to save content.
+            </p>
+        </field>
+    </record>
+
+    <record id="dms_storage_view_search" model="ir.ui.view">
+        <field name="name">dms.storage.search</field>
+        <field name="model">dms.storage</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <group expand="0" string="Group By">
+                    <filter string="Save Type" name="group_save_type" domain="[]" context="{'group_by':'save_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="dms_storage_view_tree" model="ir.ui.view">
+        <field name="name">dms.storage.tree</field>
+        <field name="model">dms.storage</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="save_type"/>
+                <field name="is_hidden"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="dms_storage_view_form" model="ir.ui.view">
+        <field name="name">dms.storage.form</field>
+        <field name="model">dms.storage</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(action_dms_storage_directories)d" type="action" class="oe_stat_button"
+                                icon="fa-folder-open-o">
+                            <field name="directory_count" string="Directories" widget="statinfo"/>
+                        </button>
+                        <button name="%(action_dms_storage_documents)d" type="action" class="oe_stat_button"
+                                icon="fa-file-text-o">
+                            <field name="document_count" string="Documents" widget="statinfo"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name" />
+                        </h1>
+                    </div>
+                    <group name="save_storage">
+                        <group name="save_storage_left">
+                            <field name="save_type"/>
+                        </group>
+                        <group name="save_storage_right">
+                        </group>
+                    </group>
+                    <group name="data_storage">
+                        <group>
+                            <field name="is_hidden"/>
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Actions -->
+
+    <record id="action_dms_storage_form" model="ir.actions.act_window">
+        <field name="name">Storages</field>
+        <field name="res_model">dms.storage</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Storage object.
+            </p>
+            <p>
+                Storages are used to configure your Documents.
+            </p>
+        </field>
+    </record>
+</odoo>

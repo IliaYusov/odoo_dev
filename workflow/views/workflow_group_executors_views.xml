@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_workflow_group_executors_main" model="ir.actions.act_window">
+        <field name="name">Groups Of Executors</field>
+        <field name="res_model">workflow.group.executors</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{"active_test": False}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No groups of executors found. Let's create one!
+            </p>
+        </field>
+    </record>
+
+    <record id="workflow_group_executors_view_tree" model="ir.ui.view">
+        <field name="name">workflow.group.executors.tree</field>
+        <field name="model">workflow.group.executors</field>
+        <field name="arch" type="xml">
+            <tree string="Groups Of Executors">
+                <field name="name"/>
+                <field name="member_ids" widget="many2many_avatar_user" options='{"no_quick_create": True}'/>
+                <field name="active" widget="boolean_toggle"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="workflow_group_executors_view_form" model="ir.ui.view">
+        <field name="name">workflow.group.executors.form</field>
+        <field name="model">workflow.group.executors</field>
+        <field name="arch" type="xml">
+            <form string="Group Of Executors">
+                <sheet string="Group Of Executors">
+                    <group invisible="1">
+                        <field name="active"/>
+                    </group>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger"
+                            attrs="{'invisible': [('active', '=', True)]}"/>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                    <group>
+                        <field name="member_ids" options="{'no_open': True, 'no_quick_create': True}"
+                               widget="many2many_avatar_user"/>
+                    </group>
+                    <group>
+                        <field name="company_id" invisible="1" groups="!base.group_multi_company"/>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

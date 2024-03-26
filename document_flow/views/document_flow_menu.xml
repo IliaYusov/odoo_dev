@@ -3,9 +3,6 @@
     <menuitem id="document_flow_menu" name="Document Flow" sequence="15"
               groups="document_flow.group_document_flow_user,document_flow.group_document_flow_manager"/>
 
-    <menuitem id="document_flow_menu_dashboard" parent="document_flow.document_flow_menu" name="Dashboard" sequence="0"
-              action="action_document_flow_dashboard"/>
-
     <menuitem id="document_flow_menu_document" parent="document_flow.document_flow_menu" name="Documents" sequence="1"
               action="action_document_flow_documents_form"/>
 

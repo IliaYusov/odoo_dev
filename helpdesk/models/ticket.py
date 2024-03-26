@@ -18,7 +18,7 @@ class HelpdeskTicket(models.Model):
     _inherit = ['mail.thread.cc', 'mail.activity.mixin']
 
     author_id = fields.Many2one('res.users', string='Author', default=lambda self: self.env.user)
-    code = fields.Char(string='Code', required=True, default=lambda self: _('New'))
+    code = fields.Char(string='Code', required=True, default=lambda self: _('New'), copy=False)
     name = fields.Text(string='Name', required=True, tracking=True)
     description = fields.Html(string='Description', required=True, tracking=True)
 
@@ -27,12 +27,12 @@ class HelpdeskTicket(models.Model):
 
     priority = fields.Selection(PRIORITIES, string='Priority', default='3', tracking=True)
 
-    team_id = fields.Many2one('helpdesk.team', string='Helpdesk Team', tracking=True)
+    team_id = fields.Many2one('helpdesk.team', string='Helpdesk Team', tracking=True, copy=False)
     user_id = fields.Many2one('res.users', string='Assigned', check_company=True, index=True, tracking=True)
-    date_closed = fields.Date(string='Date Closed', index=True)
+    date_closed = fields.Date(string='Date Closed', index=True, copy=False)
 
-    type_id = fields.Many2one('helpdesk.ticket.type', string='Type', ondelete='restrict', required=True, index=True, copy=True,
-                              tracking=True)
+    type_id = fields.Many2one('helpdesk.ticket.type', string='Type', ondelete='restrict', required=True, index=True,
+                              copy=True, tracking=True)
     stage_id = fields.Many2one('helpdesk.ticket.stage', string='Stage', ondelete='restrict', required=True, index=True,
                                tracking=True, copy=True)
     stage_type_id = fields.Many2one('helpdesk.ticket.stage.type', related="stage_id.type_id", string="Stage Type",
