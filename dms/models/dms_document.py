@@ -49,8 +49,6 @@ class DmsDocument(models.Model):
     locker_id = fields.Many2one('res.users', string='Locked by')
     is_locked = fields.Boolean(string='Locked', compute='_compute_is_locked')
 
-    progress_value = fields.Char()
-
     @api.depends('attachment_id.name')
     def _compute_name(self):
         for record in self:

@@ -235,7 +235,6 @@
                         <field name="company_id" groups="base.group_multi_company"/>
                         <field name="size"/>
                         <field name="mimetype"/>
-                        <field name="progress_value"/>
                     </group>
                     <notebook>
                         <page name="page_previous_versions" string="Previous Versions"
