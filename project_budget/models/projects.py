@@ -644,26 +644,27 @@ class projects(models.Model):
             project.rko_other = 0
             project.other_expenses = 0
             for step in project.project_steps_ids:
-                project.total_amount_of_revenue += step.total_amount_of_revenue
-                project.cost_price += step.cost_price
-                if project.is_child_project:
-                    project.margin_income += step.margin_income * (1 - project.margin_rate_for_parent)
-                else:
-                    project.margin_income += step.margin_income
-                project.total_amount_of_revenue_with_vat += step.total_amount_of_revenue_with_vat
-                project.taxes_fot_premiums += step.taxes_fot_premiums
-                project.revenue_from_the_sale_of_works += step.revenue_from_the_sale_of_works
-                project.revenue_from_the_sale_of_goods += step.revenue_from_the_sale_of_goods
-                project.cost_of_goods += step.cost_of_goods
-                project.own_works_fot += step.own_works_fot
-                project.third_party_works += step.third_party_works
-                project.awards_on_results_project += step.awards_on_results_project
-                project.transportation_expenses += step.transportation_expenses
-                project.travel_expenses += step.travel_expenses
-                project.representation_expenses += step.representation_expenses
-                project.warranty_service_costs += step.warranty_service_costs
-                project.rko_other += step.rko_other
-                project.other_expenses += step.other_expenses
+                if step.estimated_probability_id.name != '0':
+                    project.total_amount_of_revenue += step.total_amount_of_revenue
+                    project.cost_price += step.cost_price
+                    if project.is_child_project:
+                        project.margin_income += step.margin_income * (1 - project.margin_rate_for_parent)
+                    else:
+                        project.margin_income += step.margin_income
+                    project.total_amount_of_revenue_with_vat += step.total_amount_of_revenue_with_vat
+                    project.taxes_fot_premiums += step.taxes_fot_premiums
+                    project.revenue_from_the_sale_of_works += step.revenue_from_the_sale_of_works
+                    project.revenue_from_the_sale_of_goods += step.revenue_from_the_sale_of_goods
+                    project.cost_of_goods += step.cost_of_goods
+                    project.own_works_fot += step.own_works_fot
+                    project.third_party_works += step.third_party_works
+                    project.awards_on_results_project += step.awards_on_results_project
+                    project.transportation_expenses += step.transportation_expenses
+                    project.travel_expenses += step.travel_expenses
+                    project.representation_expenses += step.representation_expenses
+                    project.warranty_service_costs += step.warranty_service_costs
+                    project.rko_other += step.rko_other
+                    project.other_expenses += step.other_expenses
 
         if project.total_amount_of_revenue == 0:
             project.profitability = 0
