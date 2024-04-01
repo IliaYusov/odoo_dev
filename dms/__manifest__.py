@@ -13,6 +13,8 @@
             'dms/static/src/views/**/*.js',
             'dms/static/src/views/**/*.xml',
             'dms/static/src/views/**/*.xml',
+            'dms/static/src/js/test_widget.js',
+            'dms/static/src/xml/test_widget.xml',
         ],
     },
     'data': [

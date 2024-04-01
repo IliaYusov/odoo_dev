@@ -153,6 +153,7 @@
                                 <field name="end_presale_project_month"  attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}" />
                                 <field name="end_sale_project_month" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
                             </group>
+                            <field name="file_ids" widget="many2many_binary"/>
                         </group>
 
                         <group col="4">

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-inherit="web.Many2ManyBinaryField.attachment_preview" t-inherit-mode="extension" owl="1">
+        <xpath expr="//div[hasclass('o_attachment_wrap')]//div[hasclass('o_image_box')]" position="replace">
+            <div t-if="file.mimetype=='application/pdf'" class="o_image_box float-start" t-att-data-tooltip="'Preview ' + file.name">
+                <a t-att-href="getUrl(file.id)" target="_blank">
+                    <span class="o_image o_hover" t-att-data-mimetype="file.mimetype" t-att-data-ext="ext" role="img"/>
+                </a>
+            </div>
+            <div t-if="file.mimetype!='application/pdf'" class="o_image_box float-start" t-att-data-tooltip="'Download ' + file.name">
+                <a t-att-href="getUrl(file.id)" aria-label="Download" download="">
+                    <span class="o_image o_hover" t-att-data-mimetype="file.mimetype" t-att-data-ext="ext" role="img"/>
+                </a>
+            </div>
+        </xpath>
+    </t>
+</templates>

@@ -397,6 +397,8 @@ class projects(models.Model):
 
     user_is_admin = fields.Boolean(string="user is admin", compute='_check_user_is_admin')
 
+    file_ids = fields.Many2many('ir.attachment', string="Upload")
+
     def _check_user_is_admin(self):
         for record in self:
             record['user_is_admin'] = False
