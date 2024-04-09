@@ -1,0 +1,27 @@
+<odoo>
+    <data>
+        <record id="show_project_team_tree" model="ir.ui.view">
+            <field name="name">project_budget.project_team.tree</field>
+            <field name="model">project_budget.project_team</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="employee_id"/>
+                    <field name="role_id" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="show_project_team_form" model="ir.ui.view">
+            <field name="name">project_budget.project_team.form</field>
+            <field name="model">project_budget.project_team</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <field name="employee_id"/>
+                        <field name="role_id"/>
+                    </group>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

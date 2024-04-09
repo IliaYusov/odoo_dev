@@ -1,5 +1,5 @@
 <odoo>
-     <data>
+    <data>
         <record id="project_budget.module_category_services_budget_project" model="ir.module.category">
             <field name="name">project budget nkk</field>
             <field name="description">Helps you manage your budget projects ...</field>
@@ -27,6 +27,21 @@
 <!--            <field name="category_id" ref="base.module_category_services_project"/>-->
         </record>
 
+        <record id="project_budget_project_manager" model="res.groups">
+            <field name="name">Project Manager</field>
+            <field name="category_id" ref="project_budget.module_category_services_budget_project"/>
+        </record>
+
+        <record id="project_budget_project_supervisor" model="res.groups">
+            <field name="name">Project Supervisor</field>
+            <field name="category_id" ref="project_budget.module_category_services_budget_project"/>
+        </record>
+
+        <record id="project_budget_project_rukovoditel" model="res.groups">
+            <field name="name">Project Rukovoditel</field>
+            <field name="category_id" ref="project_budget.module_category_services_budget_project"/>
+        </record>
+
         <record id="project_budget_tenders_user" model="res.groups">
             <field name="name">Tender user</field>
             <field name="category_id" ref="project_budget.module_category_services_budget_project"/>
@@ -38,6 +53,5 @@
             <field name="category_id" ref="project_budget.module_category_services_budget_project"/>
             <field name="implied_ids" eval="[(4, ref('project_budget_users_readonly'))]"/>
         </record>
-
     </data>
 </odoo>

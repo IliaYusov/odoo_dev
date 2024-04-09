@@ -96,6 +96,10 @@
                                     icon="fa-gavel">
                                 <field string="Tenders" name="tenders_count" widget="statinfo"/>
                             </button>
+                            <button class="oe_stat_button" type="object" name="action_open_team"
+                                    icon="fa-group">
+                                <field string="Team" name="team_count" widget="statinfo"/>
+                            </button>
                         </div>
                         <field name="id" invisible="True"/>
                         <field name="company_id" invisible="True"/>
@@ -220,31 +224,40 @@
                                 </group>
                                 <h5>
                                     <group col="3">
-                                        <group>
+                                        <group colspan="1">
                                             <field class="text-break" name="step_project_number" placeholder="enter project code from AXAPTA"
                                                     attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')], 'required': [('estimated_probability_id', 'in', (5, 6))]}"
                                                     decoration-bf="1"/> <!--обязательно при вероятности 100 и 100(done) -->
                                             <field class="text-break" name="project_office_id" placeholder="select project office" force_save="1" options="{'no_open': True,}"
                                                     attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
                                                     decoration-bf="1"/>
-                                        </group>
-                                        <group>
-                                            <field name="isRukovoditel_required_in_project" invisible="True"/>
-                                            <field name="project_manager_id" widget="many2one_avatar" force_save="1" placeholder="select project manager" options="{'no_open': True,}"
-                                                    attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
-                                                    decoration-bf="1"/>
-                                            <field name="rukovoditel_project_id" widget="many2one_avatar" force_save="1" placeholder="select rukovoditel_project" options="{'no_open': True,}"
-                                                    attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')], 'required': [('isRukovoditel_required_in_project', '=', True)]}"
-                                                    decoration-bf="1"/>
+                                            <field name="technological_direction_id" force_save="1" options="{'no_open': True,}" placeholder="select technological direction"
+                                                   attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
                                             <field name="project_type_id" force_save="1" options="{'no_open': True,}" placeholder="select project type"
                                                    attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
                                         </group>
-                                        <group>
-                                            <field name="project_supervisor_id" widget="many2one_avatar" placeholder="select project supervisor" force_save="1" options="{'no_open': True,}"
-                                                    attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
-                                                    decoration-bf="1"/>
-                                            <field name="technological_direction_id" force_save="1" options="{'no_open': True,}" placeholder="select technological direction"
-                                                   attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
+                                        <group colspan="2">
+                                            <group>
+                                                <field name="isRukovoditel_required_in_project" invisible="True"/>
+                                                <field name="project_manager_id" widget="many2one_avatar" force_save="1" placeholder="select project manager" options="{'no_open': True,}"
+                                                        attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                                        decoration-bf="1"/>
+                                                <field name="project_manager_domain" invisible="1"/>
+                                                <field name="project_manager_employee_id" widget="many2one_avatar" force_save="1" placeholder="select project manager" options="{'no_open': True,}"
+                                                        attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                                        domain="project_manager_domain" decoration-bf="1"/>
+                                            </group>
+                                            <group>
+                                                <field name="rukovoditel_project_id" widget="many2one_avatar" force_save="1" placeholder="select rukovoditel_project" options="{'no_open': True,}"
+                                                        attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')], 'required': [('isRukovoditel_required_in_project', '=', True)]}"
+                                                        decoration-bf="1"/>
+                                                <field name="project_supervisor_id" widget="many2one_avatar" placeholder="select project supervisor" force_save="1" options="{'no_open': True,}"
+                                                        attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                                        decoration-bf="1"/>
+                                            </group>
+                                            <field name="team_ids" widget="section_and_note_one2many"
+                                                mode="tree" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}">
+                                            </field>
                                         </group>
                                     </group>
                                 </h5>

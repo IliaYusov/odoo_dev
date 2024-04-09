@@ -6,6 +6,7 @@ from . import fact_cash_flow
 from . import planned_acceptance_flow
 from . import planned_cash_flow
 from . import project_steps
+from . import project_team
 from . import projects
 from . import project_budget_catalogs
 from . import project_budget_scheduled_report

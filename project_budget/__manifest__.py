@@ -39,6 +39,7 @@
         'views/project_budget_projects.xml',
         'views/project_budget_comercial_budget.xml',
         'views/project_currency_rates.xml',
+        'views/project_budget_project_team.xml',
         'views/tenders.xml',
         'views/res_partner.xml',
         'views/scheduled_report_views.xml',

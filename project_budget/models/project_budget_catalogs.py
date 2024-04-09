@@ -40,6 +40,15 @@ class project_steps_type(models.Model):
     is_rko_other = fields.Boolean(string='is_rko_other',tracking=True, default = True)
     is_other_expenses = fields.Boolean(string='is_other_expenses',tracking=True, default = True)
 
+class project_role(models.Model):
+    _name = 'project_budget.project_role'
+    _description = "project access role"
+    name = fields.Char(string="name", required=True, translate=True)
+    can_read = fields.Boolean(string='can read projects',tracking=True, default = True)
+    can_modify = fields.Boolean(string='can modify projects',tracking=True)
+    can_approve = fields.Boolean(string='can approve projects',tracking=True)
+    color = fields.Integer()
+
 # catalogs
 class project_office(models.Model):
     _name = 'project_budget.project_office'

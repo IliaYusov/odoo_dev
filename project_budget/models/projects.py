@@ -182,6 +182,24 @@ class projects(models.Model):
                     [('id', '=', manager_access[0].project_manager_id.id)])
         return None
 
+    @api.onchange('company_id')
+    def _get_default_project_manager(self):
+        print(self.project_manager_employee_id.user_id.id, self.env.uid)
+        if not self.company_id.id:
+            return self.env['hr.employee'].search([
+                '&','&',
+                ("user_id.groups_id", "=", self.env.ref("project_budget.project_budget_project_manager").id),
+                ('user_id', '=', self.env.uid),
+                ('company_id', '=', self.env.company.id),
+            ], limit=1)
+        elif self.project_manager_employee_id.user_id.id == self.env.uid:
+            return {'value': {'project_manager_employee_id': self.env['hr.employee'].search([
+                '&','&',
+                ("user_id.groups_id", "=", self.env.ref("project_budget.project_budget_project_manager").id),
+                ('user_id', '=', self.env.uid),
+                ('company_id', '=', self.company_id.id),
+            ], limit=1)}}
+
     @api.onchange("partner_id")
     def _get_partner_id(self):
         if not self.company_partner_id:
@@ -218,11 +236,20 @@ class projects(models.Model):
                                         copy=True,tracking=True,  check_company=True, domain ="[('is_prohibit_selection','=', False)]")
     project_supervisor_id = fields.Many2one('project_budget.project_supervisor', string='project_supervisor',
                                             required=True, copy=True, domain=_get_supervisor_list, tracking=True, check_company=True)
-    project_manager_id = fields.Many2one('project_budget.project_manager', string='project_manager', required=True,
+    project_manager_id = fields.Many2one('project_budget.project_manager', string='project_manager',
                                          copy=True, default=_get_first_manager_from_access, domain=_get_manager_list, tracking=True, check_company=True) # на самом деле это КАМ, а вот РП ниже
+
+    project_manager_employee_id = fields.Many2one(
+        'hr.employee', string='project_manager', required=True, copy=True, tracking=True, check_company=True,
+        default=_get_default_project_manager)  # на самом деле это КАМ, а вот РП ниже
+
+    project_manager_domain = fields.Binary(string='Project Manager Domain', compute='_compute_project_manager_domain',
+                                           help='Dynamic domain used for the project manager')
 
     rukovoditel_project_id = fields.Many2one('project_budget.rukovoditel_project', string='rukovoditel_project',
                                          copy=True,  tracking=True, check_company=True)
+
+    team_ids = fields.One2many(comodel_name='project_budget.project_team', inverse_name='projects_id')
 
     customer_organization_id = fields.Many2one('project_budget.customer_organization', string='customer_organization',
                                                required=False, copy=True,tracking=True)
@@ -378,6 +405,8 @@ class projects(models.Model):
 
     tenders_count = fields.Integer(compute='_compute_tenders_count', string='Tenders')
 
+    team_count = fields.Integer(compute='_compute_team_count', string='Tenders')
+
     is_parent_project = fields.Boolean(string="project is parent", default=False, copy=True,tracking=True)
     is_child_project = fields.Boolean(string="project is child", compute='_check_project_is_child')
     parent_project_id = fields.Many2one(
@@ -421,6 +450,21 @@ class projects(models.Model):
             project.tenders_count = self.env['project_budget.tenders'].search_count([
                 ('projects_id', '=', project.id)
             ])
+
+    def _compute_team_count(self):
+        for project in self:
+            project.team_count = self.env['project_budget.project_team'].search_count([
+                ('projects_id', '=', project.id)
+            ])
+
+    @api.depends('company_id')
+    def _compute_project_manager_domain(self):
+        for rec in self:
+            rec.project_manager_domain = [
+                '&',
+                ("user_id.groups_id", "=", self.env.ref("project_budget.project_budget_project_manager").id),
+                ('company_id','=',self.company_id.id)
+            ]
 
     @api.depends('child_project_ids.total_amount_of_revenue', 'child_project_ids.cost_price', 'child_project_ids')
     def _compute_total_margin(self):
@@ -1398,6 +1442,19 @@ class projects(models.Model):
                 """ % _("Add tenders for this project")
         }
 
+    def action_open_team(self):
+        self.ensure_one()
+        return {
+            'name': _('Team'),
+            'domain': [('projects_id', '=', self.id)],
+            'res_model': 'project_budget.project_team',
+            'type': 'ir.actions.act_window',
+            'view_mode': 'tree,form',
+            'context': "{'default_projects_id': %d}" % (self.id),
+            'help': """
+                <p class="o_view_nocontent_smiling_face">%s</p>
+                """ % _("Add team for this project")
+        }
 
     def process_task_result(self, date_closed, result_type='ok', feedback=False):
         pass

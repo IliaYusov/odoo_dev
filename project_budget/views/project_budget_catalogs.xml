@@ -754,6 +754,50 @@
         </record>
 <!-- end project_budget.project_steps_type-->
 
+<!-- project_budget.project_access_role -->
+        <record id="show_project_role_tree" model="ir.ui.view">
+            <field name="name">project_budget.project_role.tree</field>
+            <field name="model">project_budget.project_role</field>
+            <field name="arch" type="xml">
+                <tree string="access role">
+                    <field name="name"/>
+                    <field name="can_read"/>
+                    <field name="can_modify"/>
+                    <field name="can_approve"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="show_project_role_form" model="ir.ui.view">
+            <field name="name">project_budget.project_role.form</field>
+            <field name="model">project_budget.project_role</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <field name="name"/>
+                        <field name="can_read"/>
+                        <field name="can_modify"/>
+                        <field name="can_approve"/>
+                        <field name="color"/>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="show_project_role" model="ir.actions.act_window">
+            <field name="name">project_budget.project_role</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">project_budget.project_role</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'search_default_group_by_provider': True}</field>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a new project_access_role
+              </p>
+            </field>
+        </record>
+<!-- end project_budget.project_access_role-->
+
     <record id="project_budget_estimated_probability_action" model="ir.actions.act_window">
         <field name="name">Projects Overview</field>
         <field name="res_model">project_budget.estimated_probability</field>
