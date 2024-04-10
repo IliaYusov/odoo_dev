@@ -255,7 +255,7 @@
                                                         attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
                                                         decoration-bf="1"/>
                                             </group>
-                                            <field name="team_ids" widget="section_and_note_one2many"
+                                            <field name="team_ids"
                                                 mode="tree" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}">
                                             </field>
                                         </group>

@@ -17,6 +17,7 @@
             <field name="arch" type="xml">
                 <form>
                     <group>
+                        <field name="project_id"/>
                         <field name="employee_id"/>
                         <field name="role_id"/>
                     </group>

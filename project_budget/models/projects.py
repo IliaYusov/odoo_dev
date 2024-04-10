@@ -249,7 +249,7 @@ class projects(models.Model):
     rukovoditel_project_id = fields.Many2one('project_budget.rukovoditel_project', string='rukovoditel_project',
                                          copy=True,  tracking=True, check_company=True)
 
-    team_ids = fields.One2many(comodel_name='project_budget.project_team', inverse_name='projects_id')
+    team_ids = fields.One2many(comodel_name='project_budget.project_team', inverse_name='projects_id', compute='_compute_team_ids')
 
     customer_organization_id = fields.Many2one('project_budget.customer_organization', string='customer_organization',
                                                required=False, copy=True,tracking=True)
@@ -456,6 +456,10 @@ class projects(models.Model):
             project.team_count = self.env['project_budget.project_team'].search_count([
                 ('projects_id', '=', project.id)
             ])
+
+    def _compute_team_ids(self):
+        for project in self:
+            project.team_ids = self.env['project_budget.project_team'].search([('project_id','=',project.project_id)])
 
     @api.depends('company_id')
     def _compute_project_manager_domain(self):
