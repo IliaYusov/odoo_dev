@@ -8,7 +8,7 @@ class report_tender_wizard(models.TransientModel):
     _name = 'project_budget.tender.report.wizard'
     _description = 'Tender report Wizard'
     date_from = fields.Date(string='event date from', required=True, default=date(date.today().year, 1, 1))
-    date_to = fields.Date(string='event  date to', required=True, default=fields.datetime.now())
+    date_to = fields.Date(string='event  date to', required=True, default=fields.Date.context_today)
     is_report_for_management = fields.Boolean(string="is_report_for_management", default=False)
     include_old_open_tenders = fields.Boolean(string="include_old_open_tenders", default=False)
     FileName = fields.Char('File name', compute='_getFileName')

@@ -330,11 +330,11 @@ class project_steps(models.Model):
     end_presale_project_quarter = fields.Char(string='End date of the Presale project(quarter)',
                                               compute='_compute_quarter', store=True, tracking=True)
     end_presale_project_month = fields.Date(string='Date of transition to the Production Budget(MONTH)', required=True,
-                                            default=fields.datetime.now(), tracking=True)
+                                            default=fields.Date.context_today, tracking=True)
     end_sale_project_quarter = fields.Char(string='End date of the Sale project(quarter)', compute='_compute_quarter',
                                            store=True, tracking=True)
     end_sale_project_month = fields.Date(string='The period of shipment or provision of services to the Client(MONTH)',
-                                         required=True, default=fields.datetime.now(), tracking=True)
+                                         required=True, default=fields.Date.context_today, tracking=True)
 
     total_amount_of_revenue = fields.Monetary(string='total_amount_of_revenue', compute='_compute_spec_totals',
                                               store=True, tracking=True)

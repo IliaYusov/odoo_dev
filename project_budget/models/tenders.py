@@ -34,7 +34,7 @@ class tenders(models.Model):
 
     essence_project = fields.Text(related='projects_id.essence_project', readonly=True)
 
-    date_of_filling_in = fields.Date(string='date_of_filling_in tender', required=True, default=fields.datetime.now(), tracking=True)
+    date_of_filling_in = fields.Date(string='date_of_filling_in tender', required=True, default=fields.Date.context_today, tracking=True)
     participant_id = fields.Many2one('project_budget.legal_entity_signing',
                                               string='legal_entity_signing a contract from the NCC', required=True,
                                               copy=True, tracking=True)
@@ -232,7 +232,7 @@ class tender_comments(models.Model):
     _order = 'date_comment'
 
     tenders_id = fields.Many2one('project_budget.tenders',string='tender id', required=True, copy=True, tracking=True, ondelete='cascade',)
-    date_comment = fields.Date(string='date of the comment', required=True, default=fields.datetime.now(), tracking=True)
+    date_comment = fields.Date(string='date of the comment', required=True, default=fields.Date.context_today, tracking=True)
     is_need_type = fields.Boolean(string="is need comment type ", copy=True, default = True)
     type_comment_id = fields.Many2one('project_budget.tender_comments_type',string='tender comments type', copy=True, tracking=True)
     text_comment = fields.Text(string="text of the comment", copy=True, default ="")
