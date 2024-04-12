@@ -242,10 +242,8 @@
                                                 <field name="project_manager_id" widget="many2one_avatar" force_save="1" placeholder="select project manager" options="{'no_open': True,}"
                                                         attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
                                                         decoration-bf="1"/>
-                                                <field name="project_manager_domain" invisible="1"/>
-                                                <field name="project_manager_employee_id" widget="many2one_avatar" force_save="1" placeholder="select project manager" options="{'no_open': True,}"
-                                                        attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
-                                                        domain="project_manager_domain" decoration-bf="1"/>
+                                                <field name="project_manager_employee_ids" widget="many2many_tags" options="{'no_open': True,}"
+                                                        readonly="1" decoration-bf="1"/>
                                             </group>
                                             <group>
                                                 <field name="rukovoditel_project_id" widget="many2one_avatar" force_save="1" placeholder="select rukovoditel_project" options="{'no_open': True,}"
@@ -256,7 +254,7 @@
                                                         decoration-bf="1"/>
                                             </group>
                                             <field name="team_ids"
-                                                mode="tree" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}">
+                                                mode="tree" readonly="1">
                                             </field>
                                         </group>
                                     </group>
@@ -656,7 +654,7 @@
                                 <field name="planned_acceptance_flow_ids"
                                 widget="section_and_note_one2many"
                                 mode="tree" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}">
-                                    <tree editable="bottom" default_order="date_cash">
+                                    <tree editable="bottom" default_order="date_cash" limit="100">
                                         <button name="action_copy_planned_acceptance" type="object" title="Copy acceptance" string="Copy acceptance" class="btn btn-link"/>
                                         <field name="acceptance_id"/>
                                         <field name="forecast"/>
@@ -691,7 +689,7 @@
                                 <field name="planned_cash_flow_ids"
                                 widget="section_and_note_one2many"
                                 mode="tree" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}">
-                                    <tree editable="bottom" default_order="date_cash">
+                                    <tree editable="bottom" default_order="date_cash" limit="100">
                                         <button name="action_copy_planned_cash" type="object" title="Copy cash" string="Copy cash" class="btn btn-link"/>
                                         <field name="project_have_steps" invisible="True"/>
                                         <field name="cash_id" invisible="False"/>

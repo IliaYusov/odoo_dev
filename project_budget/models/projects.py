@@ -164,6 +164,14 @@ class projects(models.Model):
             return domain
         return domain
 
+    def _get_manager_employee_list(self):
+        for project in self:
+            kam = self.env['project_budget.project_team'].search([
+                ('project_id', '=', self.project_id),
+                ('role_id.name', '=', 'KAM')
+            ])
+            project.project_manager_employee_ids = kam.employee_id
+
     def _get_commercial_budget_list(self):
         domain = [('id', 'in','-1')]
         commercial_budget = self.env['project_budget.commercial_budget'].search([('budget_state', '=', 'work')])
@@ -182,23 +190,23 @@ class projects(models.Model):
                     [('id', '=', manager_access[0].project_manager_id.id)])
         return None
 
-    @api.onchange('company_id')
-    def _get_default_project_manager(self):
-        print(self.project_manager_employee_id.user_id.id, self.env.uid)
-        if not self.company_id.id:
-            return self.env['hr.employee'].search([
-                '&','&',
-                ("user_id.groups_id", "=", self.env.ref("project_budget.project_budget_project_manager").id),
-                ('user_id', '=', self.env.uid),
-                ('company_id', '=', self.env.company.id),
-            ], limit=1)
-        elif self.project_manager_employee_id.user_id.id == self.env.uid:
-            return {'value': {'project_manager_employee_id': self.env['hr.employee'].search([
-                '&','&',
-                ("user_id.groups_id", "=", self.env.ref("project_budget.project_budget_project_manager").id),
-                ('user_id', '=', self.env.uid),
-                ('company_id', '=', self.company_id.id),
-            ], limit=1)}}
+    # @api.onchange('company_id')
+    # def _get_default_project_manager(self):
+    #     print(self.project_manager_employee_id.user_id.id, self.env.uid)
+    #     if not self.company_id.id:
+    #         return self.env['hr.employee'].search([
+    #             '&','&',
+    #             ("user_id.groups_id", "=", self.env.ref("project_budget.project_budget_project_manager").id),
+    #             ('user_id', '=', self.env.uid),
+    #             ('company_id', '=', self.env.company.id),
+    #         ], limit=1)
+    #     elif self.project_manager_employee_id.user_id.id == self.env.uid:
+    #         return {'value': {'project_manager_employee_id': self.env['hr.employee'].search([
+    #             '&','&',
+    #             ("user_id.groups_id", "=", self.env.ref("project_budget.project_budget_project_manager").id),
+    #             ('user_id', '=', self.env.uid),
+    #             ('company_id', '=', self.company_id.id),
+    #         ], limit=1)}}
 
     @api.onchange("partner_id")
     def _get_partner_id(self):
@@ -239,12 +247,12 @@ class projects(models.Model):
     project_manager_id = fields.Many2one('project_budget.project_manager', string='project_manager',
                                          copy=True, default=_get_first_manager_from_access, domain=_get_manager_list, tracking=True, check_company=True) # на самом деле это КАМ, а вот РП ниже
 
-    project_manager_employee_id = fields.Many2one(
+    project_manager_employee_ids = fields.Many2many(
         'hr.employee', string='project_manager', required=True, copy=True, tracking=True, check_company=True,
-        default=_get_default_project_manager)  # на самом деле это КАМ, а вот РП ниже
+        compute=_get_manager_employee_list)  # на самом деле это КАМ, а вот РП ниже
 
-    project_manager_domain = fields.Binary(string='Project Manager Domain', compute='_compute_project_manager_domain',
-                                           help='Dynamic domain used for the project manager')
+    # project_manager_domain = fields.Binary(string='Project Manager Domain', compute='_compute_project_manager_domain',
+    #                                        help='Dynamic domain used for the project manager')
 
     rukovoditel_project_id = fields.Many2one('project_budget.rukovoditel_project', string='rukovoditel_project',
                                          copy=True,  tracking=True, check_company=True)
@@ -454,21 +462,21 @@ class projects(models.Model):
     def _compute_team_count(self):
         for project in self:
             project.team_count = self.env['project_budget.project_team'].search_count([
-                ('projects_id', '=', project.id)
+                ('project_id', '=', project.project_id)
             ])
 
     def _compute_team_ids(self):
         for project in self:
             project.team_ids = self.env['project_budget.project_team'].search([('project_id','=',project.project_id)])
 
-    @api.depends('company_id')
-    def _compute_project_manager_domain(self):
-        for rec in self:
-            rec.project_manager_domain = [
-                '&',
-                ("user_id.groups_id", "=", self.env.ref("project_budget.project_budget_project_manager").id),
-                ('company_id','=',self.company_id.id)
-            ]
+    # @api.depends('company_id')
+    # def _compute_project_manager_domain(self):
+    #     for rec in self:
+    #         rec.project_manager_domain = [
+    #             '&',
+    #             ("user_id.groups_id", "=", self.env.ref("project_budget.project_budget_project_manager").id),
+    #             ('company_id','=',self.company_id.id)
+    #         ]
 
     @api.depends('child_project_ids.total_amount_of_revenue', 'child_project_ids.cost_price', 'child_project_ids')
     def _compute_total_margin(self):
@@ -1450,11 +1458,11 @@ class projects(models.Model):
         self.ensure_one()
         return {
             'name': _('Team'),
-            'domain': [('projects_id', '=', self.id)],
+            'domain': [('project_id', '=', self.project_id)],
             'res_model': 'project_budget.project_team',
             'type': 'ir.actions.act_window',
             'view_mode': 'tree,form',
-            'context': "{'default_projects_id': %d}" % (self.id),
+            'context': "{'default_projects_id': %s}" % (self.id),
             'help': """
                 <p class="o_view_nocontent_smiling_face">%s</p>
                 """ % _("Add team for this project")
