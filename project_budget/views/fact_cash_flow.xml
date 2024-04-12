@@ -71,7 +71,7 @@
             <field name="name">project_budget.fact_cash_flow.tree</field>
             <field name="model">project_budget.fact_cash_flow</field>
             <field name="arch" type="xml">
-                <tree default_order="date_cash">
+                <tree default_order="date_cash" limit="100">
                     <button name="action_copy_fact_cash" type="object" title="Copy cash" string="Copy cash" class="btn btn-link"/>
                     <field name="project_have_steps" invisible="True"/>
                     <field name="projects_id" optional="hide"/>

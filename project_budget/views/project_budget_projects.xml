@@ -643,7 +643,7 @@
                                 <field name="planned_acceptance_flow_ids"
                                 widget="section_and_note_one2many"
                                 mode="tree" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}">
-                                    <tree editable="bottom" default_order="date_cash">
+                                    <tree editable="bottom" default_order="date_cash" limit="100">
                                         <button name="action_copy_planned_acceptance" type="object" title="Copy acceptance" string="Copy acceptance" class="btn btn-link"/>
                                         <field name="acceptance_id"/>
                                         <field name="forecast"/>
@@ -678,7 +678,7 @@
                                 <field name="planned_cash_flow_ids"
                                 widget="section_and_note_one2many"
                                 mode="tree" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}">
-                                    <tree editable="bottom" default_order="date_cash">
+                                    <tree editable="bottom" default_order="date_cash" limit="100">
                                         <button name="action_copy_planned_cash" type="object" title="Copy cash" string="Copy cash" class="btn btn-link"/>
                                         <field name="project_have_steps" invisible="True"/>
                                         <field name="cash_id" invisible="False"/>
