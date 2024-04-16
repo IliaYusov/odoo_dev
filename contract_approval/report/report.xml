@@ -10,4 +10,15 @@
         <field name="binding_model_id" ref="model_contract_contract"/>
         <field name="binding_type">report</field>
     </record>
+
+    <record id="action_report_contract_template_form" model="ir.actions.report">
+        <field name="name">Template form (docx)</field>
+        <field name="model">contract.contract</field>
+        <field name="report_type">docx</field>
+        <field name="report_name">contract.contract.template.form</field>
+        <field name="report_file">contract.contract.template.form</field>
+        <field name="print_report_name">'Template form "%s"' % object.name</field>
+        <field name="binding_model_id" ref="model_contract_contract"/>
+        <field name="binding_type">report</field>
+    </record>
 </odoo>

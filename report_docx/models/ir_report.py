@@ -4,6 +4,7 @@ from odoo import api, fields, models
 class ReportAction(models.Model):
     _inherit = "ir.actions.report"
 
+    template_attachment_id = fields.Many2one('ir.attachment', string='Template File')
     report_type = fields.Selection(
         selection_add=[("docx", "DOCX")], ondelete={"docx": "set default"}
     )
@@ -14,7 +15,10 @@ class ReportAction(models.Model):
         report_model_name = "report.%s" % report_sudo.report_name
         report_model = self.env[report_model_name]
         return (
-            report_model.with_context(active_model=report_sudo.model)
+            report_model.with_context(
+                active_model=report_sudo.model,
+                template_attachment_id=report_sudo.template_attachment_id
+            )
             .sudo(False)
             .create_docx_report(docids, data)
         )
