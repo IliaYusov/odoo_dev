@@ -2568,12 +2568,12 @@ msgstr ""
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_budget_plan_supervisor_form
 msgid "Supervisor's plan"
-msgstr "План бюджетных показателей проектного офиса"
+msgstr "План бюджетных показателей компании/проектного офиса"
 
 #. module: project_budget
 #: model:ir.model,name:project_budget.model_project_budget_budget_plan_supervisor
 msgid "Supervisors's budget plan on year"
-msgstr "План бюджетных показателей проектного офиса"
+msgstr "План бюджетных показателей компании/проектного офиса"
 
 #. module: project_budget
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_projects_report_wizard__type_report__svod
@@ -2848,7 +2848,7 @@ msgstr "План бюджетных показателей КАМа"
 #: model:ir.ui.menu,name:project_budget.project_budget_catalogs_budget_plan_supervisor
 #: model_terms:ir.ui.view,arch_db:project_budget.show_budget_plan_supervisor_form
 msgid "budget_plan_supervisor"
-msgstr "План бюджетных показателей проектного офиса"
+msgstr "План бюджетных показателей компании/проектного офиса"
 
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_tree
@@ -4085,7 +4085,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_supervisor_spec__budget_plan_supervisor_id
 #: model_terms:ir.ui.view,arch_db:project_budget.show_budget_plan_supervisor_tree
 msgid "plan supervisor"
-msgstr "План бюджетных показателей проектного офиса"
+msgstr "План бюджетных показателей компании/проектного офиса"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_supervisor__budget_plan_supervisor_spec_ids
@@ -4276,7 +4276,7 @@ msgstr ""
 #. module: project_budget
 #: model:ir.actions.act_window,name:project_budget.show_budget_plan_supervisor
 msgid "project_budget.budget_plan_supervisor"
-msgstr "План бюджетных показателей проектного офиса"
+msgstr "План бюджетных показателей компании/проектного офиса"
 
 #. module: project_budget
 #: model:ir.model,name:project_budget.model_project_budget_budget_plan_supervisor_spec
@@ -5307,6 +5307,11 @@ msgstr "Пользователь"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_supervisor__is_use_ebit
 msgid "using EBIT"
 msgstr "Указать EBIT"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_supervisor__is_company_plan
+msgid "Company plan"
+msgstr "План по компании"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_kam__is_use_net_profit

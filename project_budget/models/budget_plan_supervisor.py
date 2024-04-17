@@ -3,14 +3,15 @@ from odoo.exceptions import ValidationError
 from odoo.tools import pytz
 from datetime import timedelta
 
-type_plan_rows = [('contracting', 'contracting')
-    , ('cash', 'cash')
-    , ('acceptance', 'acceptance')
-    , ('margin_income', 'margin_income')
-    , ('margin3_income', 'margin3_income')
-    , ('ebit', 'ebit')
-    , ('net_profit', 'net_profit')
-                  ]
+type_plan_rows = [
+    ('contracting', 'contracting'),
+    ('cash', 'cash'),
+    ('acceptance', 'acceptance'),
+    ('margin_income', 'margin_income'),
+    ('margin3_income', 'margin3_income'),
+    ('ebit', 'ebit'),
+    ('net_profit', 'net_profit'),
+    ]
 
 
 class budget_plan_supervisor(models.Model):
@@ -31,15 +32,16 @@ class budget_plan_supervisor(models.Model):
 
     plan_kam_ids = fields.One2many('project_budget.budget_plan_kam', 'plan_supervisor_id', string="KAM's plans")
 
-    project_office_id = fields.Many2one('project_budget.project_office', string='project_office', required=True,
-                                        copy=True, tracking=True, check_company=True)
-    supervisor_id = fields.Many2one('project_budget.project_supervisor', string='KAMs supervisor',
-                                    required=True, copy=True, tracking=True, check_company=True)
+    project_office_id = fields.Many2one('project_budget.project_office', string='project_office', copy=True,
+                                        tracking=True, check_company=True)
+    supervisor_id = fields.Many2one('project_budget.project_supervisor', string='KAMs supervisor', copy=True,
+                                    tracking=True, check_company=True)
     supervisor_user_id = fields.Many2one(related='supervisor_id.user_id', readonly=True)
     name_to_show = fields.Char(string='name_to_show', compute='_get_name_to_show')
 
     is_use_ebit = fields.Boolean(string="using EBIT", tracking=True)
     is_use_net_profit = fields.Boolean(string="using Net Profit", tracking=True)
+    is_company_plan = fields.Boolean(string="Company plan", tracking=True)
 
     sum_contracting_year = fields.Monetary(string='contracting plan year', tracking=True, readonly = True, compute='_compute_totals_year')
     sum_contracting_year_6_6 = fields.Monetary(string='contracting plan year 6+6', tracking=True, readonly = True, compute='_compute_totals_year')
@@ -131,7 +133,7 @@ class budget_plan_supervisor(models.Model):
     def _get_name_to_show(self):
         for plan_supervisor in self:
             plan_supervisor.name_to_show = str(
-                plan_supervisor.year) + ' ' + plan_supervisor.project_office_id.name + ' ' +plan_supervisor.supervisor_id.name
+                plan_supervisor.year) + ' ' + (plan_supervisor.project_office_id.name or plan_supervisor.company_id.name) + ' ' + (plan_supervisor.supervisor_id.name or '')
 
     def insert_spec(self,type_row, plan_id):
         type_plan_row_vals = []

@@ -142,6 +142,7 @@
                     <field name="currency_id"/>
                     <field name="is_use_ebit" widget="boolean_toggle"/>
                     <field name="is_use_net_profit" widget="boolean_toggle"/>
+                    <field name="is_company_plan"/>
                 </tree>
             </field>
         </record>
@@ -161,15 +162,20 @@
                                 <group col="3">
                                     <group>
                                         <field name="year"/>
-                                        <field name="project_office_id" options="{'no_create': True, 'no_open': True}"/>
                                         <field name="company_id" options="{'no_create': True, 'no_open': True}"/>
-                                    </group>
-                                    <group>
-                                        <field name="supervisor_id" options="{'no_create': True, 'no_open': True}" widget="many2one_avatar"/>
-                                        <field name="is_use_ebit" widget="boolean_toggle"/>
-                                    </group>
-                                    <group>
                                         <field name="currency_id" options="{'no_create': True, 'no_open': True}"/>
+                                    </group>
+                                    <group>
+                                        <field name="is_company_plan" widget="boolean_toggle"/>
+                                        <field name="project_office_id" options="{'no_create': True, 'no_open': True}"
+                                               attrs="{'invisible': [('is_company_plan', '=', True)], 'required': [('is_company_plan', '=', False)]}"
+                                        />
+                                        <field name="supervisor_id" options="{'no_create': True, 'no_open': True}" widget="many2one_avatar"
+                                               attrs="{'invisible': [('is_company_plan', '=', True)], 'required': [('is_company_plan', '=', False)]}"
+                                        />
+                                    </group>
+                                    <group>
+                                        <field name="is_use_ebit" widget="boolean_toggle"/>
                                         <field name="is_use_net_profit" widget="boolean_toggle"/>
                                     </group>
                                 </group>
@@ -236,7 +242,7 @@
                                 </field>
 
                             </page>
-                            <page string = "KAM's plans">
+                            <page string = "KAM's plans" attrs="{'invisible': [('is_company_plan', '=', True)]}">
                                  <field name="plan_kam_ids" widget="section_and_note_one2many"
                                         mode="tree">
                                 </field>
