@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_link_project" model="ir.actions.server">
+        <field name="name">Link Project To Parent Project</field>
+        <field name="model_id" ref="model_project_budget_projects"/>
+        <field name="binding_model_id" ref="project_budget.model_project_budget_projects"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">
+action = env['ir.actions.act_window']._for_xml_id('project_budget.project_budget_link_project_wizard')
+action['context'] = {
+            'default_project_id': record.id,
+            'default_parent_project_id': record.parent_id.id
+}
+        </field>
+    </record>
+</odoo>

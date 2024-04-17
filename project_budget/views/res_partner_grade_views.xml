@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_partner_grade_view_search" model="ir.ui.view">
+        <field name="name">res.partner.grade.view.search</field>
+        <field name="model">res.partner.grade</field>
+        <field name="arch" type="xml">
+            <search string="Search Partner Grade">
+                <field name="name"/>
+                <separator/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="res_partner_grade_view_tree" model="ir.ui.view">
+        <field name="name">res.partner.grade.tree</field>
+        <field name="model">res.partner.grade</field>
+        <field name="arch" type="xml">
+            <tree string="Partner Levels">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="res_partner_grade_view_form" model="ir.ui.view">
+        <field name="name">res.partner.grade.form</field>
+        <field name="model">res.partner.grade</field>
+        <field name="arch" type="xml">
+            <form string="Partner Level">
+                <sheet string="Level">
+                    <field name="active" invisible="1"/>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger"
+                            attrs="{'invisible': [('active', '=', True)]}"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Gold Partner"/>
+                        </h1>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_res_partner_grades" model="ir.actions.act_window">
+        <field name="name">Partner Levels</field>
+        <field name="res_model">res.partner.grade</field>
+        <field name="search_view_id" ref="res_partner_grade_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a Partner Level
+            </p>
+            <p>
+                Partner Levels allow you to rank your Partners based on their performances.
+            </p>
+        </field>
+    </record>
+</odoo>

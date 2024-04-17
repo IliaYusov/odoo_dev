@@ -4,7 +4,8 @@ from odoo.tools import pytz
 from datetime import timedelta
 import datetime
 
-class projects(models.Model):
+
+class Project(models.Model):
     _name = 'project_budget.projects'
     _description = "project_office commercial budget projects"
     _inherit = ['mail.thread', 'mail.activity.mixin']
@@ -182,25 +183,19 @@ class projects(models.Model):
                     [('id', '=', manager_access[0].project_manager_id.id)])
         return None
 
-    @api.onchange("partner_id")
-    def _get_partner_id(self):
-        if not self.company_partner_id:
-            partner = self.partner_id
-            if partner:
-                return {'value': {'company_partner_id': self.partner_id}}
-
     company_id = fields.Many2one('res.company', required=True, default=lambda self: self.env.company)
-    project_id = fields.Char(string="Project_ID", required=True, index=True, copy=True, group_operator = 'count',
-                             default='ID') #lambda self: self.env['ir.sequence'].sudo().next_by_code('project_budget.projects'))
+    company_partner_id = fields.Many2one(related='company_id.partner_id', string='Company Partner', copy=False,
+                                         readonly=True)
+    project_id = fields.Char(string='Project_ID', copy=True, default='ID', group_operator='count', index=True,
+                             required=True)
     specification_state = fields.Selection([('prepare', 'Prepare'), ('production', 'Production'), ('cancel','Canceled'),('done','Done'),('lead','Lead')], required=True,
                                            index=True, default='prepare', store=True, copy=True, tracking=True, compute="_compute_specification_state")
-    approve_state= fields.Selection([('need_approve_manager', 'need managers approve'), ('need_approve_supervisor'
+    approve_state = fields.Selection([('need_approve_manager', 'need managers approve'), ('need_approve_supervisor'
                                      , 'need supervisors approve'), ('approved','approved'),('-','-')],
-                                    required=True, index=True, default='need_approve_manager', store=True, copy=True, tracking=True)
+                                     required=True, index=True, default='need_approve_manager', store=True, copy=True, tracking=True)
     currency_id = fields.Many2one('res.currency', string='Account Currency',  required = True, copy = True,
                                   default=lambda self: self.env.company.currency_id,tracking=True)
     etalon_budget = fields.Boolean(related='commercial_budget_id.etalon_budget', readonly=True)
-    date_actual = fields.Datetime(related='commercial_budget_id.date_actual', readonly=True, store=True)
     date_actual = fields.Datetime(related='commercial_budget_id.date_actual', readonly=True, store=True)
     isRukovoditel_required_in_project = fields.Boolean(related='project_office_id.isRukovoditel_required_in_project', readonly=True, store=True)
     commercial_budget_id = fields.Many2one('project_budget.commercial_budget', string='commercial_budget-',required=True, ondelete='cascade', index=True, copy=False
@@ -212,7 +207,7 @@ class projects(models.Model):
     # budget_state = fields.Selection([('work', 'Working'), ('fixed', 'Fixed')], required=True, index=True, default='work', copy = False,
     #                                 compute='_compute_reference', store=True, tracking=True)
 
-    budget_state = fields.Selection(related = 'commercial_budget_id.budget_state', readonly = True, index=True, store=True)
+    budget_state = fields.Selection(related='commercial_budget_id.budget_state', index=True, readonly=True, store=True)
 
     project_office_id = fields.Many2one('project_budget.project_office', string='project_office', required=True,
                                         copy=True,tracking=True,  check_company=True, domain ="[('is_prohibit_selection','=', False)]")
@@ -229,8 +224,6 @@ class projects(models.Model):
     partner_id = fields.Many2one('res.partner', string='customer_organization', required=True, copy=True, tracking=True, domain="[('is_company','=',True)]")
     customer_status_id = fields.Many2one('project_budget.customer_status', string='customer_status',
                                          copy=True, tracking=True)
-    company_partner_id = fields.Many2one('res.partner', string='Partner', copy=True, tracking=True, domain="[('is_company','=',True)]", default=_get_partner_id)
-    company_is_vendor = fields.Boolean(string="Company Is Vendor", related="company_id.is_vendor", store=False)
     industry_id = fields.Many2one('project_budget.industry', string='industry', required=True, copy=True,tracking=True)
     essence_project = fields.Text(string='essence_project', default = "",tracking=True)
     end_presale_project_quarter = fields.Char(string='End date of the Presale project(quarter)', compute='_compute_quarter', store=True, tracking=True)
@@ -304,6 +297,7 @@ class projects(models.Model):
             )
                                             # ,default=lambda self: self.env['project_budget.estimated_probability'].search([('name', '=', '30')], limit=1)
 
+    # TODO: необходимо мигрировать на partner_signer_id
     legal_entity_signing_id = fields.Many2one('project_budget.legal_entity_signing', string='legal_entity_signing a contract from the NCC', required=True, copy=True,tracking=True)
     project_type_id = fields.Many2one('project_budget.project_type',string='project_type', required=True,copy=True,tracking=True)
 
@@ -345,7 +339,7 @@ class projects(models.Model):
         string="planned acceptance flow", auto_join=True,copy=True)
     fact_cash_flow_sum = fields.Monetary(string='fact_cash_flow_sum', compute='_compute_fact_cash_flow_sum', store=False
                                          , tracking=True)
-    fact_cash_flow_ids  = fields.One2many(
+    fact_cash_flow_ids = fields.One2many(
         comodel_name='project_budget.fact_cash_flow',
         inverse_name='projects_id',
         string="fact cash flow", auto_join=True, copy=True)
@@ -380,6 +374,7 @@ class projects(models.Model):
 
     is_parent_project = fields.Boolean(string="project is parent", default=False, copy=True,tracking=True)
     is_child_project = fields.Boolean(string="project is child", compute='_check_project_is_child')
+    # TODO: необходимо отказаться от текущего "функционала" материнских сделок и мигрировать на общую архитектуру с партнерскими сделками
     parent_project_id = fields.Many2one(
         'project_budget.projects',
         string='parent project id',
@@ -391,6 +386,12 @@ class projects(models.Model):
     margin_rate_for_parent = fields.Float(string="margin rate for parent project", default=0, copy=True, tracking=True)
     total_margin_of_child_projects = fields.Monetary(string="total margin of child projects", compute='_compute_total_margin')
     margin_for_parent_project = fields.Monetary(string="margin for parent project", compute='_compute_margin_for_parent_project')
+    parent_id = fields.Many2one('project_budget.projects', string='Parent Project', copy=False, index=True,
+                                ondelete='cascade', tracking=True)
+    child_ids = fields.One2many('project_budget.projects', 'parent_id', string='Child Projects', copy=False)
+    child_count = fields.Integer(compute='_compute_child_count', string='Child Count')
+    partner_signer_id = fields.Many2one('res.partner', string='Partner Signer', copy=False,
+                                        default=lambda self: self.env.company.partner_id, required=True)
 
     is_correction_project = fields.Boolean(string="project for corrections", default=False)
     is_not_for_mc_report = fields.Boolean(string="project is not for MC report", default=False)
@@ -716,6 +717,11 @@ class projects(models.Model):
                 fieldquarter.end_sale_project_quarter = 'Q4 ' + str(year)
             else:
                 fieldquarter.end_sale_project_quarter = 'NA'
+
+    @api.depends('child_ids')
+    def _compute_child_count(self):
+        for project in self:
+            project.child_count = len(project.child_ids)
 
 
     def action_open_project(self):
@@ -1211,7 +1217,7 @@ class projects(models.Model):
             default['fact_cash_flow_ids'] = []
             default['fact_acceptance_flow_ids'] = []
             print('2 default = ', default)
-        return super(projects, self).copy(default=default)
+        return super(Project, self).copy(default=default)
 
 
     def write(self, vals_list):
@@ -1397,10 +1403,6 @@ class projects(models.Model):
                 <p class="o_view_nocontent_smiling_face">%s</p>
                 """ % _("Add tenders for this project")
         }
-
-
-    def process_task_result(self, date_closed, result_type='ok', feedback=False):
-        pass
 
     def _monetary_format(self, amount):
         return '{:,.0f}'.format(amount).replace(',', ' ')

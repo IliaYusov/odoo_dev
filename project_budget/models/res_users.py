@@ -1,7 +1,7 @@
-from ast import literal_eval
 from odoo import models, fields, api
 
-class users_budgets_access(models.Model):
+
+class ResUsers(models.Model):
     _inherit = 'res.users'
     # _name = "users_budgets_access"
     _description = "users budgets access"

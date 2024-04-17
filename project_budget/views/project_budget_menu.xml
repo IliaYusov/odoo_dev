@@ -1,6 +1,6 @@
 <odoo>
     <data>
-        <menuitem id="project_budget_menu" name="Project budget" sequence="0"/>
+        <menuitem id="project_budget_menu" name="Project budget" sequence="1"/>
         <menuitem id="project_budget_budgets" parent ="project_budget_menu" name = "Budgets/Projects"/>
 <!--        <menuitem id="project_budget_budgets_comercial_budget_kandan" parent ="project_budget_budgets" name = "project_budget_estimated_probability_action" action="project_budget_estimated_probability_action" sequence="1"/>-->
         <menuitem id="project_budget_menu_dashboard" parent="project_budget.project_budget_menu" name="work place" sequence="1"
@@ -44,13 +44,19 @@
 
 		<menuitem id="menu_project_budget_configuration" parent="project_budget_menu" name="Configuration"
                   sequence="100" groups="project_budget_admin">
+            <menuitem id="menu_project_budget_resellers" name="Resellers" sequence="40">
+                <menuitem id="menu_project_budget_partner_levels" name="Partner Levels" sequence="1"
+                          action="action_res_partner_grades"/>
+                <menuitem id="menu_project_budget_company_resellers" name="Company Resellers" sequence="2"
+                          action="action_res_company_resellers"/>
+            </menuitem>
             <menuitem id="menu_project_budget_account" name="Accounting" sequence="50">
-                <menuitem id="menu_action_currency_form" action="base.action_currency_form" name="Currencies"
-                          sequence="1" groups="base.group_system"/>
+                <menuitem id="menu_action_currency_form" name="Currencies" sequence="1"
+                          action="base.action_currency_form" groups="base.group_system"/>
             </menuitem>
             <menuitem id="menu_project_budget_report" name="Reporting" sequence="60">
-                <menuitem id="menu_action_scheduled_report_form" action="action_view_project_budget_scheduled_reports"
-                          name="Scheduled Reports" sequence="1" groups="project_budget_admin"/>
+                <menuitem id="menu_action_scheduled_report_form" name="Scheduled Reports" sequence="1"
+                          action="action_view_project_budget_scheduled_reports"/>
             </menuitem>
         </menuitem>
     </data>

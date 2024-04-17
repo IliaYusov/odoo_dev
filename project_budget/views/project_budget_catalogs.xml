@@ -327,65 +327,6 @@
         </record>
 <!-- end rukovoditel_project-->
 
-
-<!-- customer_organization -->
-        <record id="show_customer_organization_tree" model="ir.ui.view">
-            <field name="name">project_budget.customer_organization.tree</field>
-            <field name="model">project_budget.customer_organization</field>
-            <field name="arch" type="xml">
-                <tree string="customer_organization">
-<!--                    <field name="name_to_show" invisible="False"/>-->
-<!--                    <field name="avatar_128" widget="image" class="oe_avatar"/>-->
-                    <field name="name"/>
-                    <field name="longname"/>
-                    <field name="inn"/>
-                    <field name="code"/>
-                    <field name="descr"/>
-                    <field name="partner_id" widget="many2one_avatar"/>
-                </tree>
-            </field>
-        </record>
-
-        <record id="show_customer_organization_form" model="ir.ui.view">
-            <field name="name">project_budget.customer_organization.form</field>
-            <field name="model">project_budget.customer_organization</field>
-            <field name="arch" type="xml">
-                <form>
-                    <sheet string="customer_organization">
-                        <field name="avatar_128" widget="image" class="oe_avatar"/>
-                        <group>
-                            <group>
-                                    <field name="name"/>
-                                    <field name="code"/>
-                                    <field name="longname"/>
-                                    <field name="inn"/>
-                            </group>
-                            <group>
-                                <field name="descr" widget="html"/>
-                                <field name="partner_id" widget="res_partner_many2one" />
-                            </group>
-                        </group>
-                    </sheet>
-                </form>
-            </field>
-        </record>
-
-        <record id="show_customer_organization" model="ir.actions.act_window">
-            <field name="name">customer_organization</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">project_budget.customer_organization</field>
-            <field name="view_mode">tree,form</field>
-            <field name="search_view_id" ref="view_customer_organization_search"></field>
-            <field name="context">{'search_default_id': 1}</field>
-            <field name="help" type="html">
-              <p class="o_view_nocontent_smiling_face">
-                Create a new customer_organization
-              </p><p>
-                each project budget have customer_organization
-              </p>
-            </field>
-        </record>
-<!-- end customer_organization-->
 <!-- customer_status -->
         <record id="show_customer_status_tree" model="ir.ui.view">
             <field name="name">project_budget.customer_status.tree</field>
@@ -559,6 +500,9 @@
                             <field name="percent_fot" placeholder="enter FOT percent. e.g. 25"
                                    attrs="{'invisible': [('is_percent_fot_manual', '=', True)]}"
                             />
+                        </group>
+                        <group>
+                            <field name="partner_id"/>
                         </group>
                         <group>
                             <field name="different_project_offices_in_steps" widget="boolean_toggle"/>

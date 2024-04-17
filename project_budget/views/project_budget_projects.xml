@@ -1,5 +1,17 @@
 <odoo>
     <data>
+        <record id="action_project_budget_project_child_projects" model="ir.actions.act_window">
+            <field name="name">Child Projects</field>
+            <field name="res_model">project_budget.projects</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">
+                [
+                    ('id', 'child_of', active_id),
+                    ('id', '!=', active_id)
+                ]
+            </field>
+        </record>
+
         <record id="show_comercial_budget_spec_kanban" model="ir.ui.view">
             <field name="name">project_budget.projects.kanban</field>
             <field name="model">project_budget.projects</field>
@@ -96,8 +108,23 @@
                                     icon="fa-gavel">
                                 <field string="Tenders" name="tenders_count" widget="statinfo"/>
                             </button>
+                            <button name="%(action_project_budget_project_child_projects)d" type="action"
+                                    class="oe_stat_button" icon="fa-bars" groups="base.group_multi_company"
+                                    attrs="{'invisible': ['|', ('id', '=', False), ('child_count', '=', 0)]}"
+                                    context="
+                                    {
+                                        'default_parent_id': active_id,
+                                        'default_estimated_probability_id': estimated_probability_id,
+                                        'default_partner_id': partner_id,
+                                        'default_partner_signer_id': partner_signer_id,
+                                        'default_legal_entity_signing_id': legal_entity_signing_id
+                                    }">
+                                <field name="child_count" string="Child Projects" widget="statinfo"/>
+                            </button>
                         </div>
                         <field name="id" invisible="True"/>
+                        <field name="child_count" invisible="True"/>
+                        <field name="partner_signer_id" invisible="True"/>
                         <field name="company_id" invisible="True"/>
                         <field name="company_id" groups="base.group_multi_company"
                                    options="{'no_create': True}"/>
@@ -267,17 +294,6 @@
                                         <field name="legal_entity_signing_id" force_save="1" options="{'no_open': True,}" placeholder="select legal entity signing"
                                                attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
 <!--                                        <field name="vgo" force_save="1" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>-->
-                                    </group>
-                                </group>
-                                <group col="3">
-                                    <group colspan="2">
-                                    </group>
-                                    <group colspan="1">
-                                        <field name="company_is_vendor" invisible="1"/>
-                                        <field name="company_partner_id" attrs="{
-                                        'required': [('company_is_vendor', '=', True)],
-                                        'invisible': [('company_is_vendor', '=', False)]
-                                        }"/>
                                     </group>
                                 </group>
                                 <h4>

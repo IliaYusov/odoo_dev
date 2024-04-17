@@ -128,29 +128,6 @@ class rukovoditel_project_access(models.Model):
     user_id = fields.Many2one('res.users', string='user id', required=True,)
     descr = fields.Char(string="rukovoditel_project access description", translate=True)
 
-
-
-class customer_organization(models.Model):
-    _name = 'project_budget.customer_organization'
-    _description = "project_customer organization"
-    _rec_names_search = ['name', 'inn']
-    # _rec_name = 'name_to_show'
-    name = fields.Char(string="customer_organization name", required=True, translate=True)
-    longname = fields.Char(string="customer_organization long name", translate=True)
-    code = fields.Char(string="customer_organization code", )
-    inn = fields.Char(related='partner_id.vat', readonly=True, store=True)
-    avatar_128 = fields.Image(related='partner_id.avatar_128', readonly=True)
-    partner_id = fields.Many2one('res.partner', string='Partner', copy=True, domain="[('is_company','=',True)]")
-    descr = fields.Char(string="customer_organization description", translate=True)
-    # name_to_show = fields.Char(string='name_to_show', compute='_get_name_to_show')
-
-    # @api.depends('name','inn')
-    # def _get_name_to_show(self):
-    #     for org in self:
-    #         org.name_to_show = org.name
-    #         if org.inn:
-    #             org.name_to_show = org.name + '|'+ str(org.inn)
-
 class customer_status(models.Model):
     _name = 'project_budget.customer_status'
     _description = "project_customer status"
@@ -183,6 +160,8 @@ class legal_entity_signing(models.Model):
     is_percent_fot_manual = fields.Boolean(string="Manual fot_percent", default=0)
     descr = fields.Char(string="legal_entity_signing description", translate=True)
     different_project_offices_in_steps = fields.Boolean(string='different project offices in steps', default=False)
+    # Для миграции на res.partner
+    partner_id = fields.Many2one('res.partner', string='Partner')
 
 class technological_direction(models.Model):
     _name = 'project_budget.technological_direction'

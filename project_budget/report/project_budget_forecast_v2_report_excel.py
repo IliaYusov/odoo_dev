@@ -2922,7 +2922,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         if project_office_ids:
             project_offices = self.env['project_budget.project_office'].search([
-                ('id', 'in', project_office_ids), ('parent_id', 'not in', project_office_ids)], order='name')  # для сортировки так делаем + не берем дочерние оффисы, если выбраны их материнские
+                ('id','in',project_office_ids), ('parent_id', 'not in', project_office_ids)], order='name')  # для сортировки так делаем + не берем дочерние оффисы, если выбраны их материнские
         else:
             project_offices = self.env['project_budget.project_office'].search([
                 ('parent_id', '=', False)], order='name')  # для сортировки так делаем + берем сначала только верхние элементы

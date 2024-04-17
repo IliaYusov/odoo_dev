@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="project_budget_link_project_wizard_view_form" model="ir.ui.view">
+        <field name="name">project.budget.link.project.wizard.form</field>
+        <field name="model">project_budget.link.project.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group invisible="1">
+                        <field name="partner_id"/>
+                        <field name="parent_project_id_domain"/>
+                    </group>
+                    <group>
+                        <field name="reseller_id" string="Reseller"
+                               options="{'no_create_edit': True, 'no_open': True}"/>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="project_id"/>
+                        </group>
+                        <group>
+                            <field name="parent_project_id" domain="parent_project_id_domain"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="company_id" group="base.group_multi_company"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_link_project" string="Link" class="btn-success" type="object"/>
+                    <button string="Cancel" class="btn-danger" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="project_budget_link_project_wizard" model="ir.actions.act_window">
+        <field name="name">Link</field>
+        <field name="res_model">project_budget.link.project.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

@@ -1,0 +1,43 @@
+<odoo>
+    <record id="partners_tree_action" model="ir.actions.act_window">
+        <field name="name">partners_tree_action</field>
+        <field name="res_model">res.partner</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_mode">tree,form,kanban</field>
+        <field name="context">{"search_default_type_company":1}</field>
+    </record>
+
+    <record id="action_project_budget_partner_projects" model="ir.actions.act_window">
+        <field name="name">Projects</field>
+        <field name="res_model">project_budget.projects</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">
+            [
+                ('budget_state', '=', 'work'),
+                ('partner_id', '=', active_id)
+            ]
+        </field>
+        <field name="context">
+            {
+                'default_partner_id': active_id
+            }
+        </field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No projects found. Let's create one!</p>
+        </field>
+    </record>
+
+    <record id="res_partner_view_form_inherit_project_budget" model="ir.ui.view">
+        <field name="name">res.partner.view.form.inherit.project.budget</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="%(action_project_budget_partner_projects)d" type="action" class="oe_stat_button"
+                        icon="fa-star" attrs="{'invisible': [('is_company', '=', False)]}">
+                    <field name="project_count" string="Partner Projects" widget="statinfo"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>
