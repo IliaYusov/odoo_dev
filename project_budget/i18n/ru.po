@@ -3776,8 +3776,13 @@ msgstr "Основная валюта"
 
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_kanban
-msgid "manager"
-msgstr "КАМ"
+msgid "<span>Manager:</span>"
+msgstr "<span>КАМ:</span>"
+
+#. module: project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_kanban
+msgid "<span>Supervisor:</span>"
+msgstr "<span>Куратор:</span>"
 
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_fact_acceptance_flow_form

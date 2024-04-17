@@ -16,7 +16,7 @@
             <field name="name">project_budget.projects.kanban</field>
             <field name="model">project_budget.projects</field>
             <field name="arch" type="xml">
-                <kanban class="oe_background_grey o_kanban_dashboard o_emphasize_colors o_stock_kanban" create="0" group_create="false">
+                <kanban class="oe_background_grey o_kanban_dashboard o_emphasize_colors o_stock_kanban" create="0" quick_create="false" group_create="false">
                     <field name="project_manager_id"/>
                     <field name="rukovoditel_project_id"/>
                     <field name="essence_project" readonly="1"/>
@@ -28,49 +28,75 @@
                     <field name="end_sale_project_quarter"/>
                     <field name="end_presale_project_quarter"/>
                     <field name="was_changes"/>
+                    <field name="estimated_probability_id"/>
                    <templates>
                         <t t-name="kanban-box">
                             <div class="oe_kanban_card oe_kanban_global_click">
-                                <div t-attf-class="o_kanban_card_header">
+                                <div class="o_kanban_card_header">
                                     <div class="o_kanban_card_header_title">
-                                        <div class="o_primary">
-                                            <field name="approve_state" readonly="1"  widget="badge"
-                                                decoration-danger="approve_state=='need_approve_manager'"
-                                                decoration-warning="approve_state=='need_approve_supervisor'"
-                                                decoration-success="approve_state=='approved'"
-                                                decoration-muted="specification_state=='cancel'"
-                                                decoration-primary="specification_state=='done'"
-                                           />
-                                        </div>
-                                        <div class="col-12">
-                                           Contract: <field name="end_presale_project_quarter"/>
-                                        </div>
-                                        <div>
-                                           Last shipment: <field name="end_sale_project_quarter"/>
-                                        </div>
-                                        <div>
-                                           was changes: <field name="was_changes" widget="boolean_toggle"/>
+                                        <div class="o_primary d-flex justify-content-between w-100" style="padding-right:0px">
+                                            <span>
+                                                <field name="project_id" widget="badge"
+                                                       decoration-muted="estimated_probability_id in (1, 7)"
+                                                       decoration-primary="estimated_probability_id==6"
+                                                       decoration-warning="estimated_probability_id in (2, 3, 4)"
+                                                       decoration-success="estimated_probability_id==5"
+                                                />
+                                            </span>
+                                            <field name="estimated_probability_id" readonly="1" widget="badge"
+                                               decoration-muted="estimated_probability_id in (1, 7)"
+                                               decoration-primary="estimated_probability_id==6"
+                                               decoration-warning="estimated_probability_id in (2, 3, 4)"
+                                               decoration-success="estimated_probability_id==5"
+                                            />
+<!--                                            <field name="approve_state" readonly="1"  widget="badge"-->
+<!--                                                decoration-danger="approve_state=='need_approve_manager'"-->
+<!--                                                decoration-warning="approve_state=='need_approve_supervisor'"-->
+<!--                                                decoration-success="approve_state=='approved'"-->
+<!--                                                decoration-muted="specification_state=='cancel'"-->
+<!--                                                decoration-primary="specification_state=='done'"-->
+<!--                                            />-->
                                         </div>
                                     </div>
-                                    <div class="o_kanban_image me-1">
-                                        <img t-att-src="kanban_image('project_budget.project_manager', 'avatar_128', record.project_manager_id.raw_value)" alt="manager" class="o_image_64_contain"/>
+                                </div>
+                                <div class="oe_kanban_body">
+<!--                                    <div class="o_kanban_image me-1">-->
+<!--                                        <img t-att-src="kanban_image('project_budget.project_manager', 'avatar_128', record.project_manager_id.raw_value)" alt="manager" class="o_image_64_contain"/>-->
+<!--                                    </div>-->
+<!--                                    <div class="o_kanban_image me-1">-->
+<!--                                        <img t-att-src="kanban_image('project_budget.rukovoditel_project', 'avatar_128', record.rukovoditel_project_id.raw_value)" alt="manager" class="o_image_64_contain"/>-->
+<!--                                    </div>-->
+                                    <div class="d-flex text-truncate">
+                                        <strong>
+                                            <field name="essence_project"/>
+                                        </strong>
                                     </div>
-                                    <div class="o_kanban_image me-1">
-                                        <img t-att-src="kanban_image('project_budget.rukovoditel_project', 'avatar_128', record.rukovoditel_project_id.raw_value)" alt="manager" class="o_image_64_contain"/>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Contract:</span>
+                                        <field name="end_presale_project_quarter"/>
                                     </div>
-
-                                    <div >
-                                        <a>Revenue: <field name="total_amount_of_revenue"/></a>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Last shipment:</span>
+                                        <field name="end_sale_project_quarter"/>
                                     </div>
-                                    <div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Manager:</span>
+                                        <field name="project_manager_id" widget="many2one_avatar"/>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Supervisor:</span>
+                                        <field name="project_supervisor_id" widget="many2one_avatar"/>
+                                    </div>
+                                    <div class="d-flex justify-content-between font-weight-bold">
+                                        <span>Revenue:</span>
+                                        <field name="total_amount_of_revenue"/>
+                                    </div>
+                                    <div class="d-flex text-truncate">
                                         <field name="partner_id" widget="many2one_avatar"/>
                                     </div>
-                                    <div>
-                                        <a>Legal sign: <field name="legal_entity_signing_id"/></a>
-                                    </div>
-                                    <div>
-                                        <field name="essence_project"/>
-                                    </div>
+<!--                                    <div>-->
+<!--                                        <a>Legal sign: <field name="legal_entity_signing_id"/></a>-->
+<!--                                    </div>-->
                                 </div>
                             </div>
                         </t>
@@ -879,10 +905,11 @@
             <field name="name">Projects</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">project_budget.projects</field>
-            <field name="view_mode">tree,form,pivot,graph</field>
+            <field name="view_mode">tree,form,pivot,graph,kanban</field>
             <field name="search_view_id" ref="view_projects_search"></field>
             <field name="domain">[('budget_state', '=', 'work')]</field>
-            <field name="context">{'search_default_group_by_provider': True}</field>
+            <field name="context">{'search_default_estimated_probability_not_0': True}</field>
+<!--            <field name="context">{'search_default_group_by_provider': True}</field>-->
 <!--            <field name="context">{"search_default_budget_state_working":True}</field>-->
         </record>
 

@@ -23,6 +23,7 @@
                 <filter string="Вероятность 75%" domain="[('estimated_probability_id', '=', '75')]" name="estimated_probability_75"></filter>
                 <filter string="Вероятность 100%" domain="[('estimated_probability_id', '=', '100')]" name="estimated_probability_100"></filter>
                 <filter string="Исполнен" domain="[('estimated_probability_id', '=', '100(done)')]" name="estimated_probability_100done"></filter>
+                <filter string="В работе" domain="[('estimated_probability_id', '!=', '0')]" name="estimated_probability_not_0"></filter>
                 <group expand="0" string="Group By">
                     <filter string="specification state" name="specification_state" context="{'group_by': 'specification_state'}"></filter>
                     <filter string="project office" name="project_office_id" context="{'group_by': 'project_office_id'}"></filter>
