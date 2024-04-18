@@ -1929,7 +1929,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 sheet.write_string(row, shifts['NEXT'] + 3, '', format_cross)
                 sheet.write_string(row, shifts['AFTER_NEXT'] + 3, '', format_cross)
 
-    def print_row(self, sheet, workbook, project_offices, project_managers, estimated_probabilitys, budget, row, formulaItogo, level):
+    def print_row(self, sheet, workbook, companies, project_offices, project_managers, estimated_probabilitys, budget, row, level):
         global YEARint
         global dict_formula
         head_format = workbook.add_format({
@@ -2114,11 +2114,39 @@ class report_budget_forecast_excel(models.AbstractModel):
             'diag_type': 3,
         })
 
+        row_format_company_estimated_plan = workbook.add_format({
+            'border': 1,
+            'font_size': 10,
+            "bold": True,
+            "fg_color": '#FFFF00',
+            "num_format": '#,##0',
+            'align': 'center',
+        })
+
+        row_format_company_estimated_plan_left = workbook.add_format({
+            'border': 1,
+            'font_size': 10,
+            "bold": True,
+            "fg_color": '#FFFF00',
+            "num_format": '#,##0',
+        })
+
+        row_format_company_estimated_plan_cross = workbook.add_format({
+            'border': 1,
+            'font_size': 10,
+            "bold": True,
+            "fg_color": '#FFFF00',
+            "num_format": '#,##0',
+            'align': 'center',
+            'diag_type': 3,
+        })
+
         # if isdebug:
         #     logger.info(f' def print_row | office_parent_id = { office_parent_id }')
 
         #project_offices = self.env['project_budget.project_office'].search([],order='name')  # для сортировки так делаем + берем сначала только верхние элементы
 
+        isFoundProjectsByCompany = False
         isFoundProjectsByOffice = False
         isFoundProjectsByManager = False
         begRowProjectsByManager = 0
@@ -2131,6 +2159,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         cur_project_offices = project_offices
         cur_project_managers = project_managers.filtered(lambda r: r in cur_budget_projects.project_manager_id)
         cur_estimated_probabilities = estimated_probabilitys.filtered(lambda r: r in cur_budget_projects.estimated_probability_id)
+        cur_companies = companies.filtered(lambda r: r in cur_project_offices.company_id)
         # print('cur_budget_projects=',cur_budget_projects)
         # print('****')
         # print('project_offices=',project_offices)
@@ -2139,275 +2168,477 @@ class report_budget_forecast_excel(models.AbstractModel):
         # print('cur_project_managers=', cur_project_managers)
         # print('cur_estimated_probabilities=', cur_estimated_probabilities)
 
-        for project_office in cur_project_offices:
-            print('project_office.name = ', project_office.name)
+        for company in cur_companies:
+            print('company =', company.name)
+            isFoundProjectsByCompany = False
+            formulaCompany = '=sum(0'
+
             row0 = row
 
-            child_project_offices = self.env['project_budget.project_office'].search(
-                [('parent_id', '=', project_office.id)], order='name')
+            for project_office in cur_project_offices.filtered(lambda r: r in (office for office in self.env[
+                'project_budget.project_office'].search([('company_id', '=', company.id), ]))):
+                print('project_office =', project_office.name)
 
-            row0, formulaItogo = self.print_row(sheet, workbook, child_project_offices, project_managers, estimated_probabilitys, budget, row, formulaItogo, level)
+                child_project_offices = self.env['project_budget.project_office'].search(
+                    [('parent_id', '=', project_office.id)], order='name')
 
-            isFoundProjectsByOffice = False
-            if row0 != row:
-                isFoundProjectsByOffice = True
+                row0 = self.print_row(sheet, workbook, companies, child_project_offices, project_managers, estimated_probabilitys, budget, row, level)
 
-            row = row0
+                isFoundProjectsByOffice = False
+                if row0 != row:
+                    isFoundProjectsByOffice = True
 
-            formulaProjectOffice = '=sum(0'
-            for project_manager in cur_project_managers:
-                #print('project_manager = ', project_manager.name)
-                isFoundProjectsByManager = False
-                begRowProjectsByManager = 0
-                formulaProjectManager = '=sum(0'
-                column = -1
-                for estimated_probability in cur_estimated_probabilities:
-                    isFoundProjectsByProbability = False
-                    begRowProjectsByProbability = 0
+                row = row0
 
-                    # print('estimated_probability.name = ', estimated_probability.name)
-                    # print('estimated_probability.code = ', estimated_probability.code)
+                formulaProjectOffice = '=sum(0'
+                for project_manager in cur_project_managers:
+                    #print('project_manager = ', project_manager.name)
+                    isFoundProjectsByManager = False
+                    begRowProjectsByManager = 0
+                    formulaProjectManager = '=sum(0'
+                    column = -1
+                    for estimated_probability in cur_estimated_probabilities:
+                        isFoundProjectsByProbability = False
+                        begRowProjectsByProbability = 0
 
-                    # cur_budget_projects = self.env['project_budget.projects'].search([
-                    #     ('commercial_budget_id', '=', budget.id),
-                    #     ('project_office_id', '=', project_office.id),
-                    #     ('project_manager_id', '=', project_manager.id),
-                    #     ('estimated_probability_id', '=', estimated_probability.id),
-                    #     ('project_have_steps', '=', False),
-                    #     ])
+                        # print('estimated_probability.name = ', estimated_probability.name)
+                        # print('estimated_probability.code = ', estimated_probability.code)
 
-                    # for project in cur_budget_projects_with_steps:
-                    #     for step in project.project_steps_ids:
-                    #         if step.estimated_probability_id.code == str(estimated_probability.id):
-                    #             print('cur_budget_projects_1', cur_budget_projects, step)
-                    #             cur_budget_projects = cur_budget_projects + self.env['project_budget.projects'].search([('id', '=', step)])
-                    #             print('cur_budget_projects_2', cur_budget_projects, step)
+                        # cur_budget_projects = self.env['project_budget.projects'].search([
+                        #     ('commercial_budget_id', '=', budget.id),
+                        #     ('project_office_id', '=', project_office.id),
+                        #     ('project_manager_id', '=', project_manager.id),
+                        #     ('estimated_probability_id', '=', estimated_probability.id),
+                        #     ('project_have_steps', '=', False),
+                        #     ])
 
-                    # row += 1
-                    # sheet.write_string(row, column, project_office.name, row_format)
+                        # for project in cur_budget_projects_with_steps:
+                        #     for step in project.project_steps_ids:
+                        #         if step.estimated_probability_id.code == str(estimated_probability.id):
+                        #             print('cur_budget_projects_1', cur_budget_projects, step)
+                        #             cur_budget_projects = cur_budget_projects + self.env['project_budget.projects'].search([('id', '=', step)])
+                        #             print('cur_budget_projects_2', cur_budget_projects, step)
 
-                    for spec in cur_budget_projects:
-                        if spec.id in dict_formula['printed_projects']:
-                            continue
-                        if not ((spec.project_office_id == project_office or (spec.legal_entity_signing_id.different_project_offices_in_steps and spec.project_have_steps)) and spec.project_manager_id == project_manager):
-                            continue
-                        # if spec.estimated_probability_id.name != '0':
-                        # if spec.is_framework == True and spec.project_have_steps == False: continue # рамка без этапов - пропускаем
-                        if spec.vgo == '-':
-                            cur_project_rate = self.get_currency_rate_by_project(spec)
+                        # row += 1
+                        # sheet.write_string(row, column, project_office.name, row_format)
 
-                            if begRowProjectsByManager == 0:
-                                begRowProjectsByManager = row
+                        for spec in cur_budget_projects:
+                            if spec.id in dict_formula['printed_projects']:
+                                continue
+                            if not ((spec.project_office_id == project_office or (spec.legal_entity_signing_id.different_project_offices_in_steps and spec.project_have_steps)) and spec.project_manager_id == project_manager):
+                                continue
+                            # if spec.estimated_probability_id.name != '0':
+                            # if spec.is_framework == True and spec.project_have_steps == False: continue # рамка без этапов - пропускаем
+                            if spec.vgo == '-':
+                                cur_project_rate = self.get_currency_rate_by_project(spec)
 
-                            if begRowProjectsByProbability == 0:
-                                begRowProjectsByProbability = row
+                                if begRowProjectsByManager == 0:
+                                    begRowProjectsByManager = row
 
-                            if spec.project_have_steps:
-                                for step in spec.project_steps_ids:
-                                    if step.id in dict_formula['printed_steps']:
-                                        continue
+                                if begRowProjectsByProbability == 0:
+                                    begRowProjectsByProbability = row
 
-                                    if ((spec.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
-                                            or ((not spec.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and spec.project_office_id == project_office)):
+                                if spec.project_have_steps:
+                                    for step in spec.project_steps_ids:
+                                        if step.id in dict_formula['printed_steps']:
+                                            continue
 
-                                        if step.estimated_probability_id == estimated_probability:
-                                            if self.isStepinYear(spec, step) == False:
-                                                continue
-                                            isFoundProjectsByManager = True
-                                            isFoundProjectsByOffice = True
-                                            isFoundProjectsByProbability = True
+                                        if ((spec.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
+                                                or ((not spec.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and spec.project_office_id == project_office)):
 
-                                            row += 1
-                                            sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 2})
-                                            cur_row_format = row_format
-                                            cur_row_format_number = row_format_number
-                                            cur_row_format_date = row_format_date
-                                            if step.estimated_probability_id.name == '0':
-                                                cur_row_format = row_format_canceled_project
-                                                cur_row_format_number = row_format_number_canceled_project
-                                                cur_row_format_date = row_format_date_canceled_project
-                                            column = 0
-                                            if spec.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id:
-                                                sheet.write_string(row, column, step.project_office_id.name, cur_row_format)
-                                            else:
-                                                sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
-                                            column += 1
-                                            sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
-                                            column += 1
-                                            sheet.write_string(row, column, spec.partner_id.name, cur_row_format)
-                                            column += 1
-                                            sheet.write_string(row, column, (step.essence_project or ''), cur_row_format)
-                                            column += 1
-                                            sheet.write_string(row, column, (step.code or '') +' | '+ spec.project_id + " | " + step.step_id, cur_row_format)
-                                            column += 1
-                                            sheet.write_number(row, column, step.total_amount_of_revenue_with_vat*cur_project_rate, cur_row_format_number)
-                                            column += 1
-                                            if step.estimated_probability_id.name == '100':
-                                                sheet.write_datetime(row, column, step.end_presale_project_month, cur_row_format_date)
-                                            else:
-                                                sheet.write(row, column, None, cur_row_format)
-                                            column += 1
-                                            sheet.write_number(row, column, step.profitability, cur_row_format_number)
-                                            column += 1
-                                            sheet.write_string(row, column, '', head_format_1)
-                                            self.print_row_values(workbook, sheet, row, column,  spec, step, 30, 4)
-                                            dict_formula['printed_steps'].add(step.id)
-                            else:
-                                if spec.project_office_id == project_office and spec.estimated_probability_id == estimated_probability:
-                                    if self.isProjectinYear(spec) == False:
-                                        continue
-                                    row += 1
-                                    isFoundProjectsByManager = True
-                                    isFoundProjectsByOffice = True
-                                    isFoundProjectsByProbability = True
-                                    sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 2})
-                                    cur_row_format = row_format
-                                    cur_row_format_number = row_format_number
-                                    cur_row_format_date = row_format_date
-                                    if spec.estimated_probability_id.name == '0':
-                                        cur_row_format = row_format_canceled_project
-                                        cur_row_format_number = row_format_number_canceled_project
-                                        cur_row_format_date = row_format_date_canceled_project
-                                    column = 0
-                                    sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
-                                    column += 1
-                                    sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
-                                    column += 1
-                                    sheet.write_string(row, column, spec.partner_id.name, cur_row_format)
-                                    column += 1
-                                    sheet.write_string(row, column, (spec.essence_project or ''), cur_row_format)
-                                    column += 1
-                                    sheet.write_string(row, column, (spec.step_project_number or '')+ ' | ' +(spec.project_id or ''), cur_row_format)
-                                    column += 1
-                                    sheet.write_number(row, column, spec.total_amount_of_revenue_with_vat*cur_project_rate, cur_row_format_number)
-                                    column += 1
-                                    if spec.estimated_probability_id.name == '100':
-                                        sheet.write_datetime(row, column, spec.end_presale_project_month, cur_row_format_date)
-                                    else:
-                                        sheet.write(row, column, None, cur_row_format)
-                                    column += 1
-                                    sheet.write_number(row, column, spec.profitability, cur_row_format_number)
-                                    column += 1
-                                    sheet.write_string(row, column, '', head_format_1)
-                                    self.print_row_values(workbook, sheet, row, column,  spec, False, 30, 4)
-                                    dict_formula['printed_projects'].add(spec.id)
+                                            if step.estimated_probability_id == estimated_probability:
+                                                if self.isStepinYear(spec, step) == False:
+                                                    continue
 
-                    if isFoundProjectsByProbability:
+                                                isFoundProjectsByCompany = True
+                                                isFoundProjectsByOffice = True
+                                                isFoundProjectsByManager = True
+                                                isFoundProjectsByProbability = True
+
+                                                row += 1
+                                                sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 2})
+                                                cur_row_format = row_format
+                                                cur_row_format_number = row_format_number
+                                                cur_row_format_date = row_format_date
+                                                if step.estimated_probability_id.name == '0':
+                                                    cur_row_format = row_format_canceled_project
+                                                    cur_row_format_number = row_format_number_canceled_project
+                                                    cur_row_format_date = row_format_date_canceled_project
+                                                column = 0
+                                                if spec.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id:
+                                                    sheet.write_string(row, column, step.project_office_id.name, cur_row_format)
+                                                else:
+                                                    sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
+                                                column += 1
+                                                sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
+                                                column += 1
+                                                sheet.write_string(row, column, spec.partner_id.name, cur_row_format)
+                                                column += 1
+                                                sheet.write_string(row, column, (step.essence_project or ''), cur_row_format)
+                                                column += 1
+                                                sheet.write_string(row, column, (step.code or '') +' | '+ spec.project_id + " | " + step.step_id, cur_row_format)
+                                                column += 1
+                                                sheet.write_number(row, column, step.total_amount_of_revenue_with_vat*cur_project_rate, cur_row_format_number)
+                                                column += 1
+                                                if step.estimated_probability_id.name == '100':
+                                                    sheet.write_datetime(row, column, step.end_presale_project_month, cur_row_format_date)
+                                                else:
+                                                    sheet.write(row, column, None, cur_row_format)
+                                                column += 1
+                                                sheet.write_number(row, column, step.profitability, cur_row_format_number)
+                                                column += 1
+                                                sheet.write_string(row, column, '', head_format_1)
+                                                self.print_row_values(workbook, sheet, row, column,  spec, step, 30, 4)
+                                                dict_formula['printed_steps'].add(step.id)
+                                else:
+                                    if spec.project_office_id == project_office and spec.estimated_probability_id == estimated_probability:
+                                        if self.isProjectinYear(spec) == False:
+                                            continue
+                                        row += 1
+                                        isFoundProjectsByCompany = True
+                                        isFoundProjectsByOffice = True
+                                        isFoundProjectsByManager = True
+                                        isFoundProjectsByProbability = True
+                                        sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 2})
+                                        cur_row_format = row_format
+                                        cur_row_format_number = row_format_number
+                                        cur_row_format_date = row_format_date
+                                        if spec.estimated_probability_id.name == '0':
+                                            cur_row_format = row_format_canceled_project
+                                            cur_row_format_number = row_format_number_canceled_project
+                                            cur_row_format_date = row_format_date_canceled_project
+                                        column = 0
+                                        sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
+                                        column += 1
+                                        sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
+                                        column += 1
+                                        sheet.write_string(row, column, spec.partner_id.name, cur_row_format)
+                                        column += 1
+                                        sheet.write_string(row, column, (spec.essence_project or ''), cur_row_format)
+                                        column += 1
+                                        sheet.write_string(row, column, (spec.step_project_number or '')+ ' | ' +(spec.project_id or ''), cur_row_format)
+                                        column += 1
+                                        sheet.write_number(row, column, spec.total_amount_of_revenue_with_vat*cur_project_rate, cur_row_format_number)
+                                        column += 1
+                                        if spec.estimated_probability_id.name == '100':
+                                            sheet.write_datetime(row, column, spec.end_presale_project_month, cur_row_format_date)
+                                        else:
+                                            sheet.write(row, column, None, cur_row_format)
+                                        column += 1
+                                        sheet.write_number(row, column, spec.profitability, cur_row_format_number)
+                                        column += 1
+                                        sheet.write_string(row, column, '', head_format_1)
+                                        self.print_row_values(workbook, sheet, row, column,  spec, False, 30, 4)
+                                        dict_formula['printed_projects'].add(spec.id)
+
+                        if isFoundProjectsByProbability:
+                            row += 1
+                            column = 0
+                            sheet.write_string(row, column, project_manager.name + ' ' + estimated_probability.name
+                                               + ' %', row_format_probability)
+                            sheet.write_string(row, column + 1, project_manager.name + ' ' + estimated_probability.name
+                                               + ' %', row_format_probability)
+                            sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 2})
+
+                            formulaProjectManager = formulaProjectManager + ',{0}' + str(row + 1)
+                            for colFormula in range(2, 9):
+                                sheet.write_string(row, colFormula, '', row_format_probability)
+                            for colFormula in list(range(9, 215)) + list(range(216, 230)) + list(range(231, 245)):
+                                formula = '=sum({2}{0}:{2}{1})'.format(begRowProjectsByProbability + 2, row,
+                                                                       xl_col_to_name(colFormula))
+                                if colFormula in fact_columns and estimated_probability.name not in ('100', '100(done)'):
+                                    sheet.write_formula(row, colFormula, formula, row_format_fact_cross)  # кресты в фактах где вероятности < 100
+                                else:
+                                    sheet.write_formula(row, colFormula, formula, row_format_probability)
+
+                            for type in plan_shift: # кресты в планах
+                                for c in plan_shift[type].values():
+                                    sheet.write_string(row, c, '', row_format_plan_cross)
+
+                    if isFoundProjectsByManager:
                         row += 1
                         column = 0
-                        sheet.write_string(row, column, project_manager.name + ' ' + estimated_probability.name
-                                           + ' %', row_format_probability)
-                        sheet.write_string(row, column + 1, project_manager.name + ' ' + estimated_probability.name
-                                           + ' %', row_format_probability)
-                        sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 2})
+                        sheet.write_string(row, column, 'ИТОГО: ' + project_manager.name, row_format_manager)
+                        sheet.write_string(row, column + 1, 'ИТОГО: ' + project_manager.name, row_format_manager)
+                        sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 1})
+                        # print('setrow manager  row = ', row)
+                        # print('setrow manager level = ', level)
 
-                        formulaProjectManager = formulaProjectManager + ',{0}' + str(row + 1)
+                        formulaProjectOffice = formulaProjectOffice + ',{0}'+str(row + 1)
+
                         for colFormula in range(2, 9):
-                            sheet.write_string(row, colFormula, '', row_format_probability)
+                            sheet.write_string(row, colFormula, '', row_format_manager)
+
                         for colFormula in list(range(9, 215)) + list(range(216, 230)) + list(range(231, 245)):
-                            formula = '=sum({2}{0}:{2}{1})'.format(begRowProjectsByProbability + 2, row,
-                                                                   xl_col_to_name(colFormula))
-                            if colFormula in fact_columns and estimated_probability.name not in ('100', '100(done)'):
-                                sheet.write_formula(row, colFormula, formula, row_format_fact_cross)  # кресты в фактах где вероятности < 100
-                            else:
-                                sheet.write_formula(row, colFormula, formula, row_format_probability)
+                            formula = formulaProjectManager.format(xl_col_to_name(colFormula)) + ')'
+                            sheet.write_formula(row, colFormula, formula, row_format_manager)
+
+                        # расчетный план КАМа
+                        row += 1
+                        column = 0
+                        sheet.write_string(row, column, 'ИТОГО: Расчетный План по ' + project_manager.name, row_format_manager_estimated_plan_left)
+                        sheet.write_string(row, column + 1, 'ИТОГО: Расчетный План по ' + project_manager.name, row_format_manager_estimated_plan_left)
+                        sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
+
+                        self.print_estimated_rows(sheet, row, row_format_manager_estimated_plan, row_format_manager_estimated_plan_cross)
 
                         for type in plan_shift: # кресты в планах
                             for c in plan_shift[type].values():
+                                sheet.write_string(row - 1, c, '', row_format_plan_cross)
                                 sheet.write_string(row, c, '', row_format_plan_cross)
 
-                if isFoundProjectsByManager:
+                        # планы КАМов
+                        plan_revenue = self.env['project_budget.budget_plan_kam_spec'].search([
+                            ('budget_plan_kam_id.year', '=', YEARint),
+                            ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                            ('type_row', '=', 'contracting'),
+                        ])
+                        plan_pds = self.env['project_budget.budget_plan_kam_spec'].search([
+                            ('budget_plan_kam_id.year', '=', YEARint),
+                            ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                            ('type_row', '=', 'cash'),
+                        ])
+                        plan_acceptance = self.env['project_budget.budget_plan_kam_spec'].search([
+                            ('budget_plan_kam_id.year', '=', YEARint),
+                            ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                            ('type_row', '=', 'acceptance'),
+                        ])
+                        plan_margin = self.env['project_budget.budget_plan_kam_spec'].search([
+                            ('budget_plan_kam_id.year', '=', YEARint),
+                            ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                            ('type_row', '=', 'margin_income'),
+                        ])
+
+                        plan_revenue_next = self.env['project_budget.budget_plan_kam_spec'].search([
+                            ('budget_plan_kam_id.year', '=', YEARint + 1),
+                            ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                            ('type_row', '=', 'contracting'),
+                        ])
+                        plan_pds_next = self.env['project_budget.budget_plan_kam_spec'].search([
+                            ('budget_plan_kam_id.year', '=', YEARint + 1),
+                            ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                            ('type_row', '=', 'cash'),
+                        ])
+                        plan_acceptance_next = self.env['project_budget.budget_plan_kam_spec'].search([
+                            ('budget_plan_kam_id.year', '=', YEARint + 1),
+                            ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                            ('type_row', '=', 'acceptance'),
+                        ])
+                        plan_margin_next = self.env['project_budget.budget_plan_kam_spec'].search([
+                            ('budget_plan_kam_id.year', '=', YEARint + 1),
+                            ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                            ('type_row', '=', 'margin_income'),
+                        ])
+                        plan_revenue_after_next = self.env['project_budget.budget_plan_kam_spec'].search([
+                            ('budget_plan_kam_id.year', '=', YEARint + 2),
+                            ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                            ('type_row', '=', 'contracting'),
+                        ])
+                        plan_pds_after_next = self.env['project_budget.budget_plan_kam_spec'].search([
+                            ('budget_plan_kam_id.year', '=', YEARint + 2),
+                            ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                            ('type_row', '=', 'cash'),
+                        ])
+                        plan_acceptance_after_next = self.env['project_budget.budget_plan_kam_spec'].search([
+                            ('budget_plan_kam_id.year', '=', YEARint + 2),
+                            ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                            ('type_row', '=', 'acceptance'),
+                        ])
+                        plan_margin_after_next = self.env['project_budget.budget_plan_kam_spec'].search([
+                            ('budget_plan_kam_id.year', '=', YEARint + 2),
+                            ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                            ('type_row', '=', 'margin_income'),
+                        ])
+
+                        for plan in (
+                                {'column': plan_shift['revenue']['Q1'], 'formula': f'{plan_revenue.q1_plan}'},
+                                {'column': plan_shift['revenue']['Q2'], 'formula': f'{plan_revenue.q2_plan}'},
+                                {'column': plan_shift['revenue']['Q3'], 'formula': f'{plan_revenue.q3_plan}'},
+                                {'column': plan_shift['revenue']['Q4'], 'formula': f'{plan_revenue.q4_plan}'},
+                                {'column': plan_shift['pds']['Q1'], 'formula': f'{plan_pds.q1_plan}'},
+                                {'column': plan_shift['pds']['Q2'], 'formula': f'{plan_pds.q2_plan}'},
+                                {'column': plan_shift['pds']['Q3'], 'formula': f'{plan_pds.q3_plan}'},
+                                {'column': plan_shift['pds']['Q4'], 'formula': f'{plan_pds.q4_plan}'},
+                                {'column': plan_shift['acceptance']['Q1'], 'formula': f'{plan_acceptance.q1_plan}'},
+                                {'column': plan_shift['acceptance']['Q2'], 'formula': f'{plan_acceptance.q2_plan}'},
+                                {'column': plan_shift['acceptance']['Q3'], 'formula': f'{plan_acceptance.q3_plan}'},
+                                {'column': plan_shift['acceptance']['Q4'], 'formula': f'{plan_acceptance.q4_plan}'},
+                                {'column': plan_shift['acceptance']['6+6'],
+                                 'formula': f'{plan_acceptance.q3_plan_6_6} + {plan_acceptance.q4_plan_6_6}'},
+                                {'column': plan_shift['margin']['Q1'], 'formula': f'{plan_margin.q1_plan}'},
+                                {'column': plan_shift['margin']['Q2'], 'formula': f'{plan_margin.q2_plan}'},
+                                {'column': plan_shift['margin']['Q3'], 'formula': f'{plan_margin.q3_plan}'},
+                                {'column': plan_shift['margin']['Q4'], 'formula': f'{plan_margin.q4_plan}'},
+                                {'column': plan_shift['margin']['6+6'],
+                                 'formula': f'{plan_margin.q3_plan_6_6} + {plan_margin.q4_plan_6_6}'},
+                                {'column': plan_shift['revenue']['NEXT'],
+                                 'formula': f'{plan_revenue_next.q1_plan + plan_revenue_next.q2_plan + plan_revenue_next.q3_plan + plan_revenue_next.q4_plan}'},
+                                {'column': plan_shift['pds']['NEXT'],
+                                 'formula': f'{plan_pds_next.q1_plan + plan_pds_next.q2_plan + plan_pds_next.q3_plan + plan_pds_next.q4_plan}'},
+                                {'column': plan_shift['acceptance']['NEXT'],
+                                 'formula': f'{plan_acceptance_next.q1_plan + plan_acceptance_next.q2_plan + plan_acceptance_next.q3_plan + plan_acceptance_next.q4_plan}'},
+                                {'column': plan_shift['margin']['NEXT'],
+                                 'formula': f'{plan_margin_next.q1_plan + plan_margin_next.q2_plan + plan_margin_next.q3_plan + plan_margin_next.q4_plan}'},
+                                {'column': plan_shift['revenue']['AFTER_NEXT'],
+                                 'formula': f'{plan_revenue_after_next.q1_plan + plan_revenue_after_next.q2_plan + plan_revenue_after_next.q3_plan + plan_revenue_after_next.q4_plan}'},
+                                {'column': plan_shift['pds']['AFTER_NEXT'],
+                                 'formula': f'{plan_pds_after_next.q1_plan + plan_pds_after_next.q2_plan + plan_pds_after_next.q3_plan + plan_pds_after_next.q4_plan}'},
+                                {'column': plan_shift['acceptance']['AFTER_NEXT'],
+                                 'formula': f'{plan_acceptance_after_next.q1_plan + plan_acceptance_after_next.q2_plan + plan_acceptance_after_next.q3_plan + plan_acceptance_after_next.q4_plan}'},
+                                {'column': plan_shift['margin']['AFTER_NEXT'],
+                                 'formula': f'{plan_margin_after_next.q1_plan + plan_margin_after_next.q2_plan + plan_margin_after_next.q3_plan + plan_margin_after_next.q4_plan}'},
+                        ):
+
+                            kam_formula = '(' + plan['formula'] + ')'
+
+                            sheet.write_formula(row, plan['column'], kam_formula, row_format_plan)
+                            sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 1})
+
+                        for plan in (
+                                {'column': plan_shift['revenue']['HY1'],
+                                 'formula': f"={xl_col_to_name(plan_shift['revenue']['Q1'])}{row + 1} + {xl_col_to_name(plan_shift['revenue']['Q2'])}{row + 1}"},
+                                {'column': plan_shift['revenue']['HY2'],
+                                 'formula': f"={xl_col_to_name(plan_shift['revenue']['Q3'])}{row + 1} + {xl_col_to_name(plan_shift['revenue']['Q4'])}{row + 1}"},
+                                {'column': plan_shift['revenue']['Y'],
+                                 'formula': f"={xl_col_to_name(plan_shift['revenue']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['revenue']['HY2'])}{row + 1}"},
+                                {'column': plan_shift['pds']['HY1'],
+                                 'formula': f"={xl_col_to_name(plan_shift['pds']['Q1'])}{row + 1} + {xl_col_to_name(plan_shift['pds']['Q2'])}{row + 1}"},
+                                {'column': plan_shift['pds']['HY2'],
+                                 'formula': f"={xl_col_to_name(plan_shift['pds']['Q3'])}{row + 1} + {xl_col_to_name(plan_shift['pds']['Q4'])}{row + 1}"},
+                                {'column': plan_shift['pds']['Y'],
+                                 'formula': f"={xl_col_to_name(plan_shift['pds']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['pds']['HY2'])}{row + 1}"},
+                                {'column': plan_shift['acceptance']['HY1'],
+                                 'formula': f"={xl_col_to_name(plan_shift['acceptance']['Q1'])}{row + 1} + {xl_col_to_name(plan_shift['acceptance']['Q2'])}{row + 1}"},
+                                {'column': plan_shift['acceptance']['HY2'],
+                                 'formula': f"={xl_col_to_name(plan_shift['acceptance']['Q3'])}{row + 1} + {xl_col_to_name(plan_shift['acceptance']['Q4'])}{row + 1}"},
+                                {'column': plan_shift['acceptance']['Y'],
+                                 'formula': f"={xl_col_to_name(plan_shift['acceptance']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['acceptance']['HY2'])}{row + 1}"},
+                                {'column': plan_shift['margin']['HY1'],
+                                 'formula': f"={xl_col_to_name(plan_shift['margin']['Q1'])}{row + 1} + {xl_col_to_name(plan_shift['margin']['Q2'])}{row + 1}"},
+                                {'column': plan_shift['margin']['HY2'],
+                                 'formula': f"={xl_col_to_name(plan_shift['margin']['Q3'])}{row + 1} + {xl_col_to_name(plan_shift['margin']['Q4'])}{row + 1}"},
+                                {'column': plan_shift['margin']['Y'],
+                                 'formula': f"={xl_col_to_name(plan_shift['margin']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['margin']['HY2'])}{row + 1}"},
+                        ):
+                            sheet.write_formula(row, plan['column'], plan['formula'], row_format_plan)
+
+                if isFoundProjectsByOffice:
                     row += 1
                     column = 0
-                    sheet.write_string(row, column, 'ИТОГО: ' + project_manager.name, row_format_manager)
-                    sheet.write_string(row, column + 1, 'ИТОГО: ' + project_manager.name, row_format_manager)
-                    sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 1})
-                    # print('setrow manager  row = ', row)
-                    # print('setrow manager level = ', level)
-
-                    formulaProjectOffice = formulaProjectOffice + ',{0}'+str(row + 1)
-
-                    for colFormula in range(2, 9):
-                        sheet.write_string(row, colFormula, '', row_format_manager)
-
-                    for colFormula in list(range(9, 215)) + list(range(216, 230)) + list(range(231, 245)):
-                        formula = formulaProjectManager.format(xl_col_to_name(colFormula)) + ')'
-                        sheet.write_formula(row, colFormula, formula, row_format_manager)
-
-                    # расчетный план КАМа
-                    row += 1
-                    column = 0
-                    sheet.write_string(row, column, 'ИТОГО: Расчетный План по ' + project_manager.name, row_format_manager_estimated_plan_left)
-                    sheet.write_string(row, column + 1, 'ИТОГО: Расчетный План по ' + project_manager.name, row_format_manager_estimated_plan_left)
+                    sheet.write_string(row, column, 'ИТОГО ' + project_office.name, row_format_office)
+                    sheet.write_string(row, column + 1, 'ИТОГО ' + project_office.name, row_format_office)
                     sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
 
-                    self.print_estimated_rows(sheet, row, row_format_manager_estimated_plan, row_format_manager_estimated_plan_cross)
+                    if not project_office.parent_id:
+                        formulaCompany += ',{0}' + f'{row + 1}'
 
-                    for type in plan_shift: # кресты в планах
+                    str_project_office_id = 'project_office_' + str(int(project_office.parent_id))
+                    if str_project_office_id in dict_formula:
+                        dict_formula[str_project_office_id] = dict_formula[str_project_office_id] + ',{0}' + str(row+1)
+                    else:
+                        dict_formula[str_project_office_id] = ',{0}'+str(row+1)
+
+                    if not project_office.parent_id:  # корневой офис добавляем сразу
+                        dict_formula['offices_lines'].add(row+1)
+                    else:  # ищем всех родителей и проверяем есть ли они в выбранных офисах, если нет, добавляем
+                        parent = project_office.parent_id
+                        while parent:
+                            if parent.id in project_office_ids:
+                                break
+                            else:
+                                parent = parent.parent_id
+                        else:
+                            dict_formula['offices_lines'].add(row + 1)
+
+                    str_project_office_id = 'project_office_' + str(int(project_office.id))
+
+                    if str_project_office_id in dict_formula:
+                        formulaProjectOffice = formulaProjectOffice + dict_formula[str_project_office_id]+')'
+                    else:
+                        formulaProjectOffice = formulaProjectOffice + ')'
+
+                    for colFormula in range(2, 9):
+                        sheet.write_string(row, colFormula, '', row_format_office)
+
+                    for colFormula in list(range(9, 215)) + list(range(216, 230)) + list(range(231, 245)):
+                        formula = formulaProjectOffice.format(xl_col_to_name(colFormula))
+                        # print('formula = ', formula)
+                        sheet.write_formula(row, colFormula, formula, row_format_office)
+
+                    for type in plan_shift:  # кресты в планах
                         for c in plan_shift[type].values():
-                            sheet.write_string(row - 1, c, '', row_format_plan_cross)
                             sheet.write_string(row, c, '', row_format_plan_cross)
 
-                    # планы КАМов
-                    plan_revenue = self.env['project_budget.budget_plan_kam_spec'].search([
-                        ('budget_plan_kam_id.year', '=', YEARint),
-                        ('budget_plan_kam_id.kam_id', '=', project_manager.id),
-                        ('type_row', '=', 'contracting'),
-                    ])
-                    plan_pds = self.env['project_budget.budget_plan_kam_spec'].search([
-                        ('budget_plan_kam_id.year', '=', YEARint),
-                        ('budget_plan_kam_id.kam_id', '=', project_manager.id),
-                        ('type_row', '=', 'cash'),
-                    ])
-                    plan_acceptance = self.env['project_budget.budget_plan_kam_spec'].search([
-                        ('budget_plan_kam_id.year', '=', YEARint),
-                        ('budget_plan_kam_id.kam_id', '=', project_manager.id),
-                        ('type_row', '=', 'acceptance'),
-                    ])
-                    plan_margin = self.env['project_budget.budget_plan_kam_spec'].search([
-                        ('budget_plan_kam_id.year', '=', YEARint),
-                        ('budget_plan_kam_id.kam_id', '=', project_manager.id),
-                        ('type_row', '=', 'margin_income'),
-                    ])
+                    # расчетный план офиса
+                    row += 1
+                    column = 0
+                    # sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
+                    # print('setrow level1 row = ', row)
+                    sheet.write_string(row, column, 'ИТОГО ' + project_office.name + ' Расчетный План:', row_format_office_estimated_plan_left)
+                    sheet.write_string(row, column + 1, 'ИТОГО ' + project_office.name  + ' Расчетный План:', row_format_office_estimated_plan_left)
 
-                    plan_revenue_next = self.env['project_budget.budget_plan_kam_spec'].search([
-                        ('budget_plan_kam_id.year', '=', YEARint + 1),
-                        ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                    self.print_estimated_rows(sheet, row, row_format_office_estimated_plan,
+                                              row_format_office_estimated_plan_cross)
+
+                    # планы офисов
+                    plan_revenue = self.env['project_budget.budget_plan_supervisor_spec'].search([
+                        ('budget_plan_supervisor_id.year', '=', YEARint),
+                        ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
                         ('type_row', '=', 'contracting'),
                     ])
-                    plan_pds_next = self.env['project_budget.budget_plan_kam_spec'].search([
-                        ('budget_plan_kam_id.year', '=', YEARint + 1),
-                        ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                    plan_pds = self.env['project_budget.budget_plan_supervisor_spec'].search([
+                        ('budget_plan_supervisor_id.year', '=', YEARint),
+                        ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
                         ('type_row', '=', 'cash'),
                     ])
-                    plan_acceptance_next = self.env['project_budget.budget_plan_kam_spec'].search([
-                        ('budget_plan_kam_id.year', '=', YEARint + 1),
-                        ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                    plan_acceptance = self.env['project_budget.budget_plan_supervisor_spec'].search([
+                        ('budget_plan_supervisor_id.year', '=', YEARint),
+                        ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
                         ('type_row', '=', 'acceptance'),
                     ])
-                    plan_margin_next = self.env['project_budget.budget_plan_kam_spec'].search([
-                        ('budget_plan_kam_id.year', '=', YEARint + 1),
-                        ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                    plan_margin = self.env['project_budget.budget_plan_supervisor_spec'].search([
+                        ('budget_plan_supervisor_id.year', '=', YEARint),
+                        ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
                         ('type_row', '=', 'margin_income'),
                     ])
-                    plan_revenue_after_next = self.env['project_budget.budget_plan_kam_spec'].search([
-                        ('budget_plan_kam_id.year', '=', YEARint + 2),
-                        ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                    plan_revenue_next = self.env['project_budget.budget_plan_supervisor_spec'].search([
+                        ('budget_plan_supervisor_id.year', '=', YEARint + 1),
+                        ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
                         ('type_row', '=', 'contracting'),
                     ])
-                    plan_pds_after_next = self.env['project_budget.budget_plan_kam_spec'].search([
-                        ('budget_plan_kam_id.year', '=', YEARint + 2),
-                        ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                    plan_pds_next = self.env['project_budget.budget_plan_supervisor_spec'].search([
+                        ('budget_plan_supervisor_id.year', '=', YEARint + 1),
+                        ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
                         ('type_row', '=', 'cash'),
                     ])
-                    plan_acceptance_after_next = self.env['project_budget.budget_plan_kam_spec'].search([
-                        ('budget_plan_kam_id.year', '=', YEARint + 2),
-                        ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                    plan_acceptance_next = self.env['project_budget.budget_plan_supervisor_spec'].search([
+                        ('budget_plan_supervisor_id.year', '=', YEARint + 1),
+                        ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
                         ('type_row', '=', 'acceptance'),
                     ])
-                    plan_margin_after_next = self.env['project_budget.budget_plan_kam_spec'].search([
-                        ('budget_plan_kam_id.year', '=', YEARint + 2),
-                        ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                    plan_margin_next = self.env['project_budget.budget_plan_supervisor_spec'].search([
+                        ('budget_plan_supervisor_id.year', '=', YEARint + 1),
+                        ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                        ('type_row', '=', 'margin_income'),
+                    ])
+                    plan_revenue_after_next = self.env['project_budget.budget_plan_supervisor_spec'].search([
+                        ('budget_plan_supervisor_id.year', '=', YEARint + 2),
+                        ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                        ('type_row', '=', 'contracting'),
+                    ])
+                    plan_pds_after_next = self.env['project_budget.budget_plan_supervisor_spec'].search([
+                        ('budget_plan_supervisor_id.year', '=', YEARint + 2),
+                        ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                        ('type_row', '=', 'cash'),
+                    ])
+                    plan_acceptance_after_next = self.env['project_budget.budget_plan_supervisor_spec'].search([
+                        ('budget_plan_supervisor_id.year', '=', YEARint + 2),
+                        ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                        ('type_row', '=', 'acceptance'),
+                    ])
+                    plan_margin_after_next = self.env['project_budget.budget_plan_supervisor_spec'].search([
+                        ('budget_plan_supervisor_id.year', '=', YEARint + 2),
+                        ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
                         ('type_row', '=', 'margin_income'),
                     ])
 
@@ -2448,12 +2679,16 @@ class report_budget_forecast_excel(models.AbstractModel):
                              'formula': f'{plan_acceptance_after_next.q1_plan + plan_acceptance_after_next.q2_plan + plan_acceptance_after_next.q3_plan + plan_acceptance_after_next.q4_plan}'},
                             {'column': plan_shift['margin']['AFTER_NEXT'],
                              'formula': f'{plan_margin_after_next.q1_plan + plan_margin_after_next.q2_plan + plan_margin_after_next.q3_plan + plan_margin_after_next.q4_plan}'},
+
                     ):
 
-                        kam_formula = '(' + plan['formula'] + ')'
+                        child_office_formula = dict_formula.get(str_project_office_id, '')
+                        if child_office_formula:  # увеличиваем все номера строк на 1
+                            child_office_formula = ',' + ','.join(('{0}' + str(int(c[3:]) + 1)) for c in child_office_formula.strip(',').split(','))
 
-                        sheet.write_formula(row, plan['column'], kam_formula, row_format_plan)
-                        sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 1})
+                        office_formula = '(' + plan['formula'] + child_office_formula.format(xl_col_to_name(plan['column'])).replace(',', ' + ') + ')'
+
+                        sheet.write_formula(row, plan['column'], office_formula, row_format_plan)
 
                     for plan in (
                             {'column': plan_shift['revenue']['HY1'],
@@ -2483,162 +2718,160 @@ class report_budget_forecast_excel(models.AbstractModel):
                     ):
                         sheet.write_formula(row, plan['column'], plan['formula'], row_format_plan)
 
-            if isFoundProjectsByOffice:
+            if isFoundProjectsByCompany:
+                if project_office.parent_id or set(self.env['project_budget.project_office'].search([]).ids) != set(project_office_ids): # печатаем компанию только по корневым офисам и если выбраны все оффисы
+                    continue
                 row += 1
                 column = 0
-                sheet.write_string(row, column, 'ИТОГО ' + project_office.name, row_format_office)
-                sheet.write_string(row, column + 1, 'ИТОГО ' + project_office.name, row_format_office)
+                sheet.write_string(row, column, 'ИТОГО ' + company.name, row_format_number_itogo)
+                sheet.write_string(row, column + 1, 'ИТОГО ' + company.name, row_format_number_itogo)
                 sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
-                str_project_office_id = 'project_office_' + str(int(project_office.parent_id))
-                if str_project_office_id in dict_formula:
-                    dict_formula[str_project_office_id] = dict_formula[str_project_office_id] + ',{0}' + str(row+1)
-                else:
-                    dict_formula[str_project_office_id] = ',{0}'+str(row+1)
 
-                str_project_office_id = 'project_office_' + str(int(project_office.id))
+                str_company_id = 'company_' + str(int(company.id))
 
-                print('formulaProjectOffice',formulaProjectOffice)
+                dict_formula['companies_lines'].add(row + 1)
 
-                if str_project_office_id in dict_formula:
-                    formulaProjectOffice = formulaProjectOffice + dict_formula[str_project_office_id]+')'
-                else:
-                    formulaProjectOffice = formulaProjectOffice + ')'
+                formulaCompany = formulaCompany + ')'
 
-                # print('project_office = ', project_office, dict_formula)
-                formulaItogo = formulaItogo + ',{0}' + str(row + 1)
-                # print('formulaProjectOffice = ',formulaProjectOffice)
                 for colFormula in range(2, 9):
-                    sheet.write_string(row, colFormula, '', row_format_office)
+                    sheet.write_string(row, colFormula, '', row_format_number_itogo)
 
                 for colFormula in list(range(9, 215)) + list(range(216, 230)) + list(range(231, 245)):
-                    formula = formulaProjectOffice.format(xl_col_to_name(colFormula))
-                    # print('formula = ', formula)
-                    sheet.write_formula(row, colFormula, formula, row_format_office)
+                    formula = formulaCompany.format(xl_col_to_name(colFormula))
+                    sheet.write_formula(row, colFormula, formula, row_format_number_itogo)
 
                 for type in plan_shift:  # кресты в планах
                     for c in plan_shift[type].values():
                         sheet.write_string(row, c, '', row_format_plan_cross)
 
-                # расчетный план офиса
+                # расчетный план компании
                 row += 1
                 column = 0
-                # sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
-                # print('setrow level1 row = ', row)
-                sheet.write_string(row, column, 'ИТОГО ' + project_office.name + ' Расчетный План:', row_format_office_estimated_plan_left)
-                sheet.write_string(row, column + 1, 'ИТОГО ' + project_office.name  + ' Расчетный План:', row_format_office_estimated_plan_left)
 
-                self.print_estimated_rows(sheet, row, row_format_office_estimated_plan,
-                                          row_format_office_estimated_plan_cross)
+                sheet.write_string(row, column, 'ИТОГО ' + company.name + ' Расчетный План:',
+                                   row_format_company_estimated_plan_left)
+                sheet.write_string(row, column + 1, 'ИТОГО ' + company.name + ' Расчетный План:',
+                                   row_format_company_estimated_plan_left)
 
-                # планы офисов
+                self.print_estimated_rows(sheet, row, row_format_company_estimated_plan,
+                                          row_format_company_estimated_plan_cross)
+
+                # планы компаний
                 plan_revenue = self.env['project_budget.budget_plan_supervisor_spec'].search([
                     ('budget_plan_supervisor_id.year', '=', YEARint),
-                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('budget_plan_supervisor_id.company_id', '=', company.id),
+                    ('budget_plan_supervisor_id.is_company_plan', '=', True),
                     ('type_row', '=', 'contracting'),
                 ])
                 plan_pds = self.env['project_budget.budget_plan_supervisor_spec'].search([
                     ('budget_plan_supervisor_id.year', '=', YEARint),
-                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('budget_plan_supervisor_id.company_id', '=', company.id),
+                    ('budget_plan_supervisor_id.is_company_plan', '=', True),
                     ('type_row', '=', 'cash'),
                 ])
                 plan_acceptance = self.env['project_budget.budget_plan_supervisor_spec'].search([
                     ('budget_plan_supervisor_id.year', '=', YEARint),
-                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('budget_plan_supervisor_id.company_id', '=', company.id),
+                    ('budget_plan_supervisor_id.is_company_plan', '=', True),
                     ('type_row', '=', 'acceptance'),
                 ])
                 plan_margin = self.env['project_budget.budget_plan_supervisor_spec'].search([
                     ('budget_plan_supervisor_id.year', '=', YEARint),
-                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('budget_plan_supervisor_id.company_id', '=', company.id),
+                    ('budget_plan_supervisor_id.is_company_plan', '=', True),
                     ('type_row', '=', 'margin_income'),
                 ])
                 plan_revenue_next = self.env['project_budget.budget_plan_supervisor_spec'].search([
                     ('budget_plan_supervisor_id.year', '=', YEARint + 1),
-                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('budget_plan_supervisor_id.company_id', '=', company.id),
+                    ('budget_plan_supervisor_id.is_company_plan', '=', True),
                     ('type_row', '=', 'contracting'),
                 ])
                 plan_pds_next = self.env['project_budget.budget_plan_supervisor_spec'].search([
                     ('budget_plan_supervisor_id.year', '=', YEARint + 1),
-                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('budget_plan_supervisor_id.company_id', '=', company.id),
+                    ('budget_plan_supervisor_id.is_company_plan', '=', True),
                     ('type_row', '=', 'cash'),
                 ])
                 plan_acceptance_next = self.env['project_budget.budget_plan_supervisor_spec'].search([
                     ('budget_plan_supervisor_id.year', '=', YEARint + 1),
-                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('budget_plan_supervisor_id.company_id', '=', company.id),
+                    ('budget_plan_supervisor_id.is_company_plan', '=', True),
                     ('type_row', '=', 'acceptance'),
                 ])
                 plan_margin_next = self.env['project_budget.budget_plan_supervisor_spec'].search([
                     ('budget_plan_supervisor_id.year', '=', YEARint + 1),
-                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('budget_plan_supervisor_id.company_id', '=', company.id),
+                    ('budget_plan_supervisor_id.is_company_plan', '=', True),
                     ('type_row', '=', 'margin_income'),
                 ])
                 plan_revenue_after_next = self.env['project_budget.budget_plan_supervisor_spec'].search([
                     ('budget_plan_supervisor_id.year', '=', YEARint + 2),
-                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('budget_plan_supervisor_id.company_id', '=', company.id),
+                    ('budget_plan_supervisor_id.is_company_plan', '=', True),
                     ('type_row', '=', 'contracting'),
                 ])
                 plan_pds_after_next = self.env['project_budget.budget_plan_supervisor_spec'].search([
                     ('budget_plan_supervisor_id.year', '=', YEARint + 2),
-                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('budget_plan_supervisor_id.company_id', '=', company.id),
+                    ('budget_plan_supervisor_id.is_company_plan', '=', True),
                     ('type_row', '=', 'cash'),
                 ])
                 plan_acceptance_after_next = self.env['project_budget.budget_plan_supervisor_spec'].search([
                     ('budget_plan_supervisor_id.year', '=', YEARint + 2),
-                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('budget_plan_supervisor_id.company_id', '=', company.id),
+                    ('budget_plan_supervisor_id.is_company_plan', '=', True),
                     ('type_row', '=', 'acceptance'),
                 ])
                 plan_margin_after_next = self.env['project_budget.budget_plan_supervisor_spec'].search([
                     ('budget_plan_supervisor_id.year', '=', YEARint + 2),
-                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('budget_plan_supervisor_id.company_id', '=', company.id),
+                    ('budget_plan_supervisor_id.is_company_plan', '=', True),
                     ('type_row', '=', 'margin_income'),
                 ])
 
                 for plan in (
-                        {'column': plan_shift['revenue']['Q1'], 'formula': f'{plan_revenue.q1_plan}'},
-                        {'column': plan_shift['revenue']['Q2'], 'formula': f'{plan_revenue.q2_plan}'},
-                        {'column': plan_shift['revenue']['Q3'], 'formula': f'{plan_revenue.q3_plan}'},
-                        {'column': plan_shift['revenue']['Q4'], 'formula': f'{plan_revenue.q4_plan}'},
-                        {'column': plan_shift['pds']['Q1'], 'formula': f'{plan_pds.q1_plan}'},
-                        {'column': plan_shift['pds']['Q2'], 'formula': f'{plan_pds.q2_plan}'},
-                        {'column': plan_shift['pds']['Q3'], 'formula': f'{plan_pds.q3_plan}'},
-                        {'column': plan_shift['pds']['Q4'], 'formula': f'{plan_pds.q4_plan}'},
-                        {'column': plan_shift['acceptance']['Q1'], 'formula': f'{plan_acceptance.q1_plan}'},
-                        {'column': plan_shift['acceptance']['Q2'], 'formula': f'{plan_acceptance.q2_plan}'},
-                        {'column': plan_shift['acceptance']['Q3'], 'formula': f'{plan_acceptance.q3_plan}'},
-                        {'column': plan_shift['acceptance']['Q4'], 'formula': f'{plan_acceptance.q4_plan}'},
-                        {'column': plan_shift['acceptance']['6+6'],
-                         'formula': f'{plan_acceptance.q3_plan_6_6} + {plan_acceptance.q4_plan_6_6}'},
-                        {'column': plan_shift['margin']['Q1'], 'formula': f'{plan_margin.q1_plan}'},
-                        {'column': plan_shift['margin']['Q2'], 'formula': f'{plan_margin.q2_plan}'},
-                        {'column': plan_shift['margin']['Q3'], 'formula': f'{plan_margin.q3_plan}'},
-                        {'column': plan_shift['margin']['Q4'], 'formula': f'{plan_margin.q4_plan}'},
-                        {'column': plan_shift['margin']['6+6'],
-                         'formula': f'{plan_margin.q3_plan_6_6} + {plan_margin.q4_plan_6_6}'},
-                        {'column': plan_shift['revenue']['NEXT'],
-                         'formula': f'{plan_revenue_next.q1_plan + plan_revenue_next.q2_plan + plan_revenue_next.q3_plan + plan_revenue_next.q4_plan}'},
-                        {'column': plan_shift['pds']['NEXT'],
-                         'formula': f'{plan_pds_next.q1_plan + plan_pds_next.q2_plan + plan_pds_next.q3_plan + plan_pds_next.q4_plan}'},
-                        {'column': plan_shift['acceptance']['NEXT'],
-                         'formula': f'{plan_acceptance_next.q1_plan + plan_acceptance_next.q2_plan + plan_acceptance_next.q3_plan + plan_acceptance_next.q4_plan}'},
-                        {'column': plan_shift['margin']['NEXT'],
-                         'formula': f'{plan_margin_next.q1_plan + plan_margin_next.q2_plan + plan_margin_next.q3_plan + plan_margin_next.q4_plan}'},
-                        {'column': plan_shift['revenue']['AFTER_NEXT'],
-                         'formula': f'{plan_revenue_after_next.q1_plan + plan_revenue_after_next.q2_plan + plan_revenue_after_next.q3_plan + plan_revenue_after_next.q4_plan}'},
-                        {'column': plan_shift['pds']['AFTER_NEXT'],
-                         'formula': f'{plan_pds_after_next.q1_plan + plan_pds_after_next.q2_plan + plan_pds_after_next.q3_plan + plan_pds_after_next.q4_plan}'},
-                        {'column': plan_shift['acceptance']['AFTER_NEXT'],
-                         'formula': f'{plan_acceptance_after_next.q1_plan + plan_acceptance_after_next.q2_plan + plan_acceptance_after_next.q3_plan + plan_acceptance_after_next.q4_plan}'},
-                        {'column': plan_shift['margin']['AFTER_NEXT'],
-                         'formula': f'{plan_margin_after_next.q1_plan + plan_margin_after_next.q2_plan + plan_margin_after_next.q3_plan + plan_margin_after_next.q4_plan}'},
-
+                    {'column': plan_shift['revenue']['Q1'], 'formula': f'{plan_revenue.q1_plan}'},
+                    {'column': plan_shift['revenue']['Q2'], 'formula': f'{plan_revenue.q2_plan}'},
+                    {'column': plan_shift['revenue']['Q3'], 'formula': f'{plan_revenue.q3_plan}'},
+                    {'column': plan_shift['revenue']['Q4'], 'formula': f'{plan_revenue.q4_plan}'},
+                    {'column': plan_shift['pds']['Q1'], 'formula': f'{plan_pds.q1_plan}'},
+                    {'column': plan_shift['pds']['Q2'], 'formula': f'{plan_pds.q2_plan}'},
+                    {'column': plan_shift['pds']['Q3'], 'formula': f'{plan_pds.q3_plan}'},
+                    {'column': plan_shift['pds']['Q4'], 'formula': f'{plan_pds.q4_plan}'},
+                    {'column': plan_shift['acceptance']['Q1'], 'formula': f'{plan_acceptance.q1_plan}'},
+                    {'column': plan_shift['acceptance']['Q2'], 'formula': f'{plan_acceptance.q2_plan}'},
+                    {'column': plan_shift['acceptance']['Q3'], 'formula': f'{plan_acceptance.q3_plan}'},
+                    {'column': plan_shift['acceptance']['Q4'], 'formula': f'{plan_acceptance.q4_plan}'},
+                    {'column': plan_shift['acceptance']['6+6'],
+                     'formula': f'{plan_acceptance.q3_plan_6_6} + {plan_acceptance.q4_plan_6_6}'},
+                    {'column': plan_shift['margin']['Q1'], 'formula': f'{plan_margin.q1_plan}'},
+                    {'column': plan_shift['margin']['Q2'], 'formula': f'{plan_margin.q2_plan}'},
+                    {'column': plan_shift['margin']['Q3'], 'formula': f'{plan_margin.q3_plan}'},
+                    {'column': plan_shift['margin']['Q4'], 'formula': f'{plan_margin.q4_plan}'},
+                    {'column': plan_shift['margin']['6+6'],
+                     'formula': f'{plan_margin.q3_plan_6_6} + {plan_margin.q4_plan_6_6}'},
+                    {'column': plan_shift['revenue']['NEXT'],
+                     'formula': f'{plan_revenue_next.q1_plan + plan_revenue_next.q2_plan + plan_revenue_next.q3_plan + plan_revenue_next.q4_plan}'},
+                    {'column': plan_shift['pds']['NEXT'],
+                     'formula': f'{plan_pds_next.q1_plan + plan_pds_next.q2_plan + plan_pds_next.q3_plan + plan_pds_next.q4_plan}'},
+                    {'column': plan_shift['acceptance']['NEXT'],
+                     'formula': f'{plan_acceptance_next.q1_plan + plan_acceptance_next.q2_plan + plan_acceptance_next.q3_plan + plan_acceptance_next.q4_plan}'},
+                    {'column': plan_shift['margin']['NEXT'],
+                     'formula': f'{plan_margin_next.q1_plan + plan_margin_next.q2_plan + plan_margin_next.q3_plan + plan_margin_next.q4_plan}'},
+                    {'column': plan_shift['revenue']['AFTER_NEXT'],
+                     'formula': f'{plan_revenue_after_next.q1_plan + plan_revenue_after_next.q2_plan + plan_revenue_after_next.q3_plan + plan_revenue_after_next.q4_plan}'},
+                    {'column': plan_shift['pds']['AFTER_NEXT'],
+                     'formula': f'{plan_pds_after_next.q1_plan + plan_pds_after_next.q2_plan + plan_pds_after_next.q3_plan + plan_pds_after_next.q4_plan}'},
+                    {'column': plan_shift['acceptance']['AFTER_NEXT'],
+                     'formula': f'{plan_acceptance_after_next.q1_plan + plan_acceptance_after_next.q2_plan + plan_acceptance_after_next.q3_plan + plan_acceptance_after_next.q4_plan}'},
+                    {'column': plan_shift['margin']['AFTER_NEXT'],
+                     'formula': f'{plan_margin_after_next.q1_plan + plan_margin_after_next.q2_plan + plan_margin_after_next.q3_plan + plan_margin_after_next.q4_plan}'},
                 ):
+                    company_formula = '(' + plan['formula'] + ')'
 
-                    child_office_formula = dict_formula.get(str_project_office_id, '')
-                    if child_office_formula:  # увеличиваем все номера строк на 1
-                        child_office_formula = ',' + ','.join(('{0}' + str(int(c[3:]) + 1)) for c in child_office_formula.strip(',').split(','))
-
-                    office_formula = '(' + plan['formula'] + child_office_formula.format(xl_col_to_name(plan['column'])).replace(',', ' + ') + ')'
-
-                    sheet.write_formula(row, plan['column'], office_formula, row_format_plan)
+                    sheet.write_formula(row, plan['column'], company_formula, row_format_plan)
+                    # sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 1})
 
                 for plan in (
                         {'column': plan_shift['revenue']['HY1'],
@@ -2667,7 +2900,8 @@ class report_budget_forecast_excel(models.AbstractModel):
                          'formula': f"={xl_col_to_name(plan_shift['margin']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['margin']['HY2'])}{row + 1}"},
                 ):
                     sheet.write_formula(row, plan['column'], plan['formula'], row_format_plan)
-        return row, formulaItogo
+
+        return row
 
     def printworksheet(self,workbook,budget,namesheet, estimated_probabilities):
         global YEARint
@@ -2920,6 +3154,8 @@ class report_budget_forecast_excel(models.AbstractModel):
         column = self.print_month_head_revenue_margin(workbook, sheet, row, column, YEARint + 2, ['YEAR итого',], True)
         row += 2
 
+        companies = self.env['res.company'].search([], order='name')
+
         if project_office_ids:
             project_offices = self.env['project_budget.project_office'].search([
                 ('id','in',project_office_ids), ('parent_id', 'not in', project_office_ids)], order='name')  # для сортировки так делаем + не берем дочерние оффисы, если выбраны их материнские
@@ -2928,26 +3164,31 @@ class report_budget_forecast_excel(models.AbstractModel):
                 ('parent_id', '=', False)], order='name')  # для сортировки так делаем + берем сначала только верхние элементы
         project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
 
-        formulaItogo = '=sum(0'
+        row = self.print_row(sheet, workbook, companies, project_offices, project_managers, estimated_probabilities, budget, row, 1)
 
-        row, formulaItogo = self.print_row(sheet, workbook, project_offices, project_managers, estimated_probabilities, budget, row, formulaItogo, 1)
-
+        # ИТОГО
         row += 1
         column = 0
         sheet.write_string(row, column, 'ИТОГО по отчету' , row_format_number_itogo)
         sheet.write_string(row, column + 1, 'ИТОГО по отчету', row_format_number_itogo)
-        sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
-        formulaItogo = formulaItogo + ')'
+        formula_itogo = False
         formula_plan = False
-        if 'project_office_0' in dict_formula:
-            formulaItogo = '=sum(' + dict_formula['project_office_0'] + ')'
-            formula_plan = '=sum(,' + ','.join(('{0}' + str(int(c[3:]) + 1)) for c in dict_formula['project_office_0'].strip(',').split(',')) + ')'  # увеличиваем все номера строк на 1
-        for colFormula in range(2, 9):
-            sheet.write_string(row, colFormula, '', row_format_number_itogo)
-        for colFormula in list(range(9, 215)) + list(range(216, 230)) + list(range(231, 245)):
-            formula = formulaItogo.format(xl_col_to_name(colFormula))
-            # print('formula = ', formula)
-            sheet.write_formula(row, colFormula, formula, row_format_number_itogo)
+        if dict_formula['companies_lines']:
+            formula_itogo = '=sum(' + ','.join(('{0}' + str(c)) for c in dict_formula['companies_lines']) + ')'
+            formula_plan = '=sum(,' + ','.join(('{0}' + str(c + 1)) for c in dict_formula['companies_lines']) + ')'  # увеличиваем все номера строк на 1
+            sheet.set_row(row, False, False, {'hidden': 1, 'level': 0})
+            sheet.set_row(row + 1, False, False, {'hidden': 1, 'level': 0})
+        elif dict_formula['offices_lines']:
+            formula_itogo = '=sum(' + ','.join(('{0}' + str(c)) for c in dict_formula['offices_lines']) + ')'
+            formula_plan = '=sum(' + ','.join(('{0}' + str(c + 1)) for c in dict_formula['offices_lines']) + ')'  # увеличиваем все номера строк на 1
+            sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
+
+        if formula_itogo:
+            for colFormula in range(2, 9):
+                sheet.write_string(row, colFormula, '', row_format_number_itogo)
+            for colFormula in list(range(9, 215)) + list(range(216, 230)) + list(range(231, 245)):
+                formula = formula_itogo.format(xl_col_to_name(colFormula))
+                sheet.write_formula(row, colFormula, formula, row_format_number_itogo)
 
         # расчетный план по отчету
         row += 1
@@ -3149,10 +3390,10 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         commercial_budget_id = data['commercial_budget_id']
 
-        dict_formula = {'printed_projects': set(), 'printed_steps': set()}
+        dict_formula = {'printed_projects': set(), 'printed_steps': set(), 'companies_lines': set(), 'offices_lines': set()}
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
         estimated_probabilities = self.env['project_budget.estimated_probability'].search([('name', '!=', '10')], order='code desc')  # для сортировки так делаем
         self.printworksheet(workbook, budget, 'Прогноз', estimated_probabilities)
-        dict_formula = {'printed_projects': set(), 'printed_steps': set()}
+        dict_formula = {'printed_projects': set(), 'printed_steps': set(), 'companies_lines': set(), 'offices_lines': set()}
         estimated_probabilities = self.env['project_budget.estimated_probability'].search([('name', '=', '10')], order='code desc')  # для сортировки так делаем
         self.printworksheet(workbook, budget, '10%', estimated_probabilities)
