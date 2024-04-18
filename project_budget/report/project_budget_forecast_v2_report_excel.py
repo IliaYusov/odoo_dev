@@ -109,7 +109,7 @@ class report_budget_forecast_excel(models.AbstractModel):
     dict_formula = {}
     # dict_contract_pds = {
     #     1: {'name': 'Контрактование, с НДС', 'color': '#FFD966'},
-    #     2: {'name': 'Поступление денежных средсв, с НДС', 'color': '#D096BF'}
+    #     2: {'name': 'Поступление денежных средств, с НДС', 'color': '#D096BF'}
     # }
 
     dict_revenue_margin= {
@@ -465,7 +465,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
     def print_month_head_pds(self, workbook, sheet, row, column, year, elements, next):
 
-        x = {'name': 'Поступление денежных средсв, с НДС', 'color': '#D096BF'}
+        x = {'name': 'Поступление денежных средств, с НДС', 'color': '#D096BF'}
 
         y = list(x.values())
         head_format_month = workbook.add_format({
@@ -1559,7 +1559,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 sheet.write_formula(row, column + 3, formula, row_format_number)
             column += 3
         #end печать Контрактование, с НДС
-        # Поступление денежных средсв, с НДС
+        # Поступление денежных средств, с НДС
         sumYear100etalon = sumYear75etalon = sumYear50etalon = sumYear100 = sumYear75 = sumYear50 = 0
         sumQ100etalon = sumQ75etalon = sumQ50etalon = sumQ100 = sumQ75 = sumQ50 = 0
         sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
@@ -1658,7 +1658,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         _, _, _, _, _ = self.print_year_pds_project(sheet, row, 236, project, step, YEARint + 2, row_format_number,
                                                     row_format_number_color_fact, True)
 
-        # end Поступление денежных средсв, с НДС
+        # end Поступление денежных средств, с НДС
 
         # Валовая Выручка, без НДС
         sumYear100etalon = sumYear75etalon = sumYear50etalon = sumYear100 = sumYear75 = sumYear50 = 0
@@ -2191,8 +2191,9 @@ class report_budget_forecast_excel(models.AbstractModel):
                 row = row0
 
                 formulaProjectOffice = '=sum(0'
-                for project_manager in cur_project_managers:
-                    #print('project_manager = ', project_manager.name)
+                for project_manager in cur_project_managers.filtered(lambda r: r in (office for office in self.env[
+                'project_budget.project_manager'].search([('company_id', '=', company.id), ]))):
+                    print('project_manager =', project_manager.name)
                     isFoundProjectsByManager = False
                     begRowProjectsByManager = 0
                     formulaProjectManager = '=sum(0'
