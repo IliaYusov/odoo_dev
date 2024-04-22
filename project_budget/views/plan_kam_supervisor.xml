@@ -166,7 +166,7 @@
                                         <field name="currency_id" options="{'no_create': True, 'no_open': True}"/>
                                     </group>
                                     <group>
-                                        <field name="is_company_plan" widget="boolean_toggle"/>
+                                        <field name="is_company_plan"/>
                                         <field name="project_office_id" options="{'no_create': True, 'no_open': True}"
                                                attrs="{'invisible': [('is_company_plan', '=', True)], 'required': [('is_company_plan', '=', False)]}"
                                         />
