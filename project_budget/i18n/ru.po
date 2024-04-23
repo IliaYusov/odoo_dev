@@ -1148,6 +1148,11 @@ msgid "Forecast_v2"
 msgstr "Прогноз_v2"
 
 #. module: project_budget
+#: model:ir.model.fields.selection,name:project_budget.selection__project_budget_projects_report_wizard__type_report__plan_fact
+msgid "Plan-Fact"
+msgstr "План-Факт"
+
+#. module: project_budget
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_planned_acceptance_flow__forecast__from_project
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_planned_cash_flow__forecast__from_project
 msgid "From project/step"
@@ -2250,6 +2255,11 @@ msgstr "Прогноз"
 #: model:ir.actions.report,name:project_budget.action_projects_list_report_xlsx_forecast_v2
 msgid "Projects Report forecast v2"
 msgstr "Прогноз_v2"
+
+#. module: project_budget
+#: model:ir.actions.report,name:project_budget.action_projects_list_report_xlsx_plan_fact
+msgid "Plan-Fact"
+msgstr "План-Факт"
 
 #. module: project_budget
 #: model:ir.actions.report,name:project_budget.action_projects_list_report_xlsx_kb
