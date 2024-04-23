@@ -958,6 +958,18 @@ class Project(models.Model):
                 raisetext = _("'Complex' project should be with with steps")
                 raise ValidationError(raisetext)
 
+    @api.constrains('estimated_probability_id', 'step_project_number')
+    def _check_project_axapta_step(self):
+        for project in self:
+            if (project.estimated_probability_id.name in ('75', '100')
+                    and not project.step_project_number
+                    and project.budget_state == 'work'
+                    and not project.is_correction_project
+            ):  # Проект без кода из AXAPTA
+                raisetext = _("Please enter AXAPTA code to project {0}")
+                raisetext = raisetext.format(project.project_id)
+                raise ValidationError(raisetext)
+
     def check_overdue_date(self, vals_list):
         for project in self:
 
