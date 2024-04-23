@@ -38,7 +38,7 @@
                         </group>
                         <group col="4">
                             <group>
-                                <field name="code" placeholder="type step code e.g. 0001" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')], 'required': [('estimated_probability_id', 'in', (5, 6))]}"/> <!--обязательно при вероятности 100 и 100(done) -->
+                                <field name="code" placeholder="type step code e.g. 0001" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
                             </group>
                             <group>
                                 <field name="project_steps_type_id" force_save="1" options="{'no_open': True,}"/>

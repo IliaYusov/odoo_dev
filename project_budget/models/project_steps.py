@@ -406,6 +406,17 @@ class project_steps(models.Model):
                 raisetext = raisetext.format(step.projects_id.project_id, step.step_id)
                 raise ValidationError(raisetext)
 
+    @api.constrains('estimated_probability_id', 'code')
+    def _check_step_axapta_code(self):
+        for step in self:
+            if (step.estimated_probability_id.name in ('75', '100')
+                    and not step.code
+                    and step.projects_id.budget_state == 'work'
+                    and not step.projects_id.is_correction_project):  # Проект без кода этапа из AXAPTA
+                raisetext = _("Please enter AXAPTA code to project {0} step {1}")
+                raisetext = raisetext.format(step.projects_id.project_id, step.step_id)
+                raise ValidationError(raisetext)
+
     @api.depends("planned_cash_flow_ids.sum_cash")
     def _compute_planned_cash_flow_sum(self):
         for row in self:

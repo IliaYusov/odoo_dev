@@ -82,6 +82,13 @@ msgid "'Complex' project should be with with steps"
 msgstr "'Комплексный' проект должен иметь этапность"
 
 #. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/project_budget_projects.py:0
+#, python-format
+msgid "Please enter AXAPTA code to project {0}"
+msgstr "Добавьте код проекта из AXAPTA в проект {0}"
+
+#. module: project_budget
 #: model:ir.actions.report,print_report_name:project_budget.action_new_tender_list_report_xlsx
 #: model:ir.actions.report,print_report_name:project_budget.action_tender_list_report_xlsx
 msgid "'Tenders_%s' % object.FileName"
@@ -2021,6 +2028,13 @@ msgid "Please enter financial data to project {0} step {1}"
 msgstr ""
 "Пожалуйста добавьте Финансовые показатели в этап {1} проекта {0}, его "
 "вероятность больше 30%"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/project_steps.py:0
+#, python-format
+msgid "Please enter AXAPTA code to project {0} step {1}"
+msgstr "Пожалуйста добавьте код этапа из AXAPTA в этап {1} проекта {0}"
 
 #. module: project_budget
 #. odoo-python
