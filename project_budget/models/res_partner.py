@@ -19,3 +19,10 @@ class ResPartner(models.Model):
         projects = {x['partner_id'][0]: x['partner_id_count'] for x in res}
         for rec in self:
             rec.project_count = projects.get(rec.id, 0)
+
+    def name_get(self):
+        res = []
+        for record in self:
+            name = '%s%s' % ((record.vat + ' - ') if record.vat else '', record.name)
+            res += [(record.id, name)]
+        return res
