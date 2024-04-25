@@ -721,7 +721,7 @@
                                         <field name="date_cash" placeholder="enter planned cash flow date"/>
                                         <field name="project_steps_id" options="{'no_open': True,}" placeholder="select project steps"
                                                 attrs="{'column_invisible': [('parent.project_have_steps', '=', False)], 'required': [('parent.project_have_steps', '=', True)]}"
-                                                domain="[('id', 'in', parent.project_steps_ids),('estimated_probability_id.name', '!=', '0')]"
+                                                domain="[('id', 'in', parent.project_steps_ids),('stage_id.code', '!=', '0')]"
                                         />
 <!-- #20230403 Вавилова Ирина сказла убрать...                                       <field name="doc_cash" placeholder="type docs description"/>-->
                                         <field name="sum_cash_without_vat" placeholder="enter planned cash flow sum "/>
@@ -756,7 +756,7 @@
                                         <field name="date_cash" placeholder="enter planned cash flow date"/>
                                         <field name="project_steps_id" options="{'no_open': True,}" placeholder="select project steps"
                                                attrs="{'column_invisible': [('parent.project_have_steps', '=', False)], 'required': [('parent.project_have_steps', '=', True)]}"
-                                               domain="[('id', 'in', parent.project_steps_ids),('estimated_probability_id.name', '!=', '0')]"
+                                               domain="[('id', 'in', parent.project_steps_ids),('stage_id.code', '!=', '0')]"
                                         />
 <!--#20230403 Вавилова Ирина сказла убрать...                                        <field name="doc_cash" placeholder="type docs description"/>-->
                                         <field name="sum_cash_without_vat" placeholder="enter planned cash flow sum " optional="hide"/>
@@ -887,6 +887,8 @@
                 <field name="comments"/>
                 <field name="legal_entity_signing_id"/>
                 <field name="signer_id"/>
+                <field name="approve_state"/>
+                <field name="project_have_steps"/>
                 <templates>
                     <t t-name="kanban-box">
                         <div t-attf-class="#{kanban_color(record.color.raw_value)} oe_kanban_card oe_kanban_global_click">
@@ -913,7 +915,11 @@
                                 <div class="o_kanban_record_top">
                                     <div class="o_kanban_record_title">
                                         <div class="o_text_overflow">
-                                            <field name="project_id"/>
+                                            <field name="project_id" widget="badge"
+                                                   decoration-danger="approve_state == 'need_approve_manager'"
+                                                   decoration-warning="approve_state == 'need_approve_supervisor'"
+                                                   decoration-success="approve_state == 'approved'"
+                                                   decoration-muted="project_status == 'cancel'"/>
                                         </div>
                                         <div class="o_row">
                                             <div t-if="record.end_presale_project_month.raw_value">
@@ -930,6 +936,10 @@
                                     <div t-if="record.essence_project.raw_value" name="name_kanban"
                                          class="text-truncate text-muted">
                                         <field name="essence_project"/>
+                                    </div>
+                                    <div t-if="record.project_have_steps.raw_value">
+                                        <span>Have steps:</span>
+                                        <field name="project_have_steps"/>
                                     </div>
                                     <div t-if="record.total_amount_of_revenue.raw_value"
                                          class="d-flex justify-content-between font-weight-bold">

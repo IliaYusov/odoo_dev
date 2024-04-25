@@ -195,7 +195,7 @@ class report_projects_rawdata_excel(models.AbstractModel):
                     column += 1
                     sheet.write_string(row, column, spec.approve_state, row_format)
                     column += 1
-                    sheet.write_string(row, column, spec.specification_state, row_format)
+                    sheet.write_string(row, column, spec.project_status, row_format)
                     column += 1
                     sheet.write_string(row, column, (spec.step_project_number or""), row_format)
                     column += 1
@@ -313,7 +313,7 @@ class report_projects_rawdata_excel(models.AbstractModel):
                         column += 1
                         sheet.write_string(row, column, spec.approve_state, row_format)
                         column += 1
-                        sheet.write_string(row, column, spec.specification_state, row_format)
+                        sheet.write_string(row, column, spec.project_status, row_format)
                         column += 1
                         sheet.write_string(row, column, (spec.step_project_number or ""), row_format)
                         column += 1

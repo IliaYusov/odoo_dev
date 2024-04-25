@@ -290,7 +290,7 @@ class Project(models.Model):
     own_works_fot = fields.Monetary(string='own_works_fot',tracking=True)
     taxes_fot_premiums = fields.Monetary(string='taxes_FOT and premiums', store=True, tracking=True)
 
-    estimated_probability_id = fields.Many2one('project_budget.estimated_probability', string='estimated_probability',  copy = True, tracking=True,required = True,
+    estimated_probability_id = fields.Many2one('project_budget.estimated_probability', string='estimated_probability',  copy = True, tracking=True,required = False,
                 help = "*The estimated probability of project implementation is selected from the following categories:"
                        "\n"
                        "\n30% The Customer's need for supply/services has been identified, the technical and commercial feasibility of their implementation has been determined, financing mechanisms are available/identified."
@@ -507,7 +507,7 @@ class Project(models.Model):
         #                     step.estimated_probability_id = row.estimated_probability_id
 
 
-    @api.onchange('project_office_id','specification_state','currency_id','project_supervisor_id','project_manager_id',
+    @api.onchange('project_office_id','project_status','currency_id','project_supervisor_id','project_manager_id',
                   'industry_id','essence_project','end_presale_project_month','end_sale_project_month','vat_attribute_id','total_amount_of_revenue',
                   'total_amount_of_revenue_with_vat','revenue_from_the_sale_of_works','revenue_from_the_sale_of_goods','cost_price','cost_of_goods','own_works_fot',
                   'third_party_works','awards_on_results_project','transportation_expenses','travel_expenses','representation_expenses','taxes_fot_premiums','warranty_service_costs',
@@ -1267,7 +1267,7 @@ class Project(models.Model):
                 raise ValidationError(raisetext)
 
             print('0_0')
-            if rows.approve_state=="need_approve_manager" and rows.budget_state == 'work' and rows.specification_state !='cancel':
+            if rows.approve_state=="need_approve_manager" and rows.budget_state == 'work' and rows.project_status !='cancel':
                 print('before rows.id = ', rows.id)
                 rows.write({'approve_state': "need_approve_supervisor"})
 
@@ -1308,7 +1308,7 @@ class Project(models.Model):
 
     def set_approve_supervisor(self):
         for rows in self:
-            if rows.approve_state=="need_approve_supervisor" and rows.budget_state == 'work' and rows.specification_state !='cancel':
+            if rows.approve_state=="need_approve_supervisor" and rows.budget_state == 'work' and rows.project_status !='cancel':
 
                 isok, raisetext,emptydict = self.check_overdue_date(False)
                 if isok == False:
@@ -1336,7 +1336,7 @@ class Project(models.Model):
 
     def cancel_approve(self):
         for rows in self:
-            if (rows.approve_state=="approved" or rows.approve_state=="need_approve_supervisor") and rows.budget_state == 'work' and rows.specification_state !='cancel':
+            if (rows.approve_state=="approved" or rows.approve_state=="need_approve_supervisor") and rows.budget_state == 'work' and rows.project_status !='cancel':
                 user_id = False
                 if rows.project_office_id.receive_tasks_for_approve_project: # не только куратор может утвекрждать, но и руководитель проектного офиса надо
                     if rows.project_office_id.user_id: # вдруг просто галочка стоит, а пользователь не выбран

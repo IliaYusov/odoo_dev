@@ -17,7 +17,7 @@
                             <group>
                                 <field name="project_steps_id" options="{'no_open': True,}" placeholder="select project steps"
                                         attrs="{'invisible': [('project_have_steps', '=', False)], 'required': [('project_have_steps', '=', True)]}"
-                                       domain='[("projects_id", "=", parent.id),("estimated_probability_id.name", "!=", "0")]'
+                                       domain='[("projects_id", "=", parent.id),("stage_id.code", "!=", "0")]'
                                 />
                             </group>
                         </group>
