@@ -40,7 +40,7 @@
                             <field string="from date" name="date_start" attrs="{'invisible': [('type_report', 'not in', ('pds_acceptance_by_date'))]}"/>
                         </group>
                         <group>
-                            <field string="year to" name="year_end" attrs="{'invisible': [('type_report', 'in', ('raw_data','overdue','management_committee','pds_acceptance_by_date', 'pds_weekly', 'forecast_v2'))]}"/>
+                            <field string="year to" name="year_end" attrs="{'invisible': [('type_report', 'in', ('raw_data','overdue','management_committee','pds_acceptance_by_date', 'pds_weekly', 'forecast_v2', 'plan_fact'))]}"/>
                             <field string="to date" name="date_end" attrs="{'invisible': [('type_report', 'not in', ('pds_acceptance_by_date'))]}"/>
                         </group>
                         <group></group>
@@ -89,13 +89,22 @@
             file = "project_budget.report_budget_forecast_excel"
     />
 
-        <report id="action_projects_list_report_xlsx_forecast_v2"
+    <report id="action_projects_list_report_xlsx_forecast_v2"
             string="Projects Report forecast v2"
             model="project_budget.projects.report.wizard"
             report_type="xlsx"
             name="project_budget.report_budget_forecast_v2_excel"
             menu="False"
             file = "project_budget.report_budget_forecast_v2_excel"
+    />
+
+    <report id="action_projects_list_report_xlsx_plan_fact"
+            string="Projects Report Plan-Fact"
+            model="project_budget.projects.report.wizard"
+            report_type="xlsx"
+            name="project_budget.report_budget_plan_fact_excel"
+            menu="False"
+            file = "project_budget.report_budget_plan_fact_excel"
     />
 
     <report id="action_projects_list_report_xlsx_svod"

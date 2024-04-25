@@ -4,6 +4,7 @@
 from . import project_budget_report_excel
 from . import project_budget_forecast_report_excel
 from . import project_budget_forecast_v2_report_excel
+from . import project_budget_plan_fact_report_excel
 from . import report_svod_excel
 from . import project_budget_tender_report_excel
 from . import project_budget_new_tender_report_excel
