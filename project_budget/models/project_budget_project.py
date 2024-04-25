@@ -202,8 +202,8 @@ class Project(models.Model):
                                       compute='_compute_project_status', index=True, readonly=True, tracking=True,
                                       store=True)
     color = fields.Integer(related='stage_id.color', readonly=True)
-    project_status = fields.Selection([('prepare', 'Prepare'), ('production', 'Production'), ('cancel','Canceled'),('done','Done'),('lead','Lead')], required=True,
-                                           index=True, default='prepare', store=True, copy=True, tracking=True, compute="_compute_project_status")
+    specification_state = fields.Selection([('prepare', 'Prepare'), ('production', 'Production'), ('cancel','Canceled'),('done','Done'),('lead','Lead')], required=True,
+                                           index=True, default='prepare', store=True, copy=True, tracking=True, compute="_compute_specification_state")
     approve_state = fields.Selection([('need_approve_manager', 'need managers approve'), ('need_approve_supervisor'
                                      , 'need supervisors approve'), ('approved','approved'),('-','-')],
                                      required=True, index=True, default='need_approve_manager', store=True, copy=True, tracking=True)
@@ -477,11 +477,11 @@ class Project(models.Model):
                             step.stage_id = rec.stage_id
 
     @api.depends('estimated_probability_id')
-    def _compute_project_status(self):
+    def _compute_specification_state(self):
         pass
         # for row in self:
         #     if row.estimated_probability_id.name == '0':
-        #         row.project_status = 'cancel'
+        #         row.specification_state = 'cancel'
         #         if row.project_steps_ids:
         #             for step in row.project_steps_ids:
         #                 if step.estimated_probability_id.name in ('100', '100(done)'):
@@ -490,24 +490,24 @@ class Project(models.Model):
         #                     raise ValidationError(raisetext)
         #                 step.estimated_probability_id = row.estimated_probability_id
         #     if row.estimated_probability_id.name == '10':
-        #         row.project_status = 'lead'
+        #         row.specification_state = 'lead'
         #     if row.estimated_probability_id.name == '30':
-        #         row.project_status = 'prepare'
+        #         row.specification_state = 'prepare'
         #     if row.estimated_probability_id.name == '50':
-        #         row.project_status = 'prepare'
+        #         row.specification_state = 'prepare'
         #     if row.estimated_probability_id.name == '75':
-        #         row.project_status = 'prepare'
+        #         row.specification_state = 'prepare'
         #     if row.estimated_probability_id.name == '100':
-        #         row.project_status = 'production'
+        #         row.specification_state = 'production'
         #     if row.estimated_probability_id.name == '100(done)':
-        #         row.project_status = 'done'
+        #         row.specification_state = 'done'
         #         if row.project_steps_ids:
         #             for step in row.project_steps_ids:
         #                 if step.estimated_probability_id.name != '0':
         #                     step.estimated_probability_id = row.estimated_probability_id
 
 
-    @api.onchange('project_office_id','project_status','currency_id','project_supervisor_id','project_manager_id',
+    @api.onchange('project_office_id','specification_state','currency_id','project_supervisor_id','project_manager_id',
                   'industry_id','essence_project','end_presale_project_month','end_sale_project_month','vat_attribute_id','total_amount_of_revenue',
                   'total_amount_of_revenue_with_vat','revenue_from_the_sale_of_works','revenue_from_the_sale_of_goods','cost_price','cost_of_goods','own_works_fot',
                   'third_party_works','awards_on_results_project','transportation_expenses','travel_expenses','representation_expenses','taxes_fot_premiums','warranty_service_costs',
@@ -1255,8 +1255,7 @@ class Project(models.Model):
                 raise ValidationError(raisetext)
 
             print('0_0')
-            print(rows.approve_state, rows.budget_state, rows.project_status, rows.project_status)
-            if rows.approve_state=="need_approve_manager" and rows.budget_state == 'work' and rows.project_status !='cancel':
+            if rows.approve_state=="need_approve_manager" and rows.budget_state == 'work' and rows.specification_state !='cancel':
                 print('before rows.id = ', rows.id)
                 rows.write({'approve_state': "need_approve_supervisor"})
 
@@ -1297,7 +1296,7 @@ class Project(models.Model):
 
     def set_approve_supervisor(self):
         for rows in self:
-            if rows.approve_state=="need_approve_supervisor" and rows.budget_state == 'work' and rows.project_status !='cancel':
+            if rows.approve_state=="need_approve_supervisor" and rows.budget_state == 'work' and rows.specification_state !='cancel':
 
                 isok, raisetext,emptydict = self.check_overdue_date(False)
                 if isok == False:
@@ -1325,7 +1324,7 @@ class Project(models.Model):
 
     def cancel_approve(self):
         for rows in self:
-            if (rows.approve_state=="approved" or rows.approve_state=="need_approve_supervisor") and rows.budget_state == 'work' and rows.project_status !='cancel':
+            if (rows.approve_state=="approved" or rows.approve_state=="need_approve_supervisor") and rows.budget_state == 'work' and rows.specification_state !='cancel':
                 user_id = False
                 if rows.project_office_id.receive_tasks_for_approve_project: # не только куратор может утвекрждать, но и руководитель проектного офиса надо
                     if rows.project_office_id.user_id: # вдруг просто галочка стоит, а пользователь не выбран
@@ -1442,12 +1441,12 @@ class Project(models.Model):
             record.approve_state = 'need_approve_manager'
     # def unlink(self):
     #     """ dont delete.
-    #     Set project_status to 'cancel'
+    #     Set specification_state to 'cancel'
     #     """
     #     for record in self:
     #         if record.approve_state == 'need_approve_manager' :
     #             record.write({
-    #                         'project_status': "cancel"
+    #                         'specification_state': "cancel"
     #                     })
     #         else:
     #             raisetext = _("only in state 'need approve manager' project can be canceled")
