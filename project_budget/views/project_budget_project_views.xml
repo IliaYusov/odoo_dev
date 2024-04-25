@@ -393,8 +393,9 @@
                                 <group string="Customer/Organization">
                                     <group>
                                         <field name="partner_id" force_save="1" widget="many2one_avatar"
-                                               options="{'no_open': True,}" placeholder="select costomer/organization"
-                                               attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
+                                               options="{'no_open': True,}" placeholder="select customer/organization"
+                                               attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                               context="{'show_vat': True}"/>
                                         <field name="industry_id" force_save="1" options="{'no_open': True,}"
                                                placeholder="select industry"
                                                attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
