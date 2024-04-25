@@ -1,10 +1,11 @@
-from odoo import _, models, fields, api
+from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
-from odoo.tools import pytz
-from datetime import timedelta
+from .project_budget_project_stage import PROJECT_STATUS
+from collections import defaultdict
 import datetime
 
 
+# TODO: необходимо убрать явные привязки из кода к вероятности
 class Project(models.Model):
     _name = 'project_budget.projects'
     _description = "project_office commercial budget projects"
@@ -13,20 +14,30 @@ class Project(models.Model):
     _check_company_auto = True
     _rec_names_search = ['project_id', 'essence_project']
 
-    def action_canban_view_group(self):
-        data = self.env['project_budget.projects'].search()
-        return {
-            'name': 'Invoices',
-            'view_type': 'form',
-            'view_mode': 'tree,form',
-            'res_model': 'project_budget.projects',
-            'view_id': False,
-            'views': [data],
-            'context': "{'type':'out_invoice'}",
-            'type': 'ir.actions.act_window'
-        }
+    @api.model
+    def _read_group_stage_ids(self, stages, domain, order):
+        return self.env['project_budget.project.stage'].search([], order=order)
 
+    def _get_default_stage_id(self):
+        return self.env['project_budget.project.stage'].search([('fold', '=', False)], limit=1)
 
+    @api.model
+    def fields_get(self, allfields=None, attributes=None):
+        res = super().fields_get(allfields=allfields, attributes=attributes)
+        stages = self.env['project_budget.project.stage'].search([
+            ('required_field_ids', '!=', False)
+        ])
+
+        required_fields = defaultdict(list)
+        for stage in stages:
+            for required_field in stage.required_field_ids:
+                required_fields[required_field.name].append(stage.id)
+
+        for field_name, description in res.items():
+            if required_fields.get(field_name) and not description.get('required', False):
+                description['required'] = [('stage_id', 'in', required_fields.get(field_name))]
+
+        return res
 
     def _get_current_amount_spec_type(self):
         context = self.env.context
@@ -109,9 +120,6 @@ class Project(models.Model):
             if row.other_expenses_amount_spec_exist == True:
                 row.other_expenses = self._get_sums_from_amount_spec_type(row, 'other_expenses')
 
-
-
-
     def _get_domainamount_spec(self):
         domain = []
         context = self.env.context
@@ -183,13 +191,19 @@ class Project(models.Model):
                     [('id', '=', manager_access[0].project_manager_id.id)])
         return None
 
+    active = fields.Boolean('Active', default=True, tracking=True)
     company_id = fields.Many2one('res.company', required=True, default=lambda self: self.env.company)
-    company_partner_id = fields.Many2one(related='company_id.partner_id', string='Company Partner', copy=False,
-                                         readonly=True)
     project_id = fields.Char(string='Project_ID', copy=True, default='ID', group_operator='count', index=True,
                              required=True)
-    specification_state = fields.Selection([('prepare', 'Prepare'), ('production', 'Production'), ('cancel','Canceled'),('done','Done'),('lead','Lead')], required=True,
-                                           index=True, default='prepare', store=True, copy=True, tracking=True, compute="_compute_specification_state")
+    stage_id = fields.Many2one('project_budget.project.stage', string='Stage', copy=True, default=_get_default_stage_id,
+                               group_expand='_read_group_stage_ids', index=True, ondelete='restrict', required=True,
+                               tracking=True)
+    project_status = fields.Selection(selection=PROJECT_STATUS, string='Project Status',
+                                      compute='_compute_project_status', index=True, readonly=True, tracking=True,
+                                      store=True)
+    color = fields.Integer(related='stage_id.color', readonly=True)
+    project_status = fields.Selection([('prepare', 'Prepare'), ('production', 'Production'), ('cancel','Canceled'),('done','Done'),('lead','Lead')], required=True,
+                                           index=True, default='prepare', store=True, copy=True, tracking=True, compute="_compute_project_status")
     approve_state = fields.Selection([('need_approve_manager', 'need managers approve'), ('need_approve_supervisor'
                                      , 'need supervisors approve'), ('approved','approved'),('-','-')],
                                      required=True, index=True, default='need_approve_manager', store=True, copy=True, tracking=True)
@@ -219,11 +233,9 @@ class Project(models.Model):
     rukovoditel_project_id = fields.Many2one('project_budget.rukovoditel_project', string='rukovoditel_project',
                                          copy=True,  tracking=True, check_company=True)
 
-    customer_organization_id = fields.Many2one('project_budget.customer_organization', string='customer_organization',
-                                               required=False, copy=True,tracking=True)
-    partner_id = fields.Many2one('res.partner', string='customer_organization', required=True, copy=True, tracking=True, domain="[('is_company','=',True)]")
-    customer_status_id = fields.Many2one('project_budget.customer_status', string='customer_status',
-                                         copy=True, tracking=True)
+    partner_id = fields.Many2one('res.partner', string='customer_organization', copy=True,
+                                 domain="[('is_company', '=', True)]", ondelete='restrict', required=True,
+                                 tracking=True)
     industry_id = fields.Many2one('project_budget.industry', string='industry', required=True, copy=True,tracking=True)
     essence_project = fields.Text(string='essence_project', default = "",tracking=True)
     end_presale_project_quarter = fields.Char(string='End date of the Presale project(quarter)', compute='_compute_quarter', store=True, tracking=True)
@@ -248,9 +260,6 @@ class Project(models.Model):
     rko_other_amount_spec_exist= fields.Boolean(string='rko_other_amount_spec_exist', compute="_exists_amount_spec")
     warranty_service_costs_amount_spec_exist= fields.Boolean(string='warranty_service_costs_amount_spec_exist', compute="_exists_amount_spec")
     other_expenses_amount_spec_exist= fields.Boolean(string='other_expenses_amount_spec_exist', compute="_exists_amount_spec")
-
-
-
     current_amount_spec_type = fields.Char(string= "current amount spec type", compute="_get_current_amount_spec_type")
 
     amount_spec_ids = fields.One2many(
@@ -297,8 +306,10 @@ class Project(models.Model):
             )
                                             # ,default=lambda self: self.env['project_budget.estimated_probability'].search([('name', '=', '30')], limit=1)
 
-    # TODO: необходимо мигрировать на partner_signer_id
+    # TODO: необходимо мигрировать на signer_id
     legal_entity_signing_id = fields.Many2one('project_budget.legal_entity_signing', string='legal_entity_signing a contract from the NCC', required=True, copy=True,tracking=True)
+    signer_id = fields.Many2one('res.partner', string='Signer', copy=True,
+                                default=lambda self: self.env.company.partner_id, required=True, tracking=True)
     project_type_id = fields.Many2one('project_budget.project_type',string='project_type', required=True,copy=True,tracking=True)
 
     is_revenue_from_the_sale_of_works =fields.Boolean(related='project_type_id.is_revenue_from_the_sale_of_works', readonly=True)
@@ -390,19 +401,22 @@ class Project(models.Model):
                                 ondelete='cascade', tracking=True)
     child_ids = fields.One2many('project_budget.projects', 'parent_id', string='Child Projects', copy=False)
     child_count = fields.Integer(compute='_compute_child_count', string='Child Count')
-    partner_signer_id = fields.Many2one('res.partner', string='Partner Signer', copy=False,
-                                        default=lambda self: self.env.company.partner_id, required=True)
+    company_partner_id = fields.Many2one('res.company.partner', string='Company Partner', copy=True, check_company=True,
+                                         domain="[('company_id', '=', company_id)]", ondelete='restrict')
+
+    can_edit = fields.Boolean(compute='_compute_can_edit', default=True)
+
+    # ------------------------------------------------------
+    # SETTINGS
+    # ------------------------------------------------------
 
     is_correction_project = fields.Boolean(string="project for corrections", default=False)
     is_not_for_mc_report = fields.Boolean(string="project is not for MC report", default=False)
 
-    user_is_admin = fields.Boolean(string="user is admin", compute='_check_user_is_admin')
-
-    def _check_user_is_admin(self):
+    def _compute_can_edit(self):
         for record in self:
-            record['user_is_admin'] = False
-            if self.env.user.has_group('project_budget.project_budget_admin'):
-                record['user_is_admin'] = True
+            record.can_edit = record.active and record.budget_state != 'fixed'\
+                and record.approve_state == 'need_approve_manager'
 
     def _check_project_is_child(self):
         for record in self:
@@ -439,74 +453,65 @@ class Project(models.Model):
             else:
                 project.margin_for_parent_project = 0
 
-    @api.depends('project_id','step_project_number')
+    @api.depends('project_id', 'step_project_number')
     def _get_name_to_show(self):
         for prj in self:
-            name = (prj.project_id + '|'+ (prj.step_project_number or '') + '|' + (prj.essence_project or ''))
+            name = (prj.project_id + '|' + (prj.step_project_number or '') + '|' + (prj.essence_project or ''))
             prj.name_to_show = name
 
-    def show_message(self, mestext):
-        print('show_message mestext = ', mestext)
-        message_id = self.env['prj_message.wizard'].create({'message': mestext})
-        print('show_message message_id = ', message_id)
-        notification = {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Success'),
-                'message': mestext,
-                'sticky': True,
-            }
-        }
-        return notification
-        # return {
-        #     'name': _('Successfull'),
-        #     'type': 'ir.actions.act_window',
-        #     'view_mode': 'form',
-        #     'view_type': 'form',
-        #     'view_id': self.env.ref("project_budget.prj_message_wizard_form").id,
-        #     'res_model': 'prj_message.wizard',
-        #     'res_id': message_id.id,
-        #     'target': 'new',
-        #     'flags': {'initial_mode': 'view'}
-        # }
+    @api.depends('stage_id')
+    def _compute_project_status(self):
+        for rec in self:
+            rec.project_status = rec.stage_id.project_status
+            if rec.stage_id.code == '0':
+                if rec.project_steps_ids:
+                    for step in rec.project_steps_ids:
+                        if step.stage_id.code in ('100', '100(done)'):
+                            raise ValidationError(_("Can't 'cancel' project with step {0} in {1} state") % (
+                                step.step_id, step.stage_id.code))
+                        step.stage_id = rec.stage_id
+            elif rec.stage_id.code == '100(done)':
+                if rec.project_steps_ids:
+                    for step in rec.project_steps_ids:
+                        if step.stage_id.code != '0':
+                            step.stage_id = rec.stage_id
+
     @api.depends('estimated_probability_id')
-    def _compute_specification_state(self):
-        for row in self:
-            if row.estimated_probability_id.name == '0':
-                row.specification_state = 'cancel'
-                if row.project_steps_ids:
-                    for step in row.project_steps_ids:
-                        if step.estimated_probability_id.name in ('100', '100(done)'):
-                            raisetext = _("Can't 'cancel' project with step {0} in {1} state")
-                            raisetext = raisetext.format(step.step_id, step.estimated_probability_id.name)
-                            raise ValidationError(raisetext)
-                        step.estimated_probability_id = row.estimated_probability_id
-                    # return self.show_message(_('all stages have a probability of 0'))
-            if row.estimated_probability_id.name == '10':
-                row.specification_state = 'lead'
-            if row.estimated_probability_id.name == '30':
-                row.specification_state = 'prepare'
-            if row.estimated_probability_id.name == '50':
-                row.specification_state = 'prepare'
-            if row.estimated_probability_id.name == '75':
-                row.specification_state = 'prepare'
-            if row.estimated_probability_id.name == '100':
-                row.specification_state = 'production'
-            if row.estimated_probability_id.name == '100(done)':
-                row.specification_state = 'done'
-                if row.project_steps_ids:
-                    for step in row.project_steps_ids:
-                        if step.estimated_probability_id.name != '0':
-                            step.estimated_probability_id = row.estimated_probability_id
-                    # return self.show_message(_('all stages have a probability of 100(done)'))
+    def _compute_project_status(self):
+        pass
+        # for row in self:
+        #     if row.estimated_probability_id.name == '0':
+        #         row.project_status = 'cancel'
+        #         if row.project_steps_ids:
+        #             for step in row.project_steps_ids:
+        #                 if step.estimated_probability_id.name in ('100', '100(done)'):
+        #                     raisetext = _("Can't 'cancel' project with step {0} in {1} state")
+        #                     raisetext = raisetext.format(step.step_id, step.estimated_probability_id.name)
+        #                     raise ValidationError(raisetext)
+        #                 step.estimated_probability_id = row.estimated_probability_id
+        #     if row.estimated_probability_id.name == '10':
+        #         row.project_status = 'lead'
+        #     if row.estimated_probability_id.name == '30':
+        #         row.project_status = 'prepare'
+        #     if row.estimated_probability_id.name == '50':
+        #         row.project_status = 'prepare'
+        #     if row.estimated_probability_id.name == '75':
+        #         row.project_status = 'prepare'
+        #     if row.estimated_probability_id.name == '100':
+        #         row.project_status = 'production'
+        #     if row.estimated_probability_id.name == '100(done)':
+        #         row.project_status = 'done'
+        #         if row.project_steps_ids:
+        #             for step in row.project_steps_ids:
+        #                 if step.estimated_probability_id.name != '0':
+        #                     step.estimated_probability_id = row.estimated_probability_id
 
 
-    @api.onchange('project_office_id','specification_state','currency_id','project_supervisor_id','project_manager_id',
-                  'customer_status_id','industry_id','essence_project','end_presale_project_month','end_sale_project_month','vat_attribute_id','total_amount_of_revenue',
+    @api.onchange('project_office_id','project_status','currency_id','project_supervisor_id','project_manager_id',
+                  'industry_id','essence_project','end_presale_project_month','end_sale_project_month','vat_attribute_id','total_amount_of_revenue',
                   'total_amount_of_revenue_with_vat','revenue_from_the_sale_of_works','revenue_from_the_sale_of_goods','cost_price','cost_of_goods','own_works_fot',
                   'third_party_works','awards_on_results_project','transportation_expenses','travel_expenses','representation_expenses','taxes_fot_premiums','warranty_service_costs',
-                  'rko_other','other_expenses','margin_income','profitability','estimated_probability_id','legal_entity_signing_id','project_type_id','comments','technological_direction_id',
+                  'rko_other','other_expenses','margin_income','profitability','stage_id','legal_entity_signing_id','project_type_id','comments','technological_direction_id',
                   'planned_cash_flow_sum','planned_cash_flow_ids','step_project_number','dogovor_number','planned_acceptance_flow_sum','planned_acceptance_flow_ids','fact_cash_flow_sum',
                   'fact_cash_flow_ids','fact_acceptance_flow_sum','fact_acceptance_flow_ids','project_have_steps','project_steps_ids','taxes_fot_premiums'
                 )
@@ -645,7 +650,7 @@ class Project(models.Model):
             project.rko_other = 0
             project.other_expenses = 0
             for step in project.project_steps_ids:
-                if step.estimated_probability_id.name != '0':
+                if step.stage_id.code != '0':
                     project.total_amount_of_revenue += step.total_amount_of_revenue
                     project.cost_price += step.cost_price
                     if project.is_child_project:
@@ -764,111 +769,107 @@ class Project(models.Model):
 
     def action_open_amount_spec_cost_of_goods(self):
         return {
-                'view_mode': 'form',
-                'view_type': 'form',
-                'target': 'new',
-                'res_model': 'project_budget.projects',
-                'view_id': self.env.ref("project_budget.show_amount_spec").id,
-                'res_id': self.id,
-                'type': 'ir.actions.act_window',
-                'context': {'cost_of_goods': True},
-                'flags': {'initial_mode': 'view'}
-                }
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'new',
+            'res_model': 'project_budget.projects',
+            'view_id': self.env.ref("project_budget.show_amount_spec").id,
+            'res_id': self.id,
+            'type': 'ir.actions.act_window',
+            'context': {'cost_of_goods': True},
+            'flags': {'initial_mode': 'view'}
+        }
 
     def action_open_amount_spec_travel_expenses(self):
         return {
-                'view_mode': 'form',
-                'view_type': 'form',
-                'target': 'new',
-                'res_model': 'project_budget.projects',
-                'view_id': self.env.ref("project_budget.show_amount_spec").id,
-                'res_id': self.id,
-                'type': 'ir.actions.act_window',
-                'context': {'travel_expenses': True},
-                'flags': {'initial_mode': 'view'}
-                }
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'new',
+            'res_model': 'project_budget.projects',
+            'view_id': self.env.ref("project_budget.show_amount_spec").id,
+            'res_id': self.id,
+            'type': 'ir.actions.act_window',
+            'context': {'travel_expenses': True},
+            'flags': {'initial_mode': 'view'}
+        }
 
     def action_open_amount_spec_third_party_works(self):
         return {
-                'view_mode': 'form',
-                'view_type': 'form',
-                'target': 'new',
-                'res_model': 'project_budget.projects',
-                'view_id': self.env.ref("project_budget.show_amount_spec").id,
-                'res_id': self.id,
-                'type': 'ir.actions.act_window',
-                'context': {'third_party_works': True},
-                'flags': {'initial_mode': 'view'}
-                }
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'new',
+            'res_model': 'project_budget.projects',
+            'view_id': self.env.ref("project_budget.show_amount_spec").id,
+            'res_id': self.id,
+            'type': 'ir.actions.act_window',
+            'context': {'third_party_works': True},
+            'flags': {'initial_mode': 'view'}
+        }
 
     def action_open_amount_spec_representation_expenses(self):
         return {
-                'view_mode': 'form',
-                'view_type': 'form',
-                'target': 'new',
-                'res_model': 'project_budget.projects',
-                'view_id': self.env.ref("project_budget.show_amount_spec").id,
-                'res_id': self.id,
-                'type': 'ir.actions.act_window',
-                'context': {'representation_expenses': True},
-                'flags': {'initial_mode': 'view'}
-                }
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'new',
+            'res_model': 'project_budget.projects',
+            'view_id': self.env.ref("project_budget.show_amount_spec").id,
+            'res_id': self.id,
+            'type': 'ir.actions.act_window',
+            'context': {'representation_expenses': True},
+            'flags': {'initial_mode': 'view'}
+        }
 
     def action_open_amount_spec_transportation_expenses(self):
         return {
-                'view_mode': 'form',
-                'view_type': 'form',
-                'target': 'new',
-                'res_model': 'project_budget.projects',
-                'view_id': self.env.ref("project_budget.show_amount_spec").id,
-                'res_id': self.id,
-                'type': 'ir.actions.act_window',
-                'context': {'transportation_expenses': True},
-                'flags': {'initial_mode': 'view'}
-                }
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'new',
+            'res_model': 'project_budget.projects',
+            'view_id': self.env.ref("project_budget.show_amount_spec").id,
+            'res_id': self.id,
+            'type': 'ir.actions.act_window',
+            'context': {'transportation_expenses': True},
+            'flags': {'initial_mode': 'view'}
+        }
 
     def action_open_amount_spec_rko_other(self):
         return {
-                'view_mode': 'form',
-                'view_type': 'form',
-                'target': 'new',
-                'res_model': 'project_budget.projects',
-                'view_id': self.env.ref("project_budget.show_amount_spec").id,
-                'res_id': self.id,
-                'type': 'ir.actions.act_window',
-                'context': {'rko_other': True},
-                'flags': {'initial_mode': 'view'}
-                }
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'new',
+            'res_model': 'project_budget.projects',
+            'view_id': self.env.ref("project_budget.show_amount_spec").id,
+            'res_id': self.id,
+            'type': 'ir.actions.act_window',
+            'context': {'rko_other': True},
+            'flags': {'initial_mode': 'view'}
+        }
 
     def action_open_amount_spec_warranty_service_costs(self):
         return {
-                'view_mode': 'form',
-                'view_type': 'form',
-                'target': 'new',
-                'res_model': 'project_budget.projects',
-                'view_id': self.env.ref("project_budget.show_amount_spec").id,
-                'res_id': self.id,
-                'type': 'ir.actions.act_window',
-                'context': {'warranty_service_costs': True},
-                'flags': {'initial_mode': 'view'}
-                }
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'new',
+            'res_model': 'project_budget.projects',
+            'view_id': self.env.ref("project_budget.show_amount_spec").id,
+            'res_id': self.id,
+            'type': 'ir.actions.act_window',
+            'context': {'warranty_service_costs': True},
+            'flags': {'initial_mode': 'view'}
+        }
 
     def action_open_amount_spec_other_expenses(self):
         return {
-                'view_mode': 'form',
-                'view_type': 'form',
-                'target': 'new',
-                'res_model': 'project_budget.projects',
-                'view_id': self.env.ref("project_budget.show_amount_spec").id,
-                'res_id': self.id,
-                'type': 'ir.actions.act_window',
-                'context': {'other_expenses': True},
-                'flags': {'initial_mode': 'view'}
-                }
-
-
-
-
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'new',
+            'res_model': 'project_budget.projects',
+            'view_id': self.env.ref("project_budget.show_amount_spec").id,
+            'res_id': self.id,
+            'type': 'ir.actions.act_window',
+            'context': {'other_expenses': True},
+            'flags': {'initial_mode': 'view'}
+        }
 
     def user_is_supervisor(self,supervisor_id):
         supervisor_access = self.env['project_budget.project_supervisor_access'].search([('user_id.id', '=', self.env.user.id)
@@ -878,10 +879,10 @@ class Project(models.Model):
             return False
         else: return True
 
-    @api.constrains('estimated_probability_id', 'total_amount_of_revenue', 'cost_price', 'planned_acceptance_flow_ids', 'planned_cash_flow_ids')
+    @api.constrains('stage_id', 'total_amount_of_revenue', 'cost_price', 'planned_acceptance_flow_ids', 'planned_cash_flow_ids')
     def _check_financial_data_is_present(self):
         for project in self:
-            if (project.estimated_probability_id.name in ('30', '50', '75', '100')
+            if (project.stage_id.code in ('30', '50', '75', '100')
                     and project.total_amount_of_revenue == 0
                     and project.cost_price == 0
                     and not project.project_have_steps
@@ -909,7 +910,7 @@ class Project(models.Model):
 
             if project.project_have_steps:
                 for step in project.project_steps_ids:
-                    if (step.estimated_probability_id.name in ('50', '75', '100')
+                    if (step.stage_id.code in ('50', '75', '100')
                             and not step.planned_acceptance_flow_ids
                             and not step.planned_cash_flow_ids
                             and step.projects_id.budget_state == 'work'
@@ -918,7 +919,7 @@ class Project(models.Model):
                         raisetext = raisetext.format(step.projects_id.project_id, step.step_id)
                         raise ValidationError(raisetext)
             else:
-                if (project.estimated_probability_id.name in ('50', '75', '100')
+                if (project.stage_id.code in ('50', '75', '100')
                         and not project.planned_acceptance_flow_ids
                         and not project.planned_cash_flow_ids
                         and not project.is_parent_project
@@ -958,18 +959,6 @@ class Project(models.Model):
                 raisetext = _("'Complex' project should be with with steps")
                 raise ValidationError(raisetext)
 
-    @api.constrains('estimated_probability_id', 'step_project_number')
-    def _check_project_axapta_step(self):
-        for project in self:
-            if (project.estimated_probability_id.name in ('75', '100')
-                    and not project.step_project_number
-                    and project.budget_state == 'work'
-                    and not project.is_correction_project
-            ):  # Проект без кода из AXAPTA
-                raisetext = _("Please enter AXAPTA code to project {0}")
-                raisetext = raisetext.format(project.project_id)
-                raise ValidationError(raisetext)
-
     def check_overdue_date(self, vals_list):
         for project in self:
 
@@ -977,28 +966,28 @@ class Project(models.Model):
             end_sale_project_month = project.end_sale_project_month
             # print('vals_list = ',vals_list)
 
-            estimated_probability_id_name = project.estimated_probability_id.name
+            stage_id_name = project.stage_id.code
 
             if vals_list:
                 if 'end_presale_project_month' in vals_list:
                     end_presale_project_month = datetime.datetime.strptime(vals_list['end_presale_project_month'], "%Y-%m-%d").date()
                 if 'end_sale_project_month' in vals_list:
                     end_sale_project_month = datetime.datetime.strptime(vals_list['end_sale_project_month'], "%Y-%m-%d").date()
-                if 'estimated_probability_id' in vals_list:
-                    estimated_probability_id = int(vals_list['estimated_probability_id'])
-                    estimated_probability_id_obj = self.env['project_budget.estimated_probability'].search([('id', '=', estimated_probability_id)], limit=1)
-                    estimated_probability_id_name = estimated_probability_id_obj.name
+                if 'stage_id' in vals_list:
+                    stage_id = int(vals_list['stage_id'])
+                    stage_id_obj = self.env['project_budget.project.stage'].search([('id', '=', stage_id)], limit=1)
+                    stage_id_name = stage_id_obj.code
 
-            if estimated_probability_id_name not in ('0', '100','100(done)'):
+            if stage_id_name not in ('0', '100', '100(done)'):
                 if end_presale_project_month < fields.datetime.now().date() :
                     raisetext = _("DENIED. Project {0} have overdue end presale project month {1}")
                     raisetext=raisetext.format(project.project_id,str(end_presale_project_month))
                     return False, raisetext, {'end_presale_project_month':str(end_presale_project_month)}
-            if estimated_probability_id_name not in ('0', '100', '100(done)'): # Алина сказала, что даже если на исполнение то не проверять даты контрактования
+            if stage_id_name not in ('0', '100', '100(done)'): # Алина сказала, что даже если на исполнение то не проверять даты контрактования
                 if end_sale_project_month < fields.datetime.now().date() :
                     raisetext = _("DENIED. Project {0} have overdue end sale project month {1}")
                     raisetext = raisetext.format(project.project_id, str(end_sale_project_month))
-                    return False, raisetext, {'end_sale_project_month':str(end_sale_project_month)}
+                    return False, raisetext, {'end_sale_project_month': str(end_sale_project_month)}
 
             vals_list_steps = False
 
@@ -1006,7 +995,7 @@ class Project(models.Model):
 
             if project.project_have_steps:
                 for step in project.project_steps_ids:
-                    estimated_probability_id_name = step.estimated_probability_id.name
+                    stage_id_name = step.stage_id.code
                     end_presale_project_month = step.end_presale_project_month
                     end_sale_project_month = step.end_sale_project_month
 
@@ -1022,13 +1011,12 @@ class Project(models.Model):
                                         vals_one_step = vals_list_step[2]
                                         print('vals_one_step = ', vals_one_step)
                                         if vals_one_step:
-                                            if 'estimated_probability_id' in vals_one_step:
-                                                estimated_probability_id = int(
-                                                    vals_one_step['estimated_probability_id'])
-                                                estimated_probability_id_obj = self.env[
-                                                    'project_budget.estimated_probability'].search(
-                                                    [('id', '=', estimated_probability_id)], limit=1)
-                                                estimated_probability_id_name = estimated_probability_id_obj.name
+                                            if 'stage_id' in vals_one_step:
+                                                stage_id = int(vals_one_step['stage_id'])
+                                                stage_id_obj = self.env[
+                                                    'project_budget.project.stage'].search(
+                                                    [('id', '=', stage_id)], limit=1)
+                                                stage_id_name = stage_id_obj.code
 
 
                                             if 'end_presale_project_month' in vals_one_step:
@@ -1039,22 +1027,22 @@ class Project(models.Model):
                                                     vals_one_step['end_sale_project_month'], "%Y-%m-%d").date()
 
                     step_id_str = str(step.id)
-                    dict_formula[step_id_str] = estimated_probability_id_name
+                    dict_formula[step_id_str] = stage_id_name
 
-                    if estimated_probability_id_name not in ('0', '100','100(done)'):
+                    if stage_id_name not in ('0', '100', '100(done)'):
                         print('step.id = ', step.id)
                         if end_presale_project_month < fields.datetime.now().date():
-                            raisetext = _("DENIED. Project {0} step {1} have overdue end presale project month {2}" )
+                            raisetext = _("DENIED. Project {0} step {1} have overdue end presale project month {2}")
                             raisetext = raisetext.format(project.project_id, step.step_id, str(end_presale_project_month))
-                            return False, raisetext, {'step_id':step.step_id,'end_presale_project_month':str(end_presale_project_month)}
+                            return False, raisetext, {'step_id': step.step_id, 'end_presale_project_month': str(end_presale_project_month)}
 
-                    if estimated_probability_id_name not in ('0', '100','100(done)'):
+                    if stage_id_name not in ('0', '100', '100(done)'):
                         if end_sale_project_month < fields.datetime.now().date():
                             raisetext = _("DENIED. Project {0} step {1} have overdue end sale project month {2}")
                             raisetext = raisetext.format(project.project_id, step.step_id, str(end_sale_project_month))
-                            return False, raisetext, {'step_id':step.step_id,'end_sale_project_month':str(end_sale_project_month)}
+                            return False, raisetext, {'step_id': step.step_id, 'end_sale_project_month': str(end_sale_project_month)}
 
-            if estimated_probability_id_name in ('0', '100(done)'):
+            if stage_id_name in ('0', '100(done)'):
                if project.project_have_steps == False:
                    return True, "", {}
 
@@ -1267,7 +1255,8 @@ class Project(models.Model):
                 raise ValidationError(raisetext)
 
             print('0_0')
-            if rows.approve_state=="need_approve_manager" and rows.budget_state == 'work' and rows.specification_state !='cancel':
+            print(rows.approve_state, rows.budget_state, rows.project_status, rows.project_status)
+            if rows.approve_state=="need_approve_manager" and rows.budget_state == 'work' and rows.project_status !='cancel':
                 print('before rows.id = ', rows.id)
                 rows.write({'approve_state': "need_approve_supervisor"})
 
@@ -1308,7 +1297,7 @@ class Project(models.Model):
 
     def set_approve_supervisor(self):
         for rows in self:
-            if rows.approve_state=="need_approve_supervisor" and rows.budget_state == 'work' and rows.specification_state !='cancel':
+            if rows.approve_state=="need_approve_supervisor" and rows.budget_state == 'work' and rows.project_status !='cancel':
 
                 isok, raisetext,emptydict = self.check_overdue_date(False)
                 if isok == False:
@@ -1336,7 +1325,7 @@ class Project(models.Model):
 
     def cancel_approve(self):
         for rows in self:
-            if (rows.approve_state=="approved" or rows.approve_state=="need_approve_supervisor") and rows.budget_state == 'work' and rows.specification_state !='cancel':
+            if (rows.approve_state=="approved" or rows.approve_state=="need_approve_supervisor") and rows.budget_state == 'work' and rows.project_status !='cancel':
                 user_id = False
                 if rows.project_office_id.receive_tasks_for_approve_project: # не только куратор может утвекрждать, но и руководитель проектного офиса надо
                     if rows.project_office_id.user_id: # вдруг просто галочка стоит, а пользователь не выбран
@@ -1419,54 +1408,6 @@ class Project(models.Model):
     def _monetary_format(self, amount):
         return '{:,.0f}'.format(amount).replace(',', ' ')
 
-    @api.model
-    def get_projects(self, allowed_company_ids):
-        work_projects = self.env['project_budget.projects'].search([
-            ('budget_state', '=', 'work'),
-            ('company_id', 'in', allowed_company_ids)
-        ])
-
-        projects_canceled = work_projects.filtered(lambda pr: pr.estimated_probability_id.code == '0')
-        projects_potential = work_projects.filtered(lambda pr: pr.estimated_probability_id.code == '1')
-        projects_opportunity = work_projects.filtered(lambda pr: pr.estimated_probability_id.code == '2')
-        projects_reserve = work_projects.filtered(lambda pr: pr.estimated_probability_id.code == '3')
-        projects_commitment = work_projects.filtered(lambda pr: pr.estimated_probability_id.code == '4')
-        projects_execution = work_projects.filtered(lambda pr: pr.estimated_probability_id.code == '5')
-        projects_done = work_projects.filtered(lambda pr: pr.estimated_probability_id.code == '6')
-
-        values = {
-            'canceled_count': len(projects_canceled),
-            'canceled_revenue': self._monetary_format(round(sum([pr.total_amount_of_revenue for pr in projects_canceled]), 2)),
-            'canceled_cost': self._monetary_format(round(sum([pr.cost_price for pr in projects_canceled]), 2)),
-            'canceled_margin': self._monetary_format(round(sum([pr.margin_income for pr in projects_canceled]), 2)),
-            'potential_count': len(projects_potential),
-            'potential_revenue': self._monetary_format(round(sum([pr.total_amount_of_revenue for pr in projects_potential]), 2)),
-            'potential_cost': self._monetary_format(round(sum([pr.cost_price for pr in projects_potential]), 2)),
-            'potential_margin': self._monetary_format(round(sum([pr.margin_income for pr in projects_potential]), 2)),
-            'opportunity_count': len(projects_opportunity),
-            'opportunity_revenue': self._monetary_format(round(sum([pr.total_amount_of_revenue for pr in projects_opportunity]), 2)),
-            'opportunity_cost': self._monetary_format(round(sum([pr.cost_price for pr in projects_opportunity]), 2)),
-            'opportunity_margin': self._monetary_format(round(sum([pr.margin_income for pr in projects_opportunity]), 2)),
-            'reserve_count': len(projects_reserve),
-            'reserve_revenue': self._monetary_format(round(sum([pr.total_amount_of_revenue for pr in projects_reserve]), 2)),
-            'reserve_cost': self._monetary_format(round(sum([pr.cost_price for pr in projects_reserve]), 2)),
-            'reserve_margin': self._monetary_format(round(sum([pr.margin_income for pr in projects_reserve]), 2)),
-            'commitment_count': len(projects_commitment),
-            'commitment_revenue': self._monetary_format(round(sum([pr.total_amount_of_revenue for pr in projects_commitment]), 2)),
-            'commitment_cost': self._monetary_format(round(sum([pr.cost_price for pr in projects_commitment]), 2)),
-            'commitment_margin': self._monetary_format(round(sum([pr.margin_income for pr in projects_commitment]), 2)),
-            'execution_count': len(projects_execution),
-            'execution_revenue': self._monetary_format(round(sum([pr.total_amount_of_revenue for pr in projects_execution]), 2)),
-            'execution_cost': self._monetary_format(round(sum([pr.cost_price for pr in projects_execution]), 2)),
-            'execution_margin': self._monetary_format(round(sum([pr.margin_income for pr in projects_execution]), 2)),
-            'done_count': len(projects_done),
-            'done_revenue': self._monetary_format(round(sum([pr.total_amount_of_revenue for pr in projects_done]), 2)),
-            'done_cost': self._monetary_format(round(sum([pr.cost_price for pr in projects_done]), 2)),
-            'done_margin': self._monetary_format(round(sum([pr.margin_income for pr in projects_done]), 2))
-        }
-
-        return values
-
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
@@ -1501,12 +1442,12 @@ class Project(models.Model):
             record.approve_state = 'need_approve_manager'
     # def unlink(self):
     #     """ dont delete.
-    #     Set specification_state to 'cancel'
+    #     Set project_status to 'cancel'
     #     """
     #     for record in self:
     #         if record.approve_state == 'need_approve_manager' :
     #             record.write({
-    #                         'specification_state': "cancel"
+    #                         'project_status': "cancel"
     #                     })
     #         else:
     #             raisetext = _("only in state 'need approve manager' project can be canceled")
@@ -1537,6 +1478,18 @@ class Project(models.Model):
         res = super().unlink()
 
         if res:  # use action to return to tree view after unlink
-            res = self.env["ir.actions.actions"]._for_xml_id("project_budget.show_comercial_budget_spec")
+            res = self.env["ir.actions.actions"]._for_xml_id("project_budget.action_project_budget_projects")
             res['target'] = 'main'
             return res
+
+    def action_open_settings(self):
+        self.ensure_one()
+        return {
+            'name': _('Settings'),
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'res_model': 'project_budget.projects',
+            'view_id': self.env.ref('project_budget.project_budget_project_settings_view_form').id,
+            'res_id': self.id,
+            'target': 'new'
+        }

@@ -1,10 +1,10 @@
 from odoo import fields, models
 
 
-class ResPartnerGrade(models.Model):
-    _name = 'res.partner.grade'
+class ResCompanyPartnerGrade(models.Model):
+    _name = 'res.company.partner.grade'
     _order = 'sequence'
-    _description = 'Partner Grade'
+    _description = 'Company Partner Grade'
 
     sequence = fields.Integer(string='Sequence')
     active = fields.Boolean(string='Active', default=True)

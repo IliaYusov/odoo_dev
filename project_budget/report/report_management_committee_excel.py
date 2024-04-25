@@ -28,13 +28,13 @@ class report_management_committee_excel(models.AbstractModel):
 
         if project:
             if step:
-                if step.estimated_probability_id.name == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
+                if step.stage_id.code == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
                     last_fixed_step = self.env['project_budget.project_steps'].search(
                         [('date_actual', '<', datetime.date(YEARint,1,1)),
                          ('budget_state', '=', 'fixed'),
                          ('step_id', '=', step.step_id),
                          ], limit=1, order='date_actual desc')
-                    if last_fixed_step and last_fixed_step.estimated_probability_id.name == '0':
+                    if last_fixed_step and last_fixed_step.stage_id.code == '0':
                         return False
 
                 if step.end_presale_project_month.year in years or step.end_sale_project_month.year in years:
@@ -64,13 +64,13 @@ class report_management_committee_excel(models.AbstractModel):
         years = (YEARint, YEARint + 1, YEARint + 2)
 
         if project:
-            if project.estimated_probability_id.name == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
+            if project.stage_id.code == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
                 last_fixed_project = self.env['project_budget.projects'].search(
                     [('date_actual', '<', datetime.date(YEARint,1,1)),
                      ('budget_state', '=', 'fixed'),
                      ('project_id', '=', project.project_id),
                      ], limit=1, order='date_actual desc')
-                if last_fixed_project and last_fixed_project.estimated_probability_id.name == '0':
+                if last_fixed_project and last_fixed_project.stage_id.code == '0':
                     return False
 
             if project.project_have_steps == False:
@@ -249,7 +249,7 @@ class report_management_committee_excel(models.AbstractModel):
             logger.info(f' id = {etalon_step.id}')
             logger.info(f' date_actual = {etalon_step.date_actual}')
             logger.info(f' end_presale_project_month = {etalon_step.end_presale_project_month}')
-            logger.info(f' estimated_probability_id = {etalon_step.estimated_probability_id}')
+            logger.info(f' stage_id = {etalon_step.stage_id}')
             logger.info(f' end get_etalon_step')
         return etalon_step
 
@@ -286,18 +286,18 @@ class report_management_committee_excel(models.AbstractModel):
                 if pds.project_steps_id.id != step.id: continue
             if (not quarter or pds.date_cash.month in months) and pds.date_cash.year == year:
                 if step:
-                    estimated_probability_id_name = step.estimated_probability_id.name
+                    stage_id_code = step.stage_id.code
                 else:
-                    estimated_probability_id_name = project.estimated_probability_id.name
+                    stage_id_code = project.stage_id.code
                 if pds.forecast == 'from_project':
-                    if estimated_probability_id_name in ('75', '100', '100(done)'):
+                    if stage_id_code in ('75', '100', '100(done)'):
                         sum_cash['commitment'] += pds.sum_cash
-                    elif estimated_probability_id_name == '50':
+                    elif stage_id_code == '50':
                         sum_cash['reserve'] += pds.sum_cash
-                    elif estimated_probability_id_name == '30':
+                    elif stage_id_code == '30':
                         sum_cash['potential'] += pds.sum_cash
                 else:
-                    if estimated_probability_id_name != '0':
+                    if stage_id_code != '0':
                         sum_cash[pds.forecast] += pds.sum_cash
         return sum_cash
 
@@ -665,13 +665,13 @@ class report_management_committee_excel(models.AbstractModel):
 
                 if project.end_presale_project_month.month in months and YEARint == project.end_presale_project_month.year:
                     currency_rate = self.get_currency_rate_by_project(project)
-                    if project.estimated_probability_id.name in ('100','100(done)'):
+                    if project.stage_id.code in ('100','100(done)'):
                         sheet.write_number(row, column + 2, project.total_amount_of_revenue_with_vat * currency_rate, row_format_number_color_fact)
                         sum100tmp += project.total_amount_of_revenue_with_vat * currency_rate
-                    if project.estimated_probability_id.name == '75':
+                    if project.stage_id.code == '75':
                         sheet.write_number(row, column + 3, project.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
                         sum75tmp += project.total_amount_of_revenue_with_vat * currency_rate
-                    if project.estimated_probability_id.name == '50':
+                    if project.stage_id.code == '50':
                         sheet.write_number(row, column + 4, project.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
                         sum50tmp += project.total_amount_of_revenue_with_vat * currency_rate
 
@@ -682,13 +682,13 @@ class report_management_committee_excel(models.AbstractModel):
 
                     if step.end_presale_project_month.month in months  and YEARint == step.end_presale_project_month.year:
                         currency_rate = self.get_currency_rate_by_project(step.projects_id)
-                        if step.estimated_probability_id.name in ('100','100(done)'):
+                        if step.stage_id.code in ('100','100(done)'):
                             sheet.write_number(row, column + 2, step.total_amount_of_revenue_with_vat * currency_rate, row_format_number_color_fact)
                             sum100tmp = step.total_amount_of_revenue_with_vat * currency_rate
-                        if step.estimated_probability_id.name == '75':
+                        if step.stage_id.code == '75':
                             sheet.write_number(row, column + 3, step.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
                             sum75tmp = step.total_amount_of_revenue_with_vat * currency_rate
-                        if step.estimated_probability_id.name == '50':
+                        if step.stage_id.code == '50':
                             sheet.write_number(row, column + 4, step.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
                             sum50tmp = step.total_amount_of_revenue_with_vat * currency_rate
 
@@ -743,28 +743,28 @@ class report_management_committee_excel(models.AbstractModel):
                 #                        row_format_number)
 
                 if project.end_presale_project_month.year == YEARint + 1:
-                    if project.estimated_probability_id.name in ('75', '100'):
+                    if project.stage_id.code in ('75', '100'):
                         sheet.write_number(row, column + 0,
                                            project.total_amount_of_revenue_with_vat * currency_rate,
                                            row_format_number)
                         sum_next_75_tmp = project.total_amount_of_revenue_with_vat * currency_rate
-                    if project.estimated_probability_id.name == '50':
+                    if project.stage_id.code == '50':
                         sheet.write_number(row, column + 1,
                                            project.total_amount_of_revenue_with_vat * params['50'] * currency_rate,
                                            row_format_number)
                         sum_next_50_tmp = project.total_amount_of_revenue_with_vat * params['50'] * currency_rate
-                    if project.estimated_probability_id.name == '30':
+                    if project.stage_id.code == '30':
                         sheet.write_number(row, column + 2,
                                            project.total_amount_of_revenue_with_vat * params['30'] * currency_rate,
                                            row_format_number)
                         sum_next_30_tmp = project.total_amount_of_revenue_with_vat * params['30'] * currency_rate
                 elif project.end_presale_project_month.year == YEARint + 2:
-                    if project.estimated_probability_id.name in ('75', '100'):
+                    if project.stage_id.code in ('75', '100'):
                         sum_after_next_tmp = project.total_amount_of_revenue_with_vat * currency_rate
-                    if project.estimated_probability_id.name == '50':
+                    if project.stage_id.code == '50':
                         sum_after_next_tmp = project.total_amount_of_revenue_with_vat * params[
                             '50'] * currency_rate
-                    if project.estimated_probability_id.name == '30':
+                    if project.stage_id.code == '30':
                         sum_after_next_tmp = project.total_amount_of_revenue_with_vat * params[
                             '30'] * currency_rate
                     sheet.write_number(row, column + 3,
@@ -835,19 +835,19 @@ class report_management_committee_excel(models.AbstractModel):
                     #                        row_format_number)
 
                     if step.end_presale_project_month.year == YEARint + 1:
-                        if step.estimated_probability_id.name in ('75', '100'):
+                        if step.stage_id.code in ('75', '100'):
                             sheet.write_number(row, column + 0,
                                                step.total_amount_of_revenue_with_vat * currency_rate,
                                                row_format_number)
                             sum_next_75_tmp += step.total_amount_of_revenue_with_vat * currency_rate
-                        if step.estimated_probability_id.name == '50':
+                        if step.stage_id.code == '50':
                             sheet.write_number(row, column + 1,
                                                step.total_amount_of_revenue_with_vat * params[
                                                    '50'] * currency_rate,
                                                row_format_number)
                             sum_next_50_tmp += step.total_amount_of_revenue_with_vat * params[
                                 '50'] * currency_rate
-                        if step.estimated_probability_id.name == '30':
+                        if step.stage_id.code == '30':
                             sheet.write_number(row, column + 2,
                                                step.total_amount_of_revenue_with_vat * params[
                                                    '30'] * currency_rate,
@@ -855,12 +855,12 @@ class report_management_committee_excel(models.AbstractModel):
                             sum_next_30_tmp += step.total_amount_of_revenue_with_vat * params[
                                 '30'] * currency_rate
                     elif step.end_presale_project_month.year == YEARint + 2:
-                        if step.estimated_probability_id.name in ('75', '100'):
+                        if step.stage_id.code in ('75', '100'):
                             sum_after_next_tmp += step.total_amount_of_revenue_with_vat * currency_rate
-                        if step.estimated_probability_id.name == '50':
+                        if step.stage_id.code == '50':
                             sum_after_next_tmp += step.total_amount_of_revenue_with_vat * params[
                                 '50'] * currency_rate
-                        if step.estimated_probability_id.name == '30':
+                        if step.stage_id.code == '30':
                             sum_after_next_tmp += step.total_amount_of_revenue_with_vat * params[
                                 '30'] * currency_rate
                         sheet.write_number(row, column + 3,
@@ -892,21 +892,21 @@ class report_management_committee_excel(models.AbstractModel):
 
             if not project.project_have_steps:
 
-                if project.estimated_probability_id.name not in ('0', '10'):
+                if project.stage_id.code not in ('0', '10'):
 
                     if project.end_presale_project_month.month in months and YEARint == project.end_presale_project_month.year:
                         currency_rate = self.get_currency_rate_by_project(project)
-                        if project.estimated_probability_id.name in ('100', '100(done)'):
+                        if project.stage_id.code in ('100', '100(done)'):
                             sum100tmp = project.total_amount_of_revenue_with_vat * currency_rate
-                        if project.estimated_probability_id.name == '75':
+                        if project.stage_id.code == '75':
                             sum75tmp = project.total_amount_of_revenue_with_vat * currency_rate
-                        if project.estimated_probability_id.name == '50':
+                        if project.stage_id.code == '50':
                             sum50tmp = project.total_amount_of_revenue_with_vat * currency_rate
 
             else:
                 for step in project.project_steps_ids:
 
-                    if step.estimated_probability_id.name in ('0', '10'): continue
+                    if step.stage_id.code in ('0', '10'): continue
 
                     if ((
                             project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
@@ -915,49 +915,49 @@ class report_management_committee_excel(models.AbstractModel):
 
                         if step.end_presale_project_month.month in months and YEARint == step.end_presale_project_month.year:
                             currency_rate = self.get_currency_rate_by_project(step.projects_id)
-                            if step.estimated_probability_id.name in ('100', '100(done)'):
+                            if step.stage_id.code in ('100', '100(done)'):
                                 sum100tmp += step.total_amount_of_revenue_with_vat * currency_rate
-                            if step.estimated_probability_id.name == '75':
+                            if step.stage_id.code == '75':
                                 sum75tmp += step.total_amount_of_revenue_with_vat * currency_rate
-                            if step.estimated_probability_id.name == '50':
+                            if step.stage_id.code == '50':
                                 sum50tmp += step.total_amount_of_revenue_with_vat * currency_rate
 
         elif 'NEXT' in element:
             if not project.project_have_steps:
 
-                if project.estimated_probability_id.name not in ('0', '10'):
+                if project.stage_id.code not in ('0', '10'):
 
                     if project.end_presale_project_month.year == YEARint + 1 and project.end_presale_project_month.month in self.get_months_from_quarter('Q1'):
                         currency_rate = self.get_currency_rate_by_project(project)
-                        if project.estimated_probability_id.name in ('75', '100'):
+                        if project.stage_id.code in ('75', '100'):
                             sum_next_75_q1_tmp = project.total_amount_of_revenue_with_vat * currency_rate
-                        if project.estimated_probability_id.name == '50':
+                        if project.stage_id.code == '50':
                             sum_next_50_q1_tmp = project.total_amount_of_revenue_with_vat * params['50'] * currency_rate
-                        if project.estimated_probability_id.name == '30':
+                        if project.stage_id.code == '30':
                             sum_next_30_q1_tmp = project.total_amount_of_revenue_with_vat * params['30'] * currency_rate
                     if project.end_presale_project_month.year == YEARint + 1:
                         currency_rate = self.get_currency_rate_by_project(project)
-                        if project.estimated_probability_id.name in ('75', '100'):
+                        if project.stage_id.code in ('75', '100'):
                             sum_next_75_tmp = project.total_amount_of_revenue_with_vat * currency_rate
-                        if project.estimated_probability_id.name == '50':
+                        if project.stage_id.code == '50':
                             sum_next_50_tmp = project.total_amount_of_revenue_with_vat * params['50'] * currency_rate
-                        if project.estimated_probability_id.name == '30':
+                        if project.stage_id.code == '30':
                             sum_next_30_tmp = project.total_amount_of_revenue_with_vat * params['30'] * currency_rate
                     elif project.end_presale_project_month.year == YEARint + 2:
                         currency_rate = self.get_currency_rate_by_project(project)
-                        if project.estimated_probability_id.name in ('75', '100'):
+                        if project.stage_id.code in ('75', '100'):
                             sum_after_next_tmp = project.total_amount_of_revenue_with_vat * currency_rate
-                        if project.estimated_probability_id.name == '50':
+                        if project.stage_id.code == '50':
                             sum_after_next_tmp = project.total_amount_of_revenue_with_vat * params[
                                 '50'] * currency_rate
-                        if project.estimated_probability_id.name == '30':
+                        if project.stage_id.code == '30':
                             sum_after_next_tmp = project.total_amount_of_revenue_with_vat * params[
                                 '30'] * currency_rate
 
             else:
                 for step in project.project_steps_ids:
 
-                    if step.estimated_probability_id.name in ('0', '10'): continue
+                    if step.stage_id.code in ('0', '10'): continue
 
                     if ((
                             project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
@@ -966,30 +966,30 @@ class report_management_committee_excel(models.AbstractModel):
 
                         currency_rate = self.get_currency_rate_by_project(step.projects_id)
                         if step.end_presale_project_month.year == YEARint + 1 and step.end_presale_project_month.month in self.get_months_from_quarter('Q1'):
-                            if step.estimated_probability_id.name in ('75', '100'):
+                            if step.stage_id.code in ('75', '100'):
                                 sum_next_75_q1_tmp += step.total_amount_of_revenue_with_vat * currency_rate
-                            if step.estimated_probability_id.name == '50':
+                            if step.stage_id.code == '50':
                                 sum_next_50_q1_tmp += step.total_amount_of_revenue_with_vat * params[
                                     '50'] * currency_rate
-                            if step.estimated_probability_id.name == '30':
+                            if step.stage_id.code == '30':
                                 sum_next_30_q1_tmp += step.total_amount_of_revenue_with_vat * params[
                                     '30'] * currency_rate
                         if step.end_presale_project_month.year == YEARint + 1:
-                            if step.estimated_probability_id.name in ('75', '100'):
+                            if step.stage_id.code in ('75', '100'):
                                 sum_next_75_tmp += step.total_amount_of_revenue_with_vat * currency_rate
-                            if step.estimated_probability_id.name == '50':
+                            if step.stage_id.code == '50':
                                 sum_next_50_tmp += step.total_amount_of_revenue_with_vat * params[
                                     '50'] * currency_rate
-                            if step.estimated_probability_id.name == '30':
+                            if step.stage_id.code == '30':
                                 sum_next_30_tmp += step.total_amount_of_revenue_with_vat * params[
                                     '30'] * currency_rate
                         elif step.end_presale_project_month.year == YEARint + 2:
-                            if step.estimated_probability_id.name in ('75', '100'):
+                            if step.stage_id.code in ('75', '100'):
                                 sum_after_next_tmp += step.total_amount_of_revenue_with_vat * currency_rate
-                            if step.estimated_probability_id.name == '50':
+                            if step.stage_id.code == '50':
                                 sum_after_next_tmp += step.total_amount_of_revenue_with_vat * params[
                                     '50'] * currency_rate
-                            if step.estimated_probability_id.name == '30':
+                            if step.stage_id.code == '30':
                                 sum_after_next_tmp += step.total_amount_of_revenue_with_vat * params[
                                     '30'] * currency_rate
 
@@ -1013,18 +1013,18 @@ class report_management_committee_excel(models.AbstractModel):
                             and planned_cash.date_cash.month == month
                             and planned_cash.date_cash.year == year):
                         sum_distribution_pds += planned_cash.distribution_sum_without_vat
-                        estimated_probability_id_name = project.estimated_probability_id.name
+                        stage_id_code = project.stage_id.code
                         if step:
-                            estimated_probability_id_name = step.estimated_probability_id.name
+                            stage_id_code = step.stage_id.code
                         if planned_cash.forecast == 'from_project':
-                            if estimated_probability_id_name in ('75', '100', '100(done)'):
+                            if stage_id_code in ('75', '100', '100(done)'):
                                 sum_ostatok_pds_month['commitment'] += planned_cash.distribution_sum_with_vat_ostatok
-                            elif estimated_probability_id_name == '50':
+                            elif stage_id_code == '50':
                                 sum_ostatok_pds_month['reserve'] += planned_cash.distribution_sum_with_vat_ostatok
-                            elif estimated_probability_id_name == '30':
+                            elif stage_id_code == '30':
                                 sum_ostatok_pds_month['potential'] += planned_cash.distribution_sum_with_vat_ostatok
                         else:
-                            if estimated_probability_id_name != '0':
+                            if stage_id_code != '0':
                                 sum_ostatok_pds_month[planned_cash.forecast] += planned_cash.distribution_sum_with_vat_ostatok
                 if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
                     has_distribution = True
@@ -1041,18 +1041,18 @@ class report_management_committee_excel(models.AbstractModel):
             for planned_cash in project.planned_cash_flow_ids:
                 if (not step or planned_cash.project_steps_id.id == step.id) and planned_cash.date_cash.year == year:
                     sum_distribution_pds += planned_cash.distribution_sum_without_vat
-                    estimated_probability_id_name = project.estimated_probability_id.name
+                    stage_id_code = project.stage_id.code
                     if step:
-                        estimated_probability_id_name = step.estimated_probability_id.name
+                        stage_id_code = step.stage_id.code
                     if planned_cash.forecast == 'from_project':
-                        if estimated_probability_id_name in ('75', '100', '100(done)'):
+                        if stage_id_code in ('75', '100', '100(done)'):
                             sum_ostatok_pds['commitment'] += planned_cash.distribution_sum_with_vat_ostatok
-                        elif estimated_probability_id_name == '50':
+                        elif stage_id_code == '50':
                             sum_ostatok_pds['reserve'] += planned_cash.distribution_sum_with_vat_ostatok
-                        elif estimated_probability_id_name == '30':
+                        elif stage_id_code == '30':
                             sum_ostatok_pds['potential'] += planned_cash.distribution_sum_with_vat_ostatok
                     else:
-                        if estimated_probability_id_name != '0':
+                        if stage_id_code != '0':
                             sum_ostatok_pds[planned_cash.forecast] += planned_cash.distribution_sum_with_vat_ostatok
             if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
                 for key in sum:
@@ -1308,7 +1308,7 @@ class report_management_committee_excel(models.AbstractModel):
             if project.project_have_steps:
                 for step in project.project_steps_ids:
 
-                    if step.estimated_probability_id.name in ('0', '10'): continue
+                    if step.stage_id.code in ('0', '10'): continue
 
                     if ((
                             project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
@@ -1336,7 +1336,7 @@ class report_management_committee_excel(models.AbstractModel):
 
             else:
 
-                if project.estimated_probability_id.name not in ('0', '10'):
+                if project.stage_id.code not in ('0', '10'):
 
                     sum100tmp = self.get_sum_fact_pds_project_step_year_quarter(project, False, YEARint, element)
                     sum = self.get_sum_plan_pds_project_step_year_quarter(project, False, YEARint, element)
@@ -1359,7 +1359,7 @@ class report_management_committee_excel(models.AbstractModel):
             if project.project_have_steps:
                 for step in project.project_steps_ids:
 
-                    if step.estimated_probability_id.name in ('0', '10'): continue
+                    if step.stage_id.code in ('0', '10'): continue
 
                     if ((
                             project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
@@ -1400,7 +1400,7 @@ class report_management_committee_excel(models.AbstractModel):
                         # sum_next_30_tmp += sum['potential'] * params['30']
             else:
 
-                if project.estimated_probability_id.name not in ('0', '10'):
+                if project.stage_id.code not in ('0', '10'):
 
                     sum100tmp_q1 = self.get_sum_fact_pds_project_step_year_quarter(project, False, YEARint + 1, 'Q1')
                     sum100tmp = self.get_sum_fact_pds_project_step_year_quarter(project, False, YEARint + 1, False)
@@ -1438,7 +1438,7 @@ class report_management_committee_excel(models.AbstractModel):
             if project.project_have_steps:
                 for step in project.project_steps_ids:
 
-                    if step.estimated_probability_id.name in ('0', '10'): continue
+                    if step.stage_id.code in ('0', '10'): continue
 
                     if ((
                             project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
@@ -1466,7 +1466,7 @@ class report_management_committee_excel(models.AbstractModel):
 
             else:
 
-                if project.estimated_probability_id.name not in ('0', '10'):
+                if project.stage_id.code not in ('0', '10'):
 
                     sum100tmp = self.get_sum_fact_pds_project_step_year_quarter(project, False, YEARint + 2, False)
                     sum = self.get_sum_plan_pds_project_step_year_quarter(project, False, YEARint + 2, False)
@@ -1540,18 +1540,18 @@ class report_management_committee_excel(models.AbstractModel):
                     if acceptance.project_steps_id.id != step.id: continue
                 if (not quarter or acceptance.date_cash.month in months) and acceptance.date_cash.year == year:
                     if step:
-                        estimated_probability_id_name = step.estimated_probability_id.name
+                        stage_id_code = step.stage_id.code
                     else:
-                        estimated_probability_id_name = project.estimated_probability_id.name
+                        stage_id_code = project.stage_id.code
                     if acceptance.forecast == 'from_project':
-                        if estimated_probability_id_name in ('75', '100', '100(done)'):
+                        if stage_id_code in ('75', '100', '100(done)'):
                             sum_acceptance['commitment'] += acceptance.sum_cash_without_vat
-                        elif estimated_probability_id_name == '50':
+                        elif stage_id_code == '50':
                             sum_acceptance['reserve'] += acceptance.sum_cash_without_vat
-                        elif estimated_probability_id_name == '30':
+                        elif stage_id_code == '30':
                             sum_acceptance['potential'] += acceptance.sum_cash_without_vat
                     else:
-                        if estimated_probability_id_name != '0':
+                        if stage_id_code != '0':
                             sum_acceptance[acceptance.forecast] += acceptance.sum_cash_without_vat
         return sum_acceptance
 
@@ -1566,18 +1566,18 @@ class report_management_committee_excel(models.AbstractModel):
                     and planned_acceptance.date_cash.year == year
             ):
                 sum_distribution_acceptance += planned_acceptance.distribution_sum_without_vat
-                estimated_probability_id_name = project.estimated_probability_id.name
+                stage_id_code = project.stage_id.code
                 if step:
-                    estimated_probability_id_name = step.estimated_probability_id.name
+                    stage_id_code = step.stage_id.code
                 if planned_acceptance.forecast == 'from_project':
-                    if estimated_probability_id_name in ('75', '100', '100(done)'):
+                    if stage_id_code in ('75', '100', '100(done)'):
                         sum_ostatok_acceptance['commitment'] += planned_acceptance.distribution_sum_without_vat_ostatok
-                    elif estimated_probability_id_name == '50':
+                    elif stage_id_code == '50':
                         sum_ostatok_acceptance['reserve'] += planned_acceptance.distribution_sum_without_vat_ostatok
-                    elif estimated_probability_id_name == '30':
+                    elif stage_id_code == '30':
                         sum_ostatok_acceptance['potential'] += planned_acceptance.distribution_sum_without_vat_ostatok
                 else:
-                    if estimated_probability_id_name != '0':
+                    if stage_id_code != '0':
                         sum_ostatok_acceptance[
                             planned_acceptance.forecast] += planned_acceptance.distribution_sum_without_vat_ostatok
 
@@ -1588,16 +1588,16 @@ class report_management_committee_excel(models.AbstractModel):
                         margin_distribution += (distribution.fact_acceptance_flow_id.margin
                                                 * distribution.sum_cash_without_vat
                                                 / distribution.fact_acceptance_flow_id.sum_cash_without_vat)
-                estimated_probability_id_name = project.estimated_probability_id.name
+                stage_id_code = project.stage_id.code
                 if step:
-                    estimated_probability_id_name = step.estimated_probability_id.name
+                    stage_id_code = step.stage_id.code
                 if planned_acceptance.forecast == 'from_project':
-                    if estimated_probability_id_name in ('75', '100', '100(done)'):
+                    if stage_id_code in ('75', '100', '100(done)'):
                         margin_plan['commitment'] -= margin_distribution
-                    elif estimated_probability_id_name == '50':
+                    elif stage_id_code == '50':
                         margin_plan['reserve'] -= margin_distribution
                 else:
-                    if estimated_probability_id_name != '0':
+                    if stage_id_code != '0':
                         margin_plan[planned_acceptance.forecast] -= margin_distribution
 
         if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
@@ -1815,7 +1815,7 @@ class report_management_committee_excel(models.AbstractModel):
                     #         sum_q1['commitment'] = step.total_amount_of_revenue
                     #     elif step.estimated_probability_id.name == '50':
                     #         sum_q1['reserve'] = step.total_amount_of_revenue
-                        if step.estimated_probability_id.name == '30':
+                        if step.stage_id.code == '30':
                             sum_q1['potential'] = step.total_amount_of_revenue
 
                     if all(value == 0 for value in sum.values()) and step.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
@@ -1823,7 +1823,7 @@ class report_management_committee_excel(models.AbstractModel):
                     #         sum['commitment'] = step.total_amount_of_revenue
                     #     elif step.estimated_probability_id.name == '50':
                     #         sum['reserve'] = step.total_amount_of_revenue
-                        if step.estimated_probability_id.name == '30':
+                        if step.stage_id.code == '30':
                             sum['potential'] = step.total_amount_of_revenue
 
                     # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
@@ -1944,7 +1944,7 @@ class report_management_committee_excel(models.AbstractModel):
                 #         sum_q1['commitment'] = project.total_amount_of_revenue
                 #     elif project.estimated_probability_id.name == '50':
                 #         sum_q1['reserve'] = project.total_amount_of_revenue
-                    if project.estimated_probability_id.name == '30':
+                    if project.stage_id.code == '30':
                         sum_q1['potential'] = project.total_amount_of_revenue
                 #
                 if all(value == 0 for value in sum.values()) and project.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
@@ -1952,7 +1952,7 @@ class report_management_committee_excel(models.AbstractModel):
                 #         sum['commitment'] = project.total_amount_of_revenue
                 #     elif project.estimated_probability_id.name == '50':
                 #         sum['reserve'] = project.total_amount_of_revenue
-                    if project.estimated_probability_id.name == '30':
+                    if project.stage_id.code == '30':
                         sum['potential'] = project.total_amount_of_revenue
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
@@ -2059,7 +2059,7 @@ class report_management_committee_excel(models.AbstractModel):
                     #         sum['commitment'] = step.total_amount_of_revenue
                     #     elif step.estimated_probability_id.name == '50':
                     #         sum['reserve'] = step.total_amount_of_revenue
-                        if step.estimated_probability_id.name == '30':
+                        if step.stage_id.code == '30':
                             sum['potential'] = step.total_amount_of_revenue
 
                     # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
@@ -2118,7 +2118,7 @@ class report_management_committee_excel(models.AbstractModel):
                 #         sum['commitment'] = project.total_amount_of_revenue
                 #     elif project.estimated_probability_id.name == '50':
                 #         sum['reserve'] = project.total_amount_of_revenue
-                    if project.estimated_probability_id.name == '30':
+                    if project.stage_id.code == '30':
                         sum['potential'] = project.total_amount_of_revenue
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
@@ -2167,7 +2167,7 @@ class report_management_committee_excel(models.AbstractModel):
             if project.project_have_steps:
                 for step in project.project_steps_ids:
 
-                    if step.estimated_probability_id.name in ('0', '10'): continue
+                    if step.stage_id.code in ('0', '10'): continue
 
                     if ((project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
                             or ((not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
@@ -2219,7 +2219,7 @@ class report_management_committee_excel(models.AbstractModel):
                         prof50tmp += margin_sum['reserve']
             else:
 
-                if project.estimated_probability_id.name not in ('0', '10'):
+                if project.stage_id.code not in ('0', '10'):
 
                     profitability = project.profitability
 
@@ -2271,7 +2271,7 @@ class report_management_committee_excel(models.AbstractModel):
             if project.project_have_steps:
                 for step in project.project_steps_ids:
 
-                    if step.estimated_probability_id.name in ('0', '10'): continue
+                    if step.stage_id.code in ('0', '10'): continue
 
                     if ((project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
                             or ((not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
@@ -2343,7 +2343,7 @@ class report_management_committee_excel(models.AbstractModel):
                         #         sum_q1['commitment'] = step.total_amount_of_revenue
                         #     elif step.estimated_probability_id.name == '50':
                         #         sum_q1['reserve'] = step.total_amount_of_revenue
-                            if step.estimated_probability_id.name == '30':
+                            if step.stage_id.code == '30':
                                 sum_q1['potential'] = step.total_amount_of_revenue
                         #
                         if all(value == 0 for value in sum.values()) and step.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
@@ -2351,7 +2351,7 @@ class report_management_committee_excel(models.AbstractModel):
                         #         sum['commitment'] = step.total_amount_of_revenue
                         #     elif step.estimated_probability_id.name == '50':
                         #         sum['reserve'] = step.total_amount_of_revenue
-                            if step.estimated_probability_id.name == '30':
+                            if step.stage_id.code == '30':
                                 sum['potential'] = step.total_amount_of_revenue
 
                         # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
@@ -2380,7 +2380,7 @@ class report_management_committee_excel(models.AbstractModel):
                         prof_next_30_tmp += margin_sum['potential'] * params['30']
             else:
 
-                if project.estimated_probability_id.name not in ('0', '10'):
+                if project.stage_id.code not in ('0', '10'):
 
                     profitability = project.profitability
 
@@ -2447,7 +2447,7 @@ class report_management_committee_excel(models.AbstractModel):
                     #         sum_q1['commitment'] = project.total_amount_of_revenue
                     #     elif project.estimated_probability_id.name == '50':
                     #         sum_q1['reserve'] = project.total_amount_of_revenue
-                        if project.estimated_probability_id.name == '30':
+                        if project.stage_id.code == '30':
                             sum_q1['potential'] = project.total_amount_of_revenue
                     #
                     if all(value == 0 for value in sum.values()) and project.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
@@ -2455,7 +2455,7 @@ class report_management_committee_excel(models.AbstractModel):
                     #         sum['commitment'] = project.total_amount_of_revenue
                     #     elif project.estimated_probability_id.name == '50':
                     #         sum['reserve'] = project.total_amount_of_revenue
-                        if project.estimated_probability_id.name == '30':
+                        if project.stage_id.code == '30':
                             sum['potential'] = project.total_amount_of_revenue
 
                     # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
@@ -2487,7 +2487,7 @@ class report_management_committee_excel(models.AbstractModel):
             if project.project_have_steps:
                 for step in project.project_steps_ids:
 
-                    if step.estimated_probability_id.name in ('0', '10'): continue
+                    if step.stage_id.code in ('0', '10'): continue
 
                     if ((project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
                             or ((not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
@@ -2530,7 +2530,7 @@ class report_management_committee_excel(models.AbstractModel):
                         #         sum['commitment'] = step.total_amount_of_revenue
                         #     elif step.estimated_probability_id.name == '50':
                         #         sum['reserve'] = step.total_amount_of_revenue
-                            if step.estimated_probability_id.name == '30':
+                            if step.stage_id.code == '30':
                                 sum['potential'] = step.total_amount_of_revenue
 
                         # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
@@ -2549,7 +2549,7 @@ class report_management_committee_excel(models.AbstractModel):
                         prof_after_next_tmp += margin_sum['potential'] * params['30']
             else:
 
-                if project.estimated_probability_id.name not in ('0', '10'):
+                if project.stage_id.code not in ('0', '10'):
 
                     profitability = project.profitability
 
@@ -2589,7 +2589,7 @@ class report_management_committee_excel(models.AbstractModel):
                     #         sum['commitment'] = project.total_amount_of_revenue
                     #     elif project.estimated_probability_id.name == '50':
                     #         sum['reserve'] = project.total_amount_of_revenue
-                        if project.estimated_probability_id.name == '30':
+                        if project.stage_id.code == '30':
                             sum['potential'] = project.total_amount_of_revenue
 
                     # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
@@ -2658,12 +2658,12 @@ class report_management_committee_excel(models.AbstractModel):
         })
 
         if step:
-            if step.estimated_probability_id.name == '0':
+            if step.stage_id.code == '0':
                 row_format_number.set_font_color('red')
                 row_format_number_color_fact.set_font_color('red')
                 head_format_month_itogo.set_font_color('red')
         else:
-            if project.estimated_probability_id.name == '0':
+            if project.stage_id.code == '0':
                 row_format_number.set_font_color('red')
                 row_format_number_color_fact.set_font_color('red')
                 head_format_month_itogo.set_font_color('red')
@@ -4044,9 +4044,9 @@ class report_management_committee_excel(models.AbstractModel):
         cur_budget_projects = self.env['project_budget.projects'].search([
             ('commercial_budget_id', '=', budget.id),
             ('is_parent_project', '=', False),
-            ('estimated_probability_id.name', '!=', '0'),
+            ('stage_id.code', '!=', '0'),
             ('is_not_for_mc_report', '=', False),
-        ]).sorted(key=lambda r: (r.project_manager_id.name, r.estimated_probability_id.code))
+        ]).sorted(key=lambda r: (r.project_manager_id.name, r.stage_id.code))
 
         # cur_project_offices = project_offices.filtered(lambda r: r in cur_budget_projects.project_office_id or r in {office.parent_id for office in cur_budget_projects.project_office_id if office.parent_id in project_offices})
         cur_project_offices = project_offices
@@ -4139,7 +4139,7 @@ class report_management_committee_excel(models.AbstractModel):
                                      or ((not spec.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and spec.project_office_id == project_office))
                                         and spec.company_id == company):
 
-                                    if self.isStepinYear(spec, step) is False or step.estimated_probability_id.name in ('0', '10'):
+                                    if self.isStepinYear(spec, step) is False or step.stage_id.code in ('0', '10'):
                                         continue
 
                                     isFoundProjectsByOffice = True
@@ -4180,7 +4180,7 @@ class report_management_committee_excel(models.AbstractModel):
                                     # self.print_row_Values(workbook, sheet, row, column,  strYEAR, spec, step)
                         else:
                             if spec.project_office_id == project_office and spec.company_id == company:
-                                if self.isProjectinYear(spec) is False or spec.estimated_probability_id.name in ('0', '10'):
+                                if self.isProjectinYear(spec) is False or spec.stage_id.code in ('0', '10'):
                                     continue
 
                                 isFoundProjectsByOffice = True
@@ -4307,7 +4307,7 @@ class report_management_committee_excel(models.AbstractModel):
 
                     projects = (self.env['project_budget.projects'].
                                 search(['&','&','&',
-                                        ('estimated_probability_id.name', '!=', '0'),
+                                        ('stage_id.code', '!=', '0'),
                                         ('commercial_budget_id', '=', budget.id),
                                         ('is_parent_project', '=', False),
                                         ('is_not_for_mc_report', '=', False),
@@ -4342,7 +4342,7 @@ class report_management_committee_excel(models.AbstractModel):
                                                          not spec.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and spec.project_office_id == project_office))
                                                 and spec.company_id == company):
 
-                                            if self.isStepinYear(spec, step) is False or step.estimated_probability_id.name in ('0', '10'):
+                                            if self.isStepinYear(spec, step) is False or step.stage_id.code in ('0', '10'):
                                                 continue
 
                                             # печатаем строки этапов проектов
@@ -4350,7 +4350,7 @@ class report_management_committee_excel(models.AbstractModel):
                                             sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level})
                                             cur_row_format = row_format
                                             cur_row_format_number = row_format_number
-                                            if step.estimated_probability_id.name == '0':
+                                            if step.stage_id.code == '0':
                                                 cur_row_format = row_format_canceled_project
                                                 cur_row_format_number = row_format_number_canceled_project
                                             column = 0
@@ -4366,7 +4366,7 @@ class report_management_committee_excel(models.AbstractModel):
                                                                cur_row_format)
                                             column += 1
                                             sheet.write_string(row, column, self.get_estimated_probability_name_forecast(
-                                                step.estimated_probability_id.name), cur_row_format)
+                                                step.stage_id.code), cur_row_format)
                                             column += 1
                                             sheet.write_number(row, column,
                                                                step.total_amount_of_revenue_with_vat * self.get_currency_rate_by_project(step.projects_id),
@@ -4386,7 +4386,7 @@ class report_management_committee_excel(models.AbstractModel):
                                             self.print_row_Values(workbook, sheet, row, column, strYEAR, spec, step, project_office, params)
                                 else:
                                     if spec.project_office_id == project_office and spec.company_id == company:
-                                        if self.isProjectinYear(spec) is False or spec.estimated_probability_id.name in ('0', '10'):
+                                        if self.isProjectinYear(spec) is False or spec.stage_id.code in ('0', '10'):
                                             continue
 
                                         # печатаем строки проектов
@@ -4394,7 +4394,7 @@ class report_management_committee_excel(models.AbstractModel):
                                         sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level})
                                         cur_row_format = row_format
                                         cur_row_format_number = row_format_number
-                                        if spec.estimated_probability_id.name == '0':
+                                        if spec.stage_id.code == '0':
                                             cur_row_format = row_format_canceled_project
                                             cur_row_format_number = row_format_number_canceled_project
                                         column = 0
@@ -4408,7 +4408,7 @@ class report_management_committee_excel(models.AbstractModel):
                                                     spec.project_id or ''), cur_row_format)
                                         column += 1
                                         sheet.write_string(row, column, self.get_estimated_probability_name_forecast(
-                                            spec.estimated_probability_id.name), cur_row_format)
+                                            spec.stage_id.code), cur_row_format)
                                         column += 1
                                         sheet.write_number(row, column,
                                                            spec.total_amount_of_revenue_with_vat * self.get_currency_rate_by_project(spec),
@@ -4496,132 +4496,140 @@ class report_management_committee_excel(models.AbstractModel):
                             sheet.write_formula(company_row, (i + 1) * (params["margin_shift"] - 6) + x + shift + 1, formula, row_format_company_next)
                     shift += 4
 
-                # планы компаний
-                company_plan_contracting = self.env['project_budget.budget_plan_supervisor_spec'].search([
-                    ('budget_plan_supervisor_id.year', '=', YEARint),
-                    ('budget_plan_supervisor_id.company_id', '=', company.id),
-                    ('budget_plan_supervisor_id.is_company_plan', '=', True),
-                    ('type_row', '=', 'contracting'),
-                ])
+        # планы компаний
+        company_plan_contracting = self.env['project_budget.budget_plan_supervisor_spec'].search([
+            ('budget_plan_supervisor_id.year', '=', YEARint),
+            ('budget_plan_supervisor_id.company_id', '=', company.id),
+            ('budget_plan_supervisor_id.is_company_plan', '=', True),
+            ('type_row', '=', 'contracting'),
+        ])
 
-                company_plan_cash = self.env['project_budget.budget_plan_supervisor_spec'].search([
-                    ('budget_plan_supervisor_id.year', '=', YEARint),
-                    ('budget_plan_supervisor_id.company_id', '=', company.id),
-                    ('budget_plan_supervisor_id.is_company_plan', '=', True),
-                    ('type_row', '=', 'cash'),
-                ])
+        company_plan_cash = self.env['project_budget.budget_plan_supervisor_spec'].search([
+            ('budget_plan_supervisor_id.year', '=', YEARint),
+            ('budget_plan_supervisor_id.company_id', '=', company.id),
+            ('budget_plan_supervisor_id.is_company_plan', '=', True),
+            ('type_row', '=', 'cash'),
+        ])
 
-                company_plan_acceptance = self.env['project_budget.budget_plan_supervisor_spec'].search([
-                    ('budget_plan_supervisor_id.year', '=', YEARint),
-                    ('budget_plan_supervisor_id.company_id', '=', company.id),
-                    ('budget_plan_supervisor_id.is_company_plan', '=', True),
-                    ('type_row', '=', 'acceptance'),
-                ])
+        company_plan_acceptance = self.env['project_budget.budget_plan_supervisor_spec'].search([
+            ('budget_plan_supervisor_id.year', '=', YEARint),
+            ('budget_plan_supervisor_id.company_id', '=', company.id),
+            ('budget_plan_supervisor_id.is_company_plan', '=', True),
+            ('type_row', '=', 'acceptance'),
+        ])
 
-                company_plan_margin_income = self.env['project_budget.budget_plan_supervisor_spec'].search([
-                    ('budget_plan_supervisor_id.year', '=', YEARint),
-                    ('budget_plan_supervisor_id.company_id', '=', company.id),
-                    ('budget_plan_supervisor_id.is_company_plan', '=', True),
-                    ('type_row', '=', 'margin_income'),
-                ])
+        company_plan_margin_income = self.env['project_budget.budget_plan_supervisor_spec'].search([
+            ('budget_plan_supervisor_id.year', '=', YEARint),
+            ('budget_plan_supervisor_id.company_id', '=', company.id),
+            ('budget_plan_supervisor_id.is_company_plan', '=', True),
+            ('type_row', '=', 'margin_income'),
+        ])
 
-                company_plan = {
-                    'contracting': {
-                        'Q1': str(company_plan_contracting.q1_plan),
-                        'Q2': str(company_plan_contracting.q2_plan),
-                        'Q3': str(company_plan_contracting.q3_plan),
-                        'Q4': str(company_plan_contracting.q4_plan),
-                        'Q1_66': str(company_plan_contracting.q1_plan_6_6),
-                        'Q2_66': str(company_plan_contracting.q2_plan_6_6),
-                        'Q3_66': str(company_plan_contracting.q3_plan_6_6),
-                        'Q4_66': str(company_plan_contracting.q4_plan_6_6),
-                        'HY1': '=SUM(' + xl_col_to_name(plan_shift['contracting']['Q1']) + '{0} + ' + xl_col_to_name(plan_shift['contracting']['Q2']) + '{0})',
-                        'HY1_66': '=SUM(' + xl_col_to_name(plan_shift['contracting']['Q1_66']) + '{0} + ' + xl_col_to_name(plan_shift['contracting']['Q2_66']) + '{0})',
-                        'HY2': '=SUM(' + xl_col_to_name(plan_shift['contracting']['Q3']) + '{0} + ' + xl_col_to_name(plan_shift['contracting']['Q4']) + '{0})',
-                        'HY2_66': '=SUM(' + xl_col_to_name(plan_shift['contracting']['Q3_66']) + '{0} + ' + xl_col_to_name(plan_shift['contracting']['Q4_66']) + '{0})',
-                        'Y': '=SUM(' + xl_col_to_name(plan_shift['contracting']['HY1']) + '{0} + ' + xl_col_to_name(plan_shift['contracting']['HY2']) + '{0})',
-                        'Y_66': '=SUM(' + xl_col_to_name(plan_shift['contracting']['HY1_66']) + '{0} + ' + xl_col_to_name(plan_shift['contracting']['HY2_66']) + '{0})',
-                    },
-                    'cash': {
-                        'Q1': str(company_plan_cash.q1_plan),
-                        'Q2': str(company_plan_cash.q2_plan),
-                        'Q3': str(company_plan_cash.q3_plan),
-                        'Q4': str(company_plan_cash.q4_plan),
-                        'Q1_66': str(company_plan_cash.q1_plan_6_6),
-                        'Q2_66': str(company_plan_cash.q2_plan_6_6),
-                        'Q3_66': str(company_plan_cash.q3_plan_6_6),
-                        'Q4_66': str(company_plan_cash.q4_plan_6_6),
-                        'HY1': '=SUM(' + xl_col_to_name(plan_shift['cash']['Q1']) + '{0} + ' + xl_col_to_name(
-                            plan_shift['cash']['Q2']) + '{0})',
-                        'HY1_66': '=SUM(' + xl_col_to_name(
-                            plan_shift['cash']['Q1_66']) + '{0} + ' + xl_col_to_name(
-                            plan_shift['cash']['Q2_66']) + '{0})',
-                        'HY2': '=SUM(' + xl_col_to_name(plan_shift['cash']['Q3']) + '{0} + ' + xl_col_to_name(
-                            plan_shift['cash']['Q4']) + '{0})',
-                        'HY2_66': '=SUM(' + xl_col_to_name(
-                            plan_shift['cash']['Q3_66']) + '{0} + ' + xl_col_to_name(
-                            plan_shift['cash']['Q4_66']) + '{0})',
-                        'Y': '=SUM(' + xl_col_to_name(plan_shift['cash']['HY1']) + '{0} + ' + xl_col_to_name(
-                            plan_shift['cash']['HY2']) + '{0})',
-                        'Y_66': '=SUM(' + xl_col_to_name(
-                            plan_shift['cash']['HY1_66']) + '{0} + ' + xl_col_to_name(
-                            plan_shift['cash']['HY2_66']) + '{0})',
-                    },
-                    'acceptance': {
-                        'Q1': str(company_plan_acceptance.q1_plan),
-                        'Q2': str(company_plan_acceptance.q2_plan),
-                        'Q3': str(company_plan_acceptance.q3_plan),
-                        'Q4': str(company_plan_acceptance.q4_plan),
-                        'Q1_66': str(company_plan_acceptance.q1_plan_6_6),
-                        'Q2_66': str(company_plan_acceptance.q2_plan_6_6),
-                        'Q3_66': str(company_plan_acceptance.q3_plan_6_6),
-                        'Q4_66': str(company_plan_acceptance.q4_plan_6_6),
-                        'HY1': '=SUM(' + xl_col_to_name(plan_shift['acceptance']['Q1']) + '{0} + ' + xl_col_to_name(
-                            plan_shift['acceptance']['Q2']) + '{0})',
-                        'HY1_66': '=SUM(' + xl_col_to_name(
-                            plan_shift['acceptance']['Q1_66']) + '{0} + ' + xl_col_to_name(
-                            plan_shift['acceptance']['Q2_66']) + '{0})',
-                        'HY2': '=SUM(' + xl_col_to_name(plan_shift['acceptance']['Q3']) + '{0} + ' + xl_col_to_name(
-                            plan_shift['acceptance']['Q4']) + '{0})',
-                        'HY2_66': '=SUM(' + xl_col_to_name(
-                            plan_shift['acceptance']['Q3_66']) + '{0} + ' + xl_col_to_name(
-                            plan_shift['acceptance']['Q4_66']) + '{0})',
-                        'Y': '=SUM(' + xl_col_to_name(plan_shift['acceptance']['HY1']) + '{0} + ' + xl_col_to_name(
-                            plan_shift['acceptance']['HY2']) + '{0})',
-                        'Y_66': '=SUM(' + xl_col_to_name(
-                            plan_shift['acceptance']['HY1_66']) + '{0} + ' + xl_col_to_name(
-                            plan_shift['acceptance']['HY2_66']) + '{0})',
-                    },
-                    'margin_income': {
-                        'Q1': str(company_plan_margin_income.q1_plan),
-                        'Q2': str(company_plan_margin_income.q2_plan),
-                        'Q3': str(company_plan_margin_income.q3_plan),
-                        'Q4': str(company_plan_margin_income.q4_plan),
-                        'Q1_66': str(company_plan_margin_income.q1_plan_6_6),
-                        'Q2_66': str(company_plan_margin_income.q2_plan_6_6),
-                        'Q3_66': str(company_plan_margin_income.q3_plan_6_6),
-                        'Q4_66': str(company_plan_margin_income.q4_plan_6_6),
-                        'HY1': '=SUM(' + xl_col_to_name(plan_shift['margin_income']['Q1']) + '{0} + ' + xl_col_to_name(
-                            plan_shift['margin_income']['Q2']) + '{0})',
-                        'HY1_66': '=SUM(' + xl_col_to_name(
-                            plan_shift['margin_income']['Q1_66']) + '{0} + ' + xl_col_to_name(
-                            plan_shift['margin_income']['Q2_66']) + '{0})',
-                        'HY2': '=SUM(' + xl_col_to_name(plan_shift['margin_income']['Q3']) + '{0} + ' + xl_col_to_name(
-                            plan_shift['margin_income']['Q4']) + '{0})',
-                        'HY2_66': '=SUM(' + xl_col_to_name(
-                            plan_shift['margin_income']['Q3_66']) + '{0} + ' + xl_col_to_name(
-                            plan_shift['margin_income']['Q4_66']) + '{0})',
-                        'Y': '=SUM(' + xl_col_to_name(plan_shift['margin_income']['HY1']) + '{0} + ' + xl_col_to_name(
-                            plan_shift['margin_income']['HY2']) + '{0})',
-                        'Y_66': '=SUM(' + xl_col_to_name(
-                            plan_shift['margin_income']['HY1_66']) + '{0} + ' + xl_col_to_name(
-                            plan_shift['margin_income']['HY2_66']) + '{0})',
-                    },
-                }
+        company_plan = {
+            'contracting': {
+                'Q1': str(company_plan_contracting.q1_plan),
+                'Q2': str(company_plan_contracting.q2_plan),
+                'Q3': str(company_plan_contracting.q3_plan),
+                'Q4': str(company_plan_contracting.q4_plan),
+                'Q1_66': str(company_plan_contracting.q1_plan_6_6),
+                'Q2_66': str(company_plan_contracting.q2_plan_6_6),
+                'Q3_66': str(company_plan_contracting.q3_plan_6_6),
+                'Q4_66': str(company_plan_contracting.q4_plan_6_6),
+                'HY1': '=SUM(' + xl_col_to_name(plan_shift['contracting']['Q1']) + '{0} + ' + xl_col_to_name(
+                    plan_shift['contracting']['Q2']) + '{0})',
+                'HY1_66': '=SUM(' + xl_col_to_name(plan_shift['contracting']['Q1_66']) + '{0} + ' + xl_col_to_name(
+                    plan_shift['contracting']['Q2_66']) + '{0})',
+                'HY2': '=SUM(' + xl_col_to_name(plan_shift['contracting']['Q3']) + '{0} + ' + xl_col_to_name(
+                    plan_shift['contracting']['Q4']) + '{0})',
+                'HY2_66': '=SUM(' + xl_col_to_name(plan_shift['contracting']['Q3_66']) + '{0} + ' + xl_col_to_name(
+                    plan_shift['contracting']['Q4_66']) + '{0})',
+                'Y': '=SUM(' + xl_col_to_name(plan_shift['contracting']['HY1']) + '{0} + ' + xl_col_to_name(
+                    plan_shift['contracting']['HY2']) + '{0})',
+                'Y_66': '=SUM(' + xl_col_to_name(plan_shift['contracting']['HY1_66']) + '{0} + ' + xl_col_to_name(
+                    plan_shift['contracting']['HY2_66']) + '{0})',
+            },
+            'cash': {
+                'Q1': str(company_plan_cash.q1_plan),
+                'Q2': str(company_plan_cash.q2_plan),
+                'Q3': str(company_plan_cash.q3_plan),
+                'Q4': str(company_plan_cash.q4_plan),
+                'Q1_66': str(company_plan_cash.q1_plan_6_6),
+                'Q2_66': str(company_plan_cash.q2_plan_6_6),
+                'Q3_66': str(company_plan_cash.q3_plan_6_6),
+                'Q4_66': str(company_plan_cash.q4_plan_6_6),
+                'HY1': '=SUM(' + xl_col_to_name(plan_shift['cash']['Q1']) + '{0} + ' + xl_col_to_name(
+                    plan_shift['cash']['Q2']) + '{0})',
+                'HY1_66': '=SUM(' + xl_col_to_name(
+                    plan_shift['cash']['Q1_66']) + '{0} + ' + xl_col_to_name(
+                    plan_shift['cash']['Q2_66']) + '{0})',
+                'HY2': '=SUM(' + xl_col_to_name(plan_shift['cash']['Q3']) + '{0} + ' + xl_col_to_name(
+                    plan_shift['cash']['Q4']) + '{0})',
+                'HY2_66': '=SUM(' + xl_col_to_name(
+                    plan_shift['cash']['Q3_66']) + '{0} + ' + xl_col_to_name(
+                    plan_shift['cash']['Q4_66']) + '{0})',
+                'Y': '=SUM(' + xl_col_to_name(plan_shift['cash']['HY1']) + '{0} + ' + xl_col_to_name(
+                    plan_shift['cash']['HY2']) + '{0})',
+                'Y_66': '=SUM(' + xl_col_to_name(
+                    plan_shift['cash']['HY1_66']) + '{0} + ' + xl_col_to_name(
+                    plan_shift['cash']['HY2_66']) + '{0})',
+            },
+            'acceptance': {
+                'Q1': str(company_plan_acceptance.q1_plan),
+                'Q2': str(company_plan_acceptance.q2_plan),
+                'Q3': str(company_plan_acceptance.q3_plan),
+                'Q4': str(company_plan_acceptance.q4_plan),
+                'Q1_66': str(company_plan_acceptance.q1_plan_6_6),
+                'Q2_66': str(company_plan_acceptance.q2_plan_6_6),
+                'Q3_66': str(company_plan_acceptance.q3_plan_6_6),
+                'Q4_66': str(company_plan_acceptance.q4_plan_6_6),
+                'HY1': '=SUM(' + xl_col_to_name(plan_shift['acceptance']['Q1']) + '{0} + ' + xl_col_to_name(
+                    plan_shift['acceptance']['Q2']) + '{0})',
+                'HY1_66': '=SUM(' + xl_col_to_name(
+                    plan_shift['acceptance']['Q1_66']) + '{0} + ' + xl_col_to_name(
+                    plan_shift['acceptance']['Q2_66']) + '{0})',
+                'HY2': '=SUM(' + xl_col_to_name(plan_shift['acceptance']['Q3']) + '{0} + ' + xl_col_to_name(
+                    plan_shift['acceptance']['Q4']) + '{0})',
+                'HY2_66': '=SUM(' + xl_col_to_name(
+                    plan_shift['acceptance']['Q3_66']) + '{0} + ' + xl_col_to_name(
+                    plan_shift['acceptance']['Q4_66']) + '{0})',
+                'Y': '=SUM(' + xl_col_to_name(plan_shift['acceptance']['HY1']) + '{0} + ' + xl_col_to_name(
+                    plan_shift['acceptance']['HY2']) + '{0})',
+                'Y_66': '=SUM(' + xl_col_to_name(
+                    plan_shift['acceptance']['HY1_66']) + '{0} + ' + xl_col_to_name(
+                    plan_shift['acceptance']['HY2_66']) + '{0})',
+            },
+            'margin_income': {
+                'Q1': str(company_plan_margin_income.q1_plan),
+                'Q2': str(company_plan_margin_income.q2_plan),
+                'Q3': str(company_plan_margin_income.q3_plan),
+                'Q4': str(company_plan_margin_income.q4_plan),
+                'Q1_66': str(company_plan_margin_income.q1_plan_6_6),
+                'Q2_66': str(company_plan_margin_income.q2_plan_6_6),
+                'Q3_66': str(company_plan_margin_income.q3_plan_6_6),
+                'Q4_66': str(company_plan_margin_income.q4_plan_6_6),
+                'HY1': '=SUM(' + xl_col_to_name(plan_shift['margin_income']['Q1']) + '{0} + ' + xl_col_to_name(
+                    plan_shift['margin_income']['Q2']) + '{0})',
+                'HY1_66': '=SUM(' + xl_col_to_name(
+                    plan_shift['margin_income']['Q1_66']) + '{0} + ' + xl_col_to_name(
+                    plan_shift['margin_income']['Q2_66']) + '{0})',
+                'HY2': '=SUM(' + xl_col_to_name(plan_shift['margin_income']['Q3']) + '{0} + ' + xl_col_to_name(
+                    plan_shift['margin_income']['Q4']) + '{0})',
+                'HY2_66': '=SUM(' + xl_col_to_name(
+                    plan_shift['margin_income']['Q3_66']) + '{0} + ' + xl_col_to_name(
+                    plan_shift['margin_income']['Q4_66']) + '{0})',
+                'Y': '=SUM(' + xl_col_to_name(plan_shift['margin_income']['HY1']) + '{0} + ' + xl_col_to_name(
+                    plan_shift['margin_income']['HY2']) + '{0})',
+                'Y_66': '=SUM(' + xl_col_to_name(
+                    plan_shift['margin_income']['HY1_66']) + '{0} + ' + xl_col_to_name(
+                    plan_shift['margin_income']['HY2_66']) + '{0})',
+            },
+        }
 
-                for plan_type in company_plan.keys():
-                    for plan_period in company_plan[plan_type].keys():
-                        sheet.write_formula(company_row, plan_shift[plan_type][plan_period], company_plan[plan_type][plan_period].format(company_row + 1), row_format_company_plan)
+        for plan_type in company_plan.keys():
+            for plan_period in company_plan[plan_type].keys():
+                sheet.write_formula(company_row, plan_shift[plan_type][plan_period],
+                                    company_plan[plan_type][plan_period].format(company_row + 1),
+                                    row_format_company_plan)
 
         return row, formulaItogo
 
@@ -4793,7 +4801,7 @@ class report_management_committee_excel(models.AbstractModel):
         cur_budget_projects = self.env['project_budget.projects'].search([
             ('commercial_budget_id', '=', budget.id),
             ('is_parent_project', '=', False),
-            ('estimated_probability_id.name', '!=', '0'),
+            ('stage_id.code', '!=', '0'),
             ('is_not_for_mc_report', '=', False),
         ])
 
@@ -4863,7 +4871,7 @@ class report_management_committee_excel(models.AbstractModel):
         print('dict_formula = ', dict_formula)
 
     def generate_xlsx_report(self, workbook, data, budgets):
-
+        global plan_shift
         global strYEAR
         strYEAR = str(data['year'])
         global YEARint
@@ -4871,7 +4879,6 @@ class report_management_committee_excel(models.AbstractModel):
         global dict_formula
         dict_formula = {'company_ids': {}, 'office_ids': {}, 'office_ids_not_empty': {}}
         global max_level
-        global plan_shift
 
         print('YEARint=', YEARint)
         print('strYEAR =', strYEAR)
@@ -4881,7 +4888,6 @@ class report_management_committee_excel(models.AbstractModel):
 
         if data['report_with_projects']:
             params['shift'] = 10
-
         params['margin_shift'] = 41
 
         cash_shift = 41

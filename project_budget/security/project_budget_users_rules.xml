@@ -99,9 +99,9 @@
 
         <!-- Reseller rules -->
 
-        <record id="res_company_reseller_company_rule" model="ir.rule">
-            <field name="name">Reseller multi-company</field>
-            <field name="model_id" ref="model_res_company_reseller"/>
+        <record id="res_company_partner_company_rule" model="ir.rule">
+            <field name="name">Company partner multi-company</field>
+            <field name="model_id" ref="model_res_company_partner"/>
             <field name="domain_force">
                 [
                     '|', ('company_id', '=', False), ('company_id', 'in', company_ids)

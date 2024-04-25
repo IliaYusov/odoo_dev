@@ -128,12 +128,6 @@ class rukovoditel_project_access(models.Model):
     user_id = fields.Many2one('res.users', string='user id', required=True,)
     descr = fields.Char(string="rukovoditel_project access description", translate=True)
 
-class customer_status(models.Model):
-    _name = 'project_budget.customer_status'
-    _description = "project_customer status"
-    name = fields.Char(string="customer_status name", required=True, translate=True)
-    code = fields.Char(string="customer_status code", required=True)
-    descr = fields.Char(string="customer_status description", translate=True)
 
 class industry(models.Model):
     _name = 'project_budget.industry'

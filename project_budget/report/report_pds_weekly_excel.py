@@ -27,13 +27,13 @@ class report_pds_weekly_excel(models.AbstractModel):
 
         if project:
             if step:
-                if step.estimated_probability_id.name == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
+                if step.stage_id.code == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
                     last_fixed_step = self.env['project_budget.project_steps'].search(
                         [('date_actual', '<', datetime.date(YEARint,1,1)),
                          ('budget_state', '=', 'fixed'),
                          ('step_id', '=', step.step_id),
                          ], limit=1, order='date_actual desc')
-                    if last_fixed_step and last_fixed_step.estimated_probability_id.name == '0':
+                    if last_fixed_step and last_fixed_step.stage_id.code == '0':
                         return False
 
                 if step.end_presale_project_month.year in years or step.end_sale_project_month.year in years:
@@ -70,13 +70,13 @@ class report_pds_weekly_excel(models.AbstractModel):
         years = (YEARint, YEARint + 1, YEARint + 2)
 
         if project:
-            if project.estimated_probability_id.name == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
+            if project.stage_id.code == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
                 last_fixed_project = self.env['project_budget.projects'].search(
                     [('date_actual', '<', datetime.date(YEARint,1,1)),
                      ('budget_state', '=', 'fixed'),
                      ('project_id', '=', project.project_id),
                      ], limit=1, order='date_actual desc')
-                if last_fixed_project and last_fixed_project.estimated_probability_id.name == '0':
+                if last_fixed_project and last_fixed_project.stage_id.code == '0':
                     return False
 
             if not project.project_have_steps:
@@ -266,7 +266,7 @@ class report_pds_weekly_excel(models.AbstractModel):
             logger.info(f' id = {etalon_step.id}')
             logger.info(f' date_actual = {etalon_step.date_actual}')
             logger.info(f' end_presale_project_month = {etalon_step.end_presale_project_month}')
-            logger.info(f' estimated_probability_id = {etalon_step.estimated_probability_id}')
+            logger.info(f' stage_id = {etalon_step.stage_id}')
             logger.info(f' end get_etalon_step')
         return etalon_step
 
@@ -339,16 +339,16 @@ class report_pds_weekly_excel(models.AbstractModel):
             if step:
                 if pds.project_steps_id.id != step.id: continue
             if pds.date_cash.month in months and pds.date_cash.year == YEARint:
-                estimated_probability_id_name = project.estimated_probability_id.name
+                stage_id_code = project.stage_id.code
                 if step:
-                    estimated_probability_id_name = step.estimated_probability_id.name
+                    stage_id_code = step.stage_id.code
                 if pds.forecast == 'from_project':
-                    if estimated_probability_id_name in ('100(done)', '100', '75'):
+                    if stage_id_code in ('100(done)', '100', '75'):
                         sum_cash['commitment'] += pds.sum_cash
-                    elif estimated_probability_id_name == '50':
+                    elif stage_id_code == '50':
                         sum_cash['reserve'] += pds.sum_cash
                 else:
-                    if estimated_probability_id_name != '0':
+                    if stage_id_code != '0':
                         sum_cash[pds.forecast] += pds.sum_cash
         # else: # если нихрена нет планового ПДС, то берем сумму общую по дате окончания sale или по дате этапа
         #     print('step = ',step)
@@ -374,16 +374,16 @@ class report_pds_weekly_excel(models.AbstractModel):
             if step:
                 if pds.project_steps_id.id != step.id: continue
             if pds.date_cash.isocalendar()[1] == week_number and pds.date_cash.isocalendar()[0] == YEARint:
-                estimated_probability_id_name = project.estimated_probability_id.name
+                stage_id_code = project.stage_id.code
                 if step:
-                    estimated_probability_id_name = step.estimated_probability_id.name
+                    stage_id_code = step.stage_id.code
                 if pds.forecast == 'from_project':
-                    if estimated_probability_id_name in ('100(done)', '100', '75'):
+                    if stage_id_code in ('100(done)', '100', '75'):
                         sum_cash['commitment'] += pds.sum_cash
-                    elif estimated_probability_id_name == '50':
+                    elif stage_id_code == '50':
                         sum_cash['reserve'] += pds.sum_cash
                 else:
-                    if estimated_probability_id_name != '0':
+                    if stage_id_code != '0':
                         sum_cash[pds.forecast] += pds.sum_cash
         return sum_cash
 
@@ -399,16 +399,16 @@ class report_pds_weekly_excel(models.AbstractModel):
             if step:
                 if pds.project_steps_id.id != step.id: continue
             if pds.date_cash.year == year:
-                estimated_probability_id_name = project.estimated_probability_id.name
+                stage_id_code = project.stage_id.code
                 if step:
-                    estimated_probability_id_name = step.estimated_probability_id.name
+                    stage_id_code = step.stage_id.code
                 if pds.forecast == 'from_project':
-                    if estimated_probability_id_name in ('100(done)', '100', '75'):
+                    if stage_id_code in ('100(done)', '100', '75'):
                         sum_cash['commitment'] += pds.sum_cash
-                    elif estimated_probability_id_name == '50':
+                    elif stage_id_code == '50':
                         sum_cash['reserve'] += pds.sum_cash
                 else:
-                    if estimated_probability_id_name != '0':
+                    if stage_id_code != '0':
                         sum_cash[pds.forecast] += pds.sum_cash
         return sum_cash
 
@@ -848,16 +848,16 @@ class report_pds_weekly_excel(models.AbstractModel):
             if step:
                 if planned_cash_flow.project_steps_id.id != step.id: continue
             if planned_cash_flow.date_cash.isocalendar()[1] == week_number and planned_cash_flow.date_cash.isocalendar()[0] == YEARint:
-                estimated_probability_id_name = project.estimated_probability_id.name
+                stage_id_code = project.stage_id.code
                 if step:
-                    estimated_probability_id_name = step.estimated_probability_id.name
+                    stage_id_code = step.stage_id.code
                 if planned_cash_flow.forecast == 'from_project':
-                    if estimated_probability_id_name in ('100(done)', '100', '75'):
+                    if stage_id_code in ('100(done)', '100', '75'):
                         sum_ostatok_pds['commitment'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                    elif estimated_probability_id_name == '50':
+                    elif stage_id_code == '50':
                         sum_ostatok_pds['reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
                 else:
-                    if estimated_probability_id_name != '0':
+                    if stage_id_code != '0':
                         sum_ostatok_pds[planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
 
                 sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
@@ -902,12 +902,12 @@ class report_pds_weekly_excel(models.AbstractModel):
                     if not step_etalon:  # есть этап сейчас, но нет в эталоне
                         sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
-                    estimated_probability_id_name = step_etalon.estimated_probability_id.name
+                    stage_id_code = step_etalon.stage_id.code
 
                     if sum:
-                        if estimated_probability_id_name in ('75', '100', '100(done)'):
+                        if stage_id_code in ('75', '100', '100(done)'):
                             sum75tmpetalon += sum['commitment']
-                        if estimated_probability_id_name == '50':
+                        if stage_id_code == '50':
                             sum50tmpetalon += sum['reserve']
 
                     sum100tmp_step = self.get_sum_fact_pds_project_step_quarter(project, step, element)
@@ -931,12 +931,12 @@ class report_pds_weekly_excel(models.AbstractModel):
                                 and planned_cash_flow.date_cash.year == YEARint):
                             sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
                             if planned_cash_flow.forecast == 'from_project':
-                                if step.estimated_probability_id.name in ('100(done)', '100', '75'):
+                                if step.stage_id.code in ('100(done)', '100', '75'):
                                     sum_ostatok_pds['commitment'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                                elif step.estimated_probability_id.name == '50':
+                                elif step.stage_id.code == '50':
                                     sum_ostatok_pds['reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
                             else:
-                                if step.estimated_probability_id.name != '0':
+                                if step.stage_id.code != '0':
                                     sum_ostatok_pds[
                                         planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
 
@@ -954,12 +954,12 @@ class report_pds_weekly_excel(models.AbstractModel):
 
                 sum = self.get_sum_plan_pds_project_step_quarter(project_etalon, False, element)
 
-                estimated_probability_id_name = project_etalon.estimated_probability_id.name
+                stage_id_code = project_etalon.stage_id.code
 
                 if sum:
-                    if estimated_probability_id_name in ('75', '100', '100(done)'):
+                    if stage_id_code in ('75', '100', '100(done)'):
                         sum75tmpetalon += sum['commitment']
-                    if estimated_probability_id_name == '50':
+                    if stage_id_code == '50':
                         sum50tmpetalon += sum['reserve']
 
                 sum100tmp = self.get_sum_fact_pds_project_step_quarter(project, False, element)
@@ -979,12 +979,12 @@ class report_pds_weekly_excel(models.AbstractModel):
                     if planned_cash_flow.date_cash.month in months and planned_cash_flow.date_cash.year == YEARint:
                         sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
                         if planned_cash_flow.forecast == 'from_project':
-                            if project.estimated_probability_id.name in ('100(done)', '100', '75'):
+                            if project.stage_id.code in ('100(done)', '100', '75'):
                                 sum_ostatok_pds['commitment'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                            elif project.estimated_probability_id.name == '50':
+                            elif project.stage_id.code == '50':
                                 sum_ostatok_pds['reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
                         else:
-                            if project.estimated_probability_id.name != '0':
+                            if project.stage_id.code != '0':
                                 sum_ostatok_pds[
                                     planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
 
@@ -1014,20 +1014,20 @@ class report_pds_weekly_excel(models.AbstractModel):
                     # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                     sum_distribution_pds = 0
                     sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
-                    estimated_probability_id_name = step.estimated_probability_id.name
+                    stage_id_code = step.stage_id.code
 
                     for planned_cash_flow in project.planned_cash_flow_ids:
                         if planned_cash_flow.project_steps_id.id == step.id and planned_cash_flow.date_cash.year == YEARint + 1:
                             sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
                             if planned_cash_flow.forecast == 'from_project':
-                                if step.estimated_probability_id.name in ('100(done)', '100', '75'):
+                                if step.stage_id.code in ('100(done)', '100', '75'):
                                     sum_ostatok_pds['commitment'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                                elif step.estimated_probability_id.name == '50':
+                                elif step.stage_id.code == '50':
                                     sum_ostatok_pds['reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                                elif step.estimated_probability_id.name == '30':
+                                elif step.stage_id.code == '30':
                                     sum_ostatok_pds['potential'] += planned_cash_flow.distribution_sum_with_vat_ostatok
                             else:
-                                if step.estimated_probability_id.name != '0':
+                                if step.stage_id.code != '0':
                                     sum_ostatok_pds[
                                         planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
 
@@ -1054,20 +1054,20 @@ class report_pds_weekly_excel(models.AbstractModel):
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                 sum_distribution_pds = 0
                 sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
-                estimated_probability_id_name = project.estimated_probability_id.name
+                stage_id_code = project.stage_id.code
 
                 for planned_cash_flow in project.planned_cash_flow_ids:
                     if planned_cash_flow.date_cash.year == YEARint + 1:
                         sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
                         if planned_cash_flow.forecast == 'from_project':
-                            if project.estimated_probability_id.name in ('100(done)', '100', '75'):
+                            if project.stage_id.code in ('100(done)', '100', '75'):
                                 sum_ostatok_pds['commitment'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                            elif project.estimated_probability_id.name == '50':
+                            elif project.stage_id.code == '50':
                                 sum_ostatok_pds['reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                            elif project.estimated_probability_id.name == '30':
+                            elif project.stage_id.code == '30':
                                 sum_ostatok_pds['potential'] += planned_cash_flow.distribution_sum_with_vat_ostatok
                         else:
-                            if project.estimated_probability_id.name != '0':
+                            if project.stage_id.code != '0':
                                 sum_ostatok_pds[
                                     planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
 
@@ -1098,20 +1098,20 @@ class report_pds_weekly_excel(models.AbstractModel):
                     # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                     sum_distribution_pds = 0
                     sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
-                    estimated_probability_id_name = step.estimated_probability_id.name
+                    stage_id_code = step.stage_id.code
 
                     for planned_cash_flow in project.planned_cash_flow_ids:
                         if planned_cash_flow.project_steps_id.id == step.id and planned_cash_flow.date_cash.year == YEARint + 2:
                             sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
                             if planned_cash_flow.forecast == 'from_project':
-                                if step.estimated_probability_id.name in ('100(done)', '100', '75'):
+                                if step.stage_id.code in ('100(done)', '100', '75'):
                                     sum_ostatok_pds['commitment'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                                elif step.estimated_probability_id.name == '50':
+                                elif step.stage_id.code == '50':
                                     sum_ostatok_pds['reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                                elif step.estimated_probability_id.name == '30':
+                                elif step.stage_id.code == '30':
                                     sum_ostatok_pds['potential'] += planned_cash_flow.distribution_sum_with_vat_ostatok
                             else:
-                                if step.estimated_probability_id.name != '0':
+                                if step.stage_id.code != '0':
                                     sum_ostatok_pds[
                                         planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
                     if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
@@ -1138,20 +1138,20 @@ class report_pds_weekly_excel(models.AbstractModel):
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                 sum_distribution_pds = 0
                 sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
-                estimated_probability_id_name = project.estimated_probability_id.name
+                stage_id_code = project.stage_id.code
 
                 for planned_cash_flow in project.planned_cash_flow_ids:
                     if planned_cash_flow.date_cash.year == YEARint + 2:
                         sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
                         if planned_cash_flow.forecast == 'from_project':
-                            if project.estimated_probability_id.name in ('100(done)', '100', '75'):
+                            if project.stage_id.code in ('100(done)', '100', '75'):
                                 sum_ostatok_pds['commitment'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                            elif project.estimated_probability_id.name == '50':
+                            elif project.stage_id.code == '50':
                                 sum_ostatok_pds['reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                            elif project.estimated_probability_id.name == '30':
+                            elif project.stage_id.code == '30':
                                 sum_ostatok_pds['potential'] += planned_cash_flow.distribution_sum_with_vat_ostatok
                         else:
-                            if project.estimated_probability_id.name != '0':
+                            if project.stage_id.code != '0':
                                 sum_ostatok_pds[
                                     planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
 
@@ -1209,12 +1209,12 @@ class report_pds_weekly_excel(models.AbstractModel):
                                 and planned_cash_flow.date_cash.isocalendar()[0] == YEARint):
                             sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
                             if planned_cash_flow.forecast == 'from_project':
-                                if step.estimated_probability_id.name in ('100(done)', '100', '75'):
+                                if step.stage_id.code in ('100(done)', '100', '75'):
                                     sum_ostatok_pds['commitment'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                                elif step.estimated_probability_id.name == '50':
+                                elif step.stage_id.code == '50':
                                     sum_ostatok_pds['reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
                             else:
-                                if step.estimated_probability_id.name != '0':
+                                if step.stage_id.code != '0':
                                     sum_ostatok_pds[
                                         planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
 
@@ -1244,12 +1244,12 @@ class report_pds_weekly_excel(models.AbstractModel):
                 if planned_cash_flow.date_cash.isocalendar()[1] == week_number and planned_cash_flow.date_cash.isocalendar()[0] == YEARint:
                     sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
                     if planned_cash_flow.forecast == 'from_project':
-                        if project.estimated_probability_id.name in ('100(done)', '100', '75'):
+                        if project.stage_id.code in ('100(done)', '100', '75'):
                             sum_ostatok_pds['commitment'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                        elif project.estimated_probability_id.name == '50':
+                        elif project.stage_id.code == '50':
                             sum_ostatok_pds['reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
                     else:
-                        if project.estimated_probability_id.name != '0':
+                        if project.stage_id.code != '0':
                             sum_ostatok_pds[
                                 planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
 
@@ -1259,7 +1259,7 @@ class report_pds_weekly_excel(models.AbstractModel):
                     if sum[key] < 0:
                         sum[key] = 0
 
-            estimated_probability_id_name = project.estimated_probability_id.name
+            stage_id_code = project.stage_id.code
 
             sum75tmp += sum['commitment']
             sum50tmp += sum['reserve']
@@ -2772,7 +2772,7 @@ class report_pds_weekly_excel(models.AbstractModel):
                                 if (((spec.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
                                     or ((not spec.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and spec.project_office_id == project_office))
                                     and spec.company_id == company
-                                    and step.estimated_probability_id.name in ['100(done)', '100', '75', '50']
+                                    and step.stage_id.code in ['100(done)', '100', '75', '50']
                                     and self.isStepinYear(spec, step)
                                     and (self.env['project_budget.fact_cash_flow'].search([('project_steps_id', '=', step.id)])
                                          or self.env['project_budget.planned_cash_flow'].search([('project_steps_id', '=', step.id)])
@@ -2787,7 +2787,7 @@ class report_pds_weekly_excel(models.AbstractModel):
                                     sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level + 1})
                                     cur_row_format = row_format
                                     cur_row_format_number = row_format_number
-                                    if step.estimated_probability_id.name == '0':
+                                    if step.stage_id.code == '0':
                                         cur_row_format = row_format_canceled_project
                                         cur_row_format_number = row_format_number_canceled_project
                                     column = 0
@@ -2804,7 +2804,7 @@ class report_pds_weekly_excel(models.AbstractModel):
                                     column += 1
                                     sheet.write_string(row, column, (step.code or '') + ' | ' + spec.project_id + " | " + step.step_id, cur_row_format)
                                     column += 1
-                                    sheet.write_string(row, column, self.get_estimated_probability_name_forecast(step.estimated_probability_id.name), cur_row_format)
+                                    sheet.write_string(row, column, self.get_estimated_probability_name_forecast(step.stage_id.code), cur_row_format)
                                     column += 1
                                     sheet.write_number(row, column, step.total_amount_of_revenue_with_vat*currency_rate, cur_row_format_number)
                                     column += 1
@@ -2822,7 +2822,7 @@ class report_pds_weekly_excel(models.AbstractModel):
                         else:
                             if (spec.project_office_id == project_office
                                 and spec.company_id == company
-                                and spec.estimated_probability_id.name in ['100(done)', '100', '75', '50']
+                                and spec.stage_id.code in ['100(done)', '100', '75', '50']
                                 and self.isProjectinYear(spec)
                             ):
                                 currency_rate = self.get_currency_rate_by_project(spec)
@@ -2834,7 +2834,7 @@ class report_pds_weekly_excel(models.AbstractModel):
                                 sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level + 1})
                                 cur_row_format = row_format
                                 cur_row_format_number = row_format_number
-                                if spec.estimated_probability_id.name == '0':
+                                if spec.stage_id.code == '0':
                                     cur_row_format = row_format_canceled_project
                                     cur_row_format_number = row_format_number_canceled_project
                                 column = 0
@@ -2848,7 +2848,7 @@ class report_pds_weekly_excel(models.AbstractModel):
                                 column += 1
                                 sheet.write_string(row, column, (spec.step_project_number or '') + ' | ' + (spec.project_id or ''), cur_row_format)
                                 column += 1
-                                sheet.write_string(row, column, self.get_estimated_probability_name_forecast(spec.estimated_probability_id.name), cur_row_format)
+                                sheet.write_string(row, column, self.get_estimated_probability_name_forecast(spec.stage_id.code), cur_row_format)
                                 column += 1
                                 sheet.write_number(row, column, spec.total_amount_of_revenue_with_vat*currency_rate, cur_row_format_number)
                                 column += 1

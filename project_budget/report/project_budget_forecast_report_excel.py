@@ -22,13 +22,13 @@ class report_budget_forecast_excel(models.AbstractModel):
         if project:
             if step:
 
-                if step.estimated_probability_id.name == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
+                if step.stage_id.code == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
                     last_fixed_step = self.env['project_budget.project_steps'].search(
                         [('date_actual', '<', datetime.date(YEARint,1,1)),
                          ('budget_state', '=', 'fixed'),
                          ('step_id', '=', step.step_id),
                          ], limit=1, order='date_actual desc')
-                    if last_fixed_step and last_fixed_step.estimated_probability_id.name == '0':
+                    if last_fixed_step and last_fixed_step.stage_id.code == '0':
                         return False
 
                 if (step.end_presale_project_month.year >= YEARint and step.end_presale_project_month.year <= year_end)\
@@ -57,13 +57,13 @@ class report_budget_forecast_excel(models.AbstractModel):
         global YEARint
 
         if project:
-            if project.estimated_probability_id.name == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
+            if project.stage_id.code == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
                 last_fixed_project = self.env['project_budget.projects'].search(
                     [('date_actual', '<', datetime.date(YEARint,1,1)),
                      ('budget_state', '=', 'fixed'),
                      ('project_id', '=', project.project_id),
                      ], limit=1, order='date_actual desc')
-                if last_fixed_project and last_fixed_project.estimated_probability_id.name == '0':
+                if last_fixed_project and last_fixed_project.stage_id.code == '0':
                     return False
 
             if project.project_have_steps == False:
@@ -253,7 +253,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             logger.info(f' id = {etalon_step.id}')
             logger.info(f' date_actual = {etalon_step.date_actual}')
             logger.info(f' end_presale_project_month = {etalon_step.end_presale_project_month}')
-            logger.info(f' estimated_probability_id = {etalon_step.estimated_probability_id}')
+            logger.info(f' stage_id = {etalon_step.stage_id}')
             logger.info(f' end get_etalon_step')
         return etalon_step
 
@@ -290,18 +290,18 @@ class report_budget_forecast_excel(models.AbstractModel):
                     if pds.project_steps_id.id != step.id: continue
                 if pds.date_cash.month == month and pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end:
                     if step:
-                        estimated_probability_id_name = step.estimated_probability_id.name
+                        stage_id_code = step.stage_id.code
                     else:
-                        estimated_probability_id_name = project.estimated_probability_id.name
+                        stage_id_code = project.stage_id.code
 
                     if pds.forecast == 'from_project':
 
-                        if estimated_probability_id_name in ('75', '100', '100(done)'):
+                        if stage_id_code in ('75', '100', '100(done)'):
                             sum_cash['commitment'] = sum_cash.get('commitment', 0) + pds.sum_cash
-                        elif estimated_probability_id_name == '50':
+                        elif stage_id_code == '50':
                             sum_cash['reserve'] = sum_cash.get('reserve', 0) + pds.sum_cash
                     else:
-                        if estimated_probability_id_name != '0':
+                        if stage_id_code != '0':
                             sum_cash[pds.forecast] = sum_cash.get(pds.forecast, 0) + pds.sum_cash
             # else: # если нихрена нет планового ПДС, то берем сумму общую по дате окончания sale или по дате этапа
             #     print('step = ',step)
@@ -552,10 +552,10 @@ class report_budget_forecast_excel(models.AbstractModel):
                     if month == project_etalon.end_presale_project_month.month\
                             and project_etalon.end_presale_project_month.year >= YEARint\
                             and project_etalon.end_presale_project_month.year <= year_end:
-                        if project_etalon.estimated_probability_id.name == '75':
+                        if project_etalon.stage_id.code == '75':
                             sheet.write_number(row, column + 0, project_etalon.total_amount_of_revenue_with_vat*currency_rate, row_format_number)
                             sum75tmpetalon += project_etalon.total_amount_of_revenue_with_vat*currency_rate
-                        if project_etalon.estimated_probability_id.name == '50':
+                        if project_etalon.stage_id.code == '50':
                             sheet.write_number(row, column + 1, project_etalon.total_amount_of_revenue_with_vat * koeff_reserve*currency_rate, row_format_number)
                             sum50tmpetalon += project_etalon.total_amount_of_revenue_with_vat * koeff_reserve*currency_rate
 
@@ -563,13 +563,13 @@ class report_budget_forecast_excel(models.AbstractModel):
                         and project.end_presale_project_month.year >= YEARint \
                         and project.end_presale_project_month.year <= year_end:
                     currency_rate = self.get_currency_rate_by_project(project)
-                    if project.estimated_probability_id.name in ('100','100(done)'):
+                    if project.stage_id.code in ('100','100(done)'):
                         sheet.write_number(row, column + 2, project.total_amount_of_revenue_with_vat*currency_rate, row_format_number_color_fact)
                         sum100tmp += project.total_amount_of_revenue_with_vat*currency_rate
-                    if project.estimated_probability_id.name == '75':
+                    if project.stage_id.code == '75':
                         sheet.write_number(row, column + 3, project.total_amount_of_revenue_with_vat*currency_rate, row_format_number)
                         sum75tmp += project.total_amount_of_revenue_with_vat*currency_rate
-                    if project.estimated_probability_id.name == '50':
+                    if project.stage_id.code == '50':
                         sheet.write_number(row, column + 4, project.total_amount_of_revenue_with_vat * koeff_reserve*currency_rate, row_format_number)
                         sum50tmp += project.total_amount_of_revenue_with_vat * koeff_reserve*currency_rate
             else:
@@ -579,10 +579,10 @@ class report_budget_forecast_excel(models.AbstractModel):
                             and step_etalon.end_presale_project_month.year >= YEARint\
                             and step_etalon.end_presale_project_month.year <= year_end:
                         currency_rate = self.get_currency_rate_by_project(step_etalon.projects_id)
-                        if step_etalon.estimated_probability_id.name == '75':
+                        if step_etalon.stage_id.code == '75':
                             sheet.write_number(row, column + 0, step_etalon.total_amount_of_revenue_with_vat*currency_rate, row_format_number)
                             sum75tmpetalon = step_etalon.total_amount_of_revenue_with_vat*currency_rate*currency_rate
-                        if step_etalon.estimated_probability_id.name == '50':
+                        if step_etalon.stage_id.code == '50':
                             sheet.write_number(row, column + 1, step_etalon.total_amount_of_revenue_with_vat * koeff_reserve*currency_rate, row_format_number)
                             sum50tmpetalon = step_etalon.total_amount_of_revenue_with_vat * koeff_reserve*currency_rate*currency_rate
                 else:
@@ -591,11 +591,11 @@ class report_budget_forecast_excel(models.AbstractModel):
                                 and project_etalon.end_presale_project_month.year >= YEARint \
                                 and project_etalon.end_presale_project_month.year <= year_end:
                             currency_rate = self.get_currency_rate_by_project(project_etalon)
-                            if project_etalon.estimated_probability_id.name == '75':
+                            if project_etalon.stage_id.code == '75':
                                 sheet.write_number(row, column + 0, project_etalon.total_amount_of_revenue_with_vat*currency_rate,
                                                    row_format_number)
                                 sum75tmpetalon += project_etalon.total_amount_of_revenue_with_vat*currency_rate
-                            if project_etalon.estimated_probability_id.name == '50':
+                            if project_etalon.stage_id.code == '50':
                                 sheet.write_number(row, column + 1, project_etalon.total_amount_of_revenue_with_vat * koeff_reserve*currency_rate,
                                                    row_format_number)
                                 sum50tmpetalon += project_etalon.total_amount_of_revenue_with_vat * koeff_reserve*currency_rate
@@ -604,13 +604,13 @@ class report_budget_forecast_excel(models.AbstractModel):
                         and step.end_presale_project_month.year >= YEARint\
                         and step.end_presale_project_month.year <= year_end:
                     currency_rate = self.get_currency_rate_by_project(step.projects_id)
-                    if step.estimated_probability_id.name in ('100','100(done)'):
+                    if step.stage_id.code in ('100','100(done)'):
                         sheet.write_number(row, column + 2, step.total_amount_of_revenue_with_vat*currency_rate, row_format_number_color_fact)
                         sum100tmp = step.total_amount_of_revenue_with_vat*currency_rate
-                    if step.estimated_probability_id.name == '75':
+                    if step.stage_id.code == '75':
                         sheet.write_number(row, column + 3, step.total_amount_of_revenue_with_vat*currency_rate, row_format_number)
                         sum75tmp = step.total_amount_of_revenue_with_vat*currency_rate
-                    if step.estimated_probability_id.name == '50':
+                    if step.stage_id.code == '50':
                         sheet.write_number(row, column + 4, step.total_amount_of_revenue_with_vat * koeff_reserve*currency_rate, row_format_number)
                         sum50tmp = step.total_amount_of_revenue_with_vat * koeff_reserve*currency_rate
 
@@ -666,17 +666,17 @@ class report_budget_forecast_excel(models.AbstractModel):
                         and planned_cash_flow.date_cash.year >= YEARint\
                         and planned_cash_flow.date_cash.year <= year_end:
                     sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
-                    estimated_probability_id_name = project.estimated_probability_id.name
+                    stage_id_code = project.stage_id.code
                     if step:
-                        estimated_probability_id_name = step.estimated_probability_id.name
+                        stage_id_code = step.stage_id.code
 
                     if planned_cash_flow.forecast == 'from_project':
-                        if estimated_probability_id_name in ('75', '100', '100(done)'):
+                        if stage_id_code in ('75', '100', '100(done)'):
                             sum_ostatok_pds['commitment'] = sum_ostatok_pds.get('commitment', 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
-                        elif estimated_probability_id_name == '50':
+                        elif stage_id_code == '50':
                             sum_ostatok_pds['reserve'] = sum_ostatok_pds.get('reserve', 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
                     else:
-                        if estimated_probability_id_name != '0':
+                        if stage_id_code != '0':
                             sum_ostatok_pds[planned_cash_flow.forecast] = sum_ostatok_pds.get(planned_cash_flow.forecast, 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
 
             if sum_distribution_pds != 0 : # если есть распределение, то остаток = остатку распределения
@@ -753,17 +753,17 @@ class report_budget_forecast_excel(models.AbstractModel):
                             and acceptance.date_cash.year >= YEARint\
                             and acceptance.date_cash.year <= year_end:
                         if step:
-                            estimated_probability_id_name = step.estimated_probability_id.name
+                            stage_id_code = step.stage_id.code
                         else:
-                            estimated_probability_id_name = project.estimated_probability_id.name
+                            stage_id_code = project.stage_id.code
 
                         if acceptance.forecast == 'from_project':
-                            if estimated_probability_id_name in ('75', '100', '100(done)'):
+                            if stage_id_code in ('75', '100', '100(done)'):
                                 sum_acceptance['commitment'] = sum_acceptance.get('commitment', 0) + acceptance.sum_cash_without_vat
-                            elif estimated_probability_id_name == '50':
+                            elif stage_id_code == '50':
                                 sum_acceptance['reserve'] = sum_acceptance.get('reserve', 0) + acceptance.sum_cash_without_vat
                         else:
-                            if estimated_probability_id_name != '0':
+                            if stage_id_code != '0':
                                 sum_acceptance[acceptance.forecast] = sum_acceptance.get(acceptance.forecast, 0) + acceptance.sum_cash_without_vat
         return sum_acceptance
 
@@ -790,21 +790,21 @@ class report_budget_forecast_excel(models.AbstractModel):
                 for acceptance in acceptance_list:
                     if step:
                         if acceptance.project_steps_id.id != step.id: continue
-                        estimated_probability_id_name = step.estimated_probability_id.name
+                        stage_id_code = step.stage_id.code
                         profitability = step.profitability
                     else:
-                        estimated_probability_id_name = project.estimated_probability_id.name
+                        stage_id_code = project.stage_id.code
                         profitability = project.profitability
                     if acceptance.date_cash.month in months \
                             and acceptance.date_cash.year >= YEARint\
                             and acceptance.date_cash.year <= year_end:
                         if acceptance.forecast == 'from_project':
-                            if estimated_probability_id_name in ('75', '100', '100(done)'):
+                            if stage_id_code in ('75', '100', '100(done)'):
                                 sum_margin['commitment'] += acceptance.sum_cash_without_vat * profitability / 100
-                            elif estimated_probability_id_name == '50':
+                            elif stage_id_code == '50':
                                 sum_margin['reserve'] += acceptance.sum_cash_without_vat * profitability / 100
                         else:
-                            if estimated_probability_id_name != '0':
+                            if stage_id_code != '0':
                                 sum_margin[acceptance.forecast] += acceptance.sum_cash_without_vat * profitability / 100
         return sum_margin
 
@@ -814,16 +814,16 @@ class report_budget_forecast_excel(models.AbstractModel):
         for distribution in planned_acceptance.distribution_acceptance_ids:
             if distribution.fact_acceptance_flow_id.sum_cash_without_vat != 0:
                 margin_distribution += distribution.fact_acceptance_flow_id.margin * distribution.sum_cash_without_vat / distribution.fact_acceptance_flow_id.sum_cash_without_vat
-        estimated_probability_id_name = project.estimated_probability_id.name
+        stage_id_code = project.stage_id.code
         if step:
-            estimated_probability_id_name = step.estimated_probability_id.name
+            stage_id_code = step.stage_id.code
         if planned_acceptance.forecast == 'from_project':
-            if estimated_probability_id_name in ('75', '100', '100(done)'):
+            if stage_id_code in ('75', '100', '100(done)'):
                 margin_plan['commitment'] -= margin_distribution * margin_rate_for_parent
-            elif estimated_probability_id_name == '50':
+            elif stage_id_code == '50':
                 margin_plan['reserve'] -= margin_distribution * margin_rate_for_parent
         else:
-            if estimated_probability_id_name != '0':
+            if stage_id_code != '0':
                 margin_plan[planned_acceptance.forecast] -= margin_distribution * margin_rate_for_parent
         return  margin_plan
 
@@ -839,18 +839,18 @@ class report_budget_forecast_excel(models.AbstractModel):
                     and planned_acceptance_flow.date_cash.year >= YEARint \
                     and planned_acceptance_flow.date_cash.year <= year_end:
                 sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
-                estimated_probability_id_name = project.estimated_probability_id.name
+                stage_id_code = project.stage_id.code
                 if step:
-                    estimated_probability_id_name = step.estimated_probability_id.name
+                    stage_id_code = step.stage_id.code
                 if planned_acceptance_flow.forecast == 'from_project':
-                    if estimated_probability_id_name in ('75', '100', '100(done)'):
+                    if stage_id_code in ('75', '100', '100(done)'):
                         sum_ostatok_acceptance['commitment'] = sum_ostatok_acceptance.get('commitment',
                                                                                           0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                    elif estimated_probability_id_name == '50':
+                    elif stage_id_code == '50':
                         sum_ostatok_acceptance['reserve'] = sum_ostatok_acceptance.get('reserve',
                                                                                        0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
                 else:
-                    if estimated_probability_id_name != '0':
+                    if stage_id_code != '0':
                         sum_ostatok_acceptance[planned_acceptance_flow.forecast] = sum_ostatok_acceptance.get(
                             planned_acceptance_flow.forecast,
                             0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
@@ -1033,12 +1033,12 @@ class report_budget_forecast_excel(models.AbstractModel):
         })
 
         if step:
-            if step.estimated_probability_id.name == '0':
+            if step.stage_id.code == '0':
                 row_format_number.set_font_color('red')
                 row_format_number_color_fact.set_font_color('red')
                 head_format_month_itogo.set_font_color('red')
         else:
-            if project.estimated_probability_id.name == '0':
+            if project.stage_id.code == '0':
                 row_format_number.set_font_color('red')
                 row_format_number_color_fact.set_font_color('red')
                 head_format_month_itogo.set_font_color('red')
@@ -1382,14 +1382,14 @@ class report_budget_forecast_excel(models.AbstractModel):
                                                      ('date_cash', '>=', datetime.date(YEARint, 1, 1)),
                                                      ('date_cash', '<=', datetime.date(year_end, 12, 31)),
                                                      '|', '&', ('forecast', '=', 'potential'),
-                                                     ('project_steps_id.estimated_probability_id.name', '!=', '0'),
+                                                     ('project_steps_id.stage_id.code', '!=', '0'),
                                                      '&', ('forecast', '=', 'from_project'),
-                                                     ('project_steps_id.estimated_probability_id.name', '=', '30'),
+                                                     ('project_steps_id.stage_id.code', '=', '30'),
                                                      ]))
                     if potential_acceptances:
                         for acceptance in potential_acceptances:
                             year_acceptance_30 += acceptance.sum_cash_without_vat
-                    elif step.estimated_probability_id.name == '30' and YEARint <= step.end_sale_project_month.year <= year_end:
+                    elif step.stage_id.code == '30' and YEARint <= step.end_sale_project_month.year <= year_end:
                         year_acceptance_30 = step.total_amount_of_revenue
                 else:
                     potential_acceptances = (self.env['project_budget.planned_acceptance_flow'].
@@ -1398,14 +1398,14 @@ class report_budget_forecast_excel(models.AbstractModel):
                                                      ('date_cash', '>=', datetime.date(YEARint, 1, 1)),
                                                      ('date_cash', '<=', datetime.date(year_end, 12, 31)),
                                                      '|', '&', ('forecast', '=', 'potential'),
-                                                     ('projects_id.estimated_probability_id.name', '!=', '0'),
+                                                     ('projects_id.stage_id.code', '!=', '0'),
                                                      '&', ('forecast', '=', 'from_project'),
-                                                     ('projects_id.estimated_probability_id.name', '=', '30'),
+                                                     ('projects_id.stage_id.code', '=', '30'),
                                                      ]))
                     if potential_acceptances:
                         for acceptance in potential_acceptances:
                             year_acceptance_30 += acceptance.sum_cash_without_vat
-                    elif project.estimated_probability_id.name == '30' and YEARint <= project.end_sale_project_month.year <= year_end:
+                    elif project.stage_id.code == '30' and YEARint <= project.end_sale_project_month.year <= year_end:
                         year_acceptance_30 = project.total_amount_of_revenue
 
                 sheet.write_number(row, column + 5, year_acceptance_30, row_format_number)
@@ -1424,7 +1424,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             column += 4
         # end Валовая Выручка, без НДС
 
-    def printrow(self, sheet, workbook, project_offices, project_managers, estimated_probabilitys, budget, row, formulaItogo, level):
+    def printrow(self, sheet, workbook, project_offices, project_managers, stages, budget, row, formulaItogo, level):
         global YEARint
         global year_end
         global dict_formula
@@ -1536,7 +1536,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         # cur_project_offices = project_offices.filtered(lambda r: r in cur_budget_projects.project_office_id or r in {office.parent_id for office in cur_budget_projects.project_office_id if office.parent_id in project_offices})
         cur_project_offices = project_offices
         cur_project_managers = project_managers.filtered(lambda r: r in cur_budget_projects.project_manager_id)
-        cur_estimated_probabilities = estimated_probabilitys.filtered(lambda r: r in cur_budget_projects.estimated_probability_id)
+        cur_estimated_probabilities = stages.filtered(lambda r: r in cur_budget_projects.stage_id)
         # print('cur_budget_projects=',cur_budget_projects)
         # print('****')
         # print('project_offices=',project_offices)
@@ -1553,7 +1553,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
             child_project_offices = self.env['project_budget.project_office'].search([('parent_id', '=', project_office.id)], order='name')
 
-            row0, formulaItogo = self.printrow(sheet, workbook, child_project_offices, project_managers, estimated_probabilitys, budget, row, formulaItogo, level + 1)
+            row0, formulaItogo = self.printrow(sheet, workbook, child_project_offices, project_managers, stages, budget, row, formulaItogo, level + 1)
 
             isFoundProjectsByOffice = False
             if row0 != row:
@@ -1568,7 +1568,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 begRowProjectsByManager = 0
                 formulaProjectManager = '=sum(0'
                 column = -1
-                for estimated_probability in cur_estimated_probabilities:
+                for stage in stages:
                     isFoundProjectsByProbability = False
                     begRowProjectsByProbability = 0
 
@@ -1617,7 +1617,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                     if ((spec.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
                                             or ((not spec.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and spec.project_office_id == project_office)):
 
-                                        if step.estimated_probability_id == estimated_probability:
+                                        if step.stage_id == stage:
                                             if self.isStepinYear( spec, step) == False:
                                                 continue
                                             isFoundProjectsByManager = True
@@ -1631,7 +1631,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                             cur_row_format = row_format
                                             cur_row_format_number = row_format_number
                                             # print('step.estimated_probability_id.name = ' + step.estimated_probability_id.name)
-                                            if step.estimated_probability_id.name == '0':
+                                            if step.stage_id.code == '0':
                                                 # print('row_format_canceled_project')
                                                 cur_row_format = row_format_canceled_project
                                                 cur_row_format_number = row_format_number_canceled_project
@@ -1649,7 +1649,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                             column += 1
                                             sheet.write_string(row, column, (step.code or '') +' | '+ spec.project_id + " | "+step.step_id, cur_row_format)
                                             column += 1
-                                            sheet.write_string(row, column, self.get_estimated_probability_name_forecast(step.estimated_probability_id.name), cur_row_format)
+                                            sheet.write_string(row, column, self.get_estimated_probability_name_forecast(step.stage_id.code), cur_row_format)
                                             column += 1
                                             sheet.write_number(row, column, step.total_amount_of_revenue_with_vat*cur_project_rate, cur_row_format_number)
                                             column += 1
@@ -1665,7 +1665,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                             self.print_row_Values(workbook, sheet, row, column,  spec, step)
                                             dict_formula['printed_steps'].add(step.id)
                             else:
-                                if spec.project_office_id == project_office and spec.estimated_probability_id == estimated_probability:
+                                if spec.project_office_id == project_office and spec.stage_id == stage:
                                     if self.isProjectinYear(spec) == False:
                                         continue
                                     row += 1
@@ -1679,7 +1679,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                     cur_row_format = row_format
                                     cur_row_format_number = row_format_number
                                     # print('spec.estimated_probability_id.name = ' + spec.estimated_probability_id.name)
-                                    if spec.estimated_probability_id.name == '0':
+                                    if spec.stage_id.code == '0':
                                         # print('row_format_canceled_project')
                                         cur_row_format = row_format_canceled_project
                                         cur_row_format_number = row_format_number_canceled_project
@@ -1694,7 +1694,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                     column += 1
                                     sheet.write_string(row, column, (spec.step_project_number or '')+ ' | ' +(spec.project_id or ''), cur_row_format)
                                     column += 1
-                                    sheet.write_string(row, column, self.get_estimated_probability_name_forecast(spec.estimated_probability_id.name), cur_row_format)
+                                    sheet.write_string(row, column, self.get_estimated_probability_name_forecast(spec.stage_id.code), cur_row_format)
                                     column += 1
                                     sheet.write_number(row, column, spec.total_amount_of_revenue_with_vat*cur_project_rate, cur_row_format_number)
                                     column += 1
@@ -1713,7 +1713,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                     if isFoundProjectsByProbability:
                         row += 1
                         column = 0
-                        sheet.write_string(row, column, project_manager.name + ' ' + estimated_probability.name
+                        sheet.write_string(row, column, project_manager.name + ' ' + stage.code
                                            + ' %', row_format_probability)
                         sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
 
@@ -1870,7 +1870,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         return row, formulaItogo
 
-    def printworksheet(self,workbook,budget,namesheet, estimated_probabilities):
+    def printworksheet(self,workbook,budget,namesheet, stages):
         global YEARint
         global year_end
         print('YEARint=',YEARint)
@@ -2041,7 +2041,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         formulaItogo = '=sum(0'
 
-        row, formulaItogo = self.printrow(sheet, workbook, project_offices, project_managers, estimated_probabilities, budget, row, formulaItogo, 1)
+        row, formulaItogo = self.printrow(sheet, workbook, project_offices, project_managers, stages, budget, row, formulaItogo, 1)
 
         row += 2
         column = 0
@@ -2074,8 +2074,8 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         dict_formula = {'printed_projects': set(), 'printed_steps': set()}
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
-        estimated_probabilities = self.env['project_budget.estimated_probability'].search([('name', '!=', '10')], order='code desc')  # для сортировки так делаем
-        self.printworksheet(workbook, budget, 'Прогноз', estimated_probabilities)
+        stages = self.env['project_budget.project.stage'].search([('code', '!=', '10')], order='sequence desc')  # для сортировки так делаем
+        self.printworksheet(workbook, budget, 'Прогноз', stages)
         dict_formula = {'printed_projects': set(), 'printed_steps': set()}
-        estimated_probabilities = self.env['project_budget.estimated_probability'].search([('name', '=', '10')], order='code desc')  # для сортировки так делаем
-        self.printworksheet(workbook, budget, '10%', estimated_probabilities)
+        stages = self.env['project_budget.project.stage'].search([('code', '=', '10')], order='sequence desc')  # для сортировки так делаем
+        self.printworksheet(workbook, budget, '10%', stages)

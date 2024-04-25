@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="res_company_reseller_view_search" model="ir.ui.view">
-        <field name="name">res.company.reseller.view.search</field>
-        <field name="model">res.company.reseller</field>
+    <record id="res_company_partner_view_search" model="ir.ui.view">
+        <field name="name">res.company.partner.view.search</field>
+        <field name="model">res.company.partner</field>
         <field name="arch" type="xml">
-            <search string="Search Company Reseller">
+            <search string="Search Company Partner">
                 <field name="partner_id" string="Partner" filter_domain="[('partner_id.name', 'ilike', self)]"/>
                 <separator/>
                 <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
@@ -12,24 +12,25 @@
         </field>
     </record>
 
-    <record id="res_company_reseller_view_tree" model="ir.ui.view">
-        <field name="name">res.company.reseller.tree</field>
-        <field name="model">res.company.reseller</field>
+    <record id="res_company_partner_view_tree" model="ir.ui.view">
+        <field name="name">res.company.partner.tree</field>
+        <field name="model">res.company.partner</field>
         <field name="arch" type="xml">
-            <tree string="Company Resellers">
+            <tree string="Company Partners">
                 <field name="partner_id" widget="many2one_avatar"/>
-                <field name="partner_grade_id"/>
+                <field name="type_id"/>
+                <field name="grade_id"/>
                 <field name="company_id" groups="base.group_multi_company"/>
             </tree>
         </field>
     </record>
 
-    <record id="res_company_reseller_view_form" model="ir.ui.view">
-        <field name="name">res.company.reseller.form</field>
-        <field name="model">res.company.reseller</field>
+    <record id="res_company_partner_view_form" model="ir.ui.view">
+        <field name="name">res.company.partner.form</field>
+        <field name="model">res.company.partner</field>
         <field name="arch" type="xml">
-            <form string="Company Reseller">
-                <sheet string="Reseller">
+            <form string="Company Partner">
+                <sheet string="Partner">
                     <div class="oe_button_box" name="button_box">
                         <button class="oe_stat_button" type="object" name="action_open_project"
                                 icon="fa-star">
@@ -39,12 +40,15 @@
                     <field name="active" invisible="1"/>
                     <widget name="web_ribbon" title="Archived" bg_color="bg-danger"
                             attrs="{'invisible': [('active', '=', True)]}"/>
+                    <group>
+                        <field name="partner_id" widget="many2one_avatar" options="{'no_create_edit': True}"/>
+                    </group>
                     <group col="2">
                         <group>
-                            <field name="partner_id" widget="many2one_avatar" options="{'no_create_edit': True}"/>
+                            <field name="type_id" options="{'no_create_edit': True, 'no_open': True}"/>
                         </group>
                         <group>
-                            <field name="partner_grade_id" options="{'no_create_edit': True, 'no_open': True}"/>
+                            <field name="grade_id" options="{'no_create_edit': True, 'no_open': True}"/>
                         </group>
                     </group>
                     <group>
@@ -56,15 +60,16 @@
         </field>
     </record>
 
-    <record id="res_company_reseller_view_kanban" model="ir.ui.view">
-        <field name="name">res.company.reseller.kanban</field>
-        <field name="model">res.company.reseller</field>
+    <record id="res_company_partner_view_kanban" model="ir.ui.view">
+        <field name="name">res.company.partner.kanban</field>
+        <field name="model">res.company.partner</field>
         <field name="arch" type="xml">
             <kanban class="o_res_company_reseller_kanban" sample="1">
                 <field name="id"/>
                 <field name="display_name"/>
                 <field name="partner_id"/>
-                <field name="partner_grade_id"/>
+                <field name="type_id"/>
+                <field name="grade_id"/>
                 <field name="company_id"/>
                 <field name="active"/>
                 <field name="project_count"/>
@@ -114,14 +119,14 @@
         </field>
     </record>
 
-    <record id="action_res_company_resellers" model="ir.actions.act_window">
-        <field name="name">Company Resellers</field>
-        <field name="res_model">res.company.reseller</field>
+    <record id="action_res_company_partners" model="ir.actions.act_window">
+        <field name="name">Company Partners</field>
+        <field name="res_model">res.company.partner</field>
         <field name="view_mode">kanban,tree,form</field>
-        <field name="search_view_id" ref="res_company_reseller_view_search"/>
+        <field name="search_view_id" ref="res_company_partner_view_search"/>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                Create a Company Reseller.
+                Create a Company Partner.
             </p>
         </field>
     </record>

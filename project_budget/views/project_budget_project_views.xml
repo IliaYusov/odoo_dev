@@ -1,110 +1,194 @@
 <odoo>
-    <data>
-        <record id="action_project_budget_project_child_projects" model="ir.actions.act_window">
-            <field name="name">Child Projects</field>
-            <field name="res_model">project_budget.projects</field>
-            <field name="view_mode">tree,form</field>
-            <field name="domain">
-                [
-                    ('id', 'child_of', active_id),
-                    ('id', '!=', active_id)
-                ]
-            </field>
-        </record>
+    <record id="project_budget_project_view_search" model="ir.ui.view">
+        <field name="name">project.budget.project.search</field>
+        <field name="model">project_budget.projects</field>
+        <field name="arch" type="xml">
+            <search string="Search projects">
+                <field name="project_id" filter_domain="[('project_id','ilike',self)]" string="project_id"/>
+                <field name="step_project_number" filter_domain="[('step_project_number','ilike',self)]"
+                       string="step project number"/>
+                <field name="essence_project" filter_domain="[('essence_project','ilike',self)]"
+                       string="essence_project"/>
+                <field name="project_office_id" filter_domain="[('project_office_id.name','ilike',self)]"
+                       string="project_office"/>
+                <field name="project_supervisor_id" filter_domain="[('project_supervisor_id.name','ilike',self)]"
+                       string="project_supervisor"/>
+                <field name="project_manager_id" filter_domain="[('project_manager_id.name','ilike',self)]"
+                       string="project_manager"/>
+                <field name="partner_id" filter_domain="[('partner_id.name','ilike',self)]"
+                       string="customer_organization"/>
+                <field name="company_partner_id" filter_domain="[('company_partner_id.name', 'ilike', self)]"
+                       string="Company Partner"/>
+                <field name="industry_id" filter_domain="[('industry_id.name','ilike',self)]" string="industry"/>
+                <field name="technological_direction_id"
+                       filter_domain="[('technological_direction_id.name','ilike',self)]"
+                       string="technological_direction"/>
+                <field name="comments" filter_domain="[('comments.name','ilike',self)]" string="comments"/>
+                <separator/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_by_project_status" string="Project Status"
+                            context="{'group_by': 'project_status'}"/>
+                    <filter name="group_by_project_office" string="Project Office"
+                            context="{'group_by': 'project_office_id'}"/>
+                    <filter name="group_by_project_supervisor" string="Project Supervisor"
+                            context="{'group_by': 'project_supervisor_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
 
-        <record id="show_comercial_budget_spec_kanban" model="ir.ui.view">
-            <field name="name">project_budget.projects.kanban</field>
-            <field name="model">project_budget.projects</field>
-            <field name="arch" type="xml">
-                <kanban class="oe_background_grey o_kanban_dashboard o_emphasize_colors o_stock_kanban" create="0" quick_create="false" group_create="false">
-                    <field name="project_manager_id"/>
-                    <field name="rukovoditel_project_id"/>
-                    <field name="essence_project" readonly="1"/>
-                    <field name="cost_price"/>
-                    <field name="budget_state"/>
-                    <field name="specification_state"/>
-                    <field name="partner_id"/>
-                    <field name="legal_entity_signing_id"/>
-                    <field name="end_sale_project_quarter"/>
-                    <field name="end_presale_project_quarter"/>
-                    <field name="was_changes"/>
-                    <field name="estimated_probability_id"/>
-                   <templates>
-                        <t t-name="kanban-box">
-                            <div class="oe_kanban_card oe_kanban_global_click">
-                                <div class="o_kanban_card_header">
-                                    <div class="o_kanban_card_header_title">
-                                        <div class="o_primary d-flex justify-content-between w-100" style="padding-right:0px">
-                                            <span>
-                                                <field name="project_id" widget="badge"
-                                                       decoration-muted="estimated_probability_id in (1, 7)"
-                                                       decoration-primary="estimated_probability_id==6"
-                                                       decoration-warning="estimated_probability_id in (2, 3, 4)"
-                                                       decoration-success="estimated_probability_id==5"
-                                                />
-                                            </span>
-                                            <field name="estimated_probability_id" readonly="1" widget="badge"
-                                               decoration-muted="estimated_probability_id in (1, 7)"
-                                               decoration-primary="estimated_probability_id==6"
-                                               decoration-warning="estimated_probability_id in (2, 3, 4)"
-                                               decoration-success="estimated_probability_id==5"
-                                            />
-<!--                                            <field name="approve_state" readonly="1"  widget="badge"-->
-<!--                                                decoration-danger="approve_state=='need_approve_manager'"-->
-<!--                                                decoration-warning="approve_state=='need_approve_supervisor'"-->
-<!--                                                decoration-success="approve_state=='approved'"-->
-<!--                                                decoration-muted="specification_state=='cancel'"-->
-<!--                                                decoration-primary="specification_state=='done'"-->
-<!--                                            />-->
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="oe_kanban_body">
-<!--                                    <div class="o_kanban_image me-1">-->
-<!--                                        <img t-att-src="kanban_image('project_budget.project_manager', 'avatar_128', record.project_manager_id.raw_value)" alt="manager" class="o_image_64_contain"/>-->
-<!--                                    </div>-->
-<!--                                    <div class="o_kanban_image me-1">-->
-<!--                                        <img t-att-src="kanban_image('project_budget.rukovoditel_project', 'avatar_128', record.rukovoditel_project_id.raw_value)" alt="manager" class="o_image_64_contain"/>-->
-<!--                                    </div>-->
-                                    <div class="d-flex text-truncate">
-                                        <strong>
-                                            <field name="essence_project"/>
-                                        </strong>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <span>Contract:</span>
-                                        <field name="end_presale_project_quarter"/>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <span>Last shipment:</span>
-                                        <field name="end_sale_project_quarter"/>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <span>Manager:</span>
-                                        <field name="project_manager_id" widget="many2one_avatar"/>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <span>Supervisor:</span>
-                                        <field name="project_supervisor_id" widget="many2one_avatar"/>
-                                    </div>
-                                    <div class="d-flex justify-content-between font-weight-bold">
-                                        <span>Revenue:</span>
-                                        <field name="total_amount_of_revenue"/>
-                                    </div>
-                                    <div class="d-flex text-truncate">
-                                        <field name="partner_id" widget="many2one_avatar"/>
-                                    </div>
-<!--                                    <div>-->
-<!--                                        <a>Legal sign: <field name="legal_entity_signing_id"/></a>-->
-<!--                                    </div>-->
-                                </div>
-                            </div>
-                        </t>
-                    </templates>
-                </kanban>
-            </field>
-        </record>
+    <record id="action_project_budget_project_child_projects" model="ir.actions.act_window">
+        <field name="name">Child Projects</field>
+        <field name="res_model">project_budget.projects</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">
+            [
+                ('id', 'child_of', active_id),
+                ('id', '!=', active_id)
+            ]
+        </field>
+    </record>
 
+    <record id="project_budget_project_view_tree" model="ir.ui.view">
+        <field name="name">project.budget.project.tree</field>
+        <field name="model">project_budget.projects</field>
+        <field name="arch" type="xml">
+            <tree default_order="project_id desc"
+                  decoration-muted="project_status == 'cancel'"
+                  decoration-primary="project_status == 'done'"
+                  decoration-danger="approve_state == 'need_approve_manager' and project_status != 'cancel'"
+                  decoration-warning="approve_state == 'need_approve_supervisor' and project_status != 'cancel'"
+                  decoration-success="approve_state == 'approved' and project_status != 'cancel'">
+                <header>
+                    <button string="approve (manager)" type="object" name="set_approve_manager" class="oe_highlight"/>
+                    <button string="approve (supervisor)" type="object" name="set_approve_supervisor"
+                            class="oe_highlight"/>
+                    <button string="cancel approve (supervisor)" type="object" name="cancel_approve"
+                            class="oe_highlight"/>
+                </header>
+                <field name="company_id" invisible="True"/>
+                <field name="company_id" groups="base.group_multi_company"
+                       options="{'no_create': True}"/>
+                <field name="project_id"/>
+                <field name="approve_state" widget="badge"
+                       decoration-danger="approve_state == 'need_approve_manager'"
+                       decoration-warning="approve_state == 'need_approve_supervisor'"
+                       decoration-success="approve_state == 'approved'"
+                       decoration-muted="project_status == 'cancel'"
+                />
+                <field name="project_status" widget="badge"
+                       decoration-muted="project_status == 'cancel'"
+                       decoration-primary="project_status == 'done'"
+                       decoration-warning="project_status == 'prepare'"
+                       decoration-success="project_status == 'production'"
+                />
+                <field name="date_actual" optional="hide"/>
+                <field name="step_project_number"/>
+                <field name="project_have_steps"/>
+                <field name="was_changes"/>
+                <field name="is_parent_project" optional="hide"/>
+                <field name="is_child_project" optional="hide"/>
+                <field name="etalon_budget" optional="hide"/>
+                <field name="budget_state" optional="hide"/>
+                <field name="commercial_budget_id" optional="hide"/>
+                <field name="currency_id"/>
+                <field name="project_office_id"/>
+                <field name="project_supervisor_id" widget="many2one_avatar"/>
+                <field name="project_manager_id" widget="many2one_avatar"/>
+                <field name="rukovoditel_project_id" widget="many2one_avatar"/>
+                <field name="industry_id" optional="hide"/>
+                <field name="partner_id" widget="many2one_avatar"/>
+                <field name="company_partner_id" widget="many2one_avatar" optional="hide"/>
+                <field name="essence_project"/>
+                <field name="end_presale_project_month"/>
+                <field name="end_sale_project_month"/>
+                <field name="end_presale_project_quarter" optional="hide"/>
+                <field name="end_sale_project_quarter" optional="hide"/>
+                <field name="total_amount_of_revenue"/>
+                <field name="cost_price"/>
+                <field name="margin_income"/>
+                <field name="profitability" optional="hide"/>
+                <field name="stage_id" string="Probability" context="{'code_only': True}"
+                       options="{'always_reload': True}"/>
+                <field name="vat_attribute_id" optional="hide"/>
+                <field name="legal_entity_signing_id" optional="hide"/>
+                <field name="project_type_id" optional="hide"/>
+                <field name="comments" optional="hide"/>
+                <field name="technological_direction_id" optional="hide"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="project_budget_project_child_view_tree" model="ir.ui.view">
+        <field name="name">project.budget.project.child.tree</field>
+        <field name="model">project_budget.projects</field>
+        <field name="priority">1000</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom" default_order="project_id desc"
+                  decoration-muted="project_status == 'cancel'"
+                  decoration-primary="project_status == 'done'"
+                  decoration-danger="approve_state == 'need_approve_manager' and project_status != 'cancel'"
+                  decoration-warning="approve_state == 'need_approve_supervisor' and project_status != 'cancel'"
+                  decoration-success="approve_state == 'approved' and project_status != 'cancel'">
+                <button name="action_open_project" type="object" title="View project" string="View project"
+                        class="btn btn-link float-end"/>
+                <field name="can_edit" invisible="1"/>
+                <field name="margin_rate_for_parent" widget="percentage"
+                       attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                <field name="company_id" invisible="True"/>
+                <field name="company_id" groups="base.group_multi_company"
+                       options="{'no_create': True}" readonly="1"/>
+                <field name="project_id" readonly="1"/>
+                <field name="approve_state" readonly="1" widget="badge"
+                       decoration-danger="approve_state=='need_approve_manager'"
+                       decoration-warning="approve_state=='need_approve_supervisor'"
+                       decoration-success="approve_state=='approved'"
+                       decoration-muted="project_status=='cancel'"
+                />
+                <field name="project_status" readonly="1" widget="badge"
+                       decoration-muted="project_status == 'cancel'"
+                       decoration-primary="project_status == 'done'"
+                       decoration-warning="project_status == 'prepare'"
+                       decoration-success="project_status == 'production'"
+                />
+                <!--                    <field name="specification_state" readonly="1" widget="badge"-->
+                <!--                           decoration-muted="specification_state=='cancel'"-->
+                <!--                           decoration-primary="specification_state=='done'"-->
+                <!--                           decoration-warning="specification_state=='prepare'"-->
+                <!--                           decoration-success="specification_state=='production'"-->
+                <!--                    />-->
+                <field name="date_actual" optional="hide" readonly="1"/>
+                <field name="step_project_number" readonly="1"/>
+                <field name="project_have_steps" readonly="1"/>
+                <field name="budget_state" optional="hide" readonly="1"/>
+                <field name="currency_id" invisible="1" readonly="1"/>
+                <field name="project_office_id" options="{'no_open': True}" readonly="1"/>
+                <field name="project_supervisor_id" widget="many2one_avatar" readonly="1"
+                       options="{'no_open': True}"/>
+                <field name="project_manager_id" widget="many2one_avatar" readonly="1"
+                       options="{'no_open': True}"/>
+                <field name="rukovoditel_project_id" widget="many2one_avatar" readonly="1"
+                       options="{'no_open': True}"/>
+                <field name="industry_id" optional="hide" readonly="1" options="{'no_open': True}"/>
+                <field name="partner_id" widget="many2one_avatar" readonly="1" options="{'no_open': True}"/>
+                <field name="essence_project" readonly="1"/>
+                <field name="end_presale_project_month" readonly="1"/>
+                <field name="end_sale_project_month" readonly="1"/>
+                <field name="total_amount_of_revenue" readonly="1"/>
+                <field name="cost_price" readonly="1"/>
+                <field name="margin_income" readonly="1"/>
+                <field name="profitability" optional="hide" readonly="1"/>
+                <field name="stage_id" string="Probability" context="{'code_only': True}" readonly="1"/>
+                <field name="vat_attribute_id" optional="hide" readonly="1"/>
+                <field name="legal_entity_signing_id" options="{'no_open': True,}" optional="hide"
+                       readonly="1"/>
+                <field name="project_type_id" optional="hide" readonly="1" options="{'no_open': True}"/>
+                <field name="comments" optional="hide" readonly="1"/>
+                <field name="technological_direction_id" optional="hide" readonly="1" options="{'no_open': True}"/>
+            </tree>
+        </field>
+    </record>
 
         <record id="show_comercial_budget_spec_form" model="ir.ui.view">
             <field name="name">project_budget.projects.form</field>
@@ -140,9 +224,8 @@
                                     context="
                                     {
                                         'default_parent_id': active_id,
-                                        'default_estimated_probability_id': estimated_probability_id,
+                                        'default_stage_id': stage_id,
                                         'default_partner_id': partner_id,
-                                        'default_partner_signer_id': partner_signer_id,
                                         'default_legal_entity_signing_id': legal_entity_signing_id
                                     }">
                                 <field name="child_count" string="Child Projects" widget="statinfo"/>
@@ -150,12 +233,14 @@
                         </div>
                         <field name="id" invisible="True"/>
                         <field name="child_count" invisible="True"/>
-                        <field name="partner_signer_id" invisible="True"/>
                         <field name="company_id" invisible="True"/>
-                        <field name="company_id" groups="base.group_multi_company"
-                                   options="{'no_create': True}"/>
+                        <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
                         <field name="budget_state" invisible="1"/>
                         <field name="parent_project_id" invisible='1'/>
+                        <field name="can_edit" invisible='1'/>
+                        <field name="active" invisible="1"/>
+                        <widget name="web_ribbon" title="Archived" bg_color="bg-danger"
+                                attrs="{'invisible': [('active', '=', True)]}"/>
 
                         <group col="6">
                             <group colspan="2">
@@ -163,12 +248,16 @@
 <!--                                <field name="was_changes" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>-->
                             </group>
                             <group>
-                                <field name="specification_state" readonly="1"/>
+                                <field name="project_status"/>
+<!--                                <field name="specification_state" readonly="1"/>-->
                             </group>
                             <group>
-                                <field name="estimated_probability_id" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
-                                        decoration-bf="1" options="{'no_open': True,}"
-                                />
+                                <field name="stage_id" string="Probability" context="{'code_only': True}"
+                                       options="{'always_reload': True, 'no_create_edit': True, 'no_open': True}"
+                                       attrs="{'readonly': [('can_edit', '=', False)]}"/>
+<!--                                <field name="estimated_probability_id" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"-->
+<!--                                        decoration-bf="1" options="{'no_open': True,}"-->
+<!--                                />-->
                             </group>
                             <group>
                                 <field name="project_have_steps" widget="boolean_toggle"
@@ -176,7 +265,7 @@
                                         ('is_parent_project', '=', True),
                                         ('budget_state', '=', 'fixed'),
                                         ('approve_state','!=','need_approve_manager')]}"
-                                    />
+                                />
                             </group>
                             <group>
                                 <field name="is_parent_project" widget="boolean_toggle"
@@ -186,10 +275,9 @@
                                        ('parent_project_id', '!=', False),
                                        ('approve_state','!=','need_approve_manager')],
                                        'invisible': [('is_child_project', '=', True)]}"
-                                       />
-                                <field name="is_child_project" decoration-bf="1" readonly="1"  attrs="{'invisible': [
-                                       ('is_child_project', '!=', True),
-                                       ]}"/>
+                                />
+                                <field name="is_child_project" decoration-bf="1" readonly="1"
+                                       attrs="{'invisible': [('is_child_project', '!=', True)]}"/>
                             </group>
 <!--                            <group>-->
 <!--                                <field name="is_framework" widget="boolean_toggle"-->
@@ -231,11 +319,10 @@
                                 />
                             </group>
                             <group>
-                                <field name="margin_income"
+                                <field name="margin_income" class="h5"
                                        decoration-bf="1"
                                        decoration-success="margin_income &gt; 0"
                                        decoration-danger="margin_income &lt; 0"
-                                       class="h5"
                                 />
                                 <field name="margin_for_parent_project" attrs="{'invisible': [('is_child_project', '!=', True)]}"/>
                                 <field name="total_margin_of_child_projects" attrs="{'invisible': [('is_parent_project', '!=', True)]}"/>
@@ -244,7 +331,9 @@
                         <group col="4">
                             <h5>
                                 <group>
-                                    <field name="profitability" decoration-success="margin_income &gt; 0" decoration-danger="margin_income &lt; 0"
+                                    <field name="profitability"
+                                           decoration-success="margin_income &gt; 0"
+                                           decoration-danger="margin_income &lt; 0"
                                     />
                                 </group>
                             </h5>
@@ -274,9 +363,9 @@
                                 <h5>
                                     <group col="3">
                                         <group>
-                                            <field class="text-break" name="step_project_number" placeholder="enter project code from AXAPTA"
-                                                    attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
-                                                    decoration-bf="1"/> <!--обязательно при вероятности 100 и 100(done) -->
+                                            <field class="text-break" name="step_project_number"
+                                                   placeholder="enter project code from AXAPTA"
+                                                   attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
                                             <field class="text-break" name="project_office_id" placeholder="select project office" force_save="1" options="{'no_open': True,}"
                                                     attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
                                                     decoration-bf="1"/>
@@ -301,46 +390,51 @@
                                         </group>
                                     </group>
                                 </h5>
-                                <h4>
-                                    <group string="Customer/Organization" >
-                                    </group>
-                                </h4>
-                                <group col="6">
-                                    <group colspan="3">
-                                        <field name="partner_id" force_save="1" widget="many2one_avatar" options="{'no_open': True,}" placeholder="select costomer/organization"
+                                <group string="Customer/Organization">
+                                    <group>
+                                        <field name="partner_id" force_save="1" widget="many2one_avatar"
+                                               options="{'no_open': True,}" placeholder="select costomer/organization"
                                                attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
-<!--                                        <field name="customer_status_id" force_save="1" options="{'no_open': True,}" placeholder="select customer state"-->
-<!--                                               attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>-->
-                                    </group>
-                                    <group colspan="1">
-                                        <field name="industry_id" force_save="1" options="{'no_open': True,}" placeholder="select industry"
+                                        <field name="industry_id" force_save="1" options="{'no_open': True,}"
+                                               placeholder="select industry"
                                                attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
                                     </group>
-                                    <group colspan="2">
-                                        <field name="legal_entity_signing_id" force_save="1" options="{'no_open': True,}" placeholder="select legal entity signing"
+                                    <group>
+                                        <field name="company_partner_id" placeholder="Company Partner"
+                                               options="{'no_create_edit': True, 'no_open': True}"
+                                               attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                                        <field name="legal_entity_signing_id"
+                                               options="{'no_open': True,}" placeholder="select legal entity signing"
                                                attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
-<!--                                        <field name="vgo" force_save="1" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>-->
                                     </group>
                                 </group>
-                                <h4>
-                                    <group string="Dates">
-                                    </group>
-                                </h4>
-                                <group col="5">
-                                    <group colspan="2">
-                                        <field name="end_sale_project_quarter"/>
-                                        <field name="end_presale_project_quarter"/>
-                                    </group>
-                                    <group colspan="4">
-                                        <field name="comments" placeholder="type comments for the project" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
-                                        <field name="is_correction_project" attrs="{'readonly': [('user_is_admin', '!=', True)]}"/>
-                                        <field name="is_not_for_mc_report" attrs="{'readonly': [('user_is_admin', '!=', True)], 'invisible': [('user_is_admin', '!=', True)]}"/>
-                                    </group>
-                                </group>
+<!--                                <group>-->
+<!--                                    <field name="is_correction_project" readonly="1"-->
+<!--                                           groups="!project_budget.project_budget_admin"/>-->
+<!--                                    <field name="is_correction_project"-->
+<!--                                           groups="project_budget.project_budget_admin"/>-->
+<!--                                    <field name="is_not_for_mc_report" groups="project_budget.project_budget_admin"/>-->
+<!--                                </group>-->
+<!--                                <group string="Dates">-->
+<!--                                    <group>-->
+<!--                                        <field name="end_sale_project_quarter"/>-->
+<!--                                        <field name="end_presale_project_quarter"/>-->
+<!--                                    </group>-->
+<!--                                    <group>-->
+<!--                                        <field name="is_correction_project" readonly="1"-->
+<!--                                               groups="!project_budget.project_budget_admin"/>-->
+<!--                                        <field name="is_correction_project"-->
+<!--                                               groups="project_budget.project_budget_admin"/>-->
+<!--                                        <field name="is_not_for_mc_report"-->
+<!--                                               groups="project_budget.project_budget_admin"/>-->
+<!--                                    </group>-->
+<!--                                </group>-->
+                                <field name="comments" nolabel="1" placeholder="type comments for the project"
+                                       attrs="{'readonly': [('can_edit', '=', False)]}"/>
                             </page>
                             <page string="Financial indicators" >
-                                    <field name="is_revenue_from_the_sale_of_works"  invisible="1"/>
-                                    <field name="is_revenue_from_the_sale_of_goods"  invisible="1"/>
+                                    <field name="is_revenue_from_the_sale_of_works" invisible="1"/>
+                                    <field name="is_revenue_from_the_sale_of_goods" invisible="1"/>
                                     <field name="is_cost_of_goods" invisible="1"/>
                                     <field name="is_own_works_fot" invisible="1"/>
                                     <field name="is_third_party_works" invisible="1"/>
@@ -408,11 +502,7 @@
                                         />
                                     </group>
                                 </group>
-                                 <h4>
-                                    <group string="Costs" >
-                                    </group>
-                                </h4>
-                                <group col="6">
+                                <group string="Costs" col="6">
                                     <group colspan="2">
                                         <field name="cost_of_goods"
                                                attrs="{'invisible': [('is_cost_of_goods', '=', False),('project_have_steps', '=', False)]
@@ -556,7 +646,7 @@
                                         />
                                     </group>
                                 </group>
-                                <group  col="3" string="Costs FOT" >
+                                <group string="Costs FOT" col="3">
                                     <group>
                                         <field name="own_works_fot"
                                                attrs="{'invisible': [('is_own_works_fot', '=', False),('project_have_steps', '=', False)]}"
@@ -588,78 +678,15 @@
                                 </field>
                             </page>
                             <page string="child projects" attrs="{'invisible': [('is_parent_project', '=', False)]}">
-                                    <field name="user_is_admin" invisible="1"/>
-                                    <field name="child_project_ids" mode="tree" widget="many2many"
-                                           attrs="{'readonly': ['|','|',
-                                           ('budget_state', '=', 'fixed'),
-                                           ('approve_state','!=','need_approve_manager'),
-                                           ('user_is_admin','!=', True),
-                                           ]}"
-                                           domain="['&amp;','&amp;',
-                                           ('is_parent_project', '=', False),
-                                           ('parent_project_id', '=', False),
-                                           ('budget_state', '!=', 'fixed'),
-                                           ]"
-                                    >
-                                        <tree editable="bottom" default_order="project_id desc"
-                                              decoration-muted="specification_state=='cancel'"
-                                              decoration-primary="specification_state=='done'"
-                                              decoration-danger="approve_state=='need_approve_manager' and specification_state!='cancel'"
-                                              decoration-warning="approve_state=='need_approve_supervisor' and specification_state!='cancel'"
-                                              decoration-success="approve_state=='approved' and specification_state!='cancel'"
-                                        >
-                                            <button name="action_open_project" type="object" title="View project" string="View project" class="btn btn-link float-end"/>
-                                            <field name="margin_rate_for_parent" widget="percentage" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
-                                            <field name="company_id" invisible="True"/>
-                                            <field name="company_id" groups="base.group_multi_company"
-                                                           options="{'no_create': True}" readonly="1"/>
-                                            <field name="project_id" readonly="1"/>
-                                            <field name="approve_state" readonly="1" optional="show"  widget="badge"
-                                                                decoration-danger="approve_state=='need_approve_manager'"
-                                                                decoration-warning="approve_state=='need_approve_supervisor'"
-                                                                decoration-success="approve_state=='approved'"
-                                                                decoration-muted="specification_state=='cancel'"
-                                            />
-                                            <field name="specification_state"   optional="show" readonly="1"
-                                                                widget="badge"
-                                                                   decoration-muted="specification_state=='cancel'"
-                                                                   decoration-primary="specification_state=='done'"
-                                                                   decoration-warning ="specification_state=='prepare'"
-                                                                   decoration-success="specification_state=='production'"
-                                            />
-                                            <field name="date_actual" optional="hide" readonly="1"/>
-                                            <field name="step_project_number" optional="Show" readonly="1"/>
-                                            <field name="project_have_steps" optional="show" readonly="1"/>
-                                            <field name="was_changes" optional="show" readonly="1"/>
-                                            <field name="is_parent_project" optional="hide" readonly="1"/>
-                                            <field name="is_child_project" optional="hide" readonly="1"/>
-                                            <field name="etalon_budget" optional="hide" readonly="1"/>
-                                            <field name="budget_state" optional="hide" readonly="1"/>
-                                            <field name="commercial_budget_id"   optional="hide" readonly="1"/>
-                                            <field name="currency_id" invisible="1" readonly="1"/>
-                                            <field name="project_office_id"  options="{'no_open': True,}" optional="show" readonly="1"/>
-                                            <field name="project_supervisor_id" widget="many2one_avatar" options="{'no_open': True,}" optional="show" readonly="1"/>
-                                            <field name="project_manager_id"  widget="many2one_avatar" options="{'no_open': True,}" optional="show" readonly="1"/>
-                                            <field name="rukovoditel_project_id"  widget="many2one_avatar" options="{'no_open': True,}" optional="show" readonly="1"/>
-                                            <field name="industry_id"  options="{'no_open': True,}" optional="hide" readonly="1"/>
-                                            <field name="partner_id" widget="many2one_avatar"  options="{'no_open': True,}" optional="show" readonly="1"/>
-                                            <field name="essence_project" optional="show" readonly="1"/>
-                                            <field name="end_presale_project_month" optional="show" readonly="1"/>
-                                            <field name="end_sale_project_month" optional="show" readonly="1"/>
-                                            <field name="end_presale_project_quarter"  optional="hide" readonly="1"/>
-                                            <field name="end_sale_project_quarter"  optional="hide" readonly="1"/>
-                                            <field name="total_amount_of_revenue" optional="show" readonly="1"/>
-                                            <field name="cost_price" optional="show" readonly="1"/>
-                                            <field name="margin_income" optional="show" readonly="1"/>
-                                            <field name="profitability" optional="hide" readonly="1"/>
-                                            <field name="estimated_probability_id" optional="show" readonly="1"/>
-                                            <field name="vat_attribute_id" optional="hide" readonly="1"/>
-                                            <field name="legal_entity_signing_id" force_save="1" options="{'no_open': True,}" optional="hide" readonly="1"/>
-                                            <field name="project_type_id" force_save="1" options="{'no_open': True,}" optional="hide" readonly="1"/>
-                                            <field name="comments" optional="hide" readonly="1"/>
-                                            <field name="technological_direction_id" force_save="1" options="{'no_open': True,}" optional="hide" readonly="1"/>
-                                        </tree>
-                                    </field>
+                                <field name="child_project_ids" mode="tree" widget="many2many"
+                                       context="{'tree_view_ref': 'project_budget.project_budget_project_child_view_tree'}"
+                                       groups="project_budget.project_budget_admin"
+                                       attrs="{'readonly': [('can_edit', '=', False)]}"
+                                       domain="['&amp;','&amp;', ('is_parent_project', '=', False), ('parent_project_id', '=', False), ('budget_state', '!=', 'fixed')]"/>
+                                <field name="child_project_ids" mode="tree" widget="many2many" readonly="1"
+                                       context="{'tree_view_ref': 'project_budget.project_budget_project_child_view_tree'}"
+                                       groups="!project_budget.project_budget_admin"
+                                       domain="['&amp;','&amp;', ('is_parent_project', '=', False), ('parent_project_id', '=', False), ('budget_state', '!=', 'fixed')]"/>
                             </page>
                             <page string="Forecast" attrs="{'invisible': [('is_parent_project', '=', True)]}">
                                 <h4>
@@ -786,203 +813,217 @@
                             </page>
                         </notebook>
                     </sheet>
-<!--                        <div class="o_attachment_preview"/>-->
-                        <div class="oe_chatter">
-                            <field name="message_follower_ids" widget="mail_followers"/>
-                            <field name="activity_ids" widget="mail_activity"/>
-                            <field name="message_ids" widget="mail_thread"/>
-                        </div>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="activity_ids" widget="mail_activity"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
                 </form>
             </field>
         </record>
 
-        <record id="show_comercial_budget_spec_tree" model="ir.ui.view">
-            <field name="name">project_budget.projects.tree</field>
-            <field name="model">project_budget.projects</field>
-            <field name="arch" type="xml">
-<!--                      decoration-muted="specification_state=='cancel'"-->
-<!--                      decoration-danger="approve_state=='need_approve_manager'"-->
-<!--                      decoration-warning="approve_state=='need_approve_supervisor'"-->
-<!--                      decoration-success="approve_state=='approved'"-->
-<!--                     colors="red:approve_state=='need_approve_manager';-->
-<!--                            yellow:approve_state=='need_approve_supervisor';-->
-<!--                            green:approve_state=='approved';-->
-<!--                            gray:specification_state=='cancel'"-->
+    <record id="project_budget_project_settings_view_form" model="ir.ui.view">
+        <field name="name">project.budget.project.settings.form</field>
+        <field name="model">project_budget.projects</field>
+        <field name="priority">1000</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet string="Project Settings">
+                    <field name="can_edit" invisible="1"/>
+                    <group colspan="2">
+                        <field name="project_id" readonly="1" class="h5"/>
+                    </group>
+                    <group>
+                        <field name="essence_project" class='h4' placeholder="type here essence of the project"
+                               attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                    </group>
+                    <notebook>
+                        <page name="page_settings" string="Settings">
+                            <group>
+                                <group>
+                                    <field name="is_correction_project"/>
+                                </group>
+                                <group>
+                                    <field name="is_not_for_mc_report"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
 
+    <record id="project_budget_project_view_kanban" model="ir.ui.view">
+        <field name="name">project.budget.project.kanban</field>
+        <field name="model">project_budget.projects</field>
+        <field name="arch" type="xml">
+            <kanban class="oe_background_grey o_kanban_dashboard o_emphasize_colors o_project_kanban"
+                    default_order="total_amount_of_revenue desc" default_group_by="stage_id" quick_create="false"
+                    group_create="false">
+                <field name="stage_id" options='{"group_by_tooltip": {"name": "Name"}}'/>
+                <field name="active"/>
+                <field name="color"/>
+                <field name="currency_id"/>
+                <field name="project_status"/>
+                <field name="essence_project"/>
+                <field name="margin_income"/>
+                <field name="total_amount_of_revenue"/>
+                <field name="partner_id"/>
+                <field name="end_presale_project_month"/>
+                <field name="end_sale_project_month"/>
+                <field name="dogovor_number"/>
+                <field name="vat_attribute_id"/>
+                <field name="step_project_number"/>
+                <field name="project_manager_id"/>
+                <field name="project_supervisor_id"/>
+                <field name="rukovoditel_project_id"/>
+                <field name="project_office_id"/>
+                <field name="technological_direction_id"/>
+                <field name="project_type_id"/>
+                <field name="industry_id"/>
+                <field name="company_partner_id"/>
+                <field name="comments"/>
+                <field name="legal_entity_signing_id"/>
+                <field name="signer_id"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="#{kanban_color(record.color.raw_value)} oe_kanban_card oe_kanban_global_click">
+                            <div class="ribbon ribbon-top-right" attrs="{'invisible': [('active', '=', True)]}">
+                                <span class="bg-danger">Archived</span>
+                            </div>
+                            <div class="o_dropdown_kanban dropdown">
+                                <a class="dropdown-toggle o-no-caret btn" href="#" role="button"
+                                   data-toggle="dropdown" aria-label="Dropdown menu" title="Dropdown menu">
+                                    <span class="fa fa-ellipsis-v"/>
+                                </a>
+                                <div class="o_kanban_card_manage_settings row"
+                                     groups="project_budget.project_budget_admin">
+                                    <div role="menuitem" class="col">
+                                        <a t-if="widget.editable" class="dropdown-item" role="menuitem" type="object"
+                                           name="action_open_settings">
+                                            <i class="fa fa-gears"/>
+                                            Settings
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_title">
+                                        <div class="o_text_overflow">
+                                            <field name="project_id"/>
+                                        </div>
+                                        <div class="o_row">
+                                            <div t-if="record.end_presale_project_month.raw_value">
+                                                <span class="fa fa-clock-o me-2" title="Dates"></span>
+                                                <field name="end_presale_project_month"/>
+                                                <i class="fa fa-long-arrow-right mx-2 oe_read_only"
+                                                   aria-label="Arrow icon" title="Arrow"/>
+                                                <field name="end_sale_project_month"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_record_body">
+                                    <div t-if="record.essence_project.raw_value" name="name_kanban"
+                                         class="text-truncate text-muted">
+                                        <field name="essence_project"/>
+                                    </div>
+                                    <div t-if="record.total_amount_of_revenue.raw_value"
+                                         class="d-flex justify-content-between font-weight-bold">
+                                        <span>Revenue:</span>
+                                        <field name="total_amount_of_revenue" widget="monetary"/>
+                                    </div>
+                                    <div t-if="record.margin_income.raw_value"
+                                         class="d-flex justify-content-between font-weight-bold">
+                                        <span>Margin:</span>
+                                        <field name="margin_income" widget="monetary"/>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_record_bottom" t-if="!selection_mode">
+                                    <div class="d-flex text-truncate oe_kanban_bottom_left">
+                                        <field name="partner_id" widget="many2one_avatar"/>
+                                    </div>
+                                    <div class="oe_kanban_bottom_right">
+                                        <t t-if="record.project_manager_id.raw_value">
+                                            <field name="project_manager_id" widget="many2one_avatar"/>
+                                        </t>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="clearfix"/>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
 
-                <tree default_order="project_id desc"
-                      decoration-muted="specification_state=='cancel'"
-                      decoration-primary="specification_state=='done'"
-                      decoration-danger="approve_state=='need_approve_manager' and specification_state!='cancel'"
-                      decoration-warning="approve_state=='need_approve_supervisor' and specification_state!='cancel'"
-                      decoration-success="approve_state=='approved' and specification_state!='cancel'"
+    <record id="show_project_budget_projects_graph" model="ir.ui.view">
+        <field name="name">project_budget.projects.graph</field>
+        <field name="model">project_budget.projects</field>
+        <field name="arch" type="xml">
+            <graph string="Project list estimated probability">
+                <field name="project_supervisor_id" type="row"/>
+                <field name="stage_id" type="row"/>
+<!--                <field name="estimated_probability_id" type="row"/>-->
+                <field name="project_id" type="measure"/>
+            </graph>
+        </field>
+    </record>
 
-                >
-<!--colors="blue:state == 'draft';gray:state in ('cancel','done');black:state == 'open'"-->
+    <record model="ir.ui.view" id="project_budget_projects_pivot">
+        <field name="name">project_budget.projects.pivot</field>
+        <field name="model">project_budget.projects</field>
+        <field name="arch" type="xml">
+            <pivot string="Inventory" sample="1">
+                <field name="project_id"/>
+                <field name="approve_state"/>
+                <field name="commercial_budget_id"/>
+                <field name="budget_state"/>
+                <field name="specification_state"/>
+                <field name="currency_id"/>
+                <field name="project_office_id"/>
+                <field name="project_supervisor_id"/>
+                <field name="project_manager_id"/>
+                <field name="rukovoditel_project_id"/>
+                <field name="industry_id"/>
+                <field name="partner_id"/>
+                <field name="essence_project"/>
+                <field name="end_presale_project_quarter"/>
+                <field name="end_sale_project_quarter"/>
+                <field name="total_amount_of_revenue" type="measure"/>
+                <field name="cost_price" type="measure"/>
+                <field name="margin_income" type="measure"/>
+                <field name="profitability" type="measure"/>
+                <field name="stage_id"/>
+<!--                <field name="estimated_probability_id"/>-->
+                <field name="vat_attribute_id"/>
+                <field name="legal_entity_signing_id"/>
+                <field name="project_type_id"/>
+                <field name="comments"/>
+                <field name="technological_direction_id"/>
+            </pivot>
+        </field>
+    </record>
 
-                    <header>
-                        <!--The oe_highlight class gives the button a red color when it is saved.
-                        It is usually used to indicate the expected behaviour. -->
-<!--                        <button string="Print current budget" type="object" name="set_approve_manager" class="oe_highlight" />-->
-                        <button string="approve (manager)" type="object" name="set_approve_manager" class="oe_highlight" />
-                        <button string="approve (supervisor)" type="object" name="set_approve_supervisor" class="oe_highlight"/>
-                        <button string="cancel approve (supervisor)" type="object" name="cancel_approve" class="oe_highlight"/>
-                    </header>
-                    <control>
-                        <create name="add_specification_line" string="Add a line"/>
-                    </control>
-                    <!--<button name="open_record" type="object" class="oe_highlight"/>-->
-                    <field name="company_id" invisible="True"/>
-                    <field name="company_id" groups="base.group_multi_company"
-                                   options="{'no_create': True}"/>
-                    <field name="project_id" readonly="1"/>
-                    <field name="approve_state" readonly="1" optional="show"  widget="badge"
-                                        decoration-danger="approve_state=='need_approve_manager'"
-                                        decoration-warning="approve_state=='need_approve_supervisor'"
-                                        decoration-success="approve_state=='approved'"
-                                        decoration-muted="specification_state=='cancel'"
-                    />
-                    <field name="specification_state"   optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"
-                                        widget="badge"
-                                           decoration-muted="specification_state=='cancel'"
-                                           decoration-primary="specification_state=='done'"
-                                           decoration-warning ="specification_state=='prepare'"
-                                           decoration-success="specification_state=='production'"
-                    />
-                    <field name="date_actual" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
-                    <field name="step_project_number" optional="Show"/>
-                    <field name="project_have_steps" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
-<!--                    <field name="is_framework" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>-->
-                    <field name="was_changes" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
-<!--                    <field name="vgo" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>-->
-                    <field name="is_parent_project" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
-                    <field name="is_child_project" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
-                    <field name="etalon_budget" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
-                    <field name="budget_state" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
-                    <field name="commercial_budget_id"   optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
-                    <field name="currency_id" attrs="{'readonly': [('budget_state', '=', 'fixed')]}" />
-                    <field name="project_office_id" force_save="1" options="{'no_open': True,}" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
-                    <field name="project_supervisor_id" force_save="1" widget="many2one_avatar" options="{'no_open': True,}" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
-                    <field name="project_manager_id" force_save="1" widget="many2one_avatar" options="{'no_open': True,}" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
-                    <field name="rukovoditel_project_id" force_save="1" widget="many2one_avatar" options="{'no_open': True,}" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
-                    <field name="industry_id" force_save="1" options="{'no_open': True,}" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
-<!--                    <field name="customer_status_id" force_save="1" options="{'no_open': True,}"  optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>-->
-                    <field name="partner_id" widget="many2one_avatar" force_save="1" options="{'no_open': True,}" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
-                    <field name="company_partner_id" widget="many2one_avatar" optional="hide"/>
-                    <field name="essence_project" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
-                    <field name="end_presale_project_month"  optional="show" readonly="1"/>
-                    <field name="end_sale_project_month"  optional="show" readonly="1"/>
-                    <field name="end_presale_project_quarter"  optional="hide"/>
-                    <field name="end_sale_project_quarter"  optional="hide"/>
-                    <field name="total_amount_of_revenue" optional="show"/>
-                    <field name="cost_price" optional="show"/>
-                    <field name="margin_income" optional="show"/>
-                    <field name="profitability" optional="hide"/>
-                    <field name="estimated_probability_id" optional="show" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
-                    <field name="vat_attribute_id" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
-                    <field name="legal_entity_signing_id" force_save="1" options="{'no_open': True,}" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
-                    <field name="project_type_id" force_save="1" options="{'no_open': True,}" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
-                    <field name="comments" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
-                    <field name="technological_direction_id" force_save="1" options="{'no_open': True,}" optional="hide" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>
-                 </tree>
-            </field>
-        </record>
+    <record id="action_project_budget_projects" model="ir.actions.act_window">
+        <field name="name">Projects</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">project_budget.projects</field>
+        <field name="view_mode">kanban,tree,form,pivot,graph</field>
+        <field name="search_view_id" ref="project_budget_project_view_search"/>
+        <field name="domain">[('budget_state', '=', 'work')]</field>
+    </record>
 
-        <record id="show_project_budget_projects_graph" model ="ir.ui.view">
-            <field name="name">project_budget.projects.graph</field>
-            <field name="model">project_budget.projects</field>
-            <field name="arch" type="xml">
-                <graph string="Project list estimated probability">
-                    <field name="project_supervisor_id" type ="row"/>
-                    <field name="estimated_probability_id" type="row"/>
-<!--                    <field name="end_presale_project_month" interval="month" type="col"/>-->
-                    <field name="project_id" type="measure"/>
-                </graph>
-            </field>
-        </record>
-
-        <record id="show_comercial_budget_spec" model="ir.actions.act_window">
-            <field name="name">Projects</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">project_budget.projects</field>
-            <field name="view_mode">tree,form,pivot,graph,kanban</field>
-            <field name="search_view_id" ref="view_projects_search"></field>
-            <field name="domain">[('budget_state', '=', 'work')]</field>
-            <field name="context">{'search_default_estimated_probability_not_0': True}</field>
-<!--            <field name="context">{'search_default_group_by_provider': True}</field>-->
-<!--            <field name="context">{"search_default_budget_state_working":True}</field>-->
-        </record>
-
-
-
-        <record id="show_comercial_budget_spec_all" model="ir.actions.act_window">
-            <field name="name">Projects ALL</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">project_budget.projects</field>
-            <field name="view_mode">tree,form</field>
-            <field name="search_view_id" ref="view_projects_search"></field>
-            <field name="context">{'search_default_group_by_provider': True}</field>
-<!--            <field name="context">{"search_default_budget_state_working":True}</field>-->
-        </record>
-
-        <record id="projects_kanban_action" model="ir.actions.act_window">
-            <field name="name">projects_kanban_action</field>
-            <field name="res_model">project_budget.projects</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="view_mode">kanban,form</field>
-        </record>
-
-        <record model="ir.ui.view" id="project_budget_projects_pivot">
-            <field name="name">project_budget.projects.pivot</field>
-            <field name="model">project_budget.projects</field>
-            <field name="arch" type="xml">
-                <pivot string="Inventory" sample="1">
-                    <field name="project_id" />
-                    <field name="approve_state"/>
-                    <field name="commercial_budget_id"/>
-                    <field name="budget_state"/>
-                    <field name="specification_state"/>
-                    <field name="currency_id"/>
-                    <field name="project_office_id"/>
-                    <field name="project_supervisor_id"/>
-                    <field name="project_manager_id"/>
-                    <field name="rukovoditel_project_id"/>
-                    <field name="industry_id"/>
-<!--                    <field name="customer_status_id"/>-->
-                    <field name="partner_id"/>
-                    <field name="essence_project"/>
-                    <field name="end_presale_project_quarter"/>
-                    <field name="end_sale_project_quarter" />
-                    <field name="total_amount_of_revenue" type="measure"/>
-                    <field name="cost_price" type="measure"/>
-                    <field name="margin_income" type="measure"/>
-                    <field name="profitability" type="measure"/>
-                    <field name="estimated_probability_id"/>
-                    <field name="vat_attribute_id"/>
-                    <field name="legal_entity_signing_id"/>
-                    <field name="project_type_id"/>
-                    <field name="comments"/>
-                    <field name="technological_direction_id"/>
-                </pivot>
-            </field>
-        </record>
-
-<!--        <record id="hr_work_entry_view_calendar" model="ir.ui.view">-->
-<!--            <field name="name">project_budget.projects.calendar</field>-->
-<!--            <field name="model">project_budget.projects</field>-->
-<!--            <field name="arch" type="xml">-->
-<!--                <calendar string="Projects"-->
-<!--                    date_start="end_presale_project_month"-->
-<!--                    date_stop="end_sale_project_month"-->
-<!--                    mode="month"-->
-<!--                    quick_add="False"-->
-<!--                    color="specification_state"-->
-<!--                    event_limit="5">-->
-<!--                    &lt;!&ndash; Sidebar favorites filters &ndash;&gt;-->
-<!--                    <field name="project_id"/>-->
-<!--                    <field name="essence_project"/>-->
-<!--                </calendar>-->
-<!--            </field>-->
-<!--        </record>-->
-    </data>
+    <record id="show_comercial_budget_spec_all" model="ir.actions.act_window">
+        <field name="name">Projects ALL</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">project_budget.projects</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="project_budget_project_view_search"/>
+        <field name="context">{'search_default_group_by_provider': True}</field>
+        <!--            <field name="context">{"search_default_budget_state_working":True}</field>-->
+    </record>
 </odoo>

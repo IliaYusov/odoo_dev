@@ -293,9 +293,9 @@ class report_budget_excel(models.AbstractModel):
         # sheet.set_column(14, 17, False, False, {'hidden': 1, 'level': 1})
         # sheet.set_column(20, 29, False, False, {'hidden': 1, 'level': 1})
 
-        project_offices  = self.env['project_budget.project_office'].search([], order='name')  # для сортировки так делаем
+        project_offices = self.env['project_budget.project_office'].search([], order='name')  # для сортировки так делаем
         project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
-        estimated_probabilitys = self.env['project_budget.estimated_probability'].search([],order='name desc')  # для сортировки так делаем
+        stages = self.env['project_budget.project.stage'].search([], order='sequence desc')  # для сортировки так делаем
 
         isFoundProjectsByOffice = False
         isFoundProjectsByManager = False
@@ -311,21 +311,21 @@ class report_budget_excel(models.AbstractModel):
 
                 column = -1
 
-                for estimated_probability in estimated_probabilitys:
+                for stage in stages:
                     # print('estimated_probability.name = ', estimated_probability.name)
                     cur_budget_projects = self.env['project_budget.projects'].search([
                         '|', ('project_office_id', '=', project_office.id),
                         ('legal_entity_signing_id.different_project_offices_in_steps', '=', True),
                         ('commercial_budget_id', '=', budget.id),
                         ('project_manager_id', '=', project_manager.id),
-                        ('estimated_probability_id', '=', estimated_probability.id)
+                        ('stage_id', '=', stage.id)
                     ])
 
                     for spec in cur_budget_projects:
                         currency_rate = self.get_currency_rate_by_project(spec)
                         if spec.project_have_steps == False and spec.project_office_id == project_office: # or 20230707 Вавилова Ирина сказала не выводить рамку spec.is_framework == True: # рамку всегда выгружать
                             if spec.is_framework == True: continue # 20230718 Алина Козленко сказала не выгружать в принципе рамки
-                            if (spec.estimated_probability_id.name in probabitily_list) and (
+                            if (spec.stage_id.code in probabitily_list) and (
                                     (spec.end_presale_project_month.year >= YEARint and spec.end_presale_project_month.year <= year_end)
                                         or (spec.end_sale_project_month.year >= YEARint and spec.end_sale_project_month.year <= year_end)
                                         or (spec.end_presale_project_month.year <= YEARint and spec.end_sale_project_month.year >= year_end)):
@@ -414,7 +414,7 @@ class report_budget_excel(models.AbstractModel):
                                 sheet.write_formula(row, column, formula, row_format_percent_row)
 
                                 column += 1
-                                sheet.write(row, column, spec.estimated_probability_id.name, row_format_number)
+                                sheet.write(row, column, spec.stage_id.code, row_format_number)
                                 column += 1
                                 sheet.write(row, column, spec.legal_entity_signing_id.name, row_format)
                                 column += 1
@@ -429,7 +429,7 @@ class report_budget_excel(models.AbstractModel):
                                 if ((spec.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
                                         or ((not spec.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and spec.project_office_id == project_office)):
 
-                                    if (step.estimated_probability_id.name in probabitily_list) and (
+                                    if (step.stage_id.code in probabitily_list) and (
                                             (step.end_presale_project_month.year >= YEARint and step.end_presale_project_month.year <= year_end)
                                             or (step.end_sale_project_month.year >= YEARint and step.end_sale_project_month.year <= year_end)
                                             or (step.end_presale_project_month.year <= YEARint and step.end_sale_project_month.year >= year_end)):
@@ -521,7 +521,7 @@ class report_budget_excel(models.AbstractModel):
                                         sheet.write_formula(row, column, formula, row_format_percent_row)
 
                                         column += 1
-                                        sheet.write(row, column, step.estimated_probability_id.name, row_format_number)
+                                        sheet.write(row, column, step.stage_id.code, row_format_number)
                                         column += 1
                                         sheet.write(row, column, spec.legal_entity_signing_id.name, row_format)
                                         column += 1

@@ -95,19 +95,19 @@ class report_projects_overdue_excel(models.AbstractModel):
             isok, raisetext, dictvalues = spec.check_overdue_date(False)
 
             if isok == True: continue
-            estimated_probability_id_name = ""
+            stage_id_code = ""
             step_project_office_name = ''
             if 'step_id' in dictvalues:
                 step_id = dictvalues['step_id']
                 step_obj = self.env['project_budget.project_steps'].search(
                     [('step_id', '=', step_id),('projects_id','=',spec.id)], limit=1)
                 if step_obj:
-                    estimated_probability_id_name = step_obj.estimated_probability_id.name
+                    stage_id_code = step_obj.stage_id.code
                     step_project_office_name = step_obj.project_office_id.name
             else:
-                estimated_probability_id_name = spec.estimated_probability_id.name
+                stage_id_code = spec.stage_id.code
 
-            if estimated_probability_id_name in ('0', '100(done)'): continue
+            if stage_id_code in ('0', '100(done)'): continue
 
             row += 1
             column = 0
@@ -118,7 +118,7 @@ class report_projects_overdue_excel(models.AbstractModel):
                 sheet.write_string(row, column, spec.project_office_id.name, row_format)
 
             column += 1
-            sheet.write_string(row, column, estimated_probability_id_name, row_format)
+            sheet.write_string(row, column, stage_id_code, row_format)
 
             column += 1
             sheet.write_string(row, column, (spec.project_supervisor_id.name or ""), row_format)

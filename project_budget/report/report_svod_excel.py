@@ -44,13 +44,13 @@ class report_svod_excel(models.AbstractModel):
 
         if project:
             if step:
-                if step.estimated_probability_id.name == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
+                if step.stage_id.code == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
                     last_fixed_step = self.env['project_budget.project_steps'].search(
                         [('date_actual', '<', datetime.date(YEARint,1,1)),
                          ('budget_state', '=', 'fixed'),
                          ('step_id', '=', step.step_id),
                          ], limit=1, order='date_actual desc')
-                    if last_fixed_step and last_fixed_step.estimated_probability_id.name == '0':
+                    if last_fixed_step and last_fixed_step.stage_id.code == '0':
                         return False
 
                 if (step.end_presale_project_month.year >= YEARint and step.end_presale_project_month.year <= year_end ) \
@@ -78,13 +78,13 @@ class report_svod_excel(models.AbstractModel):
         global YEARint
 
         if project:
-            if project.estimated_probability_id.name == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
+            if project.stage_id.code == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
                 last_fixed_project = self.env['project_budget.projects'].search(
                     [('date_actual', '<', datetime.date(YEARint,1,1)),
                      ('budget_state', '=', 'fixed'),
                      ('project_id', '=', project.project_id),
                      ], limit=1, order='date_actual desc')
-                if last_fixed_project and last_fixed_project.estimated_probability_id.name == '0':
+                if last_fixed_project and last_fixed_project.stage_id.code == '0':
                     return False
 
             if project.project_have_steps == False:
@@ -116,18 +116,18 @@ class report_svod_excel(models.AbstractModel):
 
         return False
 
-    def getintestimated_probability(self,estimated_probability_id_name):
-        if estimated_probability_id_name == '0' :
+    def getintestimated_probability(self, stage_id_code):
+        if stage_id_code == '0' :
             return 0
-        if estimated_probability_id_name == '30':
+        if stage_id_code == '30':
             return 30
-        if estimated_probability_id_name == '50':
+        if stage_id_code == '50':
             return 50
-        if estimated_probability_id_name == '75':
+        if stage_id_code == '75':
             return 75
-        if estimated_probability_id_name == '100':
+        if stage_id_code == '100':
             return 100
-        if estimated_probability_id_name == '100(done)':
+        if stage_id_code == '100(done)':
             return 100
         return 0
 
@@ -277,7 +277,7 @@ class report_svod_excel(models.AbstractModel):
                 project_obj = project
             currency_rate = self.get_currency_rate_by_project(project_obj)
 
-            if project.estimated_probability_id.name in ('50', '75','100','100(done)'): # смотрим сумму контрактования в эталоне и с учетом 100
+            if project.stage_id.code in ('50', '75','100','100(done)'): # смотрим сумму контрактования в эталоне и с учетом 100
                 if project.end_presale_project_month.year >= YEARint and project.end_presale_project_month.year <= year_end:
                     sum_year = project.total_amount_of_revenue_with_vat*currency_rate
                     if project.end_presale_project_month.month in (1, 2, 3):
@@ -299,8 +299,8 @@ class report_svod_excel(models.AbstractModel):
         sum_q3 = 0
         sum_q4 = 0
         if project_etalon:  # если эталона нет, то считаем, что и переноса нет - все в новое пойдет
-            if (project_etalon.estimated_probability_id.name in ('50', '75', '100','100(done)')) and (
-                    project.estimated_probability_id.name in ('50', '75', '100','100(done)')):  # только 50 и 75  смотрим
+            if (project_etalon.stage_id.code in ('50', '75', '100','100(done)')) and (
+                    project.stage_id.code in ('50', '75', '100','100(done)')):  # только 50 и 75  смотрим
                 if project_etalon.end_presale_project_month.year >= YEARint \
                         and project_etalon.end_presale_project_month.year <= year_end :
 
@@ -349,7 +349,7 @@ class report_svod_excel(models.AbstractModel):
         sum_contract_etalon_q3 = 0
         sum_contract_etalon_q4 = 0
         if project_etalon:
-            if project_etalon.estimated_probability_id.name in (
+            if project_etalon.stage_id.code in (
             '50', '75', '100','100(done)'):  # если 30 или 0 то как будто нет ничего
                 try:
                     project_obj = project_etalon.projects_id
@@ -372,7 +372,7 @@ class report_svod_excel(models.AbstractModel):
                     10, 11, 12):  # сумма контракта эталона в квартал
                         sum_contract_etalon_q4 = project_etalon.total_amount_of_revenue_with_vat*currency_rate
 
-        if (project.estimated_probability_id.name in ('50', '75', '100','100(done)')):  # только 50 и 75 и 100 смотрим
+        if (project.stage_id.code in ('50', '75', '100','100(done)')):  # только 50 и 75 и 100 смотрим
             if project.end_presale_project_month.year >= YEARint\
                     and project.end_presale_project_month.year <= year_end :  # а если текущий год уже вперери.. то и показывать в отчете нечего
                 try:
@@ -416,8 +416,8 @@ class report_svod_excel(models.AbstractModel):
         sum_q4 = 0
         if not project:  # если нет объекта то все в 0
             return sum_year, sum_q1, sum_q2, sum_q3, sum_q4
-        print('project.estimated_probability_id.name = ',project.estimated_probability_id.name)
-        if project.estimated_probability_id.name in ('100','100(done)'):  # только 50 и 75  смотрим
+        print('project.stage_id.code = ',project.stage_id.code)
+        if project.stage_id.code in ('100','100(done)'):  # только 50 и 75  смотрим
             if project.end_presale_project_month.year >= YEARint\
                     and project.end_presale_project_month.year <= year_end:  # а если текущий год уже вперери.. то и показывать в отчете нечего
                 try:
@@ -453,7 +453,7 @@ class report_svod_excel(models.AbstractModel):
         if project:
             if project_cur.project_have_steps == True: #  если есть этапы сейчас
                 if project_step: # существует этап для суммирования
-                    if step_cur.estimated_probability_id.name in ('50', '75', '100','100(done)'): # текущую вероятность сомтрим
+                    if step_cur.stage_id.code in ('50', '75', '100','100(done)'): # текущую вероятность сомтрим
                         for pds in project.planned_cash_flow_ids:
                             if pds.project_steps_id.id == project_step.id :
                                 if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end and pds.forecast in ('commitment', 'reserve', 'from_project'):
@@ -467,7 +467,7 @@ class report_svod_excel(models.AbstractModel):
                                     if pds.date_cash.month in (10, 11, 12):
                                         sum_q4 += pds.sum_cash
             else:
-                if project_cur.estimated_probability_id.name in ('50', '75', '100','100(done)'): # вероятность по текущему проекту смотрим
+                if project_cur.stage_id.code in ('50', '75', '100','100(done)'): # вероятность по текущему проекту смотрим
                     for pds in project.planned_cash_flow_ids:
                         if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end and pds.forecast in ('commitment', 'reserve', 'from_project'):
                             sum_year += pds.sum_cash
@@ -489,10 +489,10 @@ class report_svod_excel(models.AbstractModel):
         calcsum = False
         if project.project_have_steps == True:
             if project_step:
-                if project_step.estimated_probability_id.name in ('50', '75', '100','100(done)'):
+                if project_step.stage_id.code in ('50', '75', '100','100(done)'):
                     calcsum = True
         else:
-            if project.estimated_probability_id.name in ('50', '75', '100','100(done)'):
+            if project.stage_id.code in ('50', '75', '100','100(done)'):
                 calcsum = True
         if calcsum == True:
             sum_etalon_year, sum_etalon_q1, sum_etalon_q2, sum_etalon_q3, sum_etalon_q4 = self.get_sum_pds(project, project_step, project_etalon, project_step_etalon) # перенос сразу равен эталону
@@ -578,7 +578,7 @@ class report_svod_excel(models.AbstractModel):
         if project:
             if project_cur.project_have_steps == True:  # если есть этапы сейчас
                 if project_step:  # существует этап для суммирования
-                    if step_cur.estimated_probability_id.name in ('50', '75', '100','100(done)'): # по текущему смотрим
+                    if step_cur.stage_id.code in ('50', '75', '100','100(done)'): # по текущему смотрим
                         for act in project.planned_acceptance_flow_ids:
                             if act.project_steps_id.id == project_step.id:
                                 if act.date_cash.year >= YEARint and act.date_cash.year <= year_end and act.forecast in ('commitment', 'reserve', 'from_project'):
@@ -592,7 +592,7 @@ class report_svod_excel(models.AbstractModel):
                                     if act.date_cash.month in (10, 11, 12):
                                         sum_q4 += act.sum_cash_without_vat
             else:
-                if project_cur.estimated_probability_id.name in ('50', '75', '100','100(done)'): # вероятность по текущему проекту смотрим
+                if project_cur.stage_id.code in ('50', '75', '100','100(done)'): # вероятность по текущему проекту смотрим
                     for act in project.planned_acceptance_flow_ids:
                         if act.date_cash.year >= YEARint and act.date_cash.year <= year_end and act.forecast in ('commitment', 'reserve', 'from_project'):
                             sum_year += act.sum_cash_without_vat
@@ -616,10 +616,10 @@ class report_svod_excel(models.AbstractModel):
         calcsum = False
         if project.project_have_steps == True:
             if project_step:
-                if project_step.estimated_probability_id.name in ('50', '75', '100','100(done)'):
+                if project_step.stage_id.code in ('50', '75', '100','100(done)'):
                     calcsum = True
         else:
-            if project.estimated_probability_id.name in ('50', '75', '100','100(done)'):
+            if project.stage_id.code in ('50', '75', '100','100(done)'):
                 calcsum = True
         if calcsum == True:
             sum_etalon_year, sum_etalon_q1, sum_etalon_q2, sum_etalon_q3, sum_etalon_q4 = self.get_sum_acceptance(project, project_step, project_etalon,project_step_etalon) # перенос сразу равен эталону
@@ -711,14 +711,14 @@ class report_svod_excel(models.AbstractModel):
         sum_q2 = 0
         sum_q3 = 0
         sum_q4 = 0
-        estimated_probability = ''
+        stage_id_code = ''
         # контрактование эталон
         if step:
-            estimated_probability = step.estimated_probability_id.name
+            stage_id_code = step.stage_id.code
             if etalon_step:
                 sum_year, sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_contract(etalon_step)
         else:
-            estimated_probability = project.estimated_probability_id.name
+            stage_id_code = project.stage_id.code
             if etalon_project:
                 sum_year, sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_contract(etalon_project)
         sheet.write_number(row, column + 0, sum_year, row_format_number)
@@ -784,7 +784,7 @@ class report_svod_excel(models.AbstractModel):
 
 
         colFormula = column + 4
-        if estimated_probability in ('0','30'):
+        if stage_id_code in ('0','30'):
             formula = '=0'
         else:
             formula = '=-1*if({1} = 0, 0,{1}-{2}{0})'.format(row + 1,
@@ -794,7 +794,7 @@ class report_svod_excel(models.AbstractModel):
                                                              xl_col_to_name(colFormula - 1))
         sheet.write_formula(row, colFormula, formula, row_format_number)
         colFormula = column + 21
-        if estimated_probability in ('0', '30'):
+        if stage_id_code in ('0', '30'):
             formula = '=0'
         else:
             formula = '=-1*if({1} = 0, 0,{1}-{2}{0})'.format(row + 1,
@@ -804,7 +804,7 @@ class report_svod_excel(models.AbstractModel):
                                                              xl_col_to_name(colFormula - 1))
         sheet.write_formula(row, colFormula, formula, row_format_number)
         colFormula = column + 58
-        if estimated_probability in ('0', '30'):
+        if stage_id_code in ('0', '30'):
             formula = '=0'
         else:
             formula = '=-1*if({1} = 0, 0,{1}-{2}{0})'.format(row + 1,
@@ -814,7 +814,7 @@ class report_svod_excel(models.AbstractModel):
                                                              xl_col_to_name(colFormula - 1))
         sheet.write_formula(row, colFormula, formula, row_format_number)
         colFormula = column + 95
-        if estimated_probability in ('0', '30'):
+        if stage_id_code in ('0', '30'):
             formula = '=0'
         else:
             formula = '=-1*if({1} = 0, 0,{1}-{2}{0})'.format(row + 1,
@@ -824,7 +824,7 @@ class report_svod_excel(models.AbstractModel):
                                                              xl_col_to_name(colFormula - 1))
         sheet.write_formula(row, colFormula, formula, row_format_number)
         colFormula = column + 132
-        if estimated_probability in ('0', '30'):
+        if stage_id_code in ('0', '30'):
             formula = '=0'
         else:
             formula = '=-1*if({1} = 0, 0,{1}-{2}{0})'.format(row + 1,
@@ -873,7 +873,7 @@ class report_svod_excel(models.AbstractModel):
         sum_year_curr = sum_q1_curr = sum_q2_curr = sum_q3_curr = sum_q4_curr = 0
         sum_year_curr, sum_q1_curr, sum_q2_curr, sum_q3_curr, sum_q4_curr = self.get_sum_pds(project, step, project,step)  # сумму нового сразу присваиваем текущему
         colFormula = column + 9
-        if estimated_probability in ('0', '30'):
+        if stage_id_code in ('0', '30'):
             formula = '=0'
         else:
             formula = '=-1*if({1} = 0, 0,{1}-{2}{0})'.format(row + 1,
@@ -883,7 +883,7 @@ class report_svod_excel(models.AbstractModel):
                                                              xl_col_to_name(colFormula - 1))
         sheet.write_formula(row, colFormula, formula, row_format_number)
         colFormula = column + 26
-        if estimated_probability in ('0', '30'):
+        if stage_id_code in ('0', '30'):
             formula = '=0'
         else:
             formula = '=-1*if({1} = 0, 0,{1}-{2}{0})'.format(row + 1,
@@ -893,7 +893,7 @@ class report_svod_excel(models.AbstractModel):
                                                              xl_col_to_name(colFormula - 1))
         sheet.write_formula(row, colFormula, formula, row_format_number)
         colFormula = column + 63
-        if estimated_probability in ('0', '30'):
+        if stage_id_code in ('0', '30'):
             formula = '=0'
         else:
             formula = '=-1*if({1} = 0, 0,{1}-{2}{0})'.format(row + 1,
@@ -903,7 +903,7 @@ class report_svod_excel(models.AbstractModel):
                                                              xl_col_to_name(colFormula - 1))
         sheet.write_formula(row, colFormula, formula, row_format_number)
         colFormula = column + 100
-        if estimated_probability in ('0', '30'):
+        if stage_id_code in ('0', '30'):
             formula = '=0'
         else:
             formula = '=-1*if({1} = 0, 0,{1}-{2}{0})'.format(row + 1,
@@ -913,7 +913,7 @@ class report_svod_excel(models.AbstractModel):
                                                              xl_col_to_name(colFormula - 1))
         sheet.write_formula(row, colFormula, formula, row_format_number)
         colFormula = column + 137
-        if estimated_probability in ('0', '30'):
+        if stage_id_code in ('0', '30'):
             formula = '=0'
         else:
             formula = '=-1*if({1} = 0, 0,{1}-{2}{0})'.format(row + 1,
@@ -967,7 +967,7 @@ class report_svod_excel(models.AbstractModel):
                                                              xl_col_to_name(colFormula - 1))
         sheet.write_formula(row, colFormula, formula, row_format_number)
         colFormula = column + 31
-        if estimated_probability in ('0', '30'):
+        if stage_id_code in ('0', '30'):
             formula = '=0'
         else:
             formula = '=-1*if({1} = 0, 0,{1}-{2}{0})'.format(row + 1,
@@ -977,7 +977,7 @@ class report_svod_excel(models.AbstractModel):
                                                              xl_col_to_name(colFormula - 1))
         sheet.write_formula(row, colFormula, formula, row_format_number)
         colFormula = column + 68
-        if estimated_probability in ('0', '30'):
+        if stage_id_code in ('0', '30'):
             formula = '=0'
         else:
             formula = '=-1*if({1} = 0, 0,{1}-{2}{0})'.format(row + 1,
@@ -987,7 +987,7 @@ class report_svod_excel(models.AbstractModel):
                                                              xl_col_to_name(colFormula - 1))
         sheet.write_formula(row, colFormula, formula, row_format_number)
         colFormula = column + 105
-        if estimated_probability in ('0', '30'):
+        if stage_id_code in ('0', '30'):
             formula = '=0'
         else:
             formula = '=-1*if({1} = 0, 0,{1}-{2}{0})'.format(row + 1,
@@ -997,7 +997,7 @@ class report_svod_excel(models.AbstractModel):
                                                              xl_col_to_name(colFormula - 1))
         sheet.write_formula(row, colFormula, formula, row_format_number)
         colFormula = column + 142
-        if estimated_probability in ('0', '30'):
+        if stage_id_code in ('0', '30'):
             formula = '=0'
         else:
             formula = '=-1*if({1} = 0, 0,{1}-{2}{0})'.format(row + 1,
@@ -1043,7 +1043,7 @@ class report_svod_excel(models.AbstractModel):
                     if ((project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
                             or ((not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
 
-                        if step.estimated_probability_id.name in ('100','100(done)', '75', '50'):
+                        if step.stage_id.code in ('100','100(done)', '75', '50'):
                             for pds in project.planned_cash_flow_ids:
                                 if pds.project_steps_id.id == step.id:
                                     if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end and pds.forecast in ('commitment', 'reserve', 'from_project'):
@@ -1069,7 +1069,7 @@ class report_svod_excel(models.AbstractModel):
                                         if act.date_cash.month in (10, 11, 12):
                                             sum_act_q4 += act.sum_cash_without_vat
 
-                    if step.estimated_probability_id.name in ('75', '50'):
+                    if step.stage_id.code in ('75', '50'):
                         if step.end_presale_project_month.year >= YEARint and step.end_presale_project_month.year <= year_end:
                             sum_contract_year += step.total_amount_of_revenue_with_vat*currency_rate
                             if step.end_presale_project_month.month in (1, 2, 3):
@@ -1081,7 +1081,7 @@ class report_svod_excel(models.AbstractModel):
                             if step.end_presale_project_month.month in (10, 11, 12):
                                 sum_contract_q4 += step.total_amount_of_revenue_with_vat*currency_rate
             else:
-                if project.project_office_id == project_office and project.estimated_probability_id.name in ('75', '50','100','100(done)'):
+                if project.project_office_id == project_office and project.stage_id.code in ('75', '50','100','100(done)'):
                     if project.end_presale_project_month.year >= YEARint and project.end_presale_project_month.year <= year_end:
                         sum_contract_year += project.total_amount_of_revenue_with_vat*currency_rate
                         if project.end_presale_project_month.month in (1, 2, 3):
@@ -1092,7 +1092,7 @@ class report_svod_excel(models.AbstractModel):
                             sum_contract_q3 += project.total_amount_of_revenue_with_vat*currency_rate
                         if project.end_presale_project_month.month in (10, 11, 12):
                             sum_contract_q4 += project.total_amount_of_revenue_with_vat*currency_rate
-                        if project.estimated_probability_id.name in ('100','100(done)', '75', '50'):
+                        if project.stage_id.code in ('100','100(done)', '75', '50'):
                             for pds in project.planned_cash_flow_ids:
                                 if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end and pds.forecast in ('commitment', 'reserve', 'from_project'):
                                     sum_pds_year += pds.sum_cash
@@ -1308,7 +1308,7 @@ class report_svod_excel(models.AbstractModel):
                                                                            order='name')  # для сортировки так делаем
         project_managers = self.env['project_budget.project_manager'].search([],
                                                                              order='name')  # для сортировки так делаем
-        estimated_probabilitys = self.env['project_budget.estimated_probability'].search([('name','!=','10')],order='name desc')  # для сортировки так делаем
+        stages = self.env['project_budget.project.stage'].search([('name', '!=', '10')], order='sequence desc')  # для сортировки так делаем
 
         isFoundProjects = False
         begRowProjectsByManager = 0
@@ -1327,13 +1327,13 @@ class report_svod_excel(models.AbstractModel):
                 column = -1
                 isFoundProjects = False
 
-                for estimated_probability in estimated_probabilitys:
+                for stage in stages:
                     cur_budget_projects = self.env['project_budget.projects'].search([
                         '|', ('project_office_id', '=', project_office.id),
                         ('legal_entity_signing_id.different_project_offices_in_steps', '=', True),
                         ('commercial_budget_id', '=', budget.id),
                         ('project_manager_id', '=', project_manager.id),
-                        ('estimated_probability_id', '=', estimated_probability.id)]
+                        ('stage_id', '=', stage.id)]
                         )
                     for spec in cur_budget_projects:
                         if spec.project_office_id == project_office or spec.legal_entity_signing_id.different_project_offices_in_steps and any(step.project_office_id == project_office for step in spec.project_steps_ids):
@@ -1370,16 +1370,16 @@ class report_svod_excel(models.AbstractModel):
                                         etalon_step = self.get_etalon_step(step)
                                         etalon_probability_int = 0
                                         if etalon_step:
-                                            etalon_probability_int = self.getintestimated_probability(etalon_step.estimated_probability_id.name)
+                                            etalon_probability_int = self.getintestimated_probability(etalon_step.stage_id.code)
                                         current_probability_int = 0
                                         if step:
-                                            current_probability_int = self.getintestimated_probability(step.estimated_probability_id.name)
+                                            current_probability_int = self.getintestimated_probability(step.stage_id.code)
                                         Probability_format = cur_row_format
                                         if current_probability_int > etalon_probability_int :
                                             Probability_format = row_format_number_probability_up
                                         if current_probability_int < etalon_probability_int:
                                             Probability_format = row_format_number_probability_down
-                                        if step.estimated_probability_id.name == '0':
+                                        if step.stage_id.code == '0':
                                             # print('row_format_canceled_project')
                                             cur_row_format = row_format_canceled_project
                                             cur_row_format_number = row_format_number_canceled_project
@@ -1395,7 +1395,7 @@ class report_svod_excel(models.AbstractModel):
                                         column += 1
                                         sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
                                         column += 1
-                                        sheet.write_string(row, column, step.estimated_probability_id.name, Probability_format)
+                                        sheet.write_string(row, column, step.stage_id.code, Probability_format)
                                         column += 1
                                         self.print_row_Values(workbook, sheet, row, column, spec, step, cur_row_format_number)
                                         row += 1
@@ -1410,16 +1410,16 @@ class report_svod_excel(models.AbstractModel):
                                     etalon_spec = self.get_etalon_project(spec)
                                     etalon_probability_int = 0
                                     if etalon_spec:
-                                        etalon_probability_int = self.getintestimated_probability(etalon_spec.estimated_probability_id.name)
+                                        etalon_probability_int = self.getintestimated_probability(etalon_spec.stage_id.code)
                                     current_probability_int = 0
                                     if spec:
-                                        current_probability_int = self.getintestimated_probability(spec.estimated_probability_id.name)
+                                        current_probability_int = self.getintestimated_probability(spec.stage_id.code)
                                     Probability_format = cur_row_format
                                     if current_probability_int > etalon_probability_int:
                                         Probability_format = row_format_number_probability_up
                                     if current_probability_int < etalon_probability_int:
                                         Probability_format = row_format_number_probability_down
-                                    if spec.estimated_probability_id.name == '0':
+                                    if spec.stage_id.code == '0':
                                         # print('row_format_canceled_project')
                                         cur_row_format = row_format_canceled_project
                                         cur_row_format_number = row_format_number_canceled_project
@@ -1433,7 +1433,7 @@ class report_svod_excel(models.AbstractModel):
                                     column += 1
                                     sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
                                     column += 1
-                                    sheet.write_string(row, column, spec.estimated_probability_id.name, Probability_format)
+                                    sheet.write_string(row, column, spec.stage_id.code, Probability_format)
                                     column += 1
                                     self.print_row_Values(workbook, sheet, row, column, spec, False, cur_row_format_number)
                 # print('isFoundProjects = ' ,isFoundProjects)

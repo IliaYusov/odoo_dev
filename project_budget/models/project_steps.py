@@ -3,11 +3,16 @@ from odoo.exceptions import ValidationError
 from odoo.tools import pytz
 from datetime import timedelta
 
+
+#TODO: убрать все явные привязки к вероятности
 class project_steps(models.Model):
     _name = 'project_budget.project_steps'
     _description = "project steps"
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'name_to_show'
+
+    def _get_default_stage_id(self):
+        return self.env['project_budget.projects'].browse(self.projects_id).stage_id
 
     def _get_current_amount_spec_type(self):
         context = self.env.context
@@ -267,8 +272,10 @@ class project_steps(models.Model):
     # sum_with_vat = fields.Monetary(string="sum_with_vat", compute='_compute_sum', readonly=True)
     # margin_income = fields.Monetary(string="margin", required=True, copy=True)
     dogovor_number = fields.Char(string='Dogovor number', store=True, tracking=True)
+    stage_id = fields.Many2one('project_budget.project.stage', string='Stage', copy=True, default=_get_default_stage_id,
+                               required=True, tracking=True)
     estimated_probability_id = fields.Many2one('project_budget.estimated_probability', string='estimated_probability',  copy = True, tracking=True
-                        ,required = True, default = _getesimated_probability_fromProject)
+                        ,required = False, default = _getesimated_probability_fromProject)
     currency_id = fields.Many2one('res.currency', string='Account Currency', related='projects_id.currency_id', readonly=True)
     project_steps_type_id = fields.Many2one('project_budget.project_steps_type', string='project steps type', required=True, copy=True)
     project_office_id = fields.Many2one('project_budget.project_office', string='project office',
@@ -373,7 +380,7 @@ class project_steps(models.Model):
     @api.onchange('currency_id','essence_project','end_presale_project_month','end_sale_project_month','vat_attribute_id','total_amount_of_revenue',
                   'total_amount_of_revenue_with_vat','revenue_from_the_sale_of_works','revenue_from_the_sale_of_goods','cost_price','cost_of_goods','own_works_fot',
                   'third_party_works','awards_on_results_project','transportation_expenses','travel_expenses','representation_expenses','taxes_fot_premiums','warranty_service_costs',
-                  'rko_other','other_expenses','margin_income','profitability','estimated_probability_id','legal_entity_signing_id','project_steps_type_id',
+                  'rko_other','other_expenses','margin_income','profitability','stage_id','legal_entity_signing_id','project_steps_type_id',
                   'code','dogovor_number','amount_spec_ids'
                 )
     def _check_changes_step(self):
@@ -394,10 +401,10 @@ class project_steps(models.Model):
             if row.project_steps_type_id.is_rko_other == False: row.rko_other = 0
             if row.project_steps_type_id.is_other_expenses== False: row.other_expenses = 0
 
-    @api.constrains('estimated_probability_id', 'total_amount_of_revenue', 'cost_price')
+    @api.constrains('stage_id', 'total_amount_of_revenue', 'cost_price')
     def _check_financial_data_is_present(self):
         for step in self:
-            if (step.estimated_probability_id.name in ('30', '50', '75', '100')
+            if (step.stage_id.code in ('30', '50', '75', '100')
                     and step.total_amount_of_revenue == 0
                     and step.cost_price == 0
                     and step.projects_id.budget_state == 'work'
@@ -406,10 +413,10 @@ class project_steps(models.Model):
                 raisetext = raisetext.format(step.projects_id.project_id, step.step_id)
                 raise ValidationError(raisetext)
 
-    @api.constrains('estimated_probability_id', 'code')
+    @api.constrains('stage_id', 'code')
     def _check_step_axapta_code(self):
         for step in self:
-            if (step.estimated_probability_id.name in ('75', '100')
+            if (step.stage_id.name in ('75', '100')
                     and not step.code
                     and step.projects_id.budget_state == 'work'
                     and not step.projects_id.is_correction_project):  # Проект без кода этапа из AXAPTA

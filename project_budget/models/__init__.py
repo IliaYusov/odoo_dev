@@ -5,7 +5,8 @@ from . import fact_cash_flow
 from . import planned_acceptance_flow
 from . import planned_cash_flow
 from . import project_steps
-from . import project_budget_projects
+from . import project_budget_project_stage
+from . import project_budget_project
 from . import project_budget_catalogs
 from . import project_budget_scheduled_report
 from . import estimated_probability
@@ -20,5 +21,6 @@ from . import project_currency_rates
 from . import project_step_amount_specifications
 from . import res_config_settings
 from . import res_partner
-from . import res_partner_grade
-from . import res_company_reseller
+from . import res_company_partner_type
+from . import res_company_partner_grade
+from . import res_company_partner

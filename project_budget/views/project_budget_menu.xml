@@ -1,63 +1,98 @@
 <odoo>
-    <data>
-        <menuitem id="project_budget_menu" name="Project budget" sequence="1"/>
-        <menuitem id="project_budget_budgets" parent ="project_budget_menu" name = "Budgets/Projects"/>
-<!--        <menuitem id="project_budget_budgets_comercial_budget_kandan" parent ="project_budget_budgets" name = "project_budget_estimated_probability_action" action="project_budget_estimated_probability_action" sequence="1"/>-->
-        <menuitem id="project_budget_menu_dashboard" parent="project_budget.project_budget_menu" name="work place" sequence="1"
-              action="action_project_budget_dashboard"/>
-        <menuitem id="project_budget_budgets_comercial_budget_spec" parent ="project_budget_budgets" name = "Projects" action="show_comercial_budget_spec" sequence="2"/>
-        <menuitem id="project_budget_budgets_comercial_budget_spec_all" parent ="project_budget_budgets" name = "Projects all budgets" action="show_comercial_budget_spec_all" sequence="3" groups="project_budget.project_budget_admin"/>
-        <menuitem id="project_budget_budgets_comercial_budget" parent ="project_budget_budgets" name = "Comercial budgets" action="show_comercial_budgets" sequence="5" groups="project_budget.project_budget_admin"/>
-        <menuitem id="project_budget_catalogs_budget_plan_supervisor" parent ="project_budget_budgets" name = "budget_plan_supervisor" action="show_budget_plan_supervisor"/>
-        <menuitem id="project_budget_catalogs_budget_plan_kam" parent ="project_budget_budgets" name = "budget_plan_kam" action="show_budget_plan_kam"/>
-        <menuitem id="project_budget_budgets_tenders" parent ="project_budget_budgets" name = "Tenders" action="show_projects_tenders" sequence="5"/>
+    <menuitem id="project_budget_menu" name="Project budget" sequence="1"/>
+    <menuitem id="project_budget_budgets" parent="project_budget_menu" name="Budgets/Projects"/>
+<!--    <menuitem id="project_budget_menu_dashboard" parent="project_budget.project_budget_menu" name="work place"-->
+<!--              sequence="1"-->
+<!--              action="action_project_budget_dashboard"/>-->
+    <menuitem id="project_budget_budgets_comercial_budget_spec" parent="project_budget_budgets" name="Projects"
+              action="action_project_budget_projects" sequence="2"/>
+    <menuitem id="project_budget_budgets_comercial_budget_spec_all" parent="project_budget_budgets"
+              name="Projects all budgets" action="show_comercial_budget_spec_all" sequence="3"
+              groups="project_budget.project_budget_admin"/>
+    <menuitem id="project_budget_budgets_comercial_budget" parent="project_budget_budgets" name="Comercial budgets"
+              action="show_comercial_budgets" sequence="5" groups="project_budget.project_budget_admin"/>
+    <menuitem id="project_budget_catalogs_budget_plan_supervisor" parent="project_budget_budgets"
+              name="budget_plan_supervisor" action="show_budget_plan_supervisor"/>
+    <menuitem id="project_budget_catalogs_budget_plan_kam" parent="project_budget_budgets" name="budget_plan_kam"
+              action="show_budget_plan_kam"/>
+    <menuitem id="project_budget_budgets_tenders" parent="project_budget_budgets" name="Tenders"
+              action="show_projects_tenders" sequence="5"/>
 
 
-        <menuitem id="project_budget_catalogs" parent ="project_budget_menu" name = "Catalogs"/>
-        <menuitem id="project_budget_catalogs_project_supervisor" parent ="project_budget_catalogs" name = "project_supervisor" action="show_project_supervisor"/>
-        <menuitem id="project_budget_catalogs_project_office" parent ="project_budget_catalogs" name = "project_office" action="show_project_office"/>
-        <menuitem id="project_budget_catalogs_project_manager" parent ="project_budget_catalogs" name = "project_manager" action="show_project_manager"/>
-        <menuitem id="project_budget_catalogs_rukovoditel_project" parent ="project_budget_catalogs" name = "rukovoditel_project" action="show_rukovoditel_project"/>
+    <menuitem id="project_budget_catalogs" parent="project_budget_menu" name="Catalogs"/>
+    <menuitem id="project_budget_catalogs_project_supervisor" parent="project_budget_catalogs" name="project_supervisor"
+              action="show_project_supervisor"/>
+    <menuitem id="project_budget_catalogs_project_office" parent="project_budget_catalogs" name="project_office"
+              action="show_project_office"/>
+    <menuitem id="project_budget_catalogs_project_manager" parent="project_budget_catalogs" name="project_manager"
+              action="show_project_manager"/>
+    <menuitem id="project_budget_catalogs_rukovoditel_project" parent="project_budget_catalogs"
+              name="rukovoditel_project" action="show_rukovoditel_project"/>
 
-        <menuitem id="project_budget_catalogs_customer_organization" parent="project_budget_catalogs" name="customer_organization" action="partners_tree_action"/>
-        <menuitem id="project_budget_catalogs_customer_status" parent ="project_budget_catalogs" name = "customer_status" action="show_customer_status"/>
-        <menuitem id="project_budget_catalogs_industry" parent ="project_budget_catalogs" name = "industry" action="show_industry"/>
-        <menuitem id="project_budget_catalogs_vat_attribute" parent ="project_budget_catalogs" name = "vat_attribute" action="show_vat_attribute"/>
-        <menuitem id="project_budget_catalogs_legal_entity_signing" parent ="project_budget_catalogs" name = "legal_entity_signing" action="show_legal_entity_signing"/>
-        <menuitem id="project_budget_catalogs_project_type" parent ="project_budget_catalogs" name = "project_type" action="show_project_type"/>
-        <menuitem id="project_budget_catalogs_project_steps_type" parent ="project_budget_catalogs" name = "type of project steps" action="show_project_steps_type"/>
-        <menuitem id="project_budget_catalogs_technological_direction" parent ="project_budget_catalogs" name = "technological_direction" action="show_technological_direction"/>
-        <menuitem id="project_budget_catalogs_tender_current_status" parent ="project_budget_catalogs" name = "tender status" action="show_project_tender_current_status"/>
-        <menuitem id="project_budget_catalogs_tender_comments_type" parent ="project_budget_catalogs" name = "tender comment types" action="show_project_tender_comments_type"/>
+    <menuitem id="project_budget_catalogs_customer_organization" parent="project_budget_catalogs"
+              name="customer_organization" action="action_res_partner_companies"/>
+    <menuitem id="project_budget_catalogs_industry" parent="project_budget_catalogs" name="industry"
+              action="show_industry"/>
+    <menuitem id="project_budget_catalogs_vat_attribute" parent="project_budget_catalogs" name="vat_attribute"
+              action="show_vat_attribute"/>
+    <menuitem id="project_budget_catalogs_legal_entity_signing" parent="project_budget_catalogs"
+              name="legal_entity_signing" action="show_legal_entity_signing"/>
+    <menuitem id="project_budget_catalogs_project_type" parent="project_budget_catalogs" name="project_type"
+              action="show_project_type"/>
+    <menuitem id="project_budget_catalogs_project_steps_type" parent="project_budget_catalogs"
+              name="type of project steps" action="show_project_steps_type"/>
+    <menuitem id="project_budget_catalogs_technological_direction" parent="project_budget_catalogs"
+              name="technological_direction" action="show_technological_direction"/>
+    <menuitem id="project_budget_catalogs_tender_current_status" parent="project_budget_catalogs" name="tender status"
+              action="show_project_tender_current_status"/>
+    <menuitem id="project_budget_catalogs_tender_comments_type" parent="project_budget_catalogs"
+              name="tender comment types" action="show_project_tender_comments_type"/>
 
-        <menuitem id="project_budget_access" parent ="project_budget_menu" name = "Access"/>
-        <menuitem id="project_budget_catalogs_project_supervisor_access" parent ="project_budget_access" name = "project_supervisor_access" action="show_comercial_budget_spec_supervisor_access" groups="project_budget.project_budget_admin"/>
-        <menuitem id="project_budget_catalogs_project_manager_access" parent ="project_budget_access" name = "project_manager_access" action="show_comercial_budget_spec_manager_access" groups="project_budget.project_budget_admin"/>
-        <menuitem id="project_budget_catalogs_rukovoditel_project_access" parent ="project_budget_access" name = "rukovoditel_project_access" action="show_comercial_budget_spec_rukovoditel_project_access" groups="project_budget.project_budget_admin"/>
+    <menuitem id="project_budget_access" parent="project_budget_menu" name="Access"/>
+    <menuitem id="project_budget_catalogs_project_supervisor_access" parent="project_budget_access"
+              name="project_supervisor_access" action="show_comercial_budget_spec_supervisor_access"
+              groups="project_budget.project_budget_admin"/>
+    <menuitem id="project_budget_catalogs_project_manager_access" parent="project_budget_access"
+              name="project_manager_access" action="show_comercial_budget_spec_manager_access"
+              groups="project_budget.project_budget_admin"/>
+    <menuitem id="project_budget_catalogs_rukovoditel_project_access" parent="project_budget_access"
+              name="rukovoditel_project_access" action="show_comercial_budget_spec_rukovoditel_project_access"
+              groups="project_budget.project_budget_admin"/>
 
-        <menuitem id="project_budget_reports" parent ="project_budget_menu" name = "Reports"/>
-        <menuitem id="project_budget_tenders_report" parent ="project_budget_reports" name = "Tenders" groups="project_budget_tenders_user,project_budget_tenders_admin"/>
-        <menuitem id="project_budget_tender_print_report" parent ="project_budget_tenders_report" name = "Print tenders list" action="action_tender_print_report" groups="project_budget_tenders_user,project_budget_tenders_admin"/>
+    <menuitem id="project_budget_reports" parent="project_budget_menu" name="Reports"/>
+    <menuitem id="project_budget_tenders_report" parent="project_budget_reports" name="Tenders"
+              groups="project_budget_tenders_user,project_budget_tenders_admin"/>
+    <menuitem id="project_budget_tender_print_report" parent="project_budget_tenders_report" name="Print tenders list"
+              action="action_tender_print_report" groups="project_budget_tenders_user,project_budget_tenders_admin"/>
 
-        <menuitem id="project_budget_projects_report" parent ="project_budget_reports" name = "Projects" groups="project_budget_users,project_budget_admin,project_budget_users_readonly"/>
-        <menuitem id="project_budget_projects_print_report" parent ="project_budget_projects_report" name = "Print projects" action="action_projects_print_report" groups="project_budget_users,project_budget_admin,project_budget_users_readonly"/>
+    <menuitem id="project_budget_projects_report" parent="project_budget_reports" name="Projects"
+              groups="project_budget_users,project_budget_admin,project_budget_users_readonly"/>
+    <menuitem id="project_budget_projects_print_report" parent="project_budget_projects_report" name="Print projects"
+              action="action_projects_print_report"
+              groups="project_budget_users,project_budget_admin,project_budget_users_readonly"/>
 
-		<menuitem id="menu_project_budget_configuration" parent="project_budget_menu" name="Configuration"
-                  sequence="100" groups="project_budget_admin">
-            <menuitem id="menu_project_budget_resellers" name="Resellers" sequence="40">
-                <menuitem id="menu_project_budget_partner_levels" name="Partner Levels" sequence="1"
-                          action="action_res_partner_grades"/>
-                <menuitem id="menu_project_budget_company_resellers" name="Company Resellers" sequence="2"
-                          action="action_res_company_resellers"/>
-            </menuitem>
-            <menuitem id="menu_project_budget_account" name="Accounting" sequence="50">
-                <menuitem id="menu_action_currency_form" name="Currencies" sequence="1"
-                          action="base.action_currency_form" groups="base.group_system"/>
-            </menuitem>
-            <menuitem id="menu_project_budget_report" name="Reporting" sequence="60">
-                <menuitem id="menu_action_scheduled_report_form" name="Scheduled Reports" sequence="1"
-                          action="action_view_project_budget_scheduled_reports"/>
-            </menuitem>
+    <menuitem id="menu_project_budget_configuration" parent="project_budget_menu" name="Configuration"
+              sequence="100">
+        <menuitem id="menu_project_budget_pipeline" name="Pipeline" sequence="10" groups="project_budget_admin">
+            <menuitem id="menu_project_budget_pipeline_stages" name="Stages" sequence="1"
+                      action="action_project_budget_project_stages"/>
         </menuitem>
-    </data>
+        <menuitem id="menu_project_budget_partners" name="Company Partners" sequence="40"
+                  groups="base.group_partner_manager">
+            <menuitem id="menu_project_budget_partner_types" name="Partner Types" sequence="1"
+                      action="action_res_company_partner_types"/>
+            <menuitem id="menu_project_budget_partner_levels" name="Partner Levels" sequence="2"
+                      action="action_res_company_partner_grades"/>
+            <menuitem id="menu_project_budget_company_partners" name="Company Partners" sequence="3"
+                      action="action_res_company_partners"/>
+        </menuitem>
+        <menuitem id="menu_project_budget_account" name="Accounting" sequence="50">
+            <menuitem id="menu_action_currency_form" name="Currencies" sequence="1"
+                      action="base.action_currency_form" groups="base.group_system"/>
+        </menuitem>
+        <menuitem id="menu_project_budget_report" name="Reporting" sequence="60" groups="project_budget_admin">
+            <menuitem id="menu_action_scheduled_report_form" name="Scheduled Reports" sequence="1"
+                      action="action_view_project_budget_scheduled_reports"/>
+        </menuitem>
+    </menuitem>
 </odoo>

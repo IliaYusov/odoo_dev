@@ -144,7 +144,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                 ['&', '&',
                  ('commercial_budget_id', '=', budget.id),
                  ('id', 'in', [pds.projects_id.id for pds in self.env['project_budget.planned_cash_flow'].search([]) if date_start <= pds.date_cash <= date_end]),
-                 ('estimated_probability_id.name', 'not in', ('0', '10')),
+                 ('stage_id.code', 'not in', ('0', '10')),
                  ]
             )
         else:
@@ -153,7 +153,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                 ['&', '&',
                  ('commercial_budget_id', '=', budget.id),
                  ('id', 'in', [acc.projects_id.id for acc in self.env['project_budget.planned_acceptance_flow'].search([]) if date_start <= acc.date_cash <= date_end]),
-                 ('estimated_probability_id.name', 'not in', ('0', '10')),
+                 ('stage_id.code', 'not in', ('0', '10')),
                  ]
             )
 
@@ -182,7 +182,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
             if project.project_have_steps:
                 for step in project.project_steps_ids:
 
-                    if step.estimated_probability_id.name in ('0', '10'):
+                    if step.stage_id.code in ('0', '10'):
                         continue
 
                     if step.legal_entity_signing_id.name == project.company_id.name:
@@ -210,7 +210,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                     column += 1
                     sheet.write_string(row, column, project.project_manager_id.name, row_format)
                     column += 1
-                    sheet.write_string(row, column, step.estimated_probability_id.name, row_format)
+                    sheet.write_string(row, column, step.stage_id.code, row_format)
                     column += 1
                     sheet.write_string(row, column, project.partner_id.name, row_format)
                     column += 1
@@ -252,7 +252,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                 column += 1
                 sheet.write_string(row, column, project.project_manager_id.name, row_format)
                 column += 1
-                sheet.write_string(row, column, project.estimated_probability_id.name, row_format)
+                sheet.write_string(row, column, project.stage_id.code, row_format)
                 column += 1
                 sheet.write_string(row, column, project.partner_id.name, row_format)
                 column += 1

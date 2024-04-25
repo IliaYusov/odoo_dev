@@ -89,7 +89,7 @@ class commercial_budget(models.Model):
                 print('spec.with_context was_changes')
 
                 spec.was_changes = False
-                if spec.estimated_probability_id.name in ('0', '100(done)'):
+                if spec.stage_id.code in ('0', '100(done)'):
                     print('spec.with_context spec.approve_state')
                     spec.approve_state = "-"
 
@@ -100,7 +100,7 @@ class commercial_budget(models.Model):
                     for activitie in activities:
                         activitie.sudo().action_done()
 
-                if spec.estimated_probability_id.name in ('10','30','50','75','100'):
+                if spec.stage_id.code in ('10','30','50','75','100'):
 
                     # Get a reference to the mail.activity model
                     # Use the search method to find the activities that need to be marked as done

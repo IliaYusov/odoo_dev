@@ -9,22 +9,22 @@ class ProjectBudgetLinkProjectWizard(models.TransientModel):
                                  required=True)
     company_id = fields.Many2one(related='project_id.company_id', readonly=True)
     partner_id = fields.Many2one(related='project_id.partner_id', readonly=True)
-    reseller_id = fields.Many2one('res.company.reseller', string='Reseller', check_company=True,
-                                  domain="[('company_id', '=', company_id)]", required=True)
-    parent_project_id = fields.Many2one('project_budget.projects', string='Parent Project', depends=['reseller_id'],
-                                        ondelete='cascade', required=True)
+    company_partner_id = fields.Many2one('res.company.partner', string='Company Partner', check_company=True,
+                                         domain="[('company_id', '=', company_id)]", required=True)
+    parent_project_id = fields.Many2one('project_budget.projects', string='Parent Project',
+                                        depends=['company_partner_id'], ondelete='cascade', required=True)
     parent_project_id_domain = fields.Binary(compute='_compute_parent_project_id_domain')
 
     # ------------------------------------------------------
     # COMPUTE METHODS
     # ------------------------------------------------------
     
-    @api.depends('reseller_id')
+    @api.depends('company_partner_id')
     def _compute_parent_project_id_domain(self):
         for record in self:
             domain = [('id', '=', -1)]
             company = self.env['res.company'].search([
-                ('partner_id', '=', record.reseller_id.partner_id.id)
+                ('partner_id', '=', record.company_partner_id.partner_id.id)
             ])
             if company:
                 domain = [

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="project_budget_project_stage_view_search" model="ir.ui.view">
+        <field name="name">project.budget.project.stage.view.search</field>
+        <field name="model">project_budget.project.stage</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="project_budget_project_stage_view_tree" model="ir.ui.view">
+        <field name="name">project.budget.project.stage.view.tree</field>
+        <field name="model">project_budget.project.stage</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom" sample="1">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="fold"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="project_budget_project_stage_view_form_quick_create" model="ir.ui.view">
+        <field name="name">project.budget.project.stage.view.form.quick.create</field>
+        <field name="model">project_budget.project.stage</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="fold"/>
+                    <field name="color" widget="color_picker"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <record id="project_budget_project_stage_view_form" model="ir.ui.view">
+        <field name="name">project.budget.project.stage.view.form</field>
+        <field name="model">project_budget.project.stage</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <field name="active" invisible="1"/>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger"
+                            attrs="{'invisible': [('active', '=', True)]}"/>
+                    <h1><field name="name" placeholder="New"/></h1>
+                    <group>
+                        <group>
+                            <field name="code" placeholder="Code"/>
+                        </group>
+                        <group>
+                            <field name="project_status"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="sequence"/>
+                        </group>
+                        <group>
+                            <field name="fold"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="required_field_ids" widget="many2many_tags"/>
+                        </group>
+                        <group>
+                            <field name="color" widget="color_picker"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="project_budget_project_stage_view_kanban" model="ir.ui.view">
+        <field name="name">project.budget.project.stage.view.kanban</field>
+        <field name="model">project_budget.project.stage</field>
+        <field name="arch" type="xml">
+            <kanban class="oe_background_grey o_kanban_dashboard o_emphasize_colors o_project_stage_kanban" sample="1"
+                    default_order="sequence, id"
+                    quick_create_view="project_budget.project_budget_project_stage_view_form_quick_create">
+                <field name="name"/>
+                <field name="sequence"/>
+                <field name="fold"/>
+                <field name="color"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="#{kanban_color(record.color.raw_value)} oe_kanban_card oe_kanban_global_click">
+                            <strong><field name="name"/></strong>
+                            <br/>
+                            <field name="fold"/>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="action_project_budget_project_stages" model="ir.actions.act_window">
+        <field name="name">Project Stages</field>
+        <field name="res_model">project_budget.project.stage</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+              No stages found. Let's create one!
+            </p><p>
+              Define the steps your projects move through from creation to completion.
+            </p>
+        </field>
+    </record>
+</odoo>
