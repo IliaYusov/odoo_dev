@@ -1,8 +1,6 @@
 from odoo import models
 import datetime
-import xlsxwriter
 from xlsxwriter.utility import xl_col_to_name
-import logging
 
 class ReportBudgetPlanFactExcel(models.AbstractModel):
     _name = 'report.project_budget.report_budget_plan_fact_excel'
@@ -13,6 +11,7 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
     YEARint = 2023
     koeff_reserve = float(1)
     year_end = 2023
+
     def is_step_in_year(self, project, step, year):
         if project:
             if step:
@@ -130,123 +129,17 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
             return 'Q4'
         return False
 
-
     def get_months_from_quater(self, quarter_name):
-        months = False;
         if quarter_name == 'Q1':
-            months=(1,2,3)
-        if quarter_name == 'Q2':
-            months=(4,5,6)
-        if quarter_name == 'Q3':
-            months=(7,8,9)
-        if quarter_name == 'Q4':
-            months=(10,11,12)
-        return months
-
-    def get_etalon_project_first(self,spec):
-        global YEARint
-
-        datesearch = datetime.date(YEARint, 1, 1)  # будем искать первый утвержденный в году
-        etalon_project = self.env['project_budget.projects'].search([('etalon_budget', '=', True),
-                                                                     ('budget_state', '=', 'fixed'),
-                                                                     ('project_id', '=', spec.project_id),
-                                                                     ('date_actual', '>=', datesearch)
-                                                                     ], limit=1, order='date_actual')
-        return etalon_project
-
-    def get_etalon_project(self,spec, quater):
-        global YEARint
-
-        datesearch = datetime.date(YEARint, 1, 1)
-        if quater == 'Q1':
-            datesearch = datetime.date(YEARint, 1, 1) # будем искать первый утвержденный в году
-        if quater == 'Q2':
-            datesearch = datetime.date(YEARint, 4, 1) # будем искать первый утвержденный после марта
-        if quater == 'Q3':
-            datesearch = datetime.date(YEARint, 7, 1) # будем искать первый утвержденный после июня
-        if quater == 'Q4':
-            datesearch = datetime.date(YEARint, 10, 1) # будем искать первый утвержденный после сентября
-
-        if isdebug:
-            logger.info(' self.env[project_budget.projects].search ')
-            logger.info(f'          etalon_budget = True')
-            logger.info(f'          budget_state = fixed')
-            logger.info(f'          project_id = { spec.project_id}')
-            logger.info(f'          date_actual >= { datesearch}')
-            logger.info(f'          limit=1, order= date_actual')
-
-        etalon_project = self.env['project_budget.projects'].search([('etalon_budget', '=', True),
-                                                                     ('budget_state','=','fixed'),
-                                                                     ('project_id','=',spec.project_id),
-                                                                     ('date_actual','>=',datesearch)
-                                                                    ], limit=1, order='date_actual')
-        if etalon_project:
-            if isdebug: logger.info(f'   etalon_project found by date ')
-        else: # если не нашли относительно даты, то поищем просто последний
-            if isdebug: logger.info(f'   etalon_project NOT found by date ')
-            etalon_project = self.env['project_budget.projects'].search([('etalon_budget', '=', True),
-                                                                     ('budget_state','=','fixed'),
-                                                                     ('project_id','=',spec.project_id),
-                                                                     ('date_actual', '>=', datetime.date(YEARint, 1, 1)),
-                                                                    ], limit=1, order='date_actual desc')
-        if isdebug:
-            logger.info(f'  etalon_project.id = { etalon_project.id}')
-            logger.info(f'  etalon_project.project_id = {etalon_project.project_id}')
-            logger.info(f'  etalon_project.date_actual = { etalon_project.date_actual}')
-
-        # print('etalon_project.project_id = ',etalon_project.project_id)
-        # print('etalon_project.date_actual = ',etalon_project.date_actual)
-        return etalon_project
-
-    def get_etalon_step(self,step, quater):
-        global YEARint
-
-        if isdebug:
-            logger.info(f' start get_etalon_step')
-            logger.info(f' quater = {quater}')
-        if step == False:
+            return (1, 2, 3)
+        elif quarter_name == 'Q2':
+            return (4, 5, 6)
+        elif quarter_name == 'Q3':
+            return (7, 8, 9)
+        elif quarter_name == 'Q4':
+            return(10, 11, 12)
+        else:
             return False
-        datesearch = datetime.date(YEARint, 1, 1)
-        if quater == 'Q1':
-            datesearch = datetime.date(YEARint, 1, 1) # будем искать первый утвержденный в году
-        if quater == 'Q2':
-            datesearch = datetime.date(YEARint, 4, 1) # будем искать первый утвержденный после марта
-        if quater == 'Q3':
-            datesearch = datetime.date(YEARint, 7, 1) # будем искать первый утвержденный после июня
-        if quater == 'Q4':
-            datesearch = datetime.date(YEARint, 10, 1) # будем искать первый утвержденный после сентября
-        if isdebug:
-            logger.info(f'   self.env[project_budget.projects].search ')
-            logger.info(f'           etalon_budget = True')
-            logger.info(f'           step_id = {step.step_id}')
-            logger.info(f'           id != {step.id}')
-            logger.info(f'           date_actual >= {datesearch}')
-            logger.info(f'           limit = 1, order = date_actual')
-
-        etalon_step = self.env['project_budget.project_steps'].search([('etalon_budget', '=', True),
-                                                                       ('step_id','=',step.step_id),
-                                                                       ('id','!=',step.id),
-                                                                       ('date_actual', '>=', datesearch)
-                                                                      ], limit=1, order='date_actual')
-        if etalon_step:  # если не нашли относительно даты, то поищем просто последний
-            if isdebug:
-                logger.info(f'   !etalon_step found by date! ')
-        else: # если не нашли относительно даты, то поищем просто последний
-            if isdebug:
-                logger.info(f'   etalon_step NOT found by date ')
-            etalon_step = self.env['project_budget.project_steps'].search([('etalon_budget', '=', True),
-                                                                       ('step_id','=',step.step_id),
-                                                                       ('id','!=',step.id),
-                                                                       ('date_actual', '>=', datetime.date(YEARint, 1, 1)),
-                                                                      ], limit=1, order='date_actual desc')
-        if isdebug:
-            logger.info(f' step_id = {etalon_step.step_id}')
-            logger.info(f' id = {etalon_step.id}')
-            logger.info(f' date_actual = {etalon_step.date_actual}')
-            logger.info(f' end_presale_project_month = {etalon_step.end_presale_project_month}')
-            logger.info(f' estimated_probability_id = {etalon_step.estimated_probability_id}')
-            logger.info(f' end get_etalon_step')
-        return etalon_step
 
     def get_sum_fact_pds_project_step_quarter(self, project, step, year, quarter):
         sum_cash = 0
@@ -283,7 +176,7 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
                         sum_cash[pds.forecast] = sum_cash.get(pds.forecast, 0) + pds.sum_cash
         return sum_cash
 
-    def get_sum_plan_acceptance_step_month(self,project, step, year, month):
+    def get_sum_plan_acceptance_step_month(self, project, step, year, month):
         global YEARint
         sum_cash = 0
         # if project.project_have_steps == False:
@@ -299,293 +192,290 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
                 sum_cash += acceptance.sum_cash_without_vat
         return sum_cash
 
-    def print_month_head_contract(self, workbook, sheet, row, column, year, elements, next):
-
-        x = {'name': 'Контрактование, с НДС', 'color': '#FFD966'}
-
-        y = list(x.values())
-        head_format_month = workbook.add_format({
-            'border': 1,
-            'text_wrap': True,
-            'align': 'center',
-            'valign': 'vcenter',
-            "bold" : True,
-            "fg_color" : y[1],
-            "font_size" : 12,
-        })
-        head_format_month_itogo = workbook.add_format({
-            'border': 1,
-            'text_wrap': True,
-            'align': 'center',
-            'valign': 'vcenter',
-            "bold": True,
-            "fg_color": '#DCE6F1',
-            "font_size": 12,
-        })
-        head_format_month_detail = workbook.add_format({
-            'border': 1,
-            'text_wrap': True,
-            'align': 'center',
-            'valign': 'vcenter',
-            "bold": False,
-            "fg_color": '#E2EFDA',
-            "font_size": 8,
-        })
-        head_format_month_detail_fact = workbook.add_format({
-            'border': 1,
-            'text_wrap': True,
-            'align': 'center',
-            'valign': 'vcenter',
-            "bold": True,
-            "fg_color": '#C6E0B4',
-            "font_size": 8,
-        })
-
-        colbeg = column
-        colbegQ= column
-        colbegH= column
-        colbegY= column
-
-        for elementone in elements:
-            strYEARprint = str(year)
-
-            element = elementone.replace('YEAR',strYEARprint)
-            if element.find('итого') != -1:
-                if elementone.find('Q') != -1:
-                    sheet.set_column(column, column + 4, False, False, {'hidden': 1, 'level': 2})
-                if elementone.find('HY') != -1:
-                    sheet.set_column(column, column + 4, False, False, {'hidden': 1, 'level': 1})
-
-                if next:
-                    sheet.merge_range(row, column, row, column + 3, element, head_format_month)
-                else:
-                    sheet.merge_range(row, column, row, column + 4, element, head_format_month)
-
-                sheet.merge_range(row + 1, column, row + 2, column, "План "+element.replace(' итого',''), head_format_month_itogo)
-                column += 1
-            else:
-                sheet.merge_range(row, column, row, column + 3, element, head_format_month)
-                sheet.set_column(column, column+4, False, False, {'hidden': 1, 'level': 3})
-            # sheet.merge_range(row+1, column, row+1, column + 1, 'Прогноз на начало периода (эталонный)', head_format_month_detail)
-            # sheet.write_string(row+2, column, 'Обязательство', head_format_month_detail)
-            # column += 1
-            # sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail)
-            # column += 1
-            if not next:
-                sheet.merge_range(row+1, column, row+2, column, 'Факт', head_format_month_detail_fact)
-                column += 1
-            sheet.merge_range(row + 1, column, row + 1, column + 2, 'Прогноз до конца периода (на дату отчета)',head_format_month_detail)
-            sheet.write_string(row + 2, column, 'Обязательство', head_format_month_detail)
-            column += 1
-            sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail)
-            column += 1
-            sheet.write_string(row + 2, column, 'Потенциал', head_format_month_detail)
-            column += 1
-            if elementone.find('Q') != -1 or elementone.find('НY') != -1 or elementone.find('YEAR') != -1:
-                colbegQ = column
-
-            if elementone.find('НY') != -1 or elementone.find('YEAR') != -1:
-                colbegH = column
-        sheet.merge_range(row-1, colbeg, row-1, column - 1, y[0], head_format_month)
-
-        return column
-
-    def print_month_head_pds(self, workbook, sheet, row, column, year, elements, next):
-
-        x = {'name': 'Поступление денежных средств, с НДС', 'color': '#D096BF'}
-
-        y = list(x.values())
-        head_format_month = workbook.add_format({
-            'border': 1,
-            'text_wrap': True,
-            'align': 'center',
-            'valign': 'vcenter',
-            "bold" : True,
-            "fg_color" : y[1],
-            "font_size" : 12,
-        })
-        head_format_month_itogo = workbook.add_format({
-            'border': 1,
-            'text_wrap': True,
-            'align': 'center',
-            'valign': 'vcenter',
-            "bold": True,
-            "fg_color": '#DCE6F1',
-            "font_size": 12,
-        })
-        head_format_month_detail = workbook.add_format({
-            'border': 1,
-            'text_wrap': True,
-            'align': 'center',
-            'valign': 'vcenter',
-            "bold": False,
-            "fg_color": '#E2EFDA',
-            "font_size": 8,
-        })
-        head_format_month_detail_fact = workbook.add_format({
-            'border': 1,
-            'text_wrap': True,
-            'align': 'center',
-            'valign': 'vcenter',
-            "bold": True,
-            "fg_color": '#C6E0B4',
-            "font_size": 8,
-        })
-
-        colbeg = column
-        colbegQ= column
-        colbegH= column
-        colbegY= column
-
-        for elementone in elements:
-            strYEARprint = str(year)
-
-            element = elementone.replace('YEAR',strYEARprint)
-            if element.find('итого') != -1:
-                if elementone.find('Q') != -1:
-                    sheet.set_column(column, column + 3, False, False, {'hidden': 1, 'level': 2})
-                if elementone.find('HY') != -1:
-                    sheet.set_column(column, column + 3, False, False, {'hidden': 1, 'level': 1})
-
-                if next:
-                    sheet.merge_range(row, column, row, column + 2, element, head_format_month)
-                else:
-                    sheet.merge_range(row, column, row, column + 3, element, head_format_month)
-
-                sheet.merge_range(row + 1, column, row + 2, column, "План "+element.replace(' итого',''), head_format_month_itogo)
-                column += 1
-            else:
-                sheet.merge_range(row, column, row, column + 2, element, head_format_month)
-                sheet.set_column(column, column+4, False, False, {'hidden': 1, 'level': 3})
-            # sheet.merge_range(row+1, column, row+1, column + 1, 'Прогноз на начало периода (эталонный)', head_format_month_detail)
-            # sheet.write_string(row+2, column, 'Обязательство', head_format_month_detail)
-            # column += 1
-            # sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail)
-            # column += 1
-            if not next:
-                sheet.merge_range(row+1, column, row+2, column, 'Факт', head_format_month_detail_fact)
-                column += 1
-            sheet.merge_range(row + 1, column, row + 1, column + 1, 'Прогноз до конца периода (на дату отчета)',head_format_month_detail)
-            sheet.write_string(row + 2, column, 'Обязательство', head_format_month_detail)
-            column += 1
-            sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail)
-            column += 1
-            if elementone.find('Q') != -1 or elementone.find('НY') != -1 or elementone.find('YEAR') != -1:
-                colbegQ = column
-
-            if elementone.find('НY') != -1 or elementone.find('YEAR') != -1:
-                colbegH = column
-        sheet.merge_range(row-1, colbeg, row-1, column - 1, y[0], head_format_month)
-
-        return column
-
-    def print_month_head_revenue_margin(self, workbook, sheet, row, column, year, elements, next):
-
-        for x in self.dict_revenue_margin.items():
-            y = list(x[1].values())
-            head_format_month = workbook.add_format({
-                'border': 1,
-                'text_wrap': True,
-                'align': 'center',
-                'valign': 'vcenter',
-                "bold" : True,
-                "fg_color" : y[1],
-                "font_size" : 12,
-            })
-            head_format_month_itogo = workbook.add_format({
-                'border': 1,
-                'text_wrap': True,
-                'align': 'center',
-                'valign': 'vcenter',
-                "bold": True,
-                "fg_color": '#DCE6F1',
-                "font_size": 12,
-            })
-            head_format_month_detail = workbook.add_format({
-                'border': 1,
-                'text_wrap': True,
-                'align': 'center',
-                'valign': 'vcenter',
-                "bold": False,
-                "fg_color": '#E2EFDA',
-                "font_size": 8,
-            })
-            head_format_month_detail_fact = workbook.add_format({
-                'border': 1,
-                'text_wrap': True,
-                'align': 'center',
-                'valign': 'vcenter',
-                "bold": True,
-                "fg_color": '#C6E0B4',
-                "font_size": 8,
-            })
-
-            strYEARprint = str(year)
-
-            colbeg = column
-            for elementone in elements:
-                element = elementone.replace('YEAR', strYEARprint)
-
-                addcolumn = potential_column = 0
-                if element.find('HY2') != -1:
-                    addcolumn = 1
-                elif 'итого' in element and x[0] == 1:
-                    potential_column = 1
-
-                if elementone.find('Q') != -1:
-                    sheet.set_column(column, column + 3, False, False, {'hidden': 1, 'level': 2})
-
-                if elementone.find('HY') != -1:
-                    sheet.set_column(column, column + 3 + addcolumn, False, False, {'hidden': 1, 'level': 1})
-
-                if next:
-                    sheet.merge_range(row, column, row, column + 2 + addcolumn + potential_column, element, head_format_month)
-                else:
-                    sheet.merge_range(row, column, row, column + 3 + addcolumn + potential_column, element,
-                                      head_format_month)
-
-
-                sheet.merge_range(row + 1, column, row + 2, column, "План " + element.replace(' итого', ''),
-                                  head_format_month_itogo)
-                column += 1
-
-                if element.find('HY2') != -1:
-                    sheet.merge_range(row + 1, column, row + 2, column, "План HY2/"+strYEARprint+ " 6+6"
-                                      , head_format_month_itogo)
-                    column += 1
-
-                # sheet.merge_range(row + 1, column , row + 1, column + 1 , 'Прогноз на начало периода (эталонный)',
-                #                   head_format_month_detail)
-                #
-                # sheet.write_string(row + 2, column , 'Обязательство', head_format_month_detail)
-                # column += 1
-                # sheet.write_string(row + 2, column , 'Резерв', head_format_month_detail)
-                # column += 1
-                if not next:
-                    sheet.merge_range(row + 1, column , row + 2, column , 'Факт', head_format_month_detail_fact)
-                    column += 1
-
-                if 'итого' in element and x[0] == 1:
-                    sheet.merge_range(row + 1, column, row + 1, column + 2,
-                                      'Прогноз до конца периода (на дату отчета)',
-                                      head_format_month_detail)
-                    sheet.write_string(row + 2, column, 'Обязательство', head_format_month_detail)
-                    column += 1
-                    sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail)
-                    column += 1
-                    sheet.write_string(row + 2, column, 'Потенциал', head_format_month_detail)
-                    column += 1
-                else:
-                    sheet.merge_range(row + 1, column, row + 1, column + 1,
-                                      'Прогноз до конца периода (на дату отчета)',
-                                      head_format_month_detail)
-                    sheet.write_string(row + 2, column, 'Обязательство', head_format_month_detail)
-                    column += 1
-                    sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail)
-                    column += 1
-
-            sheet.merge_range(row-1, colbeg, row-1, column - 1, y[0], head_format_month)
-        return column
+    # def print_month_head_contract(self, workbook, sheet, row, column, year, elements, next):
+    #
+    #     x = {'name': 'Контрактование, с НДС', 'color': '#FFD966'}
+    #
+    #     y = list(x.values())
+    #     head_format_month = workbook.add_format({
+    #         'border': 1,
+    #         'text_wrap': True,
+    #         'align': 'center',
+    #         'valign': 'vcenter',
+    #         "bold" : True,
+    #         "fg_color" : y[1],
+    #         "font_size" : 12,
+    #     })
+    #     head_format_month_itogo = workbook.add_format({
+    #         'border': 1,
+    #         'text_wrap': True,
+    #         'align': 'center',
+    #         'valign': 'vcenter',
+    #         "bold": True,
+    #         "fg_color": '#DCE6F1',
+    #         "font_size": 12,
+    #     })
+    #     head_format_month_detail = workbook.add_format({
+    #         'border': 1,
+    #         'text_wrap': True,
+    #         'align': 'center',
+    #         'valign': 'vcenter',
+    #         "bold": False,
+    #         "fg_color": '#E2EFDA',
+    #         "font_size": 8,
+    #     })
+    #     head_format_month_detail_fact = workbook.add_format({
+    #         'border': 1,
+    #         'text_wrap': True,
+    #         'align': 'center',
+    #         'valign': 'vcenter',
+    #         "bold": True,
+    #         "fg_color": '#C6E0B4',
+    #         "font_size": 8,
+    #     })
+    #
+    #     colbeg = column
+    #
+    #     for elementone in elements:
+    #         strYEARprint = str(year)
+    #
+    #         element = elementone.replace('YEAR',strYEARprint)
+    #         if element.find('итого') != -1:
+    #             if elementone.find('Q') != -1:
+    #                 sheet.set_column(column, column + 4, False, False, {'hidden': 1, 'level': 2})
+    #             if elementone.find('HY') != -1:
+    #                 sheet.set_column(column, column + 4, False, False, {'hidden': 1, 'level': 1})
+    #
+    #             if next:
+    #                 sheet.merge_range(row, column, row, column + 3, element, head_format_month)
+    #             else:
+    #                 sheet.merge_range(row, column, row, column + 4, element, head_format_month)
+    #
+    #             sheet.merge_range(row + 1, column, row + 2, column, "План "+element.replace(' итого',''), head_format_month_itogo)
+    #             column += 1
+    #         else:
+    #             sheet.merge_range(row, column, row, column + 3, element, head_format_month)
+    #             sheet.set_column(column, column+4, False, False, {'hidden': 1, 'level': 3})
+    #         # sheet.merge_range(row+1, column, row+1, column + 1, 'Прогноз на начало периода (эталонный)', head_format_month_detail)
+    #         # sheet.write_string(row+2, column, 'Обязательство', head_format_month_detail)
+    #         # column += 1
+    #         # sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail)
+    #         # column += 1
+    #         if not next:
+    #             sheet.merge_range(row+1, column, row+2, column, 'Факт', head_format_month_detail_fact)
+    #             column += 1
+    #         sheet.merge_range(row + 1, column, row + 1, column + 2, 'Прогноз до конца периода (на дату отчета)',head_format_month_detail)
+    #         sheet.write_string(row + 2, column, 'Обязательство', head_format_month_detail)
+    #         column += 1
+    #         sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail)
+    #         column += 1
+    #         sheet.write_string(row + 2, column, 'Потенциал', head_format_month_detail)
+    #         column += 1
+    #         if elementone.find('Q') != -1 or elementone.find('НY') != -1 or elementone.find('YEAR') != -1:
+    #             colbegQ = column
+    #
+    #         if elementone.find('НY') != -1 or elementone.find('YEAR') != -1:
+    #             colbegH = column
+    #     sheet.merge_range(row-1, colbeg, row-1, column - 1, y[0], head_format_month)
+    #
+    #     return column
+    #
+    # def print_month_head_pds(self, workbook, sheet, row, column, year, elements, next):
+    #
+    #     x = {'name': 'Поступление денежных средств, с НДС', 'color': '#D096BF'}
+    #
+    #     y = list(x.values())
+    #     head_format_month = workbook.add_format({
+    #         'border': 1,
+    #         'text_wrap': True,
+    #         'align': 'center',
+    #         'valign': 'vcenter',
+    #         "bold" : True,
+    #         "fg_color" : y[1],
+    #         "font_size" : 12,
+    #     })
+    #     head_format_month_itogo = workbook.add_format({
+    #         'border': 1,
+    #         'text_wrap': True,
+    #         'align': 'center',
+    #         'valign': 'vcenter',
+    #         "bold": True,
+    #         "fg_color": '#DCE6F1',
+    #         "font_size": 12,
+    #     })
+    #     head_format_month_detail = workbook.add_format({
+    #         'border': 1,
+    #         'text_wrap': True,
+    #         'align': 'center',
+    #         'valign': 'vcenter',
+    #         "bold": False,
+    #         "fg_color": '#E2EFDA',
+    #         "font_size": 8,
+    #     })
+    #     head_format_month_detail_fact = workbook.add_format({
+    #         'border': 1,
+    #         'text_wrap': True,
+    #         'align': 'center',
+    #         'valign': 'vcenter',
+    #         "bold": True,
+    #         "fg_color": '#C6E0B4',
+    #         "font_size": 8,
+    #     })
+    #
+    #     colbeg = column
+    #     colbegQ= column
+    #     colbegH= column
+    #     colbegY= column
+    #
+    #     for elementone in elements:
+    #         strYEARprint = str(year)
+    #
+    #         element = elementone.replace('YEAR',strYEARprint)
+    #         if element.find('итого') != -1:
+    #             if elementone.find('Q') != -1:
+    #                 sheet.set_column(column, column + 3, False, False, {'hidden': 1, 'level': 2})
+    #             if elementone.find('HY') != -1:
+    #                 sheet.set_column(column, column + 3, False, False, {'hidden': 1, 'level': 1})
+    #
+    #             if next:
+    #                 sheet.merge_range(row, column, row, column + 2, element, head_format_month)
+    #             else:
+    #                 sheet.merge_range(row, column, row, column + 3, element, head_format_month)
+    #
+    #             sheet.merge_range(row + 1, column, row + 2, column, "План "+element.replace(' итого',''), head_format_month_itogo)
+    #             column += 1
+    #         else:
+    #             sheet.merge_range(row, column, row, column + 2, element, head_format_month)
+    #             sheet.set_column(column, column+4, False, False, {'hidden': 1, 'level': 3})
+    #         # sheet.merge_range(row+1, column, row+1, column + 1, 'Прогноз на начало периода (эталонный)', head_format_month_detail)
+    #         # sheet.write_string(row+2, column, 'Обязательство', head_format_month_detail)
+    #         # column += 1
+    #         # sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail)
+    #         # column += 1
+    #         if not next:
+    #             sheet.merge_range(row+1, column, row+2, column, 'Факт', head_format_month_detail_fact)
+    #             column += 1
+    #         sheet.merge_range(row + 1, column, row + 1, column + 1, 'Прогноз до конца периода (на дату отчета)',head_format_month_detail)
+    #         sheet.write_string(row + 2, column, 'Обязательство', head_format_month_detail)
+    #         column += 1
+    #         sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail)
+    #         column += 1
+    #         if elementone.find('Q') != -1 or elementone.find('НY') != -1 or elementone.find('YEAR') != -1:
+    #             colbegQ = column
+    #
+    #         if elementone.find('НY') != -1 or elementone.find('YEAR') != -1:
+    #             colbegH = column
+    #     sheet.merge_range(row-1, colbeg, row-1, column - 1, y[0], head_format_month)
+    #
+    #     return column
+    #
+    # def print_month_head_revenue_margin(self, workbook, sheet, row, column, year, elements, next):
+    #
+    #     for x in self.dict_revenue_margin.items():
+    #         y = list(x[1].values())
+    #         head_format_month = workbook.add_format({
+    #             'border': 1,
+    #             'text_wrap': True,
+    #             'align': 'center',
+    #             'valign': 'vcenter',
+    #             "bold" : True,
+    #             "fg_color" : y[1],
+    #             "font_size" : 12,
+    #         })
+    #         head_format_month_itogo = workbook.add_format({
+    #             'border': 1,
+    #             'text_wrap': True,
+    #             'align': 'center',
+    #             'valign': 'vcenter',
+    #             "bold": True,
+    #             "fg_color": '#DCE6F1',
+    #             "font_size": 12,
+    #         })
+    #         head_format_month_detail = workbook.add_format({
+    #             'border': 1,
+    #             'text_wrap': True,
+    #             'align': 'center',
+    #             'valign': 'vcenter',
+    #             "bold": False,
+    #             "fg_color": '#E2EFDA',
+    #             "font_size": 8,
+    #         })
+    #         head_format_month_detail_fact = workbook.add_format({
+    #             'border': 1,
+    #             'text_wrap': True,
+    #             'align': 'center',
+    #             'valign': 'vcenter',
+    #             "bold": True,
+    #             "fg_color": '#C6E0B4',
+    #             "font_size": 8,
+    #         })
+    #
+    #         strYEARprint = str(year)
+    #
+    #         colbeg = column
+    #         for elementone in elements:
+    #             element = elementone.replace('YEAR', strYEARprint)
+    #
+    #             addcolumn = potential_column = 0
+    #             if element.find('HY2') != -1:
+    #                 addcolumn = 1
+    #             elif 'итого' in element and x[0] == 1:
+    #                 potential_column = 1
+    #
+    #             if elementone.find('Q') != -1:
+    #                 sheet.set_column(column, column + 3, False, False, {'hidden': 1, 'level': 2})
+    #
+    #             if elementone.find('HY') != -1:
+    #                 sheet.set_column(column, column + 3 + addcolumn, False, False, {'hidden': 1, 'level': 1})
+    #
+    #             if next:
+    #                 sheet.merge_range(row, column, row, column + 2 + addcolumn + potential_column, element, head_format_month)
+    #             else:
+    #                 sheet.merge_range(row, column, row, column + 3 + addcolumn + potential_column, element,
+    #                                   head_format_month)
+    #
+    #
+    #             sheet.merge_range(row + 1, column, row + 2, column, "План " + element.replace(' итого', ''),
+    #                               head_format_month_itogo)
+    #             column += 1
+    #
+    #             if element.find('HY2') != -1:
+    #                 sheet.merge_range(row + 1, column, row + 2, column, "План HY2/"+strYEARprint+ " 6+6"
+    #                                   , head_format_month_itogo)
+    #                 column += 1
+    #
+    #             # sheet.merge_range(row + 1, column , row + 1, column + 1 , 'Прогноз на начало периода (эталонный)',
+    #             #                   head_format_month_detail)
+    #             #
+    #             # sheet.write_string(row + 2, column , 'Обязательство', head_format_month_detail)
+    #             # column += 1
+    #             # sheet.write_string(row + 2, column , 'Резерв', head_format_month_detail)
+    #             # column += 1
+    #             if not next:
+    #                 sheet.merge_range(row + 1, column , row + 2, column , 'Факт', head_format_month_detail_fact)
+    #                 column += 1
+    #
+    #             if 'итого' in element and x[0] == 1:
+    #                 sheet.merge_range(row + 1, column, row + 1, column + 2,
+    #                                   'Прогноз до конца периода (на дату отчета)',
+    #                                   head_format_month_detail)
+    #                 sheet.write_string(row + 2, column, 'Обязательство', head_format_month_detail)
+    #                 column += 1
+    #                 sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail)
+    #                 column += 1
+    #                 sheet.write_string(row + 2, column, 'Потенциал', head_format_month_detail)
+    #                 column += 1
+    #             else:
+    #                 sheet.merge_range(row + 1, column, row + 1, column + 1,
+    #                                   'Прогноз до конца периода (на дату отчета)',
+    #                                   head_format_month_detail)
+    #                 sheet.write_string(row + 2, column, 'Обязательство', head_format_month_detail)
+    #                 column += 1
+    #                 sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail)
+    #                 column += 1
+    #
+    #         sheet.merge_range(row-1, colbeg, row-1, column - 1, y[0], head_format_month)
+    #     return column
 
     def get_currency_rate_by_project(self,project):
         project_currency_rates = self.env['project_budget.project_currency_rates']
@@ -866,12 +756,7 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
 
     def get_quarter_acceptance_project(self, quarter, project, step, year):
 
-        sum100tmp = sum75tmp = sum50tmp = margin100tmp = margin75tmp = margin50tmp = 0
-
-        if step == False:
-            profitability = project.profitability
-        else:
-            profitability = step.profitability
+        sum75tmp = sum50tmp = margin75tmp = margin50tmp = 0
 
         margin_rate_for_child = 1
         if project.is_child_project:
@@ -1228,6 +1113,7 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
                 child_project_offices = self.env['project_budget.project_office'].search(
                     [('parent_id', '=', project_office.id)], order='name')
 
+                #TODO !!!!!!!!!!!!!!!
                 row0 = self.print_row(sheet, workbook, companies, child_project_offices, project_managers, estimated_probabilities, year, budget, row, level + 1)
 
                 is_found_projects_by_office = False
