@@ -16,6 +16,7 @@ class report_projects_overdue_excel(models.AbstractModel):
     def printworksheet(self,workbook,budget,namesheet):
         global strYEAR
         global YEARint
+        global project_office_ids
         print('YEARint=',YEARint)
         print('strYEAR =', strYEAR)
         report_name = budget.name
@@ -86,7 +87,22 @@ class report_projects_overdue_excel(models.AbstractModel):
 
         sheet.freeze_panes(1, 1)
 
-        cur_budget_projects = self.env['project_budget.projects'].search([('commercial_budget_id', '=', budget.id)])
+        if project_office_ids:
+            child_project_offices = self.env['project_budget.project_office'].search(
+                [('id', 'in', project_office_ids)]).child_ids
+            while child_project_offices:  # обходим дочерние офисы
+                for child_project_office in child_project_offices:
+                    if child_project_office.id not in project_office_ids:
+                        project_office_ids.append(child_project_office.id)
+                new_child_project_offices = child_project_offices.child_ids
+                child_project_offices = new_child_project_offices
+
+            project_offices = self.env['project_budget.project_office'].search([
+                ('id','in',project_office_ids)], order='name')  # для сортировки так делаем
+        else:
+            project_offices = self.env['project_budget.project_office'].search([], order='name')
+
+        cur_budget_projects = self.env['project_budget.projects'].search([('commercial_budget_id', '=', budget.id),('project_office_id', 'in', project_offices.ids)])
 
         for spec in cur_budget_projects:
             isok = False
@@ -168,6 +184,9 @@ class report_projects_overdue_excel(models.AbstractModel):
         strYEAR = str(data['year'])
         global YEARint
         YEARint = int(strYEAR)
+        global project_office_ids
+        project_office_ids = data['project_office_ids']
+
         commercial_budget_id = data['commercial_budget_id']
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
 

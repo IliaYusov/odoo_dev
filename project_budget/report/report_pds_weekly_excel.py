@@ -2707,7 +2707,7 @@ class report_pds_weekly_excel(models.AbstractModel):
 
             dict_formula['office_ids_not_empty'] = {}
 
-            if company.id not in dict_formula['company_ids']:
+            if company.id not in dict_formula['company_ids'] and set(self.env['project_budget.project_office'].search([]).ids) == set(project_office_ids):
                 row += 1
                 dict_formula['company_ids'][company.id] = row
 
@@ -2912,7 +2912,7 @@ class report_pds_weekly_excel(models.AbstractModel):
                     #         formula = '=0'
                     #         sheet.write_formula(row, col - 1, formula, head_format_month_itogo)
 
-                if project_office.parent_id:
+                if project_office.parent_id or set(self.env['project_budget.project_office'].search([]).ids) != set(project_office_ids):
                     isFoundProjectsByCompany = False
 
                 if isFoundProjectsByOffice:
@@ -2927,7 +2927,10 @@ class report_pds_weekly_excel(models.AbstractModel):
 
                     sheet.merge_range(office_row, column, office_row, column + 11, '       ' * level + office_name, row_format_office)
 
-                    sheet.set_row(office_row, False, False, {'hidden': 1, 'level': level})
+                    if set(self.env['project_budget.project_office'].search([]).ids) == set(project_office_ids):
+                        sheet.set_row(office_row, False, False, {'level': level})
+                    elif level > 1:
+                        sheet.set_row(office_row, False, False, {'level': level - 1})
 
                     str_project_office_id = 'project_office_' + str(int(project_office.parent_id))
                     if str_project_office_id in dict_formula:
@@ -3003,6 +3006,7 @@ class report_pds_weekly_excel(models.AbstractModel):
     def printworksheet(self, workbook, budget, namesheet, multipliers):
         global strYEAR
         global YEARint
+        global project_office_ids
         print('YEARint=', YEARint)
         print('strYEAR =', strYEAR)
 
@@ -3166,7 +3170,14 @@ class report_pds_weekly_excel(models.AbstractModel):
         row += 2
 
         companies = self.env['res.company'].search([], order='name')
-        project_offices = self.env['project_budget.project_office'].search([('parent_id', '=', False)], order='report_sort')  # для сортировки так делаем + берем сначала только верхние элементы
+
+        if project_office_ids:
+            project_offices = self.env['project_budget.project_office'].search([
+                ('id','in',project_office_ids), ('parent_id', 'not in', project_office_ids)], order='report_sort')  # для сортировки так делаем + не берем дочерние оффисы, если выбраны их материнские
+        else:
+            project_offices = self.env['project_budget.project_office'].search([
+                ('parent_id', '=', False)], order='report_sort')  # для сортировки так делаем + берем сначала только верхние элементы
+
         # project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
         # estimated_probabilitys = self.env['project_budget.estimated_probability'].search([('name','!=','10')],order='code desc')  # для сортировки так делаем
 
@@ -3174,20 +3185,21 @@ class report_pds_weekly_excel(models.AbstractModel):
 
         row, formulaItogo = self.printrow(sheet, workbook, companies, project_offices, budget, row, formulaItogo, 1, multipliers)
 
-        row += 1
-        column = 0
-        sheet.merge_range(row, column, row, column + 11, 'ИТОГО по отчету', row_format_number_itogo)
-        for company_row in dict_formula['company_ids'].values():
-            formulaItogo += ',{0}' + str(company_row + 1)
-        formulaItogo = formulaItogo + ')'
-        for colFormula in range(12, date(YEARint, 12, 28).isocalendar()[1] * 3 + 12):
-            formula = formulaItogo.format(xl_col_to_name(colFormula))
-            sheet.write_formula(row, colFormula, formula, row_format_number_itogo)
-        # for i in range(4):  # формулы для процентов выполнения
-        #     for j in (14, 35):
-        #         formula = f'=IFERROR({xl_col_to_name(i * 41 + j - 1)}{row + 1}/{xl_col_to_name(i * 41 + j - 2)}{row + 1}, " ")'
-        #         sheet.write_formula(row, i * 41 + j, formula, row_format_number_itogo_percent)
-        print('dict_formula = ', dict_formula)
+        if set(self.env['project_budget.project_office'].search([]).ids) == set(project_office_ids):
+            row += 1
+            column = 0
+            sheet.merge_range(row, column, row, column + 11, 'ИТОГО по отчету', row_format_number_itogo)
+            for company_row in dict_formula['company_ids'].values():
+                formulaItogo += ',{0}' + str(company_row + 1)
+            formulaItogo = formulaItogo + ')'
+            for colFormula in range(12, date(YEARint, 12, 28).isocalendar()[1] * 3 + 12):
+                formula = formulaItogo.format(xl_col_to_name(colFormula))
+                sheet.write_formula(row, colFormula, formula, row_format_number_itogo)
+            # for i in range(4):  # формулы для процентов выполнения
+            #     for j in (14, 35):
+            #         formula = f'=IFERROR({xl_col_to_name(i * 41 + j - 1)}{row + 1}/{xl_col_to_name(i * 41 + j - 2)}{row + 1}, " ")'
+            #         sheet.write_formula(row, i * 41 + j, formula, row_format_number_itogo_percent)
+            print('dict_formula = ', dict_formula)
 
     def generate_xlsx_report(self, workbook, data, budgets):
 
@@ -3198,9 +3210,15 @@ class report_pds_weekly_excel(models.AbstractModel):
         global dict_formula, max_level
         dict_formula = {'company_ids': {}, 'office_ids': {}, 'office_ids_not_empty': {}}
 
-        ids = [office.id for office in self.env['project_budget.project_office'].search([('parent_id', '!=', False)])]
+        global project_office_ids
+        project_office_ids = data['project_office_ids']
 
-        max_level = self.offices_with_parents(ids, 1)
+        ids = [office.id for office in self.env['project_budget.project_office'].search([('parent_id', '=', False), ('id', 'in', project_office_ids)])]
+
+        max_level = self.offices_with_parents(ids, 0)
+
+        if set(self.env['project_budget.project_office'].search([]).ids) != set(project_office_ids):
+            max_level -= 1
 
         print('YEARint=', YEARint)
         print('strYEAR =', strYEAR)

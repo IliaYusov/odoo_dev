@@ -21,6 +21,7 @@ class report_budget_excel(models.AbstractModel):
     def printworksheet(self,workbook,budget,namesheet,stateproject):
         global YEARint
         global year_end
+        global project_office_ids
         print('YEARint=',YEARint)
         report_name = budget.name
 
@@ -293,7 +294,21 @@ class report_budget_excel(models.AbstractModel):
         # sheet.set_column(14, 17, False, False, {'hidden': 1, 'level': 1})
         # sheet.set_column(20, 29, False, False, {'hidden': 1, 'level': 1})
 
-        project_offices = self.env['project_budget.project_office'].search([], order='name')  # для сортировки так делаем
+        if project_office_ids:
+            child_project_offices = self.env['project_budget.project_office'].search(
+                [('id', 'in', project_office_ids)]).child_ids
+            while child_project_offices:  # обходим дочерние офисы
+                for child_project_office in child_project_offices:
+                    if child_project_office.id not in project_office_ids:
+                        project_office_ids.append(child_project_office.id)
+                new_child_project_offices = child_project_offices.child_ids
+                child_project_offices = new_child_project_offices
+
+            project_offices = self.env['project_budget.project_office'].search([
+                ('id','in',project_office_ids)], order='name')  # для сортировки так делаем
+        else:
+            project_offices = self.env['project_budget.project_office'].search([], order='name')
+
         project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
         stages = self.env['project_budget.project.stage'].search([], order='sequence desc')  # для сортировки так делаем
 
@@ -582,6 +597,8 @@ class report_budget_excel(models.AbstractModel):
         YEARint = data['year']
         global year_end
         year_end = data['year_end']
+        global project_office_ids
+        project_office_ids = data['project_office_ids']
 
         commercial_budget_id = data['commercial_budget_id']
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])

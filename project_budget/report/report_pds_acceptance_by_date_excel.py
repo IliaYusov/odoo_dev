@@ -44,6 +44,8 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
 
     def print_worksheet(self, workbook, budget, sheet_name, date_start, date_end, pds_accept, legal_entity_shift):
 
+        global project_office_ids
+
         sheet = workbook.add_worksheet(sheet_name)
 
         head_format = workbook.add_format({
@@ -138,22 +140,39 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
 
         sheet.freeze_panes(2, 0)
 
+        if project_office_ids:
+            child_project_offices = self.env['project_budget.project_office'].search(
+                [('id', 'in', project_office_ids)]).child_ids
+            while child_project_offices:  # обходим дочерние офисы
+                for child_project_office in child_project_offices:
+                    if child_project_office.id not in project_office_ids:
+                        project_office_ids.append(child_project_office.id)
+                new_child_project_offices = child_project_offices.child_ids
+                child_project_offices = new_child_project_offices
+
+            project_offices = self.env['project_budget.project_office'].search([
+                ('id', 'in', project_office_ids)], order='name')  # для сортировки так делаем
+        else:
+            project_offices = self.env['project_budget.project_office'].search([], order='name')
+
         if pds_accept == 'pds':
             cur_budget_projects = self.env[
                 'project_budget.projects'].search(
-                ['&', '&',
+                ['&', '&', '&',
                  ('commercial_budget_id', '=', budget.id),
                  ('id', 'in', [pds.projects_id.id for pds in self.env['project_budget.planned_cash_flow'].search([]) if date_start <= pds.date_cash <= date_end]),
                  ('stage_id.code', 'not in', ('0', '10')),
+                 ('project_office_id', 'in', project_offices.ids),
                  ]
             )
         else:
             cur_budget_projects = self.env[
                 'project_budget.projects'].search(
-                ['&', '&',
+                ['&', '&', '&',
                  ('commercial_budget_id', '=', budget.id),
                  ('id', 'in', [acc.projects_id.id for acc in self.env['project_budget.planned_acceptance_flow'].search([]) if date_start <= acc.date_cash <= date_end]),
                  ('stage_id.code', 'not in', ('0', '10')),
+                 ('project_office_id', 'in', project_offices.ids),
                  ]
             )
 
@@ -278,6 +297,9 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
         sheet.autofilter(1, 0, 1, 9)
 
     def generate_xlsx_report(self, workbook, data, budgets):
+
+        global project_office_ids
+        project_office_ids = data['project_office_ids']
 
         commercial_budget_id = data['commercial_budget_id']
         date_start = datetime.strptime(data['date_start'], '%Y-%m-%d').date()

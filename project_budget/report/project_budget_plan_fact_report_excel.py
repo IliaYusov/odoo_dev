@@ -941,7 +941,6 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
 
         sheet = workbook.add_worksheet(namesheet)
         sheet.set_zoom(70)
-        sheet.hide_zero()
 
         bold_heading_format = workbook.add_format({
             'bold': True,
