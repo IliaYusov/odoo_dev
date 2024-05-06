@@ -14,7 +14,7 @@ class report_projects_wizard(models.TransientModel):
     type_report = fields.Selection([
         ('kb', 'KB'),
         ('kb_fin', 'KB fin'),
-        ('forecast', 'Forecast'),
+        # ('forecast', 'Forecast'),
         ('forecast_v2', 'Forecast_v2'),
         ('plan_fact', 'Plan-Fact'),
         ('svod', 'Svod'),
