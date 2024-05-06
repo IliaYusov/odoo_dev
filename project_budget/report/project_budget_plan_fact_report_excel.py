@@ -338,6 +338,9 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
         acceptance_list = project.planned_acceptance_flow_ids
         if acceptance_list:
             for acceptance in acceptance_list:
+                if any(distribution.fact_acceptance_flow_id.margin_manual_input for distribution in
+                       acceptance.distribution_acceptance_ids):  # если есть ручная маржа - пропускаем
+                    continue
                 if step:
                     if acceptance.project_steps_id.id != step.id:
                         continue
@@ -433,6 +436,9 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
 
             return margin_plan
         for planned_acceptance_flow in project.planned_acceptance_flow_ids:
+            if any(distribution.fact_acceptance_flow_id.margin_manual_input for distribution in
+                   planned_acceptance_flow.distribution_acceptance_ids):  # если есть ручная маржа - пропускаем
+                continue
             if step:
                 if planned_acceptance_flow.project_steps_id.id != step.id:
                     continue
