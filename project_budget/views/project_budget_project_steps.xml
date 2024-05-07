@@ -10,7 +10,7 @@
                     <field name="project_steps_type_id" optional="show"  force_save="1" options="{'no_open': True,}"/>
                     <field name="code" optional="show" placeholder="type step code DAX e.g. 0001"/>
                     <field name="dogovor_number" optional="hide" />
-                    <field name="stage_id" optional="hide" />
+                    <field name="stage_id" string='Step stage' optional="hide" />
                     <field name="estimated_probability_id" optional="hide" />
                     <field name="project_steps_type_id" optional="hide" />
                     <field name="essence_project" optional="show" placeholder="type step name e.g. products recieve"/>

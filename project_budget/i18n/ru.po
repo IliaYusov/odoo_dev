@@ -2598,6 +2598,11 @@ msgid "Stages"
 msgstr "Этапы"
 
 #. module: project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_project_steps_tree
+msgid "Step stage"
+msgstr "Вероятность этапа"
+
+#. module: project_budget
 #: model:ir.model.fields,help:project_budget.field_project_budget_amount_spec__activity_state
 #: model:ir.model.fields,help:project_budget.field_project_budget_budget_plan_kam__activity_state
 #: model:ir.model.fields,help:project_budget.field_project_budget_budget_plan_supervisor__activity_state
