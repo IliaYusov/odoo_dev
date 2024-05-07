@@ -3187,8 +3187,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         if dict_formula['companies_lines']:
             formula_itogo = '=sum(' + ','.join(('{0}' + str(c)) for c in dict_formula['companies_lines']) + ')'
             formula_plan = '=sum(,' + ','.join(('{0}' + str(c + 1)) for c in dict_formula['companies_lines']) + ')'  # увеличиваем все номера строк на 1
-            sheet.set_row(row, False, False, {'hidden': 1, 'level': 0})
-            sheet.set_row(row + 1, False, False, {'hidden': 1, 'level': 0})
+            sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
         elif dict_formula['offices_lines']:
             formula_itogo = '=sum(' + ','.join(('{0}' + str(c)) for c in dict_formula['offices_lines']) + ')'
             formula_plan = '=sum(' + ','.join(('{0}' + str(c + 1)) for c in dict_formula['offices_lines']) + ')'  # увеличиваем все номера строк на 1
