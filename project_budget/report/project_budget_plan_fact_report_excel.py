@@ -615,7 +615,7 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
                             data.setdefault(company.name, {}).setdefault(office.name, {}).setdefault(manager.name, {}).setdefault(office_section, {}).setdefault(year, {}).setdefault('Q4', {})['plan'] = section_plan.q4_plan
         return data
 
-    def print_rows(self, sheet, workbook, companies, project_offices, project_managers, year, data):
+    def print_rows(self, sheet, workbook, companies, project_offices, key_account_managers, year, data):
 
         office_heading_format = workbook.add_format({
             'bold': True,
@@ -830,7 +830,7 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
 
                 print('project_office =', project_office.name)
 
-                for project_manager in project_managers:
+                for project_manager in key_account_managers:
 
                     manager_data = data[company.name][project_office.name].get(project_manager.name, False)
                     if not manager_data:
@@ -1033,11 +1033,13 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
 
         companies = self.env['res.company'].search([], order='name').filtered(lambda r: r in project_offices.company_id)
 
-        project_managers = self.env['project_budget.project_manager'].search([], order='name').filtered(lambda r: r in cur_budget_projects.project_manager_id)  # для сортировки так делаем
+        # project_managers = self.env['project_budget.project_manager'].search([], order='name').filtered(lambda r: r in cur_budget_projects.project_manager_id)  # для сортировки так делаем
+
+        key_account_managers = self.env.ref('project_budget.group_project_budget_key_account_manager').users.sorted('name').filtered(lambda r: r in cur_budget_projects.project_manager_id)
 
         data = self.get_plans(year, self.get_data_from_projects(cur_budget_projects, stages, year))
 
-        self.print_rows(sheet, workbook, companies, project_offices, project_managers, year, data)
+        self.print_rows(sheet, workbook, companies, project_offices, key_account_managers, year, data)
 
     def generate_xlsx_report(self, workbook, data, budgets):
 
