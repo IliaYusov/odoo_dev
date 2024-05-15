@@ -830,72 +830,73 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
 
                 print('project_office =', project_office.name)
 
-                for project_manager in key_account_managers:
+                if False:  # отключил печать менеджеров
+                    for project_manager in key_account_managers:
 
-                    manager_data = data[company.name][project_office.name].get(project_manager.name, False)
-                    if not manager_data:
-                        continue
+                        manager_data = data[company.name][project_office.name].get(project_manager.name, False)
+                        if not manager_data:
+                            continue
 
-                    print('project_manager =', project_manager.name)
+                        print('project_manager =', project_manager.name)
 
-                    sheet.merge_range(row, 0, row, 21, f'{project_manager.name}',
-                                      office_heading_format)  # печатаем заголовок КАМ
-                    row += 1
-
-                    for section in self.section_names:
-                        column = 0
-                        sheet.set_row(row, 31)
-                        sheet.write_string(row, 0, self.section_titles[section], bold_border_line_format)
-                        if 'margin' in section:
-                            custom_line_format = bold_line_format
-                            bluegrey_custom_percent_format = bluegrey_bold_percent_format
-                        else:
-                            custom_line_format = line_format
-                            bluegrey_custom_percent_format = bluegrey_percent_format
-                        for quarter in self.quarter_names:
-                            sheet.write_number(row, column + 1, manager_data[section][year][quarter]['plan'],
-                                               custom_line_format)
-                            sheet.write_number(row, column + 2, manager_data[section][year][quarter]['100'],
-                                               custom_line_format)
-                            sheet.write_number(row, column + 3, manager_data[section][year][quarter]['75'] +
-                                               manager_data[section][year][quarter]['50'] * self.POTENTIAL,
-                                               custom_line_format)
-                            formula = f'=IFERROR({xl_col_to_name(column + 2)}{row + 1}/{xl_col_to_name(column + 1)}{row + 1}, " ")'
-                            sheet.write_formula(row, column + 4, formula, bluegrey_custom_percent_format)
-                            column += 4
-                        formula = (
-                            f'={xl_col_to_name(column - 15)}{row + 1}'
-                            f'+{xl_col_to_name(column - 11)}{row + 1}'
-                            f'+{xl_col_to_name(column - 7)}{row + 1}'
-                            f'+{xl_col_to_name(column - 3)}{row + 1}'
-                        )
-                        sheet.write_formula(row, column + 1, formula, grey_line_format)
-                        formula = (
-                            f'={xl_col_to_name(column - 14)}{row + 1}'
-                            f'+{xl_col_to_name(column - 10)}{row + 1}'
-                            f'+{xl_col_to_name(column - 6)}{row + 1}'
-                            f'+{xl_col_to_name(column - 2)}{row + 1}'
-                        )
-                        sheet.write_formula(row, column + 2, formula, grey_line_format)
-                        formula = (
-                            f'={xl_col_to_name(column - 13)}{row + 1}'
-                            f'+{xl_col_to_name(column - 9)}{row + 1}'
-                            f'+{xl_col_to_name(column - 5)}{row + 1}'
-                            f'+{xl_col_to_name(column - 1)}{row + 1}'
-                            f'+{xl_col_to_name(column - 14)}{row + 1}'
-                            f'+{xl_col_to_name(column - 10)}{row + 1}'
-                            f'+{xl_col_to_name(column - 6)}{row + 1}'
-                            f'+{xl_col_to_name(column - 2)}{row + 1}'
-                        )
-                        sheet.write_formula(row, column + 3, formula, grey_line_format)
-                        formula = f'=IFERROR({xl_col_to_name(column + 2)}{row + 1}/{xl_col_to_name(column + 1)}{row + 1}, " ")'
-                        sheet.write_formula(row, column + 4, formula, grey_percent_format)
-                        formula = (
-                            f'={xl_col_to_name(column + 3)}{row + 1}'
-                            f'-{xl_col_to_name(column + 1)}{row + 1}'
-                        )
-                        sheet.write_formula(row, column + 5, formula, grey_borders_line_format)
+                        sheet.merge_range(row, 0, row, 21, f'{project_manager.name}',
+                                          office_heading_format)  # печатаем заголовок КАМ
                         row += 1
+
+                        for section in self.section_names:
+                            column = 0
+                            sheet.set_row(row, 31)
+                            sheet.write_string(row, 0, self.section_titles[section], bold_border_line_format)
+                            if 'margin' in section:
+                                custom_line_format = bold_line_format
+                                bluegrey_custom_percent_format = bluegrey_bold_percent_format
+                            else:
+                                custom_line_format = line_format
+                                bluegrey_custom_percent_format = bluegrey_percent_format
+                            for quarter in self.quarter_names:
+                                sheet.write_number(row, column + 1, manager_data[section][year][quarter]['plan'],
+                                                   custom_line_format)
+                                sheet.write_number(row, column + 2, manager_data[section][year][quarter]['100'],
+                                                   custom_line_format)
+                                sheet.write_number(row, column + 3, manager_data[section][year][quarter]['75'] +
+                                                   manager_data[section][year][quarter]['50'] * self.POTENTIAL,
+                                                   custom_line_format)
+                                formula = f'=IFERROR({xl_col_to_name(column + 2)}{row + 1}/{xl_col_to_name(column + 1)}{row + 1}, " ")'
+                                sheet.write_formula(row, column + 4, formula, bluegrey_custom_percent_format)
+                                column += 4
+                            formula = (
+                                f'={xl_col_to_name(column - 15)}{row + 1}'
+                                f'+{xl_col_to_name(column - 11)}{row + 1}'
+                                f'+{xl_col_to_name(column - 7)}{row + 1}'
+                                f'+{xl_col_to_name(column - 3)}{row + 1}'
+                            )
+                            sheet.write_formula(row, column + 1, formula, grey_line_format)
+                            formula = (
+                                f'={xl_col_to_name(column - 14)}{row + 1}'
+                                f'+{xl_col_to_name(column - 10)}{row + 1}'
+                                f'+{xl_col_to_name(column - 6)}{row + 1}'
+                                f'+{xl_col_to_name(column - 2)}{row + 1}'
+                            )
+                            sheet.write_formula(row, column + 2, formula, grey_line_format)
+                            formula = (
+                                f'={xl_col_to_name(column - 13)}{row + 1}'
+                                f'+{xl_col_to_name(column - 9)}{row + 1}'
+                                f'+{xl_col_to_name(column - 5)}{row + 1}'
+                                f'+{xl_col_to_name(column - 1)}{row + 1}'
+                                f'+{xl_col_to_name(column - 14)}{row + 1}'
+                                f'+{xl_col_to_name(column - 10)}{row + 1}'
+                                f'+{xl_col_to_name(column - 6)}{row + 1}'
+                                f'+{xl_col_to_name(column - 2)}{row + 1}'
+                            )
+                            sheet.write_formula(row, column + 3, formula, grey_line_format)
+                            formula = f'=IFERROR({xl_col_to_name(column + 2)}{row + 1}/{xl_col_to_name(column + 1)}{row + 1}, " ")'
+                            sheet.write_formula(row, column + 4, formula, grey_percent_format)
+                            formula = (
+                                f'={xl_col_to_name(column + 3)}{row + 1}'
+                                f'-{xl_col_to_name(column + 1)}{row + 1}'
+                            )
+                            sheet.write_formula(row, column + 5, formula, grey_borders_line_format)
+                            row += 1
 
                 formula_company.append(row)
 
