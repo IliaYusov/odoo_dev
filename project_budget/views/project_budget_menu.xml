@@ -1,29 +1,28 @@
 <odoo>
     <menuitem id="project_budget_menu" name="Project budget" sequence="1"/>
-    <menuitem id="project_budget_budgets" parent="project_budget_menu" name="Budgets/Projects"/>
-<!--    <menuitem id="project_budget_menu_dashboard" parent="project_budget.project_budget_menu" name="work place"-->
-<!--              sequence="1"-->
-<!--              action="action_project_budget_dashboard"/>-->
-    <menuitem id="project_budget_budgets_comercial_budget_spec" parent="project_budget_budgets" name="Projects"
-              action="action_project_budget_projects" sequence="2"/>
-    <menuitem id="project_budget_budgets_comercial_budget_spec_all" parent="project_budget_budgets"
-              name="Projects all budgets" action="show_comercial_budget_spec_all" sequence="3"
-              groups="project_budget.project_budget_admin"/>
-    <menuitem id="project_budget_budgets_comercial_budget" parent="project_budget_budgets" name="Comercial budgets"
-              action="show_comercial_budgets" sequence="5" groups="project_budget.project_budget_admin"/>
-    <menuitem id="project_budget_catalogs_budget_plan_supervisor" parent="project_budget_budgets"
-              name="budget_plan_supervisor" action="show_budget_plan_supervisor"/>
-    <menuitem id="project_budget_catalogs_budget_plan_kam" parent="project_budget_budgets" name="budget_plan_kam"
-              action="show_budget_plan_kam"/>
-    <menuitem id="project_budget_budgets_tenders" parent="project_budget_budgets" name="Tenders"
-              action="show_projects_tenders" sequence="5"/>
 
+    <menuitem id="project_budget_budgets" parent="project_budget_menu" name="Budgets/Projects">
+        <menuitem id="project_budget_budgets_comercial_budget_spec" name="Projects" sequence="1"
+                  action="action_project_budget_projects"/>
+        <menuitem id="menu_project_budget_project_offices" name="Projects To Project Offices" sequence="2"
+                  action="action_project_budget_project_offices"/>
+        <menuitem id="project_budget_budgets_comercial_budget_spec_all" name="Projects all budgets" sequence="3"
+                  action="show_comercial_budget_spec_all" groups="project_budget.project_budget_admin"/>
+        <menuitem id="project_budget_budgets_comercial_budget" name="Comercial budgets" sequence="4"
+                  action="show_comercial_budgets" groups="project_budget.project_budget_admin"/>
+<!--        TODO: вынести тендеры в отдельное приложение-->
+        <menuitem id="project_budget_budgets_tenders" name="Tenders" sequence="5"
+                  action="show_projects_tenders"/>
+<!--        TODO: возможно, пункт меню нужно скрыть от "обычных" пользователей-->
+        <menuitem id="project_budget_catalogs_budget_plan_kam" name="budget_plan_kam" sequence="6"
+                  action="show_budget_plan_kam"/>
+        <menuitem id="project_budget_catalogs_budget_plan_supervisor" name="budget_plan_supervisor" sequence="7"
+                  action="show_budget_plan_supervisor"/>
+    </menuitem>
 
     <menuitem id="project_budget_catalogs" parent="project_budget_menu" name="Catalogs"/>
     <menuitem id="project_budget_catalogs_project_supervisor" parent="project_budget_catalogs" name="project_supervisor"
               action="show_project_supervisor"/>
-    <menuitem id="project_budget_catalogs_project_office" parent="project_budget_catalogs" name="project_office"
-              action="show_project_office"/>
     <menuitem id="project_budget_catalogs_project_manager" parent="project_budget_catalogs" name="project_manager"
               action="show_project_manager"/>
     <menuitem id="project_budget_catalogs_rukovoditel_project" parent="project_budget_catalogs"
@@ -74,9 +73,10 @@
     <menuitem id="menu_project_budget_configuration" parent="project_budget_menu" name="Configuration"
               sequence="100">
         <menuitem id="menu_project_budget_pipeline" name="Pipeline" sequence="10" groups="project_budget_admin">
-            <menuitem id="menu_project_budget_pipeline_stages" name="Stages" sequence="1"
+            <menuitem id="menu_project_budget_pipeline_stages" name="Stages" sequence="10"
                       action="action_project_budget_project_stages"/>
         </menuitem>
+<!--        TODO: вынести тендеры в отдельное приложение-->
         <menuitem id="menu_project_budget_partners" name="Company Partners" sequence="40"
                   groups="base.group_partner_manager">
             <menuitem id="menu_project_budget_partner_types" name="Partner Types" sequence="1"
@@ -86,10 +86,12 @@
             <menuitem id="menu_project_budget_company_partners" name="Company Partners" sequence="3"
                       action="action_res_company_partners"/>
         </menuitem>
+
         <menuitem id="menu_project_budget_account" name="Accounting" sequence="50">
             <menuitem id="menu_action_currency_form" name="Currencies" sequence="1"
                       action="base.action_currency_form" groups="base.group_system"/>
         </menuitem>
+
         <menuitem id="menu_project_budget_report" name="Reporting" sequence="60" groups="project_budget_admin">
             <menuitem id="menu_action_scheduled_report_form" name="Scheduled Reports" sequence="1"
                       action="action_view_project_budget_scheduled_reports"/>

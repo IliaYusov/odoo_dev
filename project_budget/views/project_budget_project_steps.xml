@@ -10,8 +10,7 @@
                     <field name="project_steps_type_id" optional="show"  force_save="1" options="{'no_open': True,}"/>
                     <field name="code" optional="show" placeholder="type step code DAX e.g. 0001"/>
                     <field name="dogovor_number" optional="hide" />
-                    <field name="stage_id" string='Step stage' optional="hide" />
-                    <field name="estimated_probability_id" optional="hide" />
+                    <field name="stage_id" string="Step stage" optional="hide" />
                     <field name="project_steps_type_id" optional="hide" />
                     <field name="essence_project" optional="show" placeholder="type step name e.g. products recieve"/>
                     <field name="end_presale_project_month" optional="show" />
@@ -40,7 +39,6 @@
                         <group col="4">
                             <group>
                                 <field name="code" placeholder="type step code e.g. 0001" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/> <!--обязательно при вероятности 100 и 100(done) -->
-<!--                                <field name="code" placeholder="type step code e.g. 0001" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')], 'required': [('estimated_probability_id', 'in', (5, 6))]}"/> &lt;!&ndash;обязательно при вероятности 100 и 100(done) &ndash;&gt;-->
                             </group>
                             <group>
                                 <field name="project_steps_type_id" force_save="1" options="{'no_open': True,}"/>
@@ -133,9 +131,6 @@
                                 <field name="stage_id" string="Probability" context="{'code_only': True}"
                                        options="{'always_reload': True, 'no_open': True}"/>
                             </group>
-<!--                            <group>-->
-<!--                                <field name="estimated_probability_id" options="{'no_open': True,}" />-->
-<!--                            </group>-->
                             <group>
                                 <field name="currency_id" options="{'no_open': True,}" />
                             </group>

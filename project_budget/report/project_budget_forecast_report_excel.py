@@ -1424,7 +1424,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             column += 4
         # end Валовая Выручка, без НДС
 
-    def printrow(self, sheet, workbook, project_offices, project_managers, stages, budget, row, formulaItogo, level):
+    def printrow(self, sheet, workbook, project_offices, key_account_managers, stages, budget, row, formulaItogo, level):
         global YEARint
         global year_end
         global dict_formula
@@ -1535,7 +1535,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         ])
         # cur_project_offices = project_offices.filtered(lambda r: r in cur_budget_projects.project_office_id or r in {office.parent_id for office in cur_budget_projects.project_office_id if office.parent_id in project_offices})
         cur_project_offices = project_offices
-        cur_project_managers = project_managers.filtered(lambda r: r in cur_budget_projects.project_manager_id)
+        cur_project_managers = key_account_managers.filtered(lambda r: r in cur_budget_projects.key_account_manager_id)
         cur_estimated_probabilities = stages.filtered(lambda r: r in cur_budget_projects.stage_id)
         # print('cur_budget_projects=',cur_budget_projects)
         # print('****')
@@ -1553,7 +1553,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
             child_project_offices = self.env['project_budget.project_office'].search([('parent_id', '=', project_office.id)], order='name')
 
-            row0, formulaItogo = self.printrow(sheet, workbook, child_project_offices, project_managers, stages, budget, row, formulaItogo, level + 1)
+            row0, formulaItogo = self.printrow(sheet, workbook, child_project_offices, key_account_managers, stages, budget, row, formulaItogo, level + 1)
 
             isFoundProjectsByOffice = False
             if row0 != row:
@@ -1596,7 +1596,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                     for spec in cur_budget_projects:
                         if spec.id in dict_formula['printed_projects']:
                             continue
-                        if not ((spec.project_office_id == project_office or (spec.legal_entity_signing_id.different_project_offices_in_steps and spec.project_have_steps)) and spec.project_manager_id == project_manager):
+                        if not ((spec.project_office_id == project_office or (spec.legal_entity_signing_id.different_project_offices_in_steps and spec.project_have_steps)) and spec.key_account_manager_id == project_manager):
                             continue
                         # if spec.estimated_probability_id.name != '0':
                         # if spec.is_framework == True and spec.project_have_steps == False: continue # рамка без этапов - пропускаем
@@ -1641,7 +1641,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                             else:
                                                 sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
                                             column += 1
-                                            sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
+                                            sheet.write_string(row, column, spec.key_account_manager_id.name, cur_row_format)
                                             column += 1
                                             sheet.write_string(row, column, spec.partner_id.name, cur_row_format)
                                             column += 1
@@ -1686,7 +1686,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                     column = 0
                                     sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
                                     column += 1
-                                    sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
+                                    sheet.write_string(row, column, spec.key_account_manager_id.name, cur_row_format)
                                     column += 1
                                     sheet.write_string(row, column, spec.partner_id.name, cur_row_format)
                                     column += 1
@@ -2037,11 +2037,12 @@ class report_budget_forecast_excel(models.AbstractModel):
         column = self.print_month_head_revenue_margin(workbook, sheet, row, column)
         row += 2
         project_offices = self.env['project_budget.project_office'].search([('parent_id', '=', False)], order='name')  # для сортировки так делаем + берем сначала только верхние элементы
-        project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
+        key_account_managers = self.env.ref('project_budget.group_project_budget_key_account_manager').users
+        # project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
 
         formulaItogo = '=sum(0'
 
-        row, formulaItogo = self.printrow(sheet, workbook, project_offices, project_managers, stages, budget, row, formulaItogo, 1)
+        row, formulaItogo = self.printrow(sheet, workbook, project_offices, key_account_managers.employee_ids.sorted('name'), stages, budget, row, formulaItogo, 1)
 
         row += 2
         column = 0

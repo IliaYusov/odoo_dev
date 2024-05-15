@@ -19,12 +19,13 @@ class DocumentKindTemplate(models.Model):
     _name = 'document_flow.document.kind.template'
     _description = 'Document Kind Template'
 
-    name = fields.Char(string='Name', required=True, copy=True)
+    name = fields.Char(string='Name', copy=True, required=True, translate=True)
     sequence_id = fields.Many2one('ir.sequence', string='Document Kind Sequence', copy=False, ondelete='restrict',
                                   domain=lambda self: [('code', '=', self._name)])
     keep_records_by_type = fields.Boolean(string='Keep Records By Type', default=False)
     type_ids = fields.One2many('document_flow.document.kind.type', 'template_id', string='Types')
     kind_ids = fields.One2many('document_flow.document.kind', 'template_id', string='Kinds')
+    company_id = fields.Many2one('res.company', string='Company', copy=False, default=lambda self: self.env.company)
 
     access_setting_ids = fields.One2many('document_flow.document.kind.accessibility.setting', 'template_id',
                                          string='Accessibility Settings')

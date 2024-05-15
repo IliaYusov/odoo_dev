@@ -1939,7 +1939,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 sheet.write_string(row, shifts['NEXT'] + 3, '', format_cross)
                 sheet.write_string(row, shifts['AFTER_NEXT'] + 3, '', format_cross)
 
-    def print_row(self, sheet, workbook, companies, project_offices, project_managers, stages, budget, row, level):
+    def print_row(self, sheet, workbook, companies, project_offices, key_account_managers, stages, budget, row, level):
         global YEARint
         global dict_formula
         head_format = workbook.add_format({
@@ -2167,7 +2167,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         # cur_project_offices = project_offices.filtered(lambda r: r in cur_budget_projects.project_office_id or r in {office.parent_id for office in cur_budget_projects.project_office_id if office.parent_id in project_offices})
         cur_project_offices = project_offices
-        cur_project_managers = project_managers.filtered(lambda r: r in cur_budget_projects.project_manager_id)
+        cur_project_managers = key_account_managers.filtered(lambda r: r in cur_budget_projects.key_account_manager_id)
         cur_estimated_probabilities = stages.filtered(lambda r: r in cur_budget_projects.stage_id)
         cur_companies = companies.filtered(lambda r: r in cur_project_offices.company_id)
         # print('cur_budget_projects=',cur_budget_projects)
@@ -2192,7 +2192,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 child_project_offices = self.env['project_budget.project_office'].search(
                     [('parent_id', '=', project_office.id)], order='name')
 
-                row0 = self.print_row(sheet, workbook, companies, child_project_offices, project_managers, stages, budget, row, level)
+                row0 = self.print_row(sheet, workbook, companies, child_project_offices, key_account_managers, stages, budget, row, level)
 
                 isFoundProjectsByOffice = False
                 if row0 != row:
@@ -2201,8 +2201,11 @@ class report_budget_forecast_excel(models.AbstractModel):
                 row = row0
 
                 formulaProjectOffice = '=sum(0'
-                for project_manager in cur_project_managers.filtered(lambda r: r in (office for office in self.env[
-                'project_budget.project_manager'].search([('company_id', '=', company.id), ]))):
+                for project_manager in cur_project_managers.filtered(lambda r: r in (office for office in self.env.ref(
+                        'project_budget.group_project_budget_key_account_manager').users.employee_ids.filtered(
+                            lambda emp: emp.company_id == company))):
+                #                                                                      self.env[
+                # 'project_budget.project_manager'].search([('company_id', '=', company.id), ]))):
                     print('project_manager =', project_manager.name)
                     isFoundProjectsByManager = False
                     begRowProjectsByManager = 0
@@ -2236,7 +2239,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                         for spec in cur_budget_projects:
                             if spec.id in dict_formula['printed_projects']:
                                 continue
-                            if not ((spec.project_office_id == project_office or (spec.legal_entity_signing_id.different_project_offices_in_steps and spec.project_have_steps)) and spec.project_manager_id == project_manager):
+                            if not ((spec.project_office_id == project_office or (spec.legal_entity_signing_id.different_project_offices_in_steps and spec.project_have_steps)) and spec.key_account_manager_id == project_manager):
                                 continue
                             # if spec.estimated_probability_id.name != '0':
                             # if spec.is_framework == True and spec.project_have_steps == False: continue # рамка без этапов - пропускаем
@@ -2281,7 +2284,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                                 else:
                                                     sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
                                                 column += 1
-                                                sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
+                                                sheet.write_string(row, column, spec.key_account_manager_id.name, cur_row_format)
                                                 column += 1
                                                 sheet.write_string(row, column, spec.partner_id.name, cur_row_format)
                                                 column += 1
@@ -2321,7 +2324,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                         column = 0
                                         sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
                                         column += 1
-                                        sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
+                                        sheet.write_string(row, column, spec.key_account_manager_id.name, cur_row_format)
                                         column += 1
                                         sheet.write_string(row, column, spec.partner_id.name, cur_row_format)
                                         column += 1
@@ -2401,63 +2404,63 @@ class report_budget_forecast_excel(models.AbstractModel):
                         # планы КАМов
                         plan_revenue = self.env['project_budget.budget_plan_kam_spec'].search([
                             ('budget_plan_kam_id.year', '=', YEARint),
-                            ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                            ('budget_plan_kam_id.key_account_manager_id', '=', project_manager.id),
                             ('type_row', '=', 'contracting'),
                         ])
                         plan_pds = self.env['project_budget.budget_plan_kam_spec'].search([
                             ('budget_plan_kam_id.year', '=', YEARint),
-                            ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                            ('budget_plan_kam_id.key_account_manager_id', '=', project_manager.id),
                             ('type_row', '=', 'cash'),
                         ])
                         plan_acceptance = self.env['project_budget.budget_plan_kam_spec'].search([
                             ('budget_plan_kam_id.year', '=', YEARint),
-                            ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                            ('budget_plan_kam_id.key_account_manager_id', '=', project_manager.id),
                             ('type_row', '=', 'acceptance'),
                         ])
                         plan_margin = self.env['project_budget.budget_plan_kam_spec'].search([
                             ('budget_plan_kam_id.year', '=', YEARint),
-                            ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                            ('budget_plan_kam_id.key_account_manager_id', '=', project_manager.id),
                             ('type_row', '=', 'margin_income'),
                         ])
 
                         plan_revenue_next = self.env['project_budget.budget_plan_kam_spec'].search([
                             ('budget_plan_kam_id.year', '=', YEARint + 1),
-                            ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                            ('budget_plan_kam_id.key_account_manager_id', '=', project_manager.id),
                             ('type_row', '=', 'contracting'),
                         ])
                         plan_pds_next = self.env['project_budget.budget_plan_kam_spec'].search([
                             ('budget_plan_kam_id.year', '=', YEARint + 1),
-                            ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                            ('budget_plan_kam_id.key_account_manager_id', '=', project_manager.id),
                             ('type_row', '=', 'cash'),
                         ])
                         plan_acceptance_next = self.env['project_budget.budget_plan_kam_spec'].search([
                             ('budget_plan_kam_id.year', '=', YEARint + 1),
-                            ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                            ('budget_plan_kam_id.key_account_manager_id', '=', project_manager.id),
                             ('type_row', '=', 'acceptance'),
                         ])
                         plan_margin_next = self.env['project_budget.budget_plan_kam_spec'].search([
                             ('budget_plan_kam_id.year', '=', YEARint + 1),
-                            ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                            ('budget_plan_kam_id.key_account_manager_id', '=', project_manager.id),
                             ('type_row', '=', 'margin_income'),
                         ])
                         plan_revenue_after_next = self.env['project_budget.budget_plan_kam_spec'].search([
                             ('budget_plan_kam_id.year', '=', YEARint + 2),
-                            ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                            ('budget_plan_kam_id.key_account_manager_id', '=', project_manager.id),
                             ('type_row', '=', 'contracting'),
                         ])
                         plan_pds_after_next = self.env['project_budget.budget_plan_kam_spec'].search([
                             ('budget_plan_kam_id.year', '=', YEARint + 2),
-                            ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                            ('budget_plan_kam_id.key_account_manager_id', '=', project_manager.id),
                             ('type_row', '=', 'cash'),
                         ])
                         plan_acceptance_after_next = self.env['project_budget.budget_plan_kam_spec'].search([
                             ('budget_plan_kam_id.year', '=', YEARint + 2),
-                            ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                            ('budget_plan_kam_id.key_account_manager_id', '=', project_manager.id),
                             ('type_row', '=', 'acceptance'),
                         ])
                         plan_margin_after_next = self.env['project_budget.budget_plan_kam_spec'].search([
                             ('budget_plan_kam_id.year', '=', YEARint + 2),
-                            ('budget_plan_kam_id.kam_id', '=', project_manager.id),
+                            ('budget_plan_kam_id.key_account_manager_id', '=', project_manager.id),
                             ('type_row', '=', 'margin_income'),
                         ])
 
@@ -3173,9 +3176,10 @@ class report_budget_forecast_excel(models.AbstractModel):
         else:
             project_offices = self.env['project_budget.project_office'].search([
                 ('parent_id', '=', False)], order='name')  # для сортировки так делаем + берем сначала только верхние элементы
-        project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
+        key_account_managers = self.env.ref('project_budget.group_project_budget_key_account_manager').users
+        # project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
 
-        row = self.print_row(sheet, workbook, companies, project_offices, project_managers, estimated_probabilities, budget, row, 1)
+        row = self.print_row(sheet, workbook, companies, project_offices, key_account_managers.employee_ids.sorted('name'), estimated_probabilities, budget, row, 1)
 
         # ИТОГО
         row += 1

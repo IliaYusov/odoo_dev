@@ -2,18 +2,15 @@ from odoo import models, fields, api, exceptions, _
 
 
 class TaskStageRoute(models.Model):
-    _name = "task.stage.route"
-    _description = "Task Stage Route"
-    _order = "sequence"
+    _name = 'task.stage.route'
+    _description = 'Task Stage Route'
+    _order = 'sequence'
 
     name = fields.Char(translate=True)
-    sequence = fields.Integer(default=5, index=True, required=True, tracking=True)
-    stage_from_id = fields.Many2one('task.stage', string='From', ondelete='restrict', required=True, index=True,
-                                    tracking=True)
-    stage_to_id = fields.Many2one('task.stage', string='To', ondelete='restrict', required=True, index=True,
-                                  tracking=True)
-    task_type_id = fields.Many2one('task.type', 'Task Type', ondelete='cascade', required=True, index=True,
-                                   tracking=True)
+    sequence = fields.Integer(default=5, index=True, required=True)
+    stage_from_id = fields.Many2one('task.stage', string='From', ondelete='restrict', required=True, index=True)
+    stage_to_id = fields.Many2one('task.stage', string='To', ondelete='restrict', required=True, index=True)
+    task_type_id = fields.Many2one('task.type', 'Task Type', ondelete='cascade', required=True, index=True)
     close = fields.Boolean(related='stage_to_id.closed', store=True, index=True, readonly=True)
     result_type = fields.Selection(related='stage_to_id.result_type', store=True, readonly=True)
 

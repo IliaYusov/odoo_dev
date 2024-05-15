@@ -4,7 +4,7 @@ from odoo import api, fields, models
 class Project(models.Model):
     _inherit = 'project_budget.projects'
 
-    contract_ids = fields.One2many('contract.contract', 'partner_id', string='Contracts')
+    contract_ids = fields.One2many('contract.contract', 'partner_id', string='Contracts', copy=False)
     contract_count = fields.Integer(compute='_compute_contract_count')
 
     @api.depends('contract_ids')
@@ -22,6 +22,8 @@ class Project(models.Model):
         action = self.env.ref('contract.action_contract_form')
         result = action.sudo().read()[0]
         result['domain'] = [('project_id', '=', self.id)]
-        result['context'] = {'default_project_id': self.id,
-                             'default_partner_id': self.partner_id.id}
+        result['context'] = {
+            'default_project_id': self.id,
+            'default_partner_id': self.partner_id.id
+        }
         return result

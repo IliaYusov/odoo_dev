@@ -22,8 +22,9 @@ class Document(models.Model):
                                  required=True)
     author_id = fields.Many2one('hr.employee', string='Author', check_company=True, default=_default_employee_id,
                                 required=True)
-    kind_id = fields.Many2one('document_flow.document.kind', string='Kind', copy=True, ondelete='restrict',
-                              required=True, tracking=True)
+    kind_id = fields.Many2one('document_flow.document.kind', string='Kind', check_company=True, copy=True,
+                              domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]",
+                              index=True, ondelete='restrict', required=True, tracking=True)
     template_id = fields.Many2one(related='kind_id.template_id', string='Template', copy=False, readonly=True)
     description = fields.Html(string='Description', copy=False)
     active = fields.Boolean(copy=False, default=True, index=True)

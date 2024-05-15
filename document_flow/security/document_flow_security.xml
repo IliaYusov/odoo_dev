@@ -63,21 +63,32 @@
         <record model="ir.rule" id="document_flow_user_my_event_rule">
             <field name="name">Document flow: edit my event</field>
             <field name="model_id" ref="model_document_flow_event"/>
-            <field name="domain_force">['|', '|',
-                ('create_uid', '=', user.id),
-                ('organizer_id', '=', user.id),
-                ('agreed_id', '=', user.id)]</field>
+            <field name="domain_force">
+                [
+                    '|', '|',
+                    ('create_uid', '=', user.id),
+                    ('organizer_id', '=', user.id),
+                    ('agreed_id', '=', user.id)
+                ]
+            </field>
             <field name="groups" eval="[(4,ref('document_flow.group_document_flow_user'))]"/>
         </record>
 
         <record model="ir.rule" id="document_flow_user_member_event_rule">
             <field name="name">Document flow: see member events</field>
             <field name="model_id" ref="model_document_flow_event"/>
-            <field name="domain_force">['|', '|', '|',
-                ('member_ids', '=', user.id),
-                ('management_committee_id.member_ids', '=', user.id),
-                ('decision_ids.responsible_id', '=', user.id),
-                ('decision_ids.executor_ids', '=', user.id)]
+            <field name="domain_force">
+                [
+                    '|', '|', '|', '|', '|', '|', '|',
+                    ('member_ids', '=', user.id),
+                    ('member_ids', 'in', user.employee_id.replaceable_employee_ids.user_id.ids),
+                    ('management_committee_id.member_ids', '=', user.id),
+                    ('management_committee_id.member_ids', 'in', user.employee_id.replaceable_employee_ids.user_id.ids),
+                    ('decision_ids.responsible_id', '=', user.id),
+                    ('decision_ids.responsible_id', 'in', user.employee_id.replaceable_employee_ids.user_id.ids),
+                    ('decision_ids.executor_ids', '=', user.id),
+                    ('decision_ids.executor_ids', 'in', user.employee_id.replaceable_employee_ids.user_id.ids)
+                ]
             </field>
             <field name="groups" eval="[(4,ref('document_flow.group_document_flow_user'))]"/>
             <field name="perm_write" eval="0"/>
@@ -96,21 +107,32 @@
         <record model="ir.rule" id="document_flow_user_my_decision_rule">
             <field name="name">Document flow: edit my decision</field>
             <field name="model_id" ref="model_document_flow_event_decision"/>
-            <field name="domain_force">['|', '|',
-                ('event_id.create_uid', '=', user.id),
-                ('event_id.organizer_id', '=', user.id),
-                ('event_id.agreed_id', '=', user.id)]</field>
+            <field name="domain_force">
+                [
+                    '|', '|',
+                    ('event_id.create_uid', '=', user.id),
+                    ('event_id.organizer_id', '=', user.id),
+                    ('event_id.agreed_id', '=', user.id)
+                ]
+            </field>
             <field name="groups" eval="[(4,ref('document_flow.group_document_flow_user'))]"/>
         </record>
 
         <record model="ir.rule" id="document_flow_user_my_decisions_rule">
             <field name="name">Document flow: see my decisions</field>
             <field name="model_id" ref="model_document_flow_event_decision"/>
-            <field name="domain_force">['|', '|', '|',
-                ('responsible_id', '=', user.id),
-                ('executor_ids', '=', user.id),
-                ('event_id.member_ids', '=', user.id),
-                ('event_id.management_committee_id.member_ids', '=', user.id)]
+            <field name="domain_force">
+                [
+                    '|', '|', '|', '|', '|', '|', '|',
+                    ('responsible_id', '=', user.id),
+                    ('responsible_id', 'in', user.employee_id.replaceable_employee_ids.user_id.ids),
+                    ('executor_ids', '=', user.id),
+                    ('executor_ids', 'in', user.employee_id.replaceable_employee_ids.user_id.ids),
+                    ('event_id.member_ids', '=', user.id),
+                    ('event_id.member_ids', 'in', user.employee_id.replaceable_employee_ids.replaceable_employee_id.user_id.ids),
+                    ('event_id.management_committee_id.member_ids', '=', user.id),
+                    ('event_id.management_committee_id.member_ids', 'in', user.employee_id.replaceable_employee_ids.user_id.ids)
+                ]
             </field>
             <field name="groups" eval="[(4,ref('document_flow.group_document_flow_user'))]"/>
             <field name="perm_write" eval="0"/>
@@ -134,7 +156,7 @@
                     '|', '|',
                     ('create_uid', '=', user.id),
                     ('access_ids.user_id', '=', user.id),
-                    ('access_ids.user_id', 'in', user.employee_id.replaceable_employee_ids.replaceable_employee_id.user_id.ids)
+                    ('access_ids.user_id', 'in', user.employee_id.replaceable_employee_ids.user_id.ids)
                 ]
             </field>
             <field name="groups" eval="[(4,ref('document_flow.group_document_flow_user'))]"/>
@@ -152,20 +174,28 @@
         <record model="ir.rule" id="document_flow_task_user_rule">
             <field name="name">Task user: see my tasks</field>
             <field name="model_id" ref="model_task_task"/>
-            <field name="domain_force">['|', '|', '|', '|', '|',
-                ('author_id', '=', user.id),
-                ('author_id', 'in', user.employee_id.subordinate_ids.user_id.ids),
-                ('user_ids', '=', user.id),
-                ('user_ids', 'in', user.employee_id.subordinate_ids.user_id.ids),
-                ('user_ids', 'in', user.employee_id.replaceable_employee_ids.replaceable_employee_id.user_id.ids),
-                ('role_executor_id.member_ids', '=', user.id)]</field>
+            <field name="domain_force">
+                [
+                    '|', '|', '|', '|', '|',
+                    ('author_id', '=', user.id),
+                    ('author_id', 'in', user.employee_id.subordinate_ids.user_id.ids),
+                    ('user_ids', '=', user.id),
+                    ('user_ids', 'in', user.employee_id.subordinate_ids.user_id.ids),
+                    ('user_ids', 'in', user.employee_id.replaceable_employee_ids.user_id.ids),
+                    ('role_executor_id.member_ids', '=', user.id)
+                ]
+            </field>
             <field name="groups" eval="[(4,ref('base.group_user'))]"/>
         </record>
 
         <record model="ir.rule" id="document_flow_task_manager_rule">
             <field name="name">Task manager: see all tasks</field>
             <field name="model_id" ref="model_task_task"/>
-            <field name="domain_force">[('parent_ref_type', 'like', 'document_flow.')]</field>
+            <field name="domain_force">
+                [
+                    ('parent_ref_type', 'like', 'document_flow.')
+                ]
+            </field>
             <field name="groups" eval="[(4,ref('document_flow.group_document_flow_task_manager'))]"/>
         </record>
     </data>

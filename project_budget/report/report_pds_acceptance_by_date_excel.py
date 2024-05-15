@@ -227,7 +227,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                     else:
                         sheet.write_string(row, column, project.project_office_id.name, row_format)
                     column += 1
-                    sheet.write_string(row, column, project.project_manager_id.name, row_format)
+                    sheet.write_string(row, column, project.key_account_manager_id.name, row_format)
                     column += 1
                     sheet.write_string(row, column, step.stage_id.code, row_format)
                     column += 1
@@ -269,7 +269,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                 column += 1
                 sheet.write_string(row, column, project.project_office_id.name, row_format)
                 column += 1
-                sheet.write_string(row, column, project.project_manager_id.name, row_format)
+                sheet.write_string(row, column, project.key_account_manager_id.name, row_format)
                 column += 1
                 sheet.write_string(row, column, project.stage_id.code, row_format)
                 column += 1

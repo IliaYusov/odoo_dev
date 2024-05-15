@@ -1,6 +1,7 @@
 from odoo import api, fields, models, _
 
 
+# TODO: перенести функционал в новое приложение company_partner
 class ResCompanyPartner(models.Model):
     _name = 'res.company.partner'
     _description = 'Company Partner'

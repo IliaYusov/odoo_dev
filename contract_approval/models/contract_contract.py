@@ -134,7 +134,6 @@ class Contract(models.Model):
                 'flags': {
                     'mode': 'readonly'
                 }
-
             })
         return action_vals
 

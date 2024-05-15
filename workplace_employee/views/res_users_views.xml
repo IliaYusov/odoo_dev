@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_users_view_form_profile_inherit_workplace" model="ir.ui.view">
+        <field name="name">res.users.form.profile.inherit.workplace</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="hr.res_users_view_form_profile"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="attributes">
+                <attribute name="readonly">not context.get('from_workplace', False)</attribute>
+            </xpath>
+            <xpath expr="//field[@name='mobile_phone']" position="attributes">
+                <attribute name="attrs"/>
+            </xpath>
+            <xpath expr="//field[@name='work_phone']" position="attributes">
+                <attribute name="attrs"/>
+            </xpath>
+            <xpath expr="//page[@name='preferences_page']" position="attributes">
+                <attribute name="invisible">context.get('from_workplace', False)</attribute>
+            </xpath>
+            <xpath expr="//page[2]" position="replace">
+                <page string="Account Security">
+                    <group name="auth" string="Password Management">
+                        <div colspan="2">
+                            <button name="preference_change_password" type="object" string="Change password"
+                                    class="btn btn-secondary"/>
+                        </div>
+                    </group>
+                    <group string="API Keys" invisible="context.get('from_workplace', False)">
+                        <div class="text-muted" colspan="2">
+                            API Keys are used to connect to Odoo from external tools without the need for a password or
+                            Two-factor Authentication.
+                            <a href="https://www.odoo.com/documentation/16.0/developer/misc/api/external_api.html#api-keys"
+                               target="_blank">
+                                <i title="Documentation" class="fa fa-fw o_button_icon fa-info-circle"></i>
+                                Learn more
+                            </a>
+                        </div>
+                        <div colspan="2" attrs="{'invisible': [('api_key_ids', '=', [])]}">
+                            <field name="api_key_ids" nolabel="1" colspan="4" readonly="0">
+                                <tree editable="bottom" create="false" delete="false">
+                                    <field name="name"/>
+                                    <field name="scope"/>
+                                    <field name="create_date"/>
+                                    <button type="object" name="remove"
+                                            string="Delete API key." icon="fa-trash"/>
+                                </tree>
+                            </field>
+                        </div>
+                        <div colspan="2">
+                            <button name="api_key_wizard" string="New API Key" type="object" class="btn btn-secondary"/>
+                        </div>
+                    </group>
+                </page>
+            </xpath>
+            <xpath expr="//page[@name='personal_information']" position="attributes">
+                <attribute name="invisible">context.get('from_workplace', False)</attribute>
+            </xpath>
+            <xpath expr="//page[@name='hr_settings']" position="attributes">
+                <attribute name="invisible">context.get('from_workplace', False)</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_res_users_my_profile" model="ir.actions.act_window">
+        <field name="name">My Profile</field>
+        <field name="res_model">res.users</field>
+        <field name="view_mode">form</field>
+        <field name="context">
+            {
+                'from_my_profile': True,
+                'from_workplace': True
+            }
+        </field>
+        <field name="view_id" ref="res_users_view_form_profile_inherit_workplace"/>
+    </record>
+</odoo>

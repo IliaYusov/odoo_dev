@@ -288,9 +288,10 @@ class report_budget_excel(models.AbstractModel):
         # sheet.set_column(14, 17, False, False, {'hidden': 1, 'level': 1})
         # sheet.set_column(20, 29, False, False, {'hidden': 1, 'level': 1})
 
-        project_offices  = self.env['project_budget.project_office'].search([], order='name')  # для сортировки так делаем
-        project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
-        stages = self.env['project_budget.project.stage'].search([],order='name desc')  # для сортировки так делаем
+        project_offices = self.env['project_budget.project_office'].search([], order='name')  # для сортировки так делаем
+        key_account_managers = self.env.ref('project_budget.group_project_budget_key_account_manager').users.sorted('name')
+        # project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
+        stages = self.env['project_budget.project.stage'].search([], order='name desc')  # для сортировки так делаем
 
         isFoundProjectsByOffice = False
         isFoundProjectsByManager = False
@@ -302,7 +303,7 @@ class report_budget_excel(models.AbstractModel):
         for project_office in project_offices:
             isFoundProjectsByOffice = False
             begRowProjectsByoffice = 0
-            for project_manager in project_managers:
+            for key_account_manager in key_account_managers:
                 # print('project_manager = ', project_manager.name)
                 isFoundProjectsByManager = False
 
@@ -314,7 +315,7 @@ class report_budget_excel(models.AbstractModel):
                         '|', ('project_office_id', '=', project_office.id),
                         ('legal_entity_signing_id.different_project_offices_in_steps', '=', True),
                         ('commercial_budget_id', '=', budget.id),
-                        ('project_manager_id', '=', project_manager.id),
+                        ('key_account_manager_id.user_id', '=', key_account_manager.id),
                         ('stage_id', '=', stage.id)
                     ])
 
@@ -340,7 +341,7 @@ class report_budget_excel(models.AbstractModel):
                                 sheet.write_string(row, column, spec.project_supervisor_id.name, row_format)
                                 column += 1
                                 if spec.project_office_id.print_rukovoditel_in_kb == False:
-                                    sheet.write_string(row, column, spec.project_manager_id.name, row_format)
+                                    sheet.write_string(row, column, spec.key_account_manager_id.name, row_format)
                                 else:
                                     sheet.write_string(row, column, spec.rukovoditel_project_id.name or '', row_format)
                                 column += 1
@@ -443,7 +444,7 @@ class report_budget_excel(models.AbstractModel):
                                         sheet.write_string(row, column, spec.project_supervisor_id.name, row_format)
                                         column += 1
                                         if spec.project_office_id.print_rukovoditel_in_kb == False:
-                                            sheet.write_string(row, column, spec.project_manager_id.name, row_format)
+                                            sheet.write_string(row, column, spec.key_account_manager_id.name, row_format)
                                         else:
                                             sheet.write_string(row, column, spec.rukovoditel_project_id.name or '', row_format)
                                         column += 1

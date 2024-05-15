@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="survey_survey_view_form_inherit_survey_nkk" model="ir.ui.view">
+        <field name="name">survey.survey.form.inherit.survey.nkk</field>
+        <field name="model">survey.survey</field>
+        <field name="inherit_id" ref="survey.survey_survey_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form/header/button[@name='action_start_session']" position="attributes">
+                <attribute name="attrs">{'invisible': 1}</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="survey_survey_view_kanban_inherit_survey_nkk" model="ir.ui.view">
+        <field name="name">survey.survey.kanban.inherit.survey.nkk</field>
+        <field name="model">survey.survey</field>
+        <field name="inherit_id" ref="survey.survey_survey_view_kanban"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_start_session']" position="attributes">
+                <attribute name="attrs">{'invisible': 1}</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="document_flow_document_kind_template_view_tree_inherit_workflow" model="ir.ui.view">
+        <field name="name">document.flow.document.kind.template.tree.inherit.workflow</field>
+        <field name="model">document_flow.document.kind.template</field>
+        <field name="inherit_id" ref="document_flow.document_flow_document_kind_template_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='sequence_id']" position="after">
+                <field name="workflow_id"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="document_flow_document_kind_template_view_form_inherit_workflow" model="ir.ui.view">
+        <field name="name">document.flow.document.kind.template.form.inherit.workflow</field>
+        <field name="model">document_flow.document.kind.template</field>
+        <field name="inherit_id" ref="document_flow.document_flow_document_kind_template_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='settings']" position="after">
+                <field name="workflow_id_domain" invisible="1"/>
+                <group>
+                    <field name="workflow_id" domain="workflow_id_domain"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

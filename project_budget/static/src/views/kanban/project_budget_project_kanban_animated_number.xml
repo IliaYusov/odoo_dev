@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="project_budget.ProjectKanbanAnimatedNumber" t-inherit="web.KanbanAnimatedNumber" t-inherit-mode="primary"
+       owl="1">
+        <xpath expr="//div[hasclass('o_kanban_counter_side')]" position="replace">
+            <div class="o_kanban_counter_side ms-2 text-900 text-nowrap"
+                 t-att-class="state.value !== props.value and props.animationClass" t-att-title="props.title">
+                <t t-debug="pdb"/>
+                <t t-slot="prefix"/>
+                <span t-if="props.currency and props.currency.position === 'before'" t-esc="props.currency.symbol"
+                      class="ms-1"/>
+                <b t-esc="formattedValue(state.value)"/>
+                <span t-if="props.currency and props.currency.position === 'after'" t-esc="props.currency.symbol"
+                      class="ms-1"/>
+            </div>
+        </xpath>
+    </t>
+</templates>

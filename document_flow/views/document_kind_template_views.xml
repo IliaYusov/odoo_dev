@@ -29,6 +29,7 @@
             <tree string="Document Kinds" multi_edit="1" sample="1">
                 <field name="name"/>
                 <field name="sequence_id"/>
+                <field name="company_id" groups="base.group_multi_company"/>
             </tree>
         </field>
     </record>
@@ -44,17 +45,24 @@
                             <field name="name" class="o_text_overflow" placeholder="Document Kind Title..."/>
                         </h1>
                     </div>
-                    <group>
-                        <field name="sequence_id"/>
+                    <group name="settings">
+                        <group>
+                            <field name="sequence_id"/>
+                        </group>
+                        <group>
+                            <field name="keep_records_by_type" widget="boolean_toggle" options="{'autosave': False}"/>
+                        </group>
                     </group>
                     <group>
-                        <field name="keep_records_by_type" widget="boolean_toggle" options="{'autosave': False}"/>
+                        <field name="company_id" invisible="1" groups="!base.group_multi_company"/>
+                        <field name="company_id" groups="base.group_multi_company"/>
                     </group>
                     <notebook>
                         <page name="access_settings_page" string="Accessibility Settings">
                             <field name="access_setting_ids" mode="tree"/>
                         </page>
-                        <page name="types_page" string="Types" attrs="{'invisible': [('keep_records_by_type', '=', False)]}">
+                        <page name="types_page" string="Types"
+                              attrs="{'invisible': [('keep_records_by_type', '=', False)]}">
                             <field name="type_ids" mode="tree"/>
                         </page>
                     </notebook>

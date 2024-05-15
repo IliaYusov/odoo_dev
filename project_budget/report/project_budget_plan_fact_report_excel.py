@@ -508,7 +508,7 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
 
         return sum100tmp, sum75tmp, sum50tmp, margin100tmp, margin75tmp, margin50tmp
 
-    def print_row(self, sheet, workbook, companies, project_offices, project_managers, stages, year, budget, row, level, office_data):
+    def print_row(self, sheet, workbook, companies, project_offices, key_account_managers, stages, year, budget, row, level, office_data):
         global dict_formula
 
         office_heading_format = workbook.add_format({
@@ -671,7 +671,7 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
                             for probability in self.probability_names:
                                 office_data[section][quarter][probability] = 0
 
-                office_data = self.print_row(sheet, workbook, companies, child_project_offices, project_managers, stages, year, budget, row, level + 1, office_data)
+                office_data = self.print_row(sheet, workbook, companies, child_project_offices, key_account_managers, stages, year, budget, row, level + 1, office_data)
 
                 is_found_projects_by_office = False
 
@@ -1034,7 +1034,8 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
 
         project_offices = self.env['project_budget.project_office'].search([('parent_id', '=', False)], order='name')  # для сортировки так делаем + берем сначала только верхние элементы
 
-        project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
+        key_account_managers = self.env.ref('project_budget.group_project_budget_key_account_manager').users.sorted('name')
+        # project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
 
         office_data = {}  # инициализируем словарь офисов
         for section in self.section_names:
@@ -1044,7 +1045,7 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
                 for probability in self.probability_names:
                     office_data[section][quarter][probability] = 0
 
-        _ = self.print_row(sheet, workbook, companies, project_offices, project_managers, stages, year, budget, row, 1, office_data)
+        _ = self.print_row(sheet, workbook, companies, project_offices, key_account_managers, stages, year, budget, row, 1, office_data)
 
     def generate_xlsx_report(self, workbook, data, budgets):
 

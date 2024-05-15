@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates id="template" xml:space="preserve">
+    <t t-name="EmployeeTaskDashboard" t-inherit="workplace_employee.EmployeeDashboard" t-inherit-mode="extension"
+       owl="1">
+        <xpath expr="//div[hasclass('employee-info')]" position="after">
+            <div class="col-10 tasks-info">
+                <div class="row row-cols-1 row-cols-md-4">
+                    <div class="col my_tasks">
+                        <div class="card">
+                            <div class="card-header justify-content-center align-items-center">
+                                <h2 class="card-title">My Tasks: <t t-esc="state.taskInfo.my_tasks_count"/></h2>
+                            </div>
+                            <div class="card-body">
+                                <div class="row row-cols-2">
+                                    <div class="col-md-6">
+                                        <div class="card my_to_do_tasks" t-on-click="() => this.viewMyTasksToDo()">
+                                            <div class="row justify-content-center align-items-center g-0">
+                                                <div class="col-4">
+                                                    <div class="card-icon">
+                                                        <i class="fa fa-inbox"/>
+                                                    </div>
+                                                </div>
+                                                <div class="col-8">
+                                                    <div class="card-body text-info">
+                                                        <span class="tasks-title">New</span>
+                                                        <br/>
+                                                        <t t-esc="state.taskInfo.my_to_do_count"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card my_overdue_tasks" t-on-click="() => this.viewMyTasksOverdue()">
+                                            <div class="row justify-content-center align-items-center g-0">
+                                                <div class="col-4">
+                                                    <div class="card-icon">
+                                                        <i class="fa fa-fire"/>
+                                                    </div>
+                                                </div>
+                                                <div class="col-8">
+                                                    <div class="card-body text-danger">
+                                                        <span class="tasks-title">Overdue</span>
+                                                        <br/>
+                                                        <t t-esc="state.taskInfo.my_overdue_count"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col by_me_tasks">
+                        <div class="card">
+                            <div class="card-header justify-content-center align-items-center">
+                                <h2 class="card-title">Created By Me: <t t-esc="state.taskInfo.by_me_tasks_count"/></h2>
+                            </div>
+                            <div class="card-body">
+                                <div class="row row-cols-2">
+                                    <div class="col-md-6">
+                                        <div class="card by_me_to_do_tasks" t-on-click="() => this.viewByMeTasksToDo()">
+                                            <div class="row justify-content-center align-items-center g-0">
+                                                <div class="col-4">
+                                                    <div class="card-icon">
+                                                        <i class="fa fa-inbox"/>
+                                                    </div>
+                                                </div>
+                                                <div class="col-8">
+                                                    <div class="card-body text-info">
+                                                        <span class="tasks-title">New</span>
+                                                        <br/>
+                                                        <t t-esc="state.taskInfo.by_me_to_do_count"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card by_me_overdue_tasks"
+                                             t-on-click="() => this.viewByMeTasksOverdue()">
+                                            <div class="row justify-content-center align-items-center g-0">
+                                                <div class="col-4">
+                                                    <div class="card-icon">
+                                                        <i class="fa fa-fire"/>
+                                                    </div>
+                                                </div>
+                                                <div class="col-8">
+                                                    <div class="card-body text-danger">
+                                                        <span class="tasks-title">Overdue</span>
+                                                        <br/>
+                                                        <t t-esc="state.taskInfo.by_me_overdue_count"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col group_tasks">
+                        <div class="card">
+                            <div class="card-header justify-content-center align-items-center">
+                                <h2 class="card-title">Group Tasks: <t t-esc="state.taskInfo.group_tasks_count"/></h2>
+                            </div>
+                            <div class="card-body">
+                                <div class="row row-cols-2">
+                                    <div class="col-md-6">
+                                        <div class="card group_to_do_tasks"
+                                             t-on-click="() => this.viewGroupTasksToDo()">
+                                            <div class="row justify-content-center align-items-center g-0">
+                                                <div class="col-4">
+                                                    <div class="card-icon">
+                                                        <i class="fa fa-inbox"/>
+                                                    </div>
+                                                </div>
+                                                <div class="col-8">
+                                                    <div class="card-body text-info">
+                                                        <span class="tasks-title">New</span>
+                                                        <br/>
+                                                        <t t-esc="state.taskInfo.group_to_do_count"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card group_overdue_tasks"
+                                             t-on-click="() => this.viewGroupTasksOverdue()">
+                                            <div class="row justify-content-center align-items-center g-0">
+                                                <div class="col-4">
+                                                    <div class="card-icon">
+                                                        <i class="fa fa-fire"/>
+                                                    </div>
+                                                </div>
+                                                <div class="col-8">
+                                                    <div class="card-body text-danger">
+                                                        <span class="tasks-title">Overdue</span>
+                                                        <br/>
+                                                        <t t-esc="state.taskInfo.group_overdue_count"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <t t-if="state.employeeInfo.subordinate_ids">
+                        <div class="col subordinates_tasks">
+                            <div class="card">
+                                <div class="card-header justify-content-center align-items-center">
+                                    <h2 class="card-title">Tasks Of Subordinates: <t t-esc="state.taskInfo.subordinates_tasks_count"/></h2>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row row-cols-2">
+                                        <div class="col-md-6">
+                                            <div class="card subordinates_to_do_tasks"
+                                                 t-on-click="() => this.viewSubordinatesTasksToDo()">
+                                                <div class="row justify-content-center align-items-center g-0">
+                                                    <div class="col-4">
+                                                        <div class="card-icon">
+                                                            <i class="fa fa-inbox"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-8">
+                                                        <div class="card-body text-info">
+                                                            <span class="tasks-title">New</span>
+                                                            <br/>
+                                                            <t t-esc="state.taskInfo.subordinates_to_do_count"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card subordinates_overdue_tasks"
+                                                 t-on-click="() => this.viewSubordinatesTasksOverdue()">
+                                                <div class="row justify-content-center align-items-center g-0">
+                                                    <div class="col-4">
+                                                        <div class="card-icon">
+                                                            <i class="fa fa-fire"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-8">
+                                                        <div class="card-body text-danger">
+                                                            <span class="tasks-title">Overdue</span>
+                                                            <br/>
+                                                            <t t-esc="state.taskInfo.subordinates_overdue_count"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </div>
+        </xpath>
+    </t>
+</templates>

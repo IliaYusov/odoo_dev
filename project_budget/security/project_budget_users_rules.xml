@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+
+        <!-- Project rules -->
+
         <record id="ir_rule_project_budget_access_supervisor_manager" model="ir.rule">
             <field name="name">Access to project budget specification by supervisor anf manager access</field>
             <field name="model_id" ref="model_project_budget_projects"/>
-            <field name="domain_force">["|","|","|","|","|","|",
+            <field name="domain_force">["|","|","|","|",
                 ('project_supervisor_id.id','in', user.supervisor_rule.ids),
-                ('project_manager_id.id','in', user.manager_rule.ids),
                 ('rukovoditel_project_id.id','in', user.rukovoditel_project_rule.ids),
                 ('project_office_id.user_id.id','=',user.id),
                 ('parent_project_id.project_supervisor_id.id','in', user.supervisor_rule.ids),
-                ('parent_project_id.project_manager_id.id','in', user.manager_rule.ids),
                 ('parent_project_id.rukovoditel_project_id.id','in', user.rukovoditel_project_rule.ids),
                 ]
             </field>
@@ -21,8 +22,30 @@
             <field name="perm_unlink" eval="True"/>
         </record>
 
+        <record id="project_budget_project_key_account_manager_rule" model="ir.rule">
+            <field name="name">Access to projects to key account manager</field>
+            <field name="model_id" ref="model_project_budget_projects"/>
+            <field name="domain_force">
+                [
+                    '|', '|', '|',
+                    ('key_account_manager_id.user_id', '=', user.id),
+                    ('parent_project_id.key_account_manager_id.user_id', '=', user.id),
+                    ('key_account_manager_id', 'in', user.with_context(kam_function=True).employee_id.replaceable_employee_ids.ids),
+                    ('parent_project_id.key_account_manager_id', 'in', user.with_context(kam_function=True).employee_id.replaceable_employee_ids.ids)
+                ]
+            </field>
+            <field name="groups" eval="[(4, ref('project_budget.group_project_budget_key_account_manager'))]"/>
+        </record>
+
+        <record id="project_budget_project_manager_rule" model="ir.rule">
+            <field name="name">Project budget manager: see all projects</field>
+            <field name="model_id" ref="model_project_budget_projects"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('project_budget.project_budget_admin'))]"/>
+        </record>
+
         <record id="ir_rule_project_budget_access_budget_plan_kam" model="ir.rule">
-            <field name="name">Access to budgeе plan kam</field>
+            <field name="name">Access to budget plan kam</field>
             <field name="model_id" ref="model_project_budget_budget_plan_kam"/>
             <field name="domain_force">["|",('supervisor_user_id.id','=', user.id)
                                            ,('kam_user_id.id','=', user.id)
@@ -97,7 +120,7 @@
             </field>
         </record>
 
-        <!-- Reseller rules -->
+        <!-- Company partner rules -->
 
         <record id="res_company_partner_company_rule" model="ir.rule">
             <field name="name">Company partner multi-company</field>

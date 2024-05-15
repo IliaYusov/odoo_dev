@@ -20,36 +20,34 @@
         <field name="model">document_flow.document</field>
         <field name="inherit_id" ref="document_flow.document_view_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//page[@name='description_page']" position="after">
-                <page name="page_processing" string="Processing">
-                    <group invisible="1">
-                        <field name="workflow_id_domain"/>
-                        <field name="workflow_process_id"/>
-                        <field name="workflow_process_state"/>
-                    </group>
-                    <div class="o_row">
-                        <button name="action_start_processing" class="btn btn-primary" type="object" icon="fa-play"
-                                attrs="{'invisible': ['|', '|', ('active', '=', False), ('workflow_id', '=', False), '&amp;', ('workflow_process_state', '!=', False), ('workflow_process_state', '!=', 'canceled')]}"
-                                help="Start processing"/>
-                        <button name="action_pause_processing" class="btn btn-primary" type="object" icon="fa-pause"
-                                attrs="{'invisible': 1}"/>
-                        <button name="workflow.action_workflow_process_stop_wizard" class="btn btn-primary"
-                                type="action" icon="fa-stop"
-                                attrs="{'invisible': ['|', '|', ('active', '=', False), ('workflow_process_state', '=', False), '&amp;', ('workflow_process_state', '!=', False), ('workflow_process_state', '!=', 'in_progress')]}"
-                                context="{'default_process_id': workflow_process_id}" help="Stop processing"/>
-                        <button name="workflow.action_workflow_process_resume_wizard" class="btn btn-primary"
-                                type="action" icon="fa-play"
-                                attrs="{'invisible': ['|', '|', ('active', '=', False), ('workflow_process_state', '=', False), '&amp;', ('workflow_process_state', '!=', False), ('workflow_process_state', '!=', 'break')]}"
-                                context="{'default_process_id': workflow_process_id}" help="Resume processing"/>
-                    </div>
-                    <br/>
-                    <group>
-                        <field name="workflow_id" domain="workflow_id_domain"
-                               attrs="{'readonly': [('can_edit', '=', False)]}"
-                               options="{'no_create_edit': True, 'no_open': True}"/>
-                    </group>
-                    <field name="activity_history_ids"
-                           attrs="{'invisible': [('activity_history_ids', '=', [])]}"/>
+            <xpath expr="//form/sheet" position="inside">
+                <group invisible="1">
+                    <field name="workflow_id"/>
+                    <field name="workflow_process_id"/>
+                    <field name="workflow_process_state"/>
+                </group>
+            </xpath>
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <div class="oe_left button_box">
+                    <button name="action_start_processing" class="btn btn-primary" type="object" icon="fa-play"
+                            attrs="{'invisible': ['|', '|', ('active', '=', False), ('workflow_id', '=', False), '&amp;', ('workflow_process_state', '!=', False), ('workflow_process_state', '!=', 'canceled')]}"
+                            help="Start processing"/>
+                    <button name="action_pause_processing" class="btn btn-primary" type="object" icon="fa-pause"
+                            attrs="{'invisible': 1}"/>
+                    <button name="workflow.action_workflow_process_stop_wizard" class="btn btn-primary"
+                            type="action" icon="fa-stop"
+                            attrs="{'invisible': ['|', '|', ('active', '=', False), ('workflow_process_state', '=', False), '&amp;', ('workflow_process_state', '!=', False), ('workflow_process_state', '!=', 'in_progress')]}"
+                            context="{'default_process_id': workflow_process_id}" help="Stop processing"/>
+                    <button name="workflow.action_workflow_process_resume_wizard" class="btn btn-primary"
+                            type="action" icon="fa-play"
+                            attrs="{'invisible': ['|', '|', ('active', '=', False), ('workflow_process_state', '=', False), '&amp;', ('workflow_process_state', '!=', False), ('workflow_process_state', '!=', 'break')]}"
+                            context="{'default_process_id': workflow_process_id}" help="Resume processing"/>
+                </div>
+            </xpath>
+            <xpath expr="//page[@name='page_description']" position="after">
+                <page name="page_processing" string="Processing"
+                      attrs="{'invisible': [('activity_history_ids', '=', [])]}">
+                    <field name="activity_history_ids" mode="tree"/>
                 </page>
                 <page name="page_access" string="Access">
                     <field name="access_ids" mode="tree"

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates id="template" xml:space="preserve">
+    <t t-name="EmployeeDashboard" owl="1">
+        <div class="container-fluid wp-dashboard-container">
+            <div class="row row-cols-1 row-cols-md-12 mt-1">
+                <div class="col-2 employee-info">
+                    <div class="card border-0">
+                        <img t-attf-src="/web/image/res.users/{{session.user_id}}/avatar_1024/"
+                             class="card-img-top" alt=""/>
+                        <div class="card-body">
+                            <h5 class="card-title" t-esc="session.name"/>
+                            <t t-if="state.employeeInfo.job_id">
+                                <p class="card-text" t-esc="state.employeeInfo.job_id[1]"/>
+                            </t>
+                            <a href="#" t-on-click="() => this.openProfile()" class="btn btn-primary">Edit</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

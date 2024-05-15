@@ -29,7 +29,8 @@ class tenders(models.Model):
     vat_attribute_id = fields.Many2one('project_budget.vat_attribute', string='vat_attribute', copy=True, tracking=True, required=True)
     project_office_id = fields.Many2one(related='projects_id.project_office_id', readonly=True)
     project_supervisor_id = fields.Many2one(related='projects_id.project_supervisor_id', readonly=True)
-    project_manager_id = fields.Many2one(related='projects_id.project_manager_id', readonly=True)
+    key_account_manager_id = fields.Many2one(related='projects_id.key_account_manager_id', readonly=True)
+    # project_manager_id = fields.Many2one(related='projects_id.project_manager_id', readonly=True)
     rukovoditel_project_id = fields.Many2one(related='projects_id.rukovoditel_project_id', readonly=True)
 
     essence_project = fields.Text(related='projects_id.essence_project', readonly=True)
@@ -55,7 +56,6 @@ class tenders(models.Model):
     is_need_provision_of_GO  = fields.Boolean(string="is_need_provision_of_GO", copy=True, default = False)
     is_need_licenses_SRO  = fields.Boolean(string="is_need_licenses_SRO", copy=True, default = False,tracking=True)
     licenses_SRO = fields.Char(string='licenses_SRO',tracking=True)
-    project_manager_id = fields.Many2one(related='projects_id.project_manager_id', readonly=True)
     current_status = fields.Many2one('project_budget.tender_current_status', required=True, tracking=True)
 
     responsible_ids = fields.Many2many('hr.employee', relation='tender_employee_rel', column1='tender_id', column2='employee_id', string='responsibles')

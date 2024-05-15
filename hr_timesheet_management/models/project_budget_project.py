@@ -6,7 +6,7 @@ class Project(models.Model):
 
     analytic_account_id = fields.Many2one('account.analytic.account', copy=False, domain="""[
         '|', ('company_id', '=', False), ('company_id', '=', company_id)],
-        ('customer_organization_id.partner_id', '=?', partner_id)""")
+        ('partner_id', '=?', partner_id)""")
 
     timesheet_ids = fields.One2many('account.analytic.line', 'project_id', string='Timesheets')
     total_hours_spent = fields.Float(compute='_compute_total_hours_spent', string='Hours')
@@ -43,13 +43,13 @@ class Project(models.Model):
     def _create_analytic_account_from_values(self, values):
         company = self.env['res.company'].browse(values.get('company_id')) if values.get(
             'company_id') else self.env.company
-        org = self.env['project_budget.customer_organization'].browse(
-            values.get('customer_organization_id')) if values.get('company_id') else False
+        org = self.env['res.partner'].browse(
+            values.get('partner_id')) if values.get('company_id') else False
         # TODO: Подумать над необходимостью sudo
         analytic_account = self.env['account.analytic.account'].sudo().create({
             'name': values.get('essence_project', _('Unknown Analytic Account')),
             'company_id': company.id,
-            'partner_id': org.partner_id.id if org else False,
+            'partner_id': org.id if org else False,
             'plan_id': company.analytic_plan_id.id,
         })
         return analytic_account
@@ -60,7 +60,7 @@ class Project(models.Model):
             analytic_account = self.env['account.analytic.account'].sudo().create({
                 'name': project.essence_project,
                 'company_id': project.company_id.id,
-                'partner_id': project.customer_organization_id.partner_id.id,
+                'partner_id': project.partner_id.id,
                 'plan_id': project.company_id.analytic_plan_id.id,
                 'active': True
             })

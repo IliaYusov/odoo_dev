@@ -4,13 +4,17 @@
         <record id="contract.contract_contract_user_my_contract_rule" model="ir.rule">
             <field name="name">Contract: see my contracts</field>
             <field name="model_id" ref="model_contract_contract"/>
-            <field name="domain_force">['|', '|', '|', '|', '|',
-                ('create_uid', '=', user.id),
-                ('type_id.access_setting_ids.user_id', '=', user.id),
-                ('type_id.access_setting_ids.group_executors_id.member_ids', '=', user.id),
-                ('access_ids.user_id', '=', user.id),
-                ('access_ids.group_executors_id.member_ids', '=', user.id),
-                ('access_ids.user_id', 'in', user.employee_id.replaceable_employee_ids.replaceable_employee_id.user_id.ids)]</field>
+            <field name="domain_force">
+                [
+                    '|', '|', '|', '|', '|',
+                    ('create_uid', '=', user.id),
+                    ('type_id.access_setting_ids.user_id', '=', user.id),
+                    ('type_id.access_setting_ids.group_executors_id.member_ids', '=', user.id),
+                    ('access_ids.user_id', '=', user.id),
+                    ('access_ids.group_executors_id.member_ids', '=', user.id),
+                    ('access_ids.user_id', 'in', user.employee_id.replaceable_employee_ids.user_id.ids)
+                ]
+            </field>
             <field name="groups" eval="[(4,ref('base.group_user'))]"/>
         </record>
 

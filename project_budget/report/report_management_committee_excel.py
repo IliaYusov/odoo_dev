@@ -4011,7 +4011,7 @@ class report_management_committee_excel(models.AbstractModel):
             ('is_parent_project', '=', False),
             ('stage_id.code', '!=', '0'),
             ('is_not_for_mc_report', '=', False),
-        ]).sorted(key=lambda r: (r.project_manager_id.name, r.stage_id.code))
+        ]).sorted(key=lambda r: (r.key_account_manager_id.name, r.stage_id.code))
 
         # cur_project_offices = project_offices.filtered(lambda r: r in cur_budget_projects.project_office_id or r in {office.parent_id for office in cur_budget_projects.project_office_id if office.parent_id in project_offices})
         cur_project_offices = project_offices
@@ -4319,7 +4319,7 @@ class report_management_committee_excel(models.AbstractModel):
                                                 cur_row_format = row_format_canceled_project
                                                 cur_row_format_number = row_format_number_canceled_project
                                             column = 0
-                                            sheet.write_string(row, column, '       ' * max_level + spec.project_manager_id.name, cur_row_format)
+                                            sheet.write_string(row, column, '       ' * max_level + spec.key_account_manager_id.name, cur_row_format)
                                             column += 1
                                             sheet.write_string(row, column, spec.partner_id.name,
                                                                cur_row_format)
@@ -4363,7 +4363,7 @@ class report_management_committee_excel(models.AbstractModel):
                                             cur_row_format = row_format_canceled_project
                                             cur_row_format_number = row_format_number_canceled_project
                                         column = 0
-                                        sheet.write_string(row, column, '       ' * max_level + spec.project_manager_id.name, cur_row_format)
+                                        sheet.write_string(row, column, '       ' * max_level + spec.key_account_manager_id.name, cur_row_format)
                                         column += 1
                                         sheet.write_string(row, column, spec.partner_id.name, cur_row_format)
                                         column += 1

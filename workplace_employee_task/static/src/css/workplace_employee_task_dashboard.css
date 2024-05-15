@@ -1,0 +1,68 @@
+.o_action_manager {
+    overflow: auto !important;
+}
+
+.tasks-info .card {
+    padding: 0px;
+    margin-bottom: 1.5rem;
+    border-radius: 0px;
+    box-shadow: none;
+    background: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    will-change: transform, box-shadow;
+    text-align: center;
+}
+
+.tasks-info .card:hover {
+    transform: translateY(-2px) translateZ(0) !important;
+}
+
+.tasks-info .card-header {
+    padding: 0.5px;
+}
+
+.tasks-info .card-icon {
+    font-size: 30px;
+    font-weight: 900;
+    display: inline-block;
+}
+
+.tasks-info .tasks-title {
+    font-size: 10px;
+}
+
+.tasks-info .tasks-count {
+    font-size: 20px;
+}
+
+.my_to_do_tasks {
+    color: #0f5f8b;
+}
+
+.my_overdue_tasks {
+    color: #dc3545;
+}
+
+.by_me_to_do_tasks {
+    color: #0f5f8b;
+}
+
+.by_me_overdue_tasks {
+    color: #dc3545;
+}
+
+.group_to_do_tasks {
+    color: #0f5f8b;
+}
+
+.group_overdue_tasks {
+    color: #dc3545;
+}
+
+.subordinates_to_do_tasks {
+    color: #0f5f8b;
+}
+
+.subordinates_overdue_tasks {
+    color: #dc3545;
+}

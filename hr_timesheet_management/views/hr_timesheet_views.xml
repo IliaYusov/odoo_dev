@@ -64,7 +64,8 @@
             <field name="mode">primary</field>
             <field name="priority">10</field>
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='employee_id']" position="attributes">
+<!--                Ивонин сказал сотрудников видеть, а не видеть проект, ибо вверху же написано, что за проект-->
+                <xpath expr="//field[@name='project_id']" position="attributes">
                     <attribute name="invisible">1</attribute>
                     <attribute name="required">0</attribute>
                 </xpath>

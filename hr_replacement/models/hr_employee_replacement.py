@@ -18,6 +18,13 @@ class HrEmployeeReplacement(models.Model):
     active = fields.Boolean(default=True, index=True)
     comment = fields.Html(string='Comment', copy=True)
 
+    def name_get(self):
+        res = []
+        for rec in self:
+            name = '%s -> %s' % (rec.replaceable_employee_id.name, rec.replacement_employee_id.name)
+            res += [(rec.id, name)]
+        return res
+
     @api.model_create_multi
     def create(self, vals_list):
         self.clear_caches()

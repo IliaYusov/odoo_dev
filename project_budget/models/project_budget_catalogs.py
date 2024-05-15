@@ -2,6 +2,7 @@ from ast import literal_eval
 from odoo import models, fields, api
 from odoo.tools.misc import get_lang
 
+
 class project_type(models.Model):
     _name = 'project_budget.project_type'
     _description = "project_type"
@@ -40,26 +41,6 @@ class project_steps_type(models.Model):
     is_rko_other = fields.Boolean(string='is_rko_other',tracking=True, default = True)
     is_other_expenses = fields.Boolean(string='is_other_expenses',tracking=True, default = True)
 
-# catalogs
-class project_office(models.Model):
-    _name = 'project_budget.project_office'
-    _description = "project_office"
-    name = fields.Char(string="project_office name", required=True, translate=True)
-    code = fields.Char(string="project_office code", required=True)
-    descr = fields.Char(string="project_office description")
-    company_id = fields.Many2one('res.company',default=lambda self: self.env.company)
-    parent_id = fields.Many2one('project_budget.project_office', string='Parent project_office', copy=True, tracking=True, domain='[("id", "!=", id)]')
-    child_ids = fields.One2many('project_budget.project_office', 'parent_id', string="Sub project_office")
-    user_id = fields.Many2one('res.users', string='Office manager', )
-    avatar_128 = fields.Image(related='user_id.avatar_128', readonly=True)
-    receive_tasks_for_approve_project = fields.Boolean(string="Recieve tasks for approve project as supervisor", default = False)
-    isRukovoditel_required_in_project = fields.Boolean(string="mark rukovoditel required in prject", default=False)
-    print_rukovoditel_in_kb = fields.Boolean(string="Print rukovoditel instead KAM in KB form",
-                                                       default=False)
-    is_prohibit_selection = fields.Boolean(string="is prohibit selection in projects", default=False)
-    report_name = fields.Char(string="name for report")
-    report_sort = fields.Integer(string="sorting for report", default=0, required=True)
-
 
 class project_supervisor(models.Model):
     _name = 'project_budget.project_supervisor'
@@ -76,6 +57,7 @@ class project_supervisor(models.Model):
             string="project_supervisor_access",
             copy=True, auto_join=True)
 
+
 class project_supervisor_access(models.Model):
     _name = 'project_budget.project_supervisor_access'
     _description = "project_supervisor_access"
@@ -83,6 +65,7 @@ class project_supervisor_access(models.Model):
     user_id = fields.Many2one('res.users', string='user id',  required=True,)
     can_approve_project = fields.Boolean(string="Can approve project as supervisor", default = False)
     descr = fields.Char(string="project supervisor access description" , translate=True)
+
 
 class project_manager(models.Model):
     _name = 'project_budget.project_manager'
@@ -99,12 +82,14 @@ class project_manager(models.Model):
         string="project_manager_access",
         copy=True, auto_join=True)
 
+
 class project_manager_access(models.Model):
     _name = 'project_budget.project_manager_access'
     _description = "project_manager access"
     project_manager_id = fields.Many2one('project_budget.project_manager', string='project manager id', required=True,)
     user_id = fields.Many2one('res.users', string='user id', required=True,)
     descr = fields.Char(string="project manager access description", translate=True)
+
 
 class rukovoditel_project(models.Model):
     _name = 'project_budget.rukovoditel_project'
@@ -121,6 +106,7 @@ class rukovoditel_project(models.Model):
         string="rukovoditel_project_access",
         copy=True, auto_join=True)
 
+
 class rukovoditel_project_access(models.Model):
     _name = 'project_budget.rukovoditel_project_access'
     _description = "rukovoditel_project access"
@@ -136,6 +122,7 @@ class industry(models.Model):
     code = fields.Char(string="industry code", required=True)
     descr = fields.Char(string="industry description", translate=True)
 
+
 class vat_attribute(models.Model):
     _name = 'project_budget.vat_attribute'
     _description = "project_vat attribute"
@@ -144,6 +131,7 @@ class vat_attribute(models.Model):
     percent = fields.Float(string="vat_percent", required=True, default=0)
     descr = fields.Char(string="vat_attribute description", translate=True)
     is_prohibit_selection = fields.Boolean(string="is prohibit selection in projects", default=False)
+
 
 class legal_entity_signing(models.Model):
     _name = 'project_budget.legal_entity_signing'
@@ -157,6 +145,7 @@ class legal_entity_signing(models.Model):
     # Для миграции на res.partner
     partner_id = fields.Many2one('res.partner', string='Partner')
 
+
 class technological_direction(models.Model):
     _name = 'project_budget.technological_direction'
     _description = "project_technologigal direction"
@@ -165,6 +154,7 @@ class technological_direction(models.Model):
     descr = fields.Char(string="technological_direction description", translate=True)
     recurring_payments = fields.Boolean(string="recurring_payments", default=False)
 
+
 class tender_current_status(models.Model):
     _name = 'project_budget.tender_current_status'
     _description = "tender current status"
@@ -172,6 +162,7 @@ class tender_current_status(models.Model):
     code = fields.Char(string="current status code", required=True)
     descr = fields.Char(string="current status description", translate=True)
     highlight = fields.Boolean(string="highlight", default=False)
+
 
 class tender_comments_type(models.Model):
     _name = 'project_budget.tender_comments_type'

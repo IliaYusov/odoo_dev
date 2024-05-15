@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_order_test" model="ir.actions.act_window">
+        <field name="name">Складские ордера</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">order.test</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <menuitem id="menu_yk_order"
+              name="Складские ордера"
+              sequence="10"
+              action="action_order_test"
+              parent="menu_yk_main"/>
+
+    <record id="view_order_test_tree" model="ir.ui.view">
+        <field name="name">order.test.tree</field>
+        <field name="model">order.test</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="order_date"/>
+                <field name="warehouse"/>
+                <field name="total_amount"/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_order_test_form" model="ir.ui.view">
+        <field name="name">order.test.form</field>
+        <field name="model">order.test</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="order_date"/>
+                        <field name="warehouse"/>
+                        <field name="total_amount"/>
+                    </group>
+                    <notebook>
+                        <page string="Спецификация">
+                            <field name="order_lines" mode="tree">
+                                <tree>
+                                    <field name="product"/>
+                                    <field name="quantity"/>
+                                    <field name="price"/>
+                                    <field name="amount"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+
+            </form>
+        </field>
+
+    </record>
+</odoo>

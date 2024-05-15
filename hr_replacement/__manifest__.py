@@ -1,23 +1,14 @@
 {
     'name': 'HR Replacement',
-    'version': '1.0.1',
+    'version': '1.0.2',
     'category': 'Human Resources/Employees',
     'depends': ['hr'],
-    'description': 'HR replacements employees',
-    'author': '',
-    'support': '',
+    'description': 'HR employee replacements',
     'installable': True,
     'auto_install': True,
-    'images': ['static/description/icon.png'],
-    'assets': {
-        'web.assets_backend': [
-        ]
-    },
     'data': [
         'security/ir.model.access.csv',
-        'views/employee_replacement_views.xml'
-    ],
-    'demo': [
+        'views/hr_employee_replacement_views.xml'
     ],
     'license': 'LGPL-3'
 }

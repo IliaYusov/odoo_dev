@@ -1,0 +1,88 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* workplace_employee
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-05-08 10:00+0000\n"
+"PO-Revision-Date: 2024-05-08 10:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: workplace_employee
+#: model_terms:ir.ui.view,arch_db:workplace_employee.res_users_view_form_profile_inherit_workplace
+msgid ""
+"<i title=\"Documentation\" class=\"fa fa-fw o_button_icon fa-info-circle\"/>\n"
+"                                Learn more"
+msgstr ""
+
+#. module: workplace_employee
+#: model_terms:ir.ui.view,arch_db:workplace_employee.res_users_view_form_profile_inherit_workplace
+msgid "API Keys"
+msgstr "Ключи API"
+
+#. module: workplace_employee
+#: model_terms:ir.ui.view,arch_db:workplace_employee.res_users_view_form_profile_inherit_workplace
+msgid ""
+"API Keys are used to connect to Odoo from external tools without the need for a password or\n"
+"                            Two-factor Authentication."
+msgstr ""
+
+#. module: workplace_employee
+#: model_terms:ir.ui.view,arch_db:workplace_employee.res_users_view_form_profile_inherit_workplace
+msgid "Account Security"
+msgstr "Параметры доступа"
+
+#. module: workplace_employee
+#: model_terms:ir.ui.view,arch_db:workplace_employee.res_users_view_form_profile_inherit_workplace
+msgid "Change password"
+msgstr "Сменить пароль"
+
+#. module: workplace_employee
+#: model_terms:ir.ui.view,arch_db:workplace_employee.res_users_view_form_profile_inherit_workplace
+msgid "Delete API key."
+msgstr ""
+
+#. module: workplace_employee
+#. odoo-javascript
+#: code:addons/workplace_employee/static/src/components/workplace_employee_dashboard/workplace_employee_dashboard.xml:0
+#, python-format
+msgid "Edit"
+msgstr "Редактировать"
+
+#. module: workplace_employee
+#: model:ir.model,name:workplace_employee.model_hr_employee
+msgid "Employee"
+msgstr "Сотрудник"
+
+#. module: workplace_employee
+#: model:ir.actions.act_window,name:workplace_employee.action_res_users_my_profile
+msgid "My Profile"
+msgstr "Мои данные"
+
+#. module: workplace_employee
+#: model_terms:ir.ui.view,arch_db:workplace_employee.res_users_view_form_profile_inherit_workplace
+msgid "New API Key"
+msgstr "Новый ключ API"
+
+#. module: workplace_employee
+#: model_terms:ir.ui.view,arch_db:workplace_employee.res_users_view_form_profile_inherit_workplace
+msgid "Password Management"
+msgstr "Управление паролем"
+
+#. module: workplace_employee
+#: model:ir.actions.client,name:workplace_employee.action_workplace_employee_dashboard
+#: model:ir.ui.menu,name:workplace_employee.menu_workplace_employee
+msgid "Workplace Employee"
+msgstr "Рабочее место сотрудника"
+
+#. module: workplace_employee
+#: model:ir.model,name:workplace_employee.model_res_users
+msgid "users budgets access"
+msgstr "Пользователь"

@@ -119,7 +119,8 @@ class commercial_budget(models.Model):
                         'display_name': _('Need send to supervisor for approval'),
                         'summary': _('You need send to supervisor for approval'),
                         'date_deadline': fields.datetime.now(),
-                        'user_id': spec.project_manager_id.user_id.id,
+                        'user_id': spec.key_account_manager_id.user_id.id,
+                        # 'user_id': spec.project_manager_id.user_id.id,
                         'res_id': spec.id,
                         'res_model_id': res_model_id_project_budget,
                         'activity_type_id': activity_type_for_approval

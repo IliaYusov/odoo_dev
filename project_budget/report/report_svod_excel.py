@@ -1306,8 +1306,9 @@ class report_svod_excel(models.AbstractModel):
 
         project_offices = self.env['project_budget.project_office'].search([],
                                                                            order='name')  # для сортировки так делаем
-        project_managers = self.env['project_budget.project_manager'].search([],
-                                                                             order='name')  # для сортировки так делаем
+        key_account_managers = self.env.ref(
+            'project_budget.group_project_budget_key_account_manager').users.employee_ids.sorted('name')
+        # project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
         stages = self.env['project_budget.project.stage'].search([('name', '!=', '10')], order='sequence desc')  # для сортировки так делаем
 
         isFoundProjects = False
@@ -1322,7 +1323,7 @@ class report_svod_excel(models.AbstractModel):
             isFoundProjectsByOffice = False
             formulaProjectOffice = '=sum(0,'
             formulaProjectOffice_plan = ""
-            for project_manager in project_managers:
+            for key_account_manager in key_account_managers:
                 begRowProjectsByManager = 0
                 column = -1
                 isFoundProjects = False
@@ -1332,7 +1333,8 @@ class report_svod_excel(models.AbstractModel):
                         '|', ('project_office_id', '=', project_office.id),
                         ('legal_entity_signing_id.different_project_offices_in_steps', '=', True),
                         ('commercial_budget_id', '=', budget.id),
-                        ('project_manager_id', '=', project_manager.id),
+                        ('key_account_manager_id', '=', key_account_manager.id),
+                        # ('project_manager_id', '=', project_manager.id),
                         ('stage_id', '=', stage.id)]
                         )
                     for spec in cur_budget_projects:
@@ -1393,7 +1395,7 @@ class report_svod_excel(models.AbstractModel):
                                         column += 1
                                         sheet.write_string(row, column, spec.project_id + ' | ' + step.step_id + ' ' +step.essence_project, cur_row_format)
                                         column += 1
-                                        sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
+                                        sheet.write_string(row, column, spec.key_account_manager_id.name, cur_row_format)
                                         column += 1
                                         sheet.write_string(row, column, step.stage_id.code, Probability_format)
                                         column += 1
@@ -1431,7 +1433,7 @@ class report_svod_excel(models.AbstractModel):
                                     column += 1
                                     sheet.write_string(row, column, spec.project_id + ' ' + spec.essence_project, cur_row_format)
                                     column += 1
-                                    sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
+                                    sheet.write_string(row, column, spec.key_account_manager_id.name, cur_row_format)
                                     column += 1
                                     sheet.write_string(row, column, spec.stage_id.code, Probability_format)
                                     column += 1
@@ -1440,7 +1442,7 @@ class report_svod_excel(models.AbstractModel):
                 if isFoundProjects:
                     row += 1
                     column = 1
-                    sheet.write_string(row, column, 'ИТОГО ' + project_manager.name, row_format_manager)
+                    sheet.write_string(row, column, 'ИТОГО ' + key_account_manager.name, row_format_manager)
                     sheet.set_row(row, None, None, {'hidden': 1, 'level': 1})
                     formulaProjectOffice = formulaProjectOffice + ',{0}' + str(row + 1)
                     for colFormula in range(2, 5):

@@ -33,8 +33,10 @@ class budget_plan_kam(models.Model):
     project_office_id = fields.Many2one(related='plan_supervisor_id.project_office_id', string='project_office')
     supervisor_id = fields.Many2one(related = 'plan_supervisor_id.supervisor_id', string='KAMs supervisor')
     supervisor_user_id = fields.Many2one(related='plan_supervisor_id.supervisor_user_id', readonly=True)
-    kam_id = fields.Many2one('project_budget.project_manager', string='KAM', required=True,
-                                         copy=True, tracking=True, check_company=True) # на самом деле это КАМ
+    key_account_manager_id = fields.Many2one('hr.employee', string='Key Account Manager', check_company=True, copy=True,
+                                             required=True, tracking=True)
+    kam_id = fields.Many2one('project_budget.project_manager', string='KAM', copy=True, required=False,
+                                          tracking=True, check_company=True) # на самом деле это КАМ
     kam_user_id = fields.Many2one(related='kam_id.user_id', readonly=True)
 
     is_use_ebit = fields.Boolean(related='plan_supervisor_id.is_use_ebit', string="using EBIT", tracking=True)
@@ -144,7 +146,8 @@ class budget_plan_kam(models.Model):
     @api.depends('supervisor_id', 'year')
     def _get_name_to_show(self):
         for plan_kam in self:
-            plan_kam.name_to_show = str(plan_kam.year) + ' ' + plan_kam.project_office_id.name + ' ' +plan_kam.kam_id.name
+            plan_kam.name_to_show = str(
+                plan_kam.year) + ' ' + plan_kam.project_office_id.name + ' ' + plan_kam.key_account_manager_id.name
 
     def insert_spec(self,type_row, plan_id):
         type_plan_row_vals = []

@@ -1,6 +1,6 @@
 {
     'name': 'Contract: Approval',
-    'version': '1.0.1',
+    'version': '1.0.2',
     'category': '',
     'depends': ['base', 'contract', 'report_docx', 'workflow'],
     'description': """

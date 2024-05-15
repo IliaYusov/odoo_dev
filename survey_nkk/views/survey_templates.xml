@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="brand_promotion_message" inherit_id="survey.layout">
+            <xpath expr="//div[@class='px-2 py-2 d-inline-block']" position="replace">
+            </xpath>
+        </template>
+    </data>
+</odoo>

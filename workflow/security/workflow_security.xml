@@ -59,7 +59,7 @@
                     ('author_id', 'in', user.employee_id.subordinate_ids.user_id.ids),
                     ('user_ids', '=', user.id),
                     ('user_ids', 'in', user.employee_id.subordinate_ids.user_id.ids),
-                    ('user_ids', 'in', user.employee_id.replaceable_employee_ids.replaceable_employee_id.user_id.ids),
+                    ('user_ids', 'in', user.employee_id.replaceable_employee_ids.user_id.ids),
                     ('group_executors_id.member_ids', '=', user.id)
                 ]
             </field>

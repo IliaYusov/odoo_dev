@@ -23,12 +23,12 @@ msgstr ""
 #. module: hr_replacement
 #: model_terms:ir.ui.view,arch_db:hr_replacement.hr_employee_replacement_view_search
 msgid "Actual Replacements"
-msgstr ""
+msgstr "Активные замены"
 
 #. module: hr_replacement
 #: model_terms:ir.ui.view,arch_db:hr_replacement.hr_employee_replacement_view_form
 msgid "Archived"
-msgstr ""
+msgstr "В архиве"
 
 #. module: hr_replacement
 #: model:ir.model.fields,field_description:hr_replacement.field_hr_employee_replacement__comment

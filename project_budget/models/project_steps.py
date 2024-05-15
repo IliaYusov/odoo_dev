@@ -4,7 +4,7 @@ from odoo.tools import pytz
 from datetime import timedelta
 
 
-#TODO: убрать все явные привязки к вероятности
+#TODO: убрать все явные привязки к вероятности, объединить с projects???
 class project_steps(models.Model):
     _name = 'project_budget.project_steps'
     _description = "project steps"
@@ -40,13 +40,6 @@ class project_steps(models.Model):
             value =  _('transportation_expenses')
         print('_get_current_amount_spec_type value = ', value)
         self.current_amount_spec_type = value
-
-    def _getesimated_probability_fromProject(self):
-        for row in self:
-            project = self.env['project_budget.projects'].search(['id','=',row.projects_id])
-            print(project)
-            print(project.estimated_probability_id.id)
-            return project.estimated_probability_id
 
     def _get_domainamount_spec(self):
         domain = []
@@ -274,14 +267,11 @@ class project_steps(models.Model):
     dogovor_number = fields.Char(string='Dogovor number', store=True, tracking=True)
     stage_id = fields.Many2one('project_budget.project.stage', string='Stage', copy=True, default=_get_default_stage_id,
                                required=True, tracking=True)
-    estimated_probability_id = fields.Many2one('project_budget.estimated_probability', string='estimated_probability',  copy = True, tracking=True
-                        ,required = False, default = _getesimated_probability_fromProject)
     currency_id = fields.Many2one('res.currency', string='Account Currency', related='projects_id.currency_id', readonly=True)
     project_steps_type_id = fields.Many2one('project_budget.project_steps_type', string='project steps type', required=True, copy=True)
-    project_office_id = fields.Many2one('project_budget.project_office', string='project office',
-                                        copy=True, tracking=True, check_company=True,
-                                        domain="[('is_prohibit_selection','=', False)]",
-                                        )
+    # TODO: необходимо убрать домен и перейти на стандартное поле active
+    project_office_id = fields.Many2one('project_budget.project_office', string='Project Office', copy=True,
+                                        domain="[('is_prohibit_selection','=', False)]", tracking=True)
     planned_cash_flow_sum = fields.Monetary(
         string='planned_cash_flow_sum',
         compute='_compute_planned_cash_flow_sum',

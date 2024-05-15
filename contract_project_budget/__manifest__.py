@@ -1,6 +1,6 @@
 {
     'name': 'Contract: Project Budget',
-    'version': '1.0.1',
+    'version': '1.0.2',
     'category': '',
     'depends': ['base', 'contract', 'project_budget'],
     'description': """
@@ -16,7 +16,8 @@
     },
     'data': [
         'views/contract_contract_views.xml',
-        'views/project_budget_project_views.xml'
+        'views/project_budget_project_views.xml',
+        'views/res_company_partner_views.xml'
     ],
     'demo': [
     ],

@@ -2796,7 +2796,7 @@ class report_pds_weekly_excel(models.AbstractModel):
                                     else:
                                         sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
                                     column += 1
-                                    sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
+                                    sheet.write_string(row, column, spec.key_account_manager_id.name, cur_row_format)
                                     column += 1
                                     sheet.write_string(row, column, spec.partner_id.name, cur_row_format)
                                     column += 1
@@ -2840,7 +2840,7 @@ class report_pds_weekly_excel(models.AbstractModel):
                                 column = 0
                                 sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
                                 column += 1
-                                sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
+                                sheet.write_string(row, column, spec.key_account_manager_id.name, cur_row_format)
                                 column += 1
                                 sheet.write_string(row, column, spec.partner_id.name, cur_row_format)
                                 column += 1

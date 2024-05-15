@@ -13,7 +13,8 @@
                     <field name="company_id"/>
                     <field name="project_office_id"/>
                     <field name="supervisor_id" widget="many2one_avatar"/>
-                    <field name="kam_id" widget="many2one_avatar"/>
+                    <field name="key_account_manager_id" widget="many2one_avatar_employee"/>
+<!--                    <field name="kam_id" widget="many2one_avatar"/>-->
                     <field name="currency_id"/>
                 </tree>
             </field>
@@ -38,7 +39,9 @@
                                 <field name="company_id" options="{'no_create': True, 'no_open': True}"/>
                             </group>
                             <group>
-                                <field name="kam_id" options="{'no_create': True, 'no_open': True}" widget="many2one_avatar"/>
+                                <field name="key_account_manager_id" options="{'no_create': True, 'no_open': True}"
+                                       widget="many2one_avatar_employee"/>
+<!--                                <field name="kam_id" options="{'no_create': True, 'no_open': True}" widget="many2one_avatar"/>-->
                                 <field name="is_use_ebit" widget="boolean_toggle"/>
                             </group>
                             <group>

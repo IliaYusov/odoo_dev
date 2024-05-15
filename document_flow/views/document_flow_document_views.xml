@@ -44,20 +44,17 @@
         <field name="model">document_flow.document</field>
         <field name="arch" type="xml">
             <form string="Document">
+                <header/>
                 <sheet string="Document">
                     <div class="oe_button_box" name="button_box"/>
                     <group invisible="1">
                         <field name="active"/>
                         <field name="can_edit"/>
+                        <field name="template_id"/>
                     </group>
                     <widget name="web_ribbon" title="Archived"
                             bg_color="bg-danger"
                             attrs="{'invisible': [('active', '=', True)]}"/>
-                    <group>
-                        <field name="company_id" invisible="1" groups="!base.group_multi_company"/>
-                        <field name="company_id" groups="base.group_multi_company"
-                               attrs="{'readonly': [('can_edit', '=', False)]}"/>
-                    </group>
                     <group col="2">
                         <group>
                             <field name="code" string="Registration Number"
@@ -85,8 +82,13 @@
                     </group>
                     <field name="properties" nolabel="1" columns="2" hideKanbanOption="1"
                            attrs="{'invisible': [('kind_id', '=', False)], 'readonly': [('can_edit', '=', False)]}"/>
+                    <group>
+                        <field name="company_id" invisible="1" groups="!base.group_multi_company"/>
+                        <field name="company_id" groups="base.group_multi_company"
+                               attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                    </group>
                     <notebook>
-                        <page name="description_page" string="Description">
+                        <page name="page_description" string="Description">
                             <field name="description" type="html" options="{'collaborative': true, 'resizable': false}"
                                    attrs="{'readonly': [('can_edit', '=', False)]}"
                                    placeholder="Document description..."/>

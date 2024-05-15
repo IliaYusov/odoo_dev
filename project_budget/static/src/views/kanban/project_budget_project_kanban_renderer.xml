@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="project_budget.ProjectKanbanRenderer" t-inherit="web.KanbanRenderer" t-inherit-mode="primary"
+       owl="1">
+        <xpath expr="//div[hasclass('o_kanban_counter_progress')]" position="replace">
+            <t t-set="aggregate" t-value="getGroupAggregate(group)" />
+            <span t-esc="aggregate.title" class="text-start"/>
+        </xpath>
+    </t>
+</templates>

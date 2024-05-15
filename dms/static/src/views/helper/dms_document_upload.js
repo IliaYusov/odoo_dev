@@ -104,6 +104,9 @@ export const FileUpload = {
             res_model: res_model,
             res_id: res_id
         };
+        if (ctx.default_partner_id) {
+            params.update({ partner_id: ctx.default_partner_id });
+        }
 
         const fileData = await this.http.post(
             "/dms/upload_attachment",

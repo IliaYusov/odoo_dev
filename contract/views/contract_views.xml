@@ -113,8 +113,7 @@
                     <group col="2">
                         <group>
                             <field name="author_id" widget="many2one_avatar_employee"
-                                   options="{'no_create_edit': True, 'no_open': True}"
-                                   attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                                   options="{'no_create_edit': True, 'no_open': True}"/>
                         </group>
                         <group>
                             <field name="responsible_id" widget="many2one_avatar_employee"

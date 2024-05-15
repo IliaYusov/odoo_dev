@@ -1,29 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="project_budget_project_view_search" model="ir.ui.view">
         <field name="name">project.budget.project.search</field>
         <field name="model">project_budget.projects</field>
         <field name="arch" type="xml">
-            <search string="Search projects">
+            <search string="Search Projects">
                 <field name="project_id" filter_domain="[('project_id','ilike',self)]" string="project_id"/>
-                <field name="step_project_number" filter_domain="[('step_project_number','ilike',self)]"
+                <field name="step_project_number" filter_domain="[('step_project_number', 'ilike', self)]"
                        string="step project number"/>
-                <field name="essence_project" filter_domain="[('essence_project','ilike',self)]"
+                <field name="essence_project" filter_domain="[('essence_project', 'ilike', self)]"
                        string="essence_project"/>
-                <field name="project_office_id" filter_domain="[('project_office_id.name','ilike',self)]"
+                <field name="project_office_id" filter_domain="[('project_office_id.name', 'ilike', self)]"
                        string="project_office"/>
-                <field name="project_supervisor_id" filter_domain="[('project_supervisor_id.name','ilike',self)]"
+                <field name="project_supervisor_id" filter_domain="[('project_supervisor_id.name', 'ilike', self)]"
                        string="project_supervisor"/>
-                <field name="project_manager_id" filter_domain="[('project_manager_id.name','ilike',self)]"
-                       string="project_manager"/>
-                <field name="partner_id" filter_domain="[('partner_id.name','ilike',self)]"
+                <field name="key_account_manager_id" filter_domain="[('key_account_manager_id.name', 'ilike', self)]"
+                       string="Key Account Manager"/>
+<!--                <field name="project_manager_id" filter_domain="[('project_manager_id.name', 'ilike', self)]"-->
+<!--                       string="project_manager"/>-->
+                <field name="partner_id" filter_domain="[('partner_id.name', 'ilike', self)]"
                        string="customer_organization"/>
                 <field name="company_partner_id" filter_domain="[('company_partner_id.name', 'ilike', self)]"
                        string="Company Partner"/>
-                <field name="industry_id" filter_domain="[('industry_id.name','ilike',self)]" string="industry"/>
+                <field name="industry_id" filter_domain="[('industry_id.name', 'ilike', self)]" string="industry"/>
                 <field name="technological_direction_id"
-                       filter_domain="[('technological_direction_id.name','ilike',self)]"
+                       filter_domain="[('technological_direction_id.name', 'ilike', self)]"
                        string="technological_direction"/>
-                <field name="comments" filter_domain="[('comments.name','ilike',self)]" string="comments"/>
+                <field name="comments" filter_domain="[('comments.name', 'ilike', self)]" string="comments"/>
                 <separator/>
                 <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
                 <group expand="0" string="Group By">
@@ -67,49 +70,50 @@
                     <button string="cancel approve (supervisor)" type="object" name="cancel_approve"
                             class="oe_highlight"/>
                 </header>
-                <field name="company_id" invisible="True"/>
+                <field name="company_id" invisible="1"/>
+                <field name="was_changes" invisible="1"/>
                 <field name="company_id" groups="base.group_multi_company"
                        options="{'no_create': True}"/>
                 <field name="project_id"/>
-                <field name="approve_state" widget="badge"
+                <field name="approve_state" optional="show" widget="badge"
                        decoration-danger="approve_state == 'need_approve_manager'"
                        decoration-warning="approve_state == 'need_approve_supervisor'"
                        decoration-success="approve_state == 'approved'"
                        decoration-muted="project_status == 'cancel'"
                 />
-                <field name="project_status" widget="badge"
+                <field name="project_status" optional="show" widget="badge"
                        decoration-muted="project_status == 'cancel'"
                        decoration-primary="project_status == 'done'"
                        decoration-warning="project_status == 'prepare'"
                        decoration-success="project_status == 'production'"
                 />
                 <field name="date_actual" optional="hide"/>
-                <field name="step_project_number"/>
-                <field name="project_have_steps"/>
-                <field name="was_changes"/>
+                <field name="step_project_number" optional="show"/>
+                <field name="project_have_steps" optional="show"/>
                 <field name="is_parent_project" optional="hide"/>
                 <field name="is_child_project" optional="hide"/>
                 <field name="etalon_budget" optional="hide"/>
                 <field name="budget_state" optional="hide"/>
                 <field name="commercial_budget_id" optional="hide"/>
-                <field name="currency_id"/>
-                <field name="project_office_id"/>
-                <field name="project_supervisor_id" widget="many2one_avatar"/>
-                <field name="project_manager_id" widget="many2one_avatar"/>
-                <field name="rukovoditel_project_id" widget="many2one_avatar"/>
+                <field name="currency_id" optional="show"/>
+                <field name="project_office_id" optional="show"/>
+                <field name="project_supervisor_id" optional="show" widget="many2one_avatar"/>
+                <field name="key_account_manager_id" optional="show" widget="many2one_avatar_employee"/>
+<!--                <field name="project_manager_id" optional="show" widget="many2one_avatar"/>-->
+                <field name="rukovoditel_project_id" optional="show" widget="many2one_avatar"/>
                 <field name="industry_id" optional="hide"/>
-                <field name="partner_id" widget="many2one_avatar"/>
+                <field name="partner_id" optional="show" widget="many2one_avatar"/>
                 <field name="company_partner_id" widget="many2one_avatar" optional="hide"/>
-                <field name="essence_project"/>
-                <field name="end_presale_project_month"/>
-                <field name="end_sale_project_month"/>
+                <field name="essence_project" optional="show"/>
+                <field name="end_presale_project_month" optional="show"/>
+                <field name="end_sale_project_month" optional="show"/>
                 <field name="end_presale_project_quarter" optional="hide"/>
                 <field name="end_sale_project_quarter" optional="hide"/>
-                <field name="total_amount_of_revenue"/>
-                <field name="cost_price"/>
-                <field name="margin_income"/>
+                <field name="total_amount_of_revenue" optional="show"/>
+                <field name="cost_price" optional="show"/>
+                <field name="margin_income" optional="show"/>
                 <field name="profitability" optional="hide"/>
-                <field name="stage_id" string="Probability" context="{'code_only': True}"
+                <field name="stage_id" string="Probability" context="{'code_only': True}" optional="show"
                        options="{'always_reload': True}"/>
                 <field name="vat_attribute_id" optional="hide"/>
                 <field name="legal_entity_signing_id" optional="hide"/>
@@ -134,52 +138,50 @@
                 <button name="action_open_project" type="object" title="View project" string="View project"
                         class="btn btn-link float-end"/>
                 <field name="can_edit" invisible="1"/>
+                <field name="was_changes" invisible="1"/>
+                <field name="currency_id" invisible="1"/>
                 <field name="margin_rate_for_parent" widget="percentage"
                        attrs="{'readonly': [('can_edit', '=', False)]}"/>
                 <field name="company_id" invisible="True"/>
                 <field name="company_id" groups="base.group_multi_company"
                        options="{'no_create': True}" readonly="1"/>
                 <field name="project_id" readonly="1"/>
-                <field name="approve_state" readonly="1" widget="badge"
+                <field name="approve_state" readonly="1" optional="show" widget="badge"
                        decoration-danger="approve_state=='need_approve_manager'"
                        decoration-warning="approve_state=='need_approve_supervisor'"
                        decoration-success="approve_state=='approved'"
                        decoration-muted="project_status=='cancel'"
                 />
-                <field name="project_status" readonly="1" widget="badge"
+                <field name="project_status" readonly="1" optional="show" widget="badge"
                        decoration-muted="project_status == 'cancel'"
                        decoration-primary="project_status == 'done'"
                        decoration-warning="project_status == 'prepare'"
                        decoration-success="project_status == 'production'"
                 />
-                <!--                    <field name="specification_state" readonly="1" widget="badge"-->
-                <!--                           decoration-muted="specification_state=='cancel'"-->
-                <!--                           decoration-primary="specification_state=='done'"-->
-                <!--                           decoration-warning="specification_state=='prepare'"-->
-                <!--                           decoration-success="specification_state=='production'"-->
-                <!--                    />-->
                 <field name="date_actual" optional="hide" readonly="1"/>
-                <field name="step_project_number" readonly="1"/>
-                <field name="project_have_steps" readonly="1"/>
+                <field name="step_project_number" optional="show" readonly="1"/>
+                <field name="project_have_steps" optional="show" readonly="1"/>
                 <field name="budget_state" optional="hide" readonly="1"/>
-                <field name="currency_id" invisible="1" readonly="1"/>
-                <field name="project_office_id" options="{'no_open': True}" readonly="1"/>
-                <field name="project_supervisor_id" widget="many2one_avatar" readonly="1"
+                <field name="project_office_id" optional="show" options="{'no_open': True}" readonly="1"/>
+                <field name="project_supervisor_id" optional="show" widget="many2one_avatar" readonly="1"
                        options="{'no_open': True}"/>
-                <field name="project_manager_id" widget="many2one_avatar" readonly="1"
+                <field name="key_account_manager_id" optional="show" widget="many2one_avatar_employee" readonly="1"
                        options="{'no_open': True}"/>
-                <field name="rukovoditel_project_id" widget="many2one_avatar" readonly="1"
+<!--                <field name="project_manager_id" optional="show" widget="many2one_avatar" readonly="1"-->
+<!--                       options="{'no_open': True}"/>-->
+                <field name="rukovoditel_project_id" optional="show" widget="many2one_avatar" readonly="1"
                        options="{'no_open': True}"/>
                 <field name="industry_id" optional="hide" readonly="1" options="{'no_open': True}"/>
-                <field name="partner_id" widget="many2one_avatar" readonly="1" options="{'no_open': True}"/>
-                <field name="essence_project" readonly="1"/>
-                <field name="end_presale_project_month" readonly="1"/>
-                <field name="end_sale_project_month" readonly="1"/>
-                <field name="total_amount_of_revenue" readonly="1"/>
-                <field name="cost_price" readonly="1"/>
-                <field name="margin_income" readonly="1"/>
+                <field name="partner_id" widget="many2one_avatar" optional="show" readonly="1"
+                       options="{'no_open': True}"/>
+                <field name="essence_project" optional="show" readonly="1"/>
+                <field name="end_presale_project_month" optional="hide" readonly="1"/>
+                <field name="end_sale_project_month" optional="hide" readonly="1"/>
+                <field name="total_amount_of_revenue" optional="show" readonly="1"/>
+                <field name="cost_price" optional="show" readonly="1"/>
+                <field name="margin_income" optional="show" readonly="1"/>
                 <field name="profitability" optional="hide" readonly="1"/>
-                <field name="stage_id" string="Probability" context="{'code_only': True}" readonly="1"/>
+                <field name="stage_id" string="Probability" context="{'code_only': True}" optional="show" readonly="1"/>
                 <field name="vat_attribute_id" optional="hide" readonly="1"/>
                 <field name="legal_entity_signing_id" options="{'no_open': True,}" optional="hide"
                        readonly="1"/>
@@ -194,11 +196,8 @@
             <field name="name">project_budget.projects.form</field>
             <field name="model">project_budget.projects</field>
             <field name="arch" type="xml">
-<!--                <form create="0">-->
                 <form>
                     <header>
-                        <!--The oe_highlight class gives the button a red color when it is saved.
-                        It is usually used to indicate the expected behaviour. -->
                         <button string="Save" type="object" class="btn-primary" special="save" attrs="{'invisible': ['|',('approve_state', '=', '-'),('budget_state', '=', 'fixed')]}"/>
                         <button string="Cancel" class="btn btn-secondary" special="cancel" data-hotkey="z" attrs="{'invisible': ['|',('approve_state', '=', '-'),('budget_state', '=', 'fixed')]}"/>
                         <button string="Delete" type="object" class="btn-danger" name="unlink" attrs="{'invisible': ['|','|',('approve_state', '!=', 'need_approve_manager'),('budget_state', '=', 'fixed'),('id', '=', False)]}"/>
@@ -234,6 +233,7 @@
                         <field name="id" invisible="True"/>
                         <field name="child_count" invisible="True"/>
                         <field name="company_id" invisible="True"/>
+                        <field name="was_changes" invisible="True"/>
                         <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
                         <field name="budget_state" invisible="1"/>
                         <field name="parent_project_id" invisible='1'/>
@@ -245,19 +245,14 @@
                         <group col="6">
                             <group colspan="2">
                                 <field name="project_id" readonly="1" class="h5"/>
-<!--                                <field name="was_changes" attrs="{'readonly': [('budget_state', '=', 'fixed')]}"/>-->
                             </group>
                             <group>
                                 <field name="project_status"/>
-<!--                                <field name="specification_state" readonly="1"/>-->
                             </group>
                             <group>
                                 <field name="stage_id" string="Probability" context="{'code_only': True}"
                                        options="{'always_reload': True, 'no_create_edit': True, 'no_open': True}"
                                        attrs="{'readonly': [('can_edit', '=', False)]}"/>
-<!--                                <field name="estimated_probability_id" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"-->
-<!--                                        decoration-bf="1" options="{'no_open': True,}"-->
-<!--                                />-->
                             </group>
                             <group>
                                 <field name="project_have_steps" widget="boolean_toggle"
@@ -372,9 +367,13 @@
                                         </group>
                                         <group>
                                             <field name="isRukovoditel_required_in_project" invisible="True"/>
-                                            <field name="project_manager_id" widget="many2one_avatar" force_save="1" placeholder="select project manager" options="{'no_open': True,}"
-                                                    attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
-                                                    decoration-bf="1"/>
+                                            <field name="key_account_manager_id" widget="many2one_avatar_employee"
+                                                   placeholder="Key Account Manager"
+                                                   options="{'no_create_edit': True, 'no_open': True}"
+                                                   attrs="{'readonly': [('can_edit', '=', False)]}"/>
+<!--                                            <field name="project_manager_id" widget="many2one_avatar" force_save="1" placeholder="select project manager" options="{'no_open': True,}"-->
+<!--                                                    attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"-->
+<!--                                                    decoration-bf="1"/>-->
                                             <field name="rukovoditel_project_id" widget="many2one_avatar" force_save="1" placeholder="select rukovoditel_project" options="{'no_open': True,}"
                                                     attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')], 'required': [('isRukovoditel_required_in_project', '=', True)]}"
                                                     decoration-bf="1"/>
@@ -409,27 +408,6 @@
                                                attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
                                     </group>
                                 </group>
-<!--                                <group>-->
-<!--                                    <field name="is_correction_project" readonly="1"-->
-<!--                                           groups="!project_budget.project_budget_admin"/>-->
-<!--                                    <field name="is_correction_project"-->
-<!--                                           groups="project_budget.project_budget_admin"/>-->
-<!--                                    <field name="is_not_for_mc_report" groups="project_budget.project_budget_admin"/>-->
-<!--                                </group>-->
-<!--                                <group string="Dates">-->
-<!--                                    <group>-->
-<!--                                        <field name="end_sale_project_quarter"/>-->
-<!--                                        <field name="end_presale_project_quarter"/>-->
-<!--                                    </group>-->
-<!--                                    <group>-->
-<!--                                        <field name="is_correction_project" readonly="1"-->
-<!--                                               groups="!project_budget.project_budget_admin"/>-->
-<!--                                        <field name="is_correction_project"-->
-<!--                                               groups="project_budget.project_budget_admin"/>-->
-<!--                                        <field name="is_not_for_mc_report"-->
-<!--                                               groups="project_budget.project_budget_admin"/>-->
-<!--                                    </group>-->
-<!--                                </group>-->
                                 <field name="comments" nolabel="1" placeholder="type comments for the project"
                                        attrs="{'readonly': [('can_edit', '=', False)]}"/>
                             </page>
@@ -465,7 +443,6 @@
                                         <group string="Direct revenue is not provided in the parent project">
                                         </group>
                                     </group>
-
                                 </h4>
                                 <group col="6" attrs="{'invisible': [('is_parent_project', '=', True)]}">
                                     <group colspan="2">
@@ -860,8 +837,8 @@
         <field name="model">project_budget.projects</field>
         <field name="arch" type="xml">
             <kanban class="oe_background_grey o_kanban_dashboard o_emphasize_colors o_project_kanban"
-                    default_order="total_amount_of_revenue desc" default_group_by="stage_id" quick_create="false"
-                    group_create="false">
+                    js_class="project_kanban" default_order="total_amount_of_revenue desc" default_group_by="stage_id"
+                    quick_create="false" group_create="false" group_delete="false">
                 <field name="stage_id" options='{"group_by_tooltip": {"name": "Name"}}'/>
                 <field name="active"/>
                 <field name="color"/>
@@ -876,7 +853,8 @@
                 <field name="dogovor_number"/>
                 <field name="vat_attribute_id"/>
                 <field name="step_project_number"/>
-                <field name="project_manager_id"/>
+                <field name="key_account_manager_id"/>
+<!--                <field name="project_manager_id"/>-->
                 <field name="project_supervisor_id"/>
                 <field name="rukovoditel_project_id"/>
                 <field name="project_office_id"/>
@@ -889,19 +867,21 @@
                 <field name="signer_id"/>
                 <field name="approve_state"/>
                 <field name="project_have_steps"/>
+<!--            Поведение виджета переопределено, нужно написать свой-->
+                <progressbar field="activity_state" colors='{"planned": "success"}'
+                             sum_field="total_amount_of_revenue"/>
                 <templates>
                     <t t-name="kanban-box">
                         <div t-attf-class="#{kanban_color(record.color.raw_value)} oe_kanban_card oe_kanban_global_click">
                             <div class="ribbon ribbon-top-right" attrs="{'invisible': [('active', '=', True)]}">
                                 <span class="bg-danger">Archived</span>
                             </div>
-                            <div class="o_dropdown_kanban dropdown">
+                            <div class="o_dropdown_kanban dropdown" groups="project_budget.project_budget_admin">
                                 <a class="dropdown-toggle o-no-caret btn" href="#" role="button"
                                    data-toggle="dropdown" aria-label="Dropdown menu" title="Dropdown menu">
                                     <span class="fa fa-ellipsis-v"/>
                                 </a>
-                                <div class="o_kanban_card_manage_settings row"
-                                     groups="project_budget.project_budget_admin">
+                                <div class="o_kanban_card_manage_settings row">
                                     <div role="menuitem" class="col">
                                         <a t-if="widget.editable" class="dropdown-item" role="menuitem" type="object"
                                            name="action_open_settings">
@@ -923,7 +903,7 @@
                                         </div>
                                         <div class="o_row">
                                             <div t-if="record.end_presale_project_month.raw_value">
-                                                <span class="fa fa-clock-o me-2" title="Dates"></span>
+                                                <span class="fa fa-clock-o me-2" title="Dates"/>
                                                 <field name="end_presale_project_month"/>
                                                 <i class="fa fa-long-arrow-right mx-2 oe_read_only"
                                                    aria-label="Arrow icon" title="Arrow"/>
@@ -933,11 +913,11 @@
                                     </div>
                                 </div>
                                 <div class="o_kanban_record_body">
-                                    <div t-if="record.essence_project.raw_value" name="name_kanban"
+                                    <div t-if="record.essence_project.value" name="name_kanban"
                                          class="text-truncate text-muted">
                                         <field name="essence_project"/>
                                     </div>
-                                    <div t-if="record.project_have_steps.raw_value">
+                                    <div t-if="record.project_have_steps.value">
                                         <span>Have steps:</span>
                                         <field name="project_have_steps"/>
                                     </div>
@@ -957,9 +937,12 @@
                                         <field name="partner_id" widget="many2one_avatar"/>
                                     </div>
                                     <div class="oe_kanban_bottom_right">
-                                        <t t-if="record.project_manager_id.raw_value">
-                                            <field name="project_manager_id" widget="many2one_avatar"/>
+                                        <t t-if="record.key_account_manager_id.raw_value">
+                                            <field name="key_account_manager_id" widget="many2one_avatar"/>
                                         </t>
+<!--                                        <t t-if="record.project_manager_id.raw_value">-->
+<!--                                            <field name="project_manager_id" widget="many2one_avatar"/>-->
+<!--                                        </t>-->
                                     </div>
                                 </div>
                             </div>
@@ -978,7 +961,6 @@
             <graph string="Project list estimated probability">
                 <field name="project_supervisor_id" type="row"/>
                 <field name="stage_id" type="row"/>
-<!--                <field name="estimated_probability_id" type="row"/>-->
                 <field name="project_id" type="measure"/>
             </graph>
         </field>
@@ -993,11 +975,12 @@
                 <field name="approve_state"/>
                 <field name="commercial_budget_id"/>
                 <field name="budget_state"/>
-                <field name="specification_state"/>
+                <field name="project_status"/>
                 <field name="currency_id"/>
                 <field name="project_office_id"/>
                 <field name="project_supervisor_id"/>
-                <field name="project_manager_id"/>
+                <field name="key_account_manager_id"/>
+<!--                <field name="project_manager_id"/>-->
                 <field name="rukovoditel_project_id"/>
                 <field name="industry_id"/>
                 <field name="partner_id"/>
@@ -1009,7 +992,6 @@
                 <field name="margin_income" type="measure"/>
                 <field name="profitability" type="measure"/>
                 <field name="stage_id"/>
-<!--                <field name="estimated_probability_id"/>-->
                 <field name="vat_attribute_id"/>
                 <field name="legal_entity_signing_id"/>
                 <field name="project_type_id"/>

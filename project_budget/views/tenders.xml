@@ -204,7 +204,8 @@
 <!--                    <field name="contract_security" optional="show"/>-->
 <!--                    <field name="provision_of_GO" optional="show"/>-->
                     <field name="licenses_SRO" optional="show"/>
-                    <field name="project_manager_id" optional="hide"/>
+                    <field name="key_account_manager_id" optional="hide"/>
+<!--                    <field name="project_manager_id" optional="hide"/>-->
                     <field name="current_status" optional="show"/>
 <!--                    <field name="payment_for_the_victory" optional="show"/>-->
                     <field name="presale_number" optional="show"/>
@@ -241,7 +242,8 @@
                                 <field name="projects_id" attrs="{'invisible': [('is_need_projects', '=', False)],'required': [('is_need_projects', '=', True)]}"/>
                             </group>
                             <group colspan="1">
-                                <field name="project_manager_id"/>
+                                <field name="key_account_manager_id"/>
+<!--                                <field name="project_manager_id"/>-->
                             </group>
                         </group>
                         <group col="6">

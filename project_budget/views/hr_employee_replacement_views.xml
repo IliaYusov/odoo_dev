@@ -1,0 +1,14 @@
+<odoo>
+    <record id="hr_employee_replacement_view_form_inherit_project_budget" model="ir.ui.view">
+        <field name="name">hr.employee.replacement.form.inherit.project.budget</field>
+        <field name="model">hr.employee.replacement</field>
+        <field name="inherit_id" ref="hr_replacement.hr_employee_replacement_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook/page[@name='page_functions']" position="inside">
+                <group string="Project Management">
+                    <field name="kam_function"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

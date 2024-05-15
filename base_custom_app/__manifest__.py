@@ -1,6 +1,6 @@
 {
     'name': 'Customize ODOO',
-    'version': '2.0.0',
+    'version': '2.0.1',
     'depends': ['base', 'web'],
     'category': 'Productivity',
     'description': """
@@ -34,6 +34,7 @@
         ]
     },
     'data': [
+        'data/mail_template_data.xml',
         'views/webclient_templates.xml'
     ],
     'application': True,
