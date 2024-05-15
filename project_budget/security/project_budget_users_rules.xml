@@ -48,7 +48,7 @@
             <field name="name">Access to budget plan kam</field>
             <field name="model_id" ref="model_project_budget_budget_plan_kam"/>
             <field name="domain_force">["|",('supervisor_user_id.id','=', user.id)
-                                           ,('kam_user_id.id','=', user.id)
+                                           ,('key_account_manager.user_id', '=', user.id)
                                        ]
             </field>
             <field name="groups" eval="[(4, ref('project_budget.project_budget_users'))]"/>
@@ -83,16 +83,6 @@
         <record id="record_restricted_company_rule_project_supervisor" model="ir.rule" >
             <field name="name">project_supervisor Restricted Record: multi-company</field>
             <field name="model_id" ref="model_project_budget_project_supervisor"/>
-            <field name="global" eval="True"/>
-<!--     так нельзя - правила группы складываютсякак OR, а вот глобальные права - AND       <field name="groups" eval="[(4, ref('project_budget.project_budget_users'))]"/>-->
-            <field name="domain_force">
-                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
-            </field>
-        </record>
-
-        <record id="record_restricted_company_rule_project_manager" model="ir.rule" >
-            <field name="name">project manager Restricted Record: multi-company</field>
-            <field name="model_id" ref="model_project_budget_project_manager"/>
             <field name="global" eval="True"/>
 <!--     так нельзя - правила группы складываютсякак OR, а вот глобальные права - AND       <field name="groups" eval="[(4, ref('project_budget.project_budget_users'))]"/>-->
             <field name="domain_force">

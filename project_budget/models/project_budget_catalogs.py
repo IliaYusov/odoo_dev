@@ -67,30 +67,6 @@ class project_supervisor_access(models.Model):
     descr = fields.Char(string="project supervisor access description" , translate=True)
 
 
-class project_manager(models.Model):
-    _name = 'project_budget.project_manager'
-    _description = "project_manager"
-    company_id = fields.Many2one('res.company',default=lambda self: self.env.company)
-    name = fields.Char(string="project_manager name", required=True, translate=True)
-    code = fields.Char(string="project_manager code", required=True)
-    descr = fields.Char(string="project_manager description", translate=True)
-    user_id = fields.Many2one('res.users', string='user id', required=True,)
-    avatar_128 = fields.Image(related='user_id.avatar_128', readonly=True)
-    project_manager_access_ids = fields.One2many(
-        comodel_name='project_budget.project_manager_access',
-        inverse_name='project_manager_id',
-        string="project_manager_access",
-        copy=True, auto_join=True)
-
-
-class project_manager_access(models.Model):
-    _name = 'project_budget.project_manager_access'
-    _description = "project_manager access"
-    project_manager_id = fields.Many2one('project_budget.project_manager', string='project manager id', required=True,)
-    user_id = fields.Many2one('res.users', string='user id', required=True,)
-    descr = fields.Char(string="project manager access description", translate=True)
-
-
 class rukovoditel_project(models.Model):
     _name = 'project_budget.rukovoditel_project'
     _description = "rukovoditel_project"

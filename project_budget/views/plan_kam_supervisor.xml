@@ -7,7 +7,6 @@
             <field name="arch" type="xml">
                 <tree string="plan kam">
                     <field name="supervisor_user_id" invisible="1"/>
-                    <field name="kam_user_id" invisible="1"/>
                     <field name="company_id"/>
                     <field name="year"/>
                     <field name="company_id"/>
@@ -26,7 +25,6 @@
                 <form>
                     <sheet string="budget_plan_kam" >
                         <field name="supervisor_user_id" invisible="1"/>
-                        <field name="kam_user_id" invisible="1"/>
                         <h4>
                             <group string="BUDGET PERFORMANCE PLAN" >\
                                 <field name="plan_supervisor_id" options="{'no_create': True}"/>

@@ -23,8 +23,6 @@
     <menuitem id="project_budget_catalogs" parent="project_budget_menu" name="Catalogs"/>
     <menuitem id="project_budget_catalogs_project_supervisor" parent="project_budget_catalogs" name="project_supervisor"
               action="show_project_supervisor"/>
-    <menuitem id="project_budget_catalogs_project_manager" parent="project_budget_catalogs" name="project_manager"
-              action="show_project_manager"/>
     <menuitem id="project_budget_catalogs_rukovoditel_project" parent="project_budget_catalogs"
               name="rukovoditel_project" action="show_rukovoditel_project"/>
 
@@ -50,9 +48,6 @@
     <menuitem id="project_budget_access" parent="project_budget_menu" name="Access"/>
     <menuitem id="project_budget_catalogs_project_supervisor_access" parent="project_budget_access"
               name="project_supervisor_access" action="show_comercial_budget_spec_supervisor_access"
-              groups="project_budget.project_budget_admin"/>
-    <menuitem id="project_budget_catalogs_project_manager_access" parent="project_budget_access"
-              name="project_manager_access" action="show_comercial_budget_spec_manager_access"
               groups="project_budget.project_budget_admin"/>
     <menuitem id="project_budget_catalogs_rukovoditel_project_access" parent="project_budget_access"
               name="rukovoditel_project_access" action="show_comercial_budget_spec_rukovoditel_project_access"

@@ -5,11 +5,6 @@ class ResUsers(models.Model):
     _inherit = 'res.users'
     # _name = "users_budgets_access"
     _description = "users budgets access"
-    project_manager_access_ids = fields.One2many(
-        comodel_name='project_budget.project_manager_access',
-        inverse_name='user_id',
-        string="project_manager_access",
-        copy=False, auto_join=True)
     project_supervisor_access_ids = fields.One2many(
         comodel_name='project_budget.project_supervisor_access',
         inverse_name='user_id',
@@ -25,7 +20,6 @@ class ResUsers(models.Model):
 
 
     supervisor_rule = fields.Many2many(compute='_get_list_supervisor_access_ids', comodel_name='project_budget.project_supervisor')
-    manager_rule = fields.Many2many(compute='_get_list_manager_access_ids', comodel_name='project_budget.project_manager')
     rukovoditel_project_rule = fields.Many2many(compute='_get_list_rukovoditel_project_access_ids',
                                     comodel_name='project_budget.rukovoditel_project')
 
@@ -44,23 +38,6 @@ class ResUsers(models.Model):
                 supervisor_list.append(each.project_supervisor_id.id)
         for rec in self:
             rec.supervisor_rule = supervisor_list
-
-    @ api.depends("project_manager_access_ids.project_manager_id","project_manager_access_ids.user_id")
-    def _get_list_manager_access_ids(self):
-        print('_get_list_manager_access_ids')
-        manager_access = self.env['project_budget.project_manager_access'].search([('user_id.id', '=', self.env.user.id)])
-        manager_list = []
-        if not manager_access :
-            # managers = self.env['project_budget.project_manager'].search([])
-            # for each in managers:
-            #     manager_list.append(each.id)
-            print('FALSE')
-            manager_list.append(False)
-        else :
-            for each in manager_access:
-                manager_list.append(each.project_manager_id.id)
-        for rec in self:
-            rec.manager_rule = manager_list
 
     @ api.depends("rukovoditel_project_access_ids.rukovoditel_project_id","rukovoditel_project_access_ids.user_id")
     def _get_list_rukovoditel_project_access_ids(self):

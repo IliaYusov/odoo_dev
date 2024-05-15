@@ -35,9 +35,6 @@ class budget_plan_kam(models.Model):
     supervisor_user_id = fields.Many2one(related='plan_supervisor_id.supervisor_user_id', readonly=True)
     key_account_manager_id = fields.Many2one('hr.employee', string='Key Account Manager', check_company=True, copy=True,
                                              required=True, tracking=True)
-    kam_id = fields.Many2one('project_budget.project_manager', string='KAM', copy=True, required=False,
-                                          tracking=True, check_company=True) # на самом деле это КАМ
-    kam_user_id = fields.Many2one(related='kam_id.user_id', readonly=True)
 
     is_use_ebit = fields.Boolean(related='plan_supervisor_id.is_use_ebit', string="using EBIT", tracking=True)
     is_use_net_profit = fields.Boolean(related='plan_supervisor_id.is_use_net_profit', string="using Net Profit", tracking=True)

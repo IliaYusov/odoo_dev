@@ -13,7 +13,6 @@
                 <field name="organizer_partner_id" filter_domain="[('organizer_partner_id','ilike',self)]" string="organizer"/>
                 <field name="key_account_manager_id" string="Key Account Manager"
                        filter_domain="[('key_account_manager_id', 'ilike', self)]"/>
-<!--                <field name="project_manager_id" filter_domain="[('project_manager_id','ilike',self)]" string="project_manager_id"/>-->
                 <field name="responsible_dkp_ids" filter_domain="[('responsible_dkp_ids','ilike',self)]" string="responsibles_dkp"/>
                 <field name="current_status" filter_domain="[('current_status','ilike',self)]" string="current_status"/>
                 <field name="presale_number" filter_domain="[('presale_number','ilike',self)]" string="presale_number"/>

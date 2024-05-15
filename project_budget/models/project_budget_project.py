@@ -32,6 +32,10 @@ class Project(models.Model):
         return "[('user_id.groups_id', 'in', %s), '|', ('company_id', '=', False), ('company_id', '=', company_id)]"\
             % self.env.ref('project_budget.group_project_budget_key_account_manager').id
 
+    def _get_project_manager_id_domain(self):
+        return "[('user_id.groups_id', 'in', %s), '|', ('company_id', '=', False), ('company_id', '=', company_id)]"\
+            % self.env.ref('project_budget.group_project_budget_project_manager').id
+
     def _get_current_amount_spec_type(self):
         context = self.env.context
         print('_get_current_amount_spec_type context',context)
@@ -151,21 +155,6 @@ class Project(models.Model):
             return domain
         return domain
 
-    def _get_manager_access(self):
-        return self.env['project_budget.project_manager_access'].search(
-            [('user_id.id', '=', self.env.user.id)])
-
-    def _get_manager_list(self):
-        domain = []
-        manager_access = self._get_manager_access()
-        manager_list = []
-        for each in manager_access:
-            manager_list.append(each.project_manager_id.id)
-        if manager_list:
-            domain = [('id', 'in', manager_list)]
-            return domain
-        return domain
-
     def _get_commercial_budget_list(self):
         domain = [('id', 'in','-1')]
         commercial_budget = self.env['project_budget.commercial_budget'].search([('budget_state', '=', 'work')])
@@ -176,13 +165,6 @@ class Project(models.Model):
             domain = [('id', 'in', commercial_budget_list)]
             return domain
         return domain
-
-    def _get_first_manager_from_access(self):
-        manager_access = self._get_manager_access()
-        if manager_access:
-            return self.env['project_budget.project_manager'].search(
-                    [('id', '=', manager_access[0].project_manager_id.id)])
-        return None
 
     active = fields.Boolean('Active', default=True, tracking=True)
     company_id = fields.Many2one('res.company', required=True, default=lambda self: self.env.company)
@@ -223,8 +205,8 @@ class Project(models.Model):
     key_account_manager_id = fields.Many2one('hr.employee', string='Key Account Manager', copy=True,
                                              default=_get_default_key_account_manager_id,
                                              domain=_get_key_account_manager_id_domain, required=True, tracking=True)
-    project_manager_id = fields.Many2one('project_budget.project_manager', string='project_manager', required=False,
-                                         copy=True, default=_get_first_manager_from_access, domain=_get_manager_list, tracking=True, check_company=True) # на самом деле это КАМ, а вот РП ниже
+    # project_manager_id = fields.Many2one('hr.employee', string='Project Manager', copy=True,
+    #                                      domain=_get_project_manager_id_domain, required=False, tracking=True)
 
     rukovoditel_project_id = fields.Many2one('project_budget.rukovoditel_project', string='rukovoditel_project',
                                          copy=True,  tracking=True, check_company=True)
@@ -497,11 +479,6 @@ class Project(models.Model):
     def _get_supervisor_user_id(self):
         for row in self:
             row.project_supervisor_user_id = row.project_supervisor_id.user_id
-
-    @api.depends('key_account_manager_id.user_id')
-    def _get_manager_user_id(self):
-        for row in self:
-            row.project_manager_user_id = row.project_manager_id.user_id
 
     @api.depends("planned_cash_flow_ids.sum_cash")
     def _compute_planned_cash_flow_sum(self):
@@ -1266,7 +1243,6 @@ class Project(models.Model):
                         'summary': _('Supervisor declined project. Change nessesary values and send supervisor for approval'),
                         'date_deadline': fields.datetime.now(),
                         'user_id': rows.key_account_manager_id.user_id.id,
-                        # 'user_id': rows.project_manager_id.user_id.id,
                         'res_id': rows.id,
                         'res_model_id': self.env['ir.model'].search([('model', '=', 'project_budget.projects')]).id,
                         'activity_type_id': self.env.ref('project_budget.mail_act_send_project_to_supervisor_for_approval').id
