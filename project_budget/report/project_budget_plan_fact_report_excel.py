@@ -508,7 +508,7 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
 
         company = spec.company_id.name
         office = spec.project_office_id.name
-        manager = spec.project_manager_id.name
+        manager = spec.key_account_manager_id.name
 
         if step and spec.legal_entity_signing_id.different_project_offices_in_steps:
             office = step.project_office_id.name
@@ -602,11 +602,11 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
                             data.setdefault(company.name, {}).setdefault(parent_office.name, {}).setdefault(office_section, {}).setdefault(year, {}).setdefault('Q4', {}).setdefault('plan', 0)
                             data[company.name][parent_office.name][office_section][year]['Q4']['plan'] += section_plan.q4_plan
                             parent_office = parent_office.parent_id
-                        for manager in self.env['project_budget.project_manager'].search(
-                                [('name', 'in', tuple(data[company.name][office.name].keys()))]):
+                        for manager in self.env['hr.employee'].search(
+                                [('name', 'in', tuple(data[company.name][office.name].keys())), ('company_id.name', '=', company.name)]):
                             section_plan = self.env['project_budget.budget_plan_kam_spec'].search([
                                 ('budget_plan_kam_id.year', '=', year),
-                                ('budget_plan_kam_id.kam_id', '=', manager.id),
+                                ('budget_plan_kam_id.key_account_manager_id', '=', manager.id),
                                 ('type_row', '=', office_section),
                             ])
                             data.setdefault(company.name, {}).setdefault(office.name, {}).setdefault(manager.name, {}).setdefault(office_section, {}).setdefault(year, {}).setdefault('Q1', {})['plan'] = section_plan.q1_plan
@@ -1033,9 +1033,7 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
 
         companies = self.env['res.company'].search([], order='name').filtered(lambda r: r in project_offices.company_id)
 
-        # project_managers = self.env['project_budget.project_manager'].search([], order='name').filtered(lambda r: r in cur_budget_projects.project_manager_id)  # для сортировки так делаем
-
-        key_account_managers = self.env.ref('project_budget.group_project_budget_key_account_manager').users.sorted('name').filtered(lambda r: r in cur_budget_projects.project_manager_id)
+        key_account_managers = self.env.ref('project_budget.group_project_budget_key_account_manager').users.sorted('name').filtered(lambda r: r in cur_budget_projects.key_account_manager_id.user_id)
 
         data = self.get_plans(year, self.get_data_from_projects(cur_budget_projects, stages, year))
 
