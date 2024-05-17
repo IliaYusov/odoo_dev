@@ -232,7 +232,11 @@ class report_new_tender_excel(models.AbstractModel):
                 column += 1
                 if tender.url_tender:
                     url = tender.url_tender.striptags()
-                    sheet.merge_range(row, column, row + tendersum_qty, column, (url or ''), row_format_text)
+                    sheet.merge_range(row, column, row + tendersum_qty, column, '', row_format_text)
+                    if len(tender.url_tender) > 255:  # эксель до 2015 ограничивает длину ссылки 255 символами
+                        sheet.write_string(row, column, (url or ''), row_format_text)
+                    else:
+                        sheet.write(row, column, (url or ''), row_format_text)
                 else:
                     sheet.merge_range(row, column, row + tendersum_qty, column, '', row_format_text)
                 column += 1
@@ -355,7 +359,11 @@ class report_new_tender_excel(models.AbstractModel):
                 sheet.write(row, column, (tender.auction_number or ''), row_format_text)
                 column += 1
                 if tender.url_tender:
-                    sheet.write(row, column, (tender.url_tender.striptags() or ''), row_format_text)
+                    url = tender.url_tender.striptags()
+                    if len(tender.url_tender) > 255:  # эксель до 2015 ограничивает длину ссылки 255 символами
+                        sheet.write_string(row, column, (url or ''), row_format_text)
+                    else:
+                        sheet.write(row, column, (url or ''), row_format_text)
                 else:
                     sheet.write(row, column, '', row_format_text)
                 column += 1
