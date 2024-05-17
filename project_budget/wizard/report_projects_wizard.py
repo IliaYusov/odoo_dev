@@ -38,6 +38,7 @@ class report_projects_wizard(models.TransientModel):
     report_with_projects = fields.Boolean(string='detailed report', default=True)
     project_office_ids = fields.Many2many('project_budget.project_office', relation='report_project_office_rel',
                                           column1='id', column2='project_office_id', string='Project offices')
+    print_managers = fields.Boolean(string='print managers', default=False)
 
     def action_print_report(self):
         self.ensure_one()
@@ -55,6 +56,7 @@ class report_projects_wizard(models.TransientModel):
         datas['pds_accept'] = self.pds_accept
         datas['report_with_projects'] = self.report_with_projects
         datas['project_office_ids'] = self.env['project_budget.project_office'].search([]).ids if not self.project_office_ids.ids else self.project_office_ids.ids
+        datas['print_managers'] = self.print_managers
 
         print('data=', datas)
         report_name = 'Project_list_' + str(self.year) + '_' + self.type_report + '.xlsx'

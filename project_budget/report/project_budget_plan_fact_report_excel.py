@@ -9,6 +9,7 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
     _inherit = 'report.report_xlsx.abstract'
 
     POTENTIAL = 0.6  # коэффициент суммирования потенциала
+
     KOEFF_RESERVE = 1.0  # легаси из отчета прогноз и УК, оставлю на случай возврата
     KOEFF_POTENTIAL = 1.0
 
@@ -112,14 +113,14 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
             return 'Q4'
         return False
 
-    def get_months_from_quarter(self, quarter_name):
-        if quarter_name == 'Q1':
+    def get_months_from_quarter(self, quarter):
+        if quarter == 'Q1':
             return 1, 2, 3
-        elif quarter_name == 'Q2':
+        elif quarter == 'Q2':
             return 4, 5, 6
-        elif quarter_name == 'Q3':
+        elif quarter == 'Q3':
             return 7, 8, 9
-        elif quarter_name == 'Q4':
+        elif quarter == 'Q4':
             return 10, 11, 12
         else:
             return False
@@ -165,7 +166,7 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
         project_currency_rates = self.env['project_budget.project_currency_rates']
         return project_currency_rates._get_currency_rate_for_project_in_company_currency(project)
 
-    def get_quarter_revenue_project(self, quarter, project, step, year):
+    def get_quarter_revenue_project(self, project, step, year, quarter):
 
         sum100tmp = 0
         sum75tmp = 0
@@ -200,7 +201,7 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
 
         return sum100tmp, sum75tmp, sum50tmp, sum30tmp
 
-    def get_quarter_pds_project(self, quarter, project, step, year):
+    def get_quarter_pds_project(self, project, step, year, quarter):
 
         sum75tmp = sum50tmp = 0
 
@@ -448,7 +449,7 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
         else:
             return False
 
-    def get_quarter_acceptance_project(self, quarter, project, step, year):
+    def get_quarter_acceptance_project(self, project, step, year, quarter):
 
         sum75tmp = sum50tmp = margin75tmp = margin50tmp = 0
 
@@ -504,13 +505,13 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
 
         return sum100tmp, sum75tmp, sum50tmp, margin100tmp, margin75tmp, margin50tmp
 
-    def get_section_data_from_project(self, spec, step, year, data):
+    def get_section_data_from_project(self, project, step, year, data):
 
-        company = spec.company_id.name
-        office = spec.project_office_id.name
-        manager = spec.key_account_manager_id.name
+        company = project.company_id.name
+        office = project.project_office_id.name
+        manager = project.key_account_manager_id.name
 
-        if step and spec.legal_entity_signing_id.different_project_offices_in_steps:
+        if step and project.legal_entity_signing_id.different_project_offices_in_steps:
             office = step.project_office_id.name
 
         section_data = {}
@@ -520,12 +521,12 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
 
         for quarter in self.quarter_names:
             section_data['contracting']['100'], section_data['contracting']['75'], section_data['contracting']['50'], \
-            section_data['contracting']['30'] = self.get_quarter_revenue_project(quarter, spec, step, year)
+            section_data['contracting']['30'] = self.get_quarter_revenue_project(project, step, year, quarter)
             section_data['cash']['100'], section_data['cash']['75'], section_data['cash'][
-                '50'] = self.get_quarter_pds_project(quarter, spec, step, year)
+                '50'] = self.get_quarter_pds_project(project, step, year, quarter)
             section_data['acceptance']['100'], section_data['acceptance']['75'], section_data['acceptance'][
                 '50'], section_data['margin_income']['100'], section_data['margin_income']['75'], section_data['margin_income'][
-                '50'] = self.get_quarter_acceptance_project(quarter, spec, step, year)
+                '50'] = self.get_quarter_acceptance_project(project, step, year, quarter)
 
             for section in self.section_names:
                 for probability in self.probability_names:
@@ -536,7 +537,7 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
                     data[company][office][section][year][quarter][probability] += res
                     data.setdefault(company, {}).setdefault(section, {}).setdefault(year, {}).setdefault(quarter, {}).setdefault(probability, 0)
                     data[company][section][year][quarter][probability] += res
-                    parent_office = spec.project_office_id.parent_id
+                    parent_office = project.project_office_id.parent_id
                     while parent_office:
                         data.setdefault(company, {}).setdefault(parent_office.name, {}).setdefault(section, {}).setdefault(year, {}).setdefault(quarter, {}).setdefault(probability, 0)
                         data[company][parent_office.name][section][year][quarter][probability] += res
@@ -548,21 +549,21 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
     def get_data_from_projects(self, cur_budget_projects, stages, year):
         data = {}
 
-        for spec in cur_budget_projects:
-            if spec.vgo == '-':
+        for project in cur_budget_projects:
+            if project.vgo == '-':
 
-                if spec.project_have_steps:
-                    for step in spec.project_steps_ids:
-                        if not (self.is_step_in_year(spec, step, year) and step.stage_id.id in stages.ids):
+                if project.project_have_steps:
+                    for step in project.project_steps_ids:
+                        if not (self.is_step_in_year(project, step, year) and step.stage_id.id in stages.ids):
                             continue
 
-                        data = self.get_section_data_from_project(spec, step, year, data)
+                        data = self.get_section_data_from_project(project, step, year, data)
 
                 else:
-                    if not (self.is_project_in_year(spec, year) and spec.stage_id.id in stages.ids):
+                    if not (self.is_project_in_year(project, year) and project.stage_id.id in stages.ids):
                         continue
 
-                    data = self.get_section_data_from_project(spec, False, year, data)
+                    data = self.get_section_data_from_project(project, False, year, data)
 
         return data
 
@@ -615,7 +616,7 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
                             data.setdefault(company.name, {}).setdefault(office.name, {}).setdefault(manager.name, {}).setdefault(office_section, {}).setdefault(year, {}).setdefault('Q4', {})['plan'] = section_plan.q4_plan
         return data
 
-    def print_rows(self, sheet, workbook, companies, project_offices, key_account_managers, year, data):
+    def print_rows(self, sheet, workbook, companies, project_offices, key_account_managers, year, data, print_managers):
 
         office_heading_format = workbook.add_format({
             'bold': True,
@@ -830,7 +831,7 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
 
                 print('project_office =', project_office.name)
 
-                if False:  # отключил печать менеджеров
+                if print_managers:  # отключаемая печать менеджеров
                     for project_manager in key_account_managers:
 
                         manager_data = data[company.name][project_office.name].get(project_manager.name, False)
@@ -1021,7 +1022,7 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
                 row += 1
             row += 1
 
-    def printworksheet(self, workbook, namesheet, budget, stages, year):
+    def printworksheet(self, workbook, namesheet, budget, stages, year, print_managers):
 
         sheet = workbook.add_worksheet(namesheet)
         sheet.set_zoom(70)
@@ -1038,14 +1039,15 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
 
         data = self.get_plans(year, self.get_data_from_projects(cur_budget_projects, stages, year))
 
-        self.print_rows(sheet, workbook, companies, project_offices, key_account_managers, year, data)
+        self.print_rows(sheet, workbook, companies, project_offices, key_account_managers, year, data, print_managers)
 
     def generate_xlsx_report(self, workbook, data, budgets):
 
         year = data['year']
         commercial_budget_id = data['commercial_budget_id']
+        print_managers = data['print_managers']
 
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
         stages = self.env['project_budget.project.stage'].search([('code', '!=', '10')], order='sequence desc')  # для сортировки так делаем
-        self.printworksheet(workbook, 'План-Факт', budget,  stages, year)
+        self.printworksheet(workbook, 'План-Факт', budget,  stages, year, print_managers)
         

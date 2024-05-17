@@ -15,6 +15,7 @@
                         <group>
                             <field name="use_koeff_reserve" attrs="{'invisible': [('type_report', 'not in', ('forecast', 'forecast_v2', 'management_committee', 'pds_weekly'))]}"/>
                             <field name="pds_accept" attrs="{'invisible': [('type_report', 'not in', ('pds_acceptance_by_date'))]}"/>
+                            <field name="print_managers" attrs="{'invisible': [('type_report', 'not in', ('plan_fact'))]}"/>
                         </group>
                         <group>
                             <field name="koeff_reserve" attrs="{'invisible': ['|',('type_report', 'not in', ('forecast', 'forecast_v2', 'management_committee', 'pds_weekly')),('use_koeff_reserve','=',False)]}"/>

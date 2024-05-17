@@ -3779,6 +3779,11 @@ msgid "koefficient for reserve"
 msgstr "Коэффициент для Резерва"
 
 #. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects_report_wizard__print_managers
+msgid "print managers"
+msgstr "Данные КАМов"
+
+#. module: project_budget
 #: model:ir.actions.act_window,name:project_budget.show_legal_entity_signing
 #: model:ir.ui.menu,name:project_budget.project_budget_catalogs_legal_entity_signing
 #: model_terms:ir.ui.view,arch_db:project_budget.show_legal_entity_signing_form
