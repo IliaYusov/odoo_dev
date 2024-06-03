@@ -2021,6 +2021,13 @@ msgstr "Пожалуйста добавьте код проекта из AXAPTA 
 
 #. module: project_budget
 #. odoo-python
+#: code:addons/project_budget/models/project_budget_project.py:0
+#, python-format
+msgid "Please enter AXAPTA code to step {0}"
+msgstr "Пожалуйста добавьте код проекта из AXAPTA в этап {0}"
+
+#. module: project_budget
+#. odoo-python
 #: code:addons/project_budget/models/project_steps.py:0
 #, python-format
 msgid "Please enter AXAPTA code to project {0} step {1}"
@@ -2033,7 +2040,16 @@ msgstr "Пожалуйста добавьте код этапа из AXAPTA в �
 msgid "Please enter financial data to project {0}"
 msgstr ""
 "Пожалуйста добавьте Финансовые показатели в проект {0}, его вероятность "
-"больше 30%"
+"больше 10%"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/project_budget_project.py:0
+#, python-format
+msgid "Please enter financial data to step {0}"
+msgstr ""
+"Пожалуйста добавьте Финансовые показатели в этап {0}, его вероятность "
+"больше 10%"
 
 #. module: project_budget
 #. odoo-python

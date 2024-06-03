@@ -15,9 +15,9 @@
                                 <field name="date_cash" placeholder="enter planned cash flow date"/>
                             </group>
                             <group>
-                                <field name="project_steps_id" options="{'no_open': True,}" placeholder="select project steps"
-                                        attrs="{'invisible': [('project_have_steps', '=', False)], 'required': [('project_have_steps', '=', True)]}"
-                                       domain='[("projects_id", "=", parent.id),("stage_id.code", "!=", "0")]'
+                                <field name="step_project_child_id" options="{'no_open': True,}" placeholder="select project steps"
+                                       attrs="{'invisible': [('parent.project_have_steps', '=', False)], 'required': [('parent.project_have_steps', '=', True)]}"
+                                       domain="[('id', 'in', parent.step_project_child_ids),('stage_id.code', '!=', '0')]"
                                 />
                             </group>
                         </group>
@@ -82,8 +82,8 @@
                     <field name="project_have_steps" invisible="True"/>
                     <field name="projects_id"  optional="hide"/>
                     <field name="date_cash" placeholder="enter planned acceptance flow date"/>
-                    <field name="project_steps_id" options="{'no_open': True,}" placeholder="select project steps"
-                           attrs="{'column_invisible': [('parent.project_have_steps', '=', False)], 'required': [('project_have_steps', '=', True)]}"
+                    <field name="step_project_child_id" options="{'no_open': True,}" placeholder="select project steps"
+                           attrs="{'column_invisible': [('parent.project_have_steps', '=', False)], 'required': [('parent.project_have_steps', '=', True)]}"
                     />
     <!--#20230403 Вавилова Ирина сказла убрать...                                        <field name="doc_cash" placeholder="type docs description"/>-->
                     <field name="sum_cash_without_vat" placeholder="enter planned acceptance flow sum "/>

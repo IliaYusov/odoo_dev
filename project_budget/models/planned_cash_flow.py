@@ -29,6 +29,8 @@ class planned_cash_flow(models.Model):
 
     project_have_steps = fields.Boolean(string="project have steps", related='projects_id.project_have_steps', readonly=True)
     project_steps_id = fields.Many2one('project_budget.project_steps', string='project_steps_id', index=True,ondelete='cascade')
+    step_project_child_id = fields.Many2one('project_budget.projects', string="step-project child id", index=True,
+                                            ondelete='cascade')
 
     date_cash = fields.Date(string="date_cash" , required=True, copy=True)
     currency_id = fields.Many2one('res.currency', string='Account Currency', compute='_compute_reference')

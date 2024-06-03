@@ -3,6 +3,7 @@ from odoo.exceptions import ValidationError
 from odoo.tools import pytz
 from datetime import date
 
+
 class fact_acceptance_flow(models.Model):
 
     def get_project_steps_list(self):
@@ -24,7 +25,9 @@ class fact_acceptance_flow(models.Model):
                                         readonly=True)
     project_steps_id = fields.Many2one('project_budget.project_steps', string='project_steps_id', index=True,ondelete='cascade',
                                        )
-    date_cash = fields.Date(string="date_cash" , required=True, copy=True)
+    step_project_child_id = fields.Many2one('project_budget.projects', string="step-project child id", index=True,
+                                            ondelete='cascade')
+    date_cash = fields.Date(string="date_cash", required=True, copy=True)
     currency_id = fields.Many2one('res.currency', string='Account Currency', compute='_compute_reference')
     sum_cash_without_vat = fields.Monetary(string="fact sum_cash_without_vat", required=True, copy=True)
     sum_cash = fields.Monetary(string="fact sum_cash", required=True, copy=True, compute='_compute_sum')

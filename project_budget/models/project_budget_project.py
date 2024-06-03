@@ -14,6 +14,8 @@ class Project(models.Model):
     _check_company_auto = True
     _rec_names_search = ['project_id', 'essence_project']
 
+    STEP_STATUS = [('project', 'project'), ('step', 'step')]
+
     @api.model
     def _read_group_stage_ids(self, stages, domain, order):
         return self.env['project_budget.project.stage'].search([], order=order)
@@ -201,7 +203,8 @@ class Project(models.Model):
                                         copy=True, domain="[('is_prohibit_selection','=', False)]", required=True,
                                         tracking=True)
     project_supervisor_id = fields.Many2one('project_budget.project_supervisor', string='project_supervisor',
-                                            required=True, copy=True, domain=_get_supervisor_list, tracking=True, check_company=True)
+                                            required=True, copy=True, domain=_get_supervisor_list, tracking=True,
+                                            check_company=True, store=True)
     key_account_manager_id = fields.Many2one('hr.employee', string='Key Account Manager', copy=True,
                                              default=_get_default_key_account_manager_id,
                                              domain=_get_key_account_manager_id_domain, required=True, tracking=True)
@@ -272,7 +275,7 @@ class Project(models.Model):
     legal_entity_signing_id = fields.Many2one('project_budget.legal_entity_signing', string='legal_entity_signing a contract from the NCC', required=True, copy=True,tracking=True)
     signer_id = fields.Many2one('res.partner', string='Signer', copy=True,
                                 default=lambda self: self.env.company.partner_id, required=True, tracking=True)
-    project_type_id = fields.Many2one('project_budget.project_type',string='project_type', required=True,copy=True,tracking=True)
+    project_type_id = fields.Many2one('project_budget.project_type',string='project_type', copy=True, tracking=True)
 
     is_revenue_from_the_sale_of_works =fields.Boolean(related='project_type_id.is_revenue_from_the_sale_of_works', readonly=True)
     is_revenue_from_the_sale_of_goods = fields.Boolean(related='project_type_id.is_revenue_from_the_sale_of_goods', readonly=True)
@@ -291,6 +294,9 @@ class Project(models.Model):
     comments = fields.Text(string='comments project', default="")
     technological_direction_id = fields.Many2one('project_budget.technological_direction',
                                               string='technological_direction', required=True,copy=True,tracking=True)
+    step_project_number = fields.Char(string='step project number', store=True, tracking=True)  # номер из AXAPTA
+    dogovor_number = fields.Char(string='Dogovor number', store=True, tracking=True)
+
     planned_cash_flow_sum = fields.Monetary(string='planned_cash_flow_sum', compute='_compute_planned_cash_flow_sum',
                                             store=False, tracking=True)
     planned_cash_flow_ids = fields.One2many(
@@ -298,8 +304,6 @@ class Project(models.Model):
         inverse_name='projects_id',
         string="planned cash flow", auto_join=True, copy=True)
 
-    step_project_number = fields.Char(string='step project number', store=True, tracking=True)
-    dogovor_number = fields.Char(string='Dogovor number', store=True, tracking=True)
     planned_acceptance_flow_sum = fields.Monetary(string='planned_acceptance_flow_sum',
                                                   compute='_compute_planned_acceptance_flow_sum',store=False, tracking=True)
     planned_acceptance_flow_sum_without_vat = fields.Monetary(
@@ -308,8 +312,10 @@ class Project(models.Model):
     )
     planned_acceptance_flow_ids = fields.One2many(
         comodel_name='project_budget.planned_acceptance_flow',
-        inverse_name='projects_id',
-        string="planned acceptance flow", auto_join=True,copy=True)
+        string="planned acceptance flow",
+        compute='_compute_planned_acceptance_flow_ids',
+        # inverse='_inverse_planned_acceptance_flow_ids',
+        auto_join=True, copy=True, readonly=False)
     fact_cash_flow_sum = fields.Monetary(string='fact_cash_flow_sum', compute='_compute_fact_cash_flow_sum', store=False
                                          , tracking=True)
     fact_cash_flow_ids = fields.One2many(
@@ -327,12 +333,40 @@ class Project(models.Model):
         inverse_name='projects_id',
         string="fact acceptance flow", auto_join=True,copy=True)
 
-    project_have_steps = fields.Boolean(string="project have steps", default=False, copy=True,tracking=True)
-    is_framework = fields.Boolean(string="project is framework", default=False, copy=True,tracking=True)
+    step_status = fields.Selection(selection=STEP_STATUS, string="project is step-project", default='project', copy=True, tracking=True)
+    step_project_parent_id = fields.Many2one('project_budget.projects', default=False, string='step-project parent id',
+                                             ondelete='cascade', copy=True)
+    step_project_child_ids = fields.One2many(comodel_name='project_budget.projects', inverse_name='step_project_parent_id',
+        string="step-project child ids", compute='_compute_step_project_details', store=True, auto_join=True)
+
+    planned_step_cash_flow_ids = fields.One2many(
+        comodel_name='project_budget.planned_cash_flow',
+        inverse_name='step_project_child_id',
+        string="planned cash flow", auto_join=True
+    )
+    planned_step_acceptance_flow_ids = fields.One2many(
+        comodel_name='project_budget.planned_acceptance_flow',
+        inverse_name='step_project_child_id',
+        string="planned acceptance flow", auto_join=True
+    )
+    fact_step_cash_flow_ids = fields.One2many(
+        comodel_name='project_budget.fact_cash_flow',
+        inverse_name='step_project_child_id',
+        string="fact cash flow", auto_join=True
+    )
+    fact_step_acceptance_flow_ids = fields.One2many(
+        comodel_name='project_budget.fact_acceptance_flow',
+        inverse_name='step_project_child_id',
+        string="fact acceptance flow", auto_join=True
+    )
+    project_have_steps = fields.Boolean(string="project have steps", default=False, copy=True, tracking=True)
+    is_framework = fields.Boolean(string="project is framework", default=False, copy=True, tracking=True)
     project_steps_ids = fields.One2many(
         comodel_name='project_budget.project_steps',
         inverse_name='projects_id',
-        string="project steps", auto_join=True,copy=True)
+        string="project steps", auto_join=True, copy=True)
+    different_project_offices_in_steps = fields.Boolean(
+        related='legal_entity_signing_id.different_project_offices_in_steps', readonly=True)
 
     project_currency_rates_ids = fields.One2many(
         comodel_name='project_budget.project_currency_rates',
@@ -426,17 +460,41 @@ class Project(models.Model):
         for rec in self:
             rec.project_status = rec.stage_id.project_status
             if rec.stage_id.code == '0':
-                if rec.project_steps_ids:
-                    for step in rec.project_steps_ids:
+                if rec.step_project_child_ids:
+                    for step in rec.step_project_child_ids:
                         if step.stage_id.code in ('100', '100(done)'):
-                            raise ValidationError(_("Can't 'cancel' project with step {0} in {1} state") % (
-                                step.step_id, step.stage_id.code))
+                            raise ValidationError(_("Can't 'cancel' project with step {0} in {1} state").format(
+                                step.project_id, step.stage_id.code))
                         step.stage_id = rec.stage_id
             elif rec.stage_id.code == '100(done)':
-                if rec.project_steps_ids:
-                    for step in rec.project_steps_ids:
+                if rec.step_project_child_ids:
+                    for step in rec.step_project_child_ids:
                         if step.stage_id.code != '0':
                             step.stage_id = rec.stage_id
+
+    def _compute_planned_acceptance_flow_ids(self):
+        print('_compute_planned_acceptance_flow_ids', self.step_project_child_ids, self.id)
+        if self.step_project_child_ids:
+            acceptance_flow_ids = self.env["project_budget.planned_acceptance_flow"].search(
+                [("projects_id", "in", self.step_project_child_ids.ids)])
+        else:
+            acceptance_flow_ids = self.env["project_budget.planned_acceptance_flow"].search(
+                [("projects_id", "=", self.id)])
+        self.planned_acceptance_flow_ids = acceptance_flow_ids
+
+    def _inverse_planned_acceptance_flow_ids(self):
+        for project in self:
+            for planned_acceptance in project.planned_acceptance_flow_ids:
+                try:
+                    int(planned_acceptance.id)
+                except:
+                    planned_acceptance.create({
+                        'projects_id': planned_acceptance.projects_id.id,
+                        'date_cash': planned_acceptance.date_cash,
+                        'sum_cash_without_vat': planned_acceptance.sum_cash_without_vat,
+                        'forecast': planned_acceptance.forecast,
+                    })
+            return True
 
     @api.onchange('project_office_id','project_status','currency_id','project_supervisor_id','key_account_manager_id',
                   'industry_id','essence_project','end_presale_project_month','end_sale_project_month','vat_attribute_id','total_amount_of_revenue',
@@ -444,7 +502,7 @@ class Project(models.Model):
                   'third_party_works','awards_on_results_project','transportation_expenses','travel_expenses','representation_expenses','taxes_fot_premiums','warranty_service_costs',
                   'rko_other','other_expenses','margin_income','profitability','stage_id','legal_entity_signing_id','project_type_id','comments','technological_direction_id',
                   'planned_cash_flow_sum','planned_cash_flow_ids','step_project_number','dogovor_number','planned_acceptance_flow_sum','planned_acceptance_flow_ids','fact_cash_flow_sum',
-                  'fact_cash_flow_ids','fact_acceptance_flow_sum','fact_acceptance_flow_ids','project_have_steps','project_steps_ids','taxes_fot_premiums'
+                  'fact_cash_flow_ids','fact_acceptance_flow_sum','fact_acceptance_flow_ids','project_have_steps','step_project_child_ids','taxes_fot_premiums'
                 )
     def _check_changes_project(self):
         print('_check_changes_project')
@@ -513,6 +571,40 @@ class Project(models.Model):
                 row.fact_acceptance_flow_sum += row_flow.sum_cash
                 row.fact_acceptance_flow_sum_without_vat += row_flow.sum_cash_without_vat
 
+    @api.depends('company_id', 'currency_id', 'commercial_budget_id', 'key_account_manager_id', 'project_supervisor_id',
+                 'rukovoditel_project_id', 'industry_id', 'legal_entity_signing_id', 'signer_id',
+                 'technological_direction_id', 'partner_id', 'project_office_id', 'is_correction_project', 'is_not_for_mc_report',
+                 'active', 'approve_state')
+    def _compute_step_project_details(self):
+        for row in self:
+            if row.step_project_child_ids:
+                for step_project_child_id in row.step_project_child_ids:
+                    step_project_child_id.company_id = row.company_id
+                    step_project_child_id.currency_id = row.currency_id
+                    step_project_child_id.commercial_budget_id = row.commercial_budget_id
+                    step_project_child_id.key_account_manager_id = row.key_account_manager_id
+                    step_project_child_id.project_supervisor_id = row.project_supervisor_id
+                    step_project_child_id.rukovoditel_project_id = row.rukovoditel_project_id
+                    step_project_child_id.industry_id = row.industry_id
+                    step_project_child_id.legal_entity_signing_id = row.legal_entity_signing_id
+                    step_project_child_id.signer_id = row.signer_id
+                    step_project_child_id.technological_direction_id = row.technological_direction_id
+                    step_project_child_id.partner_id = row.partner_id
+                    step_project_child_id.approve_state = row.approve_state
+                    if row.different_project_offices_in_steps:  # проверям меняли ли ПО в проекте-этапе
+                        try:
+                            cur_id = int(str(row.id).replace('NewId_', ''))
+                            cur_office = self.env['project_budget.projects'].search([('id', '=', cur_id)], limit=1).project_office_id
+                            if cur_office == step_project_child_id.project_office_id:
+                                step_project_child_id.project_office_id = row.project_office_id
+                        except:
+                            pass
+                    else:
+                        step_project_child_id.project_office_id = row.project_office_id
+                    step_project_child_id.is_correction_project = row.is_correction_project
+                    step_project_child_id.is_not_for_mc_report = row.is_not_for_mc_report
+                    step_project_child_id.active = row.active
+
     def _culculate_all_sums(self, project):
         if project.project_have_steps == False:
             self._compute_sums_from_amount_spec()
@@ -544,7 +636,7 @@ class Project(models.Model):
                                                                        1 + project.vat_attribute_id.percent / 100)
         elif project.project_have_steps == True:
 
-            for step in project.project_steps_ids:
+            for step in project.step_project_child_ids:
                 step._compute_sums_from_amount_spec()
 
             # self._compute_sums_from_amount_spec()
@@ -575,7 +667,7 @@ class Project(models.Model):
             project.warranty_service_costs = 0
             project.rko_other = 0
             project.other_expenses = 0
-            for step in project.project_steps_ids:
+            for step in project.step_project_child_ids:
                 if step.stage_id.code != '0':
                     project.total_amount_of_revenue += step.total_amount_of_revenue
                     project.cost_price += step.cost_price
@@ -603,10 +695,10 @@ class Project(models.Model):
         else:
             project.profitability = project.margin_income / project.total_amount_of_revenue * 100
 
-    @api.depends("project_steps_ids.revenue_from_the_sale_of_works", 'project_steps_ids.revenue_from_the_sale_of_goods', 'project_steps_ids.cost_of_goods', 'project_steps_ids.own_works_fot',
-                 'project_steps_ids.third_party_works', "project_steps_ids.awards_on_results_project", 'project_steps_ids.transportation_expenses', 'project_steps_ids.travel_expenses',
-                 'project_steps_ids.representation_expenses',"project_steps_ids.warranty_service_costs", 'project_steps_ids.rko_other', 'project_steps_ids.other_expenses',
-                 'project_steps_ids.vat_attribute_id','taxes_fot_premiums'
+    @api.depends("step_project_child_ids.revenue_from_the_sale_of_works", 'step_project_child_ids.revenue_from_the_sale_of_goods', 'step_project_child_ids.cost_of_goods', 'step_project_child_ids.own_works_fot',
+                 'step_project_child_ids.third_party_works', "step_project_child_ids.awards_on_results_project", 'step_project_child_ids.transportation_expenses', 'step_project_child_ids.travel_expenses',
+                 'step_project_child_ids.representation_expenses',"step_project_child_ids.warranty_service_costs", 'step_project_child_ids.rko_other', 'step_project_child_ids.other_expenses',
+                 'step_project_child_ids.vat_attribute_id','taxes_fot_premiums'
                  ,"revenue_from_the_sale_of_works", 'revenue_from_the_sale_of_goods', 'cost_of_goods', 'own_works_fot',
                  'third_party_works', "awards_on_results_project", 'transportation_expenses', 'travel_expenses', 'representation_expenses',
                  "warranty_service_costs", 'rko_other', 'other_expenses','vat_attribute_id','legal_entity_signing_id','project_have_steps',
@@ -805,7 +897,8 @@ class Project(models.Model):
             return False
         else: return True
 
-    @api.constrains('stage_id', 'total_amount_of_revenue', 'cost_price', 'planned_acceptance_flow_ids', 'planned_cash_flow_ids')
+    @api.constrains('stage_id', 'total_amount_of_revenue', 'cost_price', 'planned_acceptance_flow_ids',
+                    'planned_cash_flow_ids', 'planned_step_acceptance_flow_ids', 'planned_step_cash_flow_ids')
     def _check_financial_data_is_present(self):
         for project in self:
             if (project.stage_id.code in ('30', '50', '75', '100')
@@ -815,7 +908,10 @@ class Project(models.Model):
                     and not project.is_parent_project
                     and project.budget_state == 'work'
                     and not project.is_correction_project):
-                raisetext = _("Please enter financial data to project {0}")
+                if project.step_status == 'project':
+                    raisetext = _("Please enter financial data to project {0}")
+                elif project.step_status == 'step':
+                    raisetext = _("Please enter financial data to step {0}")
                 raisetext = raisetext.format(project.project_id)
                 raise ValidationError(raisetext)
             # elif (
@@ -835,14 +931,14 @@ class Project(models.Model):
             #     raise ValidationError(raisetext)
 
             if project.project_have_steps:
-                for step in project.project_steps_ids:
+                for step in project.step_project_child_ids:
                     if (step.stage_id.code in ('50', '75', '100')
-                            and not step.planned_acceptance_flow_ids
-                            and not step.planned_cash_flow_ids
-                            and step.projects_id.budget_state == 'work'
-                            and not step.projects_id.is_correction_project):
+                            and not step.planned_step_acceptance_flow_ids
+                            and not step.planned_step_cash_flow_ids
+                            and step.budget_state == 'work'
+                            and not step.is_correction_project):
                         raisetext = _("Please enter forecast for cash or acceptance to project {0} step {1}")
-                        raisetext = raisetext.format(step.projects_id.project_id, step.step_id)
+                        raisetext = raisetext.format(step.step_project_parent_id.project_id, step.project_id)
                         raise ValidationError(raisetext)
             else:
                 if (project.stage_id.code in ('50', '75', '100')
@@ -850,7 +946,8 @@ class Project(models.Model):
                         and not project.planned_cash_flow_ids
                         and not project.is_parent_project
                         and project.budget_state == 'work'
-                        and not project.is_correction_project):
+                        and not project.is_correction_project
+                        and project.step_status == 'project'):
                     raisetext = _("Please enter forecast for cash or acceptance to project {0}")
                     raisetext = raisetext.format(project.project_id)
                     raise ValidationError(raisetext)
@@ -875,15 +972,15 @@ class Project(models.Model):
     #             raisetext = raisetext.format(project.project_id)
     #             raise ValidationError(raisetext)
 
-    @api.constrains('project_have_steps', 'project_type_id')
-    def _check_project_with_steps_is_complex(self):
-        for project in self:
-            if project.project_have_steps and project.project_type_id.code != '03' and project.budget_state == 'work':  # Проект с этапами только Комплексный
-                raisetext = _("Project with steps should be 'Complex' type")
-                raise ValidationError(raisetext)
-            elif not project.project_have_steps and project.project_type_id.code == '03' and project.budget_state == 'work':  # Комплексный проект только с этапами
-                raisetext = _("'Complex' project should be with with steps")
-                raise ValidationError(raisetext)
+    # @api.constrains('project_have_steps', 'project_type_id')
+    # def _check_project_with_steps_is_complex(self):  # TODO убрать комплексный проект
+    #     for project in self:
+    #         if project.project_have_steps and project.project_type_id.code != '03' and project.budget_state == 'work':  # Проект с этапами только Комплексный
+    #             raisetext = _("Project with steps should be 'Complex' type")
+    #             raise ValidationError(raisetext)
+    #         elif not project.project_have_steps and project.project_type_id.code == '03' and project.budget_state == 'work':  # Комплексный проект только с этапами
+    #             raisetext = _("'Complex' project should be with with steps")
+    #             raise ValidationError(raisetext)
 
     @api.constrains('stage_id', 'step_project_number')
     def _check_project_axapta_step(self):
@@ -893,11 +990,15 @@ class Project(models.Model):
                     and project.budget_state == 'work'
                     and not project.is_correction_project
             ):  # Проект без кода из AXAPTA
-                raisetext = _("Please enter AXAPTA code to project {0}")
+                if project.step_status == 'project':
+                    raisetext = _("Please enter AXAPTA code to project {0}")
+                elif project.step_status == 'step':
+                    raisetext = _("Please enter AXAPTA code to step {0}")
                 raisetext = raisetext.format(project.project_id)
                 raise ValidationError(raisetext)
 
     def check_overdue_date(self, vals_list):
+        print('check_overdue_date', vals_list)
         for project in self:
 
             end_presale_project_month = project.end_presale_project_month
@@ -932,14 +1033,14 @@ class Project(models.Model):
             dict_formula = {}
 
             if project.project_have_steps:
-                for step in project.project_steps_ids:
+                for step in project.step_project_child_ids:
                     stage_id_name = step.stage_id.code
                     end_presale_project_month = step.end_presale_project_month
                     end_sale_project_month = step.end_sale_project_month
 
                     if vals_list:
-                        if 'project_steps_ids' in vals_list:
-                            vals_list_steps = vals_list['project_steps_ids']
+                        if 'step_project_child_ids' in vals_list:
+                            vals_list_steps = vals_list['step_project_child_ids']
                             if vals_list_steps:
 
                                 for vals_list_step in vals_list_steps:
@@ -971,14 +1072,14 @@ class Project(models.Model):
                         print('step.id = ', step.id)
                         if end_presale_project_month < fields.datetime.now().date():
                             raisetext = _("DENIED. Project {0} step {1} have overdue end presale project month {2}")
-                            raisetext = raisetext.format(project.project_id, step.step_id, str(end_presale_project_month))
-                            return False, raisetext, {'step_id': step.step_id, 'end_presale_project_month': str(end_presale_project_month)}
+                            raisetext = raisetext.format(project.project_id, step.project_id, str(end_presale_project_month))
+                            return False, raisetext, {'step_id': step.project_id, 'end_presale_project_month': str(end_presale_project_month)}
 
                     if stage_id_name not in ('0', '100', '100(done)'):
                         if end_sale_project_month < fields.datetime.now().date():
                             raisetext = _("DENIED. Project {0} step {1} have overdue end sale project month {2}")
-                            raisetext = raisetext.format(project.project_id, step.step_id, str(end_sale_project_month))
-                            return False, raisetext, {'step_id': step.step_id, 'end_sale_project_month': str(end_sale_project_month)}
+                            raisetext = raisetext.format(project.project_id, step.project_id, str(end_sale_project_month))
+                            return False, raisetext, {'step_id': step.project_id, 'end_sale_project_month': str(end_sale_project_month)}
 
             if stage_id_name in ('0', '100(done)'):
                if project.project_have_steps == False:
@@ -1028,7 +1129,7 @@ class Project(models.Model):
 
             for plan_accept in project.planned_acceptance_flow_ids:
                 date_cash = plan_accept.date_cash
-                step_id_str = str(plan_accept.project_steps_id.id)
+                step_id_str = str(plan_accept.step_project_child_id.id)
                 # print('step_id_str = ',step_id_str)
                 if step_id_str in dict_formula :
                     if dict_formula[step_id_str] in ('0', '100(done)'):
@@ -1100,7 +1201,7 @@ class Project(models.Model):
             for plan_cash in project.planned_cash_flow_ids:
                 date_cash = plan_cash.date_cash
 
-                step_id_str = str(plan_cash.project_steps_id.id)
+                step_id_str = str(plan_cash.step_project_child_id.id)
                 if step_id_str in dict_formula :
                     if dict_formula[step_id_str] in ('0', '100(done)'):
                         continue
@@ -1346,10 +1447,22 @@ class Project(models.Model):
         for vals in vals_list:
             self._check_required_fields(vals)
             if not vals.get('project_id') or vals['project_id'] == 'ID':
-                vals['project_id'] = self.env['ir.sequence'].sudo().next_by_code('project_budget.projects')
+                if not vals.get('step_status') or vals['step_status'] == 'project':  # разные типы ID у проектов и проектов-этапов
+                    vals['project_id'] = self.env['ir.sequence'].sudo().next_by_code('project_budget.projects')
+                elif vals['step_status'] == 'step':
+                    vals['project_id'] = self.env['ir.sequence'].sudo().next_by_code('project_budget.project_steps')
+            # if vals.get('step_project_parent_id'):  # берем обязательные данные из основного проекта
+            #     parent = self.env['project_budget.projects'].search([('id', '=', vals['step_project_parent_id'])])
+            #     vals['key_account_manager_id'] = parent.key_account_manager_id.id
+            #     vals['project_supervisor_id'] = parent.project_supervisor_id.id
+            #     vals['industry_id'] = parent.industry_id.id
+            #     vals['legal_entity_signing_id'] = parent.legal_entity_signing_id.id
+            #     vals['technological_direction_id'] = parent.technological_direction_id.id
+            #     vals['partner_id'] = parent.partner_id.id
         return super().create(vals_list)
 
     def write(self, vals):
+        print('write')
         self._check_required_fields(vals)
         for row in self:
             if row.env.context.get('form_fix_budget'):
@@ -1382,6 +1495,10 @@ class Project(models.Model):
             default['planned_cash_flow_ids'] = []
             default['fact_cash_flow_ids'] = []
             default['fact_acceptance_flow_ids'] = []
+            default['planned_step_acceptance_flow_ids'] = []
+            default['planned_step_cash_flow_ids'] = []
+            default['fact_step_cash_flow_ids'] = []
+            default['fact_step_acceptance_flow_ids'] = []
             print('2 default = ', default)
         return super(Project, self).copy(default=default)
 
@@ -1439,3 +1556,10 @@ class Project(models.Model):
             if empty_fields:
                 raise ValidationError(
                     _("Fields '%s' are required at the stage '%s'!") % (', '.join(empty_fields), stage.name))
+
+    def action_copy_step(self):
+        self.ensure_one()
+        if self.date_actual:  # сделка в зафиксированном бюджете
+            raisetext = _("This project is in fixed budget. Copy deny")
+            raise (ValidationError(raisetext))
+        self.sudo().copy()
