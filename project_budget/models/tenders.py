@@ -30,8 +30,7 @@ class tenders(models.Model):
     project_office_id = fields.Many2one(related='projects_id.project_office_id', readonly=True)
     project_supervisor_id = fields.Many2one(related='projects_id.project_supervisor_id', readonly=True)
     key_account_manager_id = fields.Many2one(related='projects_id.key_account_manager_id', readonly=True)
-    # project_manager_id = fields.Many2one(related='projects_id.project_manager_id', readonly=True)
-    rukovoditel_project_id = fields.Many2one(related='projects_id.rukovoditel_project_id', readonly=True)
+    project_manager_id = fields.Many2one(related='projects_id.project_manager_id', readonly=True)
 
     essence_project = fields.Text(related='projects_id.essence_project', readonly=True)
 

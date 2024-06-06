@@ -19,7 +19,7 @@ class ProjectStage(models.Model):
     name = fields.Char(string='Name', required=True, translate=True)
     description = fields.Text(translate=True)
     sequence = fields.Integer(default=1)
-    fold = fields.Boolean(string='Folded in Kanban',
+    fold = fields.Boolean(string='Folded in Kanban', default=False,
                           help='If enabled, this stage will be displayed as folded in the Kanban view of your projects.')
     project_status = fields.Selection(PROJECT_STATUS, string='Project Status', copy=True, default='lead', required=True)
     color = fields.Integer(string='Color', default=0)

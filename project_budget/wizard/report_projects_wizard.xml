@@ -5,6 +5,12 @@
         <field name="model">project_budget.projects.report.wizard</field>
         <field name="arch" type="xml">
             <form>
+                <div class="alert alert-danger text-center o_form_header alert-deprecated"
+                     attrs="{'invisible': [('type_report', 'not in', ('overdue'))]}" role="status">
+                    <strong>Выгрузка отчета по просроченным датам в EXCEL больше не поддерживается. Новый отчет можно
+                        посмотреть по пути: Коммерческая деятельность\Отчеты\Сделки\Сделки с просроченными датами
+                    </strong>
+                </div>
                 <sheet>
                     <group col ="4">
                         <group>
@@ -49,7 +55,8 @@
                     </group>
                 </sheet>
                 <footer>
-                    <button string="Print" name="action_print_report" class="btn-success" type="object"/>
+                    <button string="Print" name="action_print_report" class="btn-success" type="object"
+                        attrs="{'invisible': [('type_report', 'in', ('overdue'))]}"/>
                     <button string="Cancel" class="btn-danger" special="cancel"/>
                 </footer>
             </form>

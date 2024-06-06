@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="project_budget_project_overdue_report_view_search" model="ir.ui.view">
+        <field name="name">project.budget.project.overdue.report.search</field>
+        <field name="model">project.budget.project.overdue.report</field>
+        <field name="arch" type="xml">
+            <search string="Search Overdue Projects">
+                <group expand="0" string="Group By">
+                    <filter name="group_by_project_office" string="Project Office"
+                            context="{'group_by': 'project_office_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="project_budget_project_overdue_report_view_tree" model="ir.ui.view">
+        <field name="name">project.budget.project.overdue.report.tree</field>
+        <field name="model">project.budget.project.overdue.report</field>
+        <field name="arch" type="xml">
+            <tree string="Overdue Projects">
+                <field name="project_office_id"/>
+                <field name="stage_id" string="Probability" context="{'code_only': True}"
+                       options="{'always_reload': True}"/>
+<!--                <field name="project_curator_id" widget="many2one_avatar_employee"/>-->
+                <field name="project_supervisor_id"/>
+                <field name="key_account_manager_id" widget="many2one_avatar_employee"/>
+                <field name="project_manager_id" widget="many2one_avatar_employee"/>
+                <field name="project_id" string="Deal"/>
+                <field name="step_id"/>
+                <field name="customer_id" widget="many2one_avatar"/>
+                <field name="name"/>
+                <field name="reason"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="project_budget_project_overdue_report_view_form" model="ir.ui.view">
+        <field name="name">project.budget.project.overdue.report.form</field>
+        <field name="model">project.budget.project.overdue.report</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet string="Overdue Project">
+                    <group>
+                        <field name="project_office_id"/>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="project_id"/>
+                        </group>
+                        <group>
+                            <field name="step_id"/>
+                        </group>
+                    </group>
+                    <separator string="Reason" style="background-color:#FF6971;"/>
+                    <field name="reason"/>
+                    <group>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="project_budget_project_overdue_report_view_graph" model="ir.ui.view">
+        <field name="name">project.budget.project.overdue.report.graph</field>
+        <field name="model">project.budget.project.overdue.report</field>
+        <field name="arch" type="xml">
+            <graph string="Overdue Projects" type="pie">
+                <field name="project_office_id"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_project_budget_overdue_projects" model="ir.actions.act_window">
+        <field name="name">Overdue Projects</field>
+        <field name="res_model">project.budget.project.overdue.report</field>
+        <field name="view_mode">tree,form,graph</field>
+        <field name="context">
+            {
+                'search_default_group_by_project_office': True
+            }
+        </field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No data for analysis.
+            </p>
+            <p>
+                Analyze your overdue projects.
+            </p>
+        </field>
+    </record>
+</odoo>
