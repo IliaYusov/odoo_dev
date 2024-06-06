@@ -312,10 +312,10 @@ class Project(models.Model):
     )
     planned_acceptance_flow_ids = fields.One2many(
         comodel_name='project_budget.planned_acceptance_flow',
+        inverse_name='projects_id',
         string="planned acceptance flow",
-        compute='_compute_planned_acceptance_flow_ids',
-        # inverse='_inverse_planned_acceptance_flow_ids',
         auto_join=True, copy=True, readonly=False)
+
     fact_cash_flow_sum = fields.Monetary(string='fact_cash_flow_sum', compute='_compute_fact_cash_flow_sum', store=False
                                          , tracking=True)
     fact_cash_flow_ids = fields.One2many(
@@ -334,6 +334,7 @@ class Project(models.Model):
         string="fact acceptance flow", auto_join=True,copy=True)
 
     step_status = fields.Selection(selection=STEP_STATUS, string="project is step-project", default='project', copy=True, tracking=True)
+
     step_project_parent_id = fields.Many2one('project_budget.projects', default=False, string='step-project parent id',
                                              ondelete='cascade', copy=True)
     step_project_child_ids = fields.One2many(comodel_name='project_budget.projects', inverse_name='step_project_parent_id',
@@ -472,30 +473,6 @@ class Project(models.Model):
                         if step.stage_id.code != '0':
                             step.stage_id = rec.stage_id
 
-    def _compute_planned_acceptance_flow_ids(self):
-        print('_compute_planned_acceptance_flow_ids', self.step_project_child_ids, self.id)
-        if self.step_project_child_ids:
-            acceptance_flow_ids = self.env["project_budget.planned_acceptance_flow"].search(
-                [("projects_id", "in", self.step_project_child_ids.ids)])
-        else:
-            acceptance_flow_ids = self.env["project_budget.planned_acceptance_flow"].search(
-                [("projects_id", "=", self.id)])
-        self.planned_acceptance_flow_ids = acceptance_flow_ids
-
-    def _inverse_planned_acceptance_flow_ids(self):
-        for project in self:
-            for planned_acceptance in project.planned_acceptance_flow_ids:
-                try:
-                    int(planned_acceptance.id)
-                except:
-                    planned_acceptance.create({
-                        'projects_id': planned_acceptance.projects_id.id,
-                        'date_cash': planned_acceptance.date_cash,
-                        'sum_cash_without_vat': planned_acceptance.sum_cash_without_vat,
-                        'forecast': planned_acceptance.forecast,
-                    })
-            return True
-
     @api.onchange('project_office_id','project_status','currency_id','project_supervisor_id','key_account_manager_id',
                   'industry_id','essence_project','end_presale_project_month','end_sale_project_month','vat_attribute_id','total_amount_of_revenue',
                   'total_amount_of_revenue_with_vat','revenue_from_the_sale_of_works','revenue_from_the_sale_of_goods','cost_price','cost_of_goods','own_works_fot',
@@ -542,8 +519,12 @@ class Project(models.Model):
     def _compute_planned_cash_flow_sum(self):
         for row in self:
             row.planned_cash_flow_sum = 0
-            for row_flow in row.planned_cash_flow_ids:
-                row.planned_cash_flow_sum = row.planned_cash_flow_sum + row_flow.sum_cash
+            if row.step_status == 'project':
+                for row_flow in row.planned_cash_flow_ids:
+                    row.planned_cash_flow_sum = row.planned_cash_flow_sum + row_flow.sum_cash
+            elif row.step_status == 'step':
+                for row_flow in row.planned_step_cash_flow_ids:
+                    row.planned_cash_flow_sum = row.planned_cash_flow_sum + row_flow.sum_cash
 
 
     @api.depends("planned_acceptance_flow_ids.sum_cash")
@@ -551,26 +532,38 @@ class Project(models.Model):
         for row in self:
             row.planned_acceptance_flow_sum = 0
             row.planned_acceptance_flow_sum_without_vat = 0
-            for row_flow in row.planned_acceptance_flow_ids:
-                row.planned_acceptance_flow_sum += row_flow.sum_cash
-                row.planned_acceptance_flow_sum_without_vat += row_flow.sum_cash_without_vat
+            if row.step_status == 'project':
+                for row_flow in row.planned_acceptance_flow_ids:
+                    row.planned_acceptance_flow_sum += row_flow.sum_cash
+                    row.planned_acceptance_flow_sum_without_vat += row_flow.sum_cash_without_vat
+            elif row.step_status == 'step':
+                for row_flow in row.planned_step_acceptance_flow_ids:
+                    row.planned_acceptance_flow_sum += row_flow.sum_cash
+                    row.planned_acceptance_flow_sum_without_vat += row_flow.sum_cash_without_vat
 
     @api.depends("fact_cash_flow_ids.sum_cash")
     def _compute_fact_cash_flow_sum(self):
         for row in self:
             row.fact_cash_flow_sum = 0
-            for row_flow in row.fact_cash_flow_ids:
-                row.fact_cash_flow_sum = row.fact_cash_flow_sum + row_flow.sum_cash
-
+            if row.step_status == 'project':
+                for row_flow in row.fact_cash_flow_ids:
+                    row.fact_cash_flow_sum = row.fact_cash_flow_sum + row_flow.sum_cash
+            elif row.step_status == 'step':
+                for row_flow in row.fact_step_cash_flow_ids:
+                    row.fact_cash_flow_sum = row.fact_cash_flow_sum + row_flow.sum_cash
     @api.depends("fact_acceptance_flow_ids.sum_cash")
     def _compute_fact_acceptance_flow_sum(self):
         for row in self:
             row.fact_acceptance_flow_sum = 0
             row.fact_acceptance_flow_sum_without_vat = 0
-            for row_flow in row.fact_acceptance_flow_ids:
-                row.fact_acceptance_flow_sum += row_flow.sum_cash
-                row.fact_acceptance_flow_sum_without_vat += row_flow.sum_cash_without_vat
-
+            if row.step_status == 'project':
+                for row_flow in row.fact_acceptance_flow_ids:
+                    row.fact_acceptance_flow_sum += row_flow.sum_cash
+                    row.fact_acceptance_flow_sum_without_vat += row_flow.sum_cash_without_vat
+            elif row.step_status == 'step':
+                for row_flow in row.fact_step_acceptance_flow_ids:
+                    row.fact_acceptance_flow_sum += row_flow.sum_cash
+                    row.fact_acceptance_flow_sum_without_vat += row_flow.sum_cash_without_vat
     @api.depends('company_id', 'currency_id', 'commercial_budget_id', 'key_account_manager_id', 'project_supervisor_id',
                  'rukovoditel_project_id', 'industry_id', 'legal_entity_signing_id', 'signer_id',
                  'technological_direction_id', 'partner_id', 'project_office_id', 'is_correction_project', 'is_not_for_mc_report',

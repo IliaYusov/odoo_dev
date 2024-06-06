@@ -62,23 +62,23 @@ class planned_acceptance_flow(models.Model):
 
                                 )
 
-    @api.depends('date_cash','project_steps_id','acceptance_id','sum_cash_without_vat')
+    @api.depends('date_cash','step_project_child_id','acceptance_id','sum_cash_without_vat')
     def _get_name_to_show(self):
         for prj in self:
             prj.name_to_show = prj.date_cash.strftime("%d/%m/%Y") + _(' | acceptance ') + prj.acceptance_id + _(' | sum cash without vat ') + f'{prj.sum_cash_without_vat:_.2f}'
             if prj.project_have_steps == True:
-                prj.name_to_show += _(' | step ') + (prj.project_steps_id.step_id or '') + _(' | code ') + (prj.project_steps_id.code or '') + _(' | essence_project ') + (prj.project_steps_id.essence_project or '')
+                prj.name_to_show += _(' | step ') + (prj.step_project_child_id.project_id or '') + _(' | code ') + (prj.step_project_child_id.step_project_number or '') + _(' | essence_project ') + (prj.step_project_child_id.essence_project or '')
 
     @ api.depends('projects_id.currency_id')
     def _compute_reference(self):
         for row in self:
             row.currency_id = row.projects_id.currency_id
 
-    @api.depends("sum_cash_without_vat","project_steps_id.vat_attribute_id","projects_id.vat_attribute_id")
+    @api.depends("sum_cash_without_vat","step_project_child_id.vat_attribute_id","projects_id.vat_attribute_id")
     def _compute_sum(self):
         for row in self:
-            if row.project_steps_id:
-                row.sum_cash = row.sum_cash_without_vat * (1 + row.project_steps_id.vat_attribute_id.percent / 100)
+            if row.step_project_child_id:
+                row.sum_cash = row.sum_cash_without_vat * (1 + row.step_project_child_id.vat_attribute_id.percent / 100)
             else:
                 row.sum_cash = row.sum_cash_without_vat * (1 + row.projects_id.vat_attribute_id.percent / 100)
 
