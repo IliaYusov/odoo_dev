@@ -131,7 +131,7 @@ class report_projects_overdue_excel(models.AbstractModel):
             column += 1
             sheet.write_string(row, column, (spec.key_account_manager_id.name or ""), row_format)
             column += 1
-            sheet.write_string(row, column, (spec.rukovoditel_project_id.name or ""), row_format)
+            sheet.write_string(row, column, (spec.project_manager_id.name or ""), row_format)
             column += 1
             if spec.step_status == 'project':
                 sheet.write_string(row, column, spec.project_id, row_format)

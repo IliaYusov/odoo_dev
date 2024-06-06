@@ -38,6 +38,10 @@ class Project(models.Model):
         return "[('user_id.groups_id', 'in', %s), '|', ('company_id', '=', False), ('company_id', '=', company_id)]"\
             % self.env.ref('project_budget.group_project_budget_project_manager').id
 
+    def _get_project_curator_id_domain(self):
+        return "[('user_id.groups_id', 'in', %s), '|', ('company_id', '=', False), ('company_id', '=', company_id)]"\
+            % self.env.ref('project_budget.group_project_budget_project_curator').id
+
     def _get_current_amount_spec_type(self):
         context = self.env.context
         print('_get_current_amount_spec_type context',context)
@@ -182,8 +186,8 @@ class Project(models.Model):
     approve_state = fields.Selection([('need_approve_manager', 'need managers approve'), ('need_approve_supervisor'
                                      , 'need supervisors approve'), ('approved','approved'),('-','-')],
                                      required=True, index=True, default='need_approve_manager', store=True, copy=True, tracking=True)
-    currency_id = fields.Many2one('res.currency', string='Account Currency',  required = True, copy = True,
-                                  default=lambda self: self.env.company.currency_id,tracking=True)
+    currency_id = fields.Many2one('res.currency', string='Account Currency', copy=True,
+                                  default=lambda self: self.env.company.currency_id, required=True, tracking=True)
     etalon_budget = fields.Boolean(related='commercial_budget_id.etalon_budget', readonly=True)
     date_actual = fields.Datetime(related='commercial_budget_id.date_actual', readonly=True, store=True)
     isRukovoditel_required_in_project = fields.Boolean(related='project_office_id.isRukovoditel_required_in_project', readonly=True, store=True)
@@ -200,20 +204,19 @@ class Project(models.Model):
 
     # TODO: необходимо убрать домен и перейти на стандартное поле active
     project_office_id = fields.Many2one('project_budget.project_office', string='Project Office', check_company=True,
-                                        copy=True, domain="[('is_prohibit_selection','=', False)]", required=True,
-                                        tracking=True)
+                                        copy=True,
+                                        domain="[('is_prohibit_selection','=', False), '|', ('company_id', '=', False), ('company_id', '=', company_id)]",
+                                        required=True, tracking=True)
     project_supervisor_id = fields.Many2one('project_budget.project_supervisor', string='project_supervisor',
                                             required=True, copy=True, domain=_get_supervisor_list, tracking=True,
                                             check_company=True, store=True)
     key_account_manager_id = fields.Many2one('hr.employee', string='Key Account Manager', copy=True,
                                              default=_get_default_key_account_manager_id,
                                              domain=_get_key_account_manager_id_domain, required=True, tracking=True)
-    # project_manager_id = fields.Many2one('hr.employee', string='Project Manager', copy=True,
-    #                                      domain=_get_project_manager_id_domain, required=False, tracking=True)
-
-    rukovoditel_project_id = fields.Many2one('project_budget.rukovoditel_project', string='rukovoditel_project',
-                                         copy=True,  tracking=True, check_company=True)
-
+    project_manager_id = fields.Many2one('hr.employee', string='Project Manager', copy=True,
+                                         domain=_get_project_manager_id_domain, required=False, tracking=True)
+    # project_curator_id = fields.Many2one('hr.employee', string='Project Curator', copy=True,
+    #                                      domain=_get_project_curator_id_domain, required=True, tracking=True)
     partner_id = fields.Many2one('res.partner', string='customer_organization', copy=True,
                                  domain="[('is_company', '=', True)]", ondelete='restrict', required=True,
                                  tracking=True)
@@ -412,8 +415,9 @@ class Project(models.Model):
 
     def _compute_can_edit(self):
         for record in self:
-            record.can_edit = record.active and record.budget_state != 'fixed'\
-                and record.approve_state == 'need_approve_manager'
+            record.can_edit = record.active and (
+                (record.approve_state == 'need_approve_manager' and record.budget_state != 'fixed') or (
+                    self.env.user.has_group('project_budget.project_budget_admin') and record.budget_state == 'fixed'))
 
     def _check_project_is_child(self):
         for record in self:

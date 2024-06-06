@@ -23,8 +23,6 @@
     <menuitem id="project_budget_catalogs" parent="project_budget_menu" name="Catalogs"/>
     <menuitem id="project_budget_catalogs_project_supervisor" parent="project_budget_catalogs" name="project_supervisor"
               action="show_project_supervisor"/>
-    <menuitem id="project_budget_catalogs_rukovoditel_project" parent="project_budget_catalogs"
-              name="rukovoditel_project" action="show_rukovoditel_project"/>
 
     <menuitem id="project_budget_catalogs_customer_organization" parent="project_budget_catalogs"
               name="customer_organization" action="action_res_partner_companies"/>
@@ -49,27 +47,35 @@
     <menuitem id="project_budget_catalogs_project_supervisor_access" parent="project_budget_access"
               name="project_supervisor_access" action="show_comercial_budget_spec_supervisor_access"
               groups="project_budget.project_budget_admin"/>
-    <menuitem id="project_budget_catalogs_rukovoditel_project_access" parent="project_budget_access"
-              name="rukovoditel_project_access" action="show_comercial_budget_spec_rukovoditel_project_access"
-              groups="project_budget.project_budget_admin"/>
 
-    <menuitem id="project_budget_reports" parent="project_budget_menu" name="Reports"/>
-    <menuitem id="project_budget_tenders_report" parent="project_budget_reports" name="Tenders"
-              groups="project_budget_tenders_user,project_budget_tenders_admin"/>
-    <menuitem id="project_budget_tender_print_report" parent="project_budget_tenders_report" name="Print tenders list"
-              action="action_tender_print_report" groups="project_budget_tenders_user,project_budget_tenders_admin"/>
+    <menuitem id="project_budget_reports" parent="project_budget_menu" name="Reports">
+        <menuitem id="project_budget_tenders_report" name="Tenders" sequence="1"
+                  groups="project_budget_tenders_user,project_budget_tenders_admin">
+            <menuitem id="project_budget_tender_print_report" name="Print tenders list" sequence="1"
+                      action="action_tender_print_report"
+                      groups="project_budget_tenders_user,project_budget_tenders_admin"/>
+        </menuitem>
 
-    <menuitem id="project_budget_projects_report" parent="project_budget_reports" name="Projects"
-              groups="project_budget_users,project_budget_admin,project_budget_users_readonly"/>
-    <menuitem id="project_budget_projects_print_report" parent="project_budget_projects_report" name="Print projects"
-              action="action_projects_print_report"
-              groups="project_budget_users,project_budget_admin,project_budget_users_readonly"/>
+        <menuitem id="project_budget_projects_report" name="Projects" sequence="2"
+                  groups="project_budget_users,project_budget_admin,project_budget_users_readonly">
+            <menuitem id="project_budget_projects_print_report" name="Print projects" sequence="1"
+                      action="action_projects_print_report"
+                      groups="project_budget_users,project_budget_admin,project_budget_users_readonly"/>
+            <menuitem id="menu_project_budget_overdue_projects" name="Overdue Projects" sequence="2"
+                      action="action_project_budget_overdue_projects"
+                      groups="project_budget_users,project_budget_admin"/>
+        </menuitem>
+    </menuitem>
 
     <menuitem id="menu_project_budget_configuration" parent="project_budget_menu" name="Configuration"
               sequence="100">
         <menuitem id="menu_project_budget_pipeline" name="Pipeline" sequence="10" groups="project_budget_admin">
             <menuitem id="menu_project_budget_pipeline_stages" name="Stages" sequence="10"
                       action="action_project_budget_project_stages"/>
+        </menuitem>
+        <menuitem id="menu_project_budget_access" name="Access" sequence="20" groups="project_budget_admin">
+            <menuitem id="menu_project_budget_transfer_rights" name="Transfer Rights To The Employee" sequence="1"
+                      action="action_project_budget_project_user_rights"/>
         </menuitem>
 <!--        TODO: вынести тендеры в отдельное приложение-->
         <menuitem id="menu_project_budget_partners" name="Company Partners" sequence="40"
