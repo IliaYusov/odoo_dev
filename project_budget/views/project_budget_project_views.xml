@@ -370,6 +370,9 @@
                                             <field name="project_supervisor_id" widget="many2one_avatar"
                                                    placeholder="Project Supervisor" options="{'no_open': True}"
                                                    attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                                            <field name="project_administrator_id" widget="many2one_avatar"
+                                                   placeholder="Project Administrator" options="{'no_open': True}"
+                                                   attrs="{'readonly': [('can_edit', '=', False)]}"/>
                                             <field name="technological_direction_id" options="{'no_open': True}"
                                                    placeholder="Technological Direction"
                                                    attrs="{'readonly': [('can_edit', '=', False)]}"/>

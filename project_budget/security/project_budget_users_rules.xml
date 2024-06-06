@@ -6,10 +6,11 @@
         <record id="ir_rule_project_budget_access_supervisor_manager" model="ir.rule">
             <field name="name">Access to project budget specification by supervisor anf manager access</field>
             <field name="model_id" ref="model_project_budget_projects"/>
-            <field name="domain_force">["|","|",
+            <field name="domain_force">["|","|","|",
                 ('project_supervisor_id.id','in', user.supervisor_rule.ids),
                 ('project_office_id.user_id.id','=',user.id),
-                ('parent_project_id.project_supervisor_id.id','in', user.supervisor_rule.ids)
+                ('parent_project_id.project_supervisor_id.id','in', user.supervisor_rule.ids),
+                ('project_administrator_id.user_id', '=', user.id),
                 ]
             </field>
             <field name="groups" eval="[(4, ref('project_budget.project_budget_users'))]"/>

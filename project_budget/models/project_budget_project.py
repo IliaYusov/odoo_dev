@@ -215,6 +215,8 @@ class Project(models.Model):
                                              domain=_get_key_account_manager_id_domain, required=True, tracking=True)
     project_manager_id = fields.Many2one('hr.employee', string='Project Manager', copy=True,
                                          domain=_get_project_manager_id_domain, required=False, tracking=True)
+    project_administrator_id = fields.Many2one('hr.employee', string='Project Administrator', copy=True,
+                                               check_company=True, tracking=True)
     # project_curator_id = fields.Many2one('hr.employee', string='Project Curator', copy=True,
     #                                      domain=_get_project_curator_id_domain, required=True, tracking=True)
     partner_id = fields.Many2one('res.partner', string='customer_organization', copy=True,
