@@ -2293,6 +2293,13 @@ msgid "Project Supervisor"
 msgstr "Куратор проекта"
 
 #. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__project_administrator_id
+#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_view_search
+#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
+msgid "Project Administrator"
+msgstr "Администратор проекта"
+
+#. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
 msgid "Project Type"
 msgstr "Тип проекта"
