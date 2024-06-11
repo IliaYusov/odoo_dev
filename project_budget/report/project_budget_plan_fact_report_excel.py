@@ -34,40 +34,6 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
         'net_profit': 'Чистая прибыль,\n руб.',
     }
 
-    def is_step_in_year(self, project, step, year):
-        if project:
-            if step:
-                if step.stage_id.code == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
-                    last_fixed_step = self.env['project_budget.project_steps'].search(
-                        [('date_actual', '<', datetime.date(year, 1, 1)),
-                         ('budget_state', '=', 'fixed'),
-                         ('step_id', '=', step.step_id),
-                         ], limit=1, order='date_actual desc')
-                    if last_fixed_step and last_fixed_step.stage_id.code == '0':
-                        return False
-
-                if (year <= step.end_presale_project_month.year <= year + 2)\
-                        or (year <= step.end_sale_project_month.year <= year + 2)\
-                        or (step.end_presale_project_month.year <= year and step.end_sale_project_month.year >= year + 2):
-                    return True
-                for pds in project.planned_cash_flow_ids:
-                    if pds.project_steps_id.id == step.id:
-                        if year <= pds.date_cash.year <= year + 2:
-                            return True
-                for pds in project.fact_cash_flow_ids:
-                    if pds.project_steps_id.id == step.id:
-                        if year <= pds.date_cash.year <= year + 2:
-                            return True
-                for act in project.planned_acceptance_flow_ids:
-                    if act.project_steps_id.id == step.id:
-                        if year <= act.date_cash.year <= year + 2:
-                            return True
-                for act in project.fact_acceptance_flow_ids:
-                    if act.project_steps_id.id == step.id:
-                        if year <= act.date_cash.year <= year + 2:
-                            return True
-        return False
-
     def is_project_in_year(self, project, year):
         if project:
             if project.stage_id.code == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
@@ -79,27 +45,35 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
                 if last_fixed_project and last_fixed_project.stage_id.code == '0':
                     return False
 
-            if not project.project_have_steps:
-                if (year <= project.end_presale_project_month.year <= year + 2)\
-                        or (year <= project.end_sale_project_month.year <= year + 2)\
-                        or (project.end_presale_project_month.year <= year and project.end_sale_project_month.year >= year + 2):
+            if (year <= project.end_presale_project_month.year <= year + 2)\
+                    or (year <= project.end_sale_project_month.year <= year + 2)\
+                    or (project.end_presale_project_month.year <= year and project.end_sale_project_month.year >= year + 2):
+                return True
+
+            for pds in project.planned_cash_flow_ids:
+                if year <= pds.date_cash.year <= year + 2:
                     return True
-                for pds in project.planned_cash_flow_ids:
-                    if year <= pds.date_cash.year <= year + 2:
-                        return True
-                for pds in project.fact_cash_flow_ids:
-                    if year <= pds.date_cash.year <= year + 2:
-                        return True
-                for act in project.planned_acceptance_flow_ids:
-                    if year <= act.date_cash.year <= year + 2:
-                        return True
-                for act in project.fact_acceptance_flow_ids:
-                    if year <= act.date_cash.year <= year + 2:
-                        return True
-            else:
-                for step in project.project_steps_ids:
-                    if self.is_step_in_year(project, step, year):
-                        return True
+            for pds in project.fact_cash_flow_ids:
+                if year <= pds.date_cash.year <= year + 2:
+                    return True
+            for act in project.planned_acceptance_flow_ids:
+                if year <= act.date_cash.year <= year + 2:
+                    return True
+            for act in project.fact_acceptance_flow_ids:
+                if year <= act.date_cash.year <= year + 2:
+                    return True
+            for pds in project.planned_step_cash_flow_ids:
+                if year <= pds.date_cash.year <= year + 2:
+                    return True
+            for pds in project.fact_step_cash_flow_ids:
+                if year <= pds.date_cash.year <= year + 2:
+                    return True
+            for act in project.planned_step_acceptance_flow_ids:
+                if year <= act.date_cash.year <= year + 2:
+                    return True
+            for act in project.fact_step_acceptance_flow_ids:
+                if year <= act.date_cash.year <= year + 2:
+                    return True
         return False
 
     def get_quarter_from_month(self, month):
@@ -125,31 +99,33 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
         else:
             return False
 
-    def get_sum_fact_pds_project_step_quarter(self, project, step, year, quarter):
+    def get_sum_fact_pds_project_quarter(self, project, year, quarter):
         sum_cash = 0
         months = self.get_months_from_quarter(quarter)
-        pds_list = project.fact_cash_flow_ids
+
+        if project.step_status == 'project':
+            pds_list = project.fact_cash_flow_ids
+        elif project.step_status == 'step':
+            pds_list = project.fact_step_cash_flow_ids
+
         for pds in pds_list:
-            if step:
-                if pds.project_steps_id.id != step.id: 
-                    continue
             if pds.date_cash.month in months and pds.date_cash.year == year:
                 sum_cash += pds.sum_cash
         return sum_cash
 
-    def get_sum_plan_pds_project_step_quarter(self, project, step, year, quarter):
+    def get_sum_plan_pds_project_quarter(self, project, year, quarter):
         sum_cash = {'commitment': 0, 'reserve': 0}
         months = self.get_months_from_quarter(quarter)
-        pds_list = project.planned_cash_flow_ids
+
+        if project.step_status == 'project':
+            pds_list = project.planned_cash_flow_ids
+        elif project.step_status == 'step':
+            pds_list = project.planned_step_cash_flow_ids
+
         for pds in pds_list:
-            if step:
-                if pds.project_steps_id.id != step.id: 
-                    continue
             if pds.date_cash.month in months and pds.date_cash.year == year:
-                if step:
-                    stage_id_name = step.stage_id.code
-                else:
-                    stage_id_name = project.stage_id.code
+
+                stage_id_name = project.stage_id.code
 
                 if pds.forecast == 'from_project':
 
@@ -166,7 +142,7 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
         project_currency_rates = self.env['project_budget.project_currency_rates']
         return project_currency_rates._get_currency_rate_for_project_in_company_currency(project)
 
-    def get_quarter_revenue_project(self, project, step, year, quarter):
+    def get_quarter_revenue_project(self, project, year, quarter):
 
         sum100tmp = 0
         sum75tmp = 0
@@ -176,32 +152,20 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
         months = self.get_months_from_quarter(quarter)
 
         if months:
-            if not step:
-                if project.end_presale_project_month.month in months and project.end_presale_project_month.year == year:
-                    currency_rate = self.get_currency_rate_by_project(project)
-                    if project.stage_id.code in ('100', '100(done)'):
-                        sum100tmp += project.total_amount_of_revenue_with_vat * currency_rate
-                    if project.stage_id.code == '75':
-                        sum75tmp += project.total_amount_of_revenue_with_vat * currency_rate
-                    if project.stage_id.code == '50':
-                        sum50tmp += project.total_amount_of_revenue_with_vat * self.KOEFF_RESERVE * currency_rate
-                    if project.stage_id.code == '30':
-                        sum30tmp += project.total_amount_of_revenue_with_vat * self.KOEFF_POTENTIAL * currency_rate
-            else:
-                if step.end_presale_project_month.month in months and step.end_presale_project_month.year == year:
-                    currency_rate = self.get_currency_rate_by_project(step.projects_id)
-                    if step.stage_id.code in ('100', '100(done)'):
-                        sum100tmp = step.total_amount_of_revenue_with_vat * currency_rate
-                    if step.stage_id.code == '75':
-                        sum75tmp = step.total_amount_of_revenue_with_vat * currency_rate
-                    if step.stage_id.code == '50':
-                        sum50tmp = step.total_amount_of_revenue_with_vat * self.KOEFF_RESERVE * currency_rate
-                    if step.stage_id.code == '30':
-                        sum30tmp = step.total_amount_of_revenue_with_vat * self.KOEFF_POTENTIAL * currency_rate
+            if project.end_presale_project_month.month in months and project.end_presale_project_month.year == year:
+                currency_rate = self.get_currency_rate_by_project(project)
+                if project.stage_id.code in ('100', '100(done)'):
+                    sum100tmp += project.total_amount_of_revenue_with_vat * currency_rate
+                if project.stage_id.code == '75':
+                    sum75tmp += project.total_amount_of_revenue_with_vat * currency_rate
+                if project.stage_id.code == '50':
+                    sum50tmp += project.total_amount_of_revenue_with_vat * self.KOEFF_RESERVE * currency_rate
+                if project.stage_id.code == '30':
+                    sum30tmp += project.total_amount_of_revenue_with_vat * self.KOEFF_POTENTIAL * currency_rate
 
         return sum100tmp, sum75tmp, sum50tmp, sum30tmp
 
-    def get_quarter_pds_project(self, project, step, year, quarter):
+    def get_quarter_pds_project(self, project, year, quarter):
 
         sum75tmp = sum50tmp = 0
 
@@ -209,9 +173,9 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
 
         months = self.get_months_from_quarter(quarter)
 
-        sum100tmp = self.get_sum_fact_pds_project_step_quarter(project, step, year, quarter)
+        sum100tmp = self.get_sum_fact_pds_project_quarter(project, year, quarter)
 
-        sum = self.get_sum_plan_pds_project_step_quarter(project, step, year, quarter)
+        sum = self.get_sum_plan_pds_project_quarter(project, year, quarter)
 
         if not project.is_correction_project:
             if sum100tmp >= sum.get('commitment', 0):
@@ -224,15 +188,17 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
         # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плана
         sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
         sum_distribution_pds = 0
-        for planned_cash_flow in project.planned_cash_flow_ids:
-            if step:
-                if planned_cash_flow.project_steps_id.id != step.id:
-                    continue
+
+        if project.step_status == 'project':
+            acceptance_list = project.planned_cash_flow_ids
+        elif project.step_status == 'step':
+            acceptance_list = project.planned_step_cash_flow_ids
+
+        for planned_cash_flow in acceptance_list:
+
             if planned_cash_flow.date_cash.month in months and planned_cash_flow.date_cash.year == year:
                 sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
                 stage_id_name = project.stage_id.code
-                if step:
-                    stage_id_name = step.stage_id.code
 
                 if planned_cash_flow.forecast == 'from_project':
                     if stage_id_name in ('75', '100', '100(done)'):
@@ -255,57 +221,60 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
 
         return sum100tmp, sum75tmp, sum50tmp
 
-    def get_sum_fact_acceptance_project_step_quarter(self, project, step, year, quarter):
+    def get_sum_fact_acceptance_project_quarter(self, project, year, quarter):
         sum_cash = 0
         months = self.get_months_from_quarter(quarter)
-        acceptance_list = project.fact_acceptance_flow_ids
+
+        if project.step_status == 'project':
+            acceptance_list = project.fact_acceptance_flow_ids
+        elif project.step_status == 'step':
+            acceptance_list = project.fact_step_acceptance_flow_ids
+
         if acceptance_list:
             for acceptance in acceptance_list:
-                if step:
-                    if acceptance.project_steps_id.id != step.id:
-                        continue
                 if acceptance.date_cash.month in months and acceptance.date_cash.year == year:
                     sum_cash += acceptance.sum_cash_without_vat
         return sum_cash
 
-    def get_sum_fact_margin_project_step_quarter(self, project, step, year, quarter):
+    def get_sum_fact_margin_project_quarter(self, project, year, quarter):
         sum_cash = 0
         months = self.get_months_from_quarter(quarter)
         if project.is_parent_project:
             for child_project in project.child_project_ids:
                 if child_project.project_have_steps:
-                    for child_step in child_project.project_steps_ids:
-                        sum_cash += self.get_sum_fact_margin_project_step_quarter(child_project, child_step, year,
+                    for child_step in child_project.step_project_child_ids:
+                        sum_cash += self.get_sum_fact_margin_project_quarter(child_step, year,
                                                                                   quarter) * child_project.margin_rate_for_parent
                 else:
-                    sum_cash += self.get_sum_fact_margin_project_step_quarter(child_project, False, year, quarter) * child_project.margin_rate_for_parent
+                    sum_cash += self.get_sum_fact_margin_project_quarter(child_project, year, quarter) * child_project.margin_rate_for_parent
             return sum_cash
-        acceptance_list = project.fact_acceptance_flow_ids
+
+        if project.step_status == 'project':
+            acceptance_list = project.fact_acceptance_flow_ids
+        elif project.step_status == 'step':
+            acceptance_list = project.fact_step_acceptance_flow_ids
+
         if acceptance_list:
             for acceptance in acceptance_list:
-                if step:
-                    if acceptance.project_steps_id.id != step.id:
-                        continue
                 if acceptance.date_cash.month in months and acceptance.date_cash.year == year:
                     sum_cash += acceptance.margin
         return sum_cash
 
-    def get_sum_planned_acceptance_project_step_quarter(self, project, step, year, quarter):
+    def get_sum_planned_acceptance_project_quarter(self, project, year, quarter):
         sum_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
         months = self.get_months_from_quarter(quarter)
 
-        acceptance_list = project.planned_acceptance_flow_ids
+        if project.step_status == 'project':
+            acceptance_list = project.planned_acceptance_flow_ids
+        elif project.step_status == 'step':
+            acceptance_list = project.planned_step_acceptance_flow_ids
+
         if acceptance_list:
             for acceptance in acceptance_list:
-                if step:
-                    if acceptance.project_steps_id.id != step.id:
-                        continue
                 if acceptance.date_cash.month in months and acceptance.date_cash.year == year:
-                    if step:
-                        stage_id_name = step.stage_id.code
-                    else:
-                        stage_id_name = project.stage_id.code
+
+                    stage_id_name = project.stage_id.code
 
                     if acceptance.forecast == 'from_project':
                         if stage_id_name in ('75', '100', '100(done)'):
@@ -317,35 +286,36 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
                             sum_acceptance[acceptance.forecast] = sum_acceptance.get(acceptance.forecast, 0) + acceptance.sum_cash_without_vat
         return sum_acceptance
 
-    def get_sum_planned_margin_project_step_quater(self, project, step, year, quarter):
+    def get_sum_planned_margin_project_quater(self, project, year, quarter):
         sum_margin = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
         months = self.get_months_from_quarter(quarter)
         if project.is_parent_project:
             for child_project in project.child_project_ids:
                 if child_project.project_have_steps:
-                    for child_step in child_project.project_steps_ids:
+                    for child_step in child_project.step_project_child_ids:
                         for key in sum_margin:
-                            sum_margin[key] += self.get_sum_planned_margin_project_step_quater(
-                                child_project, child_step, year, quarter)[key] * child_project.margin_rate_for_parent
+                            sum_margin[key] += self.get_sum_planned_margin_project_quater(
+                                child_step, year, quarter)[key] * child_project.margin_rate_for_parent
                 else:
                     for key in sum_margin:
-                        sum_margin[key] += self.get_sum_planned_margin_project_step_quater(child_project, False, year, quarter)[key] * child_project.margin_rate_for_parent
+                        sum_margin[key] += self.get_sum_planned_margin_project_quater(child_project, year, quarter)[key] * child_project.margin_rate_for_parent
             return sum_margin
-        acceptance_list = project.planned_acceptance_flow_ids
+
+        if project.step_status == 'project':
+            acceptance_list = project.planned_acceptance_flow_ids
+        elif project.step_status == 'step':
+            acceptance_list = project.planned_step_acceptance_flow_ids
+
         if acceptance_list:
             for acceptance in acceptance_list:
                 if any(distribution.fact_acceptance_flow_id.margin_manual_input for distribution in
                        acceptance.distribution_acceptance_ids):  # если есть ручная маржа - пропускаем
                     continue
-                if step:
-                    if acceptance.project_steps_id.id != step.id:
-                        continue
-                    stage_id_name = step.stage_id.code
-                    profitability = step.profitability
-                else:
-                    stage_id_name = project.stage_id.code
-                    profitability = project.profitability
+
+                stage_id_name = project.stage_id.code
+                profitability = project.profitability
+
                 if acceptance.date_cash.month in months and acceptance.date_cash.year == year:
                     if acceptance.forecast == 'from_project':
                         if stage_id_name in ('75', '100', '100(done)'):
@@ -357,15 +327,13 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
                             sum_margin[acceptance.forecast] += acceptance.sum_cash_without_vat * profitability / 100
         return sum_margin
 
-    def get_margin_forecast_from_distributions(self, planned_acceptance, margin_plan, project, step, margin_rate_for_parent):
+    def get_margin_forecast_from_distributions(self, planned_acceptance, margin_plan, project, margin_rate_for_parent):
         # суммируем доли маржи фактов в соотношении (сумма распределения/суммы факта)
         margin_distribution = 0
         for distribution in planned_acceptance.distribution_acceptance_ids:
             if distribution.fact_acceptance_flow_id.sum_cash_without_vat != 0:
                 margin_distribution += distribution.fact_acceptance_flow_id.margin * distribution.sum_cash_without_vat / distribution.fact_acceptance_flow_id.sum_cash_without_vat
         stage_id_name = project.stage_id.code
-        if step:
-            stage_id_name = step.stage_id.code
 
         if planned_acceptance.forecast == 'from_project':
             if stage_id_name in ('75', '100', '100(done)'):
@@ -377,22 +345,23 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
                 margin_plan[planned_acceptance.forecast] -= margin_distribution * margin_rate_for_parent
         return margin_plan
 
-    def get_sum_planned_acceptance_project_step_from_distribution(self, project, step, year, quarter):
+    def get_sum_planned_acceptance_project_from_distribution(self, project, year, quarter):
         # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плана
         sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
         sum_distribution_acceptance = 0
         months = self.get_months_from_quarter(quarter)
 
-        for planned_acceptance_flow in project.planned_acceptance_flow_ids:
-            if step:
-                if planned_acceptance_flow.project_steps_id.id != step.id:
-                    continue
+        if project.step_status == 'project':
+            acceptance_list = project.planned_acceptance_flow_ids
+        elif project.step_status == 'step':
+            acceptance_list = project.planned_step_acceptance_flow_ids
+
+        for planned_acceptance_flow in acceptance_list:
+
             if planned_acceptance_flow.date_cash.month in months and planned_acceptance_flow.date_cash.year == year:
                 sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
 
                 stage_id_name = project.stage_id.code
-                if step:
-                    stage_id_name = step.stage_id.code
 
                 if planned_acceptance_flow.forecast == 'from_project':
                     if stage_id_name in ('75', '100', '100(done)'):
@@ -412,7 +381,7 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
         else:
             return False
 
-    def get_sum_planned_margin_project_step_from_distribution(self, project, step, year, quarter, margin_plan, margin_rate_for_parent):
+    def get_sum_planned_margin_project_from_distribution(self, project, year, quarter, margin_plan, margin_rate_for_parent):
         # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
         sum_distribution_acceptance = 0
         new_margin_plan = margin_plan.copy()
@@ -421,47 +390,53 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
         if project.is_parent_project:
             for child_project in project.child_project_ids:
                 if child_project.project_have_steps:
-                    for child_step in child_project.project_steps_ids:
-                        new_margin_plan = self.get_sum_planned_margin_project_step_from_distribution(
-                            child_project, child_step, year, quarter, margin_plan, child_project.margin_rate_for_parent)
+                    for child_step in child_project.step_project_child_ids:
+                        new_margin_plan = self.get_sum_planned_margin_project_from_distribution(
+                            child_step, year, quarter, margin_plan, child_project.margin_rate_for_parent)
                         if new_margin_plan:
                             margin_plan = new_margin_plan
                 else:
-                    new_margin_plan = self.get_sum_planned_margin_project_step_from_distribution(child_project, False, year, quarter, margin_plan, child_project.margin_rate_for_parent)
+                    new_margin_plan = self.get_sum_planned_margin_project_from_distribution(child_project, year, quarter, margin_plan, child_project.margin_rate_for_parent)
                     if new_margin_plan:
                         margin_plan = new_margin_plan
 
             return margin_plan
-        for planned_acceptance_flow in project.planned_acceptance_flow_ids:
+
+        if project.step_status == 'project':
+            acceptance_list = project.planned_acceptance_flow_ids
+        elif project.step_status == 'step':
+            acceptance_list = project.planned_step_acceptance_flow_ids
+
+        for planned_acceptance_flow in acceptance_list:
             if any(distribution.fact_acceptance_flow_id.margin_manual_input for distribution in
                    planned_acceptance_flow.distribution_acceptance_ids):  # если есть ручная маржа - пропускаем
                 continue
-            if step:
-                if planned_acceptance_flow.project_steps_id.id != step.id:
-                    continue
+
             if planned_acceptance_flow.date_cash.month in months and planned_acceptance_flow.date_cash.year == year:
                 sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
 
                 new_margin_plan = self.get_margin_forecast_from_distributions(
-                    planned_acceptance_flow, new_margin_plan, project, step, margin_rate_for_parent)
+                    planned_acceptance_flow, new_margin_plan, project, margin_rate_for_parent)
         if sum_distribution_acceptance:  # если есть распределение, то остаток = остатку распределения
             return new_margin_plan
         else:
             return False
 
-    def get_quarter_acceptance_project(self, project, step, year, quarter):
+    def get_quarter_acceptance_project(self, project, year, quarter):
 
         sum75tmp = sum50tmp = margin75tmp = margin50tmp = 0
 
         margin_rate_for_child = 1
-        if project.is_child_project:
+        if project.parent_project_id:
             margin_rate_for_child = (1 - project.margin_rate_for_parent)
+        elif project.step_project_parent_id.parent_project_id:
+            margin_rate_for_child = (1 - project.step_project_parent_id.margin_rate_for_parent)
 
-        sum100tmp = self.get_sum_fact_acceptance_project_step_quarter(project, step, year, quarter)
-        margin100tmp = self.get_sum_fact_margin_project_step_quarter(project, step, year, quarter) * margin_rate_for_child
+        sum100tmp = self.get_sum_fact_acceptance_project_quarter(project, year, quarter)
+        margin100tmp = self.get_sum_fact_margin_project_quarter(project, year, quarter) * margin_rate_for_child
 
-        sum = self.get_sum_planned_acceptance_project_step_quarter(project, step, year, quarter)
-        margin_sum = self.get_sum_planned_margin_project_step_quater(project, step, year, quarter)
+        sum = self.get_sum_planned_acceptance_project_quarter(project, year, quarter)
+        margin_sum = self.get_sum_planned_margin_project_quater(project, year, quarter)
 
         margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
@@ -484,8 +459,8 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
             else:
                 margin_sum['commitment'] = margin_plan['commitment'] - margin100tmp
 
-        sum_ostatok_acceptance = self.get_sum_planned_acceptance_project_step_from_distribution(project, step, year, quarter)
-        new_margin_plan = self.get_sum_planned_margin_project_step_from_distribution(project, step, year, quarter, margin_plan, 1)
+        sum_ostatok_acceptance = self.get_sum_planned_acceptance_project_from_distribution(project, year, quarter)
+        new_margin_plan = self.get_sum_planned_margin_project_from_distribution(project, year, quarter, margin_plan, 1)
 
         if sum_ostatok_acceptance:
             sum = sum_ostatok_acceptance
@@ -505,14 +480,11 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
 
         return sum100tmp, sum75tmp, sum50tmp, margin100tmp, margin75tmp, margin50tmp
 
-    def get_section_data_from_project(self, project, step, year, data):
+    def get_section_data_from_project(self, project, year, data):
 
         company = project.company_id.name
         office = project.project_office_id.name
         manager = project.key_account_manager_id.name
-
-        if step and project.legal_entity_signing_id.different_project_offices_in_steps:
-            office = step.project_office_id.name
 
         section_data = {}
 
@@ -521,12 +493,12 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
 
         for quarter in self.quarter_names:
             section_data['contracting']['100'], section_data['contracting']['75'], section_data['contracting']['50'], \
-            section_data['contracting']['30'] = self.get_quarter_revenue_project(project, step, year, quarter)
+            section_data['contracting']['30'] = self.get_quarter_revenue_project(project, year, quarter)
             section_data['cash']['100'], section_data['cash']['75'], section_data['cash'][
-                '50'] = self.get_quarter_pds_project(project, step, year, quarter)
+                '50'] = self.get_quarter_pds_project(project, year, quarter)
             section_data['acceptance']['100'], section_data['acceptance']['75'], section_data['acceptance'][
                 '50'], section_data['margin_income']['100'], section_data['margin_income']['75'], section_data['margin_income'][
-                '50'] = self.get_quarter_acceptance_project(project, step, year, quarter)
+                '50'] = self.get_quarter_acceptance_project(project, year, quarter)
 
             for section in self.section_names:
                 for probability in self.probability_names:
@@ -552,18 +524,10 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
         for project in cur_budget_projects:
             if project.vgo == '-':
 
-                if project.project_have_steps:
-                    for step in project.project_steps_ids:
-                        if not (self.is_step_in_year(project, step, year) and step.stage_id.id in stages.ids):
-                            continue
+                if not (self.is_project_in_year(project, year) and project.stage_id.id in stages.ids):
+                    continue
 
-                        data = self.get_section_data_from_project(project, step, year, data)
-
-                else:
-                    if not (self.is_project_in_year(project, year) and project.stage_id.id in stages.ids):
-                        continue
-
-                    data = self.get_section_data_from_project(project, False, year, data)
+                data = self.get_section_data_from_project(project, year, data)
 
         return data
 
@@ -1029,8 +993,11 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
         sheet.set_zoom(70)
 
         cur_budget_projects = self.env['project_budget.projects'].search([
-            ('commercial_budget_id', '=', budget.id), ('stage_id', 'in', stages.ids)
-        ])
+            ('commercial_budget_id', '=', budget.id),
+            ('stage_id', 'in', stages.ids),
+            '|',('step_status', '=', 'step'),
+            ('project_have_steps', '=', False),
+        ], order='project_id')
 
         project_offices = self.env['project_budget.project_office'].search([('parent_id', '=', False)], order='name')  # для сортировки так делаем + берем сначала только верхние элементы
 
