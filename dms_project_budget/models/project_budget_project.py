@@ -34,15 +34,15 @@ class Project(models.Model):
 
         return records
 
-    # def write(self, vals):
-    #     if not vals.get('directory_id'):
-    #         [project._create_project_directory() for project in
-    #          self.filtered(lambda pr: not pr.directory_id and pr.budget_state == 'work')]
-    #
-    #     res = super(Project, self).write(vals)
-    #     if res and vals.get('partner_id'):
-    #         [project._move_documents_to_partner() for project in self]
-    #     return res
+    def write(self, vals):
+        if not vals.get('directory_id'):
+            [project._create_project_directory() for project in
+             self.filtered(lambda pr: not pr.directory_id and pr.budget_state == 'work')]
+
+        res = super(Project, self).write(vals)
+        if res and vals.get('partner_id'):
+            [project._move_documents_to_partner() for project in self]
+        return res
 
     # ------------------------------------------------------
     # PRIVATE METHODS

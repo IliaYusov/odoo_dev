@@ -508,7 +508,7 @@ class Project(models.Model):
                   'third_party_works','awards_on_results_project','transportation_expenses','travel_expenses','representation_expenses','taxes_fot_premiums','warranty_service_costs',
                   'rko_other','other_expenses','margin_income','profitability','stage_id','legal_entity_signing_id','project_type_id','comments','technological_direction_id',
                   'planned_cash_flow_sum','planned_cash_flow_ids','step_project_number','dogovor_number','planned_acceptance_flow_sum','planned_acceptance_flow_ids','fact_cash_flow_sum',
-                  'fact_cash_flow_ids','fact_acceptance_flow_sum','fact_acceptance_flow_ids','project_have_steps','step_project_child_ids','taxes_fot_premiums'
+                  'fact_cash_flow_ids','fact_acceptance_flow_sum','fact_acceptance_flow_ids','project_have_steps','step_project_child_ids'
                 )
     def _check_changes_project(self):
         print('_check_changes_project')
@@ -701,16 +701,12 @@ class Project(models.Model):
         else:
             project.profitability = project.margin_income / project.total_amount_of_revenue * 100
 
-    @api.depends("step_project_child_ids.revenue_from_the_sale_of_works", 'step_project_child_ids.revenue_from_the_sale_of_goods', 'step_project_child_ids.cost_of_goods', 'step_project_child_ids.own_works_fot',
-                 'step_project_child_ids.third_party_works', "step_project_child_ids.awards_on_results_project", 'step_project_child_ids.transportation_expenses', 'step_project_child_ids.travel_expenses',
-                 'step_project_child_ids.representation_expenses',"step_project_child_ids.warranty_service_costs", 'step_project_child_ids.rko_other', 'step_project_child_ids.other_expenses',
-                 'step_project_child_ids.vat_attribute_id','taxes_fot_premiums'
-                 ,"revenue_from_the_sale_of_works", 'revenue_from_the_sale_of_goods', 'cost_of_goods', 'own_works_fot',
+    @api.depends('taxes_fot_premiums', "revenue_from_the_sale_of_works", 'revenue_from_the_sale_of_goods', 'cost_of_goods', 'own_works_fot',
                  'third_party_works', "awards_on_results_project", 'transportation_expenses', 'travel_expenses', 'representation_expenses',
                  "warranty_service_costs", 'rko_other', 'other_expenses','vat_attribute_id','legal_entity_signing_id','project_have_steps',
                  'parent_project_id','child_project_ids','margin_rate_for_parent','amount_spec_ids', 'total_margin_of_child_projects',
-                 'child_project_ids.margin_rate_for_parent', 'child_project_ids.margin_for_parent_project',
-                 'child_project_ids.total_amount_of_revenue', 'child_project_ids.cost_price','child_project_ids.margin_rate_for_parent')
+                 'child_project_ids.margin_rate_for_parent', 'child_project_ids.margin_for_parent_project', 'child_project_ids.total_amount_of_revenue',
+                 'child_project_ids.cost_price','child_project_ids.margin_rate_for_parent', "step_project_child_ids",)
     def _compute_spec_totals(self):
         for budget_spec in self:
             self._culculate_all_sums(budget_spec)
@@ -979,7 +975,7 @@ class Project(models.Model):
     #             raise ValidationError(raisetext)
 
     # @api.constrains('project_have_steps', 'project_type_id')
-    # def _check_project_with_steps_is_complex(self):  # TODO убрать комплексный проект
+    # def _check_project_with_steps_is_complex(self):
     #     for project in self:
     #         if project.project_have_steps and project.project_type_id.code != '03' and project.budget_state == 'work':  # Проект с этапами только Комплексный
     #             raisetext = _("Project with steps should be 'Complex' type")

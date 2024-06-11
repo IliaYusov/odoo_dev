@@ -46,18 +46,6 @@ class report_budget_forecast_excel(models.AbstractModel):
             for act in project.fact_acceptance_flow_ids:
                 if act.date_cash.year >= YEARint and act.date_cash.year <= YEARint + 2:
                     return True
-            for pds in project.planned_step_cash_flow_ids:
-                if pds.date_cash.year >= YEARint and pds.date_cash.year <= YEARint + 2:
-                    return True
-            for pds in project.fact_step_cash_flow_ids:
-                if pds.date_cash.year >= YEARint and pds.date_cash.year <= YEARint + 2:
-                    return True
-            for act in project.planned_step_acceptance_flow_ids:
-                if act.date_cash.year >= YEARint and act.date_cash.year <= YEARint + 2:
-                    return True
-            for act in project.fact_step_acceptance_flow_ids:
-                if act.date_cash.year >= YEARint and act.date_cash.year <= YEARint + 2:
-                    return True
         return False
 
     month_rus_name_contract_pds = ['Январь','Февраль','Март','Q1 итого','Апрель','Май','Июнь','Q2 итого','HY1/YEAR итого',
@@ -786,7 +774,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         elif project.step_status == 'step':
             acceptance_list = project.planned_step_acceptance_flow_ids
 
-        for planned_acceptance_flow in acceptance_list:
+        for planned_acceptance_flow in project.planned_acceptance_flow_ids:
             if any(distribution.fact_acceptance_flow_id.margin_manual_input for distribution in
                    planned_acceptance_flow.distribution_acceptance_ids):  # если есть ручная маржа - пропускаем
                 continue

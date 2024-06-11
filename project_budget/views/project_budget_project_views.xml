@@ -201,6 +201,22 @@
                     <field name="approve_state" invisible="1"/>
                     <field name="is_percent_fot_manual" invisible="1"/>
                     <field name="different_project_offices_in_steps" invisible="1"/>
+                    <field name="project_supervisor_id" invisible="1"/>
+                    <field name="industry_id" invisible="1"/>
+                    <field name="legal_entity_signing_id" invisible="1"/>
+                    <field name="technological_direction_id" invisible="1"/>
+                    <field name="partner_id" invisible="1"/>
+                    <field name="step_status" invisible="1"/>
+                    <field name="company_id" invisible="1"/>
+                    <field name="currency_id" invisible="1"/>
+                    <field name="commercial_budget_id" invisible="1"/>
+                    <field name="key_account_manager_id" invisible="1"/>
+                    <field name="rukovoditel_project_id" invisible="1"/>
+                    <field name="signer_id" invisible="1"/>
+                    <field name="project_office_id" invisible="1"/>
+                    <field name="is_correction_project" invisible="1"/>
+                    <field name="is_not_for_mc_report" invisible="1"/>
+                    <field name="active" invisible="1"/>
                     <group>
                         <field name="project_id" readonly="1"/>
                     </group>
@@ -513,12 +529,6 @@
                         </group>
                     </group>
                 </sheet>
-<!--                        <div class="o_attachment_preview"/>-->
-                    <div class="oe_chatter">
-                        <field name="message_follower_ids" widget="mail_followers"/>
-                        <field name="activity_ids" widget="mail_activity"/>
-                        <field name="message_ids" widget="mail_thread"/>
-                    </div>
             </form>
         </field>
     </record>
@@ -1020,6 +1030,8 @@
                                         <field name="total_amount_of_revenue_with_vat" optional="show" />
                                         <field name="margin_income" optional="show" />
                                         <field name="profitability" optional="show" />
+                                        <field name="budget_state" optional="hide" />
+                                        <field name="approve_state" optional="hide" />
                                     </tree>
                                 </field>
                             </page>
@@ -1028,11 +1040,11 @@
                                        context="{'tree_view_ref': 'project_budget.project_budget_project_child_view_tree'}"
                                        groups="project_budget.project_budget_admin"
                                        attrs="{'readonly': [('can_edit', '=', False)]}"
-                                       domain="['&amp;','&amp;', ('is_parent_project', '=', False), ('parent_project_id', '=', False), ('budget_state', '!=', 'fixed')]"/>
+                                       domain="['&amp;','&amp;', '&amp;', ('is_parent_project', '=', False), ('parent_project_id', '=', False), ('budget_state', '!=', 'fixed'), ('step_status', '=', 'project')]"/>
                                 <field name="child_project_ids" mode="tree" widget="many2many" readonly="1"
                                        context="{'tree_view_ref': 'project_budget.project_budget_project_child_view_tree'}"
                                        groups="!project_budget.project_budget_admin"
-                                       domain="['&amp;','&amp;', ('is_parent_project', '=', False), ('parent_project_id', '=', False), ('budget_state', '!=', 'fixed')]"/>
+                                       domain="['&amp;','&amp;', '&amp;', ('is_parent_project', '=', False), ('parent_project_id', '=', False), ('budget_state', '!=', 'fixed'), ('step_status', '=', 'project')]"/>
                             </page>
                             <page string="Forecast" attrs="{'invisible': [('is_parent_project', '=', True)]}"
                                   groups="project_budget.project_budget_users,project_budget.project_budget_admin">
