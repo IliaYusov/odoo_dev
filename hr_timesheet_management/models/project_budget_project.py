@@ -29,11 +29,11 @@ class Project(models.Model):
                 vals['analytic_account_id'] = analytic_account.id
         return super().create(vals_list)
 
-    # def write(self, values):
-    #     if not values.get('analytic_account_id'):
-    #         [project._create_analytic_account() for project in
-    #          self.filtered(lambda pr: not pr.analytic_account_id and pr.budget_state == 'work')]
-    #     return super(Project, self).write(values)
+    def write(self, values):
+        if not values.get('analytic_account_id'):
+            [project._create_analytic_account() for project in
+             self.filtered(lambda pr: not pr.analytic_account_id and pr.budget_state == 'work')]
+        return super(Project, self).write(values)
 
     @api.model
     def _init_data_analytic_account(self):
