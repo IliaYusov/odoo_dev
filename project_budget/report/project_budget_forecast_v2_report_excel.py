@@ -46,6 +46,18 @@ class report_budget_forecast_excel(models.AbstractModel):
             for act in project.fact_acceptance_flow_ids:
                 if act.date_cash.year >= YEARint and act.date_cash.year <= YEARint + 2:
                     return True
+            for pds in project.planned_step_cash_flow_ids:
+                if pds.date_cash.year >= YEARint and pds.date_cash.year <= YEARint + 2:
+                    return True
+            for pds in project.fact_step_cash_flow_ids:
+                if pds.date_cash.year >= YEARint and pds.date_cash.year <= YEARint + 2:
+                    return True
+            for act in project.planned_step_acceptance_flow_ids:
+                if act.date_cash.year >= YEARint and act.date_cash.year <= YEARint + 2:
+                    return True
+            for act in project.fact_step_acceptance_flow_ids:
+                if act.date_cash.year >= YEARint and act.date_cash.year <= YEARint + 2:
+                    return True
         return False
 
     month_rus_name_contract_pds = ['Январь','Февраль','Март','Q1 итого','Апрель','Май','Июнь','Q2 итого','HY1/YEAR итого',

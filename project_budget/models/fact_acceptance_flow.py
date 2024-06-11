@@ -79,7 +79,7 @@ class fact_acceptance_flow(models.Model):
         for row in self:
             if not row.margin_manual_input:
                 if row.project_have_steps:
-                    row.margin = row.sum_cash_without_vat * row.project_steps_id.profitability / 100
+                    row.margin = row.sum_cash_without_vat * row.step_project_child_ids.profitability / 100
                 else:
                     row.margin = row.sum_cash_without_vat * row.projects_id.profitability / 100
 
