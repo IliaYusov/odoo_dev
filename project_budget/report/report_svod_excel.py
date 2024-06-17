@@ -37,43 +37,6 @@ class report_svod_excel(models.AbstractModel):
         project_currency_rates = self.env['project_budget.project_currency_rates']
         return project_currency_rates._get_currency_rate_for_project_in_company_currency(project)
 
-
-    def isStepinYear(self, project, step):
-        global YEARint
-        global year_end
-
-        if project:
-            if step:
-                if step.stage_id.code == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
-                    last_fixed_step = self.env['project_budget.project_steps'].search(
-                        [('date_actual', '<', datetime.date(YEARint,1,1)),
-                         ('budget_state', '=', 'fixed'),
-                         ('step_id', '=', step.step_id),
-                         ], limit=1, order='date_actual desc')
-                    if last_fixed_step and last_fixed_step.stage_id.code == '0':
-                        return False
-
-                if (step.end_presale_project_month.year >= YEARint and step.end_presale_project_month.year <= year_end ) \
-                        or (step.end_sale_project_month.year >= YEARint and step.end_sale_project_month.year <= year_end ):
-                    return True
-                for pds in project.planned_cash_flow_ids:
-                    if pds.project_steps_id.id == step.id:
-                        if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end :
-                            return True
-                for pds in project.fact_cash_flow_ids:
-                    if pds.project_steps_id.id == step.id:
-                        if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end:
-                            return True
-                for act in project.planned_acceptance_flow_ids:
-                    if act.project_steps_id.id == step.id:
-                        if act.date_cash.year >= YEARint and act.date_cash.year <= year_end:
-                            return True
-                for act in project.fact_acceptance_flow_ids:
-                    if act.project_steps_id.id == step.id:
-                        if act.date_cash.year >= YEARint and act.date_cash.year <= year_end:
-                            return True
-        return False
-
     def isProjectinYear(self, project):
         global YEARint
 
@@ -87,26 +50,33 @@ class report_svod_excel(models.AbstractModel):
                 if last_fixed_project and last_fixed_project.stage_id.code == '0':
                     return False
 
-            if project.project_have_steps == False:
-                if (project.end_presale_project_month.year >= YEARint and project.end_presale_project_month.year <= year_end ) \
-                        or (project.end_sale_project_month.year >= YEARint and project.end_sale_project_month.year <= year_end):
+            if (project.end_presale_project_month.year >= YEARint and project.end_presale_project_month.year <= year_end ) \
+                    or (project.end_sale_project_month.year >= YEARint and project.end_sale_project_month.year <= year_end):
+                return True
+            for pds in project.planned_cash_flow_ids:
+                if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end:
                     return True
-                for pds in project.planned_cash_flow_ids:
-                    if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end:
-                        return True
-                for pds in project.fact_cash_flow_ids:
-                    if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end:
-                        return True
-                for act in project.planned_acceptance_flow_ids:
-                    if act.date_cash.year >= YEARint and act.date_cash.year <= year_end:
-                        return True
-                for act in project.fact_acceptance_flow_ids:
-                    if act.date_cash.year >= YEARint and act.date_cash.year <= year_end:
-                        return True
-            else:
-                for step in project.project_steps_ids:
-                    if self.isStepinYear(project, step):
-                        return True
+            for pds in project.fact_cash_flow_ids:
+                if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end:
+                    return True
+            for act in project.planned_acceptance_flow_ids:
+                if act.date_cash.year >= YEARint and act.date_cash.year <= year_end:
+                    return True
+            for act in project.fact_acceptance_flow_ids:
+                if act.date_cash.year >= YEARint and act.date_cash.year <= year_end:
+                    return True
+            for pds in project.planned_step_cash_flow_ids:
+                if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end:
+                    return True
+            for pds in project.fact_step_cash_flow_ids:
+                if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end:
+                    return True
+            for act in project.planned_step_acceptance_flow_ids:
+                if act.date_cash.year >= YEARint and act.date_cash.year <= year_end:
+                    return True
+            for act in project.fact_step_acceptance_flow_ids:
+                if act.date_cash.year >= YEARint and act.date_cash.year <= year_end:
+                    return True
 
             etalon_project = self.get_etalon_project_first(project) # поищем первый эталон в году и если контрактование или последняя отгрузка были в году, то надо проект в отчете показывать
             if etalon_project:
@@ -155,16 +125,6 @@ class report_svod_excel(models.AbstractModel):
                                                                      ('date_actual', '>=', datesearch)
                                                                      ], limit=1, order='date_actual')
         return etalon_project
-
-    def get_etalon_step(self, step):
-        if not step:
-            return False
-        etalon_step = self.env['project_budget.project_steps'].search(
-            [('etalon_budget', '=', True), ('step_id', '=', step.step_id), ('id', '!=', step.id)], limit=1,
-            order='date_actual desc')
-        # print('etalon_step.project_id = ', etalon_step.step_id)
-        # print('etalon_step.date_actual = ', etalon_step.date_actual)
-        return etalon_step
 
     def print_head_elements_list_year_Q(self, workbook, sheet, row, column, head_format):
         for element in self.elements_list_year_Q:
@@ -441,7 +401,7 @@ class report_svod_excel(models.AbstractModel):
 
         return sum_year, sum_q1, sum_q2, sum_q3, sum_q4
 
-    def get_sum_pds(self, project_cur, step_cur, project, project_step):
+    def get_sum_pds(self, project_cur, project):
         global YEARint
         global year_end
 
@@ -450,111 +410,17 @@ class report_svod_excel(models.AbstractModel):
         sum_q2 = 0
         sum_q3 = 0
         sum_q4 = 0
+
         if project:
-            if project_cur.project_have_steps == True: #  если есть этапы сейчас
-                if project_step: # существует этап для суммирования
-                    if step_cur.stage_id.code in ('50', '75', '100','100(done)'): # текущую вероятность сомтрим
-                        for pds in project.planned_cash_flow_ids:
-                            if pds.project_steps_id.id == project_step.id :
-                                if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end and pds.forecast in ('commitment', 'reserve', 'from_project'):
-                                    sum_year += pds.sum_cash
-                                    if pds.date_cash.month in (1, 2, 3):
-                                        sum_q1 += pds.sum_cash
-                                    if pds.date_cash.month in (4, 5, 6):
-                                        sum_q2 += pds.sum_cash
-                                    if pds.date_cash.month in (7, 8, 9):
-                                        sum_q3 += pds.sum_cash
-                                    if pds.date_cash.month in (10, 11, 12):
-                                        sum_q4 += pds.sum_cash
-            else:
-                if project_cur.stage_id.code in ('50', '75', '100','100(done)'): # вероятность по текущему проекту смотрим
-                    for pds in project.planned_cash_flow_ids:
-                        if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end and pds.forecast in ('commitment', 'reserve', 'from_project'):
-                            sum_year += pds.sum_cash
-                            if pds.date_cash.month in (1, 2, 3):
-                                sum_q1 += pds.sum_cash
-                            if pds.date_cash.month in (4, 5, 6):
-                                sum_q2 += pds.sum_cash
-                            if pds.date_cash.month in (7, 8, 9):
-                                sum_q3 += pds.sum_cash
-                            if pds.date_cash.month in (10, 11, 12):
-                                sum_q4 += pds.sum_cash
-        return sum_year, sum_q1, sum_q2, sum_q3, sum_q4
+            if project_cur.stage_id.code in ('50', '75', '100','100(done)'): # вероятность по текущему проекту смотрим
 
-    def get_sum_pds_move(self, project, project_step, project_etalon, project_step_etalon):
-        global YEARint
-        global year_end
+                if project.step_status == 'project':
+                    pds_list = project.planned_cash_flow_ids
+                elif project.step_status == 'step':
+                    pds_list = project.planned_step_cash_flow_ids
 
-        sum_etalon_year =  sum_etalon_q1 =  sum_etalon_q2 =  sum_etalon_q3 =  sum_etalon_q4 = 0
-        calcsum = False
-        if project.project_have_steps == True:
-            if project_step:
-                if project_step.stage_id.code in ('50', '75', '100','100(done)'):
-                    calcsum = True
-        else:
-            if project.stage_id.code in ('50', '75', '100','100(done)'):
-                calcsum = True
-        if calcsum == True:
-            sum_etalon_year, sum_etalon_q1, sum_etalon_q2, sum_etalon_q3, sum_etalon_q4 = self.get_sum_pds(project, project_step, project_etalon, project_step_etalon) # перенос сразу равен эталону
-            sum_year, sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_pds(project,project_step, project, project_step)
-            # а если сейчас не 0, то перенос = 0
-            if sum_year != 0: sum_etalon_year = 0
-            if sum_q1 != 0: sum_etalon_q1 = 0
-            if sum_q2 != 0: sum_etalon_q2 = 0
-            if sum_q3 != 0: sum_etalon_q3 = 0
-            if sum_q4 != 0: sum_etalon_q4 = 0
-
-        return sum_etalon_year, sum_etalon_q1, sum_etalon_q2, sum_etalon_q3, sum_etalon_q4
-
-    def get_sum_pds_new(self, project, project_step, project_etalon, project_step_etalon):
-        global YEARint
-        global year_end
-
-        sum_etalon_year, sum_etalon_q1, sum_etalon_q2, sum_etalon_q3, sum_etalon_q4 = self.get_sum_pds(project,project_step, project_etalon, project_step_etalon)
-        sum_year, sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_pds(project,project_step, project, project_step) # сумму нового сразу присваиваем текущему
-        # а если в эталоне не 0 , то новый = 0
-        if sum_etalon_year != 0 : sum_year = 0
-        if sum_etalon_q1 != 0 : sum_q1 = 0
-        if sum_etalon_q2 != 0 : sum_q2 = 0
-        if sum_etalon_q3 != 0 : sum_q3 = 0
-        if sum_etalon_q4 != 0 : sum_q4 = 0
-
-        sum_year_fact, sum_q1_fact, sum_q2_fact, sum_q3_fact, sum_q4_fact = self.get_sum_pds_fact(project, project_step)
-        # 20230530 Алина Козленко сказала, что если в эталоне 0, а факт есть, то новое = факт и это на все действует
-        if sum_etalon_year == 0 and sum_year_fact != 0: sum_year = sum_year_fact
-        if sum_etalon_q1 == 0 and sum_q1_fact != 0 : sum_q1 = sum_q1_fact
-        if sum_etalon_q2 == 0 and sum_q2_fact != 0 : sum_q2 = sum_q2_fact
-        if sum_etalon_q3 == 0 and sum_q3_fact != 0 : sum_q3 = sum_q3_fact
-        if sum_etalon_q4 == 0 and sum_q4_fact != 0: sum_q4 = sum_q4_fact
-        return sum_year, sum_q1, sum_q2, sum_q3, sum_q4
-
-    def get_sum_pds_fact(self, project, project_step):
-        global YEARint
-        global year_end
-
-        sum_year = 0
-        sum_q1 = 0
-        sum_q2 = 0
-        sum_q3 = 0
-        sum_q4 = 0
-        if project:
-            if project.project_have_steps == True:  # если есть этапы сейчас
-                if project_step:  # существует этап для суммирования
-                    for pds in project.fact_cash_flow_ids:
-                        if pds.project_steps_id.id == project_step.id:
-                            if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end:
-                                sum_year += pds.sum_cash
-                                if pds.date_cash.month in (1, 2, 3):
-                                    sum_q1 += pds.sum_cash
-                                if pds.date_cash.month in (4, 5, 6):
-                                    sum_q2 += pds.sum_cash
-                                if pds.date_cash.month in (7, 8, 9):
-                                    sum_q3 += pds.sum_cash
-                                if pds.date_cash.month in (10, 11, 12):
-                                    sum_q4 += pds.sum_cash
-            else:
-                for pds in project.fact_cash_flow_ids:
-                    if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end:
+                for pds in pds_list:
+                    if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end and pds.forecast in ('commitment', 'reserve', 'from_project'):
                         sum_year += pds.sum_cash
                         if pds.date_cash.month in (1, 2, 3):
                             sum_q1 += pds.sum_cash
@@ -566,95 +432,49 @@ class report_svod_excel(models.AbstractModel):
                             sum_q4 += pds.sum_cash
         return sum_year, sum_q1, sum_q2, sum_q3, sum_q4
 
-
-    def get_sum_acceptance(self, project_cur, step_cur, project, project_step):
-        global YEARint
-        global year_end
-        sum_year = 0
-        sum_q1 = 0
-        sum_q2 = 0
-        sum_q3 = 0
-        sum_q4 = 0
-        if project:
-            if project_cur.project_have_steps == True:  # если есть этапы сейчас
-                if project_step:  # существует этап для суммирования
-                    if step_cur.stage_id.code in ('50', '75', '100','100(done)'): # по текущему смотрим
-                        for act in project.planned_acceptance_flow_ids:
-                            if act.project_steps_id.id == project_step.id:
-                                if act.date_cash.year >= YEARint and act.date_cash.year <= year_end and act.forecast in ('commitment', 'reserve', 'from_project'):
-                                    sum_year += act.sum_cash_without_vat
-                                    if act.date_cash.month in (1, 2, 3):
-                                        sum_q1 += act.sum_cash_without_vat
-                                    if act.date_cash.month in (4, 5, 6):
-                                        sum_q2 += act.sum_cash_without_vat
-                                    if act.date_cash.month in (7, 8, 9):
-                                        sum_q3 += act.sum_cash_without_vat
-                                    if act.date_cash.month in (10, 11, 12):
-                                        sum_q4 += act.sum_cash_without_vat
-            else:
-                if project_cur.stage_id.code in ('50', '75', '100','100(done)'): # вероятность по текущему проекту смотрим
-                    for act in project.planned_acceptance_flow_ids:
-                        if act.date_cash.year >= YEARint and act.date_cash.year <= year_end and act.forecast in ('commitment', 'reserve', 'from_project'):
-                            sum_year += act.sum_cash_without_vat
-                            if act.date_cash.month in (1, 2, 3):
-                                sum_q1 += act.sum_cash_without_vat
-                            if act.date_cash.month in (4, 5, 6):
-                                sum_q2 += act.sum_cash_without_vat
-                            if act.date_cash.month in (7, 8, 9):
-                                sum_q3 += act.sum_cash_without_vat
-                            if act.date_cash.month in (10, 11, 12):
-                                sum_q4 += act.sum_cash_without_vat
-
-
-        return sum_year, sum_q1, sum_q2, sum_q3, sum_q4
-
-    def get_sum_acceptance_move(self, project, project_step, project_etalon, project_step_etalon):
+    def get_sum_pds_move(self, project, project_etalon):
         global YEARint
         global year_end
 
         sum_etalon_year =  sum_etalon_q1 =  sum_etalon_q2 =  sum_etalon_q3 =  sum_etalon_q4 = 0
         calcsum = False
-        if project.project_have_steps == True:
-            if project_step:
-                if project_step.stage_id.code in ('50', '75', '100','100(done)'):
-                    calcsum = True
-        else:
-            if project.stage_id.code in ('50', '75', '100','100(done)'):
-                calcsum = True
-        if calcsum == True:
-            sum_etalon_year, sum_etalon_q1, sum_etalon_q2, sum_etalon_q3, sum_etalon_q4 = self.get_sum_acceptance(project, project_step, project_etalon,project_step_etalon) # перенос сразу равен эталону
-            sum_year, sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_acceptance(project, project_step, project, project_step)
+
+        if project.stage_id.code in ('50', '75', '100','100(done)'):
+
+            sum_etalon_year, sum_etalon_q1, sum_etalon_q2, sum_etalon_q3, sum_etalon_q4 = self.get_sum_pds(project, project_etalon) # перенос сразу равен эталону
+            sum_year, sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_pds(project, project)
             # а если сейчас не 0, то перенос = 0
             if sum_year != 0: sum_etalon_year = 0
             if sum_q1 != 0: sum_etalon_q1 = 0
             if sum_q2 != 0: sum_etalon_q2 = 0
             if sum_q3 != 0: sum_etalon_q3 = 0
             if sum_q4 != 0: sum_etalon_q4 = 0
+
         return sum_etalon_year, sum_etalon_q1, sum_etalon_q2, sum_etalon_q3, sum_etalon_q4
 
-    def get_sum_acceptance_new(self, project, project_step, project_etalon, project_step_etalon):
+    def get_sum_pds_new(self, project, project_etalon):
         global YEARint
         global year_end
 
-        sum_etalon_year, sum_etalon_q1, sum_etalon_q2, sum_etalon_q3, sum_etalon_q4 = self.get_sum_acceptance(project, project_step, project_etalon, project_step_etalon)
-        sum_year, sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_acceptance(project, project_step, project, project_step) # новый сразу = текущему
-        # а если в эталоне не 0 но новый сразу в 0
-        if sum_etalon_year != 0: sum_year = 0
+        sum_etalon_year, sum_etalon_q1, sum_etalon_q2, sum_etalon_q3, sum_etalon_q4 = self.get_sum_pds(project, project_etalon)
+        sum_year, sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_pds(project, project) # сумму нового сразу присваиваем текущему
+        # а если в эталоне не 0 , то новый = 0
+        if sum_etalon_year != 0 : sum_year = 0
         if sum_etalon_q1 != 0 : sum_q1 = 0
         if sum_etalon_q2 != 0 : sum_q2 = 0
         if sum_etalon_q3 != 0 : sum_q3 = 0
         if sum_etalon_q4 != 0 : sum_q4 = 0
 
-        sum_year_fact, sum_q1_fact, sum_q2_fact, sum_q3_fact, sum_q4_fact = self.get_sum_acceptance_fact(project, project_step)
+        sum_year_fact, sum_q1_fact, sum_q2_fact, sum_q3_fact, sum_q4_fact = self.get_sum_pds_fact(project)
         # 20230530 Алина Козленко сказала, что если в эталоне 0, а факт есть, то новое = факт и это на все действует
-        if sum_etalon_year == 0 and sum_year_fact != 0 : sum_year = sum_year_fact
+        if sum_etalon_year == 0 and sum_year_fact != 0: sum_year = sum_year_fact
         if sum_etalon_q1 == 0 and sum_q1_fact != 0 : sum_q1 = sum_q1_fact
         if sum_etalon_q2 == 0 and sum_q2_fact != 0 : sum_q2 = sum_q2_fact
         if sum_etalon_q3 == 0 and sum_q3_fact != 0 : sum_q3 = sum_q3_fact
-        if sum_etalon_q4 == 0 and sum_q4_fact != 0 : sum_q4 = sum_q4_fact
+        if sum_etalon_q4 == 0 and sum_q4_fact != 0: sum_q4 = sum_q4_fact
         return sum_year, sum_q1, sum_q2, sum_q3, sum_q4
 
-    def get_sum_acceptance_fact(self, project, project_step):
+    def get_sum_pds_fact(self, project):
         global YEARint
         global year_end
 
@@ -664,23 +484,45 @@ class report_svod_excel(models.AbstractModel):
         sum_q3 = 0
         sum_q4 = 0
         if project:
-            if project.project_have_steps == True:  # если есть этапы сейчас
-                if project_step:  # существует этап для суммирования
-                    for act in project.fact_acceptance_flow_ids:
-                        if act.project_steps_id.id == project_step.id:
-                            if act.date_cash.year >= YEARint and act.date_cash.year <= year_end:
-                                sum_year += act.sum_cash_without_vat
-                                if act.date_cash.month in (1, 2, 3):
-                                    sum_q1 += act.sum_cash_without_vat
-                                if act.date_cash.month in (4, 5, 6):
-                                    sum_q2 += act.sum_cash_without_vat
-                                if act.date_cash.month in (7, 8, 9):
-                                    sum_q3 += act.sum_cash_without_vat
-                                if act.date_cash.month in (10, 11, 12):
-                                    sum_q4 += act.sum_cash_without_vat
-            else:
-                for act in project.fact_acceptance_flow_ids:
-                    if act.date_cash.year >= YEARint and act.date_cash.year <= year_end:
+
+            if project.step_status == 'project':
+                pds_list = project.fact_cash_flow_ids
+            elif project.step_status == 'step':
+                pds_list = project.fact_step_cash_flow_ids
+
+            for pds in pds_list:
+                if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end:
+                    sum_year += pds.sum_cash
+                    if pds.date_cash.month in (1, 2, 3):
+                        sum_q1 += pds.sum_cash
+                    if pds.date_cash.month in (4, 5, 6):
+                        sum_q2 += pds.sum_cash
+                    if pds.date_cash.month in (7, 8, 9):
+                        sum_q3 += pds.sum_cash
+                    if pds.date_cash.month in (10, 11, 12):
+                        sum_q4 += pds.sum_cash
+        return sum_year, sum_q1, sum_q2, sum_q3, sum_q4
+
+
+    def get_sum_acceptance(self, project_cur, project):
+        global YEARint
+        global year_end
+        sum_year = 0
+        sum_q1 = 0
+        sum_q2 = 0
+        sum_q3 = 0
+        sum_q4 = 0
+        if project:
+
+            if project_cur.stage_id.code in ('50', '75', '100','100(done)'): # вероятность по текущему проекту смотрим
+
+                if project.step_status == 'project':
+                    act_list = project.planned_acceptance_flow_ids
+                elif project.step_status == 'step':
+                    act_list = project.planned_step_acceptance_flow_ids
+
+                for act in act_list:
+                    if act.date_cash.year >= YEARint and act.date_cash.year <= year_end and act.forecast in ('commitment', 'reserve', 'from_project'):
                         sum_year += act.sum_cash_without_vat
                         if act.date_cash.month in (1, 2, 3):
                             sum_q1 += act.sum_cash_without_vat
@@ -693,7 +535,76 @@ class report_svod_excel(models.AbstractModel):
 
         return sum_year, sum_q1, sum_q2, sum_q3, sum_q4
 
-    def print_row_Values(self, workbook, sheet, row, column, project, step, row_format_number):
+    def get_sum_acceptance_move(self, project, project_etalon):
+        global YEARint
+        global year_end
+
+        sum_etalon_year =  sum_etalon_q1 =  sum_etalon_q2 =  sum_etalon_q3 =  sum_etalon_q4 = 0
+
+        if project.stage_id.code in ('50', '75', '100','100(done)'):
+            sum_etalon_year, sum_etalon_q1, sum_etalon_q2, sum_etalon_q3, sum_etalon_q4 = self.get_sum_acceptance(project, project_etalon) # перенос сразу равен эталону
+            sum_year, sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_acceptance(project, project)
+            # а если сейчас не 0, то перенос = 0
+            if sum_year != 0: sum_etalon_year = 0
+            if sum_q1 != 0: sum_etalon_q1 = 0
+            if sum_q2 != 0: sum_etalon_q2 = 0
+            if sum_q3 != 0: sum_etalon_q3 = 0
+            if sum_q4 != 0: sum_etalon_q4 = 0
+        return sum_etalon_year, sum_etalon_q1, sum_etalon_q2, sum_etalon_q3, sum_etalon_q4
+
+    def get_sum_acceptance_new(self, project, project_etalon):
+        global YEARint
+        global year_end
+
+        sum_etalon_year, sum_etalon_q1, sum_etalon_q2, sum_etalon_q3, sum_etalon_q4 = self.get_sum_acceptance(project, project_etalon)
+        sum_year, sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_acceptance(project, project) # новый сразу = текущему
+        # а если в эталоне не 0 но новый сразу в 0
+        if sum_etalon_year != 0: sum_year = 0
+        if sum_etalon_q1 != 0 : sum_q1 = 0
+        if sum_etalon_q2 != 0 : sum_q2 = 0
+        if sum_etalon_q3 != 0 : sum_q3 = 0
+        if sum_etalon_q4 != 0 : sum_q4 = 0
+
+        sum_year_fact, sum_q1_fact, sum_q2_fact, sum_q3_fact, sum_q4_fact = self.get_sum_acceptance_fact(project)
+        # 20230530 Алина Козленко сказала, что если в эталоне 0, а факт есть, то новое = факт и это на все действует
+        if sum_etalon_year == 0 and sum_year_fact != 0 : sum_year = sum_year_fact
+        if sum_etalon_q1 == 0 and sum_q1_fact != 0 : sum_q1 = sum_q1_fact
+        if sum_etalon_q2 == 0 and sum_q2_fact != 0 : sum_q2 = sum_q2_fact
+        if sum_etalon_q3 == 0 and sum_q3_fact != 0 : sum_q3 = sum_q3_fact
+        if sum_etalon_q4 == 0 and sum_q4_fact != 0 : sum_q4 = sum_q4_fact
+        return sum_year, sum_q1, sum_q2, sum_q3, sum_q4
+
+    def get_sum_acceptance_fact(self, project):
+        global YEARint
+        global year_end
+
+        sum_year = 0
+        sum_q1 = 0
+        sum_q2 = 0
+        sum_q3 = 0
+        sum_q4 = 0
+        if project:
+
+            if project.step_status == 'project':
+                act_list = project.fact_acceptance_flow_ids
+            elif project.step_status == 'step':
+                act_list = project.fact_step_acceptance_flow_ids
+
+            for act in act_list:
+                if act.date_cash.year >= YEARint and act.date_cash.year <= year_end:
+                    sum_year += act.sum_cash_without_vat
+                    if act.date_cash.month in (1, 2, 3):
+                        sum_q1 += act.sum_cash_without_vat
+                    if act.date_cash.month in (4, 5, 6):
+                        sum_q2 += act.sum_cash_without_vat
+                    if act.date_cash.month in (7, 8, 9):
+                        sum_q3 += act.sum_cash_without_vat
+                    if act.date_cash.month in (10, 11, 12):
+                        sum_q4 += act.sum_cash_without_vat
+
+        return sum_year, sum_q1, sum_q2, sum_q3, sum_q4
+
+    def print_row_Values(self, workbook, sheet, row, column, project, row_format_number):
         global YEARint
         global year_end
 
@@ -703,7 +614,6 @@ class report_svod_excel(models.AbstractModel):
         # })
         # row_format_number.set_num_format('#,##0')
 
-        etalon_step = self.get_etalon_step(step)
         etalon_project = self.get_etalon_project(project)
 
         sum_year = 0
@@ -712,15 +622,11 @@ class report_svod_excel(models.AbstractModel):
         sum_q3 = 0
         sum_q4 = 0
         stage_id_code = ''
+
         # контрактование эталон
-        if step:
-            stage_id_code = step.stage_id.code
-            if etalon_step:
-                sum_year, sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_contract(etalon_step)
-        else:
-            stage_id_code = project.stage_id.code
-            if etalon_project:
-                sum_year, sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_contract(etalon_project)
+        stage_id_code = project.stage_id.code
+        if etalon_project:
+            sum_year, sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_contract(etalon_project)
         sheet.write_number(row, column + 0, sum_year, row_format_number)
         sheet.write_number(row, column + 17, sum_q1, row_format_number)
         sheet.write_number(row, column + 54, sum_q2, row_format_number)
@@ -734,53 +640,48 @@ class report_svod_excel(models.AbstractModel):
         sum_q2 = 0
         sum_q3 = 0
         sum_q4 = 0
-        if step:
-            if etalon_step:
-                sum_year, sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_contract_move(step, etalon_step)
-        else:
-            if etalon_project:
-                sum_year, sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_contract_move(project, etalon_project)
+
+        if etalon_project:
+            sum_year, sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_contract_move(project, etalon_project)
+
         sheet.write_number(row, column + 1, sum_year, row_format_number)
         sheet.write_number(row, column + 18, sum_q1, row_format_number)
         sheet.write_number(row, column + 55, sum_q2, row_format_number)
         sheet.write_number(row, column + 92, sum_q3, row_format_number)
         sheet.write_number(row, column + 129, sum_q4, row_format_number)
         # end контрактование перенос
+
         # контрактование новые
         sum_year = 0
         sum_q1 = 0
         sum_q2 = 0
         sum_q3 = 0
         sum_q4 = 0
-        if step:
-            sum_year, sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_contract_new(step, etalon_step)
-        else:
-            sum_year, sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_contract_new(project, etalon_project)
+
+        sum_year, sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_contract_new(project, etalon_project)
+
         sheet.write_number(row, column + 2, sum_year, row_format_number)
         sheet.write_number(row, column + 19, sum_q1, row_format_number)
         sheet.write_number(row, column + 56, sum_q2, row_format_number)
         sheet.write_number(row, column + 93, sum_q3, row_format_number)
         sheet.write_number(row, column + 130, sum_q4, row_format_number)
-
         # end контрактование новые
+
         # контрактование факт
-        if step:
-            sum_year, sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_contract_fact(step)
-        else:
-            print('project_id = ', project.project_id)
-            sum_year, sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_contract_fact(project)
+        print('project_id = ', project.project_id)
+        sum_year, sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_contract_fact(project)
+
         sheet.write_number(row, column + 3, sum_year, row_format_number)
         sheet.write_number(row, column + 20, sum_q1, row_format_number)
         sheet.write_number(row, column + 57, sum_q2, row_format_number)
         sheet.write_number(row, column + 94, sum_q3, row_format_number)
         sheet.write_number(row, column + 131, sum_q4, row_format_number)
         # end контрактование факт
+
         # контрактование остаток
         sum_year_curr = sum_q1_curr = sum_q2_curr = sum_q3_curr = sum_q4_curr = 0
-        if step:
-            sum_year_curr, sum_q1_curr, sum_q2_curr, sum_q3_curr, sum_q4_curr = self.get_sum_contract(step)
-        else:
-            sum_year_curr, sum_q1_curr, sum_q2_curr, sum_q3_curr, sum_q4_curr = self.get_sum_contract(project)
+
+        sum_year_curr, sum_q1_curr, sum_q2_curr, sum_q3_curr, sum_q4_curr = self.get_sum_contract(project)
 
 
         colFormula = column + 4
@@ -836,23 +737,25 @@ class report_svod_excel(models.AbstractModel):
         # end контрактование остаток
 
         # ПДС эталон
-        sum_year,sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_pds(project, step, etalon_project, etalon_step )
+        sum_year,sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_pds(project, etalon_project)
         sheet.write_number(row, column + 5, sum_year, row_format_number)
         sheet.write_number(row, column + 22, sum_q1, row_format_number)
         sheet.write_number(row, column + 59, sum_q2, row_format_number)
         sheet.write_number(row, column + 96, sum_q3, row_format_number)
         sheet.write_number(row, column + 133, sum_q4, row_format_number)
         # end ПДС эталон
+
         #  ПДС перенос
-        sum_year,sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_pds_move(project, step, etalon_project,etalon_step)
+        sum_year,sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_pds_move(project, etalon_project)
         sheet.write_number(row, column + 6, sum_year, row_format_number)
         sheet.write_number(row, column + 23, sum_q1, row_format_number)
         sheet.write_number(row, column + 60, sum_q2, row_format_number)
         sheet.write_number(row, column + 97, sum_q3, row_format_number)
         sheet.write_number(row, column + 134, sum_q4, row_format_number)
         #  end ПДС перенос
+
         #  ПДС новые
-        sum_year,sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_pds_new(project, step, etalon_project,etalon_step)
+        sum_year,sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_pds_new(project, etalon_project)
         sheet.write_number(row, column + 7, sum_year, row_format_number)
         sheet.write_number(row, column + 24, sum_q1, row_format_number)
         sheet.write_number(row, column + 61, sum_q2, row_format_number)
@@ -861,7 +764,7 @@ class report_svod_excel(models.AbstractModel):
         #  end ПДС новые
 
         #  ПДС факт
-        sum_year,sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_pds_fact(project, step)
+        sum_year,sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_pds_fact(project)
         sheet.write_number(row, column + 8, sum_year, row_format_number)
         sheet.write_number(row, column + 25, sum_q1, row_format_number)
         sheet.write_number(row, column + 62, sum_q2, row_format_number)
@@ -871,7 +774,7 @@ class report_svod_excel(models.AbstractModel):
 
         # ПДС остаток
         sum_year_curr = sum_q1_curr = sum_q2_curr = sum_q3_curr = sum_q4_curr = 0
-        sum_year_curr, sum_q1_curr, sum_q2_curr, sum_q3_curr, sum_q4_curr = self.get_sum_pds(project, step, project,step)  # сумму нового сразу присваиваем текущему
+        sum_year_curr, sum_q1_curr, sum_q2_curr, sum_q3_curr, sum_q4_curr = self.get_sum_pds(project, project)  # сумму нового сразу присваиваем текущему
         colFormula = column + 9
         if stage_id_code in ('0', '30'):
             formula = '=0'
@@ -925,41 +828,45 @@ class report_svod_excel(models.AbstractModel):
         # end ПДС остаток
 
         # валовая выручка эталон
-        sum_year,sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_acceptance(project, step, etalon_project,etalon_step)
+        sum_year,sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_acceptance(project, etalon_project)
         sheet.write_number(row, column + 10, sum_year, row_format_number)
         sheet.write_number(row, column + 27, sum_q1, row_format_number)
         sheet.write_number(row, column + 64, sum_q2, row_format_number)
         sheet.write_number(row, column + 101, sum_q3, row_format_number)
         sheet.write_number(row, column + 138, sum_q4, row_format_number)
         # end валовая выручка эталон
+
         # валовая выручка перенос
-        sum_year,sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_acceptance_move(project, step, etalon_project,etalon_step)
+        sum_year,sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_acceptance_move(project, etalon_project)
         sheet.write_number(row, column + 11, sum_year, row_format_number)
         sheet.write_number(row, column + 28, sum_q1, row_format_number)
         sheet.write_number(row, column + 65, sum_q2, row_format_number)
         sheet.write_number(row, column + 102, sum_q3, row_format_number)
         sheet.write_number(row, column + 139, sum_q4, row_format_number)
         # end валовая выручка перенос
+
         # валовая выручка новые
-        sum_year,sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_acceptance_new(project, step, etalon_project,etalon_step)
+        sum_year,sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_acceptance_new(project, etalon_project)
         sheet.write_number(row, column + 12, sum_year, row_format_number)
         sheet.write_number(row, column + 29, sum_q1, row_format_number)
         sheet.write_number(row, column + 66, sum_q2, row_format_number)
         sheet.write_number(row, column + 103, sum_q3, row_format_number)
         sheet.write_number(row, column + 140, sum_q4, row_format_number)
         # end валовая выручка новые
+
         #  валовая выручка факт
-        sum_year, sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_acceptance_fact(project, step)
+        sum_year, sum_q1, sum_q2, sum_q3, sum_q4 = self.get_sum_acceptance_fact(project)
         sheet.write_number(row, column + 13, sum_year, row_format_number)
         sheet.write_number(row, column + 30, sum_q1, row_format_number)
         sheet.write_number(row, column + 67, sum_q2, row_format_number)
         sheet.write_number(row, column + 104, sum_q3, row_format_number)
         sheet.write_number(row, column + 141, sum_q4, row_format_number)
         #  end валовая выручка факт
+
         # валовая выручка остаток
         colFormula = column + 14
         sum_year_curr = sum_q1_curr = sum_q2_curr = sum_q3_curr = sum_q4_curr = 0
-        sum_year_curr, sum_q1_curr, sum_q2_curr, sum_q3_curr, sum_q4_curr = self.get_sum_acceptance(project, step, project, step)
+        sum_year_curr, sum_q1_curr, sum_q2_curr, sum_q3_curr, sum_q4_curr = self.get_sum_acceptance(project, project)
         formula = '=-1*if({1} = 0, 0, {1}-{2}{0})'.format(row + 1,
                                                              sum_year_curr,   #xl_col_to_name(colFormula - 4), аЛИНА СКАЗАЛА, ЧТО СМОТРИМ ТОЛЬКО НА ТЕКУЩЕЕ СОСТОЯНИЕ, НА ЭТАЛОН СРАТЬ
                                                        #      xl_col_to_name(colFormula - 2),
@@ -1014,8 +921,7 @@ class report_svod_excel(models.AbstractModel):
 
         if project_office:
             projects = self.env['project_budget.projects'].search([
-                '|', ('project_office_id', '=', project_office.id),
-                ('legal_entity_signing_id.different_project_offices_in_steps', '=', True),
+                ('project_office_id', '=', project_office.id),
                 ('commercial_budget_id', '=', budget.id),
             ])
         else:
@@ -1037,84 +943,41 @@ class report_svod_excel(models.AbstractModel):
         sum_act_q4 = 0
         for project in projects:
             currency_rate = self.get_currency_rate_by_project(project)
-            if project.project_have_steps:
-                for step in project.project_steps_ids:
 
-                    if ((project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
-                            or ((not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
-
-                        if step.stage_id.code in ('100','100(done)', '75', '50'):
-                            for pds in project.planned_cash_flow_ids:
-                                if pds.project_steps_id.id == step.id:
-                                    if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end and pds.forecast in ('commitment', 'reserve', 'from_project'):
-                                        sum_pds_year += pds.sum_cash
-                                        if pds.date_cash.month in (1, 2, 3):
-                                            sum_pds_q1 += pds.sum_cash
-                                        if pds.date_cash.month in (4, 5, 6):
-                                            sum_pds_q2 += pds.sum_cash
-                                        if pds.date_cash.month in (7, 8, 9):
-                                            sum_pds_q3 += pds.sum_cash
-                                        if pds.date_cash.month in (10, 11, 12):
-                                            sum_pds_q4 += pds.sum_cash
-                            for act in project.planned_acceptance_flow_ids:
-                                if act.project_steps_id.id == step.id:
-                                    if act.date_cash.year >= YEARint and act.date_cash.year <= year_end and act.forecast in ('commitment', 'reserve', 'from_project'):
-                                        sum_act_year += act.sum_cash_without_vat
-                                        if act.date_cash.month in (1, 2, 3):
-                                            sum_act_q1 += act.sum_cash_without_vat
-                                        if act.date_cash.month in (4, 5, 6):
-                                            sum_act_q2 += act.sum_cash_without_vat
-                                        if act.date_cash.month in (7, 8, 9):
-                                            sum_act_q3 += act.sum_cash_without_vat
-                                        if act.date_cash.month in (10, 11, 12):
-                                            sum_act_q4 += act.sum_cash_without_vat
-
-                    if step.stage_id.code in ('75', '50'):
-                        if step.end_presale_project_month.year >= YEARint and step.end_presale_project_month.year <= year_end:
-                            sum_contract_year += step.total_amount_of_revenue_with_vat*currency_rate
-                            if step.end_presale_project_month.month in (1, 2, 3):
-                                sum_contract_q1 += step.total_amount_of_revenue_with_vat*currency_rate
-                            if step.end_presale_project_month.month in (4, 5, 6):
-                                sum_contract_q2 += step.total_amount_of_revenue_with_vat*currency_rate
-                            if step.end_presale_project_month.month in (7, 8, 9):
-                                sum_contract_q3 += step.total_amount_of_revenue_with_vat*currency_rate
-                            if step.end_presale_project_month.month in (10, 11, 12):
-                                sum_contract_q4 += step.total_amount_of_revenue_with_vat*currency_rate
-            else:
-                if project.project_office_id == project_office and project.stage_id.code in ('75', '50','100','100(done)'):
-                    if project.end_presale_project_month.year >= YEARint and project.end_presale_project_month.year <= year_end:
-                        sum_contract_year += project.total_amount_of_revenue_with_vat*currency_rate
-                        if project.end_presale_project_month.month in (1, 2, 3):
-                            sum_contract_q1 += project.total_amount_of_revenue_with_vat*currency_rate
-                        if project.end_presale_project_month.month in (4, 5, 6):
-                            sum_contract_q2 += project.total_amount_of_revenue_with_vat*currency_rate
-                        if project.end_presale_project_month.month in (7, 8, 9):
-                            sum_contract_q3 += project.total_amount_of_revenue_with_vat*currency_rate
-                        if project.end_presale_project_month.month in (10, 11, 12):
-                            sum_contract_q4 += project.total_amount_of_revenue_with_vat*currency_rate
-                        if project.stage_id.code in ('100','100(done)', '75', '50'):
-                            for pds in project.planned_cash_flow_ids:
-                                if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end and pds.forecast in ('commitment', 'reserve', 'from_project'):
-                                    sum_pds_year += pds.sum_cash
-                                    if pds.date_cash.month in (1, 2, 3):
-                                        sum_pds_q1 += project.total_amount_of_revenue_with_vat
-                                    if pds.date_cash.month in (4, 5, 6):
-                                        sum_pds_q2 += project.total_amount_of_revenue_with_vat
-                                    if pds.date_cash.month in (7, 8, 9):
-                                        sum_pds_q3 += project.total_amount_of_revenue_with_vat
-                                    if pds.date_cash.month in (10, 11, 12):
-                                        sum_pds_q4 += project.total_amount_of_revenue_with_vat
-                            for act in project.planned_acceptance_flow_ids:
-                                if act.date_cash.year >= YEARint and act.date_cash.year <= year_end and act.forecast in ('commitment', 'reserve', 'from_project'):
-                                    sum_act_year += act.sum_cash_without_vat
-                                    if act.date_cash.month in (1, 2, 3):
-                                        sum_act_q1 += act.sum_cash_without_vat
-                                    if act.date_cash.month in (4, 5, 6):
-                                        sum_act_q2 += act.sum_cash_without_vat
-                                    if act.date_cash.month in (7, 8, 9):
-                                        sum_act_q3 += act.sum_cash_without_vat
-                                    if act.date_cash.month in (10, 11, 12):
-                                        sum_act_q4 += act.sum_cash_without_vat
+            if project.project_office_id == project_office and project.stage_id.code in ('75', '50','100','100(done)'):
+                if project.end_presale_project_month.year >= YEARint and project.end_presale_project_month.year <= year_end:
+                    sum_contract_year += project.total_amount_of_revenue_with_vat*currency_rate
+                    if project.end_presale_project_month.month in (1, 2, 3):
+                        sum_contract_q1 += project.total_amount_of_revenue_with_vat*currency_rate
+                    if project.end_presale_project_month.month in (4, 5, 6):
+                        sum_contract_q2 += project.total_amount_of_revenue_with_vat*currency_rate
+                    if project.end_presale_project_month.month in (7, 8, 9):
+                        sum_contract_q3 += project.total_amount_of_revenue_with_vat*currency_rate
+                    if project.end_presale_project_month.month in (10, 11, 12):
+                        sum_contract_q4 += project.total_amount_of_revenue_with_vat*currency_rate
+                    if project.stage_id.code in ('100','100(done)', '75', '50'):
+                        for pds in project.planned_cash_flow_ids:
+                            if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end and pds.forecast in ('commitment', 'reserve', 'from_project'):
+                                sum_pds_year += pds.sum_cash
+                                if pds.date_cash.month in (1, 2, 3):
+                                    sum_pds_q1 += project.total_amount_of_revenue_with_vat
+                                if pds.date_cash.month in (4, 5, 6):
+                                    sum_pds_q2 += project.total_amount_of_revenue_with_vat
+                                if pds.date_cash.month in (7, 8, 9):
+                                    sum_pds_q3 += project.total_amount_of_revenue_with_vat
+                                if pds.date_cash.month in (10, 11, 12):
+                                    sum_pds_q4 += project.total_amount_of_revenue_with_vat
+                        for act in project.planned_acceptance_flow_ids:
+                            if act.date_cash.year >= YEARint and act.date_cash.year <= year_end and act.forecast in ('commitment', 'reserve', 'from_project'):
+                                sum_act_year += act.sum_cash_without_vat
+                                if act.date_cash.month in (1, 2, 3):
+                                    sum_act_q1 += act.sum_cash_without_vat
+                                if act.date_cash.month in (4, 5, 6):
+                                    sum_act_q2 += act.sum_cash_without_vat
+                                if act.date_cash.month in (7, 8, 9):
+                                    sum_act_q3 += act.sum_cash_without_vat
+                                if act.date_cash.month in (10, 11, 12):
+                                    sum_act_q4 += act.sum_cash_without_vat
 
         return sum_contract_year, sum_pds_year, sum_act_year, sum_contract_q1, sum_pds_q1, sum_act_q1, sum_contract_q2, \
             sum_pds_q2, sum_act_q2, sum_contract_q3, sum_pds_q3, sum_act_q3, sum_contract_q4, sum_pds_q4, sum_act_q4
@@ -1330,16 +1193,16 @@ class report_svod_excel(models.AbstractModel):
 
                 for stage in stages:
                     cur_budget_projects = self.env['project_budget.projects'].search([
-                        '|', ('project_office_id', '=', project_office.id),
-                        ('legal_entity_signing_id.different_project_offices_in_steps', '=', True),
+                        ('project_office_id', '=', project_office.id),
                         ('commercial_budget_id', '=', budget.id),
                         ('key_account_manager_id', '=', key_account_manager.id),
                         # ('project_manager_id', '=', project_manager.id),
-                        ('stage_id', '=', stage.id)]
-                        )
+                        ('stage_id', '=', stage.id),
+                        '|', ('step_status', '=', 'step'),
+                        ('project_have_steps', '=', False),
+                    ], order='project_id')
                     for spec in cur_budget_projects:
-                        if spec.project_office_id == project_office or spec.legal_entity_signing_id.different_project_offices_in_steps and any(step.project_office_id == project_office for step in spec.project_steps_ids):
-                            # if spec.is_framework == True and spec.project_have_steps == False: continue # рамка без этапов - пропускаем
+                        if spec.project_office_id == project_office:
                             if self.isProjectinYear(spec) == False : continue
                             if (spec.vgo == '-'):
                                 if isFoundProjectsByOffice == False:  # первый вход
@@ -1357,87 +1220,46 @@ class report_svod_excel(models.AbstractModel):
                                 row += 1
                                 if begRowProjectsByManager == 0:
                                     begRowProjectsByManager = row
-                            if spec.project_have_steps:
-                                for step in spec.project_steps_ids:
 
-                                    if ((spec.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
-                                            or ((not spec.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and spec.project_office_id == project_office)):
+                            if spec.project_office_id == project_office:
+                                sheet.set_row(row, None, None, {'hidden': 1, 'level': 2})
+                                # print('setrow level2 row = ', row)
+                                cur_row_format = row_format
+                                cur_row_format_number = row_format_number
+                                # print('spec.estimated_probability_id.name = ' + spec.estimated_probability_id.name)
+                                etalon_spec = self.get_etalon_project(spec)
+                                etalon_probability_int = 0
+                                if etalon_spec:
+                                    etalon_probability_int = self.getintestimated_probability(etalon_spec.stage_id.code)
+                                current_probability_int = 0
+                                if spec:
+                                    current_probability_int = self.getintestimated_probability(spec.stage_id.code)
+                                Probability_format = cur_row_format
+                                if current_probability_int > etalon_probability_int:
+                                    Probability_format = row_format_number_probability_up
+                                if current_probability_int < etalon_probability_int:
+                                    Probability_format = row_format_number_probability_down
+                                if spec.stage_id.code == '0':
+                                    # print('row_format_canceled_project')
+                                    cur_row_format = row_format_canceled_project
+                                    cur_row_format_number = row_format_number_canceled_project
 
-                                        if self.isStepinYear(spec, step) == False: continue
-                                        sheet.set_row(row, None, None, {'hidden': 1, 'level': 2})
-                                        # print('setrow level2 row = ',row)
-                                        cur_row_format = row_format
-                                        cur_row_format_number = row_format_number
-                                        # print('step.estimated_probability_id.name = ' + step.estimated_probability_id.name)
-                                        etalon_step = self.get_etalon_step(step)
-                                        etalon_probability_int = 0
-                                        if etalon_step:
-                                            etalon_probability_int = self.getintestimated_probability(etalon_step.stage_id.code)
-                                        current_probability_int = 0
-                                        if step:
-                                            current_probability_int = self.getintestimated_probability(step.stage_id.code)
-                                        Probability_format = cur_row_format
-                                        if current_probability_int > etalon_probability_int :
-                                            Probability_format = row_format_number_probability_up
-                                        if current_probability_int < etalon_probability_int:
-                                            Probability_format = row_format_number_probability_down
-                                        if step.stage_id.code == '0':
-                                            # print('row_format_canceled_project')
-                                            cur_row_format = row_format_canceled_project
-                                            cur_row_format_number = row_format_number_canceled_project
-                                        column = 0
-                                        if spec.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id:
-                                            sheet.write_string(row, column, step.project_office_id.name, cur_row_format)
-                                        else:
-                                            sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
-                                        column += 1
-                                        sheet.write_string(row, column, spec.partner_id.name, cur_row_format)
-                                        column += 1
-                                        sheet.write_string(row, column, spec.project_id + ' | ' + step.step_id + ' ' +step.essence_project, cur_row_format)
-                                        column += 1
-                                        sheet.write_string(row, column, spec.key_account_manager_id.name, cur_row_format)
-                                        column += 1
-                                        sheet.write_string(row, column, step.stage_id.code, Probability_format)
-                                        column += 1
-                                        self.print_row_Values(workbook, sheet, row, column, spec, step, cur_row_format_number)
-                                        row += 1
-                                row -= 1
-                            else:
-                                if spec.project_office_id == project_office:
-                                    sheet.set_row(row, None, None, {'hidden': 1, 'level': 2})
-                                    # print('setrow level2 row = ', row)
-                                    cur_row_format = row_format
-                                    cur_row_format_number = row_format_number
-                                    # print('spec.estimated_probability_id.name = ' + spec.estimated_probability_id.name)
-                                    etalon_spec = self.get_etalon_project(spec)
-                                    etalon_probability_int = 0
-                                    if etalon_spec:
-                                        etalon_probability_int = self.getintestimated_probability(etalon_spec.stage_id.code)
-                                    current_probability_int = 0
-                                    if spec:
-                                        current_probability_int = self.getintestimated_probability(spec.stage_id.code)
-                                    Probability_format = cur_row_format
-                                    if current_probability_int > etalon_probability_int:
-                                        Probability_format = row_format_number_probability_up
-                                    if current_probability_int < etalon_probability_int:
-                                        Probability_format = row_format_number_probability_down
-                                    if spec.stage_id.code == '0':
-                                        # print('row_format_canceled_project')
-                                        cur_row_format = row_format_canceled_project
-                                        cur_row_format_number = row_format_number_canceled_project
-
-                                    column = 0
-                                    sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
-                                    column += 1
-                                    sheet.write_string(row, column, spec.partner_id.name, cur_row_format)
-                                    column += 1
+                                column = 0
+                                sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
+                                column += 1
+                                sheet.write_string(row, column, spec.partner_id.name, cur_row_format)
+                                column += 1
+                                if spec.step_status == 'step':
+                                    sheet.write_string(row, column, spec.step_project_parent_id.project_id + ' | ' + spec.project_id + ' ' + spec.essence_project,
+                                                       cur_row_format)
+                                else:
                                     sheet.write_string(row, column, spec.project_id + ' ' + spec.essence_project, cur_row_format)
-                                    column += 1
-                                    sheet.write_string(row, column, spec.key_account_manager_id.name, cur_row_format)
-                                    column += 1
-                                    sheet.write_string(row, column, spec.stage_id.code, Probability_format)
-                                    column += 1
-                                    self.print_row_Values(workbook, sheet, row, column, spec, False, cur_row_format_number)
+                                column += 1
+                                sheet.write_string(row, column, spec.key_account_manager_id.name, cur_row_format)
+                                column += 1
+                                sheet.write_string(row, column, spec.stage_id.code, Probability_format)
+                                column += 1
+                                self.print_row_Values(workbook, sheet, row, column, spec, cur_row_format_number)
                 # print('isFoundProjects = ' ,isFoundProjects)
                 if isFoundProjects:
                     row += 1
