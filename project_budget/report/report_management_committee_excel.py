@@ -20,43 +20,6 @@ class report_management_committee_excel(models.AbstractModel):
         project_currency_rates = self.env['project_budget.project_currency_rates']
         return project_currency_rates._get_currency_rate_for_project_in_company_currency(project)
 
-    def isStepinYear(self, project, step):
-        global strYEAR
-        global YEARint
-
-        years = (YEARint, YEARint + 1, YEARint + 2)
-
-        if project:
-            if step:
-                if step.stage_id.code == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
-                    last_fixed_step = self.env['project_budget.project_steps'].search(
-                        [('date_actual', '<', datetime.date(YEARint,1,1)),
-                         ('budget_state', '=', 'fixed'),
-                         ('step_id', '=', step.step_id),
-                         ], limit=1, order='date_actual desc')
-                    if last_fixed_step and last_fixed_step.stage_id.code == '0':
-                        return False
-
-                if step.end_presale_project_month.year in years or step.end_sale_project_month.year in years:
-                    return True
-                for pds in project.planned_cash_flow_ids:
-                    if pds.project_steps_id.id == step.id:
-                        if pds.date_cash.year in years:
-                            return True
-                for pds in project.fact_cash_flow_ids:
-                    if pds.project_steps_id.id == step.id:
-                        if pds.date_cash.year in years:
-                            return True
-                for act in project.planned_acceptance_flow_ids:
-                    if act.project_steps_id.id == step.id:
-                        if act.date_cash.year in years:
-                            return True
-                for act in project.fact_acceptance_flow_ids:
-                    if act.project_steps_id.id == step.id:
-                        if act.date_cash.year in years:
-                            return True
-        return False
-
     def isProjectinYear(self, project):
         global strYEAR
         global YEARint
@@ -73,7 +36,7 @@ class report_management_committee_excel(models.AbstractModel):
                 if last_fixed_project and last_fixed_project.stage_id.code == '0':
                     return False
 
-            if project.project_have_steps == False:
+            if not project.project_have_steps:
                 if project.end_presale_project_month.year in years or project.end_sale_project_month.year in years:
                     return True
                 for pds in project.planned_cash_flow_ids:
@@ -89,16 +52,18 @@ class report_management_committee_excel(models.AbstractModel):
                     if act.date_cash.year in years:
                         return True
             else:
-                for step in project.project_steps_ids:
-                    if self.isStepinYear(project, step):
+                for pds in project.planned_step_cash_flow_ids:
+                    if pds.date_cash.year in years:
                         return True
-
-            etalon_project = self.get_etalon_project_first(
-                project)  # поищем первый эталон в году и если контрактование или последняя отгрузка были в году, то надо проект в отчете показывать
-            if etalon_project:
-                if etalon_project.end_presale_project_month.year in years or project.end_sale_project_month.year in years:
-                    return True
-
+                for pds in project.fact_step_cash_flow_ids:
+                    if pds.date_cash.year in years:
+                        return True
+                for act in project.planned_step_acceptance_flow_ids:
+                    if act.date_cash.year in years:
+                        return True
+                for act in project.fact_step_acceptance_flow_ids:
+                    if act.date_cash.year in years:
+                        return True
         return False
 
     quarter_rus_name = ['Q1', 'Q2', 'HY1/YEAR', 'Q3', 'Q4', 'HY2/YEAR', 'YEAR', 'NEXT', 'AFTER NEXT']
@@ -147,130 +112,25 @@ class report_management_committee_excel(models.AbstractModel):
             months = (10, 11, 12)
         return months
 
-    def get_etalon_project_first(self, spec):
-        global strYEAR
-        global YEARint
-
-        datesearch = datetime.date(YEARint, 1, 1)  # будем искать первый утвержденный в году
-        etalon_project = self.env['project_budget.projects'].search([('etalon_budget', '=', True),
-                                                                     ('budget_state', '=', 'fixed'),
-                                                                     ('project_id', '=', spec.project_id),
-                                                                     ('date_actual', '>=', datesearch)
-                                                                     ], limit=1, order='date_actual')
-        return etalon_project
-
-    def get_etalon_project(self, spec, quarter):
-        global strYEAR
-        global YEARint
-
-        datesearch = datetime.date(YEARint, 1, 1)
-        if 'Q1' in quarter:
-            datesearch = datetime.date(YEARint, 1, 1)  # будем искать первый утвержденный в году
-        if 'Q2' in quarter:
-            datesearch = datetime.date(YEARint, 4, 1)  # будем искать первый утвержденный после марта
-        if 'Q3' in quarter:
-            datesearch = datetime.date(YEARint, 7, 1)  # будем искать первый утвержденный после июня
-        if 'Q4' in quarter:
-            datesearch = datetime.date(YEARint, 10, 1)  # будем искать первый утвержденный после сентября
-
-        if isdebug:
-            logger.info(' self.env[project_budget.projects].search ')
-            logger.info(f'          etalon_budget = True')
-            logger.info(f'          budget_state = fixed')
-            logger.info(f'          project_id = {spec.project_id}')
-            logger.info(f'          date_actual >= {datesearch}')
-            logger.info(f'          limit=1, order= date_actual')
-
-        etalon_project = self.env['project_budget.projects'].search([('etalon_budget', '=', True),
-                                                                     ('budget_state', '=', 'fixed'),
-                                                                     ('project_id', '=', spec.project_id),
-                                                                     ('date_actual', '>=', datesearch)
-                                                                     ], limit=1, order='date_actual')
-        if etalon_project:
-            if isdebug: logger.info(f'   etalon_project found by date ')
-        else:  # если не нашли относительно даты, то поищем просто последний
-            if isdebug: logger.info(f'   etalon_project NOT found by date ')
-            etalon_project = self.env['project_budget.projects'].search([('etalon_budget', '=', True),
-                                                                         ('budget_state', '=', 'fixed'),
-                                                                         ('project_id', '=', spec.project_id)
-                                                                         ], limit=1, order='date_actual desc')
-        if isdebug:
-            logger.info(f'  etalon_project.id = {etalon_project.id}')
-            logger.info(f'  etalon_project.project_id = {etalon_project.project_id}')
-            logger.info(f'  etalon_project.date_actual = {etalon_project.date_actual}')
-
-        # print('etalon_project.project_id = ',etalon_project.project_id)
-        # print('etalon_project.date_actual = ',etalon_project.date_actual)
-        return etalon_project
-
-    def get_etalon_step(self, step, quarter):
-        global strYEAR
-        global YEARint
-
-        if isdebug:
-            logger.info(f' start get_etalon_step')
-            logger.info(f' quarter = {quarter}')
-        if step is False:
-            return False
-        datesearch = datetime.date(YEARint, 1, 1)
-        if 'Q1' in quarter:
-            datesearch = datetime.date(YEARint, 1, 1)  # будем искать первый утвержденный в году
-        if 'Q2' in quarter:
-            datesearch = datetime.date(YEARint, 4, 1)  # будем искать первый утвержденный после марта
-        if 'Q3' in quarter:
-            datesearch = datetime.date(YEARint, 7, 1)  # будем искать первый утвержденный после июня
-        if 'Q4' in quarter:
-            datesearch = datetime.date(YEARint, 10, 1)  # будем искать первый утвержденный после сентября
-        if isdebug:
-            logger.info(f'   self.env[project_budget.projects].search ')
-            logger.info(f'           etalon_budget = True')
-            logger.info(f'           step_id = {step.step_id}')
-            logger.info(f'           id != {step.id}')
-            logger.info(f'           date_actual >= {datesearch}')
-            logger.info(f'           limit = 1, order = date_actual')
-
-        etalon_step = self.env['project_budget.project_steps'].search([('etalon_budget', '=', True),
-                                                                       ('step_id', '=', step.step_id),
-                                                                       ('id', '!=', step.id),
-                                                                       ('date_actual', '>=', datesearch)
-                                                                       ], limit=1, order='date_actual')
-        if etalon_step:  # если не нашли относительно даты, то поищем просто последний
-            if isdebug:
-                logger.info(f'   !etalon_step found by date! ')
-        else:  # если не нашли относительно даты, то поищем просто последний
-            if isdebug:
-                logger.info(f'   etalon_step NOT found by date ')
-            etalon_step = self.env['project_budget.project_steps'].search([('etalon_budget', '=', True),
-                                                                           ('step_id', '=', step.step_id),
-                                                                           ('id', '!=', step.id)
-                                                                           ], limit=1, order='date_actual desc')
-        if isdebug:
-            logger.info(f' step_id = {etalon_step.step_id}')
-            logger.info(f' id = {etalon_step.id}')
-            logger.info(f' date_actual = {etalon_step.date_actual}')
-            logger.info(f' end_presale_project_month = {etalon_step.end_presale_project_month}')
-            logger.info(f' stage_id = {etalon_step.stage_id}')
-            logger.info(f' end get_etalon_step')
-        return etalon_step
-
-    def get_sum_fact_pds_project_step_year_quarter(self, project, step, year, quarter):
+    def get_sum_fact_pds_project_year_quarter(self, project, year, quarter):
 
         sum_cash = 0
 
         if quarter:
             months = self.get_months_from_quarter(quarter)
 
-        pds_list = project.fact_cash_flow_ids
+        if project.step_status == 'project':
+            pds_list = project.fact_cash_flow_ids
+        elif project.step_status == 'step':
+            pds_list = project.fact_step_cash_flow_ids
 
         for pds in pds_list:
-            if step:
-                if pds.project_steps_id.id != step.id: continue
             if (not quarter or pds.date_cash.month in months) and pds.date_cash.year == year:
                 sum_cash += pds.sum_cash
 
         return sum_cash
 
-    def get_sum_plan_pds_project_step_year_quarter(self, project, step, year, quarter):
+    def get_sum_plan_pds_project_year_quarter(self, project, year, quarter):
         global strYEAR
         global YEARint
 
@@ -279,16 +139,14 @@ class report_management_committee_excel(models.AbstractModel):
         if quarter:
             months = self.get_months_from_quarter(quarter)
 
-        pds_list = project.planned_cash_flow_ids
+        if project.step_status == 'project':
+            pds_list = project.planned_cash_flow_ids
+        elif project.step_status == 'step':
+            pds_list = project.planned_step_cash_flow_ids
 
         for pds in pds_list:
-            if step:
-                if pds.project_steps_id.id != step.id: continue
             if (not quarter or pds.date_cash.month in months) and pds.date_cash.year == year:
-                if step:
-                    stage_id_code = step.stage_id.code
-                else:
-                    stage_id_code = project.stage_id.code
+                stage_id_code = project.stage_id.code
                 if pds.forecast == 'from_project':
                     if stage_id_code in ('75', '100', '100(done)'):
                         sum_cash['commitment'] += pds.sum_cash
@@ -432,17 +290,6 @@ class report_management_committee_excel(models.AbstractModel):
                     column += 1
 
                 elif element == 'NEXT':
-                    # Q1 NEXT
-                    # sheet.merge_range(row, column, row, column + 2, 'Q1 ' + str(YEARint + 1), head_format_month_dark)
-                    # sheet.set_column(column, column + 3, 13, False, {'hidden': 1, 'level': 1})
-                    # sheet.merge_range(row + 1, column, row + 1, column + 2, 'Прогноз до конца периода (на дату отчета)',
-                    #                   head_format_month_detail_next)
-                    # sheet.write_string(row + 2, column, 'Обязательство', head_format_month_detail_next)
-                    # column += 1
-                    # sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail_next)
-                    # column += 1
-                    # sheet.write_string(row + 2, column, 'Потенциал', head_format_month_detail_next)
-                    # column += 1
                     if x[0] == 2:  # ПДС
                         sheet.merge_range(row, column, row, column + 1,str(YEARint + 1), head_format_month)
                         sheet.set_column(column, column + 2, 13, False, {'hidden': 1, 'level': 1})
@@ -467,183 +314,9 @@ class report_management_committee_excel(models.AbstractModel):
                     column += 1
 
             sheet.merge_range(row - 1, colbeg, row - 1, column - 1, y[0], head_format_month)
-
         return column
 
-    # def print_month_head_revenue_margin(self,workbook,sheet,row,column,YEAR):
-    #     global strYEAR
-    #     global YEARint
-    #
-    #     for x in self.dict_revenue_margin.items():
-    #         y = list(x[1].values())
-    #         head_format_month = workbook.add_format({
-    #             'border': 1,
-    #             'text_wrap': True,
-    #             'align': 'center',
-    #             'valign': 'vcenter',
-    #             "bold": True,
-    #             "fg_color": y[1],
-    #             "font_size": 11,
-    #         })
-    #         head_format_month_itogo = workbook.add_format({
-    #             'border': 1,
-    #             'text_wrap': True,
-    #             'align': 'center',
-    #             'valign': 'vcenter',
-    #             "bold": True,
-    #             "fg_color": '#D9E1F2',
-    #             "font_size": 12,
-    #         })
-    #         head_format_month_itogo_6_plus_6 = workbook.add_format({
-    #             'border': 1,
-    #             'text_wrap': True,
-    #             'align': 'center',
-    #             'valign': 'vcenter',
-    #             "bold": True,
-    #             "fg_color": '#00b0f0',
-    #             "font_size": 12,
-    #         })
-    #         head_format_month_itogo_percent = workbook.add_format({
-    #             'border': 1,
-    #             'text_wrap': True,
-    #             'align': 'center',
-    #             'valign': 'vcenter',
-    #             "bold": True,
-    #             "fg_color": '#ffff99',
-    #             "font_size": 12,
-    #         })
-    #         head_format_month_detail = workbook.add_format({
-    #             'border': 1,
-    #             'text_wrap': True,
-    #             'align': 'center',
-    #             'valign': 'vcenter',
-    #             "bold": False,
-    #             "fg_color": '#E2EFDA',
-    #             "font_size": 8,
-    #         })
-    #         head_format_month_detail_fact = workbook.add_format({
-    #             'border': 1,
-    #             'text_wrap': True,
-    #             'align': 'center',
-    #             'valign': 'vcenter',
-    #             "bold": True,
-    #             "fg_color": '#C6E0B4',
-    #             "font_size": 8,
-    #         })
-    #
-    #         colbeg = column
-    #         for elementone in self.quarter_rus_name:
-    #
-    #             element = elementone.replace('YEAR', YEAR)
-    #
-    #             addcolumn = 0
-    #             if 'HY2' in element or 'Q' in element:
-    #                 addcolumn = -1
-    #
-    #             if elementone.find('Q') != -1:
-    #                 sheet.set_column(column, column + 5, False, False, {'hidden': 1, 'level': 2})
-    #
-    #             if elementone.find('HY') != -1:
-    #                 sheet.set_column(column, column + 5 + addcolumn, False, False, {'hidden': 1, 'level': 1})
-    #
-    #             sheet.merge_range(row, column, row, column + 5 + addcolumn, element, head_format_month)
-    #
-    #
-    #             sheet.merge_range(row + 1, column, row + 2, column, "План " + element,
-    #                               head_format_month_itogo)
-    #             column += 1
-    #
-    #             sheet.merge_range(row + 1, column, row + 2, column, "План " + element + " 6+6",
-    #                               head_format_month_itogo_6_plus_6)
-    #             column += 1
-    #             sheet.merge_range(row + 1, column, row + 2, column, 'Факт', head_format_month_detail_fact)
-    #
-    #
-    #             if 'HY1' in element:
-    #                 column += 1
-    #                 sheet.merge_range(row + 1, column, row + 2, column, "% исполнения плана 6+6 " + element,
-    #                                   head_format_month_itogo_percent)
-    #             if element == YEAR:
-    #                 column += 1
-    #                 sheet.merge_range(row + 1, column, row + 2, column, "% исполнения плана 6+6 " + element,
-    #                                   head_format_month_itogo_percent)
-    #             column += 1
-    #             sheet.merge_range(row + 1, column, row + 1, column + 1, 'Прогноз до конца периода (на дату отчета)',
-    #                               head_format_month_detail)
-    #             sheet.write_string(row + 2, column, 'Обязательство', head_format_month_detail)
-    #             column += 1
-    #             sheet.write_string(row + 2, column, 'Резерв', head_format_month_detail)
-    #             column += 1
-    #         sheet.merge_range(row-1, colbeg, row-1, column - 1, y[0], head_format_month)
-    #     return column
-
-    # def print_month_revenue_project(self, sheet, row, column, month, project, step, row_format_number, row_format_number_color_fact):
-    #     global strYEAR
-    #     global YEARint
-    #
-    #     sum75tmpetalon = 0
-    #     sum50tmpetalon = 0
-    #     sum100tmp = 0
-    #     sum75tmp = 0
-    #     sum50tmp = 0
-    #     if month:
-    #         project_etalon = self.get_etalon_project(project, self.get_quarter_from_month(month))
-    #         if step == False:
-    #             if project_etalon:
-    #                 if month == project_etalon.end_presale_project_month.month and YEARint == project_etalon.end_presale_project_month.year:
-    #                     if project_etalon.estimated_probability_id.name == '75':
-    #                         sheet.write_number(row, column + 0, project_etalon.total_amount_of_revenue_with_vat, row_format_number)
-    #                         sum75tmpetalon += project_etalon.total_amount_of_revenue_with_vat
-    #                     if project_etalon.estimated_probability_id.name == '50':
-    #                         sheet.write_number(row, column + 1, project_etalon.total_amount_of_revenue_with_vat, row_format_number)
-    #                         sum50tmpetalon += project_etalon.total_amount_of_revenue_with_vat
-    #
-    #             if month == project.end_presale_project_month.month and YEARint == project.end_presale_project_month.year:
-    #                 if project.estimated_probability_id.name in ('100','100(done)'):
-    #                     sheet.write_number(row, column + 2, project.total_amount_of_revenue_with_vat, row_format_number_color_fact)
-    #                     sum100tmp += project.total_amount_of_revenue_with_vat
-    #                 if project.estimated_probability_id.name == '75':
-    #                     sheet.write_number(row, column + 3, project.total_amount_of_revenue_with_vat, row_format_number)
-    #                     sum75tmp += project.total_amount_of_revenue_with_vat
-    #                 if project.estimated_probability_id.name == '50':
-    #                     sheet.write_number(row, column + 4, project.total_amount_of_revenue_with_vat, row_format_number)
-    #                     sum50tmp += project.total_amount_of_revenue_with_vat
-    #         else:
-    #             step_etalon  = self.get_etalon_step(step, self.get_quarter_from_month(month))
-    #             if step_etalon:
-    #                 if month == step_etalon.end_presale_project_month.month and YEARint == step_etalon.end_presale_project_month.year:
-    #                     if step_etalon.estimated_probability_id.name == '75':
-    #                         sheet.write_number(row, column + 0, step_etalon.total_amount_of_revenue_with_vat, row_format_number)
-    #                         sum75tmpetalon = step_etalon.total_amount_of_revenue_with_vat
-    #                     if step_etalon.estimated_probability_id.name == '50':
-    #                         sheet.write_number(row, column + 1, step_etalon.total_amount_of_revenue_with_vat, row_format_number)
-    #                         sum50tmpetalon = step_etalon.total_amount_of_revenue_with_vat
-    #             else:
-    #                 if project_etalon: # если нет жталонного этапа, то данные берем из проекта, да это будет увеличивать сумму на количество этапов, но что делать я ХЗ
-    #                     if month == project_etalon.end_presale_project_month.month and YEARint == project_etalon.end_presale_project_month.year:
-    #                         if project_etalon.estimated_probability_id.name == '75':
-    #                             sheet.write_number(row, column + 0, project_etalon.total_amount_of_revenue_with_vat,
-    #                                                row_format_number)
-    #                             sum75tmpetalon += project_etalon.total_amount_of_revenue_with_vat
-    #                         if project_etalon.estimated_probability_id.name == '50':
-    #                             sheet.write_number(row, column + 1, project_etalon.total_amount_of_revenue_with_vat,
-    #                                                row_format_number)
-    #                             sum50tmpetalon += project_etalon.total_amount_of_revenue_with_vat
-    #
-    #             if month == step.end_presale_project_month.month and YEARint == step.end_presale_project_month.year:
-    #                 if step.estimated_probability_id.name in ('100','100(done)'):
-    #                     sheet.write_number(row, column + 2, step.total_amount_of_revenue_with_vat, row_format_number_color_fact)
-    #                     sum100tmp = step.total_amount_of_revenue_with_vat
-    #                 if step.estimated_probability_id.name == '75':
-    #                     sheet.write_number(row, column + 3, step.total_amount_of_revenue_with_vat, row_format_number)
-    #                     sum75tmp = step.total_amount_of_revenue_with_vat
-    #                 if step.estimated_probability_id.name == '50':
-    #                     sheet.write_number(row, column + 4, step.total_amount_of_revenue_with_vat, row_format_number)
-    #                     sum50tmp = step.total_amount_of_revenue_with_vat
-    #
-    #     return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
-
-    def print_quarter_revenue_project(self, sheet, row, column, element, project, step, project_office, params, row_format_number, row_format_number_color_fact):
+    def print_quarter_revenue_project(self, sheet, row, column, element, project, project_office, params, row_format_number, row_format_number_color_fact):
         global strYEAR
         global YEARint
 
@@ -661,211 +334,50 @@ class report_management_committee_excel(models.AbstractModel):
 
             months = self.get_months_from_quarter(element)
 
-            if step == False:
-
-                if project.end_presale_project_month.month in months and YEARint == project.end_presale_project_month.year:
-                    currency_rate = self.get_currency_rate_by_project(project)
-                    if project.stage_id.code in ('100','100(done)'):
-                        sheet.write_number(row, column + 2, project.total_amount_of_revenue_with_vat * currency_rate, row_format_number_color_fact)
-                        sum100tmp += project.total_amount_of_revenue_with_vat * currency_rate
-                    if project.stage_id.code == '75':
-                        sheet.write_number(row, column + 3, project.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
-                        sum75tmp += project.total_amount_of_revenue_with_vat * currency_rate
-                    if project.stage_id.code == '50':
-                        sheet.write_number(row, column + 4, project.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
-                        sum50tmp += project.total_amount_of_revenue_with_vat * currency_rate
-
-            else:
-
-                if ((project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
-                        or ((not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
-
-                    if step.end_presale_project_month.month in months  and YEARint == step.end_presale_project_month.year:
-                        currency_rate = self.get_currency_rate_by_project(step.projects_id)
-                        if step.stage_id.code in ('100','100(done)'):
-                            sheet.write_number(row, column + 2, step.total_amount_of_revenue_with_vat * currency_rate, row_format_number_color_fact)
-                            sum100tmp = step.total_amount_of_revenue_with_vat * currency_rate
-                        if step.stage_id.code == '75':
-                            sheet.write_number(row, column + 3, step.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
-                            sum75tmp = step.total_amount_of_revenue_with_vat * currency_rate
-                        if step.stage_id.code == '50':
-                            sheet.write_number(row, column + 4, step.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
-                            sum50tmp = step.total_amount_of_revenue_with_vat * currency_rate
+            if project.end_presale_project_month.month in months and YEARint == project.end_presale_project_month.year:
+                currency_rate = self.get_currency_rate_by_project(project)
+                if project.stage_id.code in ('100','100(done)'):
+                    sheet.write_number(row, column + 2, project.total_amount_of_revenue_with_vat * currency_rate, row_format_number_color_fact)
+                    sum100tmp += project.total_amount_of_revenue_with_vat * currency_rate
+                if project.stage_id.code == '75':
+                    sheet.write_number(row, column + 3, project.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
+                    sum75tmp += project.total_amount_of_revenue_with_vat * currency_rate
+                if project.stage_id.code == '50':
+                    sheet.write_number(row, column + 4, project.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
+                    sum50tmp += project.total_amount_of_revenue_with_vat * currency_rate
 
         elif element == 'NEXT':
-            if step == False:
-                currency_rate = self.get_currency_rate_by_project(project)
 
-                # Q1 NEXT
-                # if project.end_presale_project_month.year == YEARint + 1 and project.end_presale_project_month.month in self.get_months_from_quarter('Q1'):
-                #     if project.estimated_probability_id.name in ('75', '100'):
-                #         sheet.write_number(row, column + 0,
-                #                            project.total_amount_of_revenue_with_vat * currency_rate,
-                #                            row_format_number)
-                #         sum_next_75_tmp = project.total_amount_of_revenue_with_vat * currency_rate
-                #     if project.estimated_probability_id.name == '50':
-                #         sheet.write_number(row, column + 1,
-                #                            project.total_amount_of_revenue_with_vat * params['50'] * currency_rate,
-                #                            row_format_number)
-                #         sum_next_50_tmp = project.total_amount_of_revenue_with_vat * params['50'] * currency_rate
-                #     if project.estimated_probability_id.name == '30':
-                #         sheet.write_number(row, column + 2,
-                #                            project.total_amount_of_revenue_with_vat * params['30'] * currency_rate,
-                #                            row_format_number)
-                #         sum_next_30_tmp = project.total_amount_of_revenue_with_vat * params['30'] * currency_rate
-                # if project.end_presale_project_month.year == YEARint + 1:
-                #     if project.estimated_probability_id.name in ('75', '100'):
-                #         sheet.write_number(row, column + 3,
-                #                            project.total_amount_of_revenue_with_vat * currency_rate,
-                #                            row_format_number)
-                #         sum_next_75_tmp = project.total_amount_of_revenue_with_vat * currency_rate
-                #     if project.estimated_probability_id.name == '50':
-                #         sheet.write_number(row, column + 4,
-                #                            project.total_amount_of_revenue_with_vat * params['50'] * currency_rate,
-                #                            row_format_number)
-                #         sum_next_50_tmp = project.total_amount_of_revenue_with_vat * params['50'] * currency_rate
-                #     if project.estimated_probability_id.name == '30':
-                #         sheet.write_number(row, column + 5,
-                #                            project.total_amount_of_revenue_with_vat * params['30'] * currency_rate,
-                #                            row_format_number)
-                #         sum_next_30_tmp = project.total_amount_of_revenue_with_vat * params['30'] * currency_rate
-                # elif project.end_presale_project_month.year == YEARint + 2:
-                #     if project.estimated_probability_id.name in ('75', '100'):
-                #         sum_after_next_tmp = project.total_amount_of_revenue_with_vat * currency_rate
-                #     if project.estimated_probability_id.name == '50':
-                #         sum_after_next_tmp = project.total_amount_of_revenue_with_vat * params[
-                #             '50'] * currency_rate
-                #     if project.estimated_probability_id.name == '30':
-                #         sum_after_next_tmp = project.total_amount_of_revenue_with_vat * params[
-                #             '30'] * currency_rate
-                #     sheet.write_number(row, column + 6,
-                #                        sum_after_next_tmp,
-                #                        row_format_number)
+            currency_rate = self.get_currency_rate_by_project(project)
 
-                if project.end_presale_project_month.year == YEARint + 1:
-                    if project.stage_id.code in ('75', '100'):
-                        sheet.write_number(row, column + 0,
-                                           project.total_amount_of_revenue_with_vat * currency_rate,
-                                           row_format_number)
-                        sum_next_75_tmp = project.total_amount_of_revenue_with_vat * currency_rate
-                    if project.stage_id.code == '50':
-                        sheet.write_number(row, column + 1,
-                                           project.total_amount_of_revenue_with_vat * params['50'] * currency_rate,
-                                           row_format_number)
-                        sum_next_50_tmp = project.total_amount_of_revenue_with_vat * params['50'] * currency_rate
-                    if project.stage_id.code == '30':
-                        sheet.write_number(row, column + 2,
-                                           project.total_amount_of_revenue_with_vat * params['30'] * currency_rate,
-                                           row_format_number)
-                        sum_next_30_tmp = project.total_amount_of_revenue_with_vat * params['30'] * currency_rate
-                elif project.end_presale_project_month.year == YEARint + 2:
-                    if project.stage_id.code in ('75', '100'):
-                        sum_after_next_tmp = project.total_amount_of_revenue_with_vat * currency_rate
-                    if project.stage_id.code == '50':
-                        sum_after_next_tmp = project.total_amount_of_revenue_with_vat * params[
-                            '50'] * currency_rate
-                    if project.stage_id.code == '30':
-                        sum_after_next_tmp = project.total_amount_of_revenue_with_vat * params[
-                            '30'] * currency_rate
-                    sheet.write_number(row, column + 3,
-                                       sum_after_next_tmp,
+            if project.end_presale_project_month.year == YEARint + 1:
+                if project.stage_id.code in ('75', '100'):
+                    sheet.write_number(row, column + 0,
+                                       project.total_amount_of_revenue_with_vat * currency_rate,
                                        row_format_number)
-
-            else:
-
-                if ((
-                        project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
-                        or ((
-                                    not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
-
-                    currency_rate = self.get_currency_rate_by_project(step.projects_id)
-
-                    # Q1 NEXT
-                    # if step.end_presale_project_month.year == YEARint + 1 and step.end_presale_project_month.month in self.get_months_from_quarter('Q1'):
-                    #     if step.estimated_probability_id.name in ('75', '100'):
-                    #         sheet.write_number(row, column + 0,
-                    #                            step.total_amount_of_revenue_with_vat * currency_rate,
-                    #                            row_format_number)
-                    #         sum_next_75_tmp += step.total_amount_of_revenue_with_vat * currency_rate
-                    #     if step.estimated_probability_id.name == '50':
-                    #         sheet.write_number(row, column + 1,
-                    #                            step.total_amount_of_revenue_with_vat * params[
-                    #                                '50'] * currency_rate,
-                    #                            row_format_number)
-                    #         sum_next_50_tmp += step.total_amount_of_revenue_with_vat * params[
-                    #             '50'] * currency_rate
-                    #     if step.estimated_probability_id.name == '30':
-                    #         sheet.write_number(row, column + 2,
-                    #                            step.total_amount_of_revenue_with_vat * params[
-                    #                                '30'] * currency_rate,
-                    #                            row_format_number)
-                    #         sum_next_30_tmp += step.total_amount_of_revenue_with_vat * params[
-                    #             '30'] * currency_rate
-                    # if step.end_presale_project_month.year == YEARint + 1:
-                    #     if step.estimated_probability_id.name in ('75', '100'):
-                    #         sheet.write_number(row, column + 3,
-                    #                            step.total_amount_of_revenue_with_vat * currency_rate,
-                    #                            row_format_number)
-                    #         sum_next_75_tmp += step.total_amount_of_revenue_with_vat * currency_rate
-                    #     if step.estimated_probability_id.name == '50':
-                    #         sheet.write_number(row, column + 4,
-                    #                            step.total_amount_of_revenue_with_vat * params[
-                    #                                '50'] * currency_rate,
-                    #                            row_format_number)
-                    #         sum_next_50_tmp += step.total_amount_of_revenue_with_vat * params[
-                    #             '50'] * currency_rate
-                    #     if step.estimated_probability_id.name == '30':
-                    #         sheet.write_number(row, column + 5,
-                    #                            step.total_amount_of_revenue_with_vat * params[
-                    #                                '30'] * currency_rate,
-                    #                            row_format_number)
-                    #         sum_next_30_tmp += step.total_amount_of_revenue_with_vat * params[
-                    #             '30'] * currency_rate
-                    # elif step.end_presale_project_month.year == YEARint + 2:
-                    #     if step.estimated_probability_id.name in ('75', '100'):
-                    #         sum_after_next_tmp += step.total_amount_of_revenue_with_vat * currency_rate
-                    #     if step.estimated_probability_id.name == '50':
-                    #         sum_after_next_tmp += step.total_amount_of_revenue_with_vat * params[
-                    #             '50'] * currency_rate
-                    #     if step.estimated_probability_id.name == '30':
-                    #         sum_after_next_tmp += step.total_amount_of_revenue_with_vat * params[
-                    #             '30'] * currency_rate
-                    #     sheet.write_number(row, column + 6,
-                    #                        sum_after_next_tmp,
-                    #                        row_format_number)
-
-                    if step.end_presale_project_month.year == YEARint + 1:
-                        if step.stage_id.code in ('75', '100'):
-                            sheet.write_number(row, column + 0,
-                                               step.total_amount_of_revenue_with_vat * currency_rate,
-                                               row_format_number)
-                            sum_next_75_tmp += step.total_amount_of_revenue_with_vat * currency_rate
-                        if step.stage_id.code == '50':
-                            sheet.write_number(row, column + 1,
-                                               step.total_amount_of_revenue_with_vat * params[
-                                                   '50'] * currency_rate,
-                                               row_format_number)
-                            sum_next_50_tmp += step.total_amount_of_revenue_with_vat * params[
-                                '50'] * currency_rate
-                        if step.stage_id.code == '30':
-                            sheet.write_number(row, column + 2,
-                                               step.total_amount_of_revenue_with_vat * params[
-                                                   '30'] * currency_rate,
-                                               row_format_number)
-                            sum_next_30_tmp += step.total_amount_of_revenue_with_vat * params[
-                                '30'] * currency_rate
-                    elif step.end_presale_project_month.year == YEARint + 2:
-                        if step.stage_id.code in ('75', '100'):
-                            sum_after_next_tmp += step.total_amount_of_revenue_with_vat * currency_rate
-                        if step.stage_id.code == '50':
-                            sum_after_next_tmp += step.total_amount_of_revenue_with_vat * params[
-                                '50'] * currency_rate
-                        if step.stage_id.code == '30':
-                            sum_after_next_tmp += step.total_amount_of_revenue_with_vat * params[
-                                '30'] * currency_rate
-                        sheet.write_number(row, column + 3,
-                                           sum_after_next_tmp,
-                                           row_format_number)
+                    sum_next_75_tmp = project.total_amount_of_revenue_with_vat * currency_rate
+                if project.stage_id.code == '50':
+                    sheet.write_number(row, column + 1,
+                                       project.total_amount_of_revenue_with_vat * params['50'] * currency_rate,
+                                       row_format_number)
+                    sum_next_50_tmp = project.total_amount_of_revenue_with_vat * params['50'] * currency_rate
+                if project.stage_id.code == '30':
+                    sheet.write_number(row, column + 2,
+                                       project.total_amount_of_revenue_with_vat * params['30'] * currency_rate,
+                                       row_format_number)
+                    sum_next_30_tmp = project.total_amount_of_revenue_with_vat * params['30'] * currency_rate
+            elif project.end_presale_project_month.year == YEARint + 2:
+                if project.stage_id.code in ('75', '100'):
+                    sum_after_next_tmp = project.total_amount_of_revenue_with_vat * currency_rate
+                if project.stage_id.code == '50':
+                    sum_after_next_tmp = project.total_amount_of_revenue_with_vat * params[
+                        '50'] * currency_rate
+                if project.stage_id.code == '30':
+                    sum_after_next_tmp = project.total_amount_of_revenue_with_vat * params[
+                        '30'] * currency_rate
+                sheet.write_number(row, column + 3,
+                                   sum_after_next_tmp,
+                                   row_format_number)
 
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
@@ -890,108 +402,46 @@ class report_management_committee_excel(models.AbstractModel):
 
             months = self.get_months_from_quarter(element)
 
-            if not project.project_have_steps:
+            if project.stage_id.code not in ('0', '10'):
 
-                if project.stage_id.code not in ('0', '10'):
-
-                    if project.end_presale_project_month.month in months and YEARint == project.end_presale_project_month.year:
-                        currency_rate = self.get_currency_rate_by_project(project)
-                        if project.stage_id.code in ('100', '100(done)'):
-                            sum100tmp = project.total_amount_of_revenue_with_vat * currency_rate
-                        if project.stage_id.code == '75':
-                            sum75tmp = project.total_amount_of_revenue_with_vat * currency_rate
-                        if project.stage_id.code == '50':
-                            sum50tmp = project.total_amount_of_revenue_with_vat * currency_rate
-
-            else:
-                for step in project.project_steps_ids:
-
-                    if step.stage_id.code in ('0', '10'): continue
-
-                    if ((
-                            project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
-                            or ((
-                                        not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
-
-                        if step.end_presale_project_month.month in months and YEARint == step.end_presale_project_month.year:
-                            currency_rate = self.get_currency_rate_by_project(step.projects_id)
-                            if step.stage_id.code in ('100', '100(done)'):
-                                sum100tmp += step.total_amount_of_revenue_with_vat * currency_rate
-                            if step.stage_id.code == '75':
-                                sum75tmp += step.total_amount_of_revenue_with_vat * currency_rate
-                            if step.stage_id.code == '50':
-                                sum50tmp += step.total_amount_of_revenue_with_vat * currency_rate
+                if project.end_presale_project_month.month in months and YEARint == project.end_presale_project_month.year:
+                    currency_rate = self.get_currency_rate_by_project(project)
+                    if project.stage_id.code in ('100', '100(done)'):
+                        sum100tmp = project.total_amount_of_revenue_with_vat * currency_rate
+                    if project.stage_id.code == '75':
+                        sum75tmp = project.total_amount_of_revenue_with_vat * currency_rate
+                    if project.stage_id.code == '50':
+                        sum50tmp = project.total_amount_of_revenue_with_vat * currency_rate
 
         elif 'NEXT' in element:
-            if not project.project_have_steps:
+            if project.stage_id.code not in ('0', '10'):
 
-                if project.stage_id.code not in ('0', '10'):
-
-                    if project.end_presale_project_month.year == YEARint + 1 and project.end_presale_project_month.month in self.get_months_from_quarter('Q1'):
-                        currency_rate = self.get_currency_rate_by_project(project)
-                        if project.stage_id.code in ('75', '100'):
-                            sum_next_75_q1_tmp = project.total_amount_of_revenue_with_vat * currency_rate
-                        if project.stage_id.code == '50':
-                            sum_next_50_q1_tmp = project.total_amount_of_revenue_with_vat * params['50'] * currency_rate
-                        if project.stage_id.code == '30':
-                            sum_next_30_q1_tmp = project.total_amount_of_revenue_with_vat * params['30'] * currency_rate
-                    if project.end_presale_project_month.year == YEARint + 1:
-                        currency_rate = self.get_currency_rate_by_project(project)
-                        if project.stage_id.code in ('75', '100'):
-                            sum_next_75_tmp = project.total_amount_of_revenue_with_vat * currency_rate
-                        if project.stage_id.code == '50':
-                            sum_next_50_tmp = project.total_amount_of_revenue_with_vat * params['50'] * currency_rate
-                        if project.stage_id.code == '30':
-                            sum_next_30_tmp = project.total_amount_of_revenue_with_vat * params['30'] * currency_rate
-                    elif project.end_presale_project_month.year == YEARint + 2:
-                        currency_rate = self.get_currency_rate_by_project(project)
-                        if project.stage_id.code in ('75', '100'):
-                            sum_after_next_tmp = project.total_amount_of_revenue_with_vat * currency_rate
-                        if project.stage_id.code == '50':
-                            sum_after_next_tmp = project.total_amount_of_revenue_with_vat * params[
-                                '50'] * currency_rate
-                        if project.stage_id.code == '30':
-                            sum_after_next_tmp = project.total_amount_of_revenue_with_vat * params[
-                                '30'] * currency_rate
-
-            else:
-                for step in project.project_steps_ids:
-
-                    if step.stage_id.code in ('0', '10'): continue
-
-                    if ((
-                            project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
-                            or ((
-                                        not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
-
-                        currency_rate = self.get_currency_rate_by_project(step.projects_id)
-                        if step.end_presale_project_month.year == YEARint + 1 and step.end_presale_project_month.month in self.get_months_from_quarter('Q1'):
-                            if step.stage_id.code in ('75', '100'):
-                                sum_next_75_q1_tmp += step.total_amount_of_revenue_with_vat * currency_rate
-                            if step.stage_id.code == '50':
-                                sum_next_50_q1_tmp += step.total_amount_of_revenue_with_vat * params[
-                                    '50'] * currency_rate
-                            if step.stage_id.code == '30':
-                                sum_next_30_q1_tmp += step.total_amount_of_revenue_with_vat * params[
-                                    '30'] * currency_rate
-                        if step.end_presale_project_month.year == YEARint + 1:
-                            if step.stage_id.code in ('75', '100'):
-                                sum_next_75_tmp += step.total_amount_of_revenue_with_vat * currency_rate
-                            if step.stage_id.code == '50':
-                                sum_next_50_tmp += step.total_amount_of_revenue_with_vat * params[
-                                    '50'] * currency_rate
-                            if step.stage_id.code == '30':
-                                sum_next_30_tmp += step.total_amount_of_revenue_with_vat * params[
-                                    '30'] * currency_rate
-                        elif step.end_presale_project_month.year == YEARint + 2:
-                            if step.stage_id.code in ('75', '100'):
-                                sum_after_next_tmp += step.total_amount_of_revenue_with_vat * currency_rate
-                            if step.stage_id.code == '50':
-                                sum_after_next_tmp += step.total_amount_of_revenue_with_vat * params[
-                                    '50'] * currency_rate
-                            if step.stage_id.code == '30':
-                                sum_after_next_tmp += step.total_amount_of_revenue_with_vat * params[
-                                    '30'] * currency_rate
+                if project.end_presale_project_month.year == YEARint + 1 and project.end_presale_project_month.month in self.get_months_from_quarter('Q1'):
+                    currency_rate = self.get_currency_rate_by_project(project)
+                    if project.stage_id.code in ('75', '100'):
+                        sum_next_75_q1_tmp = project.total_amount_of_revenue_with_vat * currency_rate
+                    if project.stage_id.code == '50':
+                        sum_next_50_q1_tmp = project.total_amount_of_revenue_with_vat * params['50'] * currency_rate
+                    if project.stage_id.code == '30':
+                        sum_next_30_q1_tmp = project.total_amount_of_revenue_with_vat * params['30'] * currency_rate
+                if project.end_presale_project_month.year == YEARint + 1:
+                    currency_rate = self.get_currency_rate_by_project(project)
+                    if project.stage_id.code in ('75', '100'):
+                        sum_next_75_tmp = project.total_amount_of_revenue_with_vat * currency_rate
+                    if project.stage_id.code == '50':
+                        sum_next_50_tmp = project.total_amount_of_revenue_with_vat * params['50'] * currency_rate
+                    if project.stage_id.code == '30':
+                        sum_next_30_tmp = project.total_amount_of_revenue_with_vat * params['30'] * currency_rate
+                elif project.end_presale_project_month.year == YEARint + 2:
+                    currency_rate = self.get_currency_rate_by_project(project)
+                    if project.stage_id.code in ('75', '100'):
+                        sum_after_next_tmp = project.total_amount_of_revenue_with_vat * currency_rate
+                    if project.stage_id.code == '50':
+                        sum_after_next_tmp = project.total_amount_of_revenue_with_vat * params[
+                            '50'] * currency_rate
+                    if project.stage_id.code == '30':
+                        sum_after_next_tmp = project.total_amount_of_revenue_with_vat * params[
+                            '30'] * currency_rate
 
         return (sum75tmpetalon, sum50tmpetalon,
                 sum100tmp, sum75tmp, sum50tmp,
@@ -999,70 +449,43 @@ class report_management_committee_excel(models.AbstractModel):
                 sum_next_75_tmp, sum_next_50_tmp, sum_next_30_tmp,
                 sum_after_next_tmp)
 
-    def get_pds_forecast_from_distributions(self, sum, project, step, year, months):
+    def get_pds_forecast_from_distributions(self, sum, project, year, months):
 
         sum_distribution_pds = 0
         has_distribution = False
         sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
-        if months:
-            for month in months:
-                sum_ostatok_pds_month = {'commitment': 0, 'reserve': 0, 'potential': 0}
-                for planned_cash in project.planned_cash_flow_ids:
-                    if ((not step or planned_cash.project_steps_id.id == step.id)
-                            and planned_cash.date_cash.month == month
-                            and planned_cash.date_cash.year == year):
-                        sum_distribution_pds += planned_cash.distribution_sum_without_vat
-                        stage_id_code = project.stage_id.code
-                        if step:
-                            stage_id_code = step.stage_id.code
-                        if planned_cash.forecast == 'from_project':
-                            if stage_id_code in ('75', '100', '100(done)'):
-                                sum_ostatok_pds_month['commitment'] += planned_cash.distribution_sum_with_vat_ostatok
-                            elif stage_id_code == '50':
-                                sum_ostatok_pds_month['reserve'] += planned_cash.distribution_sum_with_vat_ostatok
-                            elif stage_id_code == '30':
-                                sum_ostatok_pds_month['potential'] += planned_cash.distribution_sum_with_vat_ostatok
-                        else:
-                            if stage_id_code != '0':
-                                sum_ostatok_pds_month[planned_cash.forecast] += planned_cash.distribution_sum_with_vat_ostatok
-                if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
-                    has_distribution = True
-                    for key in sum_ostatok_pds_month:
-                        if not project.is_correction_project:
-                            sum_ostatok_pds[key] += max(sum_ostatok_pds_month[key], 0)
-                        else:
-                            sum_ostatok_pds[key] += sum_ostatok_pds_month[key]
-            if has_distribution:
-                return sum_ostatok_pds
-            return sum
+        if project.step_status == 'project':
+            pds_list = project.planned_cash_flow_ids
+        elif project.step_status == 'step':
+            pds_list = project.planned_step_cash_flow_ids
 
-        else:
-            for planned_cash in project.planned_cash_flow_ids:
-                if (not step or planned_cash.project_steps_id.id == step.id) and planned_cash.date_cash.year == year:
-                    sum_distribution_pds += planned_cash.distribution_sum_without_vat
-                    stage_id_code = project.stage_id.code
-                    if step:
-                        stage_id_code = step.stage_id.code
-                    if planned_cash.forecast == 'from_project':
-                        if stage_id_code in ('75', '100', '100(done)'):
-                            sum_ostatok_pds['commitment'] += planned_cash.distribution_sum_with_vat_ostatok
-                        elif stage_id_code == '50':
-                            sum_ostatok_pds['reserve'] += planned_cash.distribution_sum_with_vat_ostatok
-                        elif stage_id_code == '30':
-                            sum_ostatok_pds['potential'] += planned_cash.distribution_sum_with_vat_ostatok
-                    else:
-                        if stage_id_code != '0':
-                            sum_ostatok_pds[planned_cash.forecast] += planned_cash.distribution_sum_with_vat_ostatok
-            if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
-                for key in sum:
-                    if not project.is_correction_project:
-                        sum[key] = max(sum_ostatok_pds[key], 0)
-                    else:
-                        sum[key] = sum_ostatok_pds[key]
-            return sum
+        for planned_cash in pds_list:
+            if (not months or planned_cash.date_cash.month in months) and planned_cash.date_cash.year == year:
 
-    def print_quarter_pds_project(self, sheet, row, column, element, project, step, project_office, params, row_format_number, row_format_number_color_fact):
+                sum_distribution_pds += planned_cash.distribution_sum_without_vat
+
+                stage_id_code = project.stage_id.code
+
+                if planned_cash.forecast == 'from_project':
+                    if stage_id_code in ('75', '100', '100(done)'):
+                        sum_ostatok_pds['commitment'] += planned_cash.distribution_sum_with_vat_ostatok
+                    elif stage_id_code == '50':
+                        sum_ostatok_pds['reserve'] += planned_cash.distribution_sum_with_vat_ostatok
+                    elif stage_id_code == '30':
+                        sum_ostatok_pds['potential'] += planned_cash.distribution_sum_with_vat_ostatok
+                else:
+                    if stage_id_code != '0':
+                        sum_ostatok_pds[planned_cash.forecast] += planned_cash.distribution_sum_with_vat_ostatok
+        if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
+            for key in sum:
+                if not project.is_correction_project:
+                    sum[key] = max(sum_ostatok_pds[key], 0)
+                else:
+                    sum[key] = sum_ostatok_pds[key]
+        return sum
+
+    def print_quarter_pds_project(self, sheet, row, column, element, project, project_office, params, row_format_number, row_format_number_color_fact):
         global strYEAR
         global YEARint
 
@@ -1082,205 +505,80 @@ class report_management_committee_excel(models.AbstractModel):
         if 'Q' in element:
             months = self.get_months_from_quarter(element)
 
-            if step:
+            sum100tmp = self.get_sum_fact_pds_project_year_quarter(project, YEARint, element)
+            sheet.write_number(row, column + 2, sum100tmp, row_format_number_color_fact)
 
-                if ((
-                        project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
-                        or ((
-                                    not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
+            sum = self.get_sum_plan_pds_project_year_quarter(project, YEARint, element)
 
-                    sum100tmp_step = self.get_sum_fact_pds_project_step_year_quarter(project, step, YEARint, element)
-                    sheet.write_number(row, column + 2, sum100tmp_step, row_format_number_color_fact)
+            if not project.is_correction_project:
+                if sum100tmp >= sum['commitment']:
+                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                    sum['commitment'] = 0
+                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
+                else:
+                    sum['commitment'] = sum['commitment'] - sum100tmp
 
-                    sum100tmp += sum100tmp_step
+            # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
+            sum = self.get_pds_forecast_from_distributions(sum, project, YEARint, months)
 
-                    sum = self.get_sum_plan_pds_project_step_year_quarter(project, step, YEARint, element)
-
-                    if not project.is_correction_project:
-                        if sum100tmp_step >= sum['commitment']:
-                            sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
-                            sum['commitment'] = 0
-                            sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
-                        else:
-                            sum['commitment'] = sum['commitment'] - sum100tmp_step
-
-                    # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                    sum = self.get_pds_forecast_from_distributions(sum, project, step, YEARint, months)
-
-                    sheet.write_number(row, column + 3, sum['commitment'], row_format_number)
-                    sum75tmp += sum['commitment']
-                    sheet.write_number(row, column + 4, sum['reserve'], row_format_number)
-                    sum50tmp += sum['reserve']
-            else:
-                sum100tmp = self.get_sum_fact_pds_project_step_year_quarter(project, False, YEARint,element)
-                sheet.write_number(row, column + 2, sum100tmp, row_format_number_color_fact)
-
-                sum = self.get_sum_plan_pds_project_step_year_quarter(project, False, YEARint, element)
-
-                if not project.is_correction_project:
-                    if sum100tmp >= sum['commitment']:
-                        sum100tmp_ostatok = sum100tmp - sum['commitment']
-                        sum['commitment'] = 0
-                        sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
-                    else:
-                        sum['commitment'] = sum['commitment'] - sum100tmp
-
-                # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum = self.get_pds_forecast_from_distributions(sum, project, False, YEARint, months)
-
-                sheet.write_number(row, column + 3, sum['commitment'], row_format_number)
-                sum75tmp += sum['commitment']
-                sheet.write_number(row, column + 4, sum['reserve'], row_format_number)
-                sum50tmp += sum['reserve']
+            sheet.write_number(row, column + 3, sum['commitment'], row_format_number)
+            sum75tmp += sum['commitment']
+            sheet.write_number(row, column + 4, sum['reserve'], row_format_number)
+            sum50tmp += sum['reserve']
 
         elif element == 'NEXT':
-            if step:
 
-                if ((
-                        project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
-                        or ((
-                                    not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
+            sum100tmp_q1 = self.get_sum_fact_pds_project_year_quarter(project, YEARint + 1, 'Q1')
+            sum100tmp = self.get_sum_fact_pds_project_year_quarter(project, YEARint + 1, False)
+            sum_q1 = self.get_sum_plan_pds_project_year_quarter(project, YEARint + 1, 'Q1')
+            sum = self.get_sum_plan_pds_project_year_quarter(project, YEARint + 1, False)
 
-                    sum100tmp_q1_step = self.get_sum_fact_pds_project_step_year_quarter(project, step, YEARint + 1, 'Q1')
-                    sum100tmp_step = self.get_sum_fact_pds_project_step_year_quarter(project, step, YEARint + 1, False)
-                    sum100tmp += sum100tmp_step
-                    sum_q1 = self.get_sum_plan_pds_project_step_year_quarter(project, step, YEARint + 1, 'Q1')
-                    sum = self.get_sum_plan_pds_project_step_year_quarter(project, step, YEARint + 1, False)
+            if not project.is_correction_project:
+                if sum100tmp_q1 >= sum_q1['commitment']:
+                    sum100tmp_q1_ostatok = sum100tmp_q1 - sum_q1['commitment']
+                    sum_q1['commitment'] = 0
+                    sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_ostatok, 0)
+                else:
+                    sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1
 
-                    if not project.is_correction_project:
-                        if sum100tmp_q1_step >= sum_q1['commitment']:
-                            sum100tmp_q1_step_ostatok = sum100tmp_q1_step - sum_q1['commitment']
-                            sum_q1['commitment'] = 0
-                            sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_step_ostatok, 0)
-                        else:
-                            sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1_step
+                if sum100tmp >= sum['commitment']:
+                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                    sum['commitment'] = 0
+                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
+                else:
+                    sum['commitment'] = sum['commitment'] - sum100tmp
 
-                        if sum100tmp_step >= sum['commitment']:
-                            sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
-                            sum['commitment'] = 0
-                            sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
-                        else:
-                            sum['commitment'] = sum['commitment'] - sum100tmp_step
+            # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
+            sum_q1 = self.get_pds_forecast_from_distributions(sum_q1, project, YEARint + 1, self.get_months_from_quarter('Q1'))
+            sum = self.get_pds_forecast_from_distributions(sum, project, YEARint + 1, False)
 
-                    # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                    sum_q1 = self.get_pds_forecast_from_distributions(sum_q1, project, step, YEARint + 1,
-                                                                      self.get_months_from_quarter('Q1'))
-                    sum = self.get_pds_forecast_from_distributions(sum, project, step, YEARint + 1, False)
-
-                    # Q1 NEXT
-                    # sheet.write_number(row, column + 0, sum_q1['commitment'], row_format_number)
-                    # sum_next_75_q1_tmp += sum_q1['commitment']
-                    # sheet.write_number(row, column + 1, sum_q1['reserve'] * params['50'], row_format_number)
-                    # sum_next_50_q1_tmp += sum_q1['reserve'] * params['50']
-                    # sheet.write_number(row, column + 2, sum_q1['potential'] * params['30'], row_format_number)
-                    # sum_next_30_q1_tmp += sum_q1['potential'] * params['30']
-                    #
-                    # sheet.write_number(row, column + 3, sum['commitment'], row_format_number)
-                    # sum_next_75_tmp += sum['commitment']
-                    # sheet.write_number(row, column + 4, sum['reserve'] * params['50'], row_format_number)
-                    # sum_next_50_tmp += sum['reserve'] * params['50']
-                    # sheet.write_number(row, column + 5, sum['potential'] * params['30'], row_format_number)
-                    # sum_next_30_tmp += sum['potential'] * params['30']
-
-                    sheet.write_number(row, column + 0, sum['commitment'], row_format_number)
-                    sum_next_75_tmp += sum['commitment']
-                    sheet.write_number(row, column + 1, sum['reserve'] * params['50'], row_format_number)
-                    sum_next_50_tmp += sum['reserve'] * params['50']
-                    # sheet.write_number(row, column + 2, sum['potential'] * params['30'], row_format_number)
-                    # sum_next_30_tmp += sum['potential'] * params['30']
-            else:
-                sum100tmp_q1 = self.get_sum_fact_pds_project_step_year_quarter(project, False, YEARint + 1, 'Q1')
-                sum100tmp = self.get_sum_fact_pds_project_step_year_quarter(project, False, YEARint + 1, False)
-                sum_q1 = self.get_sum_plan_pds_project_step_year_quarter(project, False, YEARint + 1, 'Q1')
-                sum = self.get_sum_plan_pds_project_step_year_quarter(project, False, YEARint + 1, False)
-
-                if not project.is_correction_project:
-                    if sum100tmp_q1 >= sum_q1['commitment']:
-                        sum100tmp_q1_ostatok = sum100tmp_q1 - sum_q1['commitment']
-                        sum_q1['commitment'] = 0
-                        sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_ostatok, 0)
-                    else:
-                        sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1
-
-                    if sum100tmp >= sum['commitment']:
-                        sum100tmp_ostatok = sum100tmp - sum['commitment']
-                        sum['commitment'] = 0
-                        sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
-                    else:
-                        sum['commitment'] = sum['commitment'] - sum100tmp
-
-                # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum_q1 = self.get_pds_forecast_from_distributions(sum_q1, project, False, YEARint + 1, self.get_months_from_quarter('Q1'))
-                sum = self.get_pds_forecast_from_distributions(sum, project, False, YEARint + 1, False)
-
-                # Q1 NEXT
-                # sheet.write_number(row, column + 0, sum_q1['commitment'], row_format_number)
-                # sum_next_75_tmp += sum_q1['commitment']
-                # sheet.write_number(row, column + 1, sum_q1['reserve'] * params['50'], row_format_number)
-                # sum_next_50_tmp += sum_q1['reserve'] * params['50']
-                # sheet.write_number(row, column + 2, sum_q1['potential'] * params['30'], row_format_number)
-                # sum_next_30_tmp += sum_q1['potential'] * params['30']
-                # sheet.write_number(row, column + 3, sum['commitment'], row_format_number)
-                # sum_next_75_tmp += sum['commitment']
-                # sheet.write_number(row, column + 4, sum['reserve'] * params['50'], row_format_number)
-                # sum_next_50_tmp += sum['reserve'] * params['50']
-                # sheet.write_number(row, column + 5, sum['potential'] * params['30'], row_format_number)
-                # sum_next_30_tmp += sum['potential'] * params['30']
-
-                sheet.write_number(row, column + 0, sum['commitment'], row_format_number)
-                sum_next_75_tmp += sum['commitment']
-                sheet.write_number(row, column + 1, sum['reserve'] * params['50'], row_format_number)
-                sum_next_50_tmp += sum['reserve'] * params['50']
-                # sheet.write_number(row, column + 2, sum['potential'] * params['30'], row_format_number)
-                # sum_next_30_tmp += sum['potential'] * params['30']
+            sheet.write_number(row, column + 0, sum['commitment'], row_format_number)
+            sum_next_75_tmp += sum['commitment']
+            sheet.write_number(row, column + 1, sum['reserve'] * params['50'], row_format_number)
+            sum_next_50_tmp += sum['reserve'] * params['50']
+            # sheet.write_number(row, column + 2, sum['potential'] * params['30'], row_format_number)
+            # sum_next_30_tmp += sum['potential'] * params['30']
 
         elif element == 'AFTER NEXT':
-            if step:
 
-                if ((
-                        project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
-                        or ((
-                                    not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
+            sum100tmp = self.get_sum_fact_pds_project_year_quarter(project, YEARint + 2, False)
+            sum = self.get_sum_plan_pds_project_year_quarter(project, YEARint + 2, False)
 
-                    sum100tmp_step = self.get_sum_fact_pds_project_step_year_quarter(project, step, YEARint + 2, False)
-                    sum100tmp += sum100tmp_step
-                    sum = self.get_sum_plan_pds_project_step_year_quarter(project, step, YEARint + 2, False)
+            if not project.is_correction_project:
+                if sum100tmp >= sum['commitment']:
+                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                    sum['commitment'] = 0
+                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
+                else:
+                    sum['commitment'] = sum['commitment'] - sum100tmp
 
-                    if not project.is_correction_project:
-                        if sum100tmp_step >= sum['commitment']:
-                            sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
-                            sum['commitment'] = 0
-                            sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
-                        else:
-                            sum['commitment'] = sum['commitment'] - sum100tmp_step
+            # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
+            sum = self.get_pds_forecast_from_distributions(sum , project, YEARint + 2, False)
 
-                    # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                    sum = self.get_pds_forecast_from_distributions(sum, project, step, YEARint + 2, False)
-
-                    sum_after_next_tmp += sum['commitment']
-                    sum_after_next_tmp += sum['reserve'] * params['50']
-                    # sum_after_next_tmp += sum['potential'] * params['30']
-                    sheet.write_number(row, column + 0, sum_after_next_tmp, row_format_number)
-
-            else:
-                sum100tmp = self.get_sum_fact_pds_project_step_year_quarter(project, False, YEARint + 2, False)
-                sum = self.get_sum_plan_pds_project_step_year_quarter(project, False, YEARint + 2, False)
-
-                if not project.is_correction_project:
-                    if sum100tmp >= sum['commitment']:
-                        sum100tmp_ostatok = sum100tmp - sum['commitment']
-                        sum['commitment'] = 0
-                        sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
-                    else:
-                        sum['commitment'] = sum['commitment'] - sum100tmp
-
-                # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum = self.get_pds_forecast_from_distributions(sum , project, False, YEARint + 2, False)
-
-                sum_after_next_tmp += sum['commitment']
-                sum_after_next_tmp += sum['reserve'] * params['50']
-                # sum_after_next_tmp += sum['potential'] * params['30']
-                sheet.write_number(row, column + 0, sum_after_next_tmp, row_format_number)
+            sum_after_next_tmp += sum['commitment']
+            sum_after_next_tmp += sum['reserve'] * params['50']
+            # sum_after_next_tmp += sum['potential'] * params['30']
+            sheet.write_number(row, column + 0, sum_after_next_tmp, row_format_number)
 
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
@@ -1305,186 +603,81 @@ class report_management_committee_excel(models.AbstractModel):
 
             months = self.get_months_from_quarter(element)
 
-            if project.project_have_steps:
-                for step in project.project_steps_ids:
+            if project.stage_id.code not in ('0', '10'):
 
-                    if step.stage_id.code in ('0', '10'): continue
+                sum100tmp = self.get_sum_fact_pds_project_year_quarter(project, YEARint, element)
+                sum = self.get_sum_plan_pds_project_year_quarter(project, YEARint, element)
 
-                    if ((
-                            project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
-                            or ((
-                                        not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
+                if not project.is_correction_project:
+                    if sum100tmp >= sum['commitment']:
+                        sum100tmp_ostatok = sum100tmp - sum['commitment']
+                        sum['commitment'] = 0
+                        sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
+                    else:
+                        sum['commitment'] = sum['commitment'] - sum100tmp
 
-                        sum100tmp_step = self.get_sum_fact_pds_project_step_year_quarter(project, step, YEARint, element)
+                # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
+                sum = self.get_pds_forecast_from_distributions(sum, project, YEARint, months)
 
-                        sum100tmp += sum100tmp_step
-
-                        sum = self.get_sum_plan_pds_project_step_year_quarter(project, step, YEARint, element)
-
-                        if not project.is_correction_project:
-                            if sum100tmp_step >= sum['commitment']:
-                                sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
-                                sum['commitment'] = 0
-                                sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
-                            else:
-                                sum['commitment'] = sum['commitment'] - sum100tmp_step
-                        # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                        sum = self.get_pds_forecast_from_distributions(sum, project, step, YEARint, months)
-
-                        sum75tmp += sum['commitment']
-                        sum50tmp += sum['reserve']
-
-            else:
-
-                if project.stage_id.code not in ('0', '10'):
-
-                    sum100tmp = self.get_sum_fact_pds_project_step_year_quarter(project, False, YEARint, element)
-                    sum = self.get_sum_plan_pds_project_step_year_quarter(project, False, YEARint, element)
-
-                    if not project.is_correction_project:
-                        if sum100tmp >= sum['commitment']:
-                            sum100tmp_ostatok = sum100tmp - sum['commitment']
-                            sum['commitment'] = 0
-                            sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
-                        else:
-                            sum['commitment'] = sum['commitment'] - sum100tmp
-
-                    # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                    sum = self.get_pds_forecast_from_distributions(sum, project, False, YEARint, months)
-
-                    sum75tmp += sum['commitment']
-                    sum50tmp += sum['reserve']
+                sum75tmp += sum['commitment']
+                sum50tmp += sum['reserve']
 
         elif element == 'NEXT':
-            if project.project_have_steps:
-                for step in project.project_steps_ids:
+            if project.stage_id.code not in ('0', '10'):
 
-                    if step.stage_id.code in ('0', '10'): continue
+                sum100tmp_q1 = self.get_sum_fact_pds_project_year_quarter(project, YEARint + 1, 'Q1')
+                sum100tmp = self.get_sum_fact_pds_project_year_quarter(project, YEARint + 1, False)
+                sum_q1 = self.get_sum_plan_pds_project_year_quarter(project, YEARint + 1, 'Q1')
+                sum = self.get_sum_plan_pds_project_year_quarter(project, YEARint + 1, False)
 
-                    if ((
-                            project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
-                            or ((
-                                        not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
+                if not project.is_correction_project:
+                    if sum100tmp_q1 >= sum_q1['commitment']:
+                        sum100tmp_q1_ostatok = sum100tmp_q1 - sum_q1['commitment']
+                        sum_q1['commitment'] = 0
+                        sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_ostatok, 0)
+                    else:
+                        sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1
 
-                        sum100tmp_q1_step = self.get_sum_fact_pds_project_step_year_quarter(project, step, YEARint + 1, 'Q1')
-                        sum100tmp_step = self.get_sum_fact_pds_project_step_year_quarter(project, step, YEARint + 1, False)
-                        sum100tmp += sum100tmp_step
-                        sum_q1 = self.get_sum_plan_pds_project_step_year_quarter(project, step, YEARint + 1, 'Q1')
-                        sum = self.get_sum_plan_pds_project_step_year_quarter(project, step, YEARint + 1, False)
+                    if sum100tmp >= sum['commitment']:
+                        sum100tmp_ostatok = sum100tmp - sum['commitment']
+                        sum['commitment'] = 0
+                        sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
+                    else:
+                        sum['commitment'] = sum['commitment'] - sum100tmp
 
-                        if not project.is_correction_project:
-                            if sum100tmp_q1_step >= sum_q1['commitment']:
-                                sum100tmp_q1_step_ostatok = sum100tmp_q1_step - sum_q1['commitment']
-                                sum_q1['commitment'] = 0
-                                sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_step_ostatok, 0)
-                            else:
-                                sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1_step
+                # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
+                sum_q1 = self.get_pds_forecast_from_distributions(sum_q1, project, YEARint + 1, self.get_months_from_quarter('Q1'))
+                sum = self.get_pds_forecast_from_distributions(sum, project, YEARint + 1, False)
 
-                            if sum100tmp_step >= sum['commitment']:
-                                sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
-                                sum['commitment'] = 0
-                                sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
-                            else:
-                                sum['commitment'] = sum['commitment'] - sum100tmp_step
+                sum_next_75_q1_tmp += sum_q1['commitment']
+                sum_next_50_q1_tmp += sum_q1['reserve'] * params['50']
+                # sum_next_30_q1_tmp += sum_q1['potential'] * params['30']
 
-                        # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                        sum_q1 = self.get_pds_forecast_from_distributions(sum_q1, project, step, YEARint + 1, self.get_months_from_quarter('Q1'))
-                        sum = self.get_pds_forecast_from_distributions(sum, project, step, YEARint + 1, False)
-
-                        sum_next_75_q1_tmp += sum_q1['commitment']
-                        sum_next_50_q1_tmp += sum_q1['reserve'] * params['50']
-                        # sum_next_30_q1_tmp += sum_q1['potential'] * params['30']
-
-                        sum_next_75_tmp += sum['commitment']
-                        sum_next_50_tmp += sum['reserve'] * params['50']
-                        # sum_next_30_tmp += sum['potential'] * params['30']
-            else:
-
-                if project.stage_id.code not in ('0', '10'):
-
-                    sum100tmp_q1 = self.get_sum_fact_pds_project_step_year_quarter(project, False, YEARint + 1, 'Q1')
-                    sum100tmp = self.get_sum_fact_pds_project_step_year_quarter(project, False, YEARint + 1, False)
-                    sum_q1 = self.get_sum_plan_pds_project_step_year_quarter(project, False, YEARint + 1, 'Q1')
-                    sum = self.get_sum_plan_pds_project_step_year_quarter(project, False, YEARint + 1, False)
-
-                    if not project.is_correction_project:
-                        if sum100tmp_q1 >= sum_q1['commitment']:
-                            sum100tmp_q1_ostatok = sum100tmp_q1 - sum_q1['commitment']
-                            sum_q1['commitment'] = 0
-                            sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_ostatok, 0)
-                        else:
-                            sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1
-
-                        if sum100tmp >= sum['commitment']:
-                            sum100tmp_ostatok = sum100tmp - sum['commitment']
-                            sum['commitment'] = 0
-                            sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
-                        else:
-                            sum['commitment'] = sum['commitment'] - sum100tmp
-
-                    # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                    sum_q1 = self.get_pds_forecast_from_distributions(sum_q1, project, False, YEARint + 1, self.get_months_from_quarter('Q1'))
-                    sum = self.get_pds_forecast_from_distributions(sum, project, False, YEARint + 1, False)
-
-                    sum_next_75_q1_tmp += sum_q1['commitment']
-                    sum_next_50_q1_tmp += sum_q1['reserve'] * params['50']
-                    # sum_next_30_q1_tmp += sum_q1['potential'] * params['30']
-
-                    sum_next_75_tmp += sum['commitment']
-                    sum_next_50_tmp += sum['reserve'] * params['50']
-                    # sum_next_30_tmp += sum['potential'] * params['30']
+                sum_next_75_tmp += sum['commitment']
+                sum_next_50_tmp += sum['reserve'] * params['50']
+                # sum_next_30_tmp += sum['potential'] * params['30']
 
         elif element == 'AFTER NEXT':
-            if project.project_have_steps:
-                for step in project.project_steps_ids:
 
-                    if step.stage_id.code in ('0', '10'): continue
+            if project.stage_id.code not in ('0', '10'):
 
-                    if ((
-                            project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
-                            or ((
-                                        not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
+                sum100tmp = self.get_sum_fact_pds_project_year_quarter(project, YEARint + 2, False)
+                sum = self.get_sum_plan_pds_project_year_quarter(project, YEARint + 2, False)
 
-                        sum100tmp_step = self.get_sum_fact_pds_project_step_year_quarter(project, step, YEARint + 2, False)
-                        sum100tmp += sum100tmp_step
-                        sum = self.get_sum_plan_pds_project_step_year_quarter(project, step, YEARint + 2, False)
+                if not project.is_correction_project:
+                    if sum100tmp >= sum['commitment']:
+                        sum100tmp_ostatok = sum100tmp - sum['commitment']
+                        sum['commitment'] = 0
+                        sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
+                    else:
+                        sum['commitment'] = sum['commitment'] - sum100tmp
 
-                        if not project.is_correction_project:
-                            if sum100tmp_step >= sum['commitment']:
-                                sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
-                                sum['commitment'] = 0
-                                sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
-                            else:
-                                sum['commitment'] = sum['commitment'] - sum100tmp_step
+                # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
+                sum = self.get_pds_forecast_from_distributions(sum, project, YEARint + 2, False)
 
-                        # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                        sum = self.get_pds_forecast_from_distributions(sum, project, step, YEARint + 2, False)
-
-                        sum_after_next_tmp += sum['commitment']
-                        sum_after_next_tmp += sum['reserve'] * params['50']
-                        # sum_after_next_tmp += sum['potential'] * params['30']
-
-            else:
-
-                if project.stage_id.code not in ('0', '10'):
-
-                    sum100tmp = self.get_sum_fact_pds_project_step_year_quarter(project, False, YEARint + 2, False)
-                    sum = self.get_sum_plan_pds_project_step_year_quarter(project, False, YEARint + 2, False)
-
-                    if not project.is_correction_project:
-                        if sum100tmp >= sum['commitment']:
-                            sum100tmp_ostatok = sum100tmp - sum['commitment']
-                            sum['commitment'] = 0
-                            sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
-                        else:
-                            sum['commitment'] = sum['commitment'] - sum100tmp
-
-                    # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                    sum = self.get_pds_forecast_from_distributions(sum, project, False, YEARint + 2, False)
-
-                    sum_after_next_tmp += sum['commitment']
-                    sum_after_next_tmp += sum['reserve'] * params['50']
-                    # sum_after_next_tmp += sum['potential'] * params['30']
+                sum_after_next_tmp += sum['commitment']
+                sum_after_next_tmp += sum['reserve'] * params['50']
+                # sum_after_next_tmp += sum['potential'] * params['30']
 
         return (sum75tmpetalon, sum50tmpetalon,
                 sum100tmp, sum75tmp, sum50tmp,
@@ -1492,41 +685,42 @@ class report_management_committee_excel(models.AbstractModel):
                 sum_next_75_tmp, sum_next_50_tmp, sum_next_30_tmp,
                 sum_after_next_tmp)
 
-    def get_sum_fact_acceptance_project_step_year_quarter(self, project, step, year, quarter):
+    def get_sum_fact_acceptance_project_year_quarter(self, project, year, quarter):
         sum_cash = 0
-
-        acceptance_list = project.fact_acceptance_flow_ids
 
         if quarter:
             months = self.get_months_from_quarter(quarter)
 
+        if project.step_status == 'project':
+            acceptance_list = project.fact_acceptance_flow_ids
+        elif project.step_status == 'step':
+            acceptance_list = project.fact_step_acceptance_flow_ids
+
         if acceptance_list:
             for acceptance in acceptance_list:
-                if step:
-                    if acceptance.project_steps_id.id != step.id: continue
                 if (not quarter or acceptance.date_cash.month in months) and acceptance.date_cash.year == year:
                     sum_cash += acceptance.sum_cash_without_vat
-
         return sum_cash
 
-    def get_sum_fact_margin_project_step_year_quarter(self, project, step, year, quarter):
+    def get_sum_fact_margin_project_year_quarter(self, project, year, quarter):
         sum_cash = 0
-
-        acceptance_list = project.fact_acceptance_flow_ids
 
         if quarter:
             months = self.get_months_from_quarter(quarter)
 
+        if project.step_status == 'project':
+            acceptance_list = project.fact_acceptance_flow_ids
+        elif project.step_status == 'step':
+            acceptance_list = project.fact_step_acceptance_flow_ids
+
         if acceptance_list:
             for acceptance in acceptance_list:
-                if step:
-                    if acceptance.project_steps_id.id != step.id: continue
                 if (not quarter or acceptance.date_cash.month in months) and acceptance.date_cash.year == year:
                     sum_cash += acceptance.margin
 
         return sum_cash
 
-    def get_sum_planned_acceptance_project_step_year_quarter(self, project, step, year, quarter, profitability):
+    def get_sum_planned_acceptance_project_year_quarter(self, project, year, quarter, profitability):
 
         sum_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
         sum_margin = {'commitment': 0, 'reserve': 0, 'potential': 0}
@@ -1534,16 +728,15 @@ class report_management_committee_excel(models.AbstractModel):
         if quarter:
             months = self.get_months_from_quarter(quarter)
 
-        acceptance_list = project.planned_acceptance_flow_ids
+        if project.step_status == 'project':
+            acceptance_list = project.planned_acceptance_flow_ids
+        elif project.step_status == 'step':
+            acceptance_list = project.planned_step_acceptance_flow_ids
+
         if acceptance_list:
             for acceptance in acceptance_list:
-                if step:
-                    if acceptance.project_steps_id.id != step.id: continue
                 if (not quarter or acceptance.date_cash.month in months) and acceptance.date_cash.year == year:
-                    if step:
-                        stage_id_code = step.stage_id.code
-                    else:
-                        stage_id_code = project.stage_id.code
+                    stage_id_code = project.stage_id.code
                     if acceptance.forecast == 'from_project':
                         if stage_id_code in ('75', '100', '100(done)'):
                             sum_acceptance['commitment'] += acceptance.sum_cash_without_vat
@@ -1568,20 +761,21 @@ class report_management_committee_excel(models.AbstractModel):
                                 sum_margin[acceptance.forecast] += acceptance.sum_cash_without_vat * profitability / 100
         return sum_acceptance, sum_margin
 
-    def get_act_margin_forecast_from_distributions(self, sum, margin_sum, margin_plan, project, step, year, months):
+    def get_act_margin_forecast_from_distributions(self, sum, margin_sum, margin_plan, project, year, months):
 
         sum_distribution_acceptance = 0
         sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
-        for planned_acceptance in project.planned_acceptance_flow_ids:
-            if ((not step or planned_acceptance.project_steps_id.id == step.id)
-                    and (not months or planned_acceptance.date_cash.month in months)
-                    and planned_acceptance.date_cash.year == year
-            ):
+        if project.step_status == 'project':
+            acceptance_list = project.planned_acceptance_flow_ids
+        elif project.step_status == 'step':
+            acceptance_list = project.planned_step_acceptance_flow_ids
+
+        for planned_acceptance in acceptance_list:
+            if (not months or planned_acceptance.date_cash.month in months) and planned_acceptance.date_cash.year == year:
                 sum_distribution_acceptance += planned_acceptance.distribution_sum_without_vat
                 stage_id_code = project.stage_id.code
-                if step:
-                    stage_id_code = step.stage_id.code
+
                 if planned_acceptance.forecast == 'from_project':
                     if stage_id_code in ('75', '100', '100(done)'):
                         sum_ostatok_acceptance['commitment'] += planned_acceptance.distribution_sum_without_vat_ostatok
@@ -1602,8 +796,7 @@ class report_management_committee_excel(models.AbstractModel):
                                                 * distribution.sum_cash_without_vat
                                                 / distribution.fact_acceptance_flow_id.sum_cash_without_vat)
                 stage_id_code = project.stage_id.code
-                if step:
-                    stage_id_code = step.stage_id.code
+
                 if planned_acceptance.forecast == 'from_project':
                     if stage_id_code in ('75', '100', '100(done)'):
                         margin_plan['commitment'] -= margin_distribution
@@ -1623,7 +816,7 @@ class report_management_committee_excel(models.AbstractModel):
 
         return  sum, margin_sum
 
-    def print_quarter_planned_acceptance_project(self, sheet, row, column, element, project, step,  project_office, params, row_format_number, row_format_number_color_fact):
+    def print_quarter_planned_acceptance_project(self, sheet, row, column, element, project, project_office, params, row_format_number, row_format_number_color_fact):
         global strYEAR
         global YEARint
 
@@ -1646,72 +839,235 @@ class report_management_committee_excel(models.AbstractModel):
 
         if element in ('Q1', 'Q2', 'Q3', 'Q4'):
             months = self.get_months_from_quarter(element)
-            if step:
-                if ((
-                        project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
-                        or ((
-                                    not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
 
-                    profitability = step.profitability
+            profitability = project.profitability
 
-                    sum100tmp_step = self.get_sum_fact_acceptance_project_step_year_quarter(project, step, YEARint, element)
-                    prof100tmp_step = self.get_sum_fact_margin_project_step_year_quarter(project, step, YEARint, element)
-                    sheet.write_number(row, column + 2, sum100tmp_step, row_format_number)
-                    sheet.write_number(row, column + 2 + params['margin_shift'], prof100tmp_step, row_format_number)
+            sum100tmp_proj = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint, element)
+            prof100tmp_proj = self.get_sum_fact_margin_project_year_quarter(project, YEARint, element)
+            sheet.write_number(row, column + 2, sum100tmp_proj, row_format_number)
+            sheet.write_number(row, column + 2 + params['margin_shift'], prof100tmp_proj, row_format_number)
 
-                    sum100tmp += sum100tmp_step
-                    prof100tmp += prof100tmp_step
+            sum100tmp += sum100tmp_proj
+            prof100tmp += prof100tmp_proj
 
-                    sum, margin_sum = self.get_sum_planned_acceptance_project_step_year_quarter(project, step, YEARint, element, profitability)
+            sum, margin_sum = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint, element, profitability)
 
-                    margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
+            margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
-                    if margin_sum:
-                        margin_plan = margin_sum.copy()
+            if margin_sum:
+                margin_plan = margin_sum.copy()
 
-                    if not project.is_correction_project:
-                        if sum100tmp_step >= sum['commitment']:
-                            sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
-                            sum['commitment'] = 0
-                            sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
-                        else:
-                            sum['commitment'] = sum['commitment'] - sum100tmp_step
+            if not project.is_correction_project:
+                if sum100tmp >= sum['commitment']:
+                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                    sum['commitment'] = 0
+                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
+                else:
+                    sum['commitment'] = sum['commitment'] - sum100tmp
 
-                        if prof100tmp_step >= margin_plan['commitment']:  # маржа если нет распределения
-                            prof100tmp_step_ostatok = prof100tmp_step - margin_plan['commitment']
-                            margin_sum['commitment'] = 0
-                            margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_step_ostatok, 0)
-                        else:
-                            margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_step
+                if prof100tmp >= margin_plan['commitment']:  # маржа если нет распределения
+                    prof100tmp_ostatok = prof100tmp - margin_plan['commitment']
+                    margin_sum['commitment'] = 0
+                    margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
+                else:
+                    margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp
 
-                    # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                    sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, step, YEARint, months)
+            # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
+            sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, YEARint, months)
 
-                    for key in sum: # убираем отрицательные, если не корректировочный проект
-                        if not project.is_correction_project:
-                            sum[key] = max(sum[key], 0)
-                            margin_sum[key] = max(margin_sum[key], 0)
+            for key in sum:  # убираем отрицательные, если не корректировочный проект
+                if not project.is_correction_project:
+                    sum[key] = max(sum[key], 0)
+                    margin_sum[key] = max(margin_sum[key], 0)
 
-                    sheet.write_number(row, column + 3, sum['commitment'], row_format_number)
-                    sheet.write_number(row, column + 3 + params['margin_shift'], margin_sum['commitment'], row_format_number)
-                    sum75tmp += sum['commitment']
-                    prof75tmp += margin_sum['commitment']
-                    sheet.write_number(row, column + 4, sum['reserve'], row_format_number)
-                    sheet.write_number(row, column + 4 + params['margin_shift'], margin_sum['reserve'], row_format_number)
-                    sum50tmp += sum['reserve']
-                    prof50tmp += margin_sum['reserve']
-            else:
+            sheet.write_number(row, column + 3, sum['commitment'], row_format_number)
+            sheet.write_number(row, column + 3 + params['margin_shift'], margin_sum['commitment'], row_format_number)
+            sum75tmp += sum['commitment']
+            prof75tmp += margin_sum['commitment']
+            sheet.write_number(row, column + 4, sum['reserve'], row_format_number)
+            sheet.write_number(row, column + 4 + params['margin_shift'], margin_sum['reserve'], row_format_number)
+            sum50tmp += sum['reserve']
+            prof50tmp += margin_sum['reserve']
+
+        elif element == 'NEXT':
+            profitability = project.profitability
+
+            sum100tmp_q1_proj = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint + 1, 'Q1')
+            prof100tmp_q1_proj = self.get_sum_fact_margin_project_year_quarter(project, YEARint + 1, 'Q1')
+
+            sum100tmp_proj = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint + 1, False)
+            prof100tmp_proj = self.get_sum_fact_margin_project_year_quarter(project, YEARint + 1, False)
+
+            sum100tmp_q1 += sum100tmp_q1_proj
+            prof100tmp_q1 += prof100tmp_q1_proj
+            sum100tmp += sum100tmp_proj
+            prof100tmp += prof100tmp_proj
+
+            sum_q1, margin_sum_q1 = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint + 1, 'Q1', profitability)
+            sum, margin_sum = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint + 1, False, profitability)
+
+            margin_plan_q1 = {'commitment': 0, 'reserve': 0, 'potential': 0}
+            margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
+            if margin_sum:
+                margin_plan = margin_sum.copy()
+
+            if margin_sum_q1:
+                margin_plan_q1 = margin_sum_q1.copy()
+
+            if not project.is_correction_project:
+                if sum100tmp_q1 >= sum_q1['commitment']:
+                    sum100tmp_q1_ostatok = sum100tmp_q1 - sum_q1['commitment']
+                    sum_q1['commitment'] = 0
+                    sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_ostatok, 0)
+                else:
+                    sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1
+
+                if sum100tmp >= sum['commitment']:
+                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                    sum['commitment'] = 0
+                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
+                else:
+                    sum['commitment'] = sum['commitment'] - sum100tmp
+
+                if prof100tmp_q1 >= margin_plan_q1['commitment']:  # маржа если нет распределения
+                    prof100tmp_q1_ostatok = prof100tmp_q1 - margin_plan_q1['commitment']
+                    margin_sum_q1['commitment'] = 0
+                    margin_sum_q1['reserve'] = max(margin_plan_q1['reserve'] - prof100tmp_q1_ostatok, 0)
+                else:
+                    margin_sum_q1['commitment'] = margin_plan_q1['commitment'] - prof100tmp_q1
+
+                if prof100tmp >= margin_plan['commitment']:  # маржа если нет распределения
+                    prof100tmp_ostatok = prof100tmp - margin_plan['commitment']
+                    margin_sum['commitment'] = 0
+                    margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
+                else:
+                    margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp
+
+            if all(value == 0 for value in sum_q1.values()) and project.end_sale_project_month.year == YEARint + 1 and project.end_sale_project_month.month in self.get_months_from_quarter('Q1'):  # если актирование 0, а месяц в нужном году, берем выручку
+                if project.stage_id.code == '30':
+                    sum_q1['potential'] = project.total_amount_of_revenue
+            #
+            if all(value == 0 for value in sum.values()) and project.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
+                if project.stage_id.code == '30':
+                    sum['potential'] = project.total_amount_of_revenue
+
+            # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
+            sum_q1, margin_sum_q1 = self.get_act_margin_forecast_from_distributions(sum_q1, margin_sum_q1, margin_plan_q1, project, YEARint + 1, self.get_months_from_quarter('Q1'))
+            sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, YEARint + 1, False)
+
+            for key in sum:  # убираем отрицательные, если не корректировочный проект
+                if not project.is_correction_project:
+                    sum_q1[key] = max(sum_q1[key], 0)
+                    margin_sum_q1[key] = max(margin_sum_q1[key], 0)
+                    sum[key] = max(sum[key], 0)
+                    margin_sum[key] = max(margin_sum[key], 0)
+
+            sheet.write_number(row, column + 0, sum['commitment'], row_format_number)
+            sheet.write_number(row, column + 0 + params['margin_shift'], margin_sum['commitment'],
+                               row_format_number)
+            sum_next_75_tmp += sum['commitment']
+            prof_next_75_tmp += margin_sum['commitment']
+            sheet.write_number(row, column + 1, sum['reserve'] * params['50'], row_format_number)
+            sheet.write_number(row, column + 1 + params['margin_shift'], margin_sum['reserve'] * params['50'],
+                               row_format_number)
+            sum_next_50_tmp += sum['reserve'] * params['50']
+            prof_next_50_tmp += margin_sum['reserve'] * params['50']
+            sheet.write_number(row, column + 2, sum['potential'] * params['30'], row_format_number)
+            sheet.write_number(row, column + 2 + params['margin_shift'], margin_sum['potential'] * params['30'],
+                               row_format_number)
+            sum_next_30_tmp += sum['potential'] * params['30']
+            prof_next_30_tmp += margin_sum['potential'] * params['30']
+
+        elif element == 'AFTER NEXT':
+            profitability = project.profitability
+
+            sum100tmp_proj = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint + 2, False)
+            prof100tmp_proj = self.get_sum_fact_margin_project_year_quarter(project, YEARint + 2, False)
+
+            sum100tmp += sum100tmp_proj
+            prof100tmp += prof100tmp_proj
+
+            sum, margin_sum = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint + 2, False, profitability)
+
+            margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
+            if margin_sum:
+                margin_plan = margin_sum.copy()
+
+            if not project.is_correction_project:
+                if sum100tmp >= sum['commitment']:
+                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                    sum['commitment'] = 0
+                    sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
+                else:
+                    sum['commitment'] = sum['commitment'] - sum100tmp
+
+                if prof100tmp >= margin_plan['commitment']:  # маржа если нет распределения
+                    prof100tmp_ostatok = prof100tmp - margin_plan['commitment']
+                    margin_sum['commitment'] = 0
+                    margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
+                else:
+                    margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp
+
+            if all(value == 0 for value in sum.values()) and project.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
+                if project.stage_id.code == '30':
+                    sum['potential'] = project.total_amount_of_revenue
+
+            # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
+            sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, YEARint + 2, False)
+
+            for key in sum:  # убираем отрицательные, если не корректировочный проект
+                if not project.is_correction_project:
+                    sum[key] = max(sum[key], 0)
+                    margin_sum[key] = max(margin_sum[key], 0)
+
+            sum_after_next_tmp += sum['commitment']
+            prof_after_next_tmp += margin_sum['commitment']
+            sum_after_next_tmp += sum['reserve'] * params['50']
+            prof_after_next_tmp += margin_sum['reserve'] * params['50']
+            sum_after_next_tmp += sum['potential'] * params['30']
+            prof_after_next_tmp += margin_sum['potential'] * params['30']
+            sheet.write_number(row, column + 0, sum_after_next_tmp, row_format_number)
+            sheet.write_number(row, column + 0 + params['margin_shift'], prof_after_next_tmp,
+                               row_format_number)
+
+        return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
+
+    def calculate_quarter_planned_acceptance(self, element, project, project_office, params):
+        global strYEAR
+        global YEARint
+
+        sum75tmpetalon = sum50tmpetalon = sum100tmp = sum100tmp_q1 = sum75tmp = sum50tmp = 0
+        prof75tmpetalon = prof50tmpetalon = prof100tmp = prof100tmp_q1 = prof75tmp = prof50tmp = 0
+        sum_next_75_q1_tmp = 0
+        sum_next_50_q1_tmp = 0
+        sum_next_30_q1_tmp = 0
+        sum_next_75_tmp = 0
+        sum_next_50_tmp = 0
+        sum_next_30_tmp = 0
+        sum_after_next_tmp = 0
+        prof_next_75_q1_tmp = 0
+        prof_next_50_q1_tmp = 0
+        prof_next_30_q1_tmp = 0
+        prof_next_75_tmp = 0
+        prof_next_50_tmp = 0
+        prof_next_30_tmp = 0
+        prof_after_next_tmp = 0
+
+        if element in ('Q1', 'Q2', 'Q3', 'Q4'):
+            months = self.get_months_from_quarter(element)
+            if project.stage_id.code not in ('0', '10'):
+
                 profitability = project.profitability
 
-                sum100tmp_proj = self.get_sum_fact_acceptance_project_step_year_quarter(project, False, YEARint, element)
-                prof100tmp_proj = self.get_sum_fact_margin_project_step_year_quarter(project, False, YEARint, element)
-                sheet.write_number(row, column + 2, sum100tmp_proj, row_format_number)
-                sheet.write_number(row, column + 2 + params['margin_shift'], prof100tmp_proj, row_format_number)
+                sum100tmp_proj = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint, element)
+                prof100tmp_proj = self.get_sum_fact_margin_project_year_quarter(project, YEARint, element)
 
                 sum100tmp += sum100tmp_proj
                 prof100tmp += prof100tmp_proj
 
-                sum, margin_sum = self.get_sum_planned_acceptance_project_step_year_quarter(project, False, YEARint, element, profitability)
+                sum, margin_sum = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint, element, profitability)
 
                 margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
@@ -1734,167 +1090,35 @@ class report_management_committee_excel(models.AbstractModel):
                         margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, False, YEARint, months)
+                sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, YEARint, months)
 
-                for key in sum:  # убираем отрицательные, если не корректировочный проект
+                for key in sum: # убираем отрицательные, если не корректировочный проект
                     if not project.is_correction_project:
                         sum[key] = max(sum[key], 0)
                         margin_sum[key] = max(margin_sum[key], 0)
 
-                sheet.write_number(row, column + 3, sum['commitment'], row_format_number)
-                sheet.write_number(row, column + 3 + params['margin_shift'], margin_sum['commitment'], row_format_number)
                 sum75tmp += sum['commitment']
                 prof75tmp += margin_sum['commitment']
-                sheet.write_number(row, column + 4, sum['reserve'], row_format_number)
-                sheet.write_number(row, column + 4 + params['margin_shift'], margin_sum['reserve'], row_format_number)
                 sum50tmp += sum['reserve']
                 prof50tmp += margin_sum['reserve']
 
         elif element == 'NEXT':
-            if step:
+            if project.stage_id.code not in ('0', '10'):
 
-                if ((project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
-                        or ((not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
-
-                    profitability = step.profitability
-
-                    sum100tmp_q1_step = self.get_sum_fact_acceptance_project_step_year_quarter(project, step, YEARint + 1,
-                                                                                            'Q1')
-                    prof100tmp_q1_step = self.get_sum_fact_margin_project_step_year_quarter(project, step, YEARint + 1,
-                                                                                         'Q1')
-                    sum100tmp_step = self.get_sum_fact_acceptance_project_step_year_quarter(project, step, YEARint + 1, False)
-                    prof100tmp_step = self.get_sum_fact_margin_project_step_year_quarter(project, step, YEARint + 1, False)
-
-                    sum100tmp += sum100tmp_step
-                    prof100tmp += prof100tmp_step
-
-                    sum_q1, margin_sum_q1 = self.get_sum_planned_acceptance_project_step_year_quarter(project, step, YEARint + 1, 'Q1', profitability)
-                    sum, margin_sum = self.get_sum_planned_acceptance_project_step_year_quarter(project, step, YEARint + 1, False, profitability)
-
-                    margin_plan_q1 = {'commitment': 0, 'reserve': 0, 'potential': 0}
-                    margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
-
-                    if margin_sum:
-                        margin_plan = margin_sum.copy()
-
-                    if margin_sum_q1:
-                        margin_plan_q1 = margin_sum_q1.copy()
-
-                    if not project.is_correction_project:
-                        if sum100tmp_q1_step >= sum_q1['commitment']:
-                            sum100tmp_q1_step_ostatok = sum100tmp_q1_step - sum_q1['commitment']
-                            sum_q1['commitment'] = 0
-                            sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_step_ostatok, 0)
-                        else:
-                            sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1_step
-
-                        if sum100tmp_step >= sum['commitment']:
-                            sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
-                            sum['commitment'] = 0
-                            sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
-                        else:
-                            sum['commitment'] = sum['commitment'] - sum100tmp_step
-
-                        if prof100tmp_q1_step >= margin_plan_q1['commitment']:  # маржа если нет распределения
-                            prof100tmp_q1_step_ostatok = prof100tmp_q1_step - margin_plan_q1['commitment']
-                            margin_sum_q1['commitment'] = 0
-                            margin_sum_q1['reserve'] = max(margin_plan_q1['reserve'] - prof100tmp_q1_step_ostatok, 0)
-                        else:
-                            margin_sum_q1['commitment'] = margin_plan_q1['commitment'] - prof100tmp_q1_step
-
-                        if prof100tmp_step >= margin_plan['commitment']:  # маржа если нет распределения
-                            prof100tmp_step_ostatok = prof100tmp_step - margin_plan['commitment']
-                            margin_sum['commitment'] = 0
-                            margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_step_ostatok, 0)
-                        else:
-                            margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_step
-
-                    if (all(value == 0 for value in
-                           sum_q1.values()) and step.end_sale_project_month.year == YEARint + 1
-                            and step.end_sale_project_month.month in self.get_months_from_quarter('Q1')):  # если актирование 0, а месяц в нужном квартале, берем выручку
-                    #     if step.estimated_probability_id.name in ('75', '100'):
-                    #         sum_q1['commitment'] = step.total_amount_of_revenue
-                    #     elif step.estimated_probability_id.name == '50':
-                    #         sum_q1['reserve'] = step.total_amount_of_revenue
-                        if step.stage_id.code == '30':
-                            sum_q1['potential'] = step.total_amount_of_revenue
-
-                    if all(value == 0 for value in sum.values()) and step.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
-                        # if step.estimated_probability_id.name in ('75', '100'):
-                    #         sum['commitment'] = step.total_amount_of_revenue
-                    #     elif step.estimated_probability_id.name == '50':
-                    #         sum['reserve'] = step.total_amount_of_revenue
-                        if step.stage_id.code == '30':
-                            sum['potential'] = step.total_amount_of_revenue
-
-                    # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                    sum_q1, margin_sum_q1 = self.get_act_margin_forecast_from_distributions(sum_q1, margin_sum_q1, margin_plan_q1,
-                                                                                      project, step, YEARint + 1, self.get_months_from_quarter('Q1'))
-                    sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, step, YEARint + 1, False)
-
-                    for key in sum: # убираем отрицательные, если не корректировочный проект
-                        if not project.is_correction_project:
-                            sum_q1[key] = max(sum_q1[key], 0)
-                            margin_sum_q1[key] = max(margin_sum_q1[key], 0)
-                            sum[key] = max(sum[key], 0)
-                            margin_sum[key] = max(margin_sum[key], 0)
-
-                    # Q1 NEXT
-                    # sheet.write_number(row, column + 0, sum_q1['commitment'], row_format_number)
-                    # sheet.write_number(row, column + 0 + params['margin_shift'], sum_q1['commitment'] * profitability / 100, row_format_number)
-                    # sum_next_75_q1_tmp += sum_q1['commitment']
-                    # prof_next_75_q1_tmp += sum_q1['commitment'] * profitability / 100
-                    # sheet.write_number(row, column + 1, sum_q1['reserve'] * params['50'], row_format_number)
-                    # sheet.write_number(row, column + 1 + params['margin_shift'], sum_q1['reserve'] * params['50'] * profitability / 100, row_format_number)
-                    # sum_next_50_q1_tmp += sum_q1['reserve'] * params['50']
-                    # prof_next_50_q1_tmp += sum_q1['reserve'] * params['50'] * profitability / 100
-                    # sheet.write_number(row, column + 2, sum_q1['potential'] * params['30'], row_format_number)
-                    # sheet.write_number(row, column + 2 + params['margin_shift'], sum_q1['potential'] * params['30'] * profitability / 100, row_format_number)
-                    # sum_next_30_q1_tmp += sum_q1['potential'] * params['30']
-                    # prof_next_30_q1_tmp += sum_q1['potential'] * params['30'] * profitability / 100
-                    #
-                    # sheet.write_number(row, column + 3, sum['commitment'], row_format_number)
-                    # sheet.write_number(row, column + 3 + params['margin_shift'], sum['commitment'] * profitability / 100, row_format_number)
-                    # sum_next_75_tmp += sum['commitment']
-                    # prof_next_75_tmp += sum['commitment'] * profitability / 100
-                    # sheet.write_number(row, column + 4, sum['reserve'] * params['50'], row_format_number)
-                    # sheet.write_number(row, column + 4 + params['margin_shift'], sum['reserve'] * params['50'] * profitability / 100, row_format_number)
-                    # sum_next_50_tmp += sum['reserve'] * params['50']
-                    # prof_next_50_tmp += sum['reserve'] * params['50'] * profitability / 100
-                    # sheet.write_number(row, column + 5, sum['potential'] * params['30'], row_format_number)
-                    # sheet.write_number(row, column + 5 + params['margin_shift'], sum['potential'] * params['30'] * profitability / 100, row_format_number)
-                    # sum_next_30_tmp += sum['potential'] * params['30']
-                    # prof_next_30_tmp += sum['potential'] * params['30'] * profitability / 100
-
-                    sheet.write_number(row, column + 0, sum['commitment'], row_format_number)
-                    sheet.write_number(row, column + 0 + params['margin_shift'], margin_sum['commitment'], row_format_number)
-                    sum_next_75_tmp += sum['commitment']
-                    prof_next_75_tmp += margin_sum['commitment']
-                    sheet.write_number(row, column + 1, sum['reserve'] * params['50'], row_format_number)
-                    sheet.write_number(row, column + 1 + params['margin_shift'], margin_sum['reserve'] * params['50'], row_format_number)
-                    sum_next_50_tmp += sum['reserve'] * params['50']
-                    prof_next_50_tmp += margin_sum['reserve'] * params['50']
-                    sheet.write_number(row, column + 2, sum['potential'] * params['30'], row_format_number)
-                    sheet.write_number(row, column + 2 + params['margin_shift'], margin_sum['potential'] * params['30'], row_format_number)
-                    sum_next_30_tmp += sum['potential'] * params['30']
-                    prof_next_30_tmp += margin_sum['potential'] * params['30']
-            else:
                 profitability = project.profitability
 
-                sum100tmp_q1_proj = self.get_sum_fact_acceptance_project_step_year_quarter(project, False, YEARint + 1,
-                                                                                        'Q1')
-                prof100tmp_q1_proj = self.get_sum_fact_margin_project_step_year_quarter(project, False, YEARint + 1, 'Q1')
-
-                sum100tmp_proj = self.get_sum_fact_acceptance_project_step_year_quarter(project, False, YEARint + 1, False)
-                prof100tmp_proj = self.get_sum_fact_margin_project_step_year_quarter(project, False, YEARint + 1, False)
+                sum100tmp_q1_proj = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint + 1, 'Q1')
+                prof100tmp_q1_proj = self.get_sum_fact_margin_project_year_quarter(project, YEARint + 1, 'Q1')
+                sum100tmp_proj = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint + 1, False)
+                prof100tmp_proj = self.get_sum_fact_margin_project_year_quarter(project, YEARint + 1, False)
 
                 sum100tmp_q1 += sum100tmp_q1_proj
                 prof100tmp_q1 += prof100tmp_q1_proj
                 sum100tmp += sum100tmp_proj
                 prof100tmp += prof100tmp_proj
 
-                sum_q1, margin_sum_q1 = self.get_sum_planned_acceptance_project_step_year_quarter(project, False, YEARint + 1, 'Q1', profitability)
-                sum, margin_sum = self.get_sum_planned_acceptance_project_step_year_quarter(project, False, YEARint + 1, False, profitability)
+                sum_q1, margin_sum_q1 = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint + 1, 'Q1', profitability)
+                sum, margin_sum = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint + 1, False, profitability)
 
                 margin_plan_q1 = {'commitment': 0, 'reserve': 0, 'potential': 0}
                 margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
@@ -1934,25 +1158,18 @@ class report_management_committee_excel(models.AbstractModel):
                     else:
                         margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp
 
-                if all(value == 0 for value in sum_q1.values()) and project.end_sale_project_month.year == YEARint + 1 and project.end_sale_project_month.month in self.get_months_from_quarter('Q1'):  # если актирование 0, а месяц в нужном году, берем выручку
-                    # if project.estimated_probability_id.name in ('75', '100'):
-                #         sum_q1['commitment'] = project.total_amount_of_revenue
-                #     elif project.estimated_probability_id.name == '50':
-                #         sum_q1['reserve'] = project.total_amount_of_revenue
+                if (all(value == 0 for value in sum_q1.values()) and project.end_sale_project_month.year == YEARint + 1
+                        and project.end_sale_project_month.month in self.get_months_from_quarter('Q1')):  # если актирование 0, а месяц в нужном году, берем выручку
                     if project.stage_id.code == '30':
                         sum_q1['potential'] = project.total_amount_of_revenue
                 #
                 if all(value == 0 for value in sum.values()) and project.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
-                    # if project.estimated_probability_id.name in ('75', '100'):
-                #         sum['commitment'] = project.total_amount_of_revenue
-                #     elif project.estimated_probability_id.name == '50':
-                #         sum['reserve'] = project.total_amount_of_revenue
                     if project.stage_id.code == '30':
                         sum['potential'] = project.total_amount_of_revenue
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum_q1, margin_sum_q1 = self.get_act_margin_forecast_from_distributions(sum_q1, margin_sum_q1, margin_plan_q1, project, False, YEARint + 1, self.get_months_from_quarter('Q1'))
-                sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, False, YEARint + 1, False)
+                sum_q1, margin_sum_q1 = self.get_act_margin_forecast_from_distributions(sum_q1, margin_sum_q1, margin_plan_q1, project, YEARint + 1, self.get_months_from_quarter('Q1'))
+                sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, YEARint + 1, False)
 
                 for key in sum:  # убираем отрицательные, если не корректировочный проект
                     if not project.is_correction_project:
@@ -1961,126 +1178,32 @@ class report_management_committee_excel(models.AbstractModel):
                         sum[key] = max(sum[key], 0)
                         margin_sum[key] = max(margin_sum[key], 0)
 
-                # Q1 NEXT
-                # sheet.write_number(row, column + 0, sum_q1['commitment'], row_format_number)
-                # sheet.write_number(row, column + 0 + params['margin_shift'], sum_q1['commitment'] * profitability / 100,
-                #                    row_format_number)
-                # sum_next_75_q1_tmp += sum_q1['commitment']
-                # prof_next_75_q1_tmp += sum_q1['commitment'] * profitability / 100
-                # sheet.write_number(row, column + 1, sum_q1['reserve'] * params['50'], row_format_number)
-                # sheet.write_number(row, column + 1 + params['margin_shift'], sum_q1['reserve'] * params['50'] * profitability / 100,
-                #                    row_format_number)
-                # sum_next_50_q1_tmp += sum_q1['reserve'] * params['50']
-                # prof_next_50_q1_tmp += sum_q1['reserve'] * params['50'] * profitability / 100
-                # sheet.write_number(row, column + 2, sum_q1['potential'] * params['30'], row_format_number)
-                # sheet.write_number(row, column + 2 + params['margin_shift'], sum_q1['potential'] * params['30'] * profitability / 100,
-                #                    row_format_number)
-                # sum_next_30_q1_tmp += sum_q1['potential'] * params['30']
-                # prof_next_30_q1_tmp += sum_q1['potential'] * params['30'] * profitability / 100
-                #
-                # sheet.write_number(row, column + 3, sum['commitment'], row_format_number)
-                # sheet.write_number(row, column + 3 + params['margin_shift'], sum['commitment'] * profitability / 100,
-                #                    row_format_number)
-                # sum_next_75_tmp += sum['commitment']
-                # prof_next_75_tmp += sum['commitment'] * profitability / 100
-                # sheet.write_number(row, column + 4, sum['reserve'] * params['50'], row_format_number)
-                # sheet.write_number(row, column + 4 + params['margin_shift'], sum['reserve'] * params['50'] * profitability / 100,
-                #                    row_format_number)
-                # sum_next_50_tmp += sum['reserve'] * params['50']
-                # prof_next_50_tmp += sum['reserve'] * params['50'] * profitability / 100
-                # sheet.write_number(row, column + 5, sum['potential'] * params['30'], row_format_number)
-                # sheet.write_number(row, column + 5 + params['margin_shift'], sum['potential'] * params['30'] * profitability / 100,
-                #                    row_format_number)
-                # sum_next_30_tmp += sum['potential'] * params['30']
-                # prof_next_30_tmp += sum['potential'] * params['30'] * profitability / 100
+                sum_next_75_q1_tmp += sum_q1['commitment']
+                prof_next_75_q1_tmp += margin_sum_q1['commitment']
+                sum_next_50_q1_tmp += sum_q1['reserve'] * params['50']
+                prof_next_50_q1_tmp += margin_sum_q1['reserve'] * params['50']
+                sum_next_30_q1_tmp += sum_q1['potential'] * params['30']
+                prof_next_30_q1_tmp += margin_sum_q1['potential'] * params['30']
 
-                sheet.write_number(row, column + 0, sum['commitment'], row_format_number)
-                sheet.write_number(row, column + 0 + params['margin_shift'], margin_sum['commitment'],
-                                   row_format_number)
                 sum_next_75_tmp += sum['commitment']
                 prof_next_75_tmp += margin_sum['commitment']
-                sheet.write_number(row, column + 1, sum['reserve'] * params['50'], row_format_number)
-                sheet.write_number(row, column + 1 + params['margin_shift'], margin_sum['reserve'] * params['50'],
-                                   row_format_number)
                 sum_next_50_tmp += sum['reserve'] * params['50']
                 prof_next_50_tmp += margin_sum['reserve'] * params['50']
-                sheet.write_number(row, column + 2, sum['potential'] * params['30'], row_format_number)
-                sheet.write_number(row, column + 2 + params['margin_shift'], margin_sum['potential'] * params['30'],
-                                   row_format_number)
                 sum_next_30_tmp += sum['potential'] * params['30']
                 prof_next_30_tmp += margin_sum['potential'] * params['30']
 
         elif element == 'AFTER NEXT':
-            if step:
+            if project.stage_id.code not in ('0', '10'):
 
-                if ((project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
-                        or ((not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
-
-                    profitability = step.profitability
-
-                    sum100tmp_step = self.get_sum_fact_acceptance_project_step_year_quarter(project, step, YEARint + 2, False)
-                    prof100tmp_step = self.get_sum_fact_margin_project_step_year_quarter(project, step, YEARint + 2, False)
-
-                    sum100tmp += sum100tmp_step
-                    prof100tmp += prof100tmp_step
-
-                    sum, margin_sum = self.get_sum_planned_acceptance_project_step_year_quarter(project, step, YEARint + 2, False, profitability)
-
-                    margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
-
-                    if margin_sum:
-                        margin_plan = margin_sum.copy()
-
-                    if not project.is_correction_project:
-                        if sum100tmp_step >= sum['commitment']:
-                            sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
-                            sum['commitment'] = 0
-                            sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
-                        else:
-                            sum['commitment'] = sum['commitment'] - sum100tmp_step
-
-                        if prof100tmp_step >= margin_plan['commitment']:  # маржа если нет распределения
-                            prof100tmp_step_ostatok = prof100tmp_step - margin_plan['commitment']
-                            margin_sum['commitment'] = 0
-                            margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_step_ostatok, 0)
-                        else:
-                            margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_step
-
-                    if all(value == 0 for value in sum.values()) and step.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
-                    #     if step.estimated_probability_id.name in ('75', '100'):
-                    #         sum['commitment'] = step.total_amount_of_revenue
-                    #     elif step.estimated_probability_id.name == '50':
-                    #         sum['reserve'] = step.total_amount_of_revenue
-                        if step.stage_id.code == '30':
-                            sum['potential'] = step.total_amount_of_revenue
-
-                    # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                    sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, step, YEARint + 2, False)
-
-                    for key in sum:  # убираем отрицательные, если не корректировочный проект
-                        if not project.is_correction_project:
-                            sum[key] = max(sum[key], 0)
-                            margin_sum[key] = max(margin_sum[key], 0)
-
-                    sum_after_next_tmp += sum['commitment']
-                    prof_after_next_tmp += margin_sum['commitment']
-                    sum_after_next_tmp += sum['reserve'] * params['50']
-                    prof_after_next_tmp += margin_sum['reserve'] * params['50']
-                    sum_after_next_tmp += sum['potential'] * params['30']
-                    prof_after_next_tmp += margin_sum['potential'] * params['30']
-                    sheet.write_number(row, column + 0, sum_after_next_tmp, row_format_number)
-                    sheet.write_number(row, column + 0 + params['margin_shift'], prof_after_next_tmp,
-                                       row_format_number)
-            else:
                 profitability = project.profitability
 
-                sum100tmp_proj = self.get_sum_fact_acceptance_project_step_year_quarter(project, False, YEARint + 2, False)
-                prof100tmp_proj = self.get_sum_fact_margin_project_step_year_quarter(project, False, YEARint + 2, False)
+                sum100tmp_proj = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint + 2, False)
+                prof100tmp_proj = self.get_sum_fact_margin_project_year_quarter(project, YEARint + 2, False)
 
                 sum100tmp += sum100tmp_proj
                 prof100tmp += prof100tmp_proj
 
-                sum, margin_sum = self.get_sum_planned_acceptance_project_step_year_quarter(project, False, YEARint + 2, False, profitability)
+                sum, margin_sum = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint + 2, False, profitability)
 
                 margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
@@ -2103,15 +1226,11 @@ class report_management_committee_excel(models.AbstractModel):
                         margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp
 
                 if all(value == 0 for value in sum.values()) and project.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
-                #     if project.estimated_probability_id.name in ('75', '100'):
-                #         sum['commitment'] = project.total_amount_of_revenue
-                #     elif project.estimated_probability_id.name == '50':
-                #         sum['reserve'] = project.total_amount_of_revenue
                     if project.stage_id.code == '30':
                         sum['potential'] = project.total_amount_of_revenue
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, False, YEARint + 2, False)
+                sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, YEARint + 2, False)
 
                 for key in sum:  # убираем отрицательные, если не корректировочный проект
                     if not project.is_correction_project:
@@ -2124,453 +1243,6 @@ class report_management_committee_excel(models.AbstractModel):
                 prof_after_next_tmp += margin_sum['reserve'] * params['50']
                 sum_after_next_tmp += sum['potential'] * params['30']
                 prof_after_next_tmp += margin_sum['potential'] * params['30']
-            sheet.write_number(row, column + 0, sum_after_next_tmp, row_format_number)
-            sheet.write_number(row, column + 0 + params['margin_shift'], prof_after_next_tmp,
-                               row_format_number)
-
-        return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
-
-    def calculate_quarter_planned_acceptance(self, element, project, project_office, params):
-        global strYEAR
-        global YEARint
-
-        sum75tmpetalon = sum50tmpetalon = sum100tmp = sum100tmp_q1 = sum75tmp = sum50tmp = 0
-        prof75tmpetalon = prof50tmpetalon = prof100tmp = prof100tmp_q1 = prof75tmp = prof50tmp = 0
-        sum_next_75_q1_tmp = 0
-        sum_next_50_q1_tmp = 0
-        sum_next_30_q1_tmp = 0
-        sum_next_75_tmp = 0
-        sum_next_50_tmp = 0
-        sum_next_30_tmp = 0
-        sum_after_next_tmp = 0
-        prof_next_75_q1_tmp = 0
-        prof_next_50_q1_tmp = 0
-        prof_next_30_q1_tmp = 0
-        prof_next_75_tmp = 0
-        prof_next_50_tmp = 0
-        prof_next_30_tmp = 0
-        prof_after_next_tmp = 0
-
-        if element in ('Q1', 'Q2', 'Q3', 'Q4'):
-            months = self.get_months_from_quarter(element)
-            if project.project_have_steps:
-                for step in project.project_steps_ids:
-
-                    if step.stage_id.code in ('0', '10'): continue
-
-                    if ((project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
-                            or ((not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
-
-                        profitability = step.profitability
-
-                        sum100tmp_step = self.get_sum_fact_acceptance_project_step_year_quarter(project, step, YEARint, element)
-                        prof100tmp_step = self.get_sum_fact_margin_project_step_year_quarter(project, step, YEARint, element)
-
-                        sum100tmp += sum100tmp_step
-                        prof100tmp += prof100tmp_step
-
-                        sum, margin_sum = self.get_sum_planned_acceptance_project_step_year_quarter(project, step, YEARint, element, profitability)
-
-                        margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
-
-                        if margin_sum:
-                            margin_plan = margin_sum.copy()
-
-                        if not project.is_correction_project:
-                            if sum100tmp_step >= sum['commitment']:
-                                sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
-                                sum['commitment'] = 0
-                                sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
-                            else:
-                                sum['commitment'] = sum['commitment'] - sum100tmp_step
-
-                            if prof100tmp_step >= margin_plan['commitment']:  # маржа если нет распределения
-                                prof100tmp_step_ostatok = prof100tmp_step - margin_plan['commitment']
-                                margin_sum['commitment'] = 0
-                                margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_step_ostatok, 0)
-                            else:
-                                margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_step
-
-                        # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                        sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, step, YEARint, months)
-
-                        for key in sum:  # убираем отрицательные, если не корректировочный проект
-                            if not project.is_correction_project:
-                                sum[key] = max(sum[key], 0)
-                                margin_sum[key] = max(margin_sum[key], 0)
-
-                        sum75tmp += sum['commitment']
-                        prof75tmp += margin_sum['commitment']
-                        sum50tmp += sum['reserve']
-                        prof50tmp += margin_sum['reserve']
-            else:
-
-                if project.stage_id.code not in ('0', '10'):
-
-                    profitability = project.profitability
-
-                    sum100tmp_proj = self.get_sum_fact_acceptance_project_step_year_quarter(project, False, YEARint, element)
-                    prof100tmp_proj = self.get_sum_fact_margin_project_step_year_quarter(project, False, YEARint, element)
-
-                    sum100tmp += sum100tmp_proj
-                    prof100tmp += prof100tmp_proj
-
-                    sum, margin_sum = self.get_sum_planned_acceptance_project_step_year_quarter(project, False, YEARint, element, profitability)
-
-                    margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
-
-                    if margin_sum:
-                        margin_plan = margin_sum.copy()
-
-                    if not project.is_correction_project:
-                        if sum100tmp >= sum['commitment']:
-                            sum100tmp_ostatok = sum100tmp - sum['commitment']
-                            sum['commitment'] = 0
-                            sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
-                        else:
-                            sum['commitment'] = sum['commitment'] - sum100tmp
-
-                        if prof100tmp >= margin_plan['commitment']:  # маржа если нет распределения
-                            prof100tmp_ostatok = prof100tmp - margin_plan['commitment']
-                            margin_sum['commitment'] = 0
-                            margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
-                        else:
-                            margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp
-
-                    # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                    sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, False, YEARint, months)
-
-                    for key in sum: # убираем отрицательные, если не корректировочный проект
-                        if not project.is_correction_project:
-                            sum[key] = max(sum[key], 0)
-                            margin_sum[key] = max(margin_sum[key], 0)
-
-                    sum75tmp += sum['commitment']
-                    prof75tmp += margin_sum['commitment']
-                    sum50tmp += sum['reserve']
-                    prof50tmp += margin_sum['reserve']
-
-        elif element == 'NEXT':
-            if project.project_have_steps:
-                for step in project.project_steps_ids:
-
-                    if step.stage_id.code in ('0', '10'): continue
-
-                    if ((project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
-                            or ((not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
-
-                        profitability = step.profitability
-
-                        sum100tmp_q1_step = self.get_sum_fact_acceptance_project_step_year_quarter(project, step,
-                                                                                                YEARint + 1, 'Q1')
-                        prof100tmp_q1_step = self.get_sum_fact_margin_project_step_year_quarter(project, step, YEARint + 1,
-                                                                                             'Q1')
-                        sum100tmp_step = self.get_sum_fact_acceptance_project_step_year_quarter(project, step, YEARint + 1, False)
-                        prof100tmp_step = self.get_sum_fact_margin_project_step_year_quarter(project, step, YEARint + 1, False)
-
-                        sum100tmp_q1 += sum100tmp_q1_step
-                        prof100tmp_q1 += prof100tmp_q1_step
-                        sum100tmp += sum100tmp_step
-                        prof100tmp += prof100tmp_step
-
-                        sum_q1, margin_sum_q1 = self.get_sum_planned_acceptance_project_step_year_quarter(project, step, YEARint + 1, 'Q1', profitability)
-                        sum, margin_sum = self.get_sum_planned_acceptance_project_step_year_quarter(project, step, YEARint + 1, False, profitability)
-
-                        margin_plan_q1 = {'commitment': 0, 'reserve': 0, 'potential': 0}
-                        margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
-
-                        if margin_sum:
-                            margin_plan = margin_sum.copy()
-
-                        if margin_sum_q1:
-                            margin_plan_q1 = margin_sum_q1.copy()
-
-                        if not project.is_correction_project:
-                            if sum100tmp_q1_step >= sum_q1['commitment']:
-                                sum100tmp_q1_step_ostatok = sum100tmp_q1_step - sum_q1['commitment']
-                                sum_q1['commitment'] = 0
-                                sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_step_ostatok, 0)
-                            else:
-                                sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1_step
-
-                            if sum100tmp_step >= sum['commitment']:
-                                sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
-                                sum['commitment'] = 0
-                                sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
-                            else:
-                                sum['commitment'] = sum['commitment'] - sum100tmp_step
-
-                            if prof100tmp_q1_step >= margin_plan_q1['commitment']:  # маржа если нет распределения
-                                prof100tmp_q1_step_ostatok = prof100tmp_q1_step - margin_plan_q1['commitment']
-                                margin_sum_q1['commitment'] = 0
-                                margin_sum_q1['reserve'] = max(margin_plan_q1['reserve'] - prof100tmp_q1_step_ostatok, 0)
-                            else:
-                                margin_sum_q1['commitment'] = margin_plan_q1['commitment'] - prof100tmp_q1_step
-
-                            if prof100tmp_step >= margin_plan['commitment']:  # маржа если нет распределения
-                                prof100tmp_step_ostatok = prof100tmp_step - margin_plan['commitment']
-                                margin_sum['commitment'] = 0
-                                margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_step_ostatok, 0)
-                            else:
-                                margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_step
-
-                        if (all(value == 0 for value in sum_q1.values()) and step.end_sale_project_month.year == YEARint + 1
-                                and step.end_sale_project_month.month in self.get_months_from_quarter('Q1')):  # если актирование 0, а месяц в нужном году, берем выручку
-                        #     if step.estimated_probability_id.name in ('75', '100'):
-                        #         sum_q1['commitment'] = step.total_amount_of_revenue
-                        #     elif step.estimated_probability_id.name == '50':
-                        #         sum_q1['reserve'] = step.total_amount_of_revenue
-                            if step.stage_id.code == '30':
-                                sum_q1['potential'] = step.total_amount_of_revenue
-                        #
-                        if all(value == 0 for value in sum.values()) and step.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
-                        #     if step.estimated_probability_id.name in ('75', '100'):
-                        #         sum['commitment'] = step.total_amount_of_revenue
-                        #     elif step.estimated_probability_id.name == '50':
-                        #         sum['reserve'] = step.total_amount_of_revenue
-                            if step.stage_id.code == '30':
-                                sum['potential'] = step.total_amount_of_revenue
-
-                        # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                        sum_q1, margin_sum_q1 = self.get_act_margin_forecast_from_distributions(sum_q1, margin_sum_q1, margin_plan, project, step, YEARint + 1, self.get_months_from_quarter('Q1'))
-                        sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, step, YEARint + 1, False)
-
-                        for key in sum:  # убираем отрицательные, если не корректировочный проект
-                            if not project.is_correction_project:
-                                sum_q1[key] = max(sum_q1[key], 0)
-                                margin_sum_q1[key] = max(margin_sum_q1[key], 0)
-                                sum[key] = max(sum[key], 0)
-                                margin_sum[key] = max(margin_sum[key], 0)
-
-                        sum_next_75_q1_tmp += sum_q1['commitment']
-                        prof_next_75_q1_tmp += margin_sum_q1['commitment']
-                        sum_next_50_q1_tmp += sum_q1['reserve'] * params['50']
-                        prof_next_50_q1_tmp += margin_sum_q1['reserve'] * params['50']
-                        sum_next_30_q1_tmp += sum_q1['potential'] * params['30']
-                        prof_next_30_q1_tmp += margin_sum_q1['potential'] * params['30']
-
-                        sum_next_75_tmp += sum['commitment']
-                        prof_next_75_tmp += margin_sum['commitment']
-                        sum_next_50_tmp += sum['reserve'] * params['50']
-                        prof_next_50_tmp += margin_sum['reserve'] * params['50']
-                        sum_next_30_tmp += sum['potential'] * params['30']
-                        prof_next_30_tmp += margin_sum['potential'] * params['30']
-            else:
-
-                if project.stage_id.code not in ('0', '10'):
-
-                    profitability = project.profitability
-
-                    sum100tmp_q1_proj = self.get_sum_fact_acceptance_project_step_year_quarter(project, False, YEARint + 1, 'Q1')
-                    prof100tmp_q1_proj = self.get_sum_fact_margin_project_step_year_quarter(project, False, YEARint + 1, 'Q1')
-                    sum100tmp_proj = self.get_sum_fact_acceptance_project_step_year_quarter(project, False, YEARint + 1, False)
-                    prof100tmp_proj = self.get_sum_fact_margin_project_step_year_quarter(project, False, YEARint + 1, False)
-
-                    sum100tmp_q1 += sum100tmp_q1_proj
-                    prof100tmp_q1 += prof100tmp_q1_proj
-                    sum100tmp += sum100tmp_proj
-                    prof100tmp += prof100tmp_proj
-
-                    sum_q1, margin_sum_q1 = self.get_sum_planned_acceptance_project_step_year_quarter(project, False, YEARint + 1, 'Q1', profitability)
-                    sum, margin_sum = self.get_sum_planned_acceptance_project_step_year_quarter(project, False, YEARint + 1, False, profitability)
-
-                    margin_plan_q1 = {'commitment': 0, 'reserve': 0, 'potential': 0}
-                    margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
-
-                    if margin_sum:
-                        margin_plan = margin_sum.copy()
-
-                    if margin_sum_q1:
-                        margin_plan_q1 = margin_sum_q1.copy()
-
-                    if not project.is_correction_project:
-                        if sum100tmp_q1 >= sum_q1['commitment']:
-                            sum100tmp_q1_ostatok = sum100tmp_q1 - sum_q1['commitment']
-                            sum_q1['commitment'] = 0
-                            sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_ostatok, 0)
-                        else:
-                            sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1
-
-                        if sum100tmp >= sum['commitment']:
-                            sum100tmp_ostatok = sum100tmp - sum['commitment']
-                            sum['commitment'] = 0
-                            sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
-                        else:
-                            sum['commitment'] = sum['commitment'] - sum100tmp
-
-                        if prof100tmp_q1 >= margin_plan_q1['commitment']:  # маржа если нет распределения
-                            prof100tmp_q1_ostatok = prof100tmp_q1 - margin_plan_q1['commitment']
-                            margin_sum_q1['commitment'] = 0
-                            margin_sum_q1['reserve'] = max(margin_plan_q1['reserve'] - prof100tmp_q1_ostatok, 0)
-                        else:
-                            margin_sum_q1['commitment'] = margin_plan_q1['commitment'] - prof100tmp_q1
-
-                        if prof100tmp >= margin_plan['commitment']:  # маржа если нет распределения
-                            prof100tmp_ostatok = prof100tmp - margin_plan['commitment']
-                            margin_sum['commitment'] = 0
-                            margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
-                        else:
-                            margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp
-
-                    if (all(value == 0 for value in sum_q1.values()) and project.end_sale_project_month.year == YEARint + 1
-                            and project.end_sale_project_month.month in self.get_months_from_quarter('Q1')):  # если актирование 0, а месяц в нужном году, берем выручку
-                    #     if project.estimated_probability_id.name in ('75', '100'):
-                    #         sum_q1['commitment'] = project.total_amount_of_revenue
-                    #     elif project.estimated_probability_id.name == '50':
-                    #         sum_q1['reserve'] = project.total_amount_of_revenue
-                        if project.stage_id.code == '30':
-                            sum_q1['potential'] = project.total_amount_of_revenue
-                    #
-                    if all(value == 0 for value in sum.values()) and project.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
-                    #     if project.estimated_probability_id.name in ('75', '100'):
-                    #         sum['commitment'] = project.total_amount_of_revenue
-                    #     elif project.estimated_probability_id.name == '50':
-                    #         sum['reserve'] = project.total_amount_of_revenue
-                        if project.stage_id.code == '30':
-                            sum['potential'] = project.total_amount_of_revenue
-
-                    # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                    sum_q1, margin_sum_q1 = self.get_act_margin_forecast_from_distributions(sum_q1, margin_sum_q1, margin_plan_q1, project, False, YEARint + 1, self.get_months_from_quarter('Q1'))
-                    sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, False, YEARint + 1, False)
-
-                    for key in sum:  # убираем отрицательные, если не корректировочный проект
-                        if not project.is_correction_project:
-                            sum_q1[key] = max(sum_q1[key], 0)
-                            margin_sum_q1[key] = max(margin_sum_q1[key], 0)
-                            sum[key] = max(sum[key], 0)
-                            margin_sum[key] = max(margin_sum[key], 0)
-
-                    sum_next_75_q1_tmp += sum_q1['commitment']
-                    prof_next_75_q1_tmp += margin_sum_q1['commitment']
-                    sum_next_50_q1_tmp += sum_q1['reserve'] * params['50']
-                    prof_next_50_q1_tmp += margin_sum_q1['reserve'] * params['50']
-                    sum_next_30_q1_tmp += sum_q1['potential'] * params['30']
-                    prof_next_30_q1_tmp += margin_sum_q1['potential'] * params['30']
-
-                    sum_next_75_tmp += sum['commitment']
-                    prof_next_75_tmp += margin_sum['commitment']
-                    sum_next_50_tmp += sum['reserve'] * params['50']
-                    prof_next_50_tmp += margin_sum['reserve'] * params['50']
-                    sum_next_30_tmp += sum['potential'] * params['30']
-                    prof_next_30_tmp += margin_sum['potential'] * params['30']
-
-        elif element == 'AFTER NEXT':
-            if project.project_have_steps:
-                for step in project.project_steps_ids:
-
-                    if step.stage_id.code in ('0', '10'): continue
-
-                    if ((project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
-                            or ((not project.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and project.project_office_id == project_office)):
-
-                        profitability = step.profitability
-
-                        sum100tmp_step = self.get_sum_fact_acceptance_project_step_year_quarter(project, step, YEARint + 2, False)
-                        prof100tmp_step = self.get_sum_fact_margin_project_step_year_quarter(project, step, YEARint + 2, False)
-
-                        sum100tmp += sum100tmp_step
-                        prof100tmp += prof100tmp_step
-
-                        sum, margin_sum = self.get_sum_planned_acceptance_project_step_year_quarter(project, step, YEARint + 2, False, profitability)
-
-                        margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
-
-                        if margin_sum:
-                            margin_plan = margin_sum.copy()
-
-                        if not project.is_correction_project:
-                            if sum100tmp_step >= sum['commitment']:
-                                sum100tmp_step_ostatok = sum100tmp_step - sum['commitment']
-                                sum['commitment'] = 0
-                                sum['reserve'] = max(sum['reserve'] - sum100tmp_step_ostatok, 0)
-                            else:
-                                sum['commitment'] = sum['commitment'] - sum100tmp_step
-
-                            if prof100tmp_step >= margin_plan['commitment']:  # маржа если нет распределения
-                                prof100tmp_step_ostatok = prof100tmp_step - margin_plan['commitment']
-                                margin_sum['commitment'] = 0
-                                margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_step_ostatok, 0)
-                            else:
-                                margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_step
-
-                        if all(value == 0 for value in sum.values()) and step.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
-                        #     if step.estimated_probability_id.name in ('75', '100'):
-                        #         sum['commitment'] = step.total_amount_of_revenue
-                        #     elif step.estimated_probability_id.name == '50':
-                        #         sum['reserve'] = step.total_amount_of_revenue
-                            if step.stage_id.code == '30':
-                                sum['potential'] = step.total_amount_of_revenue
-
-                        # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                        sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, step, YEARint + 2, False)
-
-                        for key in sum:  # убираем отрицательные, если не корректировочный проект
-                            if not project.is_correction_project:
-                                sum[key] = max(sum[key], 0)
-                                margin_sum[key] = max(margin_sum[key], 0)
-
-                        sum_after_next_tmp += sum['commitment']
-                        prof_after_next_tmp += margin_sum['commitment']
-                        sum_after_next_tmp += sum['reserve'] * params['50']
-                        prof_after_next_tmp += margin_sum['reserve'] * params['50']
-                        sum_after_next_tmp += sum['potential'] * params['30']
-                        prof_after_next_tmp += margin_sum['potential'] * params['30']
-            else:
-
-                if project.stage_id.code not in ('0', '10'):
-
-                    profitability = project.profitability
-
-                    sum100tmp_proj = self.get_sum_fact_acceptance_project_step_year_quarter(project, False, YEARint + 2, False)
-                    prof100tmp_proj = self.get_sum_fact_margin_project_step_year_quarter(project, False, YEARint + 2, False)
-
-                    sum100tmp += sum100tmp_proj
-                    prof100tmp += prof100tmp_proj
-
-                    sum, margin_sum = self.get_sum_planned_acceptance_project_step_year_quarter(project, False, YEARint + 2, False, profitability)
-
-                    margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
-
-                    if margin_sum:
-                        margin_plan = margin_sum.copy()
-
-                    if not project.is_correction_project:
-                        if sum100tmp >= sum['commitment']:
-                            sum100tmp_ostatok = sum100tmp - sum['commitment']
-                            sum['commitment'] = 0
-                            sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
-                        else:
-                            sum['commitment'] = sum['commitment'] - sum100tmp
-
-                        if prof100tmp >= margin_plan['commitment']:  # маржа если нет распределения
-                            prof100tmp_ostatok = prof100tmp - margin_plan['commitment']
-                            margin_sum['commitment'] = 0
-                            margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
-                        else:
-                            margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp
-
-                    if all(value == 0 for value in sum.values()) and project.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
-                    #     if project.estimated_probability_id.name in ('75', '100'):
-                    #         sum['commitment'] = project.total_amount_of_revenue
-                    #     elif project.estimated_probability_id.name == '50':
-                    #         sum['reserve'] = project.total_amount_of_revenue
-                        if project.stage_id.code == '30':
-                            sum['potential'] = project.total_amount_of_revenue
-
-                    # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                    sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, False, YEARint + 2, False)
-
-                    for key in sum:  # убираем отрицательные, если не корректировочный проект
-                        if not project.is_correction_project:
-                            sum[key] = max(sum[key], 0)
-                            margin_sum[key] = max(margin_sum[key], 0)
-
-                    sum_after_next_tmp += sum['commitment']
-                    prof_after_next_tmp += margin_sum['commitment']
-                    sum_after_next_tmp += sum['reserve'] * params['50']
-                    prof_after_next_tmp += margin_sum['reserve'] * params['50']
-                    sum_after_next_tmp += sum['potential'] * params['30']
-                    prof_after_next_tmp += margin_sum['potential'] * params['30']
         return (
             sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp,
             prof75tmpetalon, prof50tmpetalon, prof100tmp, prof75tmp, prof50tmp,
@@ -2595,7 +1267,7 @@ class report_management_committee_excel(models.AbstractModel):
         if monthNameRus == 'Декабрь': return 12
         return False
 
-    def print_row_Values(self, workbook, sheet, row, column,  YEAR, project, step, project_office, params):
+    def print_row_Values(self, workbook, sheet, row, column, YEAR, project, project_office, params):
         global strYEAR
         global YEARint
 
@@ -2622,16 +1294,11 @@ class report_management_committee_excel(models.AbstractModel):
             'num_format': '0.00%',
         })
 
-        if step:
-            if step.stage_id.code == '0':
-                row_format_number.set_font_color('red')
-                row_format_number_color_fact.set_font_color('red')
-                head_format_month_itogo.set_font_color('red')
-        else:
-            if project.stage_id.code == '0':
-                row_format_number.set_font_color('red')
-                row_format_number_color_fact.set_font_color('red')
-                head_format_month_itogo.set_font_color('red')
+        if project.stage_id.code == '0':
+            row_format_number.set_font_color('red')
+            row_format_number_color_fact.set_font_color('red')
+            head_format_month_itogo.set_font_color('red')
+
         sumQ100etalon =0
         sumQ75etalon = 0
         sumQ50etalon = 0
@@ -2650,14 +1317,12 @@ class report_management_committee_excel(models.AbstractModel):
         sumYear100 =0
         sumYear75 = 0
         sumYear50 = 0
+
         # печать Контрактование, с НДС
         for element in self.quarter_rus_name:
             column += 1
             sumQ75tmpetalon = sumQ50tmpetalon = sumQ100tmp = sumQ75tmp = sumQ50tmp = 0
 
-            # if element.find('итого') != -1:
-            #     sheet.write_string(row, column, "", head_format_month_itogo)
-            #     column += 1
             if 'NEXT' not in element:
                 sheet.write_number(row, column + 0, 0, row_format_number)
                 sheet.write_number(row, column + 1, 0, row_format_number)
@@ -2670,50 +1335,15 @@ class report_management_committee_excel(models.AbstractModel):
                 sheet.write_number(row, column + 2, 0, row_format_number)
                 sheet.write_number(row, column + 3, 0, row_format_number)
 
-                # Q1 NEXT
-                # sheet.write_number(row, column + 4, 0, row_format_number)
-                # sheet.write_number(row, column + 5, 0, row_format_number)
-                # sheet.write_number(row, column + 6, 0, row_format_number)
-
             sumQ75tmpetalon, sumQ50tmpetalon, sumQ100tmp, sumQ75tmp, sumQ50tmp = self.print_quarter_revenue_project(sheet, row, column, element,
-                                                                                    project, step, project_office, params, row_format_number, row_format_number_color_fact)
+                                                                                    project, project_office, params, row_format_number, row_format_number_color_fact)
             sumQ75etalon += sumQ75tmpetalon
             sumQ50etalon += sumQ50tmpetalon
             sumQ100 += sumQ100tmp
             sumQ75 += sumQ75tmp
             sumQ50 += sumQ50tmp
-            # if element.find('Q') != -1: #'Q1 итого' 'Q2 итого' 'Q3 итого' 'Q4 итого'
-            #     if sumQ75etalon != 0 : sheet.write_number(row, column + 0, sumQ75etalon, row_format_number)
-            #     if sumQ50etalon != 0 : sheet.write_number(row, column + 1, sumQ50etalon, row_format_number)
-            #     if sumQ100 != 0 :      sheet.write_number(row, column + 2, sumQ100, row_format_number_color_fact)
-            #     if sumQ75 != 0 :       sheet.write_number(row, column + 3, sumQ75, row_format_number)
-            #     if sumQ50 != 0 :       sheet.write_number(row, column + 4, sumQ50, row_format_number)
-            #
-            #     formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1,xl_col_to_name(column - 16),xl_col_to_name(column - 11),xl_col_to_name(column - 6))
-            #     sheet.write_formula(row, column + 0,formula, row_format_number)
-            #     formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1,xl_col_to_name(column - 15),xl_col_to_name(column - 10),xl_col_to_name(column - 5))
-            #     sheet.write_formula(row, column + 1,formula, row_format_number)
-            #     formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1,xl_col_to_name(column - 14),xl_col_to_name(column - 9),xl_col_to_name(column - 4))
-            #     sheet.write_formula(row, column + 2,formula, row_format_number_color_fact)
-            #     formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1,xl_col_to_name(column - 13),xl_col_to_name(column - 8),xl_col_to_name(column - 3))
-            #     sheet.write_formula(row, column + 3,formula, row_format_number)
-            #     formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1,xl_col_to_name(column - 12),xl_col_to_name(column - 7),xl_col_to_name(column - 2))
-            #     sheet.write_formula(row, column + 4,formula, row_format_number)
-            #
-            #     sumHY100etalon += sumQ100etalon
-            #     sumHY75etalon += sumQ75etalon
-            #     sumHY50etalon += sumQ50etalon
-            #     sumHY100 += sumQ100
-            #     sumHY75 += sumQ75
-            #     sumHY50 += sumQ50
-            #     sumQ100etalon = sumQ75etalon = sumQ50etalon = sumQ100 = sumQ75  = sumQ50  = 0
 
             if 'HY' in element:  # 'HY1/YEAR' 'HY2/YEAR'
-                # if sumHY75etalon != 0: sheet.write_number(row, column + 0, sumHY75etalon, row_format_number)
-                # if sumHY50etalon != 0: sheet.write_number(row, column + 1, sumHY50etalon, row_format_number)
-                # if sumHY100 != 0:      sheet.write_number(row, column + 2, sumHY100, row_format_number_color_fact)
-                # if sumHY75 != 0:       sheet.write_number(row, column + 3, sumHY75, row_format_number)
-                # if sumHY50 != 0:       sheet.write_number(row, column + 4, sumHY50, row_format_number)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 10),xl_col_to_name(column - 5))
                 sheet.write_formula(row, column + 0, formula, row_format_number)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 9),xl_col_to_name(column - 4))
@@ -2750,11 +1380,7 @@ class report_management_committee_excel(models.AbstractModel):
                 sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
 
             elif element == 'YEAR':  # 'YEAR'
-                # if sumYear75etalon != 0: sheet.write_number(row, column + 0, sumYear75etalon, row_format_number)
-                # if sumYear50etalon != 0: sheet.write_number(row, column + 1, sumYear50etalon, row_format_number)
-                # if sumYear100 != 0:      sheet.write_number(row, column + 2, sumYear100, row_format_number_color_fact)
-                # if sumYear75 != 0:       sheet.write_number(row, column + 3, sumYear75, row_format_number)
-                # if sumYear50 != 0:       sheet.write_number(row, column + 4, sumYear50, row_format_number)
+
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21), xl_col_to_name(column - 5))
                 sheet.write_formula(row, column + 0, formula, row_format_number)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 20), xl_col_to_name(column - 4))
@@ -2775,6 +1401,7 @@ class report_management_committee_excel(models.AbstractModel):
             column += 4
         column -= 6
         #end печать Контрактование, с НДС
+
         # Поступление денежных средсв, с НДС
         sumYear100etalon = sumYear75etalon = sumYear50etalon = sumYear100 = sumYear75 = sumYear50 = 0
         sumQ100etalon = sumQ75etalon = sumQ50etalon = sumQ100 = sumQ75 = sumQ50 = 0
@@ -2784,9 +1411,6 @@ class report_management_committee_excel(models.AbstractModel):
             column += 1
             sumQ75tmpetalon = sumQ50tmpetalon = sumQ100tmp = sumQ75tmp = sumQ50tmp = 0
 
-            # if element.find('итого') != -1:
-            #     sheet.write_string(row, column, "", head_format_month_itogo)
-            #     column += 1
             if 'NEXT' not in element:
                 sheet.write_string(row, column + 0, "", row_format_number)
                 sheet.write_string(row, column + 1, "", row_format_number)
@@ -2799,7 +1423,7 @@ class report_management_committee_excel(models.AbstractModel):
                 sheet.write_string(row, column + 2, "", row_format_number)
 
             sumQ75tmpetalon, sumQ50tmpetalon, sumQ100tmp, sumQ75tmp, sumQ50tmp = self.print_quarter_pds_project(sheet, row, column, element,
-                                                                                    project, step, project_office, params, row_format_number, row_format_number_color_fact)
+                                                                                    project, project_office, params, row_format_number, row_format_number_color_fact)
 
             sumQ75etalon += sumQ75tmpetalon
             sumQ50etalon += sumQ50tmpetalon
@@ -2807,36 +1431,7 @@ class report_management_committee_excel(models.AbstractModel):
             sumQ75 += sumQ75tmp
             sumQ50 += sumQ50tmp
 
-            # if element.find('Q') != -1:  # 'Q1 итого' 'Q2 итого' 'Q3 итого' 'Q4 итого'
-            #     if sumQ75etalon != 0: sheet.write_number(row, column + 0, sumQ75etalon, row_format_number)
-            #     if sumQ50etalon != 0: sheet.write_number(row, column + 1, sumQ50etalon, row_format_number)
-            #     if sumQ100 != 0:      sheet.write_number(row, column + 2, sumQ100, row_format_number_color_fact)
-            #     if sumQ75 != 0:       sheet.write_number(row, column + 3, sumQ75, row_format_number)
-            #     if sumQ50 != 0:       sheet.write_number(row, column + 4, sumQ50, row_format_number)
-            #     sumHY100etalon += sumQ100etalon
-            #     sumHY75etalon += sumQ75etalon
-            #     sumHY50etalon += sumQ50etalon
-            #     sumHY100 += sumQ100
-            #     sumHY75 += sumQ75
-            #     sumHY50 += sumQ50
-            #     sumQ100etalon = sumQ75etalon = sumQ50etalon = sumQ100 = sumQ75 = sumQ50 = 0
-            #     formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1, xl_col_to_name(column - 16),xl_col_to_name(column - 11), xl_col_to_name(column - 6))
-            #     sheet.write_formula(row, column + 0, formula, row_format_number)
-            #     formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1, xl_col_to_name(column - 15),xl_col_to_name(column - 10), xl_col_to_name(column - 5))
-            #     sheet.write_formula(row, column + 1, formula, row_format_number)
-            #     formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1, xl_col_to_name(column - 14),xl_col_to_name(column - 9), xl_col_to_name(column - 4))
-            #     sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
-            #     formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1, xl_col_to_name(column - 13),xl_col_to_name(column - 8), xl_col_to_name(column - 3))
-            #     sheet.write_formula(row, column + 3, formula, row_format_number)
-            #     formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1, xl_col_to_name(column - 12),xl_col_to_name(column - 7), xl_col_to_name(column - 2))
-            #     sheet.write_formula(row, column + 4, formula, row_format_number)
-
             if 'HY' in element:  # 'HY1/YEAR' 'HY2/YEAR'
-                # if sumHY75etalon != 0: sheet.write_number(row, column + 0, sumHY75etalon, row_format_number)
-                # if sumHY50etalon != 0: sheet.write_number(row, column + 1, sumHY50etalon, row_format_number)
-                # if sumHY100 != 0:      sheet.write_number(row, column + 2, sumHY100, row_format_number_color_fact)
-                # if sumHY75 != 0:       sheet.write_number(row, column + 3, sumHY75, row_format_number)
-                # if sumHY50 != 0:       sheet.write_number(row, column + 4, sumHY50, row_format_number)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 10),xl_col_to_name(column - 5))
                 sheet.write_formula(row, column + 0, formula, row_format_number)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 9),xl_col_to_name(column - 4))
@@ -2864,11 +1459,6 @@ class report_management_committee_excel(models.AbstractModel):
                     sheet.write_formula(row, column + 4, formula, row_format_number)
 
             elif element == 'YEAR':  # 'YEAR'
-                # if sumYear75etalon != 0: sheet.write_number(row, column + 0, sumYear75etalon, row_format_number)
-                # if sumYear50etalon != 0: sheet.write_number(row, column + 1, sumYear50etalon, row_format_number)
-                # if sumYear100 != 0:      sheet.write_number(row, column + 2, sumYear100, row_format_number_color_fact)
-                # if sumYear75 != 0:       sheet.write_number(row, column + 3, sumYear75, row_format_number)
-                # if sumYear50 != 0:       sheet.write_number(row, column + 4, sumYear50, row_format_number)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21), xl_col_to_name(column - 5))
                 sheet.write_formula(row, column + 0, formula, row_format_number)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 20), xl_col_to_name(column - 4))
@@ -2897,40 +1487,6 @@ class report_management_committee_excel(models.AbstractModel):
         sumYear100etalon = sumYear75etalon = sumYear50etalon = sumYear100 = sumYear75 = sumYear50 = 0
         sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
 
-        # if step == False:
-        #     profitability = project.profitability
-        # else:
-        #     profitability = step.profitability
-        #
-        # project_etalon = self.get_etalon_project(project, element)
-        # step_etalon = self.get_etalon_step(step, element)
-        #
-        # if step_etalon == False:
-        #     profitability_etalon = project_etalon.profitability
-        # else:
-        #     profitability_etalon = step_etalon.profitability
-        #
-        # for element in self.quarter_rus_name:
-        #     column += 1
-        #     sheet.write_string(row, column, "", head_format_month_itogo)
-        #     sheet.write_string(row, column + 43, "", head_format_month_itogo)
-        #     if element.find('HY2') != -1:
-        #         addcolumn = 1
-        #         column += 1
-        #         sheet.write_string(row, column, "", head_format_month_itogo)
-        #         sheet.write_string(row, column + 43, "", head_format_month_itogo)
-        #     column += 1
-        #     sheet.write_string(row, column + 0, "", row_format_number)
-        #     sheet.write_string(row, column + 1, "", row_format_number)
-        #     sheet.write_string(row, column + 2, "", row_format_number_color_fact)
-        #     sheet.write_string(row, column + 3, "", row_format_number)
-        #     sheet.write_string(row, column + 4, "", row_format_number)
-        #     sheet.write_string(row, column + 0 + 43, "", row_format_number)
-        #     sheet.write_string(row, column + 1 + 43, "", row_format_number)
-        #     sheet.write_string(row, column + 2 + 43, "", row_format_number_color_fact)
-        #     sheet.write_string(row, column + 3 + 43, "", row_format_number)
-        #     sheet.write_string(row, column + 4 + 43, "", row_format_number)
-
         for element in self.quarter_rus_name:
 
             column += 1
@@ -2952,19 +1508,10 @@ class report_management_committee_excel(models.AbstractModel):
                 sheet.write_string(row, column + 2, "", row_format_number)
                 sheet.write_string(row, column + 3, "", row_format_number)
 
-                # Q1 NEXT
-                # sheet.write_string(row, column + 4, "", row_format_number)
-                # sheet.write_string(row, column + 5, "", row_format_number)
-                # sheet.write_string(row, column + 6, "", row_format_number)
                 sheet.write_string(row, column + 0 + params['margin_shift'], "", row_format_number)
                 sheet.write_string(row, column + 1 + params['margin_shift'], "", row_format_number)
                 sheet.write_string(row, column + 2 + params['margin_shift'], "", row_format_number)
                 sheet.write_string(row, column + 3 + params['margin_shift'], "", row_format_number)
-
-                # Q1 NEXT
-                # sheet.write_string(row, column + 4 + params['margin_shift'], "", row_format_number)
-                # sheet.write_string(row, column + 5 + params['margin_shift'], "", row_format_number)
-                # sheet.write_string(row, column + 6 + params['margin_shift'], "", row_format_number)
 
             (sumQ75etalon, sumQ50etalon,
              sumQ100, sumQ75, sumQ50) = self.print_quarter_planned_acceptance_project(
@@ -2973,7 +1520,6 @@ class report_management_committee_excel(models.AbstractModel):
                 column,
                 element,
                 project,
-                step,
                 project_office,
                 params,
                 row_format_number,
@@ -3039,11 +1585,7 @@ class report_management_committee_excel(models.AbstractModel):
                     sheet.write_formula(row, column + 4 + params['margin_shift'], formula, row_format_number)
 
             elif element == 'YEAR':  # 'YEAR'
-                # if sumYear75etalon != 0: sheet.write_number(row, column + 0, sumYear75etalon, row_format_number)
-                # if sumYear50etalon != 0: sheet.write_number(row, column + 1, sumYear50etalon, row_format_number)
-                # if sumYear100 != 0:      sheet.write_number(row, column + 2, sumYear100, row_format_number_color_fact)
-                # if sumYear75 != 0:       sheet.write_number(row, column + 3, sumYear75, row_format_number)
-                # if sumYear50 != 0:       sheet.write_number(row, column + 4, sumYear50, row_format_number)
+
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21), xl_col_to_name(column - 5))
                 sheet.write_formula(row, column + 0, formula, row_format_number)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21 + params['margin_shift']), xl_col_to_name(column - 5 + params['margin_shift']))
@@ -3080,10 +1622,6 @@ class report_management_committee_excel(models.AbstractModel):
 
             elif element == 'NEXT':
                 column -= 2
-
-            # elif element == 'AFTER NEXT':
-            #     column += 6
-
             column += 4
         # end Валовая Выручка, без НДС
 
@@ -3213,10 +1751,6 @@ class report_management_committee_excel(models.AbstractModel):
                 sheet.write_formula(row, column + 4, f_Q50, row_format_number_color_forecast)
 
             elif 'HY' in element:  # 'HY1/YEAR' 'HY2/YEAR'
-                # formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 12), xl_col_to_name(column - 6))
-                # sheet.write_formula(row, column + 0, formula, row_format_number)
-                # formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 11), xl_col_to_name(column - 5))
-                # sheet.write_formula(row, column + 1, formula, row_format_number)
 
                 formula = '=sum({1}{0},{2}{0})'.format(
                     row + 1,
@@ -3283,20 +1817,6 @@ class report_management_committee_excel(models.AbstractModel):
                 sheet.write_formula(row, column + 4, formula, row_format_number_color_forecast)
 
             elif element == 'NEXT':
-                # Q1 NEXT
-                # f_sum_next_75_q1 = 'sum(' + str(sum_next_75_q1) + child_offices_rows.format(xl_col_to_name(column)) + ')'
-                # f_sum_next_50_q1 = 'sum(' + str(sum_next_50_q1) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')'
-                # f_sum_next_30_q1 = 'sum(' + str(sum_next_30_q1) + child_offices_rows.format(xl_col_to_name(column + 2)) + ')'
-                # f_sum_next_75 = 'sum(' + str(sum_next_75) + child_offices_rows.format(xl_col_to_name(column + 3)) + ')'
-                # f_sum_next_50 = 'sum(' + str(sum_next_50) + child_offices_rows.format(xl_col_to_name(column + 4)) + ')'
-                # f_sum_next_30 = 'sum(' + str(sum_next_30) + child_offices_rows.format(xl_col_to_name(column + 5)) + ')'
-                # sheet.write_formula(row, column, f_sum_next_75_q1, row_format_number_color_next)
-                # sheet.write_formula(row, column + 1, f_sum_next_50_q1, row_format_number_color_next)
-                # sheet.write_formula(row, column + 2, f_sum_next_30_q1, row_format_number_color_next)
-                # sheet.write_formula(row, column + 3, f_sum_next_75, row_format_number_color_next)
-                # sheet.write_formula(row, column + 4, f_sum_next_50, row_format_number_color_next)
-                # sheet.write_formula(row, column + 5, f_sum_next_30, row_format_number_color_next)
-                # column += 1
 
                 f_sum_next_75 = 'sum(' + str(sum_next_75) + child_offices_rows.format(xl_col_to_name(column)) + ')'
                 f_sum_next_50 = 'sum(' + str(sum_next_50) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')'
@@ -3316,11 +1836,6 @@ class report_management_committee_excel(models.AbstractModel):
         # end печать Контрактование, с НДС
 
         # Поступление денежных средств, с НДС
-
-        # sumYear100etalon = sumYear75etalon = sumYear50etalon = sumYear100 = sumYear75 = sumYear50 = 0
-        # sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
-        # sumQ100etalon = sumQ75etalon = sumQ50etalon = sumQ100 = sumQ75 = sumQ50 = 0
-
         for element in self.quarter_rus_name:
             column += 1
 
@@ -3336,12 +1851,6 @@ class report_management_committee_excel(models.AbstractModel):
             sum_next_50 = 0
             sum_next_30 = 0
             sum_after_next = 0
-
-            # sheet.write_string(row, column + 0, "", row_format_number)
-            # sheet.write_string(row, column + 1, "", row_format_number)
-            # sheet.write_string(row, column + 2, "", row_format_number_color_fact)
-            # sheet.write_string(row, column + 3, "", row_format_number)
-            # sheet.write_string(row, column + 4, "", row_format_number)
 
             for project in projects:
                 (sumM75tmpetalon, sumM50tmpetalon,
@@ -3363,19 +1872,12 @@ class report_management_committee_excel(models.AbstractModel):
                 sum_next_30 += sum_next_30_tmp
                 sum_after_next += sum_after_next_tmp
 
-            # sumQ75etalon += sumM75etalon
-            # sumQ50etalon += sumM50etalon
-            # sumQ100 += sumM100
-            # sumQ75 += sumM75
-            # sumQ50 += sumM50
-
             child_offices_rows = formula_offices.get('project_office_' + str(project_office.id)) or ''
 
             addcolumn = 0
 
             if 'Q' in element:
-                # f_Q75etalon = 'sum(' + str(sumM75etalon) + child_offices_rows.format(xl_col_to_name(column)) + ')'
-                # f_Q50etalon = 'sum(' + str(sumM50etalon) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')'
+
                 f_Q100 = 'sum(' + str(sumM100) + child_offices_rows.format(xl_col_to_name(column + 2)) + ')'
                 f_Q75 = 'sum(' + str(sumM75) + child_offices_rows.format(xl_col_to_name(column + 3)) + ')'
                 f_Q50 = 'sum(' + str(sumM50) + child_offices_rows.format(xl_col_to_name(column + 4)) + ')'
@@ -3404,26 +1906,6 @@ class report_management_committee_excel(models.AbstractModel):
                 sheet.write_formula(row, column + 4, f_Q50, row_format_number_color_forecast)
 
             elif 'HY' in element:  # 'HY1/YEAR' 'HY2/YEAR'
-                # if sumHY75etalon != 0: sheet.write_number(row, column + 0, sumHY75etalon, row_format_number)
-                # if sumHY50etalon != 0: sheet.write_number(row, column + 1, sumHY50etalon, row_format_number)
-                # if sumHY100 != 0:      sheet.write_number(row, column + 2, sumHY100, row_format_number_color_fact)
-                # if sumHY75 != 0:       sheet.write_number(row, column + 3, sumHY75, row_format_number)
-                # if sumHY50 != 0:       sheet.write_number(row, column + 4, sumHY50, row_format_number)
-                # sumYear100etalon += sumHY100etalon
-                # sumYear75etalon += sumHY75etalon
-                # sumYear50etalon += sumHY50etalon
-                # sumYear100 += sumHY100
-                # sumYear75 += sumHY75
-                # sumYear50 += sumHY50
-                # sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
-
-                # formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 12),
-                #                                        xl_col_to_name(column - 6))
-                # sheet.write_formula(row, column + 0, formula, row_format_number)
-                # formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 11),
-                #                                        xl_col_to_name(column - 5))
-                # sheet.write_formula(row, column + 1, formula, row_format_number)
-
                 formula = '=sum({1}{0},{2}{0})'.format(
                     row + 1,
                     xl_col_to_name(column - 10 + addcolumn),
@@ -3467,18 +1949,6 @@ class report_management_committee_excel(models.AbstractModel):
                 sheet.write_formula(row, column + 4, formula, row_format_number_color_forecast)
 
             elif element == 'YEAR':  # 'YEAR'
-                # if sumYear75etalon != 0: sheet.write_number(row, column + 0, sumYear75etalon, row_format_number)
-                # if sumYear50etalon != 0: sheet.write_number(row, column + 1, sumYear50etalon, row_format_number)
-                # if sumYear100 != 0:      sheet.write_number(row, column + 2, sumYear100,
-                #                                             row_format_number_color_fact)
-                # if sumYear75 != 0:       sheet.write_number(row, column + 3, sumYear75, row_format_number)
-                # if sumYear50 != 0:       sheet.write_number(row, column + 4, sumYear50, row_format_number)
-                # formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 23),
-                #                                        xl_col_to_name(column - 6))
-                # sheet.write_formula(row, column + 0, formula, row_format_number)
-                # formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 22),
-                #                                        xl_col_to_name(column - 5))
-                # sheet.write_formula(row, column + 1, formula, row_format_number)
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21),
                                                        xl_col_to_name(column - 5))
@@ -3508,21 +1978,6 @@ class report_management_committee_excel(models.AbstractModel):
                 sheet.write_formula(row, column + 4, formula, row_format_number_color_forecast)
 
             elif element == 'NEXT':
-                # Q1 NEXT
-                # f_sum_next_75_q1 = 'sum(' + str(sum_next_75_q1) + child_offices_rows.format(xl_col_to_name(column)) + ')'
-                # f_sum_next_50_q1 = 'sum(' + str(sum_next_50_q1) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')'
-                # f_sum_next_30_q1 = 'sum(' + str(sum_next_30_q1) + child_offices_rows.format(xl_col_to_name(column + 2)) + ')'
-                # f_sum_next_75 = 'sum(' + str(sum_next_75) + child_offices_rows.format(xl_col_to_name(column + 3)) + ')'
-                # f_sum_next_50 = 'sum(' + str(sum_next_50) + child_offices_rows.format(xl_col_to_name(column + 4)) + ')'
-                # f_sum_next_30 = 'sum(' + str(sum_next_30) + child_offices_rows.format(xl_col_to_name(column + 5)) + ')'
-                # sheet.write_formula(row, column, f_sum_next_75_q1, row_format_number_color_next)
-                # sheet.write_formula(row, column + 1, f_sum_next_50_q1, row_format_number_color_next)
-                # sheet.write_formula(row, column + 2, f_sum_next_30_q1, row_format_number_color_next)
-                # sheet.write_formula(row, column + 3, f_sum_next_75, row_format_number_color_next)
-                # sheet.write_formula(row, column + 4, f_sum_next_50, row_format_number_color_next)
-                # sheet.write_formula(row, column + 5, f_sum_next_30, row_format_number_color_next)
-                # column += 1
-
                 f_sum_next_75 = 'sum(' + str(sum_next_75) + child_offices_rows.format(xl_col_to_name(column)) + ')'
                 f_sum_next_50 = 'sum(' + str(sum_next_50) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')'
                 # f_sum_next_30 = 'sum(' + str(sum_next_30) + child_offices_rows.format(xl_col_to_name(column + 2)) + ')'
@@ -3555,18 +2010,6 @@ class report_management_committee_excel(models.AbstractModel):
             sum_next_75 = sum_next_50 = sum_next_30 = sum_after_next = 0
             prof_next_75_q1 = prof_next_50_q1 = prof_next_30_q1 = 0
             prof_next_75 = prof_next_50 = prof_next_30 = prof_after_next = 0
-
-
-            # sheet.write_string(row, column + 0, "", row_format_number)
-            # sheet.write_string(row, column + 1, "", row_format_number)
-            # sheet.write_string(row, column + 2, "", row_format_number_color_fact)
-            # sheet.write_string(row, column + 3, "", row_format_number)
-            # sheet.write_string(row, column + 4, "", row_format_number)
-            # sheet.write_string(row, column + 0 + 43, "", row_format_number)
-            # sheet.write_string(row, column + 1 + 43, "", row_format_number)
-            # sheet.write_string(row, column + 2 + 43, "", row_format_number_color_fact)
-            # sheet.write_string(row, column + 3 + 43, "", row_format_number)
-            # sheet.write_string(row, column + 4 + 43, "", row_format_number)
 
             for project in projects:
                 (sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp,
@@ -3643,26 +2086,13 @@ class report_management_committee_excel(models.AbstractModel):
                     sheet.write_number(row, column + params['margin_shift'], po_q_plan_margin[int(element[1]) - 1], row_format_number_color_plan)
                     sheet.write_number(row, column + 1 + params['margin_shift'], po_q66_plan_margin[int(element[1]) - 1], row_format_number_color_plan)
 
-                # f_sumQ75etalon = 'sum(' + str(sumQ75etalon) + child_offices_rows.format(xl_col_to_name(column)) + ')'
-                # f_sumQ50etalon = 'sum(' + str(sumQ50etalon) + child_offices_rows.format(
-                #     xl_col_to_name(column + 1)) + ')'
                 f_sumQ100 = 'sum(' + str(sumQ100) + child_offices_rows.format(xl_col_to_name(column + 2)) + ')'
                 f_sumQ75 = 'sum(' + str(sumQ75) + child_offices_rows.format(xl_col_to_name(column + 3)) + ')'
                 f_sumQ50 = 'sum(' + str(sumQ50) + child_offices_rows.format(xl_col_to_name(column + 4)) + ')'
-
-                # f_profQ75etalon = 'sum(' + str(profQ75etalon) + child_offices_rows.format(
-                #     xl_col_to_name(column + 43)) + ')'
-                # f_profQ50etalon = 'sum(' + str(profQ50etalon) + child_offices_rows.format(
-                #     xl_col_to_name(column +
-                #     )) + ')'
                 f_profQ100 = 'sum(' + str(profQ100) + child_offices_rows.format(xl_col_to_name(column + 2 + params['margin_shift'])) + ')'
                 f_profQ75 = 'sum(' + str(profQ75) + child_offices_rows.format(xl_col_to_name(column + 3 + params['margin_shift'])) + ')'
                 f_profQ50 = 'sum(' + str(profQ50) + child_offices_rows.format(xl_col_to_name(column + 4 + params['margin_shift'])) + ')'
 
-                # sheet.write_formula(row, column, f_sumQ75etalon, row_format_number)
-                # sheet.write_formula(row, column + 43, f_profQ75etalon, row_format_number)
-                # sheet.write_formula(row, column + 1, f_sumQ50etalon, row_format_number)
-                # sheet.write_formula(row, column + 44, f_profQ50etalon, row_format_number)
                 sheet.write_formula(row, column + 2, f_sumQ100, row_format_number_color_fact)
                 sheet.write_formula(row, column + 2 + params['margin_shift'], f_profQ100, row_format_number_color_fact)
                 sheet.write_formula(row, column + 3, f_sumQ75, row_format_number_color_forecast)
@@ -3670,21 +2100,7 @@ class report_management_committee_excel(models.AbstractModel):
                 sheet.write_formula(row, column + 4, f_sumQ50, row_format_number_color_forecast)
                 sheet.write_formula(row, column + 4 + params['margin_shift'], f_profQ50, row_format_number_color_forecast)
 
-                # sumHY100etalon += sumQ100etalon
-                # sumHY75etalon += sumQ75etalon
-                # sumHY50etalon += sumQ50etalon
-                # sumHY100 += sumQ100
-                # sumHY75 += sumQ75
-                # sumHY50 += sumQ50
-
             elif 'HY' in element:  # 'HY1/YEAR итого' 'HY2/YEAR итого'
-                # sumYear100etalon += sumHY100etalon
-                # sumYear75etalon += sumHY75etalon
-                # sumYear50etalon += sumHY50etalon
-                # sumYear100 += sumHY100
-                # sumYear75 += sumHY75
-                # sumYear50 += sumHY50
-
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 10), xl_col_to_name(column - 5))
                 sheet.write_formula(row, column, formula, row_format_number_color_plan)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 9), xl_col_to_name(column - 4))
@@ -3698,10 +2114,6 @@ class report_management_committee_excel(models.AbstractModel):
 
                 sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
 
-                # formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 12 - addcolumn), xl_col_to_name(column - 6 - addcolumn))
-                # sheet.write_formula(row, column + 0, formula, row_format_number)
-                # formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 11 - addcolumn), xl_col_to_name(column - 5 - addcolumn))
-                # sheet.write_formula(row, column + 1, formula, row_format_number)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8), xl_col_to_name(column - 3))
                 sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8 + params['margin_shift']),
@@ -3731,11 +2143,6 @@ class report_management_committee_excel(models.AbstractModel):
                                                        xl_col_to_name(column - 1 + addcolumn))
                 sheet.write_formula(row, column + 4, formula, row_format_number_color_forecast)
 
-                # formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 12 + 43), xl_col_to_name(column - 6 + 43))
-                # sheet.write_formula(row, column + 0 + 43, formula, row_format_number)
-                # formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 11 + 43), xl_col_to_name(column - 5 + 43))
-                # sheet.write_formula(row, column + 1 + 43, formula, row_format_number)
-
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 7 + params['margin_shift'] + addcolumn),
                                                        xl_col_to_name(column - 2 + params['margin_shift'] + addcolumn))
                 sheet.write_formula(row, column + 3 + params['margin_shift'], formula, row_format_number_color_forecast)
@@ -3744,10 +2151,6 @@ class report_management_committee_excel(models.AbstractModel):
                 sheet.write_formula(row, column + 4 + params['margin_shift'], formula, row_format_number_color_forecast)
 
             elif element == 'YEAR':  # 'YEAR'
-                # formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 25), xl_col_to_name(column - 6))
-                # sheet.write_formula(row, column + 0, formula, row_format_number)
-                # formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 24), xl_col_to_name(column - 5))
-                # sheet.write_formula(row, column + 1, formula, row_format_number)
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21), xl_col_to_name(column - 5))
                 sheet.write_formula(row, column, formula, row_format_number_color_plan)
@@ -3785,11 +2188,6 @@ class report_management_committee_excel(models.AbstractModel):
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 17), xl_col_to_name(column - 2))
                 sheet.write_formula(row, column + 4, formula, row_format_number_color_forecast)
 
-                # formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 25 + 43), xl_col_to_name(column - 6 + 43))
-                # sheet.write_formula(row, column + 0 + 43, formula, row_format_number)
-                # formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 24 + 43), xl_col_to_name(column - 5 + 43))
-                # sheet.write_formula(row, column + 1 + 43, formula, row_format_number)
-
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 18 + params['margin_shift']),
                                                        xl_col_to_name(column - 3 + params['margin_shift']))
                 sheet.write_formula(row, column + 3 + params['margin_shift'], formula, row_format_number_color_forecast)
@@ -3798,38 +2196,6 @@ class report_management_committee_excel(models.AbstractModel):
                 sheet.write_formula(row, column + 4 + params['margin_shift'], formula, row_format_number_color_forecast)
 
             elif element == 'NEXT':
-                # Q1 NEXT
-                # f_sum_next_75_q1 = 'sum(' + str(sum_next_75_q1) + child_offices_rows.format(xl_col_to_name(column)) + ')'
-                # f_sum_next_50_q1 = 'sum(' + str(sum_next_50_q1) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')'
-                # f_sum_next_30_q1 = 'sum(' + str(sum_next_30_q1) + child_offices_rows.format(xl_col_to_name(column + 2)) + ')'
-                # f_sum_next_75 = 'sum(' + str(sum_next_75) + child_offices_rows.format(xl_col_to_name(column + 3)) + ')'
-                # f_sum_next_50 = 'sum(' + str(sum_next_50) + child_offices_rows.format(xl_col_to_name(column + 4)) + ')'
-                # f_sum_next_30 = 'sum(' + str(sum_next_30) + child_offices_rows.format(xl_col_to_name(column + 5)) + ')'
-                # sheet.write_formula(row, column, f_sum_next_75_q1, row_format_number_color_next)
-                # sheet.write_formula(row, column + 1, f_sum_next_50_q1, row_format_number_color_next)
-                # sheet.write_formula(row, column + 2, f_sum_next_30_q1, row_format_number_color_next)
-                # sheet.write_formula(row, column + 3, f_sum_next_75, row_format_number_color_next)
-                # sheet.write_formula(row, column + 4, f_sum_next_50, row_format_number_color_next)
-                # sheet.write_formula(row, column + 5, f_sum_next_30, row_format_number_color_next)
-                # f_prof_next_75_q1 = 'sum(' + str(prof_next_75_q1) + child_offices_rows.format(
-                #     xl_col_to_name(column + params['margin_shift'])) + ')'
-                # f_prof_next_50_q1 = 'sum(' + str(prof_next_50_q1) + child_offices_rows.format(
-                #     xl_col_to_name(column + 1 + params['margin_shift'])) + ')'
-                # f_prof_next_30_q1 = 'sum(' + str(prof_next_30_q1) + child_offices_rows.format(
-                #     xl_col_to_name(column + 2 + params['margin_shift'])) + ')'
-                # f_prof_next_75 = 'sum(' + str(prof_next_75) + child_offices_rows.format(
-                #     xl_col_to_name(column + 3 + params['margin_shift'])) + ')'
-                # f_prof_next_50 = 'sum(' + str(prof_next_50) + child_offices_rows.format(
-                #     xl_col_to_name(column + 4 + params['margin_shift'])) + ')'
-                # f_prof_next_30 = 'sum(' + str(prof_next_30) + child_offices_rows.format(
-                #     xl_col_to_name(column + 5 + params['margin_shift'])) + ')'
-                # sheet.write_formula(row, column + params['margin_shift'], f_prof_next_75_q1, row_format_number_color_next)
-                # sheet.write_formula(row, column + 1 + params['margin_shift'], f_prof_next_50_q1, row_format_number_color_next)
-                # sheet.write_formula(row, column + 2 + params['margin_shift'], f_prof_next_30_q1, row_format_number_color_next)
-                # sheet.write_formula(row, column + 3 + params['margin_shift'], f_prof_next_75, row_format_number_color_next)
-                # sheet.write_formula(row, column + 4 + params['margin_shift'], f_prof_next_50, row_format_number_color_next)
-                # sheet.write_formula(row, column + 5 + params['margin_shift'], f_prof_next_30, row_format_number_color_next)
-                # column += 1
 
                 f_sum_next_75 = 'sum(' + str(sum_next_75) + child_offices_rows.format(xl_col_to_name(column)) + ')'
                 f_sum_next_50 = 'sum(' + str(sum_next_50) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')'
@@ -4011,7 +2377,10 @@ class report_management_committee_excel(models.AbstractModel):
             ('is_parent_project', '=', False),
             ('stage_id.code', '!=', '0'),
             ('is_not_for_mc_report', '=', False),
-        ]).sorted(key=lambda r: (r.key_account_manager_id.name, r.stage_id.code))
+            '|', ('step_status', '=', 'step'),
+            ('project_have_steps', '=', False),
+        ]).sorted(key=lambda
+            r: (r.key_account_manager_id.name, r.stage_id.code, r.project_id) if r.step_status == 'project' else (r.key_account_manager_id.name, r.stage_id.code, r.step_project_parent_id.project_id + r.project_id))
 
         # cur_project_offices = project_offices.filtered(lambda r: r in cur_budget_projects.project_office_id or r in {office.parent_id for office in cur_budget_projects.project_office_id if office.parent_id in project_offices})
         cur_project_offices = project_offices
@@ -4067,171 +2436,19 @@ class report_management_committee_excel(models.AbstractModel):
                 row = row0
 
                 formulaProjectOffice = '=sum(0'
-                # for project_manager in cur_project_managers:
-                #     isFoundProjectsByManager = False
-                #     formulaProjectManager = '=sum(0'
-                #     column = -1
-
-                # cur_budget_projects = self.env['project_budget.projects'].search([
-                #     ('commercial_budget_id', '=', budget.id),
-                #     ('project_office_id', '=', project_office.id),
-                #     ('project_manager_id', '=', project_manager.id),
-                #     ('estimated_probability_id', '=', estimated_probability.id),
-                #     ('project_have_steps', '=', False),
-                #     ])
-
-                # for project in cur_budget_projects_with_steps:
-                #     for step in project.project_steps_ids:
-                #         if step.estimated_probability_id.code == str(estimated_probability.id):
-                #             print('cur_budget_projects_1', cur_budget_projects, step)
-                #             cur_budget_projects = cur_budget_projects + self.env['project_budget.projects'].search([('id', '=', step)])
-                #             print('cur_budget_projects_2', cur_budget_projects, step)
-
-                # row += 1
-                # sheet.write_string(row, column, project_office.name, row_format)
 
                 for spec in cur_budget_projects:
-                    # if spec.is_framework is True and spec.project_have_steps is False: continue  # рамка без этапов - пропускаем
                     if spec.vgo == '-':
 
                         if begRowProjectsByOffice == 0:
                             begRowProjectsByOffice = row
 
-                        if spec.project_have_steps:
-                            for step in spec.project_steps_ids:
+                        if spec.project_office_id == project_office and spec.company_id == company:
+                            if self.isProjectinYear(spec) is False or spec.stage_id.code in ('0', '10'):
+                                continue
 
-                                if (((spec.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
-                                     or ((not spec.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and spec.project_office_id == project_office))
-                                        and spec.company_id == company):
-
-                                    if self.isStepinYear(spec, step) is False or step.stage_id.code in ('0', '10'):
-                                        continue
-
-                                    isFoundProjectsByOffice = True
-                                    isFoundProjectsByCompany = True
-
-                                    # печатаем строки этапов проектов
-                                    # row += 1
-                                    # sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level})
-                                    # cur_row_format = row_format
-                                    # cur_row_format_number = row_format_number
-                                    # if step.estimated_probability_id.name == '0':
-                                    #     cur_row_format = row_format_canceled_project
-                                    #     cur_row_format_number = row_format_number_canceled_project
-                                    # column = 0
-                                    # sheet.write_string(row, column, '       ' * max_level + spec.project_office_id.name, cur_row_format)
-                                    # column += 1
-                                    # sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
-                                    # column += 1
-                                    # sheet.write_string(row, column, spec.partner_id.name, cur_row_format)
-                                    # column += 1
-                                    # sheet.write_string(row, column, step.essence_project, cur_row_format)
-                                    # column += 1
-                                    # sheet.write_string(row, column, (step.code or '') +' | '+ spec.project_id + " | "+step.step_id, cur_row_format)
-                                    # column += 1
-                                    # sheet.write_string(row, column, self.get_estimated_probability_name_forecast(step.estimated_probability_id.name), cur_row_format)
-                                    # column += 1
-                                    # sheet.write_number(row, column, step.total_amount_of_revenue_with_vat, cur_row_format_number)
-                                    # column += 1
-                                    # sheet.write_number(row, column, step.margin_income, cur_row_format_number)
-                                    # column += 1
-                                    # sheet.write_number(row, column, step.profitability, cur_row_format_number)
-                                    # column += 1
-                                    # sheet.write_string(row, column, step.dogovor_number or '', cur_row_format)
-                                    # column += 1
-                                    # sheet.write_string(row, column, step.vat_attribute_id.name, cur_row_format)
-                                    # column += 1
-                                    # sheet.write_string(row, column, '', head_format_1)
-                                    # self.print_row_Values(workbook, sheet, row, column,  strYEAR, spec, step)
-                        else:
-                            if spec.project_office_id == project_office and spec.company_id == company:
-                                if self.isProjectinYear(spec) is False or spec.stage_id.code in ('0', '10'):
-                                    continue
-
-                                isFoundProjectsByOffice = True
-                                isFoundProjectsByCompany = True
-
-                                # печатаем строки проектов
-                                # row += 1
-                                # sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level})
-                                # cur_row_format = row_format
-                                # cur_row_format_number = row_format_number
-                                # if spec.estimated_probability_id.name == '0':
-                                #     cur_row_format = row_format_canceled_project
-                                #     cur_row_format_number = row_format_number_canceled_project
-                                # column = 0
-                                # sheet.write_string(row, column, '       ' * max_level + spec.project_office_id.name, cur_row_format)
-                                # column += 1
-                                # sheet.write_string(row, column, spec.project_manager_id.name, cur_row_format)
-                                # column += 1
-                                # sheet.write_string(row, column, spec.partner_id.name, cur_row_format)
-                                # column += 1
-                                # sheet.write_string(row, column, spec.essence_project, cur_row_format)
-                                # column += 1
-                                # sheet.write_string(row, column, (spec.step_project_number or '')+ ' | ' +(spec.project_id or ''), cur_row_format)
-                                # column += 1
-                                # sheet.write_string(row, column, self.get_estimated_probability_name_forecast(spec.estimated_probability_id.name), cur_row_format)
-                                # column += 1
-                                # sheet.write_number(row, column, spec.total_amount_of_revenue_with_vat, cur_row_format_number)
-                                # column += 1
-                                # sheet.write_number(row, column, spec.margin_income, cur_row_format_number)
-                                # column += 1
-                                # sheet.write_number(row, column, spec.profitability, cur_row_format_number)
-                                # column += 1
-                                # sheet.write_string(row, column, spec.dogovor_number or '', cur_row_format)
-                                # column += 1
-                                # sheet.write_string(row, column, spec.vat_attribute_id.name or '', cur_row_format)
-                                # column += 1
-                                # sheet.write_string(row, column, '', head_format_1)
-                                # self.print_row_Values(workbook, sheet, row, column,  strYEAR, spec, False)
-
-                    # if isFoundProjectsByProbability:
-                    #     row += 1
-                    #     column = 2
-                    #     sheet.write_string(row, column, project_manager.name + ' ' + estimated_probability.name
-                    #                        + ' %', row_format_probability)
-                    #     sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
-                    #
-                    #     formulaProjectManager = formulaProjectManager + ',{0}' + str(row + 1)
-                    #     for colFormula in range(3, 12):
-                    #         sheet.write_string(row, colFormula, '', row_format_probability)
-                    #     for colFormula in range(12, 302):
-                    #         formula = '=sum({2}{0}:{2}{1})'.format(begRowProjectsByProbability + 2, row,
-                    #                                                xl_col_to_name(colFormula))
-                    #         sheet.write_formula(row, colFormula, formula, row_format_probability)
-                    #     for col in self.array_col_itogi75:
-                    #         formula = '={1}{0} + {2}{0}'.format(row + 1, xl_col_to_name(col + 1),
-                    #                                             xl_col_to_name(col + 2))
-                    #         sheet.write_formula(row, col - 1, formula, head_format_month_itogo)
-                    #     for col in self.array_col_itogi75NoFormula:
-                    #         formula = '=0'
-                    #         sheet.write_formula(row, col - 1, formula, head_format_month_itogo)
-
-                    # if isFoundProjectsByManager:
-                    #     row += 1
-                    #     column = 1
-                    #     sheet.write_string(row, column, 'ИТОГО ' + project_manager.name, row_format_manager)
-                    #     sheet.set_row(row, False, False, {'hidden': 1, 'level': 4})
-                    #     print('setrow manager  row = ', row)
-                    #     print('setrow manager level = ', level)
-                    #
-                    #     formulaProjectOffice = formulaProjectOffice + ',{0}'+str(row + 1)
-                    #
-                    #     for colFormula in range(2, 12):
-                    #         sheet.write_string(row, colFormula, '', row_format_manager)
-                    #
-                    #     for colFormula in range(12, 302):
-                    #         formula = '=sum({2}{0}:{2}{1})'.format(begRowProjectsByManager + 2, row,
-                    #                                                xl_col_to_name(colFormula))
-                    #         sheet.write_formula(row, colFormula, formula, row_format_manager)
-                    #
-                    #     for col in self.array_col_itogi75:
-                    #         formula = '={1}{0} + {2}{0}'.format(row+1,xl_col_to_name(col + 1),xl_col_to_name(col + 2))
-                    #         sheet.write_formula(row, col - 1, formula, head_format_month_itogo)
-                    #
-                    #     for col in self.array_col_itogi75NoFormula:
-                    #         formula = '=0'
-                    #         sheet.write_formula(row, col - 1, formula, head_format_month_itogo)
+                            isFoundProjectsByOffice = True
+                            isFoundProjectsByCompany = True
 
                 if project_office.parent_id:
                     isFoundProjectsByCompany = False
@@ -4270,16 +2487,15 @@ class report_management_committee_excel(models.AbstractModel):
                     else:
                         formulaProjectOffice = formulaProjectOffice + ')'
 
-                    projects = (self.env['project_budget.projects'].
-                                search(['&','&','&',
+                    projects = self.env['project_budget.projects'].search([
                                         ('stage_id.code', '!=', '0'),
                                         ('commercial_budget_id', '=', budget.id),
                                         ('is_parent_project', '=', False),
                                         ('is_not_for_mc_report', '=', False),
-                                        '|',('project_office_id', '=', project_office.id),
-                                        '&',('legal_entity_signing_id.different_project_offices_in_steps','=', True),
-                                        ('project_have_steps', '=', True),
-                                        ]))
+                                        ('project_office_id', '=', project_office.id),
+                                        '|', ('step_status', '=', 'step'),
+                                        ('project_have_steps', '=', False),
+                                        ])
 
                     self.print_row_values_office(
                         workbook,
@@ -4295,114 +2511,53 @@ class report_management_committee_excel(models.AbstractModel):
 
                     if params['report_with_projects']:
                         for spec in cur_budget_projects:
-                            # if spec.is_framework is True and spec.project_have_steps is False: continue  # рамка без этапов - пропускаем
                             if spec.vgo == '-':
+                                if spec.project_office_id == project_office and spec.company_id == company:
+                                    if self.isProjectinYear(spec) is False or spec.stage_id.code in ('0', '10'):
+                                        continue
 
-                                if spec.project_have_steps:
-                                    for step in spec.project_steps_ids:
-
-                                        if (((
-                                                     spec.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
-                                             or ((
-                                                         not spec.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and spec.project_office_id == project_office))
-                                                and spec.company_id == company):
-
-                                            if self.isStepinYear(spec, step) is False or step.stage_id.code in ('0', '10'):
-                                                continue
-
-                                            # печатаем строки этапов проектов
-                                            row += 1
-                                            sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level})
-                                            cur_row_format = row_format
-                                            cur_row_format_number = row_format_number
-                                            if step.stage_id.code == '0':
-                                                cur_row_format = row_format_canceled_project
-                                                cur_row_format_number = row_format_number_canceled_project
-                                            column = 0
-                                            sheet.write_string(row, column, '       ' * max_level + spec.key_account_manager_id.name, cur_row_format)
-                                            column += 1
-                                            sheet.write_string(row, column, spec.partner_id.name,
-                                                               cur_row_format)
-                                            column += 1
-                                            sheet.write_string(row, column, step.essence_project, cur_row_format)
-                                            column += 1
-                                            sheet.write_string(row, column, (
-                                                        step.code or '') + ' | ' + spec.project_id + " | " + step.step_id,
-                                                               cur_row_format)
-                                            column += 1
-                                            sheet.write_string(row, column, self.get_estimated_probability_name_forecast(
-                                                step.stage_id.code), cur_row_format)
-                                            column += 1
-                                            sheet.write_number(row, column,
-                                                               step.total_amount_of_revenue_with_vat * self.get_currency_rate_by_project(step.projects_id),
-                                                               cur_row_format_number)
-                                            column += 1
-                                            sheet.write_number(row, column,
-                                                               step.margin_income * self.get_currency_rate_by_project(step.projects_id),
-                                                               cur_row_format_number)
-                                            column += 1
-                                            sheet.write_string(row, column, f'{step.profitability:.2f}' + '%', cur_row_format)
-                                            column += 1
-                                            sheet.write_string(row, column, step.dogovor_number or '', cur_row_format)
-                                            column += 1
-                                            sheet.write_string(row, column, step.vat_attribute_id.name or '', cur_row_format)
-                                            column += 1
-                                            sheet.write_string(row, column, '', cur_row_format)
-                                            self.print_row_Values(workbook, sheet, row, column, strYEAR, spec, step, project_office, params)
-                                else:
-                                    if spec.project_office_id == project_office and spec.company_id == company:
-                                        if self.isProjectinYear(spec) is False or spec.stage_id.code in ('0', '10'):
-                                            continue
-
-                                        # печатаем строки проектов
-                                        row += 1
-                                        sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level})
-                                        cur_row_format = row_format
-                                        cur_row_format_number = row_format_number
-                                        if spec.stage_id.code == '0':
-                                            cur_row_format = row_format_canceled_project
-                                            cur_row_format_number = row_format_number_canceled_project
-                                        column = 0
-                                        sheet.write_string(row, column, '       ' * max_level + spec.key_account_manager_id.name, cur_row_format)
-                                        column += 1
-                                        sheet.write_string(row, column, spec.partner_id.name, cur_row_format)
-                                        column += 1
-                                        sheet.write_string(row, column, spec.essence_project, cur_row_format)
-                                        column += 1
+                                    # печатаем строки проектов
+                                    row += 1
+                                    sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level})
+                                    cur_row_format = row_format
+                                    cur_row_format_number = row_format_number
+                                    if spec.stage_id.code == '0':
+                                        cur_row_format = row_format_canceled_project
+                                        cur_row_format_number = row_format_number_canceled_project
+                                    column = 0
+                                    sheet.write_string(row, column, '       ' * max_level + spec.key_account_manager_id.name, cur_row_format)
+                                    column += 1
+                                    sheet.write_string(row, column, spec.partner_id.name, cur_row_format)
+                                    column += 1
+                                    sheet.write_string(row, column, spec.essence_project, cur_row_format)
+                                    column += 1
+                                    if spec.step_status == 'project':
                                         sheet.write_string(row, column, (spec.step_project_number or '') + ' | ' + (
                                                     spec.project_id or ''), cur_row_format)
-                                        column += 1
-                                        sheet.write_string(row, column, self.get_estimated_probability_name_forecast(
-                                            spec.stage_id.code), cur_row_format)
-                                        column += 1
-                                        sheet.write_number(row, column,
-                                                           spec.total_amount_of_revenue_with_vat * self.get_currency_rate_by_project(spec),
-                                                           cur_row_format_number)
-                                        column += 1
-                                        sheet.write_number(row, column,
-                                                           spec.margin_income * self.get_currency_rate_by_project(spec),
-                                                           cur_row_format_number)
-                                        column += 1
-                                        sheet.write_string(row, column, f'{spec.profitability:.2f}' + '%', cur_row_format)
-                                        column += 1
-                                        sheet.write_string(row, column, spec.dogovor_number or '', cur_row_format)
-                                        column += 1
-                                        sheet.write_string(row, column, spec.vat_attribute_id.name or '', cur_row_format)
-                                        column += 1
-                                        sheet.write_string(row, column, '', cur_row_format)
-                                        self.print_row_Values(workbook, sheet, row, column, strYEAR, spec, False, project_office, params)
-
-                    # for colFormula in range(12, 302):
-                    #     formula = formulaProjectOffice.format(xl_col_to_name(colFormula))
-                    #     sheet.write_formula(row, colFormula, formula, row_format_office)
-
-                    # for col in self.array_col_itogi75:
-                    #     formula = '={1}{0} + {2}{0}'.format(row+1, xl_col_to_name(col + 1), xl_col_to_name(col + 2))
-                    #     sheet.write_formula(row, col - 1, formula, head_format_month_itogo)
-                    #
-                    # for col in self.array_col_itogi75NoFormula:
-                    #     formula = '=0'
-                    #     sheet.write_formula(row, col - 1, formula, head_format_month_itogo)
+                                    elif spec.step_status == 'step':
+                                        sheet.write_string(row, column, (
+                                                spec.step_project_number or '') + ' | ' + spec.step_project_parent_id.project_id + " | " + spec.project_id,
+                                                           cur_row_format)
+                                    column += 1
+                                    sheet.write_string(row, column, self.get_estimated_probability_name_forecast(
+                                        spec.stage_id.code), cur_row_format)
+                                    column += 1
+                                    sheet.write_number(row, column,
+                                                       spec.total_amount_of_revenue_with_vat * self.get_currency_rate_by_project(spec),
+                                                       cur_row_format_number)
+                                    column += 1
+                                    sheet.write_number(row, column,
+                                                       spec.margin_income * self.get_currency_rate_by_project(spec),
+                                                       cur_row_format_number)
+                                    column += 1
+                                    sheet.write_string(row, column, f'{spec.profitability:.2f}' + '%', cur_row_format)
+                                    column += 1
+                                    sheet.write_string(row, column, spec.dogovor_number or '', cur_row_format)
+                                    column += 1
+                                    sheet.write_string(row, column, spec.vat_attribute_id.name or '', cur_row_format)
+                                    column += 1
+                                    sheet.write_string(row, column, '', cur_row_format)
+                                    self.print_row_Values(workbook, sheet, row, column, strYEAR, spec, project_office, params)
 
                     if not project_office.parent_id:
                         formulaProjectCompany += ',{0}' + f'{office_row + 1}'
@@ -4768,6 +2923,8 @@ class report_management_committee_excel(models.AbstractModel):
             ('is_parent_project', '=', False),
             ('stage_id.code', '!=', '0'),
             ('is_not_for_mc_report', '=', False),
+            '|', ('step_status', '=', 'step'),
+            ('project_have_steps', '=', False),
         ])
 
         #  считаем max_level
@@ -4787,16 +2944,6 @@ class report_management_committee_excel(models.AbstractModel):
             parent_offices = self.env['project_budget.project_office'].search([('parent_id', 'in', parents)])
 
         depth = 1
-
-        # for project in cur_budget_projects:
-        #     if project.project_have_steps:
-        #         for step in project.project_steps_ids:
-        #             if step.project_office_id.id:
-        #                 depth = max(depth, depth_dict[step.project_office_id])
-        #     else:
-        #         depth = max(depth, depth_dict[project.project_office_id])
-        #     if depth == max_depth:
-        #         break
 
         for project in cur_budget_projects:
             depth = max(depth, depth_dict[project.project_office_id])
