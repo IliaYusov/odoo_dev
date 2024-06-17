@@ -10,33 +10,33 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
 
     pds_accept_str = {'pds': 'ПДС', 'accept': 'валовая выручка'}
 
-    def get_sum_plan_pds_project_step(self, project, step, date_start, date_end):
+    def get_sum_plan_pds_project(self, project, date_start, date_end):
 
         sum_cash = 0
 
-        pds_list = project.planned_cash_flow_ids
+        if project.step_status == 'project':
+            pds_list = project.planned_cash_flow_ids
+        elif project.step_status == 'step':
+            pds_list = project.planned_step_cash_flow_ids
 
         if pds_list:
             for pds in pds_list:
-                if step:
-                    if pds.project_steps_id.id != step.id:
-                        continue
                 if date_start <= pds.date_cash <= date_end and pds.forecast in ('commitment', 'reserve', 'from_project'):
                     sum_cash += max(pds.distribution_sum_with_vat_ostatok, 0)
 
         return sum_cash
 
-    def get_sum_plan_acceptance_project_step(self, project, step, date_start, date_end):
+    def get_sum_plan_acceptance_project(self, project, date_start, date_end):
 
         sum_cash = 0
 
-        acceptance_list = project.planned_acceptance_flow_ids
+        if project.step_status == 'project':
+            acceptance_list = project.planned_acceptance_flow_ids
+        elif project.step_status == 'step':
+            acceptance_list = project.planned_step_acceptance_flow_ids
 
         if acceptance_list:
             for acceptance in acceptance_list:
-                if step:
-                    if acceptance.project_steps_id.id != step.id:
-                        continue
                 if date_start <= acceptance.date_cash <= date_end and acceptance.forecast in ('commitment', 'reserve', 'from_project'):
                     sum_cash += acceptance.distribution_sum_without_vat_ostatok
 
@@ -157,35 +157,29 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
 
         if pds_accept == 'pds':
             cur_budget_projects = self.env[
-                'project_budget.projects'].search(
-                ['&', '&', '&',
-                 ('commercial_budget_id', '=', budget.id),
-                 ('id', 'in', [pds.projects_id.id for pds in self.env['project_budget.planned_cash_flow'].search([]) if date_start <= pds.date_cash <= date_end]),
-                 ('stage_id.code', 'not in', ('0', '10')),
-                 ('project_office_id', 'in', project_offices.ids),
-                 ]
-            )
+                'project_budget.projects'].search([
+                ('commercial_budget_id', '=', budget.id),
+                '|', ('id', 'in', [pds.projects_id.id for pds in self.env['project_budget.planned_cash_flow'].search([]) if date_start <= pds.date_cash <= date_end]),
+                ('id', 'in', [pds.step_project_child_id.id for pds in self.env['project_budget.planned_cash_flow'].search([]) if date_start <= pds.date_cash <= date_end]),
+                ('stage_id.code', 'not in', ('0', '10')),
+                ('project_office_id', 'in', project_offices.ids),
+                '|', ('step_status', '=', 'step'),
+                ('project_have_steps', '=', False),
+                ]).sorted(key=lambda r: (r.project_id if r.step_status == 'project' else r.step_project_parent_id.project_id + r.project_id))
         else:
             cur_budget_projects = self.env[
-                'project_budget.projects'].search(
-                ['&', '&', '&',
-                 ('commercial_budget_id', '=', budget.id),
-                 ('id', 'in', [acc.projects_id.id for acc in self.env['project_budget.planned_acceptance_flow'].search([]) if date_start <= acc.date_cash <= date_end]),
-                 ('stage_id.code', 'not in', ('0', '10')),
-                 ('project_office_id', 'in', project_offices.ids),
-                 ]
-            )
+                'project_budget.projects'].search([
+                ('commercial_budget_id', '=', budget.id),
+                '|', ('id', 'in', [acc.projects_id.id for acc in self.env['project_budget.planned_acceptance_flow'].search([]) if date_start <= acc.date_cash <= date_end]),
+                ('id', 'in', [acc.step_project_child_id.id for acc in self.env['project_budget.planned_acceptance_flow'].search([]) if date_start <= acc.date_cash <= date_end]),
+                ('stage_id.code', 'not in', ('0', '10')),
+                ('project_office_id', 'in', project_offices.ids),
+                '|', ('step_status', '=', 'step'),
+                ('project_have_steps', '=', False),
+                ]).sorted(key=lambda r: (r.project_id if r.step_status == 'project' else r.step_project_parent_id.project_id + r.project_id))
 
         shift = 0
         for entity_id in cur_budget_projects.legal_entity_signing_id:
-            if entity_id.name not in legal_entity_shift:
-                legal_entity_shift[entity_id.name] = shift
-                column += 1
-                sheet.write_string(row, column, self.pds_accept_str[pds_accept] + ', ' + entity_id.name, title_format)
-                sheet.set_column(column, column, 15)
-                shift += 1
-
-        for entity_id in cur_budget_projects.project_steps_ids.legal_entity_signing_id:
             if entity_id.name not in legal_entity_shift:
                 legal_entity_shift[entity_id.name] = shift
                 column += 1
@@ -198,96 +192,55 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                           date.strftime(date_end, '%d.%m.%y') + ')', head_format)
 
         for project in cur_budget_projects:
-            if project.project_have_steps:
-                for step in project.project_steps_ids:
-
-                    if step.stage_id.code in ('0', '10'):
-                        continue
-
-                    if step.legal_entity_signing_id.name == project.company_id.name:
-                        row_format = row_format_light
-                    else:
-                        row_format = row_format_dark
-
-                    if pds_accept == 'pds':
-                        summ = self.get_sum_plan_pds_project_step(project, step, date_start, date_end)
-                    else:
-                        summ = self.get_sum_plan_acceptance_project_step(project, step, date_start,date_end)
-
-                    if summ == 0:
-                        continue
-
-                    row += 1
-                    column = 0
-
-                    sheet.write_string(row, column, project.company_id.name, row_format)
-                    column += 1
-                    if project.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id:
-                        sheet.write_string(row, column, step.project_office_id.name, row_format)
-                    else:
-                        sheet.write_string(row, column, project.project_office_id.name, row_format)
-                    column += 1
-                    sheet.write_string(row, column, project.key_account_manager_id.name, row_format)
-                    column += 1
-                    sheet.write_string(row, column, step.stage_id.code, row_format)
-                    column += 1
-                    sheet.write_string(row, column, project.partner_id.name, row_format)
-                    column += 1
-                    sheet.write_string(row, column, project.project_id, row_format)
-                    column += 1
-                    sheet.write_string(row, column, step.step_id, row_format)
-                    column += 1
-                    sheet.write_string(row, column, (step.code or ''), row_format)
-                    column += 1
-                    sheet.write_string(row, column, step.essence_project , row_format)
-                    column += 1
-                    sheet.write_string(row, column, step.legal_entity_signing_id.name, row_format)
-                    for shift in range(len(legal_entity_shift)):
-                        sheet.write_number(row, column + 1 + shift, 0, row_format)
-                    column += 1 + legal_entity_shift[step.legal_entity_signing_id.name]
-                    sheet.write_number(row, column, summ, row_format)
-
+            if project.legal_entity_signing_id.name == project.company_id.name:
+                row_format = row_format_light
             else:
+                row_format = row_format_dark
 
-                if project.legal_entity_signing_id.name == project.company_id.name:
-                    row_format = row_format_light
-                else:
-                    row_format = row_format_dark
+            if pds_accept == 'pds':
+                summ = self.get_sum_plan_pds_project(project, date_start, date_end)
+            else:
+                summ = self.get_sum_plan_acceptance_project(project, date_start, date_end)
 
-                if pds_accept == 'pds':
-                    summ = self.get_sum_plan_pds_project_step(project, False, date_start, date_end)
-                else:
-                    summ = self.get_sum_plan_acceptance_project_step(project, False, date_start, date_end)
+            if summ == 0:
+                continue
 
-                if summ == 0:
-                    continue
+            row += 1
+            column = 0
 
-                row += 1
-                column = 0
+            sheet.write_string(row, column, project.company_id.name, row_format)
+            column += 1
+            sheet.write_string(row, column, project.project_office_id.name, row_format)
+            column += 1
+            sheet.write_string(row, column, project.key_account_manager_id.name, row_format)
+            column += 1
+            sheet.write_string(row, column, project.stage_id.code, row_format)
+            column += 1
+            sheet.write_string(row, column, project.partner_id.name, row_format)
+            column += 1
 
-                sheet.write_string(row, column, project.company_id.name, row_format)
-                column += 1
-                sheet.write_string(row, column, project.project_office_id.name, row_format)
-                column += 1
-                sheet.write_string(row, column, project.key_account_manager_id.name, row_format)
-                column += 1
-                sheet.write_string(row, column, project.stage_id.code, row_format)
-                column += 1
-                sheet.write_string(row, column, project.partner_id.name, row_format)
-                column += 1
+            if project.step_status == 'project':
                 sheet.write_string(row, column, project.project_id, row_format)
                 column += 1
                 sheet.write_string(row, column, '', row_format)
                 column += 1
                 sheet.write_string(row, column, '', row_format)
                 column += 1
-                sheet.write_string(row, column, project.essence_project, row_format)
+            elif project.step_status == 'step':
+                sheet.write_string(row, column, project.step_project_parent_id.project_id, row_format)
                 column += 1
-                sheet.write_string(row, column, project.legal_entity_signing_id.name, row_format)
-                for shift in range(len(legal_entity_shift)):
-                    sheet.write_number(row, column + 1 + shift, 0, row_format)
-                column += 1 + legal_entity_shift[project.legal_entity_signing_id.name]
-                sheet.write_number(row, column, summ, row_format)
+                sheet.write_string(row, column, project.project_id, row_format)
+                column += 1
+                sheet.write_string(row, column, (project.step_project_number or ''), row_format)
+                column += 1
+
+            sheet.write_string(row, column, project.essence_project, row_format)
+            column += 1
+            sheet.write_string(row, column, project.legal_entity_signing_id.name, row_format)
+            for shift in range(len(legal_entity_shift)):
+                sheet.write_number(row, column + 1 + shift, 0, row_format)
+            column += 1 + legal_entity_shift[project.legal_entity_signing_id.name]
+            sheet.write_number(row, column, summ, row_format)
 
         row += 1
         sheet.merge_range(row, 0, row, 9, 'ИТОГО', total_format)
