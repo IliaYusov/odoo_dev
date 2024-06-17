@@ -102,7 +102,12 @@ class report_projects_overdue_excel(models.AbstractModel):
         else:
             project_offices = self.env['project_budget.project_office'].search([], order='name')
 
-        cur_budget_projects = self.env['project_budget.projects'].search([('commercial_budget_id', '=', budget.id),('project_office_id', 'in', project_offices.ids)])
+        cur_budget_projects = self.env['project_budget.projects'].search([
+            ('commercial_budget_id', '=', budget.id),
+            ('project_office_id', 'in', project_offices.ids),
+            '|', ('step_status', '=', 'step'),
+            ('project_have_steps', '=', False),
+        ])
 
         for spec in cur_budget_projects:
             isok = False
@@ -111,30 +116,15 @@ class report_projects_overdue_excel(models.AbstractModel):
             isok, raisetext, dictvalues = spec.check_overdue_date(False)
 
             if isok == True: continue
-            stage_id_code = ""
-            step_project_office_name = ''
-            if 'step_id' in dictvalues:
-                step_id = dictvalues['step_id']
-                step_obj = self.env['project_budget.project_steps'].search(
-                    [('step_id', '=', step_id),('projects_id','=',spec.id)], limit=1)
-                if step_obj:
-                    stage_id_code = step_obj.stage_id.code
-                    step_project_office_name = step_obj.project_office_id.name
-            else:
-                stage_id_code = spec.stage_id.code
 
-            if stage_id_code in ('0', '100(done)'): continue
+            if spec.stage_id.code in ('0', '100(done)'): continue
 
             row += 1
             column = 0
-
-            if step_project_office_name and spec.legal_entity_signing_id.different_project_offices_in_steps:
-                sheet.write_string(row, column, step_project_office_name, row_format)
-            else:
-                sheet.write_string(row, column, spec.project_office_id.name, row_format)
+            sheet.write_string(row, column, spec.project_office_id.name, row_format)
 
             column += 1
-            sheet.write_string(row, column, stage_id_code, row_format)
+            sheet.write_string(row, column, spec.stage_id.code, row_format)
 
             column += 1
             sheet.write_string(row, column, (spec.project_supervisor_id.name or ""), row_format)
@@ -143,14 +133,15 @@ class report_projects_overdue_excel(models.AbstractModel):
             column += 1
             sheet.write_string(row, column, (spec.rukovoditel_project_id.name or ""), row_format)
             column += 1
-            sheet.write_string(row, column, spec.project_id, row_format)
+            if spec.step_status == 'project':
+                sheet.write_string(row, column, spec.project_id, row_format)
+                column += 1
+                sheet.write_string(row, column, '', row_format)
+            elif spec.step_status == 'step':
+                sheet.write_string(row, column, spec.step_project_parent_id.project_id, row_format)
+                column += 1
+                sheet.write_string(row, column, spec.project_id, row_format)
             column += 1
-            if 'step_id' in dictvalues:
-                sheet.write_string(row, column, dictvalues['step_id'], row_format)
-            else:
-                sheet.write_string(row, column, "", row_format)
-            column += 1
-
             sheet.write_string(row, column, (spec.partner_id.name or '') , row_format)
             column += 1
             sheet.write_string(row, column, (spec.essence_project or ''), row_format)
