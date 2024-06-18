@@ -51,6 +51,8 @@ class tenders(models.Model):
     is_need_initial_maximum_contract_price = fields.Boolean(string="is_need_initial_maximum_contract_price", copy=True, default = False)
     is_need_securing_the_application  = fields.Boolean(string="is_need_securing_the_application", copy=True, default = False)
 
+    okpd2 = fields.Text(string='okpd2', default="", tracking=True)
+
     is_need_contract_security  = fields.Boolean(string="is_need_contract_security", copy=True, default = False)
     is_need_provision_of_GO  = fields.Boolean(string="is_need_provision_of_GO", copy=True, default = False)
     is_need_licenses_SRO  = fields.Boolean(string="is_need_licenses_SRO", copy=True, default = False,tracking=True)
