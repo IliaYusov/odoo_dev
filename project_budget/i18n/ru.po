@@ -4057,6 +4057,12 @@ msgid "name_of_the_purchase"
 msgstr "Наименование закупки"
 
 #. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__okpd2
+#: model_terms:ir.ui.view,arch_db:project_budget.view_tender_search
+msgid "okpd2"
+msgstr "ОКПД 2"
+
+#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_kam__name_to_show
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_supervisor__name_to_show
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_commercial_budget__name_to_show

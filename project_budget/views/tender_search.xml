@@ -16,6 +16,7 @@
                 <field name="responsible_dkp_ids" filter_domain="[('responsible_dkp_ids','ilike',self)]" string="responsibles_dkp"/>
                 <field name="current_status" filter_domain="[('current_status','ilike',self)]" string="current_status"/>
                 <field name="presale_number" filter_domain="[('presale_number','ilike',self)]" string="presale_number"/>
+                <field name="okpd2" filter_domain="[('okpd2','ilike',self)]" string="okpd2"/>
                 <group expand="0" string="Group By">
                     <filter string="current_status" name="current_status" context="{'group_by': 'current_status'}"></filter>
                     <filter string="partner_id" name="partner_id" context="{'group_by': 'partner_id'}"></filter>
