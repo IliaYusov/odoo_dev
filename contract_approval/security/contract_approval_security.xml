@@ -7,7 +7,7 @@
             <field name="domain_force">
                 [
                     '|', '|', '|', '|', '|',
-                    ('create_uid', '=', user.id),
+                    ('author_id.user_id', '=', user.id),
                     ('type_id.access_setting_ids.user_id', '=', user.id),
                     ('type_id.access_setting_ids.group_executors_id.member_ids', '=', user.id),
                     ('access_ids.user_id', '=', user.id),

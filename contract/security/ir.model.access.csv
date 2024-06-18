@@ -1,10 +1,13 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 
-access_contract_contract_user,contract.contract,model_contract_contract,base.group_user,1,1,1,1
-access_contract_contract_admin,contract.contract,model_contract_contract,base.group_system,1,1,1,1
+access_contract_contract_user,contract.contract.user,model_contract_contract,base.group_user,1,1,1,1
+access_contract_contract_manager,contract.contract.manager,model_contract_contract,base.group_system,1,1,1,1
 
-access_contract_type_user,contract.type,model_contract_type,base.group_user,1,0,0,0
-access_contract_type_admin,contract.type,model_contract_type,base.group_system,1,1,1,1
+access_contract_state_user,contract.state.user,model_contract_state,base.group_user,1,0,0,0
+access_contract_state_manager,contract.state.manager,model_contract_state,base.group_system,1,1,1,1
 
-access_contract_kind_user,contract.kind,model_contract_kind,base.group_user,1,0,0,0
-access_contract_kind_admin,contract.kind,model_contract_kind,base.group_system,1,1,1,1
+access_contract_type_user,contract.type.user,model_contract_type,base.group_user,1,0,0,0
+access_contract_type_manager,contract.type.manager,model_contract_type,base.group_system,1,1,1,1
+
+access_contract_kind_user,contract.kind.user,model_contract_kind,base.group_user,1,0,0,0
+access_contract_kind_manager,contract.kind.manager,model_contract_kind,base.group_system,1,1,1,1

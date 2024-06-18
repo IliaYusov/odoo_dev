@@ -30,8 +30,8 @@ class WorkflowProcessActivity(models.Model):
                             store=True)
     res_id = fields.Integer(related='workflow_process_id.res_id', string='Resource ID', index=True, readonly=True,
                             store=True)
-    date_start = fields.Datetime(related='activity_id.date_start', string='Date Start', readonly=True)
-    date_end = fields.Datetime(related='activity_id.date_end', string='Date End', readonly=True)
+    date_start = fields.Datetime(related='activity_id.date_start', string='Date Start', readonly=True, store=True)
+    date_end = fields.Datetime(related='activity_id.date_end', string='Date End', readonly=True, store=True)
     duration = fields.Float(related='activity_id.duration', string='Duration', readonly=True)
 
     task_id = fields.Many2one('task.task', string='Task')

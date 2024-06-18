@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="contract_state_on_approval" model="contract.state">
+            <field name="name">On approval</field>
+            <field name="sequence">10</field>
+            <field name="hidden">True</field>
+        </record>
+
+        <record id="contract_state_on_signing" model="contract.state">
+            <field name="name">On signing</field>
+            <field name="sequence">20</field>
+            <field name="hidden">True</field>
+        </record>
+    </data>
+</odoo>

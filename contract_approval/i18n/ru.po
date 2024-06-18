@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-12 15:26+0000\n"
-"PO-Revision-Date: 2024-03-12 15:26+0000\n"
+"POT-Creation-Date: 2024-06-05 18:04+0000\n"
+"PO-Revision-Date: 2024-06-05 18:04+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -58,6 +58,16 @@ msgstr "Лист согласования"
 #: model:ir.actions.report,name:contract_approval.action_report_contract_approval_form
 msgid "Approval form (docx)"
 msgstr "Лист согласования (docx)"
+
+#. module: contract_approval
+#: model:contract.state,name:contract_approval.contract_state_approved
+msgid "Approved"
+msgstr "Согласован"
+
+#. module: contract_approval
+#: model:ir.ui.menu,name:contract_approval.menu_contract_workflow_auto_substitution
+msgid "Auto-substitutions"
+msgstr "Автоподстановки"
 
 #. module: contract_approval
 #. odoo-python
@@ -138,6 +148,11 @@ msgid "Group"
 msgstr "Группа"
 
 #. module: contract_approval
+#: model:ir.ui.menu,name:contract_approval.menu_contract_workflow_group_executors
+msgid "Groups Of Executors"
+msgstr "Группы исполнителей"
+
+#. module: contract_approval
 #: model:ir.model.fields,field_description:contract_approval.field_contract_contract__activity_history_ids
 msgid "History"
 msgstr "История обработки"
@@ -170,6 +185,16 @@ msgid "Not agreed"
 msgstr "Не согласовано"
 
 #. module: contract_approval
+#: model:contract.state,name:contract_approval.contract_state_on_approval
+msgid "On approval"
+msgstr "На согласовании"
+
+#. module: contract_approval
+#: model:contract.state,name:contract_approval.contract_state_on_signing
+msgid "On signing"
+msgstr "На подписании"
+
+#. module: contract_approval
 #: model:ir.model.fields,field_description:contract_approval.field_contract_contract__workflow_process_id
 msgid "Process"
 msgstr "Процесс"
@@ -192,12 +217,17 @@ msgid "Resume processing"
 msgstr "Возобновить обработку"
 
 #. module: contract_approval
+#: model:ir.ui.menu,name:contract_approval.menu_contract_rotes
+msgid "Routes"
+msgstr "Маршруты согласования"
+
+#. module: contract_approval
 #: model_terms:ir.ui.view,arch_db:contract_approval.contract_contract_view_form_inherit_contract_approval
 msgid "Start processing"
 msgstr "Запустить обработку"
 
 #. module: contract_approval
-#: model:ir.model.fields,field_description:contract_approval.field_contract_contract__workflow_process_state
+#: model:ir.model.fields,field_description:contract_approval.field_contract_contract__state_id
 msgid "State"
 msgstr "Статус"
 
@@ -224,6 +254,17 @@ msgstr "Шаблон согласования"
 #. module: contract_approval
 #: model:ir.model.fields,field_description:contract_approval.field_contract_contract__workflow_id_domain
 msgid "Workflow Domain"
+msgstr ""
+
+#. module: contract_approval
+#: model:ir.model.fields,field_description:contract_approval.field_contract_contract__workflow_process_state
+msgid "Workflow State"
+msgstr "Статус согласования"
+
+#. module: contract_approval
+#: model:ir.actions.act_window,name:contract_approval.action_workflow_contracts
+#: model:ir.ui.menu,name:contract_approval.menu_contract_workflow
+msgid "Workflows"
 msgstr ""
 
 #. module: contract_approval

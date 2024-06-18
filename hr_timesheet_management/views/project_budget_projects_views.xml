@@ -16,15 +16,48 @@
     </record>
 
     <record id="project_budget_project_view_form_inherit_hr_timesheet" model="ir.ui.view">
-        <field name="name">project_budget.project.view.form.inherit.hr_timesheet</field>
+        <field name="name">project.budget.project.form.inherit.hr.timesheet</field>
         <field name="model">project_budget.projects</field>
         <field name="inherit_id" ref="project_budget.show_comercial_budget_spec_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//form/sheet" position="inside">
+                <field name="allow_timesheets" invisible="1"/>
+            </xpath>
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button class="oe_stat_button" type="action" name="%(action_hr_timesheet_account_analytic_line_form_project)d"
-                        icon="fa-clock-o">
+                        icon="fa-clock-o" attrs="{'invisible': [('allow_timesheets', '=', False)]}">
                     <field string="Timesheets" name="total_hours_spent" widget="statinfo"/>
                 </button>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="project_budget_project_settings_view_form_inherit_hr_timesheet" model="ir.ui.view">
+        <field name="name">project.budget.project.settings.form.inherit.hr.timesheet</field>
+        <field name="model">project_budget.projects</field>
+        <field name="inherit_id" ref="project_budget.project_budget_project_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook/page/group[@name='project_settings']" position="before">
+                <group>
+                    <field name="analytic_account_id"
+                           context="{'default_partner_id': partner_id}"
+                           groups="analytic.group_analytic_accounting"/>
+                </group>
+            </xpath>
+            <xpath expr="//notebook/page/group[@name='project_settings']" position="after">
+                <group>
+                    <div class="o_setting_box" id="timesheet_settings" colspan="2">
+                        <div class="o_setting_left_pane">
+                            <field name="allow_timesheets"/>
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <label for="allow_timesheets" string="Timesheets"/>
+                            <div class="text-muted">
+                                Log time on tasks
+                            </div>
+                        </div>
+                    </div>
+                </group>
             </xpath>
         </field>
     </record>

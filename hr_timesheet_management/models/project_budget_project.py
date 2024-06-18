@@ -4,9 +4,9 @@ from odoo import api, fields, models, _
 class Project(models.Model):
     _inherit = 'project_budget.projects'
 
+    allow_timesheets = fields.Boolean(string='Allow Timesheets', default=False)
     analytic_account_id = fields.Many2one('account.analytic.account', copy=False, domain="""[
-        '|', ('company_id', '=', False), ('company_id', '=', company_id)],
-        ('partner_id', '=?', partner_id)""")
+        '|', ('company_id', '=', False), ('company_id', '=', company_id)], ('partner_id', '=?', partner_id)""")
 
     timesheet_ids = fields.One2many('account.analytic.line', 'project_id', string='Timesheets')
     total_hours_spent = fields.Float(compute='_compute_total_hours_spent', string='Hours')
@@ -21,10 +21,12 @@ class Project(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        defaults = self.default_get(['analytic_account_id', 'commercial_budget_id'])
+        defaults = self.default_get(['allow_timesheets', 'analytic_account_id', 'commercial_budget_id'])
         for vals in vals_list:
+            allow_timesheets = vals.get('allow_timesheets', defaults.get('allow_timesheets'))
             analytic_account_id = vals.get('analytic_account_id', defaults.get('analytic_account_id'))
-            if not analytic_account_id and vals.get('commercial_budget_id') == defaults.get('commercial_budget_id'):
+            if allow_timesheets and not analytic_account_id and vals.get('commercial_budget_id') == defaults.get(
+                    'commercial_budget_id'):
                 analytic_account = self._create_analytic_account_from_values(vals)
                 vals['analytic_account_id'] = analytic_account.id
         return super().create(vals_list)
@@ -32,19 +34,22 @@ class Project(models.Model):
     def write(self, values):
         if not values.get('analytic_account_id'):
             [project._create_analytic_account() for project in
-             self.filtered(lambda pr: not pr.analytic_account_id and pr.budget_state == 'work')]
+             self.filtered(lambda pr: pr.allow_timesheets and not pr.analytic_account_id and pr.budget_state == 'work')]
         return super(Project, self).write(values)
 
     @api.model
     def _init_data_analytic_account(self):
-        self.search([('analytic_account_id', '=', False), ('budget_state', '=', 'work')])._create_analytic_account()
+        self.search([
+            ('allow_timesheets', '=', True),
+            ('analytic_account_id', '=', False),
+            ('budget_state', '=', 'work')
+        ])._create_analytic_account()
 
     @api.model
     def _create_analytic_account_from_values(self, values):
         company = self.env['res.company'].browse(values.get('company_id')) if values.get(
             'company_id') else self.env.company
-        org = self.env['res.partner'].browse(
-            values.get('partner_id')) if values.get('company_id') else False
+        org = self.env['res.partner'].browse(values.get('partner_id', 0))
         # TODO: Подумать над необходимостью sudo
         analytic_account = self.env['account.analytic.account'].sudo().create({
             'name': values.get('essence_project', _('Unknown Analytic Account')),

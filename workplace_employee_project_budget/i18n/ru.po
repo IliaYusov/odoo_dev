@@ -1,0 +1,78 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* workplace_employee_project_budget
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-06-13 07:22+0000\n"
+"PO-Revision-Date: 2024-06-13 07:22+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: workplace_employee_project_budget
+#. odoo-javascript
+#: code:addons/workplace_employee_project_budget/static/src/components/workplace_employee_project_budget_dashboard/workplace_employee_project_budget_dashboard.xml:0
+#, python-format
+msgid "Key Account Manager"
+msgstr "КАМ"
+
+#. module: workplace_employee_project_budget
+#. odoo-javascript
+#: code:addons/workplace_employee_project_budget/static/src/components/workplace_employee_project_budget_dashboard/workplace_employee_project_budget_dashboard.xml:0
+#, python-format
+msgid "New Project"
+msgstr "Новая сделка"
+
+#. module: workplace_employee_project_budget
+#. odoo-javascript
+#: code:addons/workplace_employee_project_budget/static/src/components/workplace_employee_project_budget_dashboard/workplace_employee_project_budget_dashboard.js:0
+#: code:addons/workplace_employee_project_budget/static/src/components/workplace_employee_project_budget_dashboard/workplace_employee_project_budget_dashboard.xml:0
+#, python-format
+msgid "Overdue Projects"
+msgstr "Сделки с просроченными датами"
+
+#. module: workplace_employee_project_budget
+#. odoo-javascript
+#: code:addons/workplace_employee_project_budget/static/src/components/workplace_employee_project_budget_dashboard/workplace_employee_project_budget_dashboard.xml:0
+#, python-format
+msgid "Project"
+msgstr "Сделка"
+
+#. module: workplace_employee_project_budget
+#. odoo-javascript
+#: code:addons/workplace_employee_project_budget/static/src/components/workplace_employee_project_budget_dashboard/workplace_employee_project_budget_dashboard.xml:0
+#, python-format
+msgid "Projects"
+msgstr "Сделки"
+
+#. module: workplace_employee_project_budget
+#. odoo-javascript
+#: code:addons/workplace_employee_project_budget/static/src/components/workplace_employee_project_budget_dashboard/workplace_employee_project_budget_dashboard.xml:0
+#, python-format
+msgid "Reason"
+msgstr "Причина"
+
+#. module: workplace_employee_project_budget
+#. odoo-javascript
+#: code:addons/workplace_employee_project_budget/static/src/components/workplace_employee_project_budget_dashboard/workplace_employee_project_budget_dashboard.xml:0
+#, python-format
+msgid "Step"
+msgstr "Этап"
+
+#. module: workplace_employee_project_budget
+#. odoo-javascript
+#: code:addons/workplace_employee_project_budget/static/src/components/workplace_employee_project_budget_dashboard/workplace_employee_project_budget_dashboard.xml:0
+#, python-format
+msgid "View More"
+msgstr "Посмотреть больше"
+
+#. module: workplace_employee_project_budget
+#: model:ir.model,name:workplace_employee_project_budget.model_project_budget_projects
+msgid "project_office commercial budget projects"
+msgstr "Проекты"

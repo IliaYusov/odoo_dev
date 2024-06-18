@@ -4,6 +4,8 @@ from odoo import models, fields, api, _
 class Task(models.Model):
     _inherit = 'task.task'
 
+    allow_timesheets = fields.Boolean(string='Allow Timesheets', compute='_compute_allow_timesheets',
+                                      help='Timesheets can be logged on this task.', readonly=True)
     analytic_account_id = fields.Many2one(
         'account.analytic.account', compute='_compute_analytic_account_id',
         domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]", ondelete='set null',
@@ -29,6 +31,12 @@ class Task(models.Model):
     def _get_task_analytic_account_id(self):
         self.ensure_one()
         return self.analytic_account_id or self.project_analytic_account_id
+
+    @api.depends('parent_ref')
+    def _compute_allow_timesheets(self):
+        for task in self:
+            task.allow_timesheets = task.parent_ref.allow_timesheets \
+                if task.parent_ref and task.parent_ref_type == 'project_budget.projects' else False
 
     @api.depends('parent_ref')
     def _compute_analytic_account_id(self):

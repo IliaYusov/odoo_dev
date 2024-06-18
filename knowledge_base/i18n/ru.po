@@ -1,143 +1,34 @@
-#. module: knowledge_base
-#: model:ir.ui.menu,name:knowledge_base.knowledge_base_menu
-msgid "Knowledge base"
-msgstr "База знаний"
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* knowledge_base
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-03-28 17:37+0000\n"
+"PO-Revision-Date: 2024-03-28 17:37+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
 
 #. module: knowledge_base
-#: model:ir.ui.menu,name:knowledge_base.knowledge_base_menu_tree_articles
-#: model:ir.actions.act_window,name:knowledge_base.action_view_all_articles
-msgid "Articles"
-msgstr "Статьи"
+#: model:ir.actions.report,print_report_name:knowledge_base.action_article_report
+msgid "'Knowledge base - %s' % (object.name or 'no name').replace('/','')"
+msgstr "'База знаний - %s' % (object.name or 'no name').replace('/','')"
 
 #. module: knowledge_base
-#: model:ir.ui.menu,name:knowledge_base.knowledge_base_menu_tree_sections
-#: model:ir.actions.act_window,name:knowledge_base.action_view_all_sections
-msgid "Sections"
-msgstr "Секции"
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_article__message_needaction
+msgid "Action Needed"
+msgstr ""
 
 #. module: knowledge_base
-#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_article__name
-msgid "Article name"
-msgstr "Название статьи"
-
-#. module: knowledge_base
-#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_article__text
-msgid "Article text"
-msgstr "Содержание статьи"
-
-#. module: knowledge_base
-#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_article__section_id
-#: model_terms:ir.ui.view,arch_db:knowledge_base.article_view_search
-msgid "Section"
-msgstr "Секция"
-
-#. module: knowledge_base
-#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_article__tag_ids
-#: model_terms:ir.ui.view,arch_db:knowledge_base.article_view_search
-#: model:ir.ui.menu,name:knowledge_base.knowledge_base_menu_tree_tags
-#: model:ir.actions.act_window,name:knowledge_base.action_view_all_tags
-msgid "Tags"
-msgstr "Тэги"
-
-#. module: knowledge_base
-#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_article__parent_id
-msgid "Parent article"
-msgstr "Родительская статья"
-
-#. module: knowledge_base
-#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_article__group_ids
-msgid "Groups who can view the article"
-msgstr "Группы, которые видят статью (если пусто, видят все)"
-
-#. module: knowledge_base
-#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_article__child_ids
-msgid "Child articles"
-msgstr "Дочерние статьи"
-
-#. module: knowledge_base
-#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_article__create_uid
-msgid "Created by"
-msgstr "Создано кем"
-
-#. module: knowledge_base
-#: model_terms:ir.ui.view,arch_db:knowledge_base.article_view_form
-msgid "Name of your article"
-msgstr "Название вашей статьи"
-
-#. module: knowledge_base
-#: model_terms:ir.ui.view,arch_db:knowledge_base.article_view_form
-msgid "Section of your article"
-msgstr "Секция вашей статьи"
-
-#. module: knowledge_base
-#: model_terms:ir.ui.view,arch_db:knowledge_base.article_view_form
-msgid "Parent article"
-msgstr "Родительская статья, если есть"
-
-#. module: knowledge_base
-#: model_terms:ir.ui.view,arch_db:knowledge_base.article_view_form
-msgid "Article tags"
-msgstr "Тэги вашей статьи"
-
-#. module: knowledge_base
-#: model_terms:ir.ui.view,arch_db:knowledge_base.article_view_form
-msgid "Text of your article"
-msgstr "Содержание вашей статьи"
-
-#. module: knowledge_base
-#: model_terms:ir.ui.view,arch_db:knowledge_base.article_view_form
-msgid "If empty, all can see"
-msgstr "Если пусто, видят все"
-
-#. module: knowledge_base
-#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_section__name
-msgid "Section name"
-msgstr "Название секции"
-
-#. module: knowledge_base
-#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_section__parent_id
-msgid "Parent section"
-msgstr "Родительская секция"
-
-#. module: knowledge_base
-#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_section__child_ids
-msgid "Child sections"
-msgstr "Дочерние секции"
-
-#. module: knowledge_base
-#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_section__description
-msgid "Section description"
-msgstr "Описание секции"
-
-#. module: knowledge_base
-#: model_terms:ir.ui.view,arch_db:knowledge_base.section_view_form
-msgid "Name of your section"
-msgstr "Название секции"
-
-#. module: knowledge_base
-#: model_terms:ir.ui.view,arch_db:knowledge_base.section_view_form
-msgid "Description of your section"
-msgstr "Описание, если есть"
-
-#. module: knowledge_base
-#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_tags__name
-msgid "Tag name"
-msgstr "Название тэга"
-
-#. module: knowledge_base
-#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_base_tags__description
-msgid "Tag description"
-msgstr "Описание тэга"
-
-#. module: knowledge_base
-#: model_terms:ir.ui.view,arch_db:knowledge_base.tags_view_form
-msgid "Name of your tag"
-msgstr "Название тэга"
-
-#. module: knowledge_base
-#: model_terms:ir.ui.view,arch_db:knowledge_base.tags_view_form
-msgid "Description of your tag"
-msgstr "Описание, если есть"
+#: model_terms:ir.ui.view,arch_db:knowledge_base.knowledge_article_view_form
+msgid "Article"
+msgstr "Статья"
 
 #. module: knowledge_base
 #: model:ir.actions.report,name:knowledge_base.action_article_report
@@ -145,6 +36,319 @@ msgid "Article Report"
 msgstr "Печать статьи (PDF)"
 
 #. module: knowledge_base
-#: model:ir.actions.report,print_report_name:knowledge_base.action_article_report
-msgid "'Knowledge base - %s' % (object.name or 'no name').replace('/','')"
-msgstr "'База знаний - %s' % (object.name or 'no name').replace('/','')"
+#: model_terms:ir.ui.view,arch_db:knowledge_base.knowledge_article_view_form
+msgid "Article tags"
+msgstr "Тэги статьи"
+
+#. module: knowledge_base
+#: model:ir.actions.act_window,name:knowledge_base.action_view_all_articles
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_section__article_ids
+#: model:ir.ui.menu,name:knowledge_base.menu_knowledge_articles
+msgid "Articles"
+msgstr "Статьи"
+
+#. module: knowledge_base
+#: model:ir.module.category,description:knowledge_base.module_category_knowledge_management
+msgid "Articles of knowledge base"
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_article__message_attachment_count
+msgid "Attachment Count"
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_article__attachment_ids
+msgid "Attachments"
+msgstr "Вложения"
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_article__base_url
+msgid "Base Url"
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_article__base64_qr
+msgid "Base64 Qr"
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_article__body
+#: model_terms:ir.ui.view,arch_db:knowledge_base.knowledge_article_view_form
+msgid "Body"
+msgstr "Текст"
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_article__child_ids
+msgid "Child Articles"
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_section__child_ids
+msgid "Child Sections"
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_article__create_uid
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_section__create_uid
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_tags__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_article__create_date
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_section__create_date
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_tags__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_section__description
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_tags__description
+msgid "Description"
+msgstr "Описание"
+
+#. module: knowledge_base
+#: model_terms:ir.ui.view,arch_db:knowledge_base.section_view_form
+msgid "Description of your section"
+msgstr "Описание, если есть"
+
+#. module: knowledge_base
+#: model_terms:ir.ui.view,arch_db:knowledge_base.tags_view_form
+msgid "Description of your tag"
+msgstr "Описание, если есть"
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_article__display_name
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_section__display_name
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_tags__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_article__message_follower_ids
+msgid "Followers"
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_article__message_partner_ids
+msgid "Followers (Partners)"
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_article__group_ids
+msgid "Groups who can view the article"
+msgstr "Группы пользователей, которые могут видеть статью"
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_article__has_message
+msgid "Has Message"
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_article__id
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_section__id
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_tags__id
+msgid "ID"
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.model.fields,help:knowledge_base.field_knowledge_article__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.model.fields,help:knowledge_base.field_knowledge_article__message_has_error
+msgid "If checked, some messages have a delivery error."
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_article__message_is_follower
+msgid "Is Follower"
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.module.category,name:knowledge_base.module_category_knowledge_management
+#: model:ir.ui.menu,name:knowledge_base.menu_knowledge
+msgid "Knowledge"
+msgstr "База знаний"
+
+#. module: knowledge_base
+#: model:ir.model,name:knowledge_base.model_knowledge_article
+msgid "Knowledge Article"
+msgstr "Статья"
+
+#. module: knowledge_base
+#: model:ir.model,name:knowledge_base.model_knowledge_tags
+msgid "Knowledge Article Tags"
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.model,name:knowledge_base.model_knowledge_section
+msgid "Knowledge Section"
+msgstr "Раздел"
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_article____last_update
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_section____last_update
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_tags____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_article__write_uid
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_section__write_uid
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_tags__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_article__write_date
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_section__write_date
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_tags__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_article__message_main_attachment_id
+msgid "Main Attachment"
+msgstr ""
+
+#. module: knowledge_base
+#: model:res.groups,name:knowledge_base.knowledge_manager
+msgid "Manager"
+msgstr "Администратор"
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_article__message_has_error
+msgid "Message Delivery error"
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_article__message_ids
+msgid "Messages"
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_article__name
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_section__name
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_tags__name
+msgid "Name"
+msgstr "Наименование"
+
+#. module: knowledge_base
+#: model_terms:ir.ui.view,arch_db:knowledge_base.section_view_form
+msgid "Name of your section"
+msgstr "Название раздела"
+
+#. module: knowledge_base
+#: model_terms:ir.ui.view,arch_db:knowledge_base.tags_view_form
+msgid "Name of your tag"
+msgstr "Название тэга"
+
+#. module: knowledge_base
+#: model_terms:ir.ui.view,arch_db:knowledge_base.knowledge_article_view_form
+msgid "Name..."
+msgstr "Наименование..."
+
+#. module: knowledge_base
+#: model_terms:ir.actions.act_window,help:knowledge_base.action_view_all_articles
+msgid "No articles found. Let's create one!"
+msgstr "Статьи не найдены. Давайте создадим первую!"
+
+#. module: knowledge_base
+#: model_terms:ir.actions.act_window,help:knowledge_base.action_view_all_sections
+msgid "No sections found. Let's create one!"
+msgstr "Разделы не найдены. Давайте создадим первый!"
+
+#. module: knowledge_base
+#: model_terms:ir.actions.act_window,help:knowledge_base.action_view_all_tags
+msgid "No tags found. Let's create one!"
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_article__message_needaction_counter
+msgid "Number of Actions"
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_article__message_has_error_counter
+msgid "Number of errors"
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.model.fields,help:knowledge_base.field_knowledge_article__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.model.fields,help:knowledge_base.field_knowledge_article__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_article__parent_id
+msgid "Parent Article"
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_section__parent_id
+#: model_terms:ir.ui.view,arch_db:knowledge_base.section_view_form
+msgid "Parent Section"
+msgstr "Вышестоящий раздел"
+
+#. module: knowledge_base
+#: model_terms:ir.ui.view,arch_db:knowledge_base.knowledge_article_view_search
+msgid "Search articles"
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_article__section_id
+#: model_terms:ir.ui.view,arch_db:knowledge_base.knowledge_article_view_search
+#: model_terms:ir.ui.view,arch_db:knowledge_base.section_view_form
+msgid "Section"
+msgstr "Раздел"
+
+#. module: knowledge_base
+#: model_terms:ir.ui.view,arch_db:knowledge_base.knowledge_article_view_form
+msgid "Section of your article"
+msgstr ""
+
+#. module: knowledge_base
+#: model:ir.actions.act_window,name:knowledge_base.action_view_all_sections
+#: model:ir.ui.menu,name:knowledge_base.menu_knowledge_sections
+msgid "Sections"
+msgstr "Разделы"
+
+#. module: knowledge_base
+#: model_terms:ir.ui.view,arch_db:knowledge_base.tags_view_form
+msgid "Tag"
+msgstr "Тэг"
+
+#. module: knowledge_base
+#: model:ir.actions.act_window,name:knowledge_base.action_view_all_tags
+#: model:ir.model.fields,field_description:knowledge_base.field_knowledge_article__tag_ids
+#: model:ir.ui.menu,name:knowledge_base.menu_knowledge_tags
+#: model_terms:ir.ui.view,arch_db:knowledge_base.knowledge_article_view_search
+msgid "Tags"
+msgstr "Тэги"
+
+#. module: knowledge_base
+#: model_terms:ir.ui.view,arch_db:knowledge_base.knowledge_article_view_form
+msgid "Text of your article..."
+msgstr "Содержимое вашей статьи..."
+
+#. module: knowledge_base
+#: model:ir.model.fields,help:knowledge_base.field_knowledge_article__attachment_ids
+msgid "You may attach files to article"
+msgstr "Вы можете прикрепить файлы к вашей статье"
+
+#. module: knowledge_base
+#: model_terms:ir.ui.view,arch_db:knowledge_base.knowledge_article_view_search
+msgid "body"
+msgstr "Содержимое"
+
+#. module: knowledge_base
+#: model_terms:ir.ui.view,arch_db:knowledge_base.knowledge_article_view_search
+msgid "name"
+msgstr ""

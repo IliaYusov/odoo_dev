@@ -1,7 +1,7 @@
 {
     "name": "Workflow",
     "summary": "Workflow engine",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "category": "Extra Tools",
     "depends": ['base', 'task'],
     'application': True,
