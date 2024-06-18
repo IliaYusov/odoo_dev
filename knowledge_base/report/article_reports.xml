@@ -17,13 +17,13 @@
     </record>
     <record id="action_article_report" model="ir.actions.report">
         <field name="name">Article Report</field>
-        <field name="model">knowledge_base.article</field>
+        <field name="model">knowledge.article</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">knowledge_base.article_report</field>
         <field name="report_file">knowledge_base.article_report</field>
         <field name="print_report_name">'Knowledge base - %s' % (object.name or 'no name').replace('/','')</field>
         <field name="paperformat_id" ref="knowledge_base.paper_format_article_report" />
-        <field name="binding_model_id" ref="model_knowledge_base_article"/>
+        <field name="binding_model_id" ref="model_knowledge_article"/>
         <field name="binding_type">report</field>
     </record>
 </odoo>

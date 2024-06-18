@@ -180,7 +180,7 @@ class WorkflowProcessActivity(models.Model):
                     raise ValueError(_("Could not be determined '%s'. Check the route or settings.",
                                        self.activity_id.auto_substitution.name))
                 result['user_ids'] = [Command.link(executor.id)]
-                result['company_ids'] = [Command.link(executor.company_id.id)]
+                result['company_ids'] = [Command.link(self.env.company.id)]
         return result
 
     def _compute_author(self):

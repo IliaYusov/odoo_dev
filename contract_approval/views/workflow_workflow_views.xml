@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <record id="action_workflow_contracts" model="ir.actions.act_window">
+        <field name="name">Workflows</field>
+        <field name="res_model">workflow.workflow</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">
+            [
+                ('model_id', '=', 'contract.contract')
+            ]
+        </field>
+        <field name="context">
+            {
+                'create_default_activities': True
+            }
+        </field>
+    </record>
+
     <record id="workflow_workflow_view_form_inherit_contract_approval" model="ir.ui.view">
         <field name="name">workflow.workflow.form.inherit.contract.approval</field>
         <field name="model">workflow.workflow</field>

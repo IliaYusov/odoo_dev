@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <menuitem id="menu_contract_workflow" parent="contract.menu_contract_configuration" name="Workflows"
+              sequence="10" groups="workflow.group_workflow_manager">
+        <menuitem id="menu_contract_rotes" name="Routes" sequence="1" action="action_workflow_contracts"/>
+        <menuitem id="menu_contract_workflow_group_executors" name="Groups Of Executors" sequence="2"
+                  action="workflow.action_workflow_group_executors_main"/>
+        <menuitem id="menu_contract_workflow_auto_substitution" name="Auto-substitutions" sequence="3"
+                  action="workflow.action_workflow_auto_substitution_main"/>
+    </menuitem>
+</odoo>

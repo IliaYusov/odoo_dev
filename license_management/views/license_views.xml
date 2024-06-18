@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="license_license_view_search" model="ir.ui.view">
+        <field name="name">license.license.search</field>
+        <field name="model">license.license</field>
+        <field name="arch" type="xml">
+            <search string="Search Licenses">
+                <field name="code"/>
+                <field name="customer_id"/>
+                <separator/>
+                <filter string="Expired in 30 Days" name="expired_30_days"
+                        domain="[('state', '=', 'active'), ('date_end', '&gt;', datetime.datetime.now() + relativedelta(days=15)), ('date_end', '&lt;=', datetime.datetime.now() + relativedelta(days=30))]"/>
+                <filter string="Expired in 15 Days" name="expired_15_days"
+                        domain="[('state', '=', 'active'), ('date_end', '&gt;=', datetime.datetime.now()), ('date_end', '&lt;=', datetime.datetime.now() + relativedelta(days=15))]"/>
+                <filter string="Expired Licenses" name="expired" domain="[('state', '=', 'expired')]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="license_license_view_tree" model="ir.ui.view">
+        <field name="name">license.license.tree</field>
+        <field name="model">license.license</field>
+        <field name="arch" type="xml">
+            <tree string="Licenses" js_class="license_dashboard_list">
+                <field name="code" optional="show"/>
+                <field name="product_id" optional="show"/>
+                <field name="customer_id" widget="many2one_avatar" optional="show"/>
+                <field name="date_start" widget="date" optional="show"/>
+                <field name="date_end" widget="date" optional="show"/>
+                <field name="os_id" optional="show"/>
+                <field name="number_licenses" optional="show"/>
+                <field name="number_users" optional="show"/>
+                <field name="state" optional="show" widget="badge"
+                       decoration-info="state == 'new'"
+                       decoration-danger="state == 'expired'"
+                       decoration-success="state == 'active'"/>
+                <field name="company_id" groups="base.group_multi_company" optional="show"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="license_license_view_form" model="ir.ui.view">
+        <field name="name">license.license.form</field>
+        <field name="model">license.license</field>
+        <field name="arch" type="xml">
+            <form string="License">
+                <header>
+                    <field name="state" widget="statusbar"/>
+                    <button name="activate_license" class="btn btn-success"
+                            type="object" string="Activate"
+                            attrs="{'invisible': [('state', 'not in', 'new')]}">
+                    </button>
+                    <button name="deactivate_license" class="btn btn-danger"
+                            type="object" string="Deactivate"
+                            attrs="{'invisible': [('state', 'not in', 'active')]}">
+                    </button>
+                </header>
+                <sheet string="License">
+                    <field name="can_edit" invisible="1"/>
+                    <group>
+                        <field name="code" attrs="{'invisible': [('id', '=', False)]}"/>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="customer_id" widget="many2one_avatar" options="{'no_create_edit': True}"
+                                   attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                            <field name="product_id" options="{'no_create_edit': True}"
+                                   attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                        </group>
+                        <group>
+                            <field name="date_start" widget="date" attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                            <label for="date_end" attrs="{'invisible': [('is_unlimited', '=', True)]}"/>
+                            <div class="o_row">
+                                <field name="date_end" widget="date" nolabel="1"
+                                       attrs="
+                                       {
+                                            'invisible': [('is_unlimited', '=', True)],
+                                            'readonly': [('can_edit', '=', False)]
+                                       }"/>
+                                <field name="is_unlimited" nolabel="1"
+                                       attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                                Unlimited
+                            </div>
+                        </group>
+                    </group>
+                    <group col="12">
+                        <group colspan="6">
+                            <field name="os_id" attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                        </group>
+                        <group colspan="6">
+                            <group>
+                                <field name="number_licenses" attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                            </group>
+                            <group>
+                                <field name="number_users" attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                            </group>
+                        </group>
+                    </group>
+                    <field name="comment" placeholder="Comment..." attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                    <group>
+                        <field name="company_id" groups="base.group_multi_company"
+                               attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                        <field name="company_id" groups="!base.group_multi_company" invisible="1"/>
+                    </group>
+                    <field name="attachment_ids" widget="many2many_binary"
+                           attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="license_license_view_calendar" model="ir.ui.view">
+        <field name="name">license.license.calendar</field>
+        <field name="model">license.license</field>
+        <field name="arch" type="xml">
+            <calendar string="Licenses" date_start="date_end" mode="month" quick_add="False"
+                      event_limit="5" color="customer_id">
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="customer_id" avatar_field="image_128"/>
+                <field name="product_id" avatar_field="image_128"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Actions -->
+
+    <record id="action_license_licenses" model="ir.actions.act_window">
+        <field name="name">Licenses</field>
+        <field name="res_model">license.license</field>
+        <field name="view_mode">tree,form,calendar</field>
+    </record>
+</odoo>

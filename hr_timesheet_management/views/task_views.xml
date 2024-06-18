@@ -8,9 +8,10 @@
             <xpath expr="//notebook/page[@name='description_page']" position="after">
                 <t groups="hr_timesheet_management.group_hr_timesheet_user">
                     <field name="subtask_count" invisible="1"/>
+                    <field name="allow_timesheets" invisible="1"/>
                 </t>
                 <page name="timesheets_page" string="Timesheets"
-                      attrs="{'invisible': [('parent_ref_type', '!=', 'project_budget.projects')]}"
+                      attrs="{'invisible': ['|', ('allow_timesheets', '=', False), ('parent_ref_type', '!=', 'project_budget.projects')]}"
                       groups="hr_timesheet_management.group_hr_timesheet_user">
                     <group>
                         <group>

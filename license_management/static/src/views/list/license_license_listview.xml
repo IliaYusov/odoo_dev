@@ -1,0 +1,7 @@
+<templates>
+    <t t-name="license_management.LicenseListView" t-inherit="web.ListRenderer" t-inherit-mode="primary" owl="1">
+        <xpath expr="//div[hasclass('o_list_renderer')]" position="before">
+            <LicenseDashBoard />
+        </xpath>
+    </t>
+</templates>

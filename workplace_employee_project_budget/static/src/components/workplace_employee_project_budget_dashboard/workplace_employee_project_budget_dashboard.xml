@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates id="template" xml:space="preserve">
+    <t t-name="EmployeeTaskDashboard" t-inherit="workplace_employee.EmployeeDashboard" t-inherit-mode="extension"
+       owl="1">
+        <xpath expr="//div[hasclass('wp-dashboard-container')]" position="inside">
+            <t t-set="isProjectBudgetUser" t-value="is_project_budget_user"/>
+            <div t-if="isProjectBudgetUser" class="card mt-1 text-bg-light">
+                <nav class="navbar nav_projects navbar-expand-lg navbar-light bg-light">
+                    <div class="container-fluid justify-content-between">
+                        <div class="d-flex">
+                            <a class="navbar-brand" href="#">Projects</a>
+                        </div>
+                        <ul class="navbar-nav flex-row d-none d-md-flex">
+                            <li class="nav-item active" href="#overdue">
+                                <a class="nav-link" href="#overdue">Overdue Projects</a>
+                            </li>
+                        </ul>
+                        <button href="#" t-on-click="() => this.createProject()" class="btn btn-primary btn-sm">
+                            New Project
+                        </button>
+                    </div>
+                </nav>
+                <div class="card-body">
+                    <div class="tab-pane active" id="overdue">
+                        <table class="table table-hover table-sm" style="table-layout: fixed;">
+                            <thead class="text-center">
+                                <tr>
+                                    <th width="40%">Project</th>
+                                    <th width="30%">Step</th>
+                                    <th width="20%">Key Account Manager</th>
+                                    <th width="10%" class="table-danger">Reason</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="state.projectInfo['overdue_projects']" t-as="project" t-key="project.id">
+                                    <td class="link-primary text-start text-truncate" width="40%"
+                                        t-on-click="() => this.viewProject(project.project_id)">
+                                        <span t-esc="project.name"/>
+                                    </td>
+                                    <td class="link-primary text-start text-truncate" width="30%">
+                                        <span t-if="project.step_id" t-esc="project.step_name"
+                                              t-on-click="() => this.viewStep(project.step_id)"/>
+                                    </td>
+                                    <td class="text-center" width="15%">
+                                        <span t-esc="project.key_account_manager"/>
+                                    </td>
+                                    <td class="table-danger text-start" width="15%">
+                                        <span t-esc="project.reason"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <a href="#" class="link-underline-primary float-end"
+                           t-on-click="() => this.openOverdueProjectReport()">
+                            View More
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </t>
+</templates>

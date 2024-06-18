@@ -8,5 +8,20 @@
             <field name="padding">6</field>
             <field name="company_id" eval="False"/>
         </record>
+
+        <record id="contract_state_draft" model="contract.state">
+            <field name="name">Draft</field>
+            <field name="sequence">0</field>
+        </record>
+
+        <record id="contract_state_current" model="contract.state">
+            <field name="name">Current</field>
+            <field name="sequence">50</field>
+        </record>
+
+        <record id="contract_state_close" model="contract.state">
+            <field name="name">Close</field>
+            <field name="sequence">100</field>
+        </record>
     </data>
 </odoo>

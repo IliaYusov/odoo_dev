@@ -16,14 +16,21 @@ class Contract(models.Model):
         ], limit=1)
         return employee.id
 
+    def _get_default_state_id(self):
+        return self.env['contract.state'].search([
+            ('hidden', '=', False)
+        ], limit=1)
+
     code = fields.Char(string='Code', copy=False, default=lambda self: _('New'), readonly=True, required=True)
     num = fields.Char(string='Number', copy=True, required=True, tracking=True)
     date = fields.Date(string='Date', copy=False, default=fields.Date.context_today, required=True, tracking=True)
-    date_begin = fields.Date(string='Start Date', copy=False, default=fields.Date.context_today, required=True,
+    date_begin = fields.Date(string='Start Date', copy=True, default=fields.Date.context_today, required=True,
                              tracking=True)
-    date_end = fields.Date(string='End Date', copy=False, default=fields.Date.context_today, required=True,
-                           tracking=True)
+    date_end = fields.Date(string='End Date', copy=True, default=fields.Date.context_today, tracking=True)
+    is_unlimited = fields.Boolean(string='Unlimited', copy=True, default=False, tracking=True)
     name = fields.Text(string='Name', copy=True, required=True, tracking=True)
+    state_id = fields.Many2one('contract.state', string='State', copy=False, default=_get_default_state_id,
+                               domain="[('hidden', '=', False)]", required=True, tracking=True)
     type_id = fields.Many2one('contract.type', string='Type', copy=True, required=True, tracking=True)
     kind_id = fields.Many2one('contract.kind', string='Kind', copy=True, tracking=True)
     company_id = fields.Many2one('res.company', string='Company', copy=False, default=lambda self: self.env.company,
@@ -85,6 +92,14 @@ class Contract(models.Model):
         return records
 
     # ------------------------------------------------------
+    # ONCHANGE METHODS
+    # ------------------------------------------------------
+
+    @api.onchange('is_unlimited')
+    def _onchange_is_unlimited(self):
+        self.date_end = False if self.is_unlimited else self.date_end
+
+    # ------------------------------------------------------
     # ACTIONS
     # ------------------------------------------------------
 
@@ -95,12 +110,20 @@ class Contract(models.Model):
             'type': 'ir.actions.act_window',
             'res_model': 'ir.attachment',
             'view_mode': 'kanban,tree,form',
-            'domain': [('id', 'in', self.attachment_ids.ids)],
-            'context': "{'default_res_model': '%s','default_res_id': %d, 'search_default_group_by_res_model': True, 'create': %s, 'edit': %s 'delete': %s}" % (
-                self._name, self.id, self.can_edit, self.can_edit, self.can_edit),
+            'domain': [
+                ('id', 'in', self.attachment_ids.ids)
+            ],
+            'context': {
+                'default_res_model': self._name,
+                'default_res_id': self.id,
+                'search_default_group_by_res_model': True,
+                'create': self.can_edit,
+                'edit': self.can_edit,
+                'delete': self.can_edit
+            },
             'help': """
-                        <p class="o_view_nocontent_smiling_face">%s</p>
-                        """ % _('Add attachments for this contract')
+                <p class="o_view_nocontent_smiling_face">%s</p>
+            """ % _('Add attachments for this contract')
         }
         if not self.can_edit:
             action_vals.update({'flags': {'mode': 'readonly'}})

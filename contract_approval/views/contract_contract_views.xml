@@ -5,7 +5,14 @@
         <field name="model">contract.contract</field>
         <field name="inherit_id" ref="contract.contract_view_tree"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='responsible_id']" position="after">
+            <xpath expr="//field[@name='state_id']" position="replace">
+                <field name="state_id" optional="show" widget="badge"
+                       decoration-muted="state_id == %(contract.contract_state_draft)d"
+                       decoration-info="state_id in (%(contract_approval.contract_state_on_approval)d, %(contract_approval.contract_state_on_signing)d)"
+                       decoration-success="state_id == %(contract.contract_state_current)d"
+                       decoration-danger="state_id == %(contract.contract_state_close)d"/>
+            </xpath>
+            <xpath expr="//field[@name='state_id']" position="after">
                 <field name="workflow_process_state" widget="badge"
                        decoration-muted="workflow_process_state == 'on_registration'"
                        decoration-info="workflow_process_state == 'in_progress'"
@@ -20,16 +27,23 @@
         <field name="model">contract.contract</field>
         <field name="inherit_id" ref="contract.contract_view_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//form/sheet" position="inside">
+                <field name="workflow_process_state" invisible="1"/>
+            </xpath>
+            <xpath expr="//field[@name='state_id']" position="attributes">
+                <attribute name="attrs">{'readonly': [('can_edit', '=', False), ('workflow_process_state', '!=', False),
+                    ('workflow_process_state', 'not in', ('completed', 'canceled'))]}
+                </attribute>
+            </xpath>
             <xpath expr="//page[@name='description_page']" position="after">
                 <page name="page_processing" string="Processing">
                     <group invisible="1">
                         <field name="workflow_id_domain"/>
                         <field name="workflow_process_id"/>
-                        <field name="workflow_process_state"/>
                     </group>
                     <div class="o_row">
                         <button name="action_start_processing" class="btn btn-primary" type="object" icon="fa-play"
-                                attrs="{'invisible': ['|', '|', ('active', '=', False), ('workflow_id', '=', False), '&amp;', ('workflow_process_state', '!=', False), ('workflow_process_state', '!=', 'canceled')]}"
+                                attrs="{'invisible': ['|', '|', '|', ('state_id', '!=', %(contract.contract_state_draft)d), ('active', '=', False), ('workflow_id', '=', False), '&amp;', ('workflow_process_state', '!=', False), ('workflow_process_state', '!=', 'canceled')]}"
                                 help="Start processing"/>
                         <button name="action_pause_processing" class="btn btn-primary" type="object" icon="fa-pause"
                                 attrs="{'invisible': 1}"/>
@@ -39,7 +53,7 @@
                                 context="{'default_process_id': workflow_process_id}" help="Stop processing"/>
                         <button name="workflow.action_workflow_process_resume_wizard" class="btn btn-primary"
                                 type="action" icon="fa-play"
-                                attrs="{'invisible': ['|', '|', ('active', '=', False), ('workflow_process_state', '=', False), '&amp;', ('workflow_process_state', '!=', False), ('workflow_process_state', '!=', 'break')]}"
+                                attrs="{'invisible': ['|', '|', '|', ('state_id', '!=', %(contract.contract_state_draft)d), ('active', '=', False), ('workflow_process_state', '=', False), '&amp;', ('workflow_process_state', '!=', False), ('workflow_process_state', '!=', 'break')]}"
                                 context="{'default_process_id': workflow_process_id}" help="Resume processing"/>
                     </div>
                     <br/>

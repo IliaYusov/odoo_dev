@@ -1,5 +1,4 @@
 from odoo import api, Command, fields, models, _
-from odoo.exceptions import UserError
 
 
 class Contract(models.Model):
@@ -14,24 +13,16 @@ class Contract(models.Model):
             })
         ]
 
-    @api.model
-    def _load_workflow_state(self):
-        result = []
-        for rec in self:
-            for activity in rec.workflow_id.activity_ids:
-                result.append((activity.name, activity.name))
-        return result
-
+    state_id = fields.Many2one('contract.state', compute='_compute_state_id', readonly=False, store=True)
     access_ids = fields.One2many('workflow.parent.access', 'res_id', string='Access', copy=False,
                                  default=_get_default_access_ids, domain="[('res_model', '=', 'contract.contract')]",
                                  required=True)
     workflow_id = fields.Many2one('workflow.workflow', string='Workflow', copy=False)
     workflow_id_domain = fields.Binary(string='Workflow Domain', compute='_compute_workflow_id_domain',
                                        help='Dynamic domain used for the workflow')
-    # workflow_state = fields.Selection(selection='_load_workflow_state', string='State', depends=['workflow_id'],
-    #                                   readonly=True)
     workflow_process_id = fields.Many2one('workflow.process', string='Process', compute='_compute_workflow_process_id')
-    workflow_process_state = fields.Selection(related='workflow_process_id.state', string='State', readonly=True)
+    workflow_process_state = fields.Selection(related='workflow_process_id.state', string='Workflow State',
+                                              readonly=True, store=True)
     activity_history_ids = fields.One2many('workflow.process.activity.history', 'res_id', string='History',
                                            domain="[('res_model', '=', 'contract.contract')]", readonly=True)
 
@@ -64,6 +55,12 @@ class Contract(models.Model):
                 ('res_id', '=', contract.id)
             ])[-1:]
 
+    @api.depends('workflow_process_state')
+    def _compute_state_id(self):
+        for contract in self:
+            contract.state_id = self.env.ref('contract.contract_state_draft') if contract.workflow_process_state in (
+                'canceled', 'break') else contract.state_id
+
     # ------------------------------------------------------
     # CRUD
     # ------------------------------------------------------
@@ -84,22 +81,28 @@ class Contract(models.Model):
     @api.onchange('project_id')
     def _onchange_project_id(self):
         if self._origin:
-            access_delete = [self._origin.project_id.project_manager_id.user_id,
-                             self._origin.project_id.project_supervisor_id.user_id,
-                             self._origin.project_id.rukovoditel_project_id.user_id]
+            access_delete = [self._origin.project_id.key_account_manager_id.user_id,
+                             self._origin.project_id.project_manager_id.user_id,
+                             self._origin.project_id.project_supervisor_id.user_id]
             if self._origin.project_id != self.project_id:
-                self.access_ids = [Command.delete(usr.id) for usr in
-                                   self.access_ids.filtered(lambda usr: usr.user_id in set(access_delete))]
+                [Command.delete(access.id) for access in
+                 self.access_ids.filtered(lambda acc: acc.user_id in set(access_delete))]
         access_insert = [self.author_id.user_id,
+                         self.project_id.key_account_manager_id.user_id,
                          self.project_id.project_manager_id.user_id,
-                         self.project_id.project_supervisor_id.user_id,
-                         self.project_id.rukovoditel_project_id.user_id]
-        self.access_ids = [
-            Command.create({
-                'user_ref': 'res.users,%d' % usr.id
-            })
-            for usr in filter(lambda usr: usr.id and usr.id not in self.access_ids.user_id.ids, set(access_insert))
-        ]
+                         self.project_id.project_supervisor_id.user_id]
+        access_ids = []
+        for usr in filter(None, set(access_insert)):
+            access = next(iter(self.access_ids.filtered(lambda acc: acc.ids == usr.id)), False)
+            vals = {
+                'user_ref': 'res.users,%d' % usr.id,
+                'res_model': self._name,
+                'res_id': self.id.origin if self._origin else self.id
+            }
+            access_ids.append(Command.update(access.id, vals) if access else Command.create(vals))
+        field = self._fields['access_ids']
+        value = field.convert_to_cache(access_ids, self, validate=False)
+        self._update_cache(dict(access_ids=field.convert_to_write(value, self)), validate=False)
 
     # ------------------------------------------------------
     # ACTIONS
@@ -140,7 +143,9 @@ class Contract(models.Model):
     def action_start_processing(self):
         self.ensure_one()
         self.workflow_id.run(self._name, self.id)
+        self.write({'state_id': self.env.ref('contract_approval.contract_state_on_approval')})
 
     def action_pause_processing(self):
         self.ensure_one()
         self.workflow_process_id.pause()
+        self.write({'state_id': self.env.ref('contract.contract_state_draft')})

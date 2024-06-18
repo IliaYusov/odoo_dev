@@ -1,10 +1,10 @@
 {
     'name': 'Contract Management',
-    'version': '1.0.2',
+    'version': '1.0.3',
     'category': 'Contract Management',
     'website': '',
     'author': '',
-    'depends': ['base', 'hr'],
+    'depends': ['base', 'hr', 'hr_replacement'],
     'data': [
         'data/contract_data.xml',
         'security/contract_security.xml',
