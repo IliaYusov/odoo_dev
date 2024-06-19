@@ -211,7 +211,7 @@
                     <field name="currency_id" invisible="1"/>
                     <field name="commercial_budget_id" invisible="1"/>
                     <field name="key_account_manager_id" invisible="1"/>
-                    <field name="rukovoditel_project_id" invisible="1"/>
+                    <field name="project_manager_id" invisible="1"/>
                     <field name="signer_id" invisible="1"/>
                     <field name="project_office_id" invisible="1"/>
                     <field name="is_correction_project" invisible="1"/>
@@ -744,6 +744,9 @@
                                         <field name="legal_entity_signing_id"
                                                options="{'no_open': True,}" placeholder="select legal entity signing"
                                                attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                                        <field name="signer_id"
+                                               options="{'no_open': True,}" placeholder="select legal entity signing"
+                                               attrs="{'readonly': [('can_edit', '=', False)], 'invisible': True}"/>
                                     </group>
                                 </group>
                                 <field name="comments" nolabel="1" placeholder="type comments for the project"

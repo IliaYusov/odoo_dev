@@ -578,7 +578,7 @@ class Project(models.Model):
                 row.fact_acceptance_flow_sum_without_vat += row_flow.sum_cash_without_vat
 
     @api.depends('company_id', 'currency_id', 'commercial_budget_id', 'key_account_manager_id', 'project_supervisor_id',
-                 'rukovoditel_project_id', 'industry_id', 'legal_entity_signing_id', 'signer_id',
+                 'project_manager_id', 'industry_id', 'legal_entity_signing_id', 'signer_id',
                  'technological_direction_id', 'partner_id', 'project_office_id', 'is_correction_project', 'is_not_for_mc_report',
                  'active', 'approve_state')
     def _compute_step_project_details(self):
@@ -590,7 +590,7 @@ class Project(models.Model):
                     step_project_child_id.commercial_budget_id = row.commercial_budget_id
                     step_project_child_id.key_account_manager_id = row.key_account_manager_id
                     step_project_child_id.project_supervisor_id = row.project_supervisor_id
-                    step_project_child_id.rukovoditel_project_id = row.rukovoditel_project_id
+                    step_project_child_id.project_manager_id = row.project_manager_id
                     step_project_child_id.industry_id = row.industry_id
                     step_project_child_id.legal_entity_signing_id = row.legal_entity_signing_id
                     step_project_child_id.signer_id = row.signer_id
