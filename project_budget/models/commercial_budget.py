@@ -142,22 +142,22 @@ class commercial_budget(models.Model):
             for project in newbudget.sudo().projects_ids:
                 print('project_id = ', project.project_id)
                 if project.project_have_steps:
-                    for planned_cash_flow in project.planned_step_cash_flow_ids:
-                        current_project = self.env['project_budget.projects'].sudo().search(
+                    for planned_cash_flow in project.planned_cash_flow_ids:
+                        current_step_project = self.env['project_budget.projects'].sudo().search(
                             [('step_project_parent_id', '=', project.id),('project_id','=',planned_cash_flow.step_project_child_id.project_id)])
-                        planned_cash_flow.step_project_child_id = current_project.id
-                    for planned_acceptance_flow in project.planned_step_acceptance_flow_ids:
-                        current_project = self.env['project_budget.projects'].sudo().search(
+                        planned_cash_flow.step_project_child_id = current_step_project.id
+                    for planned_acceptance_flow in project.planned_acceptance_flow_ids:
+                        current_step_project = self.env['project_budget.projects'].sudo().search(
                             [('step_project_parent_id', '=', project.id), ('project_id', '=', planned_acceptance_flow.project_steps_id.step_id)])
-                        planned_acceptance_flow.step_project_child_id = current_project.id
-                    for fact_cash_flow in project.fact_step_cash_flow_ids:
-                        current_project = self.env['project_budget.projects'].sudo().search(
+                        planned_acceptance_flow.step_project_child_id = current_step_project.id
+                    for fact_cash_flow in project.fact_cash_flow_ids:
+                        current_step_project = self.env['project_budget.projects'].sudo().search(
                             [('step_project_parent_id', '=', project.id), ('project_id', '=', fact_cash_flow.project_steps_id.step_id)])
-                        fact_cash_flow.step_project_child_id = current_project.id
-                    for fact_acceptance_flow in project.fact_step_acceptance_flow_ids:
-                        current_project = self.env['project_budget.projects'].sudo().search(
+                        fact_cash_flow.step_project_child_id = current_step_project.id
+                    for fact_acceptance_flow in project.fact_acceptance_flow_ids:
+                        current_step_project = self.env['project_budget.projects'].sudo().search(
                             [('step_project_parent_id', '=', project.id), ('project_id', '=', fact_acceptance_flow.project_steps_id.step_id)])
-                        fact_acceptance_flow.step_project_child_id = current_project.id
+                        fact_acceptance_flow.step_project_child_id = current_step_project.id
 
                 for fact_acceptance_flow in project.fact_acceptance_flow_ids: # у нас на распределение (distribution) ссылается плановые и фактические данные и при копировании у фрейма крутит голову. потому вручную ссылка на плановое поступеление в распределенеии ставим
                     for distribution_acceptance in fact_acceptance_flow.distribution_acceptance_ids: # идем по распределению, привязанному к факту  - копирование оставили тоолько у факта для фрейма

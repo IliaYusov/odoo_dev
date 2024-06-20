@@ -774,7 +774,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         elif project.step_status == 'step':
             acceptance_list = project.planned_step_acceptance_flow_ids
 
-        for planned_acceptance_flow in project.planned_acceptance_flow_ids:
+        for planned_acceptance_flow in acceptance_list:
             if any(distribution.fact_acceptance_flow_id.margin_manual_input for distribution in
                    planned_acceptance_flow.distribution_acceptance_ids):  # если есть ручная маржа - пропускаем
                 continue

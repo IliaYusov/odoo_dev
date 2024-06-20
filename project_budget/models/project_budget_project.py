@@ -307,7 +307,8 @@ class Project(models.Model):
     planned_cash_flow_ids = fields.One2many(
         comodel_name='project_budget.planned_cash_flow',
         inverse_name='projects_id',
-        string="planned cash flow", auto_join=True, copy=True)
+        string="planned cash flow", auto_join=True, copy=True
+    )
 
     planned_acceptance_flow_sum = fields.Monetary(string='planned_acceptance_flow_sum',
                                                   compute='_compute_planned_acceptance_flow_sum',store=False, tracking=True)
@@ -317,16 +318,18 @@ class Project(models.Model):
     )
     planned_acceptance_flow_ids = fields.One2many(
         comodel_name='project_budget.planned_acceptance_flow',
-        string="planned acceptance flow",
-        compute='_compute_planned_acceptance_flow_ids',
-        # inverse='_inverse_planned_acceptance_flow_ids',
-        auto_join=True, copy=True, readonly=False)
+        inverse_name='projects_id',
+        string="planned acceptance flow", auto_join=True, copy=True
+    )
+
     fact_cash_flow_sum = fields.Monetary(string='fact_cash_flow_sum', compute='_compute_fact_cash_flow_sum', store=False
                                          , tracking=True)
     fact_cash_flow_ids = fields.One2many(
         comodel_name='project_budget.fact_cash_flow',
         inverse_name='projects_id',
-        string="fact cash flow", auto_join=True, copy=True)
+        string="fact cash flow", auto_join=True, copy=True
+    )
+
     fact_acceptance_flow_sum = fields.Monetary(string='fact_acceptance_flow_sum', compute='_compute_fact_acceptance_flow_sum',
                                                store=False, tracking=True)
     fact_acceptance_flow_sum_without_vat = fields.Monetary(
@@ -336,7 +339,8 @@ class Project(models.Model):
     fact_acceptance_flow_ids = fields.One2many(
         comodel_name='project_budget.fact_acceptance_flow',
         inverse_name='projects_id',
-        string="fact acceptance flow", auto_join=True,copy=True)
+        string="fact acceptance flow", auto_join=True,copy=True
+    )
 
     step_status = fields.Selection(selection=STEP_STATUS, string="project is step-project", default='project', copy=True, tracking=True)
     step_project_parent_id = fields.Many2one('project_budget.projects', default=False, string='step-project parent id',
@@ -477,30 +481,6 @@ class Project(models.Model):
                     for step in rec.step_project_child_ids:
                         if step.stage_id.code != '0':
                             step.stage_id = rec.stage_id
-
-    def _compute_planned_acceptance_flow_ids(self):
-        print('_compute_planned_acceptance_flow_ids', self.step_project_child_ids, self.id)
-        if self.step_project_child_ids:
-            acceptance_flow_ids = self.env["project_budget.planned_acceptance_flow"].search(
-                [("projects_id", "in", self.step_project_child_ids.ids)])
-        else:
-            acceptance_flow_ids = self.env["project_budget.planned_acceptance_flow"].search(
-                [("projects_id", "=", self.id)])
-        self.planned_acceptance_flow_ids = acceptance_flow_ids
-
-    def _inverse_planned_acceptance_flow_ids(self):
-        for project in self:
-            for planned_acceptance in project.planned_acceptance_flow_ids:
-                try:
-                    int(planned_acceptance.id)
-                except:
-                    planned_acceptance.create({
-                        'projects_id': planned_acceptance.projects_id.id,
-                        'date_cash': planned_acceptance.date_cash,
-                        'sum_cash_without_vat': planned_acceptance.sum_cash_without_vat,
-                        'forecast': planned_acceptance.forecast,
-                    })
-            return True
 
     @api.onchange('project_office_id','project_status','currency_id','project_supervisor_id','key_account_manager_id',
                   'industry_id','essence_project','end_presale_project_month','end_sale_project_month','vat_attribute_id','total_amount_of_revenue',
@@ -903,6 +883,8 @@ class Project(models.Model):
                     'planned_cash_flow_ids', 'planned_step_acceptance_flow_ids', 'planned_step_cash_flow_ids')
     def _check_financial_data_is_present(self):
         for project in self:
+            if project.env.context.get('form_fix_budget'):
+                continue
             if (project.stage_id.code in ('30', '50', '75', '100')
                     and project.total_amount_of_revenue == 0
                     and project.cost_price == 0
