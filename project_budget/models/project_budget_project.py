@@ -343,6 +343,7 @@ class Project(models.Model):
     )
 
     step_status = fields.Selection(selection=STEP_STATUS, string="project is step-project", default='project', copy=True, tracking=True)
+
     step_project_parent_id = fields.Many2one('project_budget.projects', default=False, string='step-project parent id',
                                              ondelete='cascade', copy=True)
     step_project_child_ids = fields.One2many(comodel_name='project_budget.projects', inverse_name='step_project_parent_id',
@@ -528,8 +529,12 @@ class Project(models.Model):
     def _compute_planned_cash_flow_sum(self):
         for row in self:
             row.planned_cash_flow_sum = 0
-            for row_flow in row.planned_cash_flow_ids:
-                row.planned_cash_flow_sum = row.planned_cash_flow_sum + row_flow.sum_cash
+            if row.step_status == 'project':
+                for row_flow in row.planned_cash_flow_ids:
+                    row.planned_cash_flow_sum = row.planned_cash_flow_sum + row_flow.sum_cash
+            elif row.step_status == 'step':
+                for row_flow in row.planned_step_cash_flow_ids:
+                    row.planned_cash_flow_sum = row.planned_cash_flow_sum + row_flow.sum_cash
 
 
     @api.depends("planned_acceptance_flow_ids.sum_cash")
@@ -537,26 +542,38 @@ class Project(models.Model):
         for row in self:
             row.planned_acceptance_flow_sum = 0
             row.planned_acceptance_flow_sum_without_vat = 0
-            for row_flow in row.planned_acceptance_flow_ids:
-                row.planned_acceptance_flow_sum += row_flow.sum_cash
-                row.planned_acceptance_flow_sum_without_vat += row_flow.sum_cash_without_vat
+            if row.step_status == 'project':
+                for row_flow in row.planned_acceptance_flow_ids:
+                    row.planned_acceptance_flow_sum += row_flow.sum_cash
+                    row.planned_acceptance_flow_sum_without_vat += row_flow.sum_cash_without_vat
+            elif row.step_status == 'step':
+                for row_flow in row.planned_step_acceptance_flow_ids:
+                    row.planned_acceptance_flow_sum += row_flow.sum_cash
+                    row.planned_acceptance_flow_sum_without_vat += row_flow.sum_cash_without_vat
 
     @api.depends("fact_cash_flow_ids.sum_cash")
     def _compute_fact_cash_flow_sum(self):
         for row in self:
             row.fact_cash_flow_sum = 0
-            for row_flow in row.fact_cash_flow_ids:
-                row.fact_cash_flow_sum = row.fact_cash_flow_sum + row_flow.sum_cash
-
+            if row.step_status == 'project':
+                for row_flow in row.fact_cash_flow_ids:
+                    row.fact_cash_flow_sum = row.fact_cash_flow_sum + row_flow.sum_cash
+            elif row.step_status == 'step':
+                for row_flow in row.fact_step_cash_flow_ids:
+                    row.fact_cash_flow_sum = row.fact_cash_flow_sum + row_flow.sum_cash
     @api.depends("fact_acceptance_flow_ids.sum_cash")
     def _compute_fact_acceptance_flow_sum(self):
         for row in self:
             row.fact_acceptance_flow_sum = 0
             row.fact_acceptance_flow_sum_without_vat = 0
-            for row_flow in row.fact_acceptance_flow_ids:
-                row.fact_acceptance_flow_sum += row_flow.sum_cash
-                row.fact_acceptance_flow_sum_without_vat += row_flow.sum_cash_without_vat
-
+            if row.step_status == 'project':
+                for row_flow in row.fact_acceptance_flow_ids:
+                    row.fact_acceptance_flow_sum += row_flow.sum_cash
+                    row.fact_acceptance_flow_sum_without_vat += row_flow.sum_cash_without_vat
+            elif row.step_status == 'step':
+                for row_flow in row.fact_step_acceptance_flow_ids:
+                    row.fact_acceptance_flow_sum += row_flow.sum_cash
+                    row.fact_acceptance_flow_sum_without_vat += row_flow.sum_cash_without_vat
     @api.depends('company_id', 'currency_id', 'commercial_budget_id', 'key_account_manager_id', 'project_supervisor_id',
                  'project_manager_id', 'industry_id', 'legal_entity_signing_id', 'signer_id',
                  'technological_direction_id', 'partner_id', 'project_office_id', 'is_correction_project', 'is_not_for_mc_report',
