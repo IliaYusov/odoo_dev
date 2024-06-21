@@ -374,7 +374,7 @@ class Project(models.Model):
     project_steps_ids = fields.One2many(
         comodel_name='project_budget.project_steps',
         inverse_name='projects_id',
-        string="project steps", auto_join=True, copy=True)
+        string="project steps", auto_join=True)
     different_project_offices_in_steps = fields.Boolean(
         related='legal_entity_signing_id.different_project_offices_in_steps', readonly=True)
 
@@ -609,7 +609,7 @@ class Project(models.Model):
                     step_project_child_id.active = row.active
 
     def _culculate_all_sums(self, project):
-        if project.project_have_steps == False:
+        if not project.project_have_steps:
             self._compute_sums_from_amount_spec()
 
             if project.is_parent_project == True:
@@ -637,10 +637,8 @@ class Project(models.Model):
 
             project.total_amount_of_revenue_with_vat = (project.revenue_from_the_sale_of_works + project.revenue_from_the_sale_of_goods) * (
                                                                        1 + project.vat_attribute_id.percent / 100)
-        elif project.project_have_steps == True:
 
-            for step in project.step_project_child_ids:
-                step._compute_sums_from_amount_spec()
+        elif project.project_have_steps and project.step_status == 'project':
 
             # self._compute_sums_from_amount_spec()
             print('elif project.project_have_steps == True: row.amount_spec_ids =', project.amount_spec_ids)
@@ -1463,7 +1461,7 @@ class Project(models.Model):
         return super().create(vals_list)
 
     def write(self, vals):
-        print('write')
+        print('write', vals)
         self._check_required_fields(vals)
         for row in self:
             if row.env.context.get('form_fix_budget'):

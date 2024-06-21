@@ -989,12 +989,12 @@
                                        mode="tree" attrs="{'readonly': [('can_edit', '=', False)]}">
                                 </field>
                             </page>
-                            <page string="project steps" attrs="{'invisible': [('project_have_steps', '=', False)]}"
-                                  groups="project_budget.project_budget_users,project_budget.project_budget_admin">
-                                <field name="project_steps_ids" widget="section_and_note_one2many"
-                                        mode="tree" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}">
-                                </field>
-                            </page>
+<!--                            <page string="project steps" attrs="{'invisible': [('project_have_steps', '=', False)]}"-->
+<!--                                  groups="project_budget.project_budget_users,project_budget.project_budget_admin">-->
+<!--                                <field name="project_steps_ids" widget="section_and_note_one2many"-->
+<!--                                        mode="tree" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}">-->
+<!--                                </field>-->
+<!--                            </page>-->
                             <page string="step-projects" attrs="{'invisible': [('project_have_steps', '=', False)]}">
                                 <field name="step_project_child_ids" mode="tree" widget="section_and_note_one2many"
                                    context="{
