@@ -18,7 +18,7 @@ class ProjectOverdueReport(models.Model):
                                             readonly=True)
     # project_curator_id = fields.Many2one('hr.employee', string='Project Curator', readonly=True)
     project_office_id = fields.Many2one('project_budget.project_office', string='Project Office', readonly=True)
-    step_id = fields.Many2one('project_budget.project_steps', string='Step', readonly=True)
+    step_id = fields.Many2one('project_budget.projects', string='Step', readonly=True)
     customer_id = fields.Many2one('res.partner', string='Customer', readonly=True)
     name = fields.Text(string='Name', readonly=True)
     reason = fields.Char(string='Reason', readonly=True)
@@ -61,7 +61,7 @@ FROM
     INNER JOIN project_budget_project_stage st ON st.id = p.stage_id AND COALESCE(st.fold, false) = false
     AND st.code <> '100'
     INNER JOIN project_budget_project_office po ON po.id = p.project_office_id
-    WHERE p.budget_state = 'work' AND p.active = true
+    WHERE p.budget_state = 'work' AND p.active = true AND step_status = 'project'
     AND (p.end_presale_project_month < CURRENT_DATE OR p.end_sale_project_month < CURRENT_DATE)
     UNION
     SELECT
@@ -80,8 +80,8 @@ FROM
             WHEN ps.end_presale_project_month < CURRENT_DATE THEN 'Дата контрактования'
             WHEN ps.end_sale_project_month < CURRENT_DATE THEN 'Дата последней отгрузки'
         END AS reason
-    FROM project_budget_project_steps ps
-    INNER JOIN project_budget_projects p ON p.id = ps.projects_id AND p.budget_state = 'work' AND p.active = true
+    FROM project_budget_projects ps
+    INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id AND p.budget_state = 'work' AND p.active = true
     AND p.end_presale_project_month > CURRENT_DATE AND p.end_sale_project_month > CURRENT_DATE
     AND p.project_have_steps = true
     INNER JOIN project_budget_project_stage st ON st.id = ps.stage_id AND COALESCE(st.fold, false) = false
@@ -97,7 +97,7 @@ FROM
         p.project_manager_id,
         --p.project_curator_id,
         p.project_supervisor_id,
-        pa.project_steps_id AS step_id,
+        pa.step_project_child_id AS step_id,
         p.partner_id,
         p.essence_project AS name,
         'Плановое актирование' AS reason
@@ -123,7 +123,7 @@ FROM
         p.project_manager_id,
         --p.project_curator_id,
         p.project_supervisor_id,
-        pc.project_steps_id AS step_id,
+        pc.step_project_child_id AS step_id,
         p.partner_id,
         p.essence_project AS name,
         'ПДС' AS reason		
