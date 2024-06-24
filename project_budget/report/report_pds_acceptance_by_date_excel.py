@@ -165,6 +165,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                 ('project_office_id', 'in', project_offices.ids),
                 '|', '&', ('step_status', '=', 'step'),
                 ('step_project_parent_id.project_have_steps', '=', True),
+                '&', ('step_status', '=', 'project'),
                 ('project_have_steps', '=', False),
                 ]).sorted(key=lambda r: (r.project_id if r.step_status == 'project' else r.step_project_parent_id.project_id + r.project_id))
         else:
@@ -177,6 +178,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                 ('project_office_id', 'in', project_offices.ids),
                 '|', '&', ('step_status', '=', 'step'),
                 ('step_project_parent_id.project_have_steps', '=', True),
+                '&', ('step_status', '=', 'project'),
                 ('project_have_steps', '=', False),
                 ]).sorted(key=lambda r: (r.project_id if r.step_status == 'project' else r.step_project_parent_id.project_id + r.project_id))
 

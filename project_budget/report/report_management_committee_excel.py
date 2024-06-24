@@ -2379,6 +2379,7 @@ class report_management_committee_excel(models.AbstractModel):
             ('is_not_for_mc_report', '=', False),
             '|', '&', ('step_status', '=', 'step'),
             ('step_project_parent_id.project_have_steps', '=', True),
+            '&', ('step_status', '=', 'project'),
             ('project_have_steps', '=', False),
         ]).sorted(key=lambda
             r: (r.key_account_manager_id.name, r.stage_id.code, r.project_id) if r.step_status == 'project' else (r.key_account_manager_id.name, r.stage_id.code, r.step_project_parent_id.project_id + r.project_id))
@@ -2489,15 +2490,16 @@ class report_management_committee_excel(models.AbstractModel):
                         formulaProjectOffice = formulaProjectOffice + ')'
 
                     projects = self.env['project_budget.projects'].search([
-                                        ('stage_id.code', '!=', '0'),
-                                        ('commercial_budget_id', '=', budget.id),
-                                        ('is_parent_project', '=', False),
-                                        ('is_not_for_mc_report', '=', False),
-                                        ('project_office_id', '=', project_office.id),
-                                        '|', '&', ('step_status', '=', 'step'),
-                                        ('step_project_parent_id.project_have_steps', '=', True),
-                                        ('project_have_steps', '=', False),
-                                        ])
+                        ('stage_id.code', '!=', '0'),
+                        ('commercial_budget_id', '=', budget.id),
+                        ('is_parent_project', '=', False),
+                        ('is_not_for_mc_report', '=', False),
+                        ('project_office_id', '=', project_office.id),
+                        '|', '&', ('step_status', '=', 'step'),
+                        ('step_project_parent_id.project_have_steps', '=', True),
+                        '&', ('step_status', '=', 'project'),
+                        ('project_have_steps', '=', False),
+                        ])
 
                     self.print_row_values_office(
                         workbook,
@@ -2927,6 +2929,7 @@ class report_management_committee_excel(models.AbstractModel):
             ('is_not_for_mc_report', '=', False),
             '|', '&', ('step_status', '=', 'step'),
             ('step_project_parent_id.project_have_steps', '=', True),
+            '&', ('step_status', '=', 'project'),
             ('project_have_steps', '=', False),
         ])
 

@@ -1200,6 +1200,7 @@ class report_svod_excel(models.AbstractModel):
                         ('stage_id', '=', stage.id),
                         '|', '&', ('step_status', '=', 'step'),
                         ('step_project_parent_id.project_have_steps', '=', True),
+                        '&', ('step_status', '=', 'project'),
                         ('project_have_steps', '=', False),
                     ], order='project_id')
                     for spec in cur_budget_projects:

@@ -316,8 +316,9 @@ class report_budget_excel(models.AbstractModel):
                         ('commercial_budget_id', '=', budget.id),
                         ('key_account_manager_id.user_id', '=', key_account_manager.id),
                         ('stage_id', '=', stage.id),
-                        '|', '&',('step_status', '=', 'step'),
+                        '|', '&', ('step_status', '=', 'step'),
                         ('step_project_parent_id.project_have_steps', '=', True),
+                        '&', ('step_status', '=', 'project'),
                         ('project_have_steps', '=', False),
                     ], order='project_id')
 

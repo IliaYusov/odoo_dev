@@ -186,6 +186,7 @@ class report_projects_rawdata_excel(models.AbstractModel):
             ('commercial_budget_id', '=', budget.id),
             '|', '&', ('step_status', '=', 'step'),
             ('step_project_parent_id.project_have_steps', '=', True),
+            '&', ('step_status', '=', 'project'),
             ('project_have_steps', '=', False),
         ]).sorted(key=lambda r: r.project_id if r.step_status == 'project' else r.step_project_parent_id.project_id + r.project_id)
 

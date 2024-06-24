@@ -920,6 +920,7 @@ class report_pds_weekly_excel(models.AbstractModel):
             ('commercial_budget_id', '=', budget.id),
             '|', '&', ('step_status', '=', 'step'),
             ('step_project_parent_id.project_have_steps', '=', True),
+            '&', ('step_status', '=', 'project'),
             ('project_have_steps', '=', False),
             '|','|','|',
             ('id', 'in', [fact.projects_id.id for fact in self.env['project_budget.fact_cash_flow'].search([]) if fact.date_cash.year == YEARint]),
@@ -1060,8 +1061,9 @@ class report_pds_weekly_excel(models.AbstractModel):
                     projects = self.env['project_budget.projects'].search([
                         ('commercial_budget_id', '=', budget.id),
                         ('project_office_id', '=', project_office.id),
-                        '|', '&',('step_status', '=', 'step'),
+                        '|', '&', ('step_status', '=', 'step'),
                         ('step_project_parent_id.project_have_steps', '=', True),
+                        '&', ('step_status', '=', 'project'),
                         ('project_have_steps', '=', False),
                         ])
 

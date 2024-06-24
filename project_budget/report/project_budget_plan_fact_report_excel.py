@@ -997,6 +997,7 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
             ('stage_id', 'in', stages.ids),
             '|', '&', ('step_status', '=', 'step'),
             ('step_project_parent_id.project_have_steps', '=', True),
+            '&', ('step_status', '=', 'project'),
             ('project_have_steps', '=', False),
         ], order='project_id')
 
