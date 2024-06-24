@@ -342,10 +342,11 @@ class Project(models.Model):
         string="fact acceptance flow", auto_join=True,copy=True
     )
 
-    step_status = fields.Selection(selection=STEP_STATUS, string="project is step-project", default='project', copy=True, tracking=True)
+    step_status = fields.Selection(selection=STEP_STATUS, string="project is step-project", default='project',
+                                   copy=True, tracking=True, index=True)
 
     step_project_parent_id = fields.Many2one('project_budget.projects', default=False, string='step-project parent id',
-                                             ondelete='cascade', copy=True)
+                                             ondelete='cascade', copy=True, index=True)
     step_project_child_ids = fields.One2many(comodel_name='project_budget.projects', inverse_name='step_project_parent_id',
         string="step-project child ids", compute='_compute_step_project_details', store=True, auto_join=True)
 
@@ -374,7 +375,7 @@ class Project(models.Model):
     project_steps_ids = fields.One2many(
         comodel_name='project_budget.project_steps',
         inverse_name='projects_id',
-        string="project steps", auto_join=True)
+        string="project steps", auto_join=True)  # TODO убрать после миграции
     different_project_offices_in_steps = fields.Boolean(
         related='legal_entity_signing_id.different_project_offices_in_steps', readonly=True)
 
