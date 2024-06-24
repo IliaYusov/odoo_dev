@@ -184,7 +184,8 @@ class report_projects_rawdata_excel(models.AbstractModel):
 
         cur_budget_projects = self.env['project_budget.projects'].search([
             ('commercial_budget_id', '=', budget.id),
-            '|', ('step_status', '=', 'step'),
+            '|', '&', ('step_status', '=', 'step'),
+            ('step_project_parent_id.project_have_steps', '=', True),
             ('project_have_steps', '=', False),
         ]).sorted(key=lambda r: r.project_id if r.step_status == 'project' else r.step_project_parent_id.project_id + r.project_id)
 

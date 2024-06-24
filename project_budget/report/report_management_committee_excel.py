@@ -2377,7 +2377,8 @@ class report_management_committee_excel(models.AbstractModel):
             ('is_parent_project', '=', False),
             ('stage_id.code', '!=', '0'),
             ('is_not_for_mc_report', '=', False),
-            '|', ('step_status', '=', 'step'),
+            '|', '&', ('step_status', '=', 'step'),
+            ('step_project_parent_id.project_have_steps', '=', True),
             ('project_have_steps', '=', False),
         ]).sorted(key=lambda
             r: (r.key_account_manager_id.name, r.stage_id.code, r.project_id) if r.step_status == 'project' else (r.key_account_manager_id.name, r.stage_id.code, r.step_project_parent_id.project_id + r.project_id))
@@ -2493,7 +2494,8 @@ class report_management_committee_excel(models.AbstractModel):
                                         ('is_parent_project', '=', False),
                                         ('is_not_for_mc_report', '=', False),
                                         ('project_office_id', '=', project_office.id),
-                                        '|', ('step_status', '=', 'step'),
+                                        '|', '&', ('step_status', '=', 'step'),
+                                        ('step_project_parent_id.project_have_steps', '=', True),
                                         ('project_have_steps', '=', False),
                                         ])
 
@@ -2923,7 +2925,8 @@ class report_management_committee_excel(models.AbstractModel):
             ('is_parent_project', '=', False),
             ('stage_id.code', '!=', '0'),
             ('is_not_for_mc_report', '=', False),
-            '|', ('step_status', '=', 'step'),
+            '|', '&', ('step_status', '=', 'step'),
+            ('step_project_parent_id.project_have_steps', '=', True),
             ('project_have_steps', '=', False),
         ])
 

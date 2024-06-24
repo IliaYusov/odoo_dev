@@ -163,7 +163,8 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                 ('id', 'in', [pds.step_project_child_id.id for pds in self.env['project_budget.planned_cash_flow'].search([]) if date_start <= pds.date_cash <= date_end]),
                 ('stage_id.code', 'not in', ('0', '10')),
                 ('project_office_id', 'in', project_offices.ids),
-                '|', ('step_status', '=', 'step'),
+                '|', '&', ('step_status', '=', 'step'),
+                ('step_project_parent_id.project_have_steps', '=', True),
                 ('project_have_steps', '=', False),
                 ]).sorted(key=lambda r: (r.project_id if r.step_status == 'project' else r.step_project_parent_id.project_id + r.project_id))
         else:
@@ -174,7 +175,8 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                 ('id', 'in', [acc.step_project_child_id.id for acc in self.env['project_budget.planned_acceptance_flow'].search([]) if date_start <= acc.date_cash <= date_end]),
                 ('stage_id.code', 'not in', ('0', '10')),
                 ('project_office_id', 'in', project_offices.ids),
-                '|', ('step_status', '=', 'step'),
+                '|', '&', ('step_status', '=', 'step'),
+                ('step_project_parent_id.project_have_steps', '=', True),
                 ('project_have_steps', '=', False),
                 ]).sorted(key=lambda r: (r.project_id if r.step_status == 'project' else r.step_project_parent_id.project_id + r.project_id))
 
