@@ -119,7 +119,6 @@
                 <field name="project_type_id" optional="hide"/>
                 <field name="comments" optional="hide"/>
                 <field name="technological_direction_id" optional="hide"/>
-                <field name="step_status" optional="hide"/>
             </tree>
         </field>
     </record>
@@ -218,7 +217,7 @@
                     <field name="is_not_for_mc_report" invisible="1"/>
                     <field name="active" invisible="1"/>
                     <group>
-                        <field name="project_id" readonly="1"/>
+                        <field name="project_id" readonly="1" string="Step ID"/>
                     </group>
                     <group col="4">
                         <group>
@@ -1020,7 +1019,7 @@
                                    domain="['&amp;', ('step_status', '=', 'step'), ('budget_state', '!=', 'fixed')]">
                                     <tree default_order="project_id asc">
                                         <button name="action_copy_step" type="object" title="Copy step" string="Copy step" class="btn btn-link float-end"/>
-                                        <field name="project_id" readonly="1" optional="show"/>
+                                        <field name="project_id" readonly="1" optional="show" string="Step ID"/>
                                         <field name="project_type_id" optional="hide"/>
                                         <field name="step_project_number" optional="show" placeholder="type step code DAX e.g. 0001"/>
                                         <field name="dogovor_number" optional="hide" />

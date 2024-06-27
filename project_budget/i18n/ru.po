@@ -669,7 +669,7 @@ msgid "Copy cash"
 msgstr "Дублировать"
 
 #. module: project_budget
-#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_project_steps_tree
+#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
 msgid "Copy step"
 msgstr "Дублировать"
 
@@ -2727,6 +2727,12 @@ msgid "Step"
 msgstr "Этап"
 
 #. module: project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
+#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_step_project_view_form
+msgid "Step ID"
+msgstr "ID этапа"
+
+#. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_project_steps_tree
 msgid "Step stage"
 msgstr "Вероятность этапа"
@@ -4401,6 +4407,12 @@ msgid "project steps"
 msgstr "Этапы проекта"
 
 #. module: project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__step_project_child_ids
+msgid "step-projects"
+msgstr "Этапы проекта"
+
+#. module: project_budget
 #: model:ir.model,name:project_budget.model_project_budget_project_steps_type
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__project_steps_type_id
 msgid "project steps type"
@@ -4545,6 +4557,14 @@ msgstr "Проекты"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__project_steps_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__project_steps_id
 msgid "project_steps_id"
+msgstr "Этап проекта"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_acceptance_flow__step_project_child_id
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_cash_flow__step_project_child_id
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__step_project_child_id
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__step_project_child_id
+msgid "step-project child id"
 msgstr "Этап проекта"
 
 #. module: project_budget
