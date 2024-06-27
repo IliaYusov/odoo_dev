@@ -36,34 +36,32 @@ class report_management_committee_excel(models.AbstractModel):
                 if last_fixed_project and last_fixed_project.stage_id.code == '0':
                     return False
 
-            if not project.project_have_steps:
-                if project.end_presale_project_month.year in years or project.end_sale_project_month.year in years:
+            if project.end_presale_project_month.year in years or project.end_sale_project_month.year in years:
+                return True
+            for pds in project.planned_cash_flow_ids:
+                if pds.date_cash.year in years:
                     return True
-                for pds in project.planned_cash_flow_ids:
-                    if pds.date_cash.year in years:
-                        return True
-                for pds in project.fact_cash_flow_ids:
-                    if pds.date_cash.year in years:
-                        return True
-                for act in project.planned_acceptance_flow_ids:
-                    if act.date_cash.year in years:
-                        return True
-                for act in project.fact_acceptance_flow_ids:
-                    if act.date_cash.year in years:
-                        return True
-            else:
-                for pds in project.planned_step_cash_flow_ids:
-                    if pds.date_cash.year in years:
-                        return True
-                for pds in project.fact_step_cash_flow_ids:
-                    if pds.date_cash.year in years:
-                        return True
-                for act in project.planned_step_acceptance_flow_ids:
-                    if act.date_cash.year in years:
-                        return True
-                for act in project.fact_step_acceptance_flow_ids:
-                    if act.date_cash.year in years:
-                        return True
+            for pds in project.fact_cash_flow_ids:
+                if pds.date_cash.year in years:
+                    return True
+            for act in project.planned_acceptance_flow_ids:
+                if act.date_cash.year in years:
+                    return True
+            for act in project.fact_acceptance_flow_ids:
+                if act.date_cash.year in years:
+                    return True
+            for pds in project.planned_step_cash_flow_ids:
+                if pds.date_cash.year in years:
+                    return True
+            for pds in project.fact_step_cash_flow_ids:
+                if pds.date_cash.year in years:
+                    return True
+            for act in project.planned_step_acceptance_flow_ids:
+                if act.date_cash.year in years:
+                    return True
+            for act in project.fact_step_acceptance_flow_ids:
+                if act.date_cash.year in years:
+                    return True
         return False
 
     quarter_rus_name = ['Q1', 'Q2', 'HY1/YEAR', 'Q3', 'Q4', 'HY2/YEAR', 'YEAR', 'NEXT', 'AFTER NEXT']

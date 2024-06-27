@@ -81,7 +81,7 @@ class report_svod_excel(models.AbstractModel):
             etalon_project = self.get_etalon_project_first(project) # поищем первый эталон в году и если контрактование или последняя отгрузка были в году, то надо проект в отчете показывать
             if etalon_project:
                 if (etalon_project.end_presale_project_month.year >= YEARint and  etalon_project.end_presale_project_month.year <= year_end)\
-                        or (project.end_sale_project_month.year >= YEARint and project.end_sale_project_month.year <= year_end):
+                        or (etalon_project.end_sale_project_month.year >= YEARint and etalon_project.end_sale_project_month.year <= year_end):
                     return True
 
         return False
@@ -108,9 +108,11 @@ class report_svod_excel(models.AbstractModel):
         return etalon_budget
 
     def get_etalon_project(self, spec):
-        etalon_project = self.env['project_budget.projects'].search(
-            [('etalon_budget', '=', True), ('budget_state', '=', 'fixed'), ('project_id', '=', spec.project_id)],
-            limit=1, order='date_actual desc')
+        etalon_project = self.env['project_budget.projects'].search([
+            ('etalon_budget', '=', True),
+            ('budget_state', '=', 'fixed'),
+            ('project_id', '=', spec.project_id),
+        ], limit=1, order='date_actual desc')
         # print('etalon_project.project_id = ',etalon_project.project_id)
         # print('etalon_project.date_actual = ',etalon_project.date_actual)
         return etalon_project
@@ -119,11 +121,12 @@ class report_svod_excel(models.AbstractModel):
         global YEARint
 
         datesearch = datetime.date(YEARint, 1, 1)  # будем искать первый утвержденный в году
-        etalon_project = self.env['project_budget.projects'].search([('etalon_budget', '=', True),
-                                                                     ('budget_state', '=', 'fixed'),
-                                                                     ('project_id', '=', spec.project_id),
-                                                                     ('date_actual', '>=', datesearch)
-                                                                     ], limit=1, order='date_actual')
+        etalon_project = self.env['project_budget.projects'].search([
+            ('etalon_budget', '=', True),
+            ('budget_state', '=', 'fixed'),
+            ('project_id', '=', spec.project_id),
+            ('date_actual', '>=', datesearch),
+            ], limit=1, order='date_actual')
         return etalon_project
 
     def print_head_elements_list_year_Q(self, workbook, sheet, row, column, head_format):
@@ -231,11 +234,8 @@ class report_svod_excel(models.AbstractModel):
         sum_q3 = 0
         sum_q4 = 0
         if project:
-            try:
-                project_obj = project.projects_id
-            except:
-                project_obj = project
-            currency_rate = self.get_currency_rate_by_project(project_obj)
+
+            currency_rate = self.get_currency_rate_by_project(project)
 
             if project.stage_id.code in ('50', '75','100','100(done)'): # смотрим сумму контрактования в эталоне и с учетом 100
                 if project.end_presale_project_month.year >= YEARint and project.end_presale_project_month.year <= year_end:
@@ -269,11 +269,7 @@ class report_svod_excel(models.AbstractModel):
                         # and project_etalon.total_amount_of_revenue_with_vat != 0:  # если эталон в этом году, то начинаем работать, далее только если 0 стало, а в эталоне не 0 считаем переносом
                         #
 
-                    try:
-                        project_obj = project_etalon.projects_id
-                    except:
-                        project_obj = project_etalon
-                    currency_rate = self.get_currency_rate_by_project(project_obj)
+                    currency_rate = self.get_currency_rate_by_project(project)
 
                     if project_etalon.end_presale_project_month.year != project.end_presale_project_month.year:  # если поменялся год, то это перенос года
                         sum_year = project_etalon.total_amount_of_revenue_with_vat*currency_rate
@@ -311,11 +307,7 @@ class report_svod_excel(models.AbstractModel):
         if project_etalon:
             if project_etalon.stage_id.code in (
             '50', '75', '100','100(done)'):  # если 30 или 0 то как будто нет ничего
-                try:
-                    project_obj = project_etalon.projects_id
-                except:
-                    project_obj = project_etalon
-                currency_rate = self.get_currency_rate_by_project(project_obj)
+                currency_rate = self.get_currency_rate_by_project(project_etalon)
                 if project_etalon.end_presale_project_month.year >= YEARint \
                     and project_etalon.end_presale_project_month.year <= year_end:  # а если текущий год уже вперери.. то и показывать в отчете нечего
                     sum_contract_etalon_year = project_etalon.total_amount_of_revenue_with_vat*currency_rate
@@ -335,11 +327,9 @@ class report_svod_excel(models.AbstractModel):
         if (project.stage_id.code in ('50', '75', '100','100(done)')):  # только 50 и 75 и 100 смотрим
             if project.end_presale_project_month.year >= YEARint\
                     and project.end_presale_project_month.year <= year_end :  # а если текущий год уже вперери.. то и показывать в отчете нечего
-                try:
-                    project_obj = project.projects_id
-                except:
-                    project_obj = project
-                currency_rate = self.get_currency_rate_by_project(project_obj)
+
+                currency_rate = self.get_currency_rate_by_project(project)
+
                 if sum_contract_etalon_year == 0:  # сумма эталога в году 0
                     sum_year = project.total_amount_of_revenue_with_vat*currency_rate
                 if project.end_presale_project_month.month in (
@@ -380,11 +370,9 @@ class report_svod_excel(models.AbstractModel):
         if project.stage_id.code in ('100','100(done)'):  # только 50 и 75  смотрим
             if project.end_presale_project_month.year >= YEARint\
                     and project.end_presale_project_month.year <= year_end:  # а если текущий год уже вперери.. то и показывать в отчете нечего
-                try:
-                    project_obj = project.projects_id
-                except:
-                    project_obj = project
-                currency_rate = self.get_currency_rate_by_project(project_obj)
+
+                currency_rate = self.get_currency_rate_by_project(project)
+
                 sum_year = project.total_amount_of_revenue_with_vat
                 if project.end_presale_project_month.month in (
                 1, 2, 3):  # а вот смотрим месяц попадания по текущему бюджету
@@ -923,9 +911,19 @@ class report_svod_excel(models.AbstractModel):
             projects = self.env['project_budget.projects'].search([
                 ('project_office_id', '=', project_office.id),
                 ('commercial_budget_id', '=', budget.id),
+                '|', '&', ('step_status', '=', 'step'),
+                ('step_project_parent_id.project_have_steps', '=', True),
+                '&', ('step_status', '=', 'project'),
+                ('project_have_steps', '=', False),
             ])
         else:
-            projects = self.env['project_budget.projects'].search([('commercial_budget_id', '=', budget.id)])
+            projects = self.env['project_budget.projects'].search([
+                ('commercial_budget_id', '=', budget.id),
+                '|', '&', ('step_status', '=', 'step'),
+                ('step_project_parent_id.project_have_steps', '=', True),
+                '&', ('step_status', '=', 'project'),
+                ('project_have_steps', '=', False),
+            ])
         sum_contract_year = 0
         sum_pds_year = 0
         sum_act_year = 0
@@ -944,7 +942,7 @@ class report_svod_excel(models.AbstractModel):
         for project in projects:
             currency_rate = self.get_currency_rate_by_project(project)
 
-            if project.project_office_id == project_office and project.stage_id.code in ('75', '50','100','100(done)'):
+            if project.step_status == 'project' and project.stage_id.code in ('75', '50','100','100(done)') or project.step_status == 'step' and project.stage_id.code in ('75', '50'):
                 if project.end_presale_project_month.year >= YEARint and project.end_presale_project_month.year <= year_end:
                     sum_contract_year += project.total_amount_of_revenue_with_vat*currency_rate
                     if project.end_presale_project_month.month in (1, 2, 3):
@@ -955,29 +953,38 @@ class report_svod_excel(models.AbstractModel):
                         sum_contract_q3 += project.total_amount_of_revenue_with_vat*currency_rate
                     if project.end_presale_project_month.month in (10, 11, 12):
                         sum_contract_q4 += project.total_amount_of_revenue_with_vat*currency_rate
-                    if project.stage_id.code in ('100','100(done)', '75', '50'):
-                        for pds in project.planned_cash_flow_ids:
-                            if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end and pds.forecast in ('commitment', 'reserve', 'from_project'):
-                                sum_pds_year += pds.sum_cash
-                                if pds.date_cash.month in (1, 2, 3):
-                                    sum_pds_q1 += project.total_amount_of_revenue_with_vat
-                                if pds.date_cash.month in (4, 5, 6):
-                                    sum_pds_q2 += project.total_amount_of_revenue_with_vat
-                                if pds.date_cash.month in (7, 8, 9):
-                                    sum_pds_q3 += project.total_amount_of_revenue_with_vat
-                                if pds.date_cash.month in (10, 11, 12):
-                                    sum_pds_q4 += project.total_amount_of_revenue_with_vat
-                        for act in project.planned_acceptance_flow_ids:
-                            if act.date_cash.year >= YEARint and act.date_cash.year <= year_end and act.forecast in ('commitment', 'reserve', 'from_project'):
-                                sum_act_year += act.sum_cash_without_vat
-                                if act.date_cash.month in (1, 2, 3):
-                                    sum_act_q1 += act.sum_cash_without_vat
-                                if act.date_cash.month in (4, 5, 6):
-                                    sum_act_q2 += act.sum_cash_without_vat
-                                if act.date_cash.month in (7, 8, 9):
-                                    sum_act_q3 += act.sum_cash_without_vat
-                                if act.date_cash.month in (10, 11, 12):
-                                    sum_act_q4 += act.sum_cash_without_vat
+
+            if project.stage_id.code in ('75', '50', '100', '100(done)'):
+
+                if project.step_status == 'project':
+                    pds_list = project.planned_cash_flow_ids
+                    acceptance_list = project.planned_acceptance_flow_ids
+                elif project.step_status == 'step':
+                    pds_list = project.planned_step_cash_flow_ids
+                    acceptance_list = project.planned_step_acceptance_flow_ids
+
+                for pds in pds_list:
+                    if pds.date_cash.year >= YEARint and pds.date_cash.year <= year_end and pds.forecast in ('commitment', 'reserve', 'from_project'):
+                        sum_pds_year += pds.sum_cash
+                        if pds.date_cash.month in (1, 2, 3):
+                            sum_pds_q1 += pds.sum_cash
+                        if pds.date_cash.month in (4, 5, 6):
+                            sum_pds_q2 += pds.sum_cash
+                        if pds.date_cash.month in (7, 8, 9):
+                            sum_pds_q3 += pds.sum_cash
+                        if pds.date_cash.month in (10, 11, 12):
+                            sum_pds_q4 += pds.sum_cash
+                for act in acceptance_list:
+                    if act.date_cash.year >= YEARint and act.date_cash.year <= year_end and act.forecast in ('commitment', 'reserve', 'from_project'):
+                        sum_act_year += act.sum_cash_without_vat
+                        if act.date_cash.month in (1, 2, 3):
+                            sum_act_q1 += act.sum_cash_without_vat
+                        if act.date_cash.month in (4, 5, 6):
+                            sum_act_q2 += act.sum_cash_without_vat
+                        if act.date_cash.month in (7, 8, 9):
+                            sum_act_q3 += act.sum_cash_without_vat
+                        if act.date_cash.month in (10, 11, 12):
+                            sum_act_q4 += act.sum_cash_without_vat
 
         return sum_contract_year, sum_pds_year, sum_act_year, sum_contract_q1, sum_pds_q1, sum_act_q1, sum_contract_q2, \
             sum_pds_q2, sum_act_q2, sum_contract_q3, sum_pds_q3, sum_act_q3, sum_contract_q4, sum_pds_q4, sum_act_q4

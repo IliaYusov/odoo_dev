@@ -203,9 +203,15 @@ class report_projects_rawdata_excel(models.AbstractModel):
                 column += 1
                 sheet.write_string(row, column, spec.approve_state, row_format)
                 column += 1
-                sheet.write_string(row, column, spec.project_status or '', row_format)
+                if spec.step_status == 'project':
+                    sheet.write_string(row, column, spec.project_status, row_format)
+                elif spec.step_status == 'step':
+                    sheet.write_string(row, column, spec.step_project_parent_id.project_status, row_format)
                 column += 1
-                sheet.write_string(row, column, (spec.step_project_number or""), row_format)
+                if spec.step_status == 'project':
+                    sheet.write_string(row, column, (spec.step_project_number or""), row_format)
+                elif spec.step_status == 'step':
+                    sheet.write_string(row, column, (spec.step_project_parent_id.step_project_number or""), row_format)
                 column += 1
                 if spec.step_status == 'step':
                     sheet.write_string(row, column, "True", row_format)
@@ -236,11 +242,14 @@ class report_projects_rawdata_excel(models.AbstractModel):
                 # column += 1
                 sheet.write_string(row, column, spec.partner_id.name, row_format)
                 column += 1
-                sheet.write_string(row, column, (spec.essence_project or ""), row_format)
+                if spec.step_status == 'project':
+                    sheet.write_string(row, column, (spec.essence_project or ""), row_format)
+                elif spec.step_status == 'step':
+                    sheet.write_string(row, column, (spec.step_project_parent_id.essence_project or""), row_format)
                 column += 1
                 sheet.write_string(row, column, spec.legal_entity_signing_id.name, row_format)
                 column += 1
-                sheet.write_string(row, column, (spec.comments or ""), row_format)
+                sheet.write_string(row, column, (spec.comments or spec.step_project_parent_id.comments or ""), row_format)
                 column += 1
                 sheet.write_string(row, column, spec.technological_direction_id.name, row_format)
                 column += 1
@@ -249,7 +258,7 @@ class report_projects_rawdata_excel(models.AbstractModel):
                 elif spec.step_status == 'step':
                     sheet.write_string(row, column, 'Комплексный', row_format)
                 column += 1
-                sheet.write_string(row, column, (spec.dogovor_number or ""), row_format)
+                sheet.write_string(row, column, (spec.dogovor_number or spec.step_project_parent_id.dogovor_number or ""), row_format)
                 column += 1
 
                 if spec.step_status == 'project':
