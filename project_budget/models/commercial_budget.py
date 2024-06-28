@@ -3,6 +3,8 @@ from odoo.exceptions import ValidationError
 from odoo.tools import pytz
 from datetime import timedelta
 
+import time
+
 class commercial_budget(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _name = 'project_budget.commercial_budget'
@@ -79,6 +81,19 @@ class commercial_budget(models.Model):
                                                                    ('commercial_budget_id', '=', newbudget.id),
                                                                    ]))
 
+            # меняем step_project_parent_id в скопированных проектах
+            step_projects = self.env['project_budget.projects'].sudo().search(['&',
+                                                                                ('step_project_parent_id', '!=', False),
+                                                                                ('commercial_budget_id', '=', newbudget.id),
+                                                                                ])
+            for step_project in step_projects:
+                print('step_project', step_project)
+                step_project.step_project_parent_id = (self.env['project_budget.projects']
+                                                   .sudo().search(['&',
+                                                                   ('project_id', '=', step_project.step_project_parent_id.project_id),
+                                                                   ('commercial_budget_id', '=', newbudget.id),
+                                                                   ]))
+
             activity_type_for_approval = self.env.ref('project_budget.mail_act_send_project_to_supervisor_for_approval').id
             activity_type_approve_supervisor = self.env.ref('project_budget.mail_act_approve_project_by_supervisor').id
             res_model_id_project_budget = self.env['ir.model'].search([('model', '=', 'project_budget.projects')]).id
@@ -89,7 +104,7 @@ class commercial_budget(models.Model):
                 print('spec.with_context was_changes')
 
                 spec.was_changes = False
-                if spec.stage_id.code in ('0', '100(done)'):
+                if spec.stage_id.code in ('0', '100(done)') and spec.step_status == 'project':
                     print('spec.with_context spec.approve_state')
                     spec.approve_state = "-"
 
@@ -100,7 +115,7 @@ class commercial_budget(models.Model):
                     for activitie in activities:
                         activitie.sudo().action_done()
 
-                if spec.stage_id.code in ('10','30','50','75','100'):
+                if spec.stage_id.code in ('10','30','50','75','100') and spec.step_status == 'project':
 
                     # Get a reference to the mail.activity model
                     # Use the search method to find the activities that need to be marked as done
@@ -128,40 +143,41 @@ class commercial_budget(models.Model):
                 # вот далее обновляем ссылки на step в созданных проектах, хотя может просто как то модель можно изменить... я ХЗ
             for project in newbudget.sudo().projects_ids:
                 print('project_id = ', project.project_id)
-                if project.project_have_steps:
+                if project.project_have_steps and project.step_status == 'project':
                     for planned_cash_flow in project.planned_cash_flow_ids:
-                        current_project = self.env['project_budget.project_steps'].sudo().search(
-                            [('projects_id', '=', project.id),('step_id','=',planned_cash_flow.project_steps_id.step_id)])
-                        planned_cash_flow.project_steps_id = current_project.id
+                        current_step_project = self.env['project_budget.projects'].sudo().search(
+                            [('step_project_parent_id', '=', project.id),('project_id','=',planned_cash_flow.step_project_child_id.project_id)])
+                        planned_cash_flow.step_project_child_id = current_step_project.id
                     for planned_acceptance_flow in project.planned_acceptance_flow_ids:
-                        current_project = self.env['project_budget.project_steps'].sudo().search(
-                            [('projects_id', '=', project.id), ('step_id', '=', planned_acceptance_flow.project_steps_id.step_id)])
-                        planned_acceptance_flow.project_steps_id = current_project.id
+                        current_step_project = self.env['project_budget.projects'].sudo().search(
+                            [('step_project_parent_id', '=', project.id), ('project_id', '=', planned_acceptance_flow.step_project_child_id.project_id)])
+                        planned_acceptance_flow.step_project_child_id = current_step_project.id
                     for fact_cash_flow in project.fact_cash_flow_ids:
-                        current_project = self.env['project_budget.project_steps'].sudo().search(
-                            [('projects_id', '=', project.id), ('step_id', '=', fact_cash_flow.project_steps_id.step_id)])
-                        fact_cash_flow.project_steps_id = current_project.id
+                        current_step_project = self.env['project_budget.projects'].sudo().search(
+                            [('step_project_parent_id', '=', project.id), ('project_id', '=', fact_cash_flow.step_project_child_id.project_id)])
+                        fact_cash_flow.step_project_child_id = current_step_project.id
                     for fact_acceptance_flow in project.fact_acceptance_flow_ids:
-                        current_project = self.env['project_budget.project_steps'].sudo().search(
-                            [('projects_id', '=', project.id), ('step_id', '=', fact_acceptance_flow.project_steps_id.step_id)])
-                        fact_acceptance_flow.project_steps_id = current_project.id
+                        current_step_project = self.env['project_budget.projects'].sudo().search(
+                            [('step_project_parent_id', '=', project.id), ('project_id', '=', fact_acceptance_flow.step_project_child_id.project_id)])
+                        fact_acceptance_flow.step_project_child_id = current_step_project.id
 
-                for fact_acceptance_flow in project.fact_acceptance_flow_ids: # у нас на распределение (distribution) ссылается плановые и фактические данные и при копировании у фрейма крутит голову. потому вручную ссылка на плановое поступеление в распределенеии ставим
-                    for distribution_acceptance in fact_acceptance_flow.distribution_acceptance_ids: # идем по распределению, привязанному к факту  - копирование оставили тоолько у факта для фрейма
-                        if distribution_acceptance.planned_acceptance_flow_id.acceptance_id: # берем acceptance_id  и по нему ищем в новом бюдете запись
-                            new_planned_acceptance = self.env['project_budget.planned_acceptance_flow'].sudo().search(
-                                [('projects_id', '=', project.id),
-                                 ('acceptance_id', '=', distribution_acceptance.planned_acceptance_flow_id.acceptance_id)])
-                            if new_planned_acceptance: # нулевые записи не копируются
-                                distribution_acceptance.planned_acceptance_flow_id = new_planned_acceptance.id # ставим ссылку на скопированную зщапись в распределениии
-                for fact_cash_flow in project.fact_cash_flow_ids: # у нас на распределение (distribution) ссылается плановые и фактические данные и при копировании у фрейма крутит голову. потому вручную ссылка на плановое поступеление в распределенеии ставим
-                    for distribution_cash in fact_cash_flow.distribution_cash_ids: # идем по распределению, привязанному к факту  - копирование оставили тоолько у факта для фрейма
-                        if distribution_cash.planned_cash_flow_id.cash_id: # берем cash_id  и по нему ищем в новом бюдете запись
-                            new_planned_cash = self.env['project_budget.planned_cash_flow'].sudo().search(
-                                [('projects_id', '=', project.id),
-                                 ('cash_id', '=', distribution_cash.planned_cash_flow_id.cash_id)])
-                            if new_planned_cash: # нулевые записи не копируются
-                                distribution_cash.planned_cash_flow_id = new_planned_cash.id # ставим ссылку на скопированную зщапись в распределениии
+                if project.step_status == 'project':
+                    for fact_acceptance_flow in project.fact_acceptance_flow_ids: # у нас на распределение (distribution) ссылается плановые и фактические данные и при копировании у фрейма крутит голову. потому вручную ссылка на плановое поступеление в распределенеии ставим
+                        for distribution_acceptance in fact_acceptance_flow.distribution_acceptance_ids: # идем по распределению, привязанному к факту  - копирование оставили тоолько у факта для фрейма
+                            if distribution_acceptance.planned_acceptance_flow_id.acceptance_id: # берем acceptance_id  и по нему ищем в новом бюдете запись
+                                new_planned_acceptance = self.env['project_budget.planned_acceptance_flow'].sudo().search(
+                                    [('projects_id', '=', project.id),
+                                     ('acceptance_id', '=', distribution_acceptance.planned_acceptance_flow_id.acceptance_id)])
+                                if new_planned_acceptance: # нулевые записи не копируются
+                                    distribution_acceptance.planned_acceptance_flow_id = new_planned_acceptance.id # ставим ссылку на скопированную зщапись в распределениии
+                    for fact_cash_flow in project.fact_cash_flow_ids: # у нас на распределение (distribution) ссылается плановые и фактические данные и при копировании у фрейма крутит голову. потому вручную ссылка на плановое поступеление в распределенеии ставим
+                        for distribution_cash in fact_cash_flow.distribution_cash_ids: # идем по распределению, привязанному к факту  - копирование оставили тоолько у факта для фрейма
+                            if distribution_cash.planned_cash_flow_id.cash_id: # берем cash_id  и по нему ищем в новом бюдете запись
+                                new_planned_cash = self.env['project_budget.planned_cash_flow'].sudo().search(
+                                    [('projects_id', '=', project.id),
+                                     ('cash_id', '=', distribution_cash.planned_cash_flow_id.cash_id)])
+                                if new_planned_cash: # нулевые записи не копируются
+                                    distribution_cash.planned_cash_flow_id = new_planned_cash.id # ставим ссылку на скопированную зщапись в распределениии
 
             # self.env['project_budget.projects'].search([('project_id', '=', self.id)]).write({'approve_state': 'need_approve_manager'})
             # meeting_act_type = self.env['mail.activity.type'].search([('category', '=', 'meeting')], limit=1)
@@ -170,8 +186,8 @@ class commercial_budget(models.Model):
             #         'name': 'Meeting Test',
             #         'category': 'meeting',
             #     })
-
-            return False
+            self.flush()
+            return
 
     def set_budget_work(self):
         self.ensure_one()

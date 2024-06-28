@@ -1,105 +1,111 @@
 <odoo>
-    <data>
-        <record id="show_fact_acceptance_flow_form" model="ir.ui.view">
-            <field name="name">project_budget.fact_acceptance_flow.form</field>
-            <field name="model">project_budget.fact_acceptance_flow</field>
-            <field name="arch" type="xml">
-                <form create="0" delete="0">
-                    <sheet string="Project">
-                        <field name="budget_state" invisible="True"/>
-                        <field name="approve_state" invisible="True"/>
-                        <field name="project_have_steps" invisible="True"/>
-                        <field name="projects_id" invisible="False"/>
-                        <group>
-                            <group>
-                                <field name="date_cash" placeholder="enter planned cash flow date"/>
-                            </group>
-                            <group>
-                                <field name="project_steps_id" options="{'no_open': True,}" placeholder="select project steps"
-                                        attrs="{'invisible': [('project_have_steps', '=', False)], 'required': [('project_have_steps', '=', True)]}"
-                                       domain='[("projects_id", "=", parent.id),("stage_id.code", "!=", "0")]'
-                                />
-                            </group>
-                        </group>
-<!-- #20230403 Вавилова Ирина сказла убрать...                                       <field name="doc_cash" placeholder="type docs description"/>-->
-                        <group col="3">
-                            <group>
-                                <field name="sum_cash_without_vat" placeholder="enter planned cash flow sum "/>
-                                <field name="distribution_sum_without_vat"
-                                            decoration-success="sum_cash_without_vat == distribution_sum_without_vat"
-                                            decoration-danger="sum_cash_without_vat != distribution_sum_without_vat"
-                                />
-                            </group>
-                            <group invisible="True">
-                                <field name="sum_cash" placeholder="enter planned cash flow sum "/>
-                                <field name="distribution_sum_with_vat"
-                                            decoration-bf="1"
-                                            decoration-success="sum_cash == distribution_sum_with_vat"
-                                            decoration-danger="sum_cash != distribution_sum_with_vat"
-                                />
-                            </group>
-                            <group>
-                                <field name="margin" placeholder="enter margin sum" attrs="{'readonly': [('margin_manual_input', '=', False)]}"/>
-                                <field name="margin_manual_input" placeholder="manual input of margin"/>
-                            </group>
-                        </group>
-                            <field name="distribution_acceptance_ids"
-                            widget="section_and_note_one2many"
-                            mode="tree" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}">
-                                <tree editable="bottom">
-<!--                                    <field name="projects_flow_fact_id" invisible="True"/>-->
-<!--                                    <field name="projects_flow_plan_id" invisible="True"/>-->
-<!--                                    <field name="projects_id"/>-->
-                                    <field name="planned_acceptance_flow_id" placeholder="select planned acceptance flow" force_save="1"/>
-                                    <field name="fact_acceptance_flow_id" placeholder="select planned acceptance flow" invisible="True"/>
-                                    <field name="sum_cash_without_vat_plan"/>
-                                    <field name="sum_cash_plan" optional="hide"/>
-                                    <field name="sum_cash_without_vat" placeholder="enter distribution fact on plan sum" force_save="1"/>
-                                    <field name="sum_cash" placeholder="enter distribution fact on plan sum" force_save="1" optional="hide"/>
-                                    <field name="distribution_sum_without_vat" />
-                                    <field name="distribution_sum_with_vat" decoration-success="sum_cash_plan == distribution_sum_with_vat" optional="hide"/>
-                                    <field name="distribution_sum_without_vat_ostatok"
-                                           decoration-danger="distribution_sum_without_vat_ostatok &lt; 0"
-                                           decoration-warning="distribution_sum_without_vat_ostatok != 0"/>
-                                    <field name="distribution_sum_with_vat_ostatok"
-                                           decoration-danger="distribution_sum_with_vat_ostatok &lt; 0"
-                                           decoration-warning="distribution_sum_with_vat_ostatok != 0"
-                                           optional="hide" />
-                                </tree>
-                            </field>
-
-                    </sheet>
-                </form>
-            </field>
-        </record>
-
-        <record id="show_fact_acceptance_flow_tree" model="ir.ui.view">
-            <field name="name">project_budget.fact_acceptance_flow.tree</field>
-            <field name="model">project_budget.fact_acceptance_flow</field>
-            <field name="arch" type="xml">
-                <tree default_order="date_cash" limit="100">
-                    <button name="action_copy_fact_acceptance" type="object" title="Copy acceptance" string="Copy acceptance" class="btn btn-link"/>
+    <record id="show_fact_acceptance_flow_form" model="ir.ui.view">
+        <field name="name">project_budget.fact_acceptance_flow.form</field>
+        <field name="model">project_budget.fact_acceptance_flow</field>
+        <field name="arch" type="xml">
+            <form create="0" delete="0">
+                <sheet string="Project">
+                    <field name="budget_state" invisible="True"/>
+                    <field name="approve_state" invisible="True"/>
                     <field name="project_have_steps" invisible="True"/>
-                    <field name="projects_id"  optional="hide"/>
-                    <field name="date_cash" placeholder="enter planned acceptance flow date"/>
-                    <field name="project_steps_id" options="{'no_open': True,}" placeholder="select project steps"
-                           attrs="{'column_invisible': [('parent.project_have_steps', '=', False)], 'required': [('project_have_steps', '=', True)]}"
-                    />
-    <!--#20230403 Вавилова Ирина сказла убрать...                                        <field name="doc_cash" placeholder="type docs description"/>-->
-                    <field name="sum_cash_without_vat" placeholder="enter planned acceptance flow sum "/>
-                    <field name="sum_cash" placeholder="enter planned acceptance flow sum " optional="hide"/>
-                    <field name="distribution_sum_without_vat"
-                            decoration-success="sum_cash == distribution_sum_with_vat"
-                            decoration-danger="sum_cash != distribution_sum_with_vat"/>
-                    <field name="distribution_sum_with_vat"
-                            decoration-success="sum_cash == distribution_sum_with_vat"
-                            decoration-danger="sum_cash != distribution_sum_with_vat"
-                            optional="hide"/>
-                    <field name="distribution_sum_without_vat_ostatok" decoration-warning="distribution_sum_with_vat_ostatok != 0"/>
-                    <field name="distribution_sum_with_vat_ostatok" decoration-warning="distribution_sum_with_vat_ostatok != 0" optional="hide"/>
-                </tree>
-            </field>
-        </record>
+                    <field name="can_edit" invisible="True"/>
+                    <field name="projects_id" invisible="False"/>
+                    <group>
+                        <group>
+                            <field name="date_cash" placeholder="enter planned cash flow date"/>
+                        </group>
+                        <group>
+                            <field name="step_project_child_id" options="{'no_open': True,}"
+                                   placeholder="select project steps"
+                                   attrs="{'invisible': [('parent.project_have_steps', '=', False)], 'required': [('parent.project_have_steps', '=', True)]}"
+                                   domain="[('id', 'in', parent.step_project_child_ids),('stage_id.code', '!=', '0')]"
+                            />
+                        </group>
+                    </group>
+                    <!-- #20230403 Вавилова Ирина сказла убрать...                                       <field name="doc_cash" placeholder="type docs description"/>-->
+                    <group col="3">
+                        <group>
+                            <field name="sum_cash_without_vat" placeholder="enter planned cash flow sum "/>
+                            <field name="distribution_sum_without_vat"
+                                   decoration-success="sum_cash_without_vat == distribution_sum_without_vat"
+                                   decoration-danger="sum_cash_without_vat != distribution_sum_without_vat"
+                            />
+                        </group>
+                        <group invisible="True">
+                            <field name="sum_cash" placeholder="enter planned cash flow sum "/>
+                            <field name="distribution_sum_with_vat"
+                                   decoration-bf="1"
+                                   decoration-success="sum_cash == distribution_sum_with_vat"
+                                   decoration-danger="sum_cash != distribution_sum_with_vat"
+                            />
+                        </group>
+                        <group>
+                            <field name="margin" placeholder="enter margin sum"
+                                   attrs="{'readonly': [('margin_manual_input', '=', False)]}"/>
+                            <field name="margin_manual_input" placeholder="manual input of margin"/>
+                        </group>
+                    </group>
+                    <field name="distribution_acceptance_ids" mode="tree" widget="section_and_note_one2many"
+                           attrs="{'readonly': [('can_edit', '=', False)]}">
+                        <tree editable="bottom">
+                            <!--                                    <field name="projects_flow_fact_id" invisible="True"/>-->
+                            <!--                                    <field name="projects_flow_plan_id" invisible="True"/>-->
+                            <!--                                    <field name="projects_id"/>-->
+                            <field name="planned_acceptance_flow_id" placeholder="select planned acceptance flow"
+                                   force_save="1"/>
+                            <field name="fact_acceptance_flow_id" placeholder="select planned acceptance flow"
+                                   invisible="True"/>
+                            <field name="sum_cash_without_vat_plan"/>
+                            <field name="sum_cash_plan" optional="hide"/>
+                            <field name="sum_cash_without_vat" placeholder="enter distribution fact on plan sum"
+                                   force_save="1"/>
+                            <field name="sum_cash" placeholder="enter distribution fact on plan sum" force_save="1"
+                                   optional="hide"/>
+                            <field name="distribution_sum_without_vat"/>
+                            <field name="distribution_sum_with_vat"
+                                   decoration-success="sum_cash_plan == distribution_sum_with_vat" optional="hide"/>
+                            <field name="distribution_sum_without_vat_ostatok"
+                                   decoration-danger="distribution_sum_without_vat_ostatok &lt; 0"
+                                   decoration-warning="distribution_sum_without_vat_ostatok != 0"/>
+                            <field name="distribution_sum_with_vat_ostatok"
+                                   decoration-danger="distribution_sum_with_vat_ostatok &lt; 0"
+                                   decoration-warning="distribution_sum_with_vat_ostatok != 0"
+                                   optional="hide"/>
+                        </tree>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
 
-    </data>
+    <record id="show_fact_acceptance_flow_tree" model="ir.ui.view">
+        <field name="name">project_budget.fact_acceptance_flow.tree</field>
+        <field name="model">project_budget.fact_acceptance_flow</field>
+        <field name="arch" type="xml">
+            <tree default_order="date_cash" limit="100">
+                <button name="action_copy_fact_acceptance" type="object" title="Copy acceptance"
+                        string="Copy acceptance" class="btn btn-link"/>
+                <field name="project_have_steps" invisible="True"/>
+                <field name="projects_id" optional="hide"/>
+                <field name="date_cash" placeholder="enter planned acceptance flow date"/>
+                <field name="step_project_child_id" options="{'no_open': True,}" placeholder="select project steps"
+                       attrs="{'column_invisible': [('parent.project_have_steps', '=', False)], 'required': [('parent.project_have_steps', '=', True)]}"
+                />
+                <!--#20230403 Вавилова Ирина сказла убрать...                                        <field name="doc_cash" placeholder="type docs description"/>-->
+                <field name="sum_cash_without_vat" placeholder="enter planned acceptance flow sum "/>
+                <field name="sum_cash" placeholder="enter planned acceptance flow sum " optional="hide"/>
+                <field name="distribution_sum_without_vat"
+                       decoration-success="sum_cash == distribution_sum_with_vat"
+                       decoration-danger="sum_cash != distribution_sum_with_vat"/>
+                <field name="distribution_sum_with_vat"
+                       decoration-success="sum_cash == distribution_sum_with_vat"
+                       decoration-danger="sum_cash != distribution_sum_with_vat"
+                       optional="hide"/>
+                <field name="distribution_sum_without_vat_ostatok"
+                       decoration-warning="distribution_sum_with_vat_ostatok != 0"/>
+                <field name="distribution_sum_with_vat_ostatok"
+                       decoration-warning="distribution_sum_with_vat_ostatok != 0" optional="hide"/>
+            </tree>
+        </field>
+    </record>
 </odoo>

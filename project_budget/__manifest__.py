@@ -31,6 +31,8 @@
         'views/project_amount_specifications.xml',
         'views/project_step_amount_specifications.xml',
         'views/project_budget_project_office_views.xml',
+        'views/project_budget_project_role_views.xml',
+        'views/project_budget_project_member_views.xml',
         'views/project_budget_project_stage_views.xml',
         'views/project_budget_project_views.xml',
         'views/project_budget_comercial_budget.xml',

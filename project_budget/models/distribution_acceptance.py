@@ -58,7 +58,7 @@ class distribution_acceptance(models.Model):
     @api.depends("sum_cash_without_vat")
     def _compute_sum(self):
         for row in self:
-            if row.fact_acceptance_flow_id.project_steps_id:
-                row.sum_cash = row.sum_cash_without_vat * (1 + row.fact_acceptance_flow_id.project_steps_id.vat_attribute_id.percent / 100)
+            if row.fact_acceptance_flow_id.step_project_child_id:
+                row.sum_cash = row.sum_cash_without_vat * (1 + row.fact_acceptance_flow_id.step_project_child_id.vat_attribute_id.percent / 100)
             else:
                 row.sum_cash = row.sum_cash_without_vat * (1 + row.fact_acceptance_flow_id.projects_id.vat_attribute_id.percent / 100)

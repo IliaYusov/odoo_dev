@@ -4,6 +4,8 @@ from . import fact_cash_flow
 from . import planned_acceptance_flow
 from . import planned_cash_flow
 from . import project_steps
+from . import project_budget_project_role
+from . import project_budget_project_member
 from . import project_budget_project_stage
 from . import project_budget_project
 from . import project_budget_project_office

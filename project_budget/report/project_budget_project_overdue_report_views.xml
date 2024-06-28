@@ -49,7 +49,9 @@
                             <field name="project_id"/>
                         </group>
                         <group>
-                            <field name="step_id"/>
+                            <field name="step_id" context="{
+                                   'form_view_ref': 'project_budget.project_budget_step_project_view_form',
+                                   }"/>
                         </group>
                     </group>
                     <separator string="Reason" style="background-color:#FF6971;"/>

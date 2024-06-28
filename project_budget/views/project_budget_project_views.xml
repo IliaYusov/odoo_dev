@@ -98,8 +98,10 @@
                 <field name="currency_id" optional="show"/>
                 <field name="project_office_id" optional="show"/>
                 <field name="project_supervisor_id" optional="show" widget="many2one_avatar"/>
-                <field name="key_account_manager_id" optional="show" widget="many2one_avatar_employee"/>
-                <field name="project_manager_id" optional="show" widget="many2one_avatar_employee"/>
+                <field name="key_account_manager_id" optional="show" widget="many2one_avatar_employee"
+                       options="{'relation': 'hr.employee.public'}"/>
+                <field name="project_manager_id" optional="show" widget="many2one_avatar_employee"
+                       options="{'relation': 'hr.employee.public'}"/>
                 <field name="industry_id" optional="hide"/>
                 <field name="partner_id" optional="show" widget="many2one_avatar"/>
                 <field name="company_partner_id" widget="many2one_avatar" optional="hide"/>
@@ -189,6 +191,349 @@
         </field>
     </record>
 
+    <record id="project_budget_step_project_view_form" model="ir.ui.view">
+        <field name="name">project_budget.step-project.form</field>
+        <field name="model">project_budget.projects</field>
+        <field name="arch" type="xml">
+            <form create="0" delete="0">
+                <sheet string="Step-project">
+                    <field name="step_status" invisible="1"/>
+                    <field name="budget_state" invisible="1"/>
+                    <field name="approve_state" invisible="1"/>
+                    <field name="is_percent_fot_manual" invisible="1"/>
+                    <field name="different_project_offices_in_steps" invisible="1"/>
+                    <field name="project_supervisor_id" invisible="1"/>
+                    <field name="industry_id" invisible="1"/>
+                    <field name="legal_entity_signing_id" invisible="1"/>
+                    <field name="technological_direction_id" invisible="1"/>
+                    <field name="partner_id" invisible="1"/>
+                    <field name="step_status" invisible="1"/>
+                    <field name="company_id" invisible="1"/>
+                    <field name="currency_id" invisible="1"/>
+                    <field name="commercial_budget_id" invisible="1"/>
+                    <field name="key_account_manager_id" invisible="1"/>
+                    <field name="project_manager_id" invisible="1"/>
+                    <field name="signer_id" invisible="1"/>
+                    <field name="project_office_id" invisible="1"/>
+                    <field name="is_correction_project" invisible="1"/>
+                    <field name="is_not_for_mc_report" invisible="1"/>
+                    <field name="active" invisible="1"/>
+                    <group>
+                        <field name="project_id" readonly="1" string="Step ID"/>
+                    </group>
+                    <group col="4">
+                        <group>
+                            <field name="step_project_number" placeholder="type step code e.g. 0001" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/> <!--обязательно при вероятности 100 и 100(done) -->
+                        </group>
+                        <group>
+                            <field name="project_type_id" force_save="1" options="{'no_open': True,}"/>
+                        </group>
+                        <group>
+                            <field name="vat_attribute_id" placeholder="select vat attribute"
+                                   attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
+                        </group>
+                        <group>
+                            <field name="dogovor_number"/>
+                        </group>
+                    </group>
+                    <group col="3">
+                        <group colspan="2">
+                            <field name="essence_project" placeholder="type here essence of the project" colspan="1"
+                                           attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
+                            <field name="project_office_id" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')],
+                            'invisible': [('different_project_offices_in_steps', '!=', True)],
+                            'required': [('different_project_offices_in_steps', '=', True)]}"/>
+                        </group>
+                        <group colspan="1">
+                            <field name="end_presale_project_month"  attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}" />
+                            <field name="end_sale_project_month" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
+                        </group>
+                    </group>
+                    <field name="is_revenue_from_the_sale_of_works"  invisible="1"/>
+                    <field name="is_revenue_from_the_sale_of_goods"  invisible="1"/>
+                    <field name="is_cost_of_goods" invisible="1"/>
+                    <field name="is_own_works_fot" invisible="1"/>
+                    <field name="is_third_party_works" invisible="1"/>
+                    <field name="is_awards_on_results_project" invisible="1"/>
+                    <field name="is_transportation_expenses" invisible="1"/>
+                    <field name="is_travel_expenses" invisible="1"/>
+                    <field name="is_representation_expenses" invisible="1"/>
+                    <field name="is_warranty_service_costs" invisible="1"/>
+                    <field name="is_rko_other" invisible="1"/>
+                    <field name="is_other_expenses" invisible="1"/>
+                    <field name="revenue_from_the_sale_of_works_amount_spec_exist" invisible="1"/>
+                    <field name="revenue_from_the_sale_of_goods_amount_spec_exist" invisible="1"/>
+                    <field name="cost_of_goods_amount_spec_exist" invisible="1"/>
+                    <field name="travel_expenses_amount_spec_exist" invisible="1"/>
+                    <field name="third_party_works_amount_spec_exist" invisible="1"/>
+                    <field name="transportation_expenses_amount_spec_exist" invisible="1"/>
+                    <field name="representation_expenses_amount_spec_exist" invisible="1"/>
+                    <field name="rko_other_amount_spec_exist" invisible="1"/>
+                    <field name="warranty_service_costs_amount_spec_exist" invisible="1"/>
+                    <field name="other_expenses_amount_spec_exist" invisible="1"/>
+
+                    <group col ="3">
+                        <group>
+                            <field name="total_amount_of_revenue"
+                                   decoration-bf="1"
+                                   decoration-success="total_amount_of_revenue &gt; 0"
+                                   class="h5"
+                            />
+                        </group>
+                        <group>
+                            <field name="total_amount_of_revenue_with_vat"
+                                   decoration-bf="1"
+                                   decoration-success="total_amount_of_revenue_with_vat &gt; 0"
+                                   class="h5"
+                            />
+                        </group>
+                        <group>
+                            <field name="cost_price"
+                                   class="h5"
+                                   decoration-bf="1"
+                                   decoration-success="cost_price &gt; 0"
+                            />
+                        </group>
+                    </group>
+
+                    <group col="4">
+                        <group>
+                            <field name="margin_income"
+                                   decoration-bf="1"
+                                   decoration-success="margin_income &gt; 0"
+                                   decoration-danger="margin_income &lt; 0"
+                                   class="h5"
+                            />
+                        </group>
+                        <group>
+                            <field name="profitability"
+                                decoration-success="margin_income &gt; 0"
+                                decoration-danger="margin_income &lt; 0"
+                            />
+                        </group>
+                        <group>
+                            <field name="stage_id" string="Probability" context="{'code_only': True}"
+                                   options="{'always_reload': True, 'no_open': True}"/>
+                        </group>
+                        <group>
+                            <field name="currency_id" options="{'no_open': True,}" />
+                        </group>
+                    </group>
+                    <h4>
+                        <group col="1">
+                            <group string="Revenue" >
+                            </group>
+                        </group>
+                    </h4>
+                    <group col="6">
+                        <group colspan="2">
+                            <field name="revenue_from_the_sale_of_works"
+                                   attrs="{'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager'),
+                                   ('revenue_from_the_sale_of_works_amount_spec_exist', '=', True)]
+                                   ,'invisible': [('is_revenue_from_the_sale_of_works', '=', False)]}"
+                            />
+                        </group>
+                        <group col="1" colspan="1">
+                            <button name="action_open_amount_spec_revenue_from_the_sale_of_works" type="object" title="View/edit spec revenue_from_the_sale_of_works" string="spec" icon="fa-list" class="btn btn-link "
+                                    attrs="{'invisible': ['|',('revenue_from_the_sale_of_works_amount_spec_exist', '=', False),('is_revenue_from_the_sale_of_works', '=', False)]}"
+                            />
+                            <button name="action_open_amount_spec_revenue_from_the_sale_of_works" type="object" title="Add spec revenue_from_the_sale_of_works" string="spec" icon="fa-plus-square-o" class="btn btn-link "
+                                    attrs="{'invisible': ['|','|','|',('revenue_from_the_sale_of_works_amount_spec_exist', '=', True),('is_revenue_from_the_sale_of_works', '=', False)
+                                    ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')
+                                    ]}"
+                            />
+                        </group>
+                        <group colspan="2">
+                            <field name="revenue_from_the_sale_of_goods"
+                                   attrs="{'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager'),
+                                   ('revenue_from_the_sale_of_goods_amount_spec_exist', '=', True)]
+                                   ,'invisible': [('is_revenue_from_the_sale_of_goods', '=', False)]}"/>
+                        </group>
+                        <group col="1" colspan="1">
+                            <button name="action_open_amount_spec_revenue_from_the_sale_of_goods" type="object" title="View/edit spec revenue_from_the_sale_of_goods" string="spec" icon="fa-list" class="btn btn-link "
+                                    attrs="{'invisible': ['|',('revenue_from_the_sale_of_goods_amount_spec_exist', '=', False),('is_revenue_from_the_sale_of_goods', '=', False)]}"
+                            />
+                            <button name="action_open_amount_spec_revenue_from_the_sale_of_goods" type="object" title="Add spec revenue_from_the_sale_of_goods" string="spec" icon="fa-plus-square-o" class="btn btn-link "
+                                    attrs="{'invisible': ['|','|','|',('revenue_from_the_sale_of_goods_amount_spec_exist', '=', True),('is_revenue_from_the_sale_of_goods', '=', False)
+                                    ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')
+                                    ]}"
+                            />
+                        </group>
+                    </group>
+                    <h4>
+                        <group string="Costs" >
+                        </group>
+                    </h4>
+                    <group col="6">
+                        <group colspan="2">
+                            <field name="cost_of_goods"
+                                   attrs="{'invisible': [('is_cost_of_goods', '=', False)]
+                                   ,'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')
+                                   ,('cost_of_goods_amount_spec_exist', '=', True)]}"
+                                   widget="monetary" class='oe_right' style="text-align:right"
+                            />
+                        </group>
+                        <group col="1" colspan="1">
+                            <button name="action_open_amount_spec_cost_of_goods" type="object" title="View project" string="spec" icon="fa-list" class="btn btn-link" style ="color:red"
+                                    attrs="{'invisible': ['|',('cost_of_goods_amount_spec_exist', '=', False),('is_cost_of_goods', '=', False)]}"
+                            />
+                            <button name="action_open_amount_spec_cost_of_goods" type="object" title="View project" string="spec" icon="fa-plus-square-o" class="btn btn-link"
+                                    attrs="{'invisible': ['|','|','|',('cost_of_goods_amount_spec_exist', '=', True),('is_cost_of_goods', '=', False)
+                                    ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                            />
+
+                        </group>
+                        <group colspan="2">
+                            <field name="travel_expenses"
+                                   attrs="{'invisible': [('is_travel_expenses', '=', False)]
+                                   ,'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')
+                                   ,('travel_expenses_amount_spec_exist', '=', True)]}"
+                                   widget="monetary" class='oe_right' style="text-align:right"
+                            />
+                        </group>
+                        <group col="1" colspan="1">
+                            <button name="action_open_amount_spec_travel_expenses" type="object" title="View project" string="spec" icon="fa-list" class="btn btn-link "
+                                    attrs="{'invisible': ['|',('travel_expenses_amount_spec_exist', '=', False),('is_travel_expenses', '=', False)]}"
+                            />
+                            <button name="action_open_amount_spec_travel_expenses" type="object" title="View project" string="spec" icon="fa-plus-square-o" class="btn btn-link "
+                                    attrs="{'invisible': ['|','|','|',('travel_expenses_amount_spec_exist', '=', True),('is_travel_expenses', '=', False)
+                                    ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                            />
+                        </group>
+                    </group>
+                    <group col="6">
+                        <group colspan="2">
+                            <field name="third_party_works"
+                                   attrs="{'invisible': [('is_third_party_works', '=', False)]
+                                   ,'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')
+                                   ,('third_party_works_amount_spec_exist', '=', True)]}"
+                                   widget="monetary" class='oe_right' style="text-align:right"
+                            />
+                        </group>
+                        <group col="1" colspan="1">
+                            <button name="action_open_amount_spec_third_party_works" type="object" title="View project" string="spec" icon="fa-list" class="btn btn-link "
+                                    attrs="{'invisible': ['|',('third_party_works_amount_spec_exist', '=', False), ('is_third_party_works', '=', False)]}"
+                            />
+                            <button name="action_open_amount_spec_third_party_works" type="object" title="View project" string="spec" icon="fa-plus-square-o" class="btn btn-link "
+                                    attrs="{'invisible': ['|','|','|',('third_party_works_amount_spec_exist', '=', True), ('is_third_party_works', '=', False)
+                                    ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                            />
+                        </group>
+                        <group colspan="2">
+                            <field name="representation_expenses"
+                                   attrs="{'invisible': [('is_representation_expenses', '=', False)]
+                                   ,'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')
+                                   ,('representation_expenses_amount_spec_exist', '=', True)]}"
+                                   widget="monetary" class='oe_right' style="text-align:right"
+                            />
+                        </group>
+                        <group col="1" colspan="1">
+                            <button name="action_open_amount_spec_representation_expenses" type="object" title="View project" string="spec" icon="fa-list" class="btn btn-link "
+                                    attrs="{'invisible': ['|',('representation_expenses_amount_spec_exist', '=', False),('is_representation_expenses', '=', False)]}"
+                            />
+                            <button name="action_open_amount_spec_representation_expenses" type="object" title="View project" string="spec" icon="fa-plus-square-o" class="btn btn-link "
+                                    attrs="{'invisible': ['|','|','|',('representation_expenses_amount_spec_exist', '=', True),('is_representation_expenses', '=', False)
+                                    ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                            />
+                        </group>
+                    </group>
+                    <group col="6">
+                        <group colspan="2">
+                            <field name="transportation_expenses"
+                                   attrs="{'invisible': [('is_transportation_expenses', '=', False)]
+                                   ,'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')
+                                   ,('transportation_expenses_amount_spec_exist', '=', True)]}"
+                                   widget="monetary" class='oe_right' style="text-align:right"
+                            />
+                        </group>
+                        <group col="1" colspan="1">
+                            <button name="action_open_amount_spec_transportation_expenses" type="object" title="View project" string="spec" icon="fa-list" class="btn btn-link "
+                                    attrs="{'invisible': ['|',('transportation_expenses_amount_spec_exist', '=', False),('is_transportation_expenses', '=', False)]}"
+                            />
+                            <button name="action_open_amount_spec_transportation_expenses" type="object" title="View project" string="spec" icon="fa-plus-square-o" class="btn btn-link "
+                                    attrs="{'invisible': ['|','|','|',('transportation_expenses_amount_spec_exist', '=', True),('is_transportation_expenses', '=', False)
+                                    ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                            />
+                        </group>
+                        <group colspan="2">
+                            <field name="rko_other"
+                                   attrs="{'invisible': [('is_rko_other', '=', False)]
+                                   ,'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')
+                                   ,('rko_other_amount_spec_exist', '=', True)]}"
+                                   widget="monetary" class='oe_right' style="text-align:right"
+                            />
+                        </group>
+                        <group col="1" colspan="1">
+                            <button name="action_open_amount_spec_rko_other" type="object" title="View project" string="spec" icon="fa-list" class="btn btn-link "
+                                    attrs="{'invisible': ['|',('rko_other_amount_spec_exist', '=', False),('is_rko_other', '=', False)]}"
+                            />
+                            <button name="action_open_amount_spec_rko_other" type="object" title="View project" string="spec" icon="fa-plus-square-o" class="btn btn-link "
+                                    attrs="{'invisible': ['|','|','|',('rko_other_amount_spec_exist', '=', True),('is_rko_other', '=', False)
+                                    ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                            />
+                        </group>
+                    </group>
+                    <group col="6">
+                        <group colspan="2">
+                        <field name="warranty_service_costs"
+                                   attrs="{'invisible': [('is_warranty_service_costs', '=', False)]
+                                   ,'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')
+                                   ,('warranty_service_costs_amount_spec_exist', '=', True)]}"
+                                   widget="monetary" class='oe_right' style="text-align:right"
+                            />
+                        </group>
+                        <group col="1" colspan="1">
+                            <button name="action_open_amount_spec_warranty_service_costs" type="object" title="View project" string="spec" icon="fa-list" class="btn btn-link "
+                                    attrs="{'invisible': ['|',('warranty_service_costs_amount_spec_exist', '=', False),('is_warranty_service_costs', '=', False)]}"
+                            />
+                            <button name="action_open_amount_spec_warranty_service_costs" type="object" title="View project" string="spec" icon="fa-plus-square-o" class="btn btn-link "
+                                    attrs="{'invisible': ['|','|','|',('warranty_service_costs_amount_spec_exist', '=', True),('is_warranty_service_costs', '=', False)
+                                    ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                            />
+                        </group>
+                        <group colspan="2">
+                            <field name="other_expenses"
+                                   attrs="{'invisible': [('is_other_expenses', '=', False)]
+                                   ,'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')
+                                   ,('other_expenses_amount_spec_exist', '=', True)]}"
+                                   widget="monetary" class='oe_right' style="text-align:right"
+                            />
+                        </group>
+                        <group col="1" colspan="1">
+                            <button name="action_open_amount_spec_other_expenses" type="object" title="View project" string="spec" icon="fa-list" class="btn btn-link "
+                                    attrs="{'invisible': ['|',('other_expenses_amount_spec_exist', '=', False),('is_other_expenses', '=', False)]}"
+                            />
+                            <button name="action_open_amount_spec_other_expenses" type="object" title="View project" string="spec" icon="fa-plus-square-o" class="btn btn-link "
+                                    attrs="{'invisible': ['|','|','|',('other_expenses_amount_spec_exist', '=', True),('is_other_expenses', '=', False)
+                                    ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                            />
+                        </group>
+                    </group>
+                    <group  col="3" string="Costs FOT" >
+                        <group>
+                            <field name="own_works_fot"
+                                   attrs="{'invisible': [('is_own_works_fot', '=', False)]}"
+                                   style="text-align:right"
+                            />
+                        </group>
+                        <group>
+                            <field name="awards_on_results_project"
+                                   attrs="{'invisible': [('is_awards_on_results_project', '=', False)]}"
+                                   style="text-align:right"
+                            />
+                        </group>
+                        <group>
+                            <field name="taxes_fot_premiums"
+                                   attrs="{'invisible': [('is_own_works_fot', '=', False),('is_awards_on_results_project', '=', False)]}"
+                                   style="text-align:right"
+                            />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
         <record id="show_comercial_budget_spec_form" model="ir.ui.view">
             <field name="name">project_budget.projects.form</field>
             <field name="model">project_budget.projects</field>
@@ -237,6 +582,8 @@
                         <field name="parent_project_id" invisible='1'/>
                         <field name="can_edit" invisible='1'/>
                         <field name="active" invisible="1"/>
+                        <field name="is_correction_project" invisible="1"/>
+                        <field name="is_not_for_mc_report" invisible="1"/>
                         <widget name="web_ribbon" title="Archived" bg_color="bg-danger"
                                 attrs="{'invisible': [('active', '=', True)]}"/>
 
@@ -356,22 +703,21 @@
                                             <field name="isRukovoditel_required_in_project" invisible="True"/>
                                             <field name="key_account_manager_id" widget="many2one_avatar_employee"
                                                    placeholder="Key Account Manager"
-                                                   options="{'no_create_edit': True, 'no_open': True}"
+                                                   options="{'no_create_edit': True, 'no_open': True, 'relation': 'hr.employee.public'}"
                                                    attrs="{'readonly': [('can_edit', '=', False)]}"/>
                                             <field name="project_manager_id" widget="many2one_avatar_employee"
                                                    placeholder="Project Manager"
-                                                   options="{'no_create_edit': True, 'no_open': True}"
+                                                   options="{'no_create_edit': True, 'no_open': True, 'relation': 'hr.employee.public'}"
                                                    attrs="{'readonly': [('can_edit', '=', False)], 'required': [('isRukovoditel_required_in_project', '=', True)]}"/>
                                             <field name="project_type_id" placeholder="Project Type"
                                                    options="{'no_open': True}"
-                                                   attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                                                   attrs="{'readonly': [('can_edit', '=', False)],
+                                                   'required': [('project_have_steps', '=', False)],
+                                                   'invisible': [('project_have_steps', '=', True)]}"/>
                                         </group>
                                         <group>
                                             <field name="project_supervisor_id" widget="many2one_avatar"
                                                    placeholder="Project Supervisor" options="{'no_open': True}"
-                                                   attrs="{'readonly': [('can_edit', '=', False)]}"/>
-                                            <field name="project_administrator_id" widget="many2one_avatar"
-                                                   placeholder="Project Administrator" options="{'no_open': True}"
                                                    attrs="{'readonly': [('can_edit', '=', False)]}"/>
                                             <field name="technological_direction_id" options="{'no_open': True}"
                                                    placeholder="Technological Direction"
@@ -381,11 +727,10 @@
                                 </h5>
                                 <group string="Customer/Organization">
                                     <group>
-                                        <field name="partner_id" force_save="1" widget="many2one_avatar"
-                                               options="{'no_open': True,}" placeholder="select customer/organization"
+                                        <field name="partner_id" widget="many2one_avatar" options="{'no_open': True}"
                                                attrs="{'readonly': [('can_edit', '=', False)]}"
                                                context="{'show_vat': True, 'default_is_company': True}"/>
-                                        <field name="industry_id" force_save="1" options="{'no_open': True,}"
+                                        <field name="industry_id" force_save="1" options="{'no_open': True}"
                                                placeholder="select industry"
                                                attrs="{'readonly': [('can_edit', '=', False)]}"/>
                                     </group>
@@ -396,6 +741,9 @@
                                         <field name="legal_entity_signing_id"
                                                options="{'no_open': True,}" placeholder="select legal entity signing"
                                                attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                                        <field name="signer_id"
+                                               options="{'no_open': True,}" placeholder="select legal entity signing"
+                                               attrs="{'readonly': [('can_edit', '=', False)], 'invisible': True}"/>
                                     </group>
                                 </group>
                                 <field name="comments" nolabel="1" placeholder="type comments for the project"
@@ -620,15 +968,27 @@
                                 <group string="Costs FOT" col="3">
                                     <group>
                                         <field name="own_works_fot" style="text-align:right"
-                                               attrs="{'invisible': [('is_own_works_fot', '=', False), ('project_have_steps', '=', False)]}"/>
+                                               attrs="
+                                               {
+                                                    'invisible': [('is_own_works_fot', '=', False), ('project_have_steps', '=', False)],
+                                                    'readonly': [('can_edit', '=', False)]
+                                               }"/>
                                     </group>
                                     <group>
                                         <field name="awards_on_results_project" style="text-align:right"
-                                               attrs="{'invisible': [('is_awards_on_results_project', '=', False), ('project_have_steps', '=', False)]}"/>
+                                               attrs="
+                                               {
+                                                    'invisible': [('is_awards_on_results_project', '=', False), ('project_have_steps', '=', False)],
+                                                    'readonly': [('can_edit', '=', False)]
+                                               }"/>
                                     </group>
                                     <group>
                                         <field name="taxes_fot_premiums" style="text-align:right"
-                                               attrs="{'invisible': [('is_own_works_fot', '=', False), ('is_awards_on_results_project', '=', False),('project_have_steps', '=', False)]}"/>
+                                               attrs="
+                                               {
+                                                    'invisible': [('is_own_works_fot', '=', False), ('is_awards_on_results_project', '=', False),('project_have_steps', '=', False)],
+                                                    'readonly': [('can_edit', '=', False)]
+                                               }"/>
                                     </group>
                                 </group>
                             </page>
@@ -638,10 +998,53 @@
                                        mode="tree" attrs="{'readonly': [('can_edit', '=', False)]}">
                                 </field>
                             </page>
-                            <page string="project steps" attrs="{'invisible': [('project_have_steps', '=', False)]}"
-                                  groups="project_budget.project_budget_users,project_budget.project_budget_admin">
-                                <field name="project_steps_ids" widget="section_and_note_one2many"
-                                       mode="tree" attrs="{'readonly': [('can_edit', '=', False)]}">
+<!--                            <page string="project steps" attrs="{'invisible': [('project_have_steps', '=', False)]}"-->
+<!--                                  groups="project_budget.project_budget_users,project_budget.project_budget_admin">-->
+<!--                                <field name="project_steps_ids" widget="section_and_note_one2many"-->
+<!--                                        mode="tree" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}">-->
+<!--                                </field>-->
+<!--                            </page>-->
+                            <page string="step-projects" attrs="{'invisible': [('project_have_steps', '=', False)]}">
+                                <field name="step_project_child_ids" mode="tree" widget="section_and_note_one2many"
+                                   context="{
+                                   'form_view_ref': 'project_budget.project_budget_step_project_view_form',
+                                   'default_step_status': 'step',
+                                   'default_company_id': company_id,
+                                   'default_currency_id': currency_id,
+                                   'default_commercial_budget_id': commercial_budget_id,
+                                   'default_key_account_manager_id': key_account_manager_id,
+                                   'default_project_supervisor_id': project_supervisor_id,
+                                   'default_project_manager_id': project_manager_id,
+                                   'default_industry_id': industry_id,
+                                   'default_legal_entity_signing_id': legal_entity_signing_id,
+                                   'default_signer_id': signer_id,
+                                   'default_technological_direction_id': technological_direction_id,
+                                   'default_partner_id': partner_id,
+                                   'default_project_office_id': project_office_id,
+                                   'default_is_correction_project': is_correction_project,
+                                   'default_is_not_for_mc_report': is_not_for_mc_report,
+                                   'default_active': active,
+                                   }"
+                                   attrs="{'readonly': [('can_edit', '=', False)]}"
+                                   domain="['&amp;', ('step_status', '=', 'step'), ('budget_state', '!=', 'fixed')]">
+                                    <tree default_order="project_id asc">
+                                        <button name="action_copy_step" type="object" title="Copy step" string="Copy step" class="btn btn-link float-end"/>
+                                        <field name="project_id" readonly="1" optional="show" string="Step ID"/>
+                                        <field name="project_type_id" optional="hide"/>
+                                        <field name="step_project_number" optional="show" placeholder="type step code DAX e.g. 0001"/>
+                                        <field name="dogovor_number" optional="hide" />
+                                        <field name="stage_id" string="Probability" context="{'code_only': True}" optional="show" options="{'always_reload': True}"/>
+                                        <field name="essence_project" optional="show" placeholder="type step name e.g. products recieve"/>
+                                        <field name="end_presale_project_month" optional="show" />
+                                        <field name="end_sale_project_month" optional="show" />
+                                        <field name="vat_attribute_id" optional="show"/>
+                                        <field name="total_amount_of_revenue" optional="show" />
+                                        <field name="total_amount_of_revenue_with_vat" optional="show" />
+                                        <field name="margin_income" optional="show" />
+                                        <field name="profitability" optional="show" />
+                                        <field name="budget_state" optional="hide" />
+                                        <field name="approve_state" optional="hide" />
+                                    </tree>
                                 </field>
                             </page>
                             <page string="child projects" attrs="{'invisible': [('is_parent_project', '=', False)]}">
@@ -649,11 +1052,11 @@
                                        context="{'tree_view_ref': 'project_budget.project_budget_project_child_view_tree'}"
                                        groups="project_budget.project_budget_admin"
                                        attrs="{'readonly': [('can_edit', '=', False)]}"
-                                       domain="['&amp;','&amp;', ('is_parent_project', '=', False), ('parent_project_id', '=', False), ('budget_state', '!=', 'fixed')]"/>
+                                       domain="['&amp;','&amp;', '&amp;', ('is_parent_project', '=', False), ('parent_project_id', '=', False), ('budget_state', '!=', 'fixed'), ('step_status', '=', 'project')]"/>
                                 <field name="child_project_ids" mode="tree" widget="many2many" readonly="1"
                                        context="{'tree_view_ref': 'project_budget.project_budget_project_child_view_tree'}"
                                        groups="!project_budget.project_budget_admin"
-                                       domain="['&amp;','&amp;', ('is_parent_project', '=', False), ('parent_project_id', '=', False), ('budget_state', '!=', 'fixed')]"/>
+                                       domain="['&amp;','&amp;', '&amp;', ('is_parent_project', '=', False), ('parent_project_id', '=', False), ('budget_state', '!=', 'fixed'), ('step_status', '=', 'project')]"/>
                             </page>
                             <page string="Forecast" attrs="{'invisible': [('is_parent_project', '=', True)]}"
                                   groups="project_budget.project_budget_users,project_budget.project_budget_admin">
@@ -681,9 +1084,9 @@
                                         <field name="forecast"/>
                                         <field name="project_have_steps" invisible="True"/>
                                         <field name="date_cash" placeholder="enter planned cash flow date"/>
-                                        <field name="project_steps_id" options="{'no_open': True,}" placeholder="select project steps"
+                                        <field name="step_project_child_id" options="{'no_open': True,}" placeholder="select project steps"
                                                 attrs="{'column_invisible': [('parent.project_have_steps', '=', False)], 'required': [('parent.project_have_steps', '=', True)]}"
-                                                domain="[('id', 'in', parent.project_steps_ids),('stage_id.code', '!=', '0')]"
+                                                domain="[('id', 'in', parent.step_project_child_ids),('stage_id.code', '!=', '0')]"
                                         />
 <!-- #20230403 Вавилова Ирина сказла убрать...                                       <field name="doc_cash" placeholder="type docs description"/>-->
                                         <field name="sum_cash_without_vat" placeholder="enter planned cash flow sum "/>
@@ -713,9 +1116,9 @@
                                         <field name="cash_id" invisible="False"/>
                                         <field name="forecast"/>
                                         <field name="date_cash" placeholder="enter planned cash flow date"/>
-                                        <field name="project_steps_id" options="{'no_open': True,}" placeholder="select project steps"
-                                               attrs="{'column_invisible': [('parent.project_have_steps', '=', False)], 'required': [('parent.project_have_steps', '=', True)]}"
-                                               domain="[('id', 'in', parent.project_steps_ids),('stage_id.code', '!=', '0')]"
+                                        <field name="step_project_child_id" options="{'no_open': True,}" placeholder="select project steps"
+                                                attrs="{'column_invisible': [('parent.project_have_steps', '=', False)], 'required': [('parent.project_have_steps', '=', True)]}"
+                                                domain="[('id', 'in', parent.step_project_child_ids),('stage_id.code', '!=', '0')]"
                                         />
 <!--#20230403 Вавилова Ирина сказла убрать...                                        <field name="doc_cash" placeholder="type docs description"/>-->
                                         <field name="sum_cash_without_vat" placeholder="enter planned cash flow sum " optional="hide"/>
@@ -759,6 +1162,47 @@
                                 </h4>
                                 <field name="fact_cash_flow_ids" widget="section_and_note_one2many"
                                        mode="tree" attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                            </page>
+                            <page name="page_project_team" string="Project Team"
+                                  groups="project_budget.project_budget_users,project_budget.project_budget_admin">
+                                <field name="project_member_ids" mode="kanban"
+                                       attrs="{'readonly': [('can_edit', '=', False)]}"
+                                       context="{'default_project_id': active_id}">
+                                    <kanban>
+                                        <field name="id"/>
+                                        <field name="project_id"/>
+                                        <field name="role_id"/>
+                                        <field name="employee_id"/>
+                                        <field name="company_id"/>
+                                        <templates>
+                                            <t t-name="kanban-box">
+                                                <div class="oe_kanban_card oe_kanban_global_click">
+                                                    <div class="o_kanban_card_content d-flex">
+                                                        <div>
+                                                            <img t-att-src="kanban_image('hr.employee.public', 'image_1920', record.employee_id.raw_value)"
+                                                                 height="40" width="40"
+                                                                 class="oe_avatar oe_kanban_avatar_smallbox mb0"
+                                                                 alt="Avatar"/>
+                                                        </div>
+                                                        <div class="oe_kanban_details d-flex flex-column ms-3">
+                                                            <strong class="o_kanban_record_title oe_partner_heading">
+                                                                <t t-esc="record.employee_id.value"/>
+                                                            </strong>
+                                                            <div class="d-flex align-items-baseline text-break">
+                                                                <i class="fa fa-user me-1" role="img"
+                                                                   aria-label="Role" title="Role"/>
+                                                                <t t-esc="record.role_id.value"/>
+                                                            </div>
+                                                        </div>
+                                                        <a t-if="!read_only_mode" type="delete" class="text-danger">
+                                                            <i class="fa fa-times" title="Delete"/>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </templates>
+                                    </kanban>
+                                </field>
                             </page>
                         </notebook>
                     </sheet>
@@ -910,7 +1354,8 @@
                                     </div>
                                     <div class="oe_kanban_bottom_right">
                                         <t t-if="record.key_account_manager_id.raw_value">
-                                            <field name="key_account_manager_id" widget="many2one_avatar_employee"/>
+                                            <field name="key_account_manager_id" widget="many2one_avatar_employee"
+                                                   options="{'relation': 'hr.employee.public'}"/>
                                         </t>
                                     </div>
                                 </div>
@@ -982,7 +1427,7 @@
         </field>
         <field name="domain">
             [
-                ('budget_state', '=', 'work')
+                ('budget_state', '=', 'work'), ('step_status', '=', 'project')
             ]
         </field>
     </record>
@@ -995,5 +1440,10 @@
         <field name="search_view_id" ref="project_budget_project_view_search"/>
         <field name="context">{'search_default_group_by_provider': True}</field>
         <!--            <field name="context">{"search_default_budget_state_working":True}</field>-->
+        <field name="domain">
+            [
+                ('step_status', '=', 'project')
+            ]
+        </field>
     </record>
 </odoo>

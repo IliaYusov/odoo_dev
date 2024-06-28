@@ -6,11 +6,18 @@
         <record id="ir_rule_project_budget_access_supervisor_manager" model="ir.rule">
             <field name="name">Access to project budget specification by supervisor anf manager access</field>
             <field name="model_id" ref="model_project_budget_projects"/>
-            <field name="domain_force">["|","|","|",
-                ('project_supervisor_id.id','in', user.supervisor_rule.ids),
-                ('project_office_id.user_id.id','=',user.id),
-                ('parent_project_id.project_supervisor_id.id','in', user.supervisor_rule.ids),
-                ('project_administrator_id.user_id', '=', user.id),
+            <field name="domain_force">
+                [
+                    '|', '|', '|', '|', '|', '|', '|', '|',
+                    ('project_office_id.user_id', '=', user.id),
+                    ('project_member_ids.employee_id.user_id', '=', user.id),
+                    ('project_member_ids.employee_id.user_id', 'in', user.with_context(kam_function=True).employee_id.replaceable_employee_ids.user_id.ids),
+                    ('project_member_ids.employee_id.user_id', 'in', user.with_context(project_manager_function=True).employee_id.replaceable_employee_ids.user_id.ids),
+                    ('parent_project_id.project_member_ids.employee_id.user_id', '=', user.id),
+                    ('parent_project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(kam_function=True).employee_id.replaceable_employee_ids.user_id.ids),
+                    ('parent_project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(project_manager_function=True).employee_id.replaceable_employee_ids.user_id.ids),
+                    ('project_supervisor_id.id','in', user.supervisor_rule.ids),
+                    ('parent_project_id.project_supervisor_id.id','in', user.supervisor_rule.ids)
                 ]
             </field>
             <field name="groups" eval="[(4, ref('project_budget.project_budget_users'))]"/>
@@ -20,35 +27,35 @@
             <field name="perm_unlink" eval="True"/>
         </record>
 
-        <record id="project_budget_project_key_account_manager_rule" model="ir.rule">
-            <field name="name">Access to projects to key account manager</field>
-            <field name="model_id" ref="model_project_budget_projects"/>
-            <field name="domain_force">
-                [
-                    '|', '|', '|',
-                    ('key_account_manager_id.user_id', '=', user.id),
-                    ('parent_project_id.key_account_manager_id.user_id', '=', user.id),
-                    ('key_account_manager_id', 'in', user.with_context(kam_function=True).employee_id.replaceable_employee_ids.ids),
-                    ('parent_project_id.key_account_manager_id', 'in', user.with_context(kam_function=True).employee_id.replaceable_employee_ids.ids)
-                ]
-            </field>
-            <field name="groups" eval="[(4, ref('project_budget.group_project_budget_key_account_manager'))]"/>
-        </record>
+<!--        <record id="project_budget_project_key_account_manager_rule" model="ir.rule">-->
+<!--            <field name="name">Access to projects to key account manager</field>-->
+<!--            <field name="model_id" ref="model_project_budget_projects"/>-->
+<!--            <field name="domain_force">-->
+<!--                [-->
+<!--                    '|', '|', '|',-->
+<!--                    ('key_account_manager_id.user_id', '=', user.id),-->
+<!--                    ('parent_project_id.key_account_manager_id.user_id', '=', user.id),-->
+<!--                    ('key_account_manager_id', 'in', user.with_context(kam_function=True).employee_id.replaceable_employee_ids.ids),-->
+<!--                    ('parent_project_id.key_account_manager_id', 'in', user.with_context(kam_function=True).employee_id.replaceable_employee_ids.ids)-->
+<!--                ]-->
+<!--            </field>-->
+<!--            <field name="groups" eval="[(4, ref('project_budget.group_project_budget_key_account_manager'))]"/>-->
+<!--        </record>-->
 
-        <record id="project_budget_project_project_manager_rule" model="ir.rule">
-            <field name="name">Access to projects to project manager</field>
-            <field name="model_id" ref="model_project_budget_projects"/>
-            <field name="domain_force">
-                [
-                    '|', '|', '|',
-                    ('project_manager_id.user_id', '=', user.id),
-                    ('parent_project_id.project_manager_id.user_id', '=', user.id),
-                    ('project_manager_id', 'in', user.with_context(project_manager_function=True).employee_id.replaceable_employee_ids.ids),
-                    ('parent_project_id.project_manager_id', 'in', user.with_context(project_manager_function=True).employee_id.replaceable_employee_ids.ids)
-                ]
-            </field>
-            <field name="groups" eval="[(4, ref('project_budget.group_project_budget_project_manager'))]"/>
-        </record>
+<!--        <record id="project_budget_project_project_manager_rule" model="ir.rule">-->
+<!--            <field name="name">Access to projects to project manager</field>-->
+<!--            <field name="model_id" ref="model_project_budget_projects"/>-->
+<!--            <field name="domain_force">-->
+<!--                [-->
+<!--                    '|', '|', '|',-->
+<!--                    ('project_manager_id.user_id', '=', user.id),-->
+<!--                    ('parent_project_id.project_manager_id.user_id', '=', user.id),-->
+<!--                    ('project_manager_id', 'in', user.with_context(project_manager_function=True).employee_id.replaceable_employee_ids.ids),-->
+<!--                    ('parent_project_id.project_manager_id', 'in', user.with_context(project_manager_function=True).employee_id.replaceable_employee_ids.ids)-->
+<!--                ]-->
+<!--            </field>-->
+<!--            <field name="groups" eval="[(4, ref('project_budget.group_project_budget_project_manager'))]"/>-->
+<!--        </record>-->
 
         <record id="project_budget_project_manager_rule" model="ir.rule">
             <field name="name">Project budget manager: see all projects</field>
@@ -132,6 +139,18 @@
             </field>
         </record>
 
+        <!-- Project role rules -->
+
+        <record id="project_budget_project_role_company_rule" model="ir.rule">
+            <field name="name">Project role multi-company</field>
+            <field name="model_id" ref="model_project_budget_project_role"/>
+            <field name="domain_force">
+                [
+                    '|', ('company_id', '=', False), ('company_id', 'in', company_ids)
+                ]
+            </field>
+        </record>
+
         <!-- Company partner rules -->
 
         <record id="res_company_partner_company_rule" model="ir.rule">
@@ -161,16 +180,14 @@
             <field name="model_id" ref="model_project_budget_project_overdue_report"/>
             <field name="domain_force">
                 [
-                    '|', '|', '|', '|', '|', '|', '|', '|', '|', '|',
+                    '|', '|', '|', '|', '|', '|', '|', '|',
                     ('project_office_id.user_id.id', '=', user.id),
-                    ('project_id.key_account_manager_id.user_id', '=', user.id),
-                    ('project_id.parent_project_id.key_account_manager_id.user_id', '=', user.id),
-                    ('project_id.key_account_manager_id', 'in', user.with_context(kam_function=True).employee_id.replaceable_employee_ids.ids),
-                    ('project_id.parent_project_id.key_account_manager_id', 'in', user.with_context(kam_function=True).employee_id.replaceable_employee_ids.ids),
-                    ('project_id.project_manager_id.user_id', '=', user.id),
-                    ('project_id.parent_project_id.project_manager_id.user_id', '=', user.id),
-                    ('project_id.project_manager_id', 'in', user.with_context(project_manager_function=True).employee_id.replaceable_employee_ids.ids),
-                    ('project_id.parent_project_id.project_manager_id', 'in', user.with_context(project_manager_function=True).employee_id.replaceable_employee_ids.ids),
+                    ('project_id.project_member_ids.employee_id.user_id', '=', user.id),
+                    ('project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(kam_function=True).employee_id.replaceable_employee_ids.user_id.ids),
+                    ('project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(project_manager_function=True).employee_id.replaceable_employee_ids.user_id.ids),
+                    ('project_id.parent_project_id.project_member_ids.employee_id.user_id', '=', user.id),
+                    ('project_id.parent_project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(kam_function=True).employee_id.replaceable_employee_ids.user_id.ids),
+                    ('project_id.parent_project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(project_manager_function=True).employee_id.replaceable_employee_ids.user_id.ids),
                     ('project_id.project_supervisor_id.id','in', user.supervisor_rule.ids),
                     ('project_id.parent_project_id.project_supervisor_id.id','in', user.supervisor_rule.ids)
                 ]

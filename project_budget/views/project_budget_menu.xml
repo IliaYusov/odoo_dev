@@ -69,6 +69,11 @@
 
     <menuitem id="menu_project_budget_configuration" parent="project_budget_menu" name="Configuration"
               sequence="100">
+        <menuitem id="menu_project_budget_project_teams" name="Project Teams" sequence="5"
+                  groups="project_budget_admin">
+            <menuitem id="menu_project_budget_project_roles" name="Roles" sequence="1"
+                      action="action_project_budget_project_roles"/>
+        </menuitem>
         <menuitem id="menu_project_budget_pipeline" name="Pipeline" sequence="10" groups="project_budget_admin">
             <menuitem id="menu_project_budget_pipeline_stages" name="Stages" sequence="10"
                       action="action_project_budget_project_stages"/>

@@ -3,6 +3,7 @@ from odoo.exceptions import ValidationError
 from odoo.tools import pytz
 from datetime import date
 
+
 class fact_acceptance_flow(models.Model):
 
     def get_project_steps_list(self):
@@ -19,12 +20,16 @@ class fact_acceptance_flow(models.Model):
     _name = 'project_budget.fact_acceptance_flow'
     _description = "fact acceptance flow"
     _inherit = ['mail.thread', 'mail.activity.mixin']
-    projects_id = fields.Many2one('project_budget.projects', string='projects_id', index=True,ondelete='cascade', auto_join=True,readonly=True)
-    project_have_steps = fields.Boolean(string="project have steps", related='projects_id.project_have_steps',
+    projects_id = fields.Many2one('project_budget.projects', string='projects_id', index=True, ondelete='cascade',
+                                  auto_join=True, readonly=True)
+    can_edit = fields.Boolean(related='projects_id.can_edit', readonly=True)
+    project_have_steps = fields.Boolean(related='projects_id.project_have_steps', string='project have steps',
                                         readonly=True)
     project_steps_id = fields.Many2one('project_budget.project_steps', string='project_steps_id', index=True,ondelete='cascade',
-                                       )
-    date_cash = fields.Date(string="date_cash" , required=True, copy=True)
+                                       )  # TODO убрать после миграции
+    step_project_child_id = fields.Many2one('project_budget.projects', string="step-project child id", index=True,
+                                            ondelete='cascade')
+    date_cash = fields.Date(string="date_cash", required=True, copy=True)
     currency_id = fields.Many2one('res.currency', string='Account Currency', compute='_compute_reference')
     sum_cash_without_vat = fields.Monetary(string="fact sum_cash_without_vat", required=True, copy=True)
     sum_cash = fields.Monetary(string="fact sum_cash", required=True, copy=True, compute='_compute_sum')
@@ -51,11 +56,11 @@ class fact_acceptance_flow(models.Model):
         for row in self:
             row.currency_id = row.projects_id.currency_id
 
-    @api.depends("sum_cash_without_vat","project_steps_id.vat_attribute_id","projects_id.vat_attribute_id")
+    @api.depends("sum_cash_without_vat", "step_project_child_id.vat_attribute_id", "projects_id.vat_attribute_id")
     def _compute_sum(self):
         for row in self:
-            if row.project_steps_id:
-                row.sum_cash = row.sum_cash_without_vat * (1+row.project_steps_id.vat_attribute_id.percent / 100)
+            if row.step_project_child_id:
+                row.sum_cash = row.sum_cash_without_vat * (1+row.step_project_child_id.vat_attribute_id.percent / 100)
             else:
                 row.sum_cash = row.sum_cash_without_vat * (1 + row.projects_id.vat_attribute_id.percent / 100)
 
@@ -70,13 +75,13 @@ class fact_acceptance_flow(models.Model):
             row.distribution_sum_with_vat_ostatok = row.sum_cash - row.distribution_sum_with_vat
             row.distribution_sum_without_vat_ostatok = row.sum_cash_without_vat - row.distribution_sum_without_vat
 
-    @api.depends("sum_cash_without_vat", "project_steps_id.profitability", "projects_id.profitability", "margin_manual_input")
+    @api.depends("sum_cash_without_vat", "step_project_child_id.profitability", "projects_id.profitability", "margin_manual_input")
     @api.onchange("sum_cash_without_vat", "margin_manual_input")
     def _compute_margin(self):
         for row in self:
             if not row.margin_manual_input:
                 if row.project_have_steps:
-                    row.margin = row.sum_cash_without_vat * row.project_steps_id.profitability / 100
+                    row.margin = row.sum_cash_without_vat * row.step_project_child_id.profitability / 100
                 else:
                     row.margin = row.sum_cash_without_vat * row.projects_id.profitability / 100
 
