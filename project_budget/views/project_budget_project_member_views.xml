@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="project_budget_project_member_view_form" model="ir.ui.view">
+        <field name="name">project.budget.project.member.form</field>
+        <field name="model">project_budget.project.member</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group invisible="1">
+                        <field name="project_id"/>
+                        <field name="company_id"/>
+                        <field name="role_id_domain"/>
+                        <field name="can_edit"/>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="employee_id" widget="many2one_avatar_employee"/>
+                        </group>
+                        <group>
+                            <field name="role_id" domain="role_id_domain"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>
