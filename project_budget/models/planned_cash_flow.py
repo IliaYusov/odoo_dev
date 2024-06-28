@@ -28,7 +28,7 @@ class planned_cash_flow(models.Model):
     date_actual = fields.Datetime(related='projects_id.date_actual', readonly=True)
 
     project_have_steps = fields.Boolean(string="project have steps", related='projects_id.project_have_steps', readonly=True)
-    project_steps_id = fields.Many2one('project_budget.project_steps', string='project_steps_id', index=True,ondelete='cascade')  # TODO убрать после миграции
+    project_steps_id = fields.Many2one('project_budget.project_steps', string='project_steps_id', index=True, ondelete='cascade')  # TODO убрать после миграции
     step_project_child_id = fields.Many2one('project_budget.projects', string="step-project child id", index=True,
                                             ondelete='cascade')
 
@@ -62,7 +62,7 @@ class planned_cash_flow(models.Model):
     )
 
 
-    @api.depends('date_cash','step_project_child_id','cash_id','sum_cash')
+    @api.depends('date_cash', 'step_project_child_id', 'cash_id', 'sum_cash')
     def _get_name_to_show(self):
         for prj in self:
             prj.name_to_show = prj.date_cash.strftime("%d/%m/%Y") + _(' | cash ') + prj.cash_id + _(' | sum cash ') + f'{prj.sum_cash:_.2f}'
@@ -75,7 +75,7 @@ class planned_cash_flow(models.Model):
         for row in self:
             row.currency_id = row.projects_id.currency_id
 
-    @api.depends("sum_cash","step_project_child_id.vat_attribute_id","projects_id.vat_attribute_id")
+    @api.depends("sum_cash", "step_project_child_id.vat_attribute_id", "projects_id.vat_attribute_id")
     def _compute_sum(self):
         for row in self:
             if row.step_project_child_id:

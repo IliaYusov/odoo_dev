@@ -20,8 +20,10 @@ class fact_acceptance_flow(models.Model):
     _name = 'project_budget.fact_acceptance_flow'
     _description = "fact acceptance flow"
     _inherit = ['mail.thread', 'mail.activity.mixin']
-    projects_id = fields.Many2one('project_budget.projects', string='projects_id', index=True,ondelete='cascade', auto_join=True,readonly=True)
-    project_have_steps = fields.Boolean(string="project have steps", related='projects_id.project_have_steps',
+    projects_id = fields.Many2one('project_budget.projects', string='projects_id', index=True, ondelete='cascade',
+                                  auto_join=True, readonly=True)
+    can_edit = fields.Boolean(related='projects_id.can_edit', readonly=True)
+    project_have_steps = fields.Boolean(related='projects_id.project_have_steps', string='project have steps',
                                         readonly=True)
     project_steps_id = fields.Many2one('project_budget.project_steps', string='project_steps_id', index=True,ondelete='cascade',
                                        )  # TODO убрать после миграции
@@ -54,7 +56,7 @@ class fact_acceptance_flow(models.Model):
         for row in self:
             row.currency_id = row.projects_id.currency_id
 
-    @api.depends("sum_cash_without_vat","step_project_child_id.vat_attribute_id","projects_id.vat_attribute_id")
+    @api.depends("sum_cash_without_vat", "step_project_child_id.vat_attribute_id", "projects_id.vat_attribute_id")
     def _compute_sum(self):
         for row in self:
             if row.step_project_child_id:

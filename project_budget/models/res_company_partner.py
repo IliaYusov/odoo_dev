@@ -15,8 +15,7 @@ class ResCompanyPartner(models.Model):
     active = fields.Boolean(string='Active', default=True)
 
     project_ids = fields.One2many('project_budget.projects', 'company_partner_id', string='Projects',
-                                  check_company=True,
-                                  domain="[('parent_id', '!=', False), ('company_id', '=', company_id)]")
+                                  domain="[('budget_state', '=', 'work'), ('company_id', '=', company_id)]")
     project_count = fields.Integer(compute='_compute_project_count')
 
     def name_get(self):

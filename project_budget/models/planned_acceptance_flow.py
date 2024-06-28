@@ -62,7 +62,7 @@ class planned_acceptance_flow(models.Model):
 
                                 )
 
-    @api.depends('date_cash','step_project_child_id','acceptance_id','sum_cash_without_vat')
+    @api.depends('date_cash', 'step_project_child_id', 'acceptance_id', 'sum_cash_without_vat')
     def _get_name_to_show(self):
         for prj in self:
             prj.name_to_show = prj.date_cash.strftime("%d/%m/%Y") + _(' | acceptance ') + prj.acceptance_id + _(' | sum cash without vat ') + f'{prj.sum_cash_without_vat:_.2f}'
@@ -74,7 +74,7 @@ class planned_acceptance_flow(models.Model):
         for row in self:
             row.currency_id = row.projects_id.currency_id
 
-    @api.depends("sum_cash_without_vat","step_project_child_id.vat_attribute_id","projects_id.vat_attribute_id")
+    @api.depends("sum_cash_without_vat", "step_project_child_id.vat_attribute_id", "projects_id.vat_attribute_id")
     def _compute_sum(self):
         for row in self:
             if row.step_project_child_id:

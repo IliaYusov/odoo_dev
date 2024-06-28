@@ -256,6 +256,7 @@ class project_steps(models.Model):
     date_actual = fields.Datetime(related='projects_id.date_actual', readonly=True, store=True)
     budget_state = fields.Selection(related='projects_id.budget_state', readonly=True, store=True)
     approve_state = fields.Selection(related='projects_id.approve_state', readonly=True, store=True)
+    can_edit = fields.Boolean(related='projects_id.can_edit')
     # name = fields.Char(string="step name", required=True, copy=True)
     code = fields.Char(string="step code", copy=True)
     essence_project = fields.Text(string='essence_project', default = "")

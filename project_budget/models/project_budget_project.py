@@ -1,4 +1,4 @@
-from odoo import api, fields, models, _
+from odoo import api, Command, fields, models, _
 from odoo.exceptions import ValidationError
 from .project_budget_project_stage import PROJECT_STATUS
 from collections import defaultdict
@@ -23,24 +23,23 @@ class Project(models.Model):
     def _get_default_stage_id(self):
         return self.env['project_budget.project.stage'].search([('fold', '=', False)], limit=1)
 
-    def _get_default_key_account_manager_id(self):
+    def _get_default_employee_id(self):
         employee = self.env['hr.employee'].search([
             ('user_id', '=', self.env.user.id),
             ('company_id', '=', self.env.company.id)
         ], limit=1)
         return employee.id
 
-    def _get_key_account_manager_id_domain(self):
-        return "[('user_id.groups_id', 'in', %s), '|', ('company_id', '=', False), ('company_id', '=', company_id)]"\
-            % self.env.ref('project_budget.group_project_budget_key_account_manager').id
-
-    def _get_project_manager_id_domain(self):
-        return "[('user_id.groups_id', 'in', %s), '|', ('company_id', '=', False), ('company_id', '=', company_id)]"\
-            % self.env.ref('project_budget.group_project_budget_project_manager').id
-
-    def _get_project_curator_id_domain(self):
-        return "[('user_id.groups_id', 'in', %s), '|', ('company_id', '=', False), ('company_id', '=', company_id)]"\
-            % self.env.ref('project_budget.group_project_budget_project_curator').id
+    def _get_default_member_ids(self):
+        result = []
+        employee_id = self._get_default_employee_id()
+        if employee_id:
+            result.append((0, 0, {
+                'project_id': self.id,
+                'role_id': self.env.ref('project_budget.project_role_key_account_manager').id,
+                'employee_id': employee_id
+            }))
+        return result
 
     def _get_current_amount_spec_type(self):
         context = self.env.context
@@ -207,19 +206,27 @@ class Project(models.Model):
                                         copy=True,
                                         domain="[('is_prohibit_selection','=', False), '|', ('company_id', '=', False), ('company_id', '=', company_id)]",
                                         required=True, tracking=True)
-    project_supervisor_id = fields.Many2one('project_budget.project_supervisor', string='project_supervisor',
-                                            required=True, copy=True, domain=_get_supervisor_list, tracking=True,
-                                            check_company=True, store=True)
-    key_account_manager_id = fields.Many2one('hr.employee', string='Key Account Manager', copy=True,
-                                             default=_get_default_key_account_manager_id,
-                                             domain=_get_key_account_manager_id_domain, required=True, tracking=True)
-    project_manager_id = fields.Many2one('hr.employee', string='Project Manager', copy=True,
-                                         domain=_get_project_manager_id_domain, required=False, tracking=True)
-    project_administrator_id = fields.Many2one('hr.employee', string='Project Administrator', copy=True,
-                                               check_company=True, tracking=True)
+    # project_supervisor_id = fields.Many2one('project_budget.project_supervisor', string='project_supervisor',
+    #                                         required=True, copy=True, domain=_get_supervisor_list, tracking=True, check_company=True)
+    project_supervisor_id = fields.Many2one('project_budget.project_supervisor', string='Project Supervisor',
+                                            compute='_compute_project_curator_id',
+                                            inverse='_inverse_project_curator_id', copy=True,
+                                            domain="[('company_id', 'in', (False, company_id))]", required=True,
+                                            store=True, tracking=True)
+    key_account_manager_id = fields.Many2one('hr.employee', string='Key Account Manager',
+                                             compute='_compute_key_account_manager_id',
+                                             inverse='_inverse_key_account_manager_id', copy=True,
+                                             domain="[('company_id', 'in', (False, company_id))]", required=True,
+                                             store=True, tracking=True)
+    project_manager_id = fields.Many2one('hr.employee', string='Project Manager', compute='_compute_project_manager_id',
+                                         inverse='_inverse_project_manager_id', copy=True,
+                                         domain="[('company_id', 'in', (False, company_id))]", required=False,
+                                         store=True, tracking=True)
     # project_curator_id = fields.Many2one('hr.employee', string='Project Curator', copy=True,
     #                                      domain=_get_project_curator_id_domain, required=True, tracking=True)
-    partner_id = fields.Many2one('res.partner', string='customer_organization', copy=True,
+    project_member_ids = fields.One2many('project_budget.project.member', 'project_id', string='Members', copy=False,
+                                         default=_get_default_member_ids)
+    partner_id = fields.Many2one('res.partner', string='Customer', copy=True,
                                  domain="[('is_company', '=', True)]", ondelete='restrict', required=True,
                                  tracking=True)
     industry_id = fields.Many2one('project_budget.industry', string='industry', required=True, copy=True,tracking=True)
@@ -419,6 +426,23 @@ class Project(models.Model):
 
     is_correction_project = fields.Boolean(string="project for corrections", default=False)
     is_not_for_mc_report = fields.Boolean(string="project is not for MC report", default=False)
+
+    @api.constrains('project_member_ids')
+    def _check_project_member_ids(self):
+        required_members = self.env['project_budget.project.role'].search([
+            ('is_required', '=', True)
+        ])
+        for record in self:
+            diff = set(required_members) - set(record.project_member_ids.mapped('role_id'))
+            if self.env.ref(
+                    'project_budget.project_role_key_account_manager') in diff and record.key_account_manager_id:
+                diff.remove(self.env.ref('project_budget.project_role_key_account_manager'))
+            if self.env.ref('project_budget.project_role_project_manager') in diff and record.project_manager_id:
+                diff.remove(self.env.ref('project_budget.project_role_project_manager'))
+            if self.env.ref('project_budget.project_role_project_curator') in diff and record.project_supervisor_id:
+                diff.remove(self.env.ref('project_budget.project_role_project_curator'))
+            if diff:
+                raise ValidationError(_("Roles '%s' are required for the project!") % ', '.join([r.name for r in diff]))
 
     def _compute_can_edit(self):
         for record in self:
@@ -744,6 +768,69 @@ class Project(models.Model):
         for project in self:
             project.child_count = len(project.child_ids)
 
+    @api.depends('project_member_ids.role_id')
+    def _compute_key_account_manager_id(self):
+        for project in self:
+            project.key_account_manager_id = project.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
+                'project_budget.project_role_key_account_manager'))[:1].employee_id or False
+
+    def _inverse_key_account_manager_id(self):
+        for project in self.filtered(lambda pr: pr.budget_state == 'work' and pr.key_account_manager_id):
+            member_team = self.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
+                'project_budget.project_role_key_account_manager'))[:1]
+            if member_team:
+                member_team.employee_id = project.key_account_manager_id
+            else:
+                project.project_member_ids = [Command.create({
+                    'role_id': self.env.ref('project_budget.project_role_key_account_manager').id,
+                    'employee_id': project.key_account_manager_id.id
+                })]
+
+    @api.depends('project_member_ids.role_id')
+    def _compute_project_manager_id(self):
+        for project in self:
+            project.project_manager_id = project.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
+                'project_budget.project_role_project_manager'))[:1].employee_id or False
+
+    def _inverse_project_manager_id(self):
+        for project in self.filtered(lambda pr: pr.budget_state == 'work' and pr.project_manager_id):
+            member_team = self.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
+                'project_budget.project_role_project_manager'))[:1]
+            if member_team:
+                member_team.employee_id = project.project_manager_id
+            else:
+                project.project_member_ids = [Command.create({
+                    'role_id': self.env.ref('project_budget.project_role_project_manager').id,
+                    'employee_id': project.project_manager_id.id
+                })]
+
+    @api.depends('project_member_ids.role_id')
+    def _compute_project_curator_id(self):
+        for project in self:
+            curator = project.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
+                'project_budget.project_role_project_curator'))[:1].employee_id
+            project.project_supervisor_id = self.env['project_budget.project_supervisor'].search([
+                ('user_id', '=', curator.user_id.id or 0),
+                ('company_id', '=', project.company_id.id)
+            ])[:1] or False
+
+    def _inverse_project_curator_id(self):
+        for project in self.filtered(lambda pr: pr.budget_state == 'work' and pr.project_supervisor_id):
+            member_team = self.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
+                'project_budget.project_role_project_curator'))[:1]
+            if member_team:
+                member_team.employee_id = self.env['hr.employee'].search([
+                    ('user_id', '=', project.project_supervisor_id.user_id.id),
+                    ('company_id', '=', project.company_id.id)
+                ])[:1]
+            else:
+                project.project_member_ids = [Command.create({
+                    'role_id': self.env.ref('project_budget.project_role_project_curator').id,
+                    'employee_id': self.env['hr.employee'].search([
+                        ('user_id', '=', project.project_supervisor_id.user_id.id),
+                        ('company_id', '=', project.company_id.id)
+                    ])[:1].id or 0
+                })]
 
     def action_open_project(self):
         return {
@@ -998,7 +1085,6 @@ class Project(models.Model):
                 raise ValidationError(raisetext)
 
     def check_overdue_date(self, vals_list):
-        print('check_overdue_date', vals_list)
         for project in self:
 
             end_presale_project_month = project.end_presale_project_month
@@ -1451,18 +1537,9 @@ class Project(models.Model):
                     vals['project_id'] = self.env['ir.sequence'].sudo().next_by_code('project_budget.projects')
                 elif vals['step_status'] == 'step':
                     vals['project_id'] = self.env['ir.sequence'].sudo().next_by_code('project_budget.project_steps')
-            # if vals.get('step_project_parent_id'):  # берем обязательные данные из основного проекта
-            #     parent = self.env['project_budget.projects'].search([('id', '=', vals['step_project_parent_id'])])
-            #     vals['key_account_manager_id'] = parent.key_account_manager_id.id
-            #     vals['project_supervisor_id'] = parent.project_supervisor_id.id
-            #     vals['industry_id'] = parent.industry_id.id
-            #     vals['legal_entity_signing_id'] = parent.legal_entity_signing_id.id
-            #     vals['technological_direction_id'] = parent.technological_direction_id.id
-            #     vals['partner_id'] = parent.partner_id.id
         return super().create(vals_list)
 
     def write(self, vals):
-        print('write', vals)
         self._check_required_fields(vals)
         for row in self:
             if row.env.context.get('form_fix_budget'):

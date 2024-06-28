@@ -25,5 +25,37 @@
             <field name="icon">fa-warning</field>
 <!--            <field name="res_model">mail.activity</field>-->
         </record>
+
+        <record id="project_role_key_account_manager" model="project_budget.project.role">
+            <field name="name">Key Account Manager</field>
+            <field name="sequence">1</field>
+            <field name="is_required" eval="True"/>
+            <field name="is_unique" eval="True"/>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="project_role_project_manager" model="project_budget.project.role">
+            <field name="name">Project Manager</field>
+            <field name="sequence">2</field>
+            <field name="is_required" eval="False"/>
+            <field name="is_unique" eval="True"/>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="project_role_project_curator" model="project_budget.project.role">
+            <field name="name">Project Curator</field>
+            <field name="sequence">3</field>
+            <field name="is_required" eval="True"/>
+            <field name="is_unique" eval="True"/>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="project_role_project_administrator" model="project_budget.project.role">
+            <field name="name">Project Administrator</field>
+            <field name="sequence">4</field>
+            <field name="is_required" eval="False"/>
+            <field name="is_unique" eval="True"/>
+            <field name="company_id" eval="False"/>
+        </record>
     </data>
 </odoo>
