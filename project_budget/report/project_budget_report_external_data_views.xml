@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_view_project_budget_report_external_data" model="ir.actions.act_window">
+        <field name="name">Report External Data</field>
+        <field name="res_model">project_budget.report_external_data</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No report external data found. Let's create one!
+            </p>
+        </field>
+    </record>
+
+    <record id="project_budget_report_external_data_view_tree" model="ir.ui.view">
+        <field name="name">project_budget.report_external_data.tree</field>
+        <field name="model">project_budget.report_external_data</field>
+        <field name="arch" type="xml">
+            <tree string="Report External Data">
+                <field name="company"/>
+                <field name="create_date"/>
+                <field name="data"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="project_budget_report_external_data_view_form" model="ir.ui.view">
+        <field name="name">project_budget.report_external_data.form</field>
+        <field name="model">project_budget.report_external_data</field>
+        <field name="arch" type="xml">
+            <form string="Report External Data">
+                <header>
+                    <button string="Import data" type="object" name="import_report_external_data" class="btn-primary"/>
+                </header>
+                <sheet string="Report External Data">
+                    <group>
+                        <field name="company"/>
+                    </group>
+                    <group>
+                        <field name="data"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

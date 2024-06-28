@@ -101,6 +101,8 @@
         <menuitem id="menu_project_budget_report" name="Reporting" sequence="60" groups="project_budget_admin">
             <menuitem id="menu_action_scheduled_report_form" name="Scheduled Reports" sequence="1"
                       action="action_view_project_budget_scheduled_reports"/>
+            <menuitem id="menu_action_report_external_data_form" name="Report External Data" sequence="2"
+                      action="action_view_project_budget_report_external_data"/>
         </menuitem>
     </menuitem>
 </odoo>
