@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="project_budget_projects_open_file_wizard_form" model="ir.ui.view">
+        <field name="name">project_budget.open_file_wizard.form</field>
+        <field name="model">project_budget.open_file_wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group col ="2">
+                        <group>
+                            <field name='company_id'/>
+                        </group>
+                        <group>
+                            <field name='data_file'/>
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button string="Import" name="import_file_data_from_wizard" class="btn-success" type="object"/>
+                    <button string="Cancel" class="btn-danger" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_open_file" model="ir.actions.act_window">
+        <field name="name">Open file</field>
+        <field name="res_model">project_budget.open_file_wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

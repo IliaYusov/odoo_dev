@@ -16,9 +16,9 @@
         <field name="model">project_budget.report_external_data</field>
         <field name="arch" type="xml">
             <tree string="Report External Data">
-                <field name="company"/>
-                <field name="create_date"/>
-                <field name="data"/>
+                <field name="company_id"/>
+                <field name="report_date"/>
+                <field name="file"/>
             </tree>
         </field>
     </record>
@@ -28,12 +28,17 @@
         <field name="model">project_budget.report_external_data</field>
         <field name="arch" type="xml">
             <form string="Report External Data">
-                <header>
-                    <button string="Import data" type="object" name="import_report_external_data" class="btn-primary"/>
-                </header>
                 <sheet string="Report External Data">
-                    <group>
-                        <field name="company"/>
+                    <group col="3">
+                        <group>
+                            <field name="company_id"/>
+                        </group>
+                        <group>
+                            <field name="report_date"/>
+                        </group>
+                        <group>
+                            <field name="file"/>
+                        </group>
                     </group>
                     <group>
                         <field name="data"/>
