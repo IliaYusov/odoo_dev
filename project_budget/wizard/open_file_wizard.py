@@ -19,7 +19,7 @@ class OpenFileWizard(models.TransientModel):
         ws = wb.active
         data = []
         for record in ws.iter_rows(min_row=30, max_row=30, min_col=4, max_col=None, values_only=True):
-            data = record
+            data = str(record).strip('()')
         if data:
             self.env['project_budget.report_external_data'].create({
                 'company_id': self.company_id.id,

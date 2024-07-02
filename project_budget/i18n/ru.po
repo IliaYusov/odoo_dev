@@ -546,6 +546,7 @@ msgstr "Нельзя перевести проект в статус 'Отмен
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_projects_report_print_form
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_tender_report_print_form
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
+#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_projects_open_file_wizard_form
 msgid "Cancel"
 msgstr "Отмена"
 
@@ -622,6 +623,8 @@ msgstr "Обязательство"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_scheduled_report__company_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__company_id
 #: model:ir.model.fields,field_description:project_budget.field_res_company_partner__company_id
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_report_external_data__company_id
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_open_file_wizard__company_id
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_office_view_search
 msgid "Company"
 msgstr "Компания"
@@ -5486,3 +5489,46 @@ msgstr ""
 #: model:project_budget.project_steps_type,name:project_budget.project_steps_type_Service
 msgid "Услуги"
 msgstr ""
+
+#. module: project_budget
+#: model:ir.actions.act_window,name:project_budget.action_view_project_budget_report_external_data
+#: model:ir.ui.menu,name:project_budget.menu_action_report_external_data_form
+#: model:ir.ui.view,arch_db:project_budget.project_budget_report_external_data_view_form
+#: model:ir.ui.view,arch_db:project_budget.project_budget_report_external_data_view_tree
+msgid "Report External Data"
+msgstr "Данные для отчета"
+
+#. module: project_budget
+#: model:ir.ui.menu,name:project_budget.menu_action_add_new_report_external_data
+msgid "Add New Report External Data"
+msgstr "Загрузить данные для отчета"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_report_external_data__report_date
+msgid "Report Date"
+msgstr "Дата отчета"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_report_external_data__data
+msgid "Data"
+msgstr "Данные"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_report_external_data__file
+msgid "File"
+msgstr "Файл"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_open_file_wizard__data_file
+msgid "Data file"
+msgstr "Файл с данными"
+
+#. module: project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_projects_open_file_wizard_form
+msgid "Import"
+msgstr "Импортировать"
+
+#. module: project_budget
+#: model:ir.actions.act_window,name:project_budget.action_open_file
+msgid "Open file"
+msgstr "Открыть файл"

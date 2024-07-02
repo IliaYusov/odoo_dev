@@ -1,5 +1,5 @@
 from odoo import models
-import datetime
+from datetime import date, timedelta
 import xlsxwriter
 from xlsxwriter.utility import xl_col_to_name
 import logging
@@ -29,7 +29,7 @@ class report_management_committee_excel(models.AbstractModel):
         if project:
             if project.stage_id.code == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
                 last_fixed_project = self.env['project_budget.projects'].search(
-                    [('date_actual', '<', datetime.date(YEARint,1,1)),
+                    [('date_actual', '<', date(YEARint,1,1)),
                      ('budget_state', '=', 'fixed'),
                      ('project_id', '=', project.project_id),
                      ], limit=1, order='date_actual desc')
@@ -2755,6 +2755,113 @@ class report_management_committee_excel(models.AbstractModel):
 
         return row, formulaItogo
 
+    def print_external_data(self, workbook, sheet, row, external_data, params):
+        global dict_formula
+
+        row_format_company = workbook.add_format({
+            'border': 1,
+            'font_size': 12,
+            "bold": True,
+            "num_format": '#,##0',
+            "top": 2,
+        })
+        row_format_company_plan = workbook.add_format({
+            'border': 1,
+            'font_size': 12,
+            "bold": True,
+            "num_format": '#,##0',
+            "top": 2,
+            'fg_color': '#D9E1F2',
+        })
+        row_format_company_fact = workbook.add_format({
+            'border': 1,
+            'font_size': 12,
+            "bold": True,
+            "num_format": '#,##0',
+            "top": 2,
+            "fg_color": '#C6E0B4',
+        })
+        row_format_company_percent = workbook.add_format({
+            'border': 1,
+            'font_size': 12,
+            "bold": True,
+            'num_format': '0.00%',
+            "top": 2,
+            "fg_color": '#ffff99',
+        })
+        row_format_company_forecast = workbook.add_format({
+            'border': 1,
+            'font_size': 12,
+            "bold": True,
+            "num_format": '#,##0',
+            "top": 2,
+            "fg_color": '#E2EFDA',
+        })
+        row_format_company_next = workbook.add_format({
+            'border': 1,
+            'font_size': 12,
+            "bold": True,
+            "num_format": '#,##0',
+            "top": 2,
+            "fg_color": '#F3F8F0',
+        })
+        row_format_company_empty = workbook.add_format({
+            "fg_color": '#F2F2F2',
+        })
+
+        company = external_data.company_id
+        row += 1
+        dict_formula['company_ids'][company.id] = row
+
+        data_list = external_data.data.split(',')
+
+        data_list.pop(80)  # удаляем Потенциал ПДС следующего года
+
+        column = 0
+
+        sheet.write_string(row, column, company.name, row_format_company)
+        if params['report_with_projects']:
+            sheet.merge_range(row, column + 1, row, column + params["shift"], '', row_format_company)
+
+        table_shift = -1
+        shift = params["shift"]
+        m_shift = params["margin_shift"]
+        for i in range(0, 4):  # оформление строки Компания
+            for colFormula in range(0, 7):
+                col = i * (m_shift - 6) + colFormula * 5 + 1
+                sheet.write_number(row, col + shift, float(data_list[col + table_shift]), row_format_company_plan)
+                col = i * (m_shift - 6) + colFormula * 5 + 2
+                sheet.write_number(row, col + shift, float(data_list[col + table_shift]), row_format_company_plan)
+                col = i * (m_shift - 6) + colFormula * 5 + 3
+                sheet.write_number(row, col + shift, float(data_list[col + table_shift]), row_format_company_fact)
+                if colFormula in (2, 6):
+                    col = i * (m_shift - 6) + colFormula * 5 + 4
+                    formula = f'=IFERROR({xl_col_to_name(col + shift - 1)}{row + 1}/{xl_col_to_name(col + shift - 2)}{row + 1}," ")'
+                    sheet.write_formula(row, col + shift, formula, row_format_company_percent)
+                    shift += 1
+                    table_shift += 1
+                col = i * (m_shift - 6) + colFormula * 5 + 4
+                sheet.write_number(row, col + shift, float(data_list[col + table_shift]), row_format_company_forecast)
+                col = i * (m_shift - 6) + colFormula * 5 + 5
+                sheet.write_number(row, col + shift, float(data_list[col + table_shift]), row_format_company_forecast)
+            if i == 1:  # ПДС
+                for x in range(3):
+                    col = (i + 1) * (m_shift - 6) + x + 1
+                    sheet.write_number(row, col + shift, float(data_list[col + table_shift]), row_format_company_next)
+                shift += 3
+                table_shift += 3
+            else:
+                for x in range(4):
+                    col = (i + 1) * (m_shift - 6) + x + 1
+                    sheet.write_number(row, col + shift, float(data_list[col + table_shift]), row_format_company_next)
+                shift += 4
+                table_shift += 4
+
+        if params['report_with_projects']:
+            row += 1
+            sheet.set_row(row, 14, row_format_company_empty, {'hidden': 1, 'level': 1})
+        return row
+
     def printworksheet(self, workbook, budget, namesheet, params):
         global strYEAR
         global YEARint
@@ -2966,6 +3073,26 @@ class report_management_committee_excel(models.AbstractModel):
 
         row, formulaItogo = self.printrow(sheet, workbook, companies, project_offices, budget, row, formulaItogo, 1,
                                           params)
+
+        # печатаем данные из внешних источников
+        if budget.date_actual:
+            current_date = budget.date_actual
+        else:
+            current_date = date.today()
+
+        current_week_start = current_date - timedelta(days=current_date.isocalendar()[2] - 1)
+        current_week_end = current_date + timedelta(days=(7 - current_date.isocalendar()[2]))
+        previous_week_start = current_date - timedelta(days=current_date.isocalendar()[2] + 6)
+
+        for company in companies:
+            external_data = self.env['project_budget.report_external_data'].search([
+                ('report_date', '>=', current_week_start),
+                ('report_date', '<=', current_week_end),
+                ('company_id', '=', company.id),
+            ], order='report_date', limit=1)
+            if external_data:
+                row = self.print_external_data(workbook, sheet, row, external_data, params)
+        # end печатаем данные из внешних источников
 
         row += 1
         column = 0
