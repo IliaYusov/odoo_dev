@@ -3,6 +3,7 @@
     'version': '16.0.1.1.2',
     'category': 'Project',
     'depends': ['base', 'mail', 'hr'],
+    'external_dependencies': {'python': ['openpyxl']},
     'description': """
     """,
     'author': 'lapus',
