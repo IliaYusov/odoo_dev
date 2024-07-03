@@ -3091,7 +3091,6 @@ class report_management_committee_excel(models.AbstractModel):
                 ('report_date', '<=', current_week_end),
                 ('company_id', '=', company.id),
             ], order='report_date desc', limit=1)
-            print("external_data.report_date", external_data.report_date)
             if external_data:
                 row = self.print_external_data(workbook, sheet, row, external_data, params)
         # end печатаем данные из внешних источников
