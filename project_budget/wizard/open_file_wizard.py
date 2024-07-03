@@ -18,7 +18,7 @@ class OpenFileWizard(models.TransientModel):
         wb = load_workbook(file_name, read_only=True, data_only=True)
         ws = wb.active
         data = []
-        for record in ws.iter_rows(min_row=30, max_row=30, min_col=4, max_col=None, values_only=True):
+        for record in ws.iter_rows(min_row=6, max_row=6, min_col=4, max_col=None, values_only=True):
             data = str(record).strip('()')
         if data:
             self.env['project_budget.report_external_data'].create({

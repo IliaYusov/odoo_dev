@@ -8,6 +8,6 @@ class ReportExternalData(models.Model):
     _rec_name = 'report_date'
 
     company_id = fields.Many2one('res.company', string='Company', required=True)
-    report_date = fields.Datetime(string='Report Date', default=fields.datetime.now())
+    report_date = fields.Date(string='Report Date', default=fields.date.today())
     data = fields.Text(string='Data')
     file = fields.Binary(string='File')

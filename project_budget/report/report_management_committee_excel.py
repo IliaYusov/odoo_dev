@@ -3076,13 +3076,15 @@ class report_management_committee_excel(models.AbstractModel):
 
         # печатаем данные из внешних источников
         if budget.date_actual:
-            current_date = budget.date_actual
+            current_date = budget.date_actual.date()
         else:
             current_date = date.today()
 
         current_week_start = current_date - timedelta(days=current_date.isocalendar()[2] - 1)
         current_week_end = current_date + timedelta(days=(7 - current_date.isocalendar()[2]))
         previous_week_start = current_date - timedelta(days=current_date.isocalendar()[2] + 6)
+
+        print('current_date', current_date, current_week_start, current_week_end)
 
         for company in companies:
             external_data = self.env['project_budget.report_external_data'].search([
