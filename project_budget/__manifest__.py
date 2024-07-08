@@ -50,6 +50,7 @@
         'wizard/project_budget_link_project.xml',
         'data/ir_action_data.xml',
         'report/project_budget_project_overdue_report_views.xml',
+        'report/project_budget_financial_data_report_views.xml',
         'wizard/open_file_wizard.xml',
         'report/project_budget_report_external_data_views.xml',
         'views/project_budget_menu.xml',
