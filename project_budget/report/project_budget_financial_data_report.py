@@ -60,9 +60,9 @@ FROM
         'contracting' AS type,
         '' AS probability
     FROM project_budget_projects p
-    INNER JOIN project_budget_project_stage st ON st.id = p.stage_id AND COALESCE(st.fold, false) = false
+    INNER JOIN project_budget_project_stage st ON st.id = p.stage_id
     INNER JOIN project_budget_project_office po ON po.id = p.project_office_id
-    WHERE p.budget_state = 'work' AND p.active = true AND step_status = 'project' AND p.project_have_steps = false
+    WHERE p.budget_state = 'work' AND step_status = 'project' AND p.project_have_steps = false
     UNION
     SELECT
         ps.company_id,
@@ -80,9 +80,9 @@ FROM
         'contracting' AS type,
         '' AS probability
     FROM project_budget_projects ps
-    INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id AND p.budget_state = 'work' AND p.active = true
+    INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id AND p.budget_state = 'work'
     AND p.project_have_steps = true AND ps.step_status = 'step'
-    INNER JOIN project_budget_project_stage st ON st.id = ps.stage_id AND COALESCE(st.fold, false) = false
+    INNER JOIN project_budget_project_stage st ON st.id = ps.stage_id
     UNION
     SELECT
         p.company_id,
@@ -100,10 +100,10 @@ FROM
         'cash' AS type,
         pc.forecast AS probability
     FROM project_budget_projects p
-    INNER JOIN project_budget_project_stage st ON st.id = p.stage_id AND COALESCE(st.fold, false) = false
+    INNER JOIN project_budget_project_stage st ON st.id = p.stage_id
     INNER JOIN project_budget_project_office po ON po.id = p.project_office_id
     INNER JOIN project_budget_planned_cash_flow pc ON pc.projects_id = p.id
-    INNER JOIN project_budget_distribution_cash dcc ON dcc.planned_cash_flow_id = pc.id
+    LEFT JOIN project_budget_distribution_cash dcc ON dcc.planned_cash_flow_id = pc.id
     INNER JOIN res_currency c ON c.id = p.currency_id	
     LEFT JOIN
     (
@@ -111,7 +111,7 @@ FROM
         FROM project_budget_distribution_cash
         GROUP BY planned_cash_flow_id
     ) AS da ON da.planned_cash_flow_id = pc.id
-    WHERE p.budget_state = 'work' AND p.active = true AND step_status = 'project' AND p.project_have_steps = false
+    WHERE p.budget_state = 'work' AND step_status = 'project' AND p.project_have_steps = false
     UNION
     SELECT
         ps.company_id,
@@ -129,11 +129,11 @@ FROM
         'cash' AS type,
         pc.forecast AS probability
     FROM project_budget_projects ps
-    INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id AND p.budget_state = 'work' AND p.active = true
+    INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id AND p.budget_state = 'work'
     AND p.project_have_steps = true AND ps.step_status = 'step'
-    INNER JOIN project_budget_project_stage st ON st.id = ps.stage_id AND COALESCE(st.fold, false) = false
+    INNER JOIN project_budget_project_stage st ON st.id = ps.stage_id
     INNER JOIN project_budget_planned_cash_flow pc ON pc.step_project_child_id = ps.id
-    INNER JOIN project_budget_distribution_cash dcc ON dcc.planned_cash_flow_id = pc.id
+    LEFT JOIN project_budget_distribution_cash dcc ON dcc.planned_cash_flow_id = pc.id
     INNER JOIN res_currency c ON c.id = ps.currency_id	
     LEFT JOIN
     (
@@ -158,10 +158,10 @@ FROM
         'cash' AS type,
         'fact' AS probability
     FROM project_budget_projects p
-    INNER JOIN project_budget_project_stage st ON st.id = p.stage_id AND COALESCE(st.fold, false) = false
+    INNER JOIN project_budget_project_stage st ON st.id = p.stage_id
     INNER JOIN project_budget_project_office po ON po.id = p.project_office_id
     INNER JOIN project_budget_fact_cash_flow fc ON fc.projects_id = p.id
-    WHERE p.budget_state = 'work' AND p.active = true AND step_status = 'project' AND p.project_have_steps = false
+    WHERE p.budget_state = 'work' AND step_status = 'project' AND p.project_have_steps = false
     UNION
     SELECT
         ps.company_id,
@@ -179,9 +179,9 @@ FROM
         'cash' AS type,
         'fact' AS probability
     FROM project_budget_projects ps
-    INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id AND p.budget_state = 'work' AND p.active = true
+    INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id AND p.budget_state = 'work'
     AND p.project_have_steps = true AND ps.step_status = 'step'
-    INNER JOIN project_budget_project_stage st ON st.id = ps.stage_id AND COALESCE(st.fold, false) = false
+    INNER JOIN project_budget_project_stage st ON st.id = ps.stage_id
     INNER JOIN project_budget_fact_cash_flow fc ON fc.step_project_child_id = ps.id
     UNION
     SELECT
@@ -200,10 +200,10 @@ FROM
         'acceptance' AS type,
         pa.forecast AS probability
     FROM project_budget_projects p
-    INNER JOIN project_budget_project_stage st ON st.id = p.stage_id AND COALESCE(st.fold, false) = false
+    INNER JOIN project_budget_project_stage st ON st.id = p.stage_id
     INNER JOIN project_budget_project_office po ON po.id = p.project_office_id
     INNER JOIN project_budget_planned_acceptance_flow pa ON pa.projects_id = p.id
-    INNER JOIN project_budget_distribution_acceptance dac ON dac.planned_acceptance_flow_id = pa.id
+    LEFT JOIN project_budget_distribution_acceptance dac ON dac.planned_acceptance_flow_id = pa.id
     INNER JOIN res_currency c ON c.id = p.currency_id	
     LEFT JOIN
     (
@@ -211,7 +211,7 @@ FROM
         FROM project_budget_distribution_acceptance
         GROUP BY planned_acceptance_flow_id
     ) AS da ON da.planned_acceptance_flow_id = pa.id
-    WHERE p.budget_state = 'work' AND p.active = true AND step_status = 'project' AND p.project_have_steps = false
+    WHERE p.budget_state = 'work' AND step_status = 'project' AND p.project_have_steps = false
     UNION
     SELECT
         ps.company_id,
@@ -229,11 +229,11 @@ FROM
         'acceptance' AS type,
         pa.forecast AS probability
     FROM project_budget_projects ps
-    INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id AND p.budget_state = 'work' AND p.active = true
+    INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id AND p.budget_state = 'work'
     AND p.project_have_steps = true AND ps.step_status = 'step'
-    INNER JOIN project_budget_project_stage st ON st.id = ps.stage_id AND COALESCE(st.fold, false) = false
+    INNER JOIN project_budget_project_stage st ON st.id = ps.stage_id
     INNER JOIN project_budget_planned_acceptance_flow pa ON pa.step_project_child_id = ps.id
-    INNER JOIN project_budget_distribution_acceptance dac ON dac.planned_acceptance_flow_id = pa.id
+    LEFT JOIN project_budget_distribution_acceptance dac ON dac.planned_acceptance_flow_id = pa.id
     INNER JOIN res_currency c ON c.id = ps.currency_id	
     LEFT JOIN
     (
@@ -258,10 +258,10 @@ FROM
         'acceptance' AS type,
         'fact' AS probability
     FROM project_budget_projects p
-    INNER JOIN project_budget_project_stage st ON st.id = p.stage_id AND COALESCE(st.fold, false) = false
+    INNER JOIN project_budget_project_stage st ON st.id = p.stage_id
     INNER JOIN project_budget_project_office po ON po.id = p.project_office_id
     INNER JOIN project_budget_fact_acceptance_flow fa ON fa.projects_id = p.id
-    WHERE p.budget_state = 'work' AND p.active = true AND step_status = 'project' AND p.project_have_steps = false
+    WHERE p.budget_state = 'work' AND step_status = 'project' AND p.project_have_steps = false
     UNION
     SELECT
         ps.company_id,
@@ -279,9 +279,9 @@ FROM
         'acceptance' AS type,
         'fact' AS probability
     FROM project_budget_projects ps
-    INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id AND p.budget_state = 'work' AND p.active = true
+    INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id AND p.budget_state = 'work'
     AND p.project_have_steps = true AND ps.step_status = 'step'
-    INNER JOIN project_budget_project_stage st ON st.id = ps.stage_id AND COALESCE(st.fold, false) = false
+    INNER JOIN project_budget_project_stage st ON st.id = ps.stage_id
     INNER JOIN project_budget_fact_acceptance_flow fa ON fa.step_project_child_id = ps.id
     UNION
     SELECT
@@ -300,10 +300,10 @@ FROM
         'margin_income' AS type,
         'fact' AS probability
     FROM project_budget_projects p
-    INNER JOIN project_budget_project_stage st ON st.id = p.stage_id AND COALESCE(st.fold, false) = false
+    INNER JOIN project_budget_project_stage st ON st.id = p.stage_id
     INNER JOIN project_budget_project_office po ON po.id = p.project_office_id
     INNER JOIN project_budget_fact_acceptance_flow fa ON fa.projects_id = p.id
-    WHERE p.budget_state = 'work' AND p.active = true AND step_status = 'project' AND p.project_have_steps = false
+    WHERE p.budget_state = 'work' AND step_status = 'project' AND p.project_have_steps = false
     UNION
     SELECT
         ps.company_id,
@@ -321,9 +321,9 @@ FROM
         'margin_income' AS type,
         'fact' AS probability
     FROM project_budget_projects ps
-    INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id AND p.budget_state = 'work' AND p.active = true
+    INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id AND p.budget_state = 'work'
     AND p.project_have_steps = true AND ps.step_status = 'step'
-    INNER JOIN project_budget_project_stage st ON st.id = ps.stage_id AND COALESCE(st.fold, false) = false
+    INNER JOIN project_budget_project_stage st ON st.id = ps.stage_id
     INNER JOIN project_budget_fact_acceptance_flow fa ON fa.step_project_child_id = ps.id
 UNION
     SELECT
@@ -336,16 +336,16 @@ UNION
         p.partner_id,
         p.essence_project AS name,
         pa.date_cash AS date,
-        ROUND(pa.sum_cash_without_vat, c.decimal_places) - ROUND(COALESCE(da.sum_distr_cash, 0), c.decimal_places) * p.profitability / 100 AS amount,
+        (ROUND(pa.sum_cash_without_vat, c.decimal_places) - ROUND(COALESCE(da.sum_distr_cash, 0), c.decimal_places)) * p.profitability / 100 AS amount,
         p.currency_id AS currency_id,
         dac.sum_cash_without_vat * p.profitability / 100 AS distribution,
         'margin_income' AS type,
         pa.forecast AS probability
     FROM project_budget_projects p
-    INNER JOIN project_budget_project_stage st ON st.id = p.stage_id AND COALESCE(st.fold, false) = false
+    INNER JOIN project_budget_project_stage st ON st.id = p.stage_id
     INNER JOIN project_budget_project_office po ON po.id = p.project_office_id
     INNER JOIN project_budget_planned_acceptance_flow pa ON pa.projects_id = p.id
-    INNER JOIN project_budget_distribution_acceptance dac ON dac.planned_acceptance_flow_id = pa.id
+    LEFT JOIN project_budget_distribution_acceptance dac ON dac.planned_acceptance_flow_id = pa.id
     INNER JOIN res_currency c ON c.id = p.currency_id	
     LEFT JOIN
     (
@@ -353,7 +353,7 @@ UNION
         FROM project_budget_distribution_acceptance
         GROUP BY planned_acceptance_flow_id
     ) AS da ON da.planned_acceptance_flow_id = pa.id
-    WHERE p.budget_state = 'work' AND p.active = true AND step_status = 'project' AND p.project_have_steps = false
+    WHERE p.budget_state = 'work' AND step_status = 'project' AND p.project_have_steps = false
     UNION
     SELECT
         ps.company_id,
@@ -365,17 +365,17 @@ UNION
         ps.partner_id,
         p.essence_project AS name,
         pa.date_cash AS date,
-        ROUND(pa.sum_cash_without_vat, c.decimal_places) - ROUND(COALESCE(da.sum_distr_cash, 0), c.decimal_places) * ps.profitability / 100 AS amount,
+        (ROUND(pa.sum_cash_without_vat, c.decimal_places) - ROUND(COALESCE(da.sum_distr_cash, 0), c.decimal_places)) * ps.profitability / 100 AS amount,
         ps.currency_id AS currency_id,
         dac.sum_cash_without_vat * ps.profitability / 100 AS distribution,
         'margin_income' AS type,
         pa.forecast AS probability
     FROM project_budget_projects ps
-    INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id AND p.budget_state = 'work' AND p.active = true
+    INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id AND p.budget_state = 'work'
     AND p.project_have_steps = true AND ps.step_status = 'step'
-    INNER JOIN project_budget_project_stage st ON st.id = ps.stage_id AND COALESCE(st.fold, false) = false
+    INNER JOIN project_budget_project_stage st ON st.id = ps.stage_id
     INNER JOIN project_budget_planned_acceptance_flow pa ON pa.step_project_child_id = ps.id
-    INNER JOIN project_budget_distribution_acceptance dac ON dac.planned_acceptance_flow_id = pa.id
+    LEFT JOIN project_budget_distribution_acceptance dac ON dac.planned_acceptance_flow_id = pa.id
     INNER JOIN res_currency c ON c.id = ps.currency_id	
     LEFT JOIN
     (
