@@ -545,7 +545,7 @@
                         <button string="Delete" type="object" class="btn-danger" name="unlink" attrs="{'invisible': ['|','|',('approve_state', '!=', 'need_approve_manager'),('budget_state', '=', 'fixed'),('id', '=', False)]}"/>
                         <button string="Send to approve" type="object" name="set_approve_manager" class="oe_highlight" attrs="{'invisible': ['|',('approve_state', '!=', 'need_approve_manager'),('budget_state', '=', 'fixed')]}"/>
                         <button string="Approve" type="object" name="set_approve_supervisor" class="oe_highlight" attrs="{'invisible': ['|',('approve_state', '!=', 'need_approve_supervisor'),('budget_state', '=', 'fixed')]}"/>
-                        <button string="Decline" type="object" name="cancel_approve" class="oe_highlight" attrs="{'invisible': ['|',('approve_state', 'not in', ('approved','need_approve_supervisor')),('budget_state', '=', 'fixed')]}"/>
+                        <button string="Decline" type="object" name="cancel_approve" class="oe_highlight" context="{'cancel_approve': True}" attrs="{'invisible': ['|',('approve_state', 'not in', ('approved','need_approve_supervisor')),('budget_state', '=', 'fixed')]}"/>
                         <button string="Reopen" type="object" name="reopen" class="oe_highlight" groups="project_budget.project_budget_admin" attrs="{'invisible': ['|',('approve_state', '!=', '-'),('budget_state', '=', 'fixed')]}"/>
                         <field name="approve_state" widget="statusbar" statusbar_visible="need_approve_manager,need_approve_supervisor,approved"/>
                     </header>

@@ -1542,11 +1542,11 @@ class Project(models.Model):
     def write(self, vals):
         self._check_required_fields(vals)
         for row in self:
-            if row.env.context.get('form_fix_budget'):
+            if row.env.context.get('form_fix_budget') or row.env.context.get('cancel_approve'):
             # TODO не проверять проекты при добавлении их в качестве дочерних
                 # or self.env.context.get('form_view_projects'): ##из коммерческих бюджетов фиксация идет или  дублируем сделку из формы
                 f = 1
-                print('form_fix_budget')
+                print('form_fix_budget or cancel_approve')
             else:
                 if row.approve_state == 'need_approve_manager':
                     isok, raisetext,emptydict = row.check_overdue_date(vals)
