@@ -1724,7 +1724,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                         if isFoundProjectsByProbability:
                             row += 1
                             column = 0
-                            sheet.merge_range(row, column, row, column + 1, project_manager.name + ' ' + stage.code
+                            sheet.merge_range(row, column, row, column + 3, project_manager.name + ' ' + stage.code
                                                + ' %', row_format_probability)
                             sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 2})
 
@@ -1746,7 +1746,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                     if isFoundProjectsByManager:
                         row += 1
                         column = 0
-                        sheet.merge_range(row, column, row, column + 1, 'ИТОГО: ' + project_manager.name, row_format_manager)
+                        sheet.merge_range(row, column, row, column + 3, 'ИТОГО: ' + project_manager.name, row_format_manager)
                         sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 1})
                         # print('setrow manager  row = ', row)
                         # print('setrow manager level = ', level)
@@ -1763,7 +1763,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                         # расчетный план КАМа
                         row += 1
                         column = 0
-                        sheet.merge_range(row, column, row, column + 1, 'ИТОГО: Расчетный План по ' + project_manager.name, row_format_manager_estimated_plan_left)
+                        sheet.merge_range(row, column, row, column + 3, 'ИТОГО: Расчетный План по ' + project_manager.name, row_format_manager_estimated_plan_left)
                         sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
 
                         self.print_estimated_rows(sheet, row, row_format_manager_estimated_plan, row_format_manager_estimated_plan_cross)
@@ -1911,7 +1911,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 if isFoundProjectsByOffice:
                     row += 1
                     column = 0
-                    sheet.merge_range(row, column, row, column + 1, 'ИТОГО ' + project_office.name, row_format_office)
+                    sheet.merge_range(row, column, row, column + 3, 'ИТОГО ' + project_office.name, row_format_office)
                     sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
 
                     if not project_office.parent_id:
@@ -1959,7 +1959,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                     column = 0
                     # sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
                     # print('setrow level1 row = ', row)
-                    sheet.merge_range(row, column, row, column + 1, 'ИТОГО ' + project_office.name  + ' Расчетный План:', row_format_office_estimated_plan_left)
+                    sheet.merge_range(row, column, row, column + 3, 'ИТОГО ' + project_office.name  + ' Расчетный План:', row_format_office_estimated_plan_left)
                     self.print_estimated_rows(sheet, row, row_format_office_estimated_plan,
                                               row_format_office_estimated_plan_cross)
 
@@ -2106,7 +2106,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                     continue
                 row += 1
                 column = 0
-                sheet.merge_range(row, column, row, column + 1, 'ИТОГО ' + company.name, row_format_number_itogo)
+                sheet.merge_range(row, column, row, column + 3, 'ИТОГО ' + company.name, row_format_number_itogo)
                 sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
 
                 str_company_id = 'company_' + str(int(company.id))
@@ -2130,7 +2130,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 row += 1
                 column = 0
 
-                sheet.merge_range(row, column, row, column + 1, 'ИТОГО ' + company.name + ' Расчетный План:',
+                sheet.merge_range(row, column, row, column + 3, 'ИТОГО ' + company.name + ' Расчетный План:',
                                    row_format_company_estimated_plan_left)
                 self.print_estimated_rows(sheet, row, row_format_company_estimated_plan,
                                           row_format_company_estimated_plan_cross)
@@ -2549,7 +2549,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         # ИТОГО
         row += 1
         column = 0
-        sheet.merge_range(row, column, row, column + 1, 'ИТОГО по отчету', row_format_number_itogo)
+        sheet.merge_range(row, column, row, column + 3, 'ИТОГО по отчету', row_format_number_itogo)
         formula_itogo = False
         formula_plan = False
         if dict_formula['companies_lines']:
@@ -2571,7 +2571,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         # расчетный план по отчету
         row += 1
         column = 0
-        sheet.merge_range(row, column, row, column + 1, 'ИТОГО: Расчетный План по отчету', row_format_itogo_estimated_plan_left)
+        sheet.merge_range(row, column, row, column + 3, 'ИТОГО: Расчетный План по отчету', row_format_itogo_estimated_plan_left)
         self.print_estimated_rows(sheet, row, row_format_itogo_estimated_plan,
                                   row_format_itogo_estimated_plan_cross)
 
