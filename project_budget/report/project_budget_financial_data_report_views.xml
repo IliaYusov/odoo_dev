@@ -27,6 +27,7 @@
                 <field name="name"/>
                 <field name="stage_id" string="Stage" context="{'code_only': True}"
                        options="{'always_reload': True}"/>
+                <field name="profitability"/>
                 <field name="type"/>
                 <field name="probability"/>
                 <field name="date"/>
