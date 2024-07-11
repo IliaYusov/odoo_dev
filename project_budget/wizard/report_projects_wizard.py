@@ -23,6 +23,7 @@ class report_projects_wizard(models.TransientModel):
         ('management_committee', 'Management Committee'),
         ('pds_acceptance_by_date', 'PDS, Acceptance'),
         ('pds_weekly', 'PDS weekly'),
+        ('week_to_week', 'Week to Week'),
     ],
         required=True, default='kb')
     commercial_budget_id = fields.Many2one('project_budget.commercial_budget', string='commercial_budget-',required=True
@@ -98,3 +99,6 @@ class report_projects_wizard(models.TransientModel):
 
         if self.type_report == 'pds_weekly':
             return self.env.ref('project_budget.action_projects_list_report_xlsx_pds_weekly').report_action(self, data=datas)
+
+        if self.type_report == 'week_to_week':
+            return self.env.ref('project_budget.action_projects_list_report_xlsx_week_to_week').report_action(self, data=datas)
