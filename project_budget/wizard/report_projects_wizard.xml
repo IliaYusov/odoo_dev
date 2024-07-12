@@ -30,6 +30,9 @@
                     </group>
                     <group col ="2">
                         <group>
+                            <field name="past_commercial_budget_id"
+                                   attrs="{'invisible': [('type_report', 'not in', ('week_to_week',))]}"
+                            />
                             <field name="commercial_budget_id"/>
                             <field name="project_office_ids" widget="many2many_tags"
                                    options="{'no_create_edit': True}"
@@ -47,7 +50,7 @@
                             <field string="from date" name="date_start" attrs="{'invisible': [('type_report', 'not in', ('pds_acceptance_by_date'))]}"/>
                         </group>
                         <group>
-                            <field string="year to" name="year_end" attrs="{'invisible': [('type_report', 'in', ('raw_data','overdue','management_committee','pds_acceptance_by_date', 'pds_weekly', 'forecast_v2', 'plan_fact'))]}"/>
+                            <field string="year to" name="year_end" attrs="{'invisible': [('type_report', 'in', ('week_to_week', 'raw_data','overdue','management_committee','pds_acceptance_by_date', 'pds_weekly', 'forecast_v2', 'plan_fact'))]}"/>
                             <field string="to date" name="date_end" attrs="{'invisible': [('type_report', 'not in', ('pds_acceptance_by_date'))]}"/>
                         </group>
                         <group></group>

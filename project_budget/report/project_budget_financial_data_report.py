@@ -24,6 +24,7 @@ class FinancialDataReport(models.Model):
     distribution = fields.Monetary(string='Distribution', readonly=True)
     currency_id = fields.Many2one('res.currency', string='Currency', readonly=True)
     profitability = fields.Float(string='Profitability', readonly=True)
+    commercial_budget_id = fields.Many2one('project_budget.commercial_budget', string='Commercial Budget', readonly=True)
 
     def init(self):
         query = """
@@ -43,7 +44,8 @@ SELECT
     distribution,
     currency_id,
     probability,
-    profitability
+    profitability,
+    commercial_budget_id
 FROM
 (
     SELECT
@@ -61,11 +63,12 @@ FROM
         ((p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue * 100) AS profitability,
         0 AS distribution,
         'contracting' AS type,
-        '' AS probability
+        '' AS probability,
+        p.commercial_budget_id AS commercial_budget_id
     FROM project_budget_projects p
     INNER JOIN project_budget_project_stage st ON st.id = p.stage_id
     INNER JOIN project_budget_project_office po ON po.id = p.project_office_id
-    WHERE p.budget_state = 'work' AND step_status = 'project' AND p.project_have_steps = false AND p.total_amount_of_revenue_with_vat != 0
+    WHERE step_status = 'project' AND p.project_have_steps = false AND p.total_amount_of_revenue_with_vat != 0
     UNION
     SELECT
         ps.company_id,
@@ -82,9 +85,10 @@ FROM
         ((ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue * 100) AS profitability,
         0 AS distribution,
         'contracting' AS type,
-        '' AS probability
+        '' AS probability,
+        ps.commercial_budget_id AS commercial_budget_id
     FROM project_budget_projects ps
-    INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id AND p.budget_state = 'work'
+    INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id
     AND p.project_have_steps = true AND ps.step_status = 'step'
     INNER JOIN project_budget_project_stage st ON st.id = ps.stage_id
     WHERE ps.total_amount_of_revenue_with_vat != 0
@@ -104,7 +108,8 @@ FROM
         ((p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue * 100) AS profitability,
         dcc.sum_cash AS distribution,
         'cash' AS type,
-        pc.forecast AS probability
+        pc.forecast AS probability,
+        p.commercial_budget_id AS commercial_budget_id
     FROM project_budget_projects p
     INNER JOIN project_budget_project_stage st ON st.id = p.stage_id
     INNER JOIN project_budget_project_office po ON po.id = p.project_office_id
@@ -117,7 +122,7 @@ FROM
         FROM project_budget_distribution_cash
         GROUP BY planned_cash_flow_id
     ) AS da ON da.planned_cash_flow_id = pc.id
-    WHERE p.budget_state = 'work' AND step_status = 'project' AND p.project_have_steps = false 
+    WHERE step_status = 'project' AND p.project_have_steps = false 
     AND ROUND(pc.sum_cash, c.decimal_places) - ROUND(COALESCE(da.sum_distr_cash, 0), c.decimal_places) != 0
     UNION
     SELECT
@@ -135,9 +140,10 @@ FROM
         ((ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue * 100) AS profitability,
         dcc.sum_cash AS distribution,
         'cash' AS type,
-        pc.forecast AS probability
+        pc.forecast AS probability,
+        ps.commercial_budget_id AS commercial_budget_id
     FROM project_budget_projects ps
-    INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id AND p.budget_state = 'work'
+    INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id
     AND p.project_have_steps = true AND ps.step_status = 'step'
     INNER JOIN project_budget_project_stage st ON st.id = ps.stage_id
     INNER JOIN project_budget_planned_cash_flow pc ON pc.step_project_child_id = ps.id
@@ -166,12 +172,13 @@ FROM
         ((p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue * 100) AS profitability,
         0 AS distribution,
         'cash' AS type,
-        'fact' AS probability
+        'fact' AS probability,
+        p.commercial_budget_id AS commercial_budget_id
     FROM project_budget_projects p
     INNER JOIN project_budget_project_stage st ON st.id = p.stage_id
     INNER JOIN project_budget_project_office po ON po.id = p.project_office_id
     INNER JOIN project_budget_fact_cash_flow fc ON fc.projects_id = p.id
-    WHERE p.budget_state = 'work' AND step_status = 'project' AND p.project_have_steps = false
+    WHERE step_status = 'project' AND p.project_have_steps = false
     UNION
     SELECT
         ps.company_id,
@@ -188,9 +195,10 @@ FROM
         ((ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue * 100) AS profitability,
         0 AS distribution,
         'cash' AS type,
-        'fact' AS probability
+        'fact' AS probability,
+        ps.commercial_budget_id AS commercial_budget_id
     FROM project_budget_projects ps
-    INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id AND p.budget_state = 'work'
+    INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id
     AND p.project_have_steps = true AND ps.step_status = 'step'
     INNER JOIN project_budget_project_stage st ON st.id = ps.stage_id
     INNER JOIN project_budget_fact_cash_flow fc ON fc.step_project_child_id = ps.id
@@ -210,7 +218,8 @@ FROM
         ((p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue * 100) AS profitability,
         dac.sum_cash_without_vat AS distribution,
         'acceptance' AS type,
-        pa.forecast AS probability
+        pa.forecast AS probability,
+        p.commercial_budget_id AS commercial_budget_id
     FROM project_budget_projects p
     INNER JOIN project_budget_project_stage st ON st.id = p.stage_id
     INNER JOIN project_budget_project_office po ON po.id = p.project_office_id
@@ -223,7 +232,7 @@ FROM
         FROM project_budget_distribution_acceptance
         GROUP BY planned_acceptance_flow_id
     ) AS da ON da.planned_acceptance_flow_id = pa.id
-    WHERE p.budget_state = 'work' AND step_status = 'project' AND p.project_have_steps = false 
+    WHERE step_status = 'project' AND p.project_have_steps = false 
     AND ROUND(pa.sum_cash_without_vat, c.decimal_places) - ROUND(COALESCE(da.sum_distr_cash, 0), c.decimal_places) != 0
     UNION
     SELECT
@@ -241,9 +250,10 @@ FROM
         ((ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue * 100) AS profitability,
         dac.sum_cash_without_vat AS distribution,
         'acceptance' AS type,
-        pa.forecast AS probability
+        pa.forecast AS probability,
+        ps.commercial_budget_id AS commercial_budget_id
     FROM project_budget_projects ps
-    INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id AND p.budget_state = 'work'
+    INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id
     AND p.project_have_steps = true AND ps.step_status = 'step'
     INNER JOIN project_budget_project_stage st ON st.id = ps.stage_id
     INNER JOIN project_budget_planned_acceptance_flow pa ON pa.step_project_child_id = ps.id
@@ -272,12 +282,13 @@ FROM
         ((p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue * 100) AS profitability,
         0 AS distribution,
         'acceptance' AS type,
-        'fact' AS probability
+        'fact' AS probability,
+        p.commercial_budget_id AS commercial_budget_id
     FROM project_budget_projects p
     INNER JOIN project_budget_project_stage st ON st.id = p.stage_id
     INNER JOIN project_budget_project_office po ON po.id = p.project_office_id
     INNER JOIN project_budget_fact_acceptance_flow fa ON fa.projects_id = p.id
-    WHERE p.budget_state = 'work' AND step_status = 'project' AND p.project_have_steps = false
+    WHERE step_status = 'project' AND p.project_have_steps = false
     UNION
     SELECT
         ps.company_id,
@@ -294,9 +305,10 @@ FROM
         ((ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue * 100) AS profitability,
         0 AS distribution,
         'acceptance' AS type,
-        'fact' AS probability
+        'fact' AS probability,
+        ps.commercial_budget_id AS commercial_budget_id
     FROM project_budget_projects ps
-    INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id AND p.budget_state = 'work'
+    INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id
     AND p.project_have_steps = true AND ps.step_status = 'step'
     INNER JOIN project_budget_project_stage st ON st.id = ps.stage_id
     INNER JOIN project_budget_fact_acceptance_flow fa ON fa.step_project_child_id = ps.id
@@ -313,18 +325,19 @@ FROM
         fa.date_cash AS date,
         CASE
             WHEN fa.margin_manual_input = true THEN fa.margin
-            WHEN fa.margin_manual_input = false THEN (fa.sum_cash_without_vat * (p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue)
+            ELSE (fa.sum_cash_without_vat * (p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue)
         END AS amount,
         p.currency_id AS currency_id,
         ((p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue * 100) AS profitability,
         0 AS distribution,
         'margin_income' AS type,
-        'fact' AS probability
+        'fact' AS probability,
+        p.commercial_budget_id AS commercial_budget_id
     FROM project_budget_projects p
     INNER JOIN project_budget_project_stage st ON st.id = p.stage_id
     INNER JOIN project_budget_project_office po ON po.id = p.project_office_id
     INNER JOIN project_budget_fact_acceptance_flow fa ON fa.projects_id = p.id
-    WHERE p.budget_state = 'work' AND step_status = 'project' AND p.project_have_steps = false
+    WHERE step_status = 'project' AND p.project_have_steps = false
     UNION
     SELECT
         ps.company_id,
@@ -338,15 +351,16 @@ FROM
         fa.date_cash AS date,
         CASE
             WHEN fa.margin_manual_input = true THEN fa.margin
-            WHEN fa.margin_manual_input = false THEN (fa.sum_cash_without_vat * (ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue)
+            ELSE (fa.sum_cash_without_vat * (ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue)
         END AS amount,
         ps.currency_id AS currency_id,
         ((ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue * 100) AS profitability,
         0 AS distribution,
         'margin_income' AS type,
-        'fact' AS probability
+        'fact' AS probability,
+        ps.commercial_budget_id AS commercial_budget_id
     FROM project_budget_projects ps
-    INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id AND p.budget_state = 'work'
+    INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id
     AND p.project_have_steps = true AND ps.step_status = 'step'
     INNER JOIN project_budget_project_stage st ON st.id = ps.stage_id
     INNER JOIN project_budget_fact_acceptance_flow fa ON fa.step_project_child_id = ps.id
@@ -366,7 +380,8 @@ GROUP BY
     currency_id,
     distribution,
     probability,
-    profitability
+    profitability,
+    commercial_budget_id
 """
         tools.drop_view_if_exists(self.env.cr, self._table)
         self.env.cr.execute(
