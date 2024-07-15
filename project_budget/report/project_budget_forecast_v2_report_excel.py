@@ -1320,18 +1320,27 @@ class report_budget_forecast_excel(models.AbstractModel):
                 for element in range(len(self.month_rus_name_contract_pds)):
                     if element in [3, 7, 8, 12, 16, 17, 18]:  # учитываем колонки планов
                         shift += 1
-                    formula = '={1}{0}+{2}{0}*$D$1+{3}{0}*$D$2'.format(
+                    formula_fact = '={1}{0}'.format(
                         row,
                         xl_col_to_name(start_column + shift + element * width),
+                    )
+                    formula_forecast = '={1}{0}*$D$1+{2}{0}*$D$2'.format(
+                        row,
                         xl_col_to_name(start_column + shift + element * width + 1),
                         xl_col_to_name(start_column + shift + element * width + 2),
                     )
-                    sheet.merge_range(
+                    sheet.write_formula(
                         row,
                         start_column + shift + element * width,
+                        formula_fact,
+                        format
+                    )
+                    sheet.merge_range(
+                        row,
+                        start_column + shift + element * width + 1,
                         row,
                         start_column + shift + element * width + 2,
-                        formula,
+                        formula_forecast,
                         format
                     )
                     if type == 'revenue':
@@ -1348,18 +1357,27 @@ class report_budget_forecast_excel(models.AbstractModel):
                 for element in range(len(self.month_rus_name_revenue_margin)):
                     if element in [5]:  # учитываем колонки планов
                         shift += 1
-                    formula = '={1}{0}+{2}{0}*$D$1+{3}{0}*$D$2'.format(
+                    formula_fact = '={1}{0}'.format(
                         row,
                         xl_col_to_name(start_column + shift + element * width),
+                    )
+                    formula_forecast = '={1}{0}*$D$1+{2}{0}*$D$2'.format(
+                        row,
                         xl_col_to_name(start_column + shift + element * width + 1),
                         xl_col_to_name(start_column + shift + element * width + 2),
                     )
-                    sheet.merge_range(
+                    sheet.write_formula(
                         row,
                         start_column + shift + element * width,
+                        formula_fact,
+                        format
+                    )
+                    sheet.merge_range(
+                        row,
+                        start_column + shift + element * width + 1,
                         row,
                         start_column + shift + element * width + 2,
-                        formula,
+                        formula_forecast,
                         format
                     )
                 if type == 'acceptance':
@@ -1382,7 +1400,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 sheet.write_string(row, shifts['NEXT'] + 3, '', format_cross)
                 sheet.write_string(row, shifts['AFTER_NEXT'] + 3, '', format_cross)
 
-    def print_row(self, sheet, workbook, companies, project_offices, key_account_managers, stages, budget, row, level):
+    def print_row(self, sheet, workbook, companies, project_offices, key_account_managers, stages, budget, row, level, project_office_ids):
         global YEARint
         global dict_formula
         head_format = workbook.add_format({
@@ -1640,7 +1658,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 child_project_offices = self.env['project_budget.project_office'].search(
                     [('parent_id', '=', project_office.id)], order='name')
 
-                row0 = self.print_row(sheet, workbook, companies, child_project_offices, key_account_managers, stages, budget, row, level)
+                row0 = self.print_row(sheet, workbook, companies, child_project_offices, key_account_managers, stages, budget, row, level, project_office_ids)
 
                 isFoundProjectsByOffice = False
                 if row0 != row:
@@ -2282,7 +2300,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         return row
 
-    def printworksheet(self,workbook,budget,namesheet, estimated_probabilities):
+    def printworksheet(self,workbook,budget,namesheet, estimated_probabilities, project_office_ids):
         global YEARint
         print('YEARint=',YEARint)
 
@@ -2544,7 +2562,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         key_account_managers = self.env.ref('project_budget.group_project_budget_key_account_manager').users
         # project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
 
-        row = self.print_row(sheet, workbook, companies, project_offices, key_account_managers.employee_ids.sorted('name'), estimated_probabilities, budget, row, 1)
+        row = self.print_row(sheet, workbook, companies, project_offices, key_account_managers.employee_ids.sorted('name'), estimated_probabilities, budget, row, 1, project_office_ids)
 
         # ИТОГО
         row += 1
@@ -2707,7 +2725,6 @@ class report_budget_forecast_excel(models.AbstractModel):
         global margin_shift
         global plan_shift
         global fact_columns
-        global project_office_ids
         koeff_reserve = data['koeff_reserve']
         koeff_potential = data['koeff_potential']
         fact_columns = set()
@@ -2769,7 +2786,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
         stages = self.env['project_budget.project.stage'].search([('code', '!=', '10')], order='sequence desc')  # для сортировки так делаем
-        self.printworksheet(workbook, budget, 'Прогноз', stages)
+        self.printworksheet(workbook, budget, 'Прогноз', stages, project_office_ids)
         dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
         stages = self.env['project_budget.project.stage'].search([('code', '=', '10')], order='sequence desc')  # для сортировки так делаем
-        self.printworksheet(workbook, budget, '10%', stages)
+        self.printworksheet(workbook, budget, '10%', stages, project_office_ids)
