@@ -12,7 +12,7 @@ class ReportWeekToWeekExcel(models.AbstractModel):
 
     section_names = ['contracting', 'cash', 'acceptance', 'margin_income',]
     probability_names = ['fact', 'commitment', 'reserve', 'potential', 'lead', 'cancelled']
-    quarter_names = ['Q1', 'Q2', 'Q3', 'Q4', ]
+    quarter_names = ['Q1', 'Q2', 'Q3', 'Q4', 'YEAR']
 
     section_titles = {
         'contracting': 'Контрактование,\n руб. с НДС',
@@ -131,12 +131,14 @@ class ReportWeekToWeekExcel(models.AbstractModel):
         sheet = workbook.add_worksheet(namesheet)
         sheet.set_zoom(70)
         sheet.set_column(0, col - 1, 17)
-        sheet.set_column(col, 4 * len(self.probability_names) + col, 14)
+        sheet.set_column(col, 5 * len(self.probability_names) + col - 1, 14)
         sheet.freeze_panes(2, col)
         sheet.hide_zero()
         sheet.autofilter(1, 0, 1, 2)
 
-        for quarter_n in range(4):
+        sheet.merge_range(0, 0, 0, 2, past_budget.date_actual.strftime("%d/%m/%y") + ' -> ' + date.today().strftime("%d/%m/%y"), line_format)
+
+        for quarter_n in range(5):
             if quarter_n % 2:
                 format = line_format
             else:
@@ -180,19 +182,19 @@ class ReportWeekToWeekExcel(models.AbstractModel):
                 sheet.write_string(row, 0, company, line_format_left)
                 sheet.write_string(row, 1, office, line_format_left)
                 sheet.write_string(row, 2, 'NEW', line_format)
-                for quarter_n in range(4):
+                for quarter_n in range(5):
                     sheet.merge_range(row, col + quarter_n * len(self.probability_names), row, col + (1 + quarter_n) * len(self.probability_names)- 1, prj_id + ('|' + stp_id if stp_id else ''), line_format)
             elif old_data and not new_data:
                 sheet.write_string(row, 0, company, line_format_left)
                 sheet.write_string(row, 1, office, line_format_left)
                 sheet.write_string(row, 2, 'REMOVED', line_format)
-                for quarter_n in range(4):
+                for quarter_n in range(5):
                     sheet.merge_range(row, col + quarter_n * len(self.probability_names), row, col + (1 + quarter_n) * len(self.probability_names)- 1, prj_id + ('|' + stp_id if stp_id else ''), line_format)
             elif new_data and old_data and not (new_data.stage_id.code in ('0', '10') and new_data.stage_id.code in ('0', '10')):
                 sheet.write_string(row, 0, company, line_format_left)
                 sheet.write_string(row, 1, office, line_format_left)
                 sheet.write_string(row, 2, 'CHANGED', line_format)
-                for quarter_n in range(4):
+                for quarter_n in range(5):
                     sheet.merge_range(row, col + quarter_n * len(self.probability_names), row, col + (1 + quarter_n) * len(self.probability_names)- 1, prj_id + ('|' + stp_id if stp_id else ''), line_format)
             else:
                 continue
@@ -227,6 +229,19 @@ class ReportWeekToWeekExcel(models.AbstractModel):
                                 0,
                                 format
                             )
+                        sheet.write_formula(
+                            row + section_n,
+                            col + 4 * len(self.probability_names) + probability_n,
+                            '=sum({1}{0},{2}{0},{3}{0},{4}{0})'.format(
+                                row + section_n + 1,
+                                xl_col_to_name(col + probability_n),
+                                xl_col_to_name(col + 1 * len(self.probability_names) + probability_n),
+                                xl_col_to_name(col + 2 * len(self.probability_names) + probability_n),
+                                xl_col_to_name(col + 3 * len(self.probability_names) + probability_n),
+                            ),
+                            line_format_grey
+                        )
+
             row += 4
 
     def generate_xlsx_report(self, workbook, data, budgets):

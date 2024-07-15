@@ -60,7 +60,10 @@ FROM
         p.end_presale_project_month AS date,
         p.total_amount_of_revenue_with_vat AS amount,
         p.currency_id AS currency_id,
-        ((p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue * 100) AS profitability,
+        CASE
+            WHEN p.total_amount_of_revenue != 0 THEN ((p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue * 100)
+            ELSE 0
+        END AS profitability,
         0 AS distribution,
         'contracting' AS type,
         '' AS probability,
@@ -82,7 +85,10 @@ FROM
         ps.end_presale_project_month AS date,
         ps.total_amount_of_revenue_with_vat AS amount,
         ps.currency_id AS currency_id,
-        ((ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue * 100) AS profitability,
+        CASE
+            WHEN ps.total_amount_of_revenue != 0 THEN ((ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue * 100)
+            ELSE 0
+        END AS profitability,
         0 AS distribution,
         'contracting' AS type,
         '' AS probability,
@@ -105,7 +111,10 @@ FROM
         pc.date_cash AS date,
         ROUND(pc.sum_cash, c.decimal_places) - ROUND(COALESCE(da.sum_distr_cash, 0), c.decimal_places) AS amount,
         p.currency_id AS currency_id,
-        ((p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue * 100) AS profitability,
+        CASE
+            WHEN p.total_amount_of_revenue != 0 THEN ((p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue * 100)
+            ELSE 0
+        END AS profitability,
         dcc.sum_cash AS distribution,
         'cash' AS type,
         pc.forecast AS probability,
@@ -137,7 +146,10 @@ FROM
         pc.date_cash AS date,
         ROUND(pc.sum_cash, c.decimal_places) - ROUND(COALESCE(da.sum_distr_cash, 0), c.decimal_places) AS amount,
         ps.currency_id AS currency_id,
-        ((ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue * 100) AS profitability,
+        CASE
+            WHEN ps.total_amount_of_revenue != 0 THEN ((ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue * 100)
+            ELSE 0
+        END AS profitability,
         dcc.sum_cash AS distribution,
         'cash' AS type,
         pc.forecast AS probability,
@@ -169,7 +181,10 @@ FROM
         fc.date_cash AS date,
         fc.sum_cash AS amount,
         p.currency_id AS currency_id,
-        ((p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue * 100) AS profitability,
+        CASE
+            WHEN p.total_amount_of_revenue != 0 THEN ((p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue * 100)
+            ELSE 0
+        END AS profitability,
         0 AS distribution,
         'cash' AS type,
         'fact' AS probability,
@@ -192,7 +207,10 @@ FROM
         fc.date_cash AS date,
         fc.sum_cash AS amount,
         ps.currency_id AS currency_id,
-        ((ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue * 100) AS profitability,
+        CASE
+            WHEN ps.total_amount_of_revenue != 0 THEN ((ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue * 100)
+            ELSE 0
+        END AS profitability,
         0 AS distribution,
         'cash' AS type,
         'fact' AS probability,
@@ -215,7 +233,10 @@ FROM
         pa.date_cash AS date,
         ROUND(pa.sum_cash_without_vat, c.decimal_places) - ROUND(COALESCE(da.sum_distr_cash, 0), c.decimal_places) AS amount,
         p.currency_id AS currency_id,
-        ((p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue * 100) AS profitability,
+        CASE
+            WHEN p.total_amount_of_revenue != 0 THEN ((p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue * 100)
+            ELSE 0
+        END AS profitability,
         dac.sum_cash_without_vat AS distribution,
         'acceptance' AS type,
         pa.forecast AS probability,
@@ -247,7 +268,10 @@ FROM
         pa.date_cash AS date,
         ROUND(pa.sum_cash_without_vat, c.decimal_places) - ROUND(COALESCE(da.sum_distr_cash, 0), c.decimal_places) AS amount,
         ps.currency_id AS currency_id,
-        ((ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue * 100) AS profitability,
+        CASE
+            WHEN ps.total_amount_of_revenue != 0 THEN ((ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue * 100)
+            ELSE 0
+        END AS profitability,
         dac.sum_cash_without_vat AS distribution,
         'acceptance' AS type,
         pa.forecast AS probability,
@@ -279,7 +303,10 @@ FROM
         fa.date_cash AS date,
         fa.sum_cash_without_vat AS amount,
         p.currency_id AS currency_id,
-        ((p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue * 100) AS profitability,
+        CASE
+            WHEN p.total_amount_of_revenue != 0 THEN ((p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue * 100)
+            ELSE 0
+        END AS profitability,
         0 AS distribution,
         'acceptance' AS type,
         'fact' AS probability,
@@ -302,7 +329,10 @@ FROM
         fa.date_cash AS date,
         fa.sum_cash_without_vat AS amount,
         ps.currency_id AS currency_id,
-        ((ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue * 100) AS profitability,
+        CASE
+            WHEN ps.total_amount_of_revenue != 0 THEN ((ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue * 100)
+            ELSE 0
+        END AS profitability,
         0 AS distribution,
         'acceptance' AS type,
         'fact' AS probability,
@@ -325,10 +355,14 @@ FROM
         fa.date_cash AS date,
         CASE
             WHEN fa.margin_manual_input = true THEN fa.margin
-            ELSE (fa.sum_cash_without_vat * (p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue)
+            WHEN p.total_amount_of_revenue != 0 THEN (fa.sum_cash_without_vat * (p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue)
+            ELSE 0
         END AS amount,
         p.currency_id AS currency_id,
-        ((p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue * 100) AS profitability,
+        CASE
+            WHEN p.total_amount_of_revenue != 0 THEN ((p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue * 100)
+            ELSE 0
+        END AS profitability,
         0 AS distribution,
         'margin_income' AS type,
         'fact' AS probability,
@@ -351,10 +385,14 @@ FROM
         fa.date_cash AS date,
         CASE
             WHEN fa.margin_manual_input = true THEN fa.margin
-            ELSE (fa.sum_cash_without_vat * (ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue)
+            WHEN ps.total_amount_of_revenue != 0 THEN (fa.sum_cash_without_vat * (ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue)
+            ELSE 0
         END AS amount,
         ps.currency_id AS currency_id,
-        ((ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue * 100) AS profitability,
+        CASE
+            WHEN ps.total_amount_of_revenue != 0 THEN ((ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue * 100)
+            ELSE 0
+        END AS profitability,
         0 AS distribution,
         'margin_income' AS type,
         'fact' AS probability,
