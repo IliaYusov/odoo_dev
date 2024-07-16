@@ -271,6 +271,16 @@
                     <field name="rko_other_amount_spec_exist" invisible="1"/>
                     <field name="warranty_service_costs_amount_spec_exist" invisible="1"/>
                     <field name="other_expenses_amount_spec_exist" invisible="1"/>
+                    <field name="planned_step_acceptance_flow_ids" invisible="1">
+                        <tree>
+                            <field name="forecast"/>
+                        </tree>
+                    </field>
+                    <field name="planned_step_cash_flow_ids" invisible="1">
+                        <tree>
+                            <field name="forecast"/>
+                        </tree>
+                    </field>
 
                     <group col ="3">
                         <group>

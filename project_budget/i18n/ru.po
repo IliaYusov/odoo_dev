@@ -362,13 +362,13 @@ msgid "Add attachments for this tender"
 msgstr "Добавить файлы к тендеру"
 
 #. module: project_budget
-#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_project_steps_form
+#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_step_project_view_form
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
 msgid "Add spec revenue_from_the_sale_of_goods"
 msgstr "Добавить расшифровку суммы выручка от реализации товара"
 
 #. module: project_budget
-#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_project_steps_form
+#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_step_project_view_form
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
 msgid "Add spec revenue_from_the_sale_of_works"
 msgstr "Добавить расшифровку суммы выручка от реализации работ/услуг"
@@ -706,13 +706,13 @@ msgid "Cost"
 msgstr "Себестоимость"
 
 #. module: project_budget
-#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_project_steps_form
+#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_step_project_view_form
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
 msgid "Costs"
 msgstr "Затраты"
 
 #. module: project_budget
-#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_project_steps_form
+#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_step_project_view_form
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
 msgid "Costs FOT"
 msgstr "Затраты на ФОТ"
@@ -2193,6 +2193,69 @@ msgstr ""
 "вероятность больше 30%"
 
 #. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/project_budget_project.py:0
+#, python-format
+msgid "Project\step is '100' acceptance {0} should be 'commitment' or 'from_project'"
+msgstr "Вероятность проекта\этапа: '100'. Вероятность актирования {0} должна быть 'Обязательство' или 'На основе проекта\этапа'"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/project_budget_project.py:0
+#, python-format
+msgid "Project\step is '75' acceptance {0} should be 'commitment', 'reserve' or 'from_project'"
+msgstr "Вероятность проекта\этапа: '75'. Вероятность актирования {0} должна быть 'Обязательство', 'Резерв' или 'На основе проекта\этапа'"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/project_budget_project.py:0
+#, python-format
+msgid "Project\step is '50' acceptance {0} should be 'potential', 'reserve' or 'from_project'"
+msgstr "Вероятность проекта\этапа: '50'. Вероятность актирования {0} должна быть 'Резерв', 'Потенциал' или 'На основе проекта\этапа'"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/project_budget_project.py:0
+#, python-format
+msgid "Project\step is '30' or '10' acceptance {0} should be 'potential' or 'from_project'"
+msgstr "Вероятность проекта\этапа: '30','10'. Вероятность актирования {0} должна быть 'Потенциал' или 'На основе проекта\этапа'"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/project_budget_project.py:0
+#, python-format
+msgid "Project\step is '100' cash {0} should be 'commitment' or 'from_project'"
+msgstr "Вероятность проекта\этапа: '100'. Вероятность ПДС {0} должна быть 'Обязательство' или 'На основе проекта\этапа'"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/project_budget_project.py:0
+#, python-format
+msgid "Project\step is '75' cash {0} should be 'commitment', 'reserve' or 'from_project'"
+msgstr "Вероятность проекта\этапа: '75'. Вероятность ПДС {0} должна быть 'Обязательство', 'Резерв' или 'На основе проекта\этапа'"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/project_budget_project.py:0
+#, python-format
+msgid "Project\step is '50' cash {0} should be 'potential', 'reserve' or 'from_project'"
+msgstr "Вероятность проекта\этапа: '50'. Вероятность ПДС {0} должна быть 'Резерв', 'Потенциал' или 'На основе проекта\этапа'"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/project_budget_project.py:0
+#, python-format
+msgid "Project\step is '30' or '10' cash {0} should be 'potential' or 'from_project'"
+msgstr "Вероятность проекта\этапа: '30','10'. Вероятность ПДС {0} должна быть 'Потенциал' или 'На основе проекта\этапа'"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/project_budget_project.py:0
+#, python-format
+msgid "Project\step stage has changed, acceptance and cash forecasts set to 'from_project'"
+msgstr "Вероятность проекта\этапа изменилась - вероятности связанных Актирований и ПДС установлены в 'На основе проекта\этапа'"
+
+#. module: project_budget
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_planned_acceptance_flow__forecast__potential
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_planned_cash_flow__forecast__potential
 msgid "Potential"
@@ -2232,7 +2295,7 @@ msgstr "Реестр тендеров"
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_child_view_tree
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_overdue_report_view_tree
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_view_tree
-#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_project_steps_form
+#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_step_project_view_form
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
 msgid "Probability"
 msgstr "Вероятность"
@@ -2643,7 +2706,7 @@ msgstr "в работу"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_office__revenue
-#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_project_steps_form
+#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_step_project_view_form
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
 msgid "Revenue"
 msgstr "Выручка"
@@ -2802,7 +2865,7 @@ msgstr ""
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_overdue_report__step_id
-#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_project_steps_form
+#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_step_project_view_form
 msgid "Step"
 msgstr "Этап"
 
@@ -2990,19 +3053,19 @@ msgstr "ВГО"
 
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_child_view_tree
-#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_project_steps_form
+#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_step_project_view_form
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
 msgid "View project"
 msgstr "Просмотр проекта"
 
 #. module: project_budget
-#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_project_steps_form
+#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_step_project_view_form
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
 msgid "View/edit spec revenue_from_the_sale_of_goods"
 msgstr "Просмотр/редактирование выруки от реализации товаров"
 
 #. module: project_budget
-#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_project_steps_form
+#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_step_project_view_form
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
 msgid "View/edit spec revenue_from_the_sale_of_works"
 msgstr "Просмотр/редактирование выруки от реализации работ/услуг"
@@ -4996,7 +5059,7 @@ msgid "select project steps"
 msgstr "Выберите этап проекта"
 
 #. module: project_budget
-#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_project_steps_form
+#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_step_project_view_form
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
 msgid "select vat attribute"
 msgstr "Выберите признак НДС"
@@ -5023,7 +5086,7 @@ msgid "sorting for report"
 msgstr "Сортировка для отчета"
 
 #. module: project_budget
-#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_project_steps_form
+#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_step_project_view_form
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
 msgid "spec"
 msgstr "Расшифровка"
@@ -5313,7 +5376,7 @@ msgstr "Напишите комментарий к проекту"
 
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_settings_view_form
-#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_project_steps_form
+#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_step_project_view_form
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
 msgid "type here essence of the project"
 msgstr "Напишите наименование проекта"
@@ -5329,7 +5392,7 @@ msgid "type step code DAX e.g. 0001"
 msgstr "из AXAPTA"
 
 #. module: project_budget
-#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_project_steps_form
+#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_step_project_view_form
 msgid "type step code e.g. 0001"
 msgstr "из AXAPTA"
 
