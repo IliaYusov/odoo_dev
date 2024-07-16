@@ -605,7 +605,7 @@ class Project(models.Model):
                  'active', 'approve_state')
     def _compute_step_project_details(self):
         for row in self:
-            if row.step_project_child_ids:
+            if row.project_have_steps and row.step_project_child_ids:
                 for step_project_child_id in row.step_project_child_ids:
                     step_project_child_id.company_id = row.company_id
                     step_project_child_id.currency_id = row.currency_id
