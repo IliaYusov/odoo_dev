@@ -2310,7 +2310,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         else:
             return []
 
-    def printworksheet(self,workbook,budget,namesheet, estimated_probabilities, project_office_ids, systematica_forecast):
+    def printworksheet(self,workbook,budget,namesheet, estimated_probabilities, project_office_ids, systematica_forecast, oblako_row):
         global YEARint
         print('YEARint=',YEARint)
 
@@ -2462,6 +2462,17 @@ class report_budget_forecast_excel(models.AbstractModel):
             "num_format": '#,##0',
         })
 
+        row_format_diff = workbook.add_format({
+            'border': 1,
+            'font_size': 12,
+            'text_wrap': True,
+            'align': 'center',
+            'valign': 'vcenter',
+            "bold": True,
+            "fg_color": '#DDD9C4',
+            "num_format": '#,##0;[red]-#,##0',
+        })
+
         row_format_itogo_estimated_plan = workbook.add_format({
             'border': 1,
             'font_size': 10,
@@ -2607,74 +2618,94 @@ class report_budget_forecast_excel(models.AbstractModel):
                     sheet.write_string(row - 1, c, '', row_format_plan_cross)
                     sheet.write_formula(row, c, formula, row_format_plan)
 
+        total_row = row
+
         if systematica_forecast: #  Суммируем Систематику и Облако
             # ИТОГО
-            row += 1
             column = 0
-            sheet.merge_range(row, column, row, column + 3, 'ИТОГО: СА+Облако.ру по отчету', row_format_number_itogo)
-            sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
+            sheet.merge_range(row + 1, column, row + 1, column + 3, 'ИТОГО: СА+Облако.ру по отчету', row_format_number_itogo)
+            sheet.set_row(row + 1, False, False, {'hidden': 1, 'level': 1})
             for colFormula in range(2, 9):
-                sheet.write_string(row, colFormula, '', row_format_number_itogo)
+                sheet.write_string(row + 1, colFormula, '', row_format_number_itogo)
             for colFormula in list(range(9, 215)) + list(range(216, 230)) + list(range(231, 245)):
-                formula = '=sum({1}{0},)'.format(row - 1, xl_col_to_name(colFormula))
-                sheet.write_formula(row, colFormula, formula, row_format_number_itogo)
+                formula = '=sum({2}{0},{3}{2}{1})'.format(row, oblako_row, xl_col_to_name(colFormula), "'Прогноз (Облако.ру)'!")
+                sheet.write_formula(row + 1, colFormula, formula, row_format_number_itogo)
             # расчетный план по отчету
-            row += 1
-            column = 0
-            sheet.merge_range(row, column, row, column + 3, 'ИТОГО: СА+Облако.ру Расчетный План по отчету',
+            sheet.merge_range(row + 2, column, row + 2, column + 3, 'ИТОГО: СА+Облако.ру Расчетный План по отчету',
                               row_format_itogo_estimated_plan_left)
-            self.print_estimated_rows(sheet, row, row_format_itogo_estimated_plan,
+            self.print_estimated_rows(sheet, row + 2, row_format_itogo_estimated_plan,
                                       row_format_itogo_estimated_plan_cross)
+            # кресты в планах и разница
+            sheet.merge_range(
+                row + 3, 1, row + 3, 3,
+                'Разница Итого; План 2024 (СА+Облако.ру)/ Расчетный план до конца периода (на дату отчета)',
+                row_format_diff
+            )
+            for type in plan_shift:
+                for period, shift in plan_shift[type].items():
+                    formula = '=sum({2}{0},{3}{2}{1})'.format(row + 1, oblako_row + 1, xl_col_to_name(shift),"'Прогноз (Облако.ру)'!")
+                    sheet.write_string(row + 1, shift, '', row_format_plan_cross)
+                    sheet.write_formula(row + 2, shift, formula, row_format_plan)
+                    if 'NEXT' not in period and period != '6+6':
+                        if type in ('acceptance', 'margin') and period == 'HY2':
+                            formula_diff = '={1}{0}-{2}{0}'.format(row + 3, xl_col_to_name(shift + 2), xl_col_to_name(shift + 1))
+                            sheet.merge_range(row + 3, shift + 2, row + 3, shift + 4, formula_diff, row_format_diff)
+                        else:
+                            formula_diff = '={1}{0}-{2}{0}'.format(row + 3, xl_col_to_name(shift + 1), xl_col_to_name(shift))
+                            sheet.merge_range(row + 3, shift + 1, row + 3, shift + 3, formula_diff, row_format_diff)
 
-        last_row = row
+            sheet.activate()
+            sheet.set_row(row + 3, 32)
+            row += 3
+
         row += 2
         sheet.merge_range(row, 1, row, 2, 'Контрактование, с НДС', summary_format_border_top_center)
         sheet.write_string(row, 3, '', summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint)}:', summary_format_border_top)
-        sheet.write_formula(row, 3, '=CK{0}+CL{0}+CM{0}'.format(last_row), summary_format_border_top)
+        sheet.write_formula(row, 3, '=CK{0}+CL{0}+CM{0}'.format(total_row), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=CK{0}'.format(last_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=CK{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint + 1)}:', summary_format_border_top)
-        sheet.write_formula(row, 3, '=HJ{0}+HK{0}'.format(last_row), summary_format_border_top)
+        sheet.write_formula(row, 3, '=HJ{0}+HK{0}'.format(total_row), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint + 1)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=HJ{0}'.format(last_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=HJ{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint + 2)}:', summary_format_border_top)
-        sheet.write_formula(row, 3, '=HY{0}+HZ{0}'.format(last_row), summary_format_border_top)
+        sheet.write_formula(row, 3, '=HY{0}+HZ{0}'.format(total_row), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint + 2)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=HY{0}'.format(last_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=HY{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Итого по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format_border_top)
         sheet.write_formula(row, 3, '=D{0}+D{1}+D{2}'.format(row - 1, row - 3, row - 5), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Итого Расчетный План по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=CK{0}+HJ{0}+HY{0}'.format(last_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=CK{0}+HJ{0}+HY{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 2
         sheet.merge_range(row, 1, row, 2, 'Валовая выручка, без НДС', summary_format_border_top_center)
         sheet.write_string(row, 3, '', summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint)}:', summary_format_border_top)
-        sheet.write_formula(row, 3, '=GA{0}+GB{0}+GC{0}'.format(last_row), summary_format_border_top)
+        sheet.write_formula(row, 3, '=GA{0}+GB{0}+GC{0}'.format(total_row), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=GA{0}'.format(last_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=GA{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint + 1)}:', summary_format_border_top)
-        sheet.write_formula(row, 3, '=HQ{0}+HR{0}'.format(last_row), summary_format_border_top)
+        sheet.write_formula(row, 3, '=HQ{0}+HR{0}'.format(total_row), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint + 1)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=HQ{0}'.format(last_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=HQ{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint + 2)}:', summary_format_border_top)
-        sheet.write_formula(row, 3, '=IF{0}+IG{0}'.format(last_row), summary_format_border_top)
+        sheet.write_formula(row, 3, '=IF{0}+IG{0}'.format(total_row), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint + 2)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=IF{0}'.format(last_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=IF{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Итого по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format_border_top)
         sheet.write_formula(row, 3, '=D{0}+D{1}+D{2}'.format(row - 1, row - 3, row - 5), summary_format_border_top)
@@ -2686,22 +2717,22 @@ class report_budget_forecast_excel(models.AbstractModel):
         sheet.write_string(row, 3, '', summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint)}:', summary_format_border_top)
-        sheet.write_formula(row, 3, '=EX{0}+EY{0}+EZ{0}'.format(last_row), summary_format_border_top)
+        sheet.write_formula(row, 3, '=EX{0}+EY{0}+EZ{0}'.format(total_row), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=EX{0}'.format(last_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=EX{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint + 1)}:', summary_format_border_top)
-        sheet.write_formula(row, 3, '=HN{0}+HO{0}'.format(last_row), summary_format_border_top)
+        sheet.write_formula(row, 3, '=HN{0}+HO{0}'.format(total_row), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint + 1)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=HN{0}'.format(last_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=HN{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint + 2)}:', summary_format_border_top)
-        sheet.write_formula(row, 3, '=IC{0}+ID{0}'.format(last_row), summary_format_border_top)
+        sheet.write_formula(row, 3, '=IC{0}+ID{0}'.format(total_row), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint + 2)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=IC{0}'.format(last_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=IC{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Итого по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format_border_top)
         sheet.write_formula(row, 3, '=D{0}+D{1}+D{2}'.format(row - 1, row - 3, row - 5), summary_format_border_top)
@@ -2713,22 +2744,22 @@ class report_budget_forecast_excel(models.AbstractModel):
         sheet.write_string(row, 3, '', summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint)}:', summary_format_border_top)
-        sheet.write_formula(row, 3, '=HE{0}+HF{0}+HG{0}'.format(last_row), summary_format_border_top)
+        sheet.write_formula(row, 3, '=HE{0}+HF{0}+HG{0}'.format(total_row), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=HE{0}'.format(last_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=HE{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint + 1)}:', summary_format_border_top)
-        sheet.write_formula(row, 3, '=HU{0}+HV{0}'.format(last_row), summary_format_border_top)
+        sheet.write_formula(row, 3, '=HU{0}+HV{0}'.format(total_row), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint + 1)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=HU{0}'.format(last_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=HU{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint + 2)}:', summary_format_border_top)
-        sheet.write_formula(row, 3, '=IJ{0}+IK{0}'.format(last_row), summary_format_border_top)
+        sheet.write_formula(row, 3, '=IJ{0}+IK{0}'.format(total_row), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint + 2)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=IJ{0}'.format(last_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=IJ{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Итого по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format_border_top)
         sheet.write_formula(row, 3, '=D{0}+D{1}+D{2}'.format(row - 1, row - 3, row - 5), summary_format_border_top)
@@ -2737,6 +2768,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         sheet.write_formula(row, 3, '=D{0}+D{1}+D{2}'.format(row - 1, row - 3, row - 5), summary_format_border_bottom)
 
         print('dict_formula = ', dict_formula)
+        return total_row
 
     def generate_xlsx_report(self, workbook, data, budgets):
 
@@ -2829,24 +2861,24 @@ class report_budget_forecast_excel(models.AbstractModel):
 
             dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
             stages = self.env['project_budget.project.stage'].search([('code', '!=', '10')], order='sequence desc')
-            self.printworksheet(workbook, budget, 'Прогноз', stages, systmatica_ids, systematica_forecast)
+            self.printworksheet(workbook, budget, 'Прогноз (ЛИТР)', stages, litr_ids, False, 0)
 
             dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
             stages = self.env['project_budget.project.stage'].search([('code', '!=', '10')], order='sequence desc')
-            self.printworksheet(workbook, budget, 'Прогноз (ЛИТР)', stages, litr_ids, systematica_forecast)
+            oblako_row = self.printworksheet(workbook, budget, 'Прогноз (Облако.ру)', stages, oblako_ids, False, 0)
 
             dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
             stages = self.env['project_budget.project.stage'].search([('code', '!=', '10')], order='sequence desc')
-            self.printworksheet(workbook, budget, 'Прогноз (Облако.ру)', stages, oblako_ids, systematica_forecast)
+            self.printworksheet(workbook, budget, 'Прогноз', stages, systmatica_ids, True, oblako_row)
 
             dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
             stages = self.env['project_budget.project.stage'].search([('code', '=', '10')], order='sequence desc')
-            self.printworksheet(workbook, budget, '10%', stages, project_office_ids, systematica_forecast)
+            self.printworksheet(workbook, budget, '10%', stages, project_office_ids, False, 0)
         else:
             dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
             stages = self.env['project_budget.project.stage'].search([('code', '!=', '10')], order='sequence desc')  # для сортировки так делаем
-            self.printworksheet(workbook, budget, 'Прогноз', stages, project_office_ids, systematica_forecast)
+            self.printworksheet(workbook, budget, 'Прогноз', stages, project_office_ids, systematica_forecast, 0)
 
             dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
             stages = self.env['project_budget.project.stage'].search([('code', '=', '10')], order='sequence desc')
-            self.printworksheet(workbook, budget, '10%', stages, project_office_ids, systematica_forecast)
+            self.printworksheet(workbook, budget, '10%', stages, project_office_ids, systematica_forecast, 0)
