@@ -2300,7 +2300,17 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         return row
 
-    def printworksheet(self,workbook,budget,namesheet, estimated_probabilities, project_office_ids):
+    def get_child_offices_ids(self, office_ids, res: list):
+        if office_ids:
+            res.extend(office_ids)
+            child_offices_ids = self.env['project_budget.project_office'].search([('parent_id', 'in', office_ids)]).ids
+            if child_offices_ids:
+                res = self.get_child_offices_ids(child_offices_ids, res)
+            return res
+        else:
+            return []
+
+    def printworksheet(self,workbook,budget,namesheet, estimated_probabilities, project_office_ids, systematica_forecast):
         global YEARint
         print('YEARint=',YEARint)
 
@@ -2553,12 +2563,9 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         companies = self.env['res.company'].search([], order='name')
 
-        if project_office_ids:
-            project_offices = self.env['project_budget.project_office'].search([
-                ('id','in',project_office_ids), ('parent_id', 'not in', project_office_ids)], order='name')  # для сортировки так делаем + не берем дочерние оффисы, если выбраны их материнские
-        else:
-            project_offices = self.env['project_budget.project_office'].search([
-                ('parent_id', '=', False)], order='name')  # для сортировки так делаем + берем сначала только верхние элементы
+        project_offices = self.env['project_budget.project_office'].search([
+            ('id','in',project_office_ids), ('parent_id', 'not in', project_office_ids)], order='name')  # для сортировки так делаем + не берем дочерние оффисы, если выбраны их материнские
+
         key_account_managers = self.env.ref('project_budget.group_project_budget_key_account_manager').users
         # project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
 
@@ -2599,6 +2606,25 @@ class report_budget_forecast_excel(models.AbstractModel):
                     formula = formula_plan.format(xl_col_to_name(c))
                     sheet.write_string(row - 1, c, '', row_format_plan_cross)
                     sheet.write_formula(row, c, formula, row_format_plan)
+
+        if systematica_forecast: #  Суммируем Систематику и Облако
+            # ИТОГО
+            row += 1
+            column = 0
+            sheet.merge_range(row, column, row, column + 3, 'ИТОГО: СА+Облако.ру по отчету', row_format_number_itogo)
+            sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
+            for colFormula in range(2, 9):
+                sheet.write_string(row, colFormula, '', row_format_number_itogo)
+            for colFormula in list(range(9, 215)) + list(range(216, 230)) + list(range(231, 245)):
+                formula = '=sum({1}{0},)'.format(row - 1, xl_col_to_name(colFormula))
+                sheet.write_formula(row, colFormula, formula, row_format_number_itogo)
+            # расчетный план по отчету
+            row += 1
+            column = 0
+            sheet.merge_range(row, column, row, column + 3, 'ИТОГО: СА+Облако.ру Расчетный План по отчету',
+                              row_format_itogo_estimated_plan_left)
+            self.print_estimated_rows(sheet, row, row_format_itogo_estimated_plan,
+                                      row_format_itogo_estimated_plan_cross)
 
         last_row = row
         row += 2
@@ -2730,6 +2756,8 @@ class report_budget_forecast_excel(models.AbstractModel):
         fact_columns = set()
         project_office_ids=data['project_office_ids']
 
+        systematica_forecast = True
+
         plan_shift = {
             'revenue': {
                 'Q1': 21,
@@ -2782,11 +2810,43 @@ class report_budget_forecast_excel(models.AbstractModel):
         print('YEARint=',YEARint)
 
         commercial_budget_id = data['commercial_budget_id']
-
-        dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
-        stages = self.env['project_budget.project.stage'].search([('code', '!=', '10')], order='sequence desc')  # для сортировки так делаем
-        self.printworksheet(workbook, budget, 'Прогноз', stages, project_office_ids)
         dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
-        stages = self.env['project_budget.project.stage'].search([('code', '=', '10')], order='sequence desc')  # для сортировки так делаем
-        self.printworksheet(workbook, budget, '10%', stages, project_office_ids)
+
+        if systematica_forecast:
+
+            litr_codes = ('ПО_ЛИТР',)
+
+            oblako_codes = ('05', 'ПО_Облако.ру (облачный сервис)', 'ПО_Облако.ру (облачный сервис новые)', 'ПО_Облако.ру (облачный сервис база)', 'ПО_Облако.ру (интеграторский сервис)')
+
+            oblako_ids = self.get_child_offices_ids(self.env['project_budget.project_office'].search([('code', 'in', oblako_codes)]).ids, [])
+            litr_ids = self.get_child_offices_ids(self.env['project_budget.project_office'].search([('code', 'in', litr_codes)]).ids, [])
+            systmatica_ids = self.env['project_budget.project_office'].search([
+                ('id', 'in', project_office_ids),
+                ('id', 'not in', oblako_ids),
+                ('id', 'not in', litr_ids),
+            ]).ids  # систематика без литр и облака
+
+            dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
+            stages = self.env['project_budget.project.stage'].search([('code', '!=', '10')], order='sequence desc')
+            self.printworksheet(workbook, budget, 'Прогноз', stages, systmatica_ids, systematica_forecast)
+
+            dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
+            stages = self.env['project_budget.project.stage'].search([('code', '!=', '10')], order='sequence desc')
+            self.printworksheet(workbook, budget, 'Прогноз (ЛИТР)', stages, litr_ids, systematica_forecast)
+
+            dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
+            stages = self.env['project_budget.project.stage'].search([('code', '!=', '10')], order='sequence desc')
+            self.printworksheet(workbook, budget, 'Прогноз (Облако.ру)', stages, oblako_ids, systematica_forecast)
+
+            dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
+            stages = self.env['project_budget.project.stage'].search([('code', '=', '10')], order='sequence desc')
+            self.printworksheet(workbook, budget, '10%', stages, project_office_ids, systematica_forecast)
+        else:
+            dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
+            stages = self.env['project_budget.project.stage'].search([('code', '!=', '10')], order='sequence desc')  # для сортировки так делаем
+            self.printworksheet(workbook, budget, 'Прогноз', stages, project_office_ids, systematica_forecast)
+
+            dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
+            stages = self.env['project_budget.project.stage'].search([('code', '=', '10')], order='sequence desc')
+            self.printworksheet(workbook, budget, '10%', stages, project_office_ids, systematica_forecast)
