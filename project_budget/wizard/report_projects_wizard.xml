@@ -39,6 +39,7 @@
                         </group>
                         <group>
                             <field name="report_with_projects" attrs="{'invisible': [('type_report', 'not in', ('management_committee'))]}"/>
+                            <field name="systematica_forecast" attrs="{'invisible': [('type_report', 'not in', ('forecast_v2'))]}"/>
                         </group>
                     </group>
                     <group col = "4" string="report period">

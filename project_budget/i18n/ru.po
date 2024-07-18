@@ -3022,6 +3022,12 @@ msgid "Type Report"
 msgstr "Тип отчета"
 
 #. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects_report_wizard__systematica_forecast
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_report_wizard__systematica_forecast
+msgid "systematica forecast"
+msgstr "Отчет для Систематики"
+
+#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_kam_spec__type_row
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_supervisor_spec__type_row
 msgid "Type Row"

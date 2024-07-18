@@ -2788,7 +2788,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         fact_columns = set()
         project_office_ids=data['project_office_ids']
 
-        systematica_forecast = True
+        systematica_forecast = data['systematica_forecast']
 
         plan_shift = {
             'revenue': {

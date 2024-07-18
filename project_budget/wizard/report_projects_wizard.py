@@ -39,6 +39,7 @@ class report_projects_wizard(models.TransientModel):
     project_office_ids = fields.Many2many('project_budget.project_office', relation='report_project_office_rel',
                                           column1='id', column2='project_office_id', string='Project offices')
     print_managers = fields.Boolean(string='print managers', default=False)
+    systematica_forecast = fields.Boolean(string='systematica forecast', default=False)
 
     def action_print_report(self):
         self.ensure_one()
@@ -57,6 +58,7 @@ class report_projects_wizard(models.TransientModel):
         datas['report_with_projects'] = self.report_with_projects
         datas['project_office_ids'] = self.env['project_budget.project_office'].search([]).ids if not self.project_office_ids.ids else self.project_office_ids.ids
         datas['print_managers'] = self.print_managers
+        datas['systematica_forecast'] = self.systematica_forecast
 
         print('data=', datas)
         report_name = 'Project_list_' + str(self.year) + '_' + self.type_report + '.xlsx'
