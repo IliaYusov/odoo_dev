@@ -31,9 +31,9 @@ class ReportWeekToWeekExcel(models.AbstractModel):
         for p in data:
             if (p['date'].month-1)//3 == quarter and p['date'].year == year:
                 if p['probability'] == 'from_project' or not p['probability']:
-                    if p['stage_id'][1] in ('Исполнение, 100%', 'Выполнено'):
+                    if p['stage_id'][1] == 'Выполнено':
                         prob = 'fact'
-                    elif p['stage_id'][1] == 'Обязательство, 75%':
+                    elif p['stage_id'][1] in ('Исполнение, 100%', 'Обязательство, 75%'):
                         prob = 'commitment'
                     elif p['stage_id'][1] == 'Резерв, 50%':
                         prob = 'reserve'
@@ -46,7 +46,7 @@ class ReportWeekToWeekExcel(models.AbstractModel):
                 else:
                     prob = p['probability']
 
-                project_id = str(p['project_id'][1]) + (('|' + str(p['step_id'][1])) if p['step_id'] else '')
+                # project_id = str(p['project_id'][1]) + (('|' + str(p['step_id'][1])) if p['step_id'] else '')
 
                 projects[p['type']][prob] += round(p['amount'])
 
@@ -140,12 +140,12 @@ class ReportWeekToWeekExcel(models.AbstractModel):
 
         for quarter_n in range(5):
             if quarter_n % 2:
-                format = line_format
+                formating = line_format
             else:
-                format = line_format_grey
-            sheet.merge_range(0, col + quarter_n * len(self.probability_names), 0, col + len(self.probability_names) + quarter_n * len(self.probability_names) - 1, self.quarter_names[quarter_n], format)
+                formating = line_format_grey
+            sheet.merge_range(0, col + quarter_n * len(self.probability_names), 0, col + len(self.probability_names) + quarter_n * len(self.probability_names) - 1, self.quarter_names[quarter_n], formating)
             for probability_n in range(len(self.probability_names)):
-                sheet.write_string(1,  col + quarter_n * len(self.probability_names) + probability_n, self.probability_names[probability_n], format)
+                sheet.write_string(1,  col + quarter_n * len(self.probability_names) + probability_n, self.probability_names[probability_n], formating)
 
         data = self.env['project_budget.financial_data_report'].search([('commercial_budget_id', '=', budget.id)])
         past_data = self.env['project_budget.financial_data_report'].search([('commercial_budget_id', '=', past_budget.id)])
@@ -153,7 +153,6 @@ class ReportWeekToWeekExcel(models.AbstractModel):
         past_data_set = self.data_to_set(past_data)
         changed_projects = past_data_set ^ data_set
         changed_ids = list(set((i.split(',')[0]) for i in changed_projects))
-
 
         prj_ids = []
         stp_ids = []
@@ -164,7 +163,7 @@ class ReportWeekToWeekExcel(models.AbstractModel):
             stp_ids.append((stp_id))
 
         old_dict = self.env['project_budget.financial_data_report'].search_read([
-            ('date', '>=', date(year,1,1)),
+            ('date', '>=', date(year, 1, 1)),
             ('date', '<=', date(year, 12, 31)),
             ('commercial_budget_id', '=', past_budget.id),
             ('project_id.project_id', 'in', prj_ids),
@@ -186,8 +185,8 @@ class ReportWeekToWeekExcel(models.AbstractModel):
 
             prj_id, stp_id = changed_id.split('|')
 
-            old_data = [x for x in old_dict if prj_id in x['project_id'][1]]
-            new_data = [x for x in new_dict if prj_id in x['project_id'][1]]
+            old_data = [x for x in old_dict if prj_id == x['project_id'][1].split('|')[0] and (not x['step_id'] or stp_id == x['step_id'][1].split('|')[0])]
+            new_data = [x for x in new_dict if prj_id == x['project_id'][1].split('|')[0] and (not x['step_id'] or stp_id in x['step_id'][1].split('|')[0])]
 
             if old_data:
                 company = old_data[0]['company_id'][1]
@@ -204,19 +203,19 @@ class ReportWeekToWeekExcel(models.AbstractModel):
                 sheet.write_string(row, 1, office, line_format_left)
                 sheet.write_string(row, 2, 'NEW', line_format)
                 for quarter_n in range(5):
-                    sheet.merge_range(row, col + quarter_n * len(self.probability_names), row, col + (1 + quarter_n) * len(self.probability_names)- 1, prj_id + ('|' + stp_id if stp_id else ''), line_format)
+                    sheet.merge_range(row, col + quarter_n * len(self.probability_names), row, col + (1 + quarter_n) * len(self.probability_names) - 1, prj_id + ('|' + stp_id if stp_id else ''), line_format)
             elif old_data and not new_data:
                 sheet.write_string(row, 0, company, line_format_left)
                 sheet.write_string(row, 1, office, line_format_left)
                 sheet.write_string(row, 2, 'REMOVED', line_format)
                 for quarter_n in range(5):
-                    sheet.merge_range(row, col + quarter_n * len(self.probability_names), row, col + (1 + quarter_n) * len(self.probability_names)- 1, prj_id + ('|' + stp_id if stp_id else ''), line_format)
+                    sheet.merge_range(row, col + quarter_n * len(self.probability_names), row, col + (1 + quarter_n) * len(self.probability_names) - 1, prj_id + ('|' + stp_id if stp_id else ''), line_format)
             elif new_data and old_data and not (new_data[0]['stage_id'][1] in ('Отменен', 'Потенциал') and old_data[0]['stage_id'][1] in ('Отменен', 'Потенциал')):
                 sheet.write_string(row, 0, company, line_format_left)
                 sheet.write_string(row, 1, office, line_format_left)
                 sheet.write_string(row, 2, 'CHANGED', line_format)
                 for quarter_n in range(5):
-                    sheet.merge_range(row, col + quarter_n * len(self.probability_names), row, col + (1 + quarter_n) * len(self.probability_names)- 1, prj_id + ('|' + stp_id if stp_id else ''), line_format)
+                    sheet.merge_range(row, col + quarter_n * len(self.probability_names), row, col + (1 + quarter_n) * len(self.probability_names) - 1, prj_id + ('|' + stp_id if stp_id else ''), line_format)
             else:
                 continue
 
@@ -231,9 +230,9 @@ class ReportWeekToWeekExcel(models.AbstractModel):
 
             for quarter_n in range(4):
                 if quarter_n % 2:
-                    format = line_format
+                    formating = line_format
                 else:
-                    format = line_format_grey
+                    formating = line_format_grey
                 for section_n in range(len(self.section_names)):
                     for probability_n in range(len(self.probability_names)):
                         if difference[quarter_n]:
@@ -241,14 +240,14 @@ class ReportWeekToWeekExcel(models.AbstractModel):
                                 row + section_n,
                                 col + probability_n + quarter_n * len(self.probability_names),
                                 difference[quarter_n][self.section_names[section_n]][self.probability_names[probability_n]],
-                                format
+                                formating
                             )
                         else:
                             sheet.write_number(
                                 row + section_n,
                                 col + probability_n + quarter_n * len(self.probability_names),
                                 0,
-                                format
+                                formating
                             )
                         sheet.write_formula(
                             row + section_n,
