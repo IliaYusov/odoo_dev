@@ -29,29 +29,29 @@ class ReportWeekToWeekExcel(models.AbstractModel):
                 projects.setdefault(section_name, {}).setdefault(probability_name, 0)
 
         for p in data:
-            if (p.date.month-1)//3 == quarter and p.date.year == year:
-                if p.probability == 'from_project' or not p.probability:
-                    if p.stage_id.code in ('100', '100(done)'):
+            if (p['date'].month-1)//3 == quarter and p['date'].year == year:
+                if p['probability'] == 'from_project' or not p['probability']:
+                    if p['stage_id'][1] in ('Исполнение, 100%', 'Выполнено'):
                         prob = 'fact'
-                    elif p.stage_id.code == '75':
+                    elif p['stage_id'][1] == 'Обязательство, 75%':
                         prob = 'commitment'
-                    elif p.stage_id.code == '50':
+                    elif p['stage_id'][1] == 'Резерв, 50%':
                         prob = 'reserve'
-                    elif p.stage_id.code == '30':
+                    elif p['stage_id'][1] == 'Возможность, 30%':
                         prob = 'potential'
-                    elif p.stage_id.code == '10':
+                    elif p['stage_id'][1] == 'Потенциал, 10%':
                         prob = 'lead'
-                    elif p.stage_id.code == '0':
+                    elif p['stage_id'][1] == 'Отменен':
                         prob = 'cancelled'
                 else:
-                    prob = p.probability
+                    prob = p['probability']
 
-                project_id = str(p.project_id.project_id) + (('|' + str(p.step_id.project_id)) if p.step_id else '')
+                project_id = str(p['project_id'][1]) + (('|' + str(p['step_id'][1])) if p['step_id'] else '')
 
-                projects[p.type][prob] += round(p.amount)
+                projects[p['type']][prob] += round(p['amount'])
 
-                if p.type == 'acceptance' and p.probability != 'fact':
-                    projects['margin_income'][prob] += round(p.amount * p.profitability / 100)
+                if p['type'] == 'acceptance' and p['probability'] != 'fact':
+                    projects['margin_income'][prob] += round(p['amount'] * p['profitability'] / 100)
 
         return projects
 
@@ -154,31 +154,52 @@ class ReportWeekToWeekExcel(models.AbstractModel):
         changed_projects = past_data_set ^ data_set
         changed_ids = list(set((i.split(',')[0]) for i in changed_projects))
 
+
+        prj_ids = []
+        stp_ids = []
+        for changed_id in changed_ids:
+
+            prj_id, stp_id = changed_id.split('|')
+            prj_ids.append(prj_id)
+            stp_ids.append((stp_id))
+
+        old_dict = self.env['project_budget.financial_data_report'].search_read([
+            ('date', '>=', date(year,1,1)),
+            ('date', '<=', date(year, 12, 31)),
+            ('commercial_budget_id', '=', past_budget.id),
+            ('project_id.project_id', 'in', prj_ids),
+            '|', ('step_id.project_id', 'in', stp_ids),
+            ('step_id', '=', False),
+        ])
+        new_dict = self.env['project_budget.financial_data_report'].search_read([
+            ('date', '>=', date(year, 1, 1)),
+            ('date', '<=', date(year, 12, 31)),
+            ('commercial_budget_id', '=', budget.id),
+            ('project_id.project_id', 'in', prj_ids),
+            '|', ('step_id.project_id', 'in', stp_ids),
+            ('step_id', '=', False),
+        ])
+
+        print(changed_ids)
+
         for changed_id in changed_ids:
 
             prj_id, stp_id = changed_id.split('|')
 
-            old_data = self.env['project_budget.financial_data_report'].search([
-                ('commercial_budget_id', '=', past_budget.id),
-                ('project_id.project_id', '=', prj_id),
-                '|',('step_id.project_id', '=', stp_id),
-                ('step_id', '=', False),
-            ])
-            new_data = self.env['project_budget.financial_data_report'].search([
-                ('commercial_budget_id', '=', budget.id),
-                ('project_id.project_id', '=', prj_id),
-                '|',('step_id.project_id', '=', stp_id),
-                ('step_id', '=', False),
-            ])
+            old_data = [x for x in old_dict if prj_id in x['project_id'][1]]
+            new_data = [x for x in new_dict if prj_id in x['project_id'][1]]
 
             if old_data:
-                company = old_data[0].company_id.name
-                office = old_data[0].project_office_id.name
+                company = old_data[0]['company_id'][1]
+                office = old_data[0]['project_office_id'][1]
+            elif new_data:
+                company = new_data[0]['company_id'][1]
+                office = new_data[0]['project_office_id'][1]
             else:
-                company = new_data[0].company_id.name
-                office = new_data[0].project_office_id.name
+                company = ''
+                office = ''
 
-            if new_data and not old_data and new_data.stage_id.code not in ('0', '10'):
+            if new_data and not old_data and new_data[0]['stage_id'][1] not in ('Отменен', 'Потенциал'):
                 sheet.write_string(row, 0, company, line_format_left)
                 sheet.write_string(row, 1, office, line_format_left)
                 sheet.write_string(row, 2, 'NEW', line_format)
@@ -190,7 +211,7 @@ class ReportWeekToWeekExcel(models.AbstractModel):
                 sheet.write_string(row, 2, 'REMOVED', line_format)
                 for quarter_n in range(5):
                     sheet.merge_range(row, col + quarter_n * len(self.probability_names), row, col + (1 + quarter_n) * len(self.probability_names)- 1, prj_id + ('|' + stp_id if stp_id else ''), line_format)
-            elif new_data and old_data and not (new_data.stage_id.code in ('0', '10') and new_data.stage_id.code in ('0', '10')):
+            elif new_data and old_data and not (new_data[0]['stage_id'][1] in ('Отменен', 'Потенциал') and old_data[0]['stage_id'][1] in ('Отменен', 'Потенциал')):
                 sheet.write_string(row, 0, company, line_format_left)
                 sheet.write_string(row, 1, office, line_format_left)
                 sheet.write_string(row, 2, 'CHANGED', line_format)
