@@ -217,20 +217,21 @@
                     <field name="project_office_id" invisible="1"/>
                     <field name="is_correction_project" invisible="1"/>
                     <field name="is_not_for_mc_report" invisible="1"/>
+                    <field name="can_edit" invisible='1'/>
                     <field name="active" invisible="1"/>
                     <group>
                         <field name="project_id" readonly="1" string="Step ID"/>
                     </group>
                     <group col="4">
                         <group>
-                            <field name="step_project_number" placeholder="type step code e.g. 0001" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/> <!--обязательно при вероятности 100 и 100(done) -->
+                            <field name="step_project_number" placeholder="type step code e.g. 0001" attrs="{'readonly': [('can_edit', '=', False)]}"/> <!--обязательно при вероятности 100 и 100(done) -->
                         </group>
                         <group>
                             <field name="project_type_id" force_save="1" options="{'no_open': True,}"/>
                         </group>
                         <group>
                             <field name="vat_attribute_id" placeholder="select vat attribute"
-                                   attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
+                                   attrs="{'readonly': [('can_edit', '=', False)]}"/>
                         </group>
                         <group>
                             <field name="dogovor_number"/>
@@ -239,14 +240,14 @@
                     <group col="3">
                         <group colspan="2">
                             <field name="essence_project" placeholder="type here essence of the project" colspan="1"
-                                           attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
-                            <field name="project_office_id" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')],
+                                           attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                            <field name="project_office_id" attrs="{'readonly': [('can_edit', '=', False)],
                             'invisible': [('different_project_offices_in_steps', '!=', True)],
                             'required': [('different_project_offices_in_steps', '=', True)]}"/>
                         </group>
                         <group colspan="1">
-                            <field name="end_presale_project_month"  attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}" />
-                            <field name="end_sale_project_month" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>
+                            <field name="end_presale_project_month"  attrs="{'readonly': [('can_edit', '=', False)]}" />
+                            <field name="end_sale_project_month" attrs="{'readonly': [('can_edit', '=', False)]}"/>
                         </group>
                     </group>
                     <field name="is_revenue_from_the_sale_of_works"  invisible="1"/>
@@ -328,7 +329,7 @@
                     <group col="6">
                         <group colspan="2">
                             <field name="revenue_from_the_sale_of_works"
-                                   attrs="{'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager'),
+                                   attrs="{'readonly': ['|',('can_edit', '=', False),
                                    ('revenue_from_the_sale_of_works_amount_spec_exist', '=', True)]
                                    ,'invisible': [('is_revenue_from_the_sale_of_works', '=', False)]}"
                             />
@@ -338,14 +339,14 @@
                                     attrs="{'invisible': ['|',('revenue_from_the_sale_of_works_amount_spec_exist', '=', False),('is_revenue_from_the_sale_of_works', '=', False)]}"
                             />
                             <button name="action_open_amount_spec_revenue_from_the_sale_of_works" type="object" title="Add spec revenue_from_the_sale_of_works" string="spec" icon="fa-plus-square-o" class="btn btn-link "
-                                    attrs="{'invisible': ['|','|','|',('revenue_from_the_sale_of_works_amount_spec_exist', '=', True),('is_revenue_from_the_sale_of_works', '=', False)
-                                    ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')
+                                    attrs="{'invisible': ['|','|',('revenue_from_the_sale_of_works_amount_spec_exist', '=', True),('is_revenue_from_the_sale_of_works', '=', False)
+                                    ,('can_edit', '=', False)
                                     ]}"
                             />
                         </group>
                         <group colspan="2">
                             <field name="revenue_from_the_sale_of_goods"
-                                   attrs="{'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager'),
+                                   attrs="{'readonly': ['|',('can_edit', '=', False),
                                    ('revenue_from_the_sale_of_goods_amount_spec_exist', '=', True)]
                                    ,'invisible': [('is_revenue_from_the_sale_of_goods', '=', False)]}"/>
                         </group>
@@ -354,8 +355,8 @@
                                     attrs="{'invisible': ['|',('revenue_from_the_sale_of_goods_amount_spec_exist', '=', False),('is_revenue_from_the_sale_of_goods', '=', False)]}"
                             />
                             <button name="action_open_amount_spec_revenue_from_the_sale_of_goods" type="object" title="Add spec revenue_from_the_sale_of_goods" string="spec" icon="fa-plus-square-o" class="btn btn-link "
-                                    attrs="{'invisible': ['|','|','|',('revenue_from_the_sale_of_goods_amount_spec_exist', '=', True),('is_revenue_from_the_sale_of_goods', '=', False)
-                                    ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')
+                                    attrs="{'invisible': ['|','|',('revenue_from_the_sale_of_goods_amount_spec_exist', '=', True),('is_revenue_from_the_sale_of_goods', '=', False)
+                                    ,('can_edit', '=', False)
                                     ]}"
                             />
                         </group>
@@ -368,7 +369,7 @@
                         <group colspan="2">
                             <field name="cost_of_goods"
                                    attrs="{'invisible': [('is_cost_of_goods', '=', False)]
-                                   ,'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')
+                                   ,'readonly': ['|',('can_edit', '=', False)
                                    ,('cost_of_goods_amount_spec_exist', '=', True)]}"
                                    widget="monetary" class='oe_right' style="text-align:right"
                             />
@@ -378,15 +379,15 @@
                                     attrs="{'invisible': ['|',('cost_of_goods_amount_spec_exist', '=', False),('is_cost_of_goods', '=', False)]}"
                             />
                             <button name="action_open_amount_spec_cost_of_goods" type="object" title="View project" string="spec" icon="fa-plus-square-o" class="btn btn-link"
-                                    attrs="{'invisible': ['|','|','|',('cost_of_goods_amount_spec_exist', '=', True),('is_cost_of_goods', '=', False)
-                                    ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                    attrs="{'invisible': ['|','|',('cost_of_goods_amount_spec_exist', '=', True),('is_cost_of_goods', '=', False)
+                                    ,('can_edit', '=', False)]}"
                             />
 
                         </group>
                         <group colspan="2">
                             <field name="travel_expenses"
                                    attrs="{'invisible': [('is_travel_expenses', '=', False)]
-                                   ,'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')
+                                   ,'readonly': ['|',('can_edit', '=', False)
                                    ,('travel_expenses_amount_spec_exist', '=', True)]}"
                                    widget="monetary" class='oe_right' style="text-align:right"
                             />
@@ -396,8 +397,8 @@
                                     attrs="{'invisible': ['|',('travel_expenses_amount_spec_exist', '=', False),('is_travel_expenses', '=', False)]}"
                             />
                             <button name="action_open_amount_spec_travel_expenses" type="object" title="View project" string="spec" icon="fa-plus-square-o" class="btn btn-link "
-                                    attrs="{'invisible': ['|','|','|',('travel_expenses_amount_spec_exist', '=', True),('is_travel_expenses', '=', False)
-                                    ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                    attrs="{'invisible': ['|','|',('travel_expenses_amount_spec_exist', '=', True),('is_travel_expenses', '=', False)
+                                    ,('can_edit', '=', False)]}"
                             />
                         </group>
                     </group>
@@ -405,7 +406,7 @@
                         <group colspan="2">
                             <field name="third_party_works"
                                    attrs="{'invisible': [('is_third_party_works', '=', False)]
-                                   ,'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')
+                                   ,'readonly': ['|',('can_edit', '=', False)
                                    ,('third_party_works_amount_spec_exist', '=', True)]}"
                                    widget="monetary" class='oe_right' style="text-align:right"
                             />
@@ -415,14 +416,14 @@
                                     attrs="{'invisible': ['|',('third_party_works_amount_spec_exist', '=', False), ('is_third_party_works', '=', False)]}"
                             />
                             <button name="action_open_amount_spec_third_party_works" type="object" title="View project" string="spec" icon="fa-plus-square-o" class="btn btn-link "
-                                    attrs="{'invisible': ['|','|','|',('third_party_works_amount_spec_exist', '=', True), ('is_third_party_works', '=', False)
-                                    ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                    attrs="{'invisible': ['|','|',('third_party_works_amount_spec_exist', '=', True), ('is_third_party_works', '=', False)
+                                    ,('can_edit', '=', False)]}"
                             />
                         </group>
                         <group colspan="2">
                             <field name="representation_expenses"
                                    attrs="{'invisible': [('is_representation_expenses', '=', False)]
-                                   ,'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')
+                                   ,'readonly': ['|',('can_edit', '=', False)
                                    ,('representation_expenses_amount_spec_exist', '=', True)]}"
                                    widget="monetary" class='oe_right' style="text-align:right"
                             />
@@ -432,8 +433,8 @@
                                     attrs="{'invisible': ['|',('representation_expenses_amount_spec_exist', '=', False),('is_representation_expenses', '=', False)]}"
                             />
                             <button name="action_open_amount_spec_representation_expenses" type="object" title="View project" string="spec" icon="fa-plus-square-o" class="btn btn-link "
-                                    attrs="{'invisible': ['|','|','|',('representation_expenses_amount_spec_exist', '=', True),('is_representation_expenses', '=', False)
-                                    ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                    attrs="{'invisible': ['|','|',('representation_expenses_amount_spec_exist', '=', True),('is_representation_expenses', '=', False)
+                                    ,('can_edit', '=', False)]}"
                             />
                         </group>
                     </group>
@@ -441,7 +442,7 @@
                         <group colspan="2">
                             <field name="transportation_expenses"
                                    attrs="{'invisible': [('is_transportation_expenses', '=', False)]
-                                   ,'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')
+                                   ,'readonly': ['|',('can_edit', '=', False)
                                    ,('transportation_expenses_amount_spec_exist', '=', True)]}"
                                    widget="monetary" class='oe_right' style="text-align:right"
                             />
@@ -451,14 +452,14 @@
                                     attrs="{'invisible': ['|',('transportation_expenses_amount_spec_exist', '=', False),('is_transportation_expenses', '=', False)]}"
                             />
                             <button name="action_open_amount_spec_transportation_expenses" type="object" title="View project" string="spec" icon="fa-plus-square-o" class="btn btn-link "
-                                    attrs="{'invisible': ['|','|','|',('transportation_expenses_amount_spec_exist', '=', True),('is_transportation_expenses', '=', False)
-                                    ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                    attrs="{'invisible': ['|','|',('transportation_expenses_amount_spec_exist', '=', True),('is_transportation_expenses', '=', False)
+                                    ,('can_edit', '=', False)]}"
                             />
                         </group>
                         <group colspan="2">
                             <field name="rko_other"
                                    attrs="{'invisible': [('is_rko_other', '=', False)]
-                                   ,'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')
+                                   ,'readonly': ['|',('can_edit', '=', False)
                                    ,('rko_other_amount_spec_exist', '=', True)]}"
                                    widget="monetary" class='oe_right' style="text-align:right"
                             />
@@ -468,8 +469,8 @@
                                     attrs="{'invisible': ['|',('rko_other_amount_spec_exist', '=', False),('is_rko_other', '=', False)]}"
                             />
                             <button name="action_open_amount_spec_rko_other" type="object" title="View project" string="spec" icon="fa-plus-square-o" class="btn btn-link "
-                                    attrs="{'invisible': ['|','|','|',('rko_other_amount_spec_exist', '=', True),('is_rko_other', '=', False)
-                                    ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                    attrs="{'invisible': ['|','|',('rko_other_amount_spec_exist', '=', True),('is_rko_other', '=', False)
+                                    ,('can_edit', '=', False)]}"
                             />
                         </group>
                     </group>
@@ -477,7 +478,7 @@
                         <group colspan="2">
                         <field name="warranty_service_costs"
                                    attrs="{'invisible': [('is_warranty_service_costs', '=', False)]
-                                   ,'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')
+                                   ,'readonly': ['|',('can_edit', '=', False)
                                    ,('warranty_service_costs_amount_spec_exist', '=', True)]}"
                                    widget="monetary" class='oe_right' style="text-align:right"
                             />
@@ -487,14 +488,14 @@
                                     attrs="{'invisible': ['|',('warranty_service_costs_amount_spec_exist', '=', False),('is_warranty_service_costs', '=', False)]}"
                             />
                             <button name="action_open_amount_spec_warranty_service_costs" type="object" title="View project" string="spec" icon="fa-plus-square-o" class="btn btn-link "
-                                    attrs="{'invisible': ['|','|','|',('warranty_service_costs_amount_spec_exist', '=', True),('is_warranty_service_costs', '=', False)
-                                    ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                    attrs="{'invisible': ['|','|',('warranty_service_costs_amount_spec_exist', '=', True),('is_warranty_service_costs', '=', False)
+                                    ,('can_edit', '=', False)]}"
                             />
                         </group>
                         <group colspan="2">
                             <field name="other_expenses"
                                    attrs="{'invisible': [('is_other_expenses', '=', False)]
-                                   ,'readonly': ['|','|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')
+                                   ,'readonly': ['|',('can_edit', '=', False)
                                    ,('other_expenses_amount_spec_exist', '=', True)]}"
                                    widget="monetary" class='oe_right' style="text-align:right"
                             />
@@ -504,8 +505,8 @@
                                     attrs="{'invisible': ['|',('other_expenses_amount_spec_exist', '=', False),('is_other_expenses', '=', False)]}"
                             />
                             <button name="action_open_amount_spec_other_expenses" type="object" title="View project" string="spec" icon="fa-plus-square-o" class="btn btn-link "
-                                    attrs="{'invisible': ['|','|','|',('other_expenses_amount_spec_exist', '=', True),('is_other_expenses', '=', False)
-                                    ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                    attrs="{'invisible': ['|','|',('other_expenses_amount_spec_exist', '=', True),('is_other_expenses', '=', False)
+                                    ,('can_edit', '=', False)]}"
                             />
                         </group>
                     </group>
@@ -796,8 +797,8 @@
                                                 attrs="{'invisible': ['|','|',('project_have_steps', '=', True),('revenue_from_the_sale_of_works_amount_spec_exist', '=', False),('is_revenue_from_the_sale_of_works', '=', False)]}"
                                         />
                                         <button name="action_open_amount_spec_revenue_from_the_sale_of_works" type="object" title="Add spec revenue_from_the_sale_of_works" string="spec" icon="fa-plus-square-o" class="btn btn-link "
-                                                attrs="{'invisible': ['|','|','|','|',('project_have_steps', '=', True),('revenue_from_the_sale_of_works_amount_spec_exist', '=', True),('is_revenue_from_the_sale_of_works', '=', False)
-                                                ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                                attrs="{'invisible': ['|','|','|',('project_have_steps', '=', True),('revenue_from_the_sale_of_works_amount_spec_exist', '=', True),('is_revenue_from_the_sale_of_works', '=', False)
+                                                ,('can_edit', '=', False)]}"
                                         />
                                     </group>
                                     <group colspan="2">
@@ -813,8 +814,8 @@
                                                 attrs="{'invisible': ['|','|',('project_have_steps', '=', True),('revenue_from_the_sale_of_goods_amount_spec_exist', '=', False),('is_revenue_from_the_sale_of_goods', '=', False)]}"
                                         />
                                         <button name="action_open_amount_spec_revenue_from_the_sale_of_goods" type="object" title="Add spec revenue_from_the_sale_of_goods" string="spec" icon="fa-plus-square-o" class="btn btn-link "
-                                                attrs="{'invisible': ['|','|','|','|',('project_have_steps', '=', True),('revenue_from_the_sale_of_goods_amount_spec_exist', '=', True),('is_revenue_from_the_sale_of_goods', '=', False)
-                                                ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                                attrs="{'invisible': ['|','|','|',('project_have_steps', '=', True),('revenue_from_the_sale_of_goods_amount_spec_exist', '=', True),('is_revenue_from_the_sale_of_goods', '=', False)
+                                                ,('can_edit', '=', False)]}"
                                         />
                                     </group>
                                 </group>
@@ -833,8 +834,8 @@
                                                 attrs="{'invisible': ['|','|',('project_have_steps', '=', True),('cost_of_goods_amount_spec_exist', '=', False),('is_cost_of_goods', '=', False)]}"
                                         />
                                         <button name="action_open_amount_spec_cost_of_goods" type="object" title="View project" string="spec" icon="fa-plus-square-o" class="btn btn-link"
-                                                attrs="{'invisible': ['|','|','|','|',('project_have_steps', '=', True),('cost_of_goods_amount_spec_exist', '=', True),('is_cost_of_goods', '=', False)
-                                                ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                                attrs="{'invisible': ['|','|','|',('project_have_steps', '=', True),('cost_of_goods_amount_spec_exist', '=', True),('is_cost_of_goods', '=', False)
+                                                ,('can_edit', '=', False)]}"
                                         />
                                     </group>
                                     <group colspan="2">
@@ -850,8 +851,8 @@
                                                 attrs="{'invisible': ['|','|',('project_have_steps', '=', True),('travel_expenses_amount_spec_exist', '=', False),('is_travel_expenses', '=', False)]}"
                                         />
                                         <button name="action_open_amount_spec_travel_expenses" type="object" title="View project" string="spec" icon="fa-plus-square-o" class="btn btn-link "
-                                                attrs="{'invisible': ['|','|','|','|',('project_have_steps', '=', True),('travel_expenses_amount_spec_exist', '=', True),('is_travel_expenses', '=', False)
-                                                ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                                attrs="{'invisible': ['|','|','|',('project_have_steps', '=', True),('travel_expenses_amount_spec_exist', '=', True),('is_travel_expenses', '=', False)
+                                                ,('can_edit', '=', False)]}"
                                         />
                                     </group>
                                 </group>
@@ -870,8 +871,8 @@
                                                 attrs="{'invisible': ['|','|',('project_have_steps', '=', True),('third_party_works_amount_spec_exist', '=', False), ('is_third_party_works', '=', False)]}"
                                         />
                                         <button name="action_open_amount_spec_third_party_works" type="object" title="View project" string="spec" icon="fa-plus-square-o" class="btn btn-link "
-                                                attrs="{'invisible': ['|','|','|','|',('project_have_steps', '=', True),('third_party_works_amount_spec_exist', '=', True), ('is_third_party_works', '=', False)
-                                                ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                                attrs="{'invisible': ['|','|','|',('project_have_steps', '=', True),('third_party_works_amount_spec_exist', '=', True), ('is_third_party_works', '=', False)
+                                                ,('can_edit', '=', False)]}"
                                         />
                                     </group>
                                     <group colspan="2">
@@ -888,8 +889,8 @@
                                                 attrs="{'invisible': ['|','|',('project_have_steps', '=', True),('representation_expenses_amount_spec_exist', '=', False),('is_representation_expenses', '=', False)]}"
                                         />
                                         <button name="action_open_amount_spec_representation_expenses" type="object" title="View project" string="spec" icon="fa-plus-square-o" class="btn btn-link "
-                                                attrs="{'invisible': ['|','|','|','|',('project_have_steps', '=', True),('representation_expenses_amount_spec_exist', '=', True),('is_representation_expenses', '=', False)
-                                                ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                                attrs="{'invisible': ['|','|','|',('project_have_steps', '=', True),('representation_expenses_amount_spec_exist', '=', True),('is_representation_expenses', '=', False)
+                                                ,('can_edit', '=', False)]}"
                                         />
                                     </group>
                                 </group>
@@ -907,8 +908,8 @@
                                                 attrs="{'invisible': ['|','|',('project_have_steps', '=', True),('transportation_expenses_amount_spec_exist', '=', False),('is_transportation_expenses', '=', False)]}"
                                         />
                                         <button name="action_open_amount_spec_transportation_expenses" type="object" title="View project" string="spec" icon="fa-plus-square-o" class="btn btn-link "
-                                                attrs="{'invisible': ['|','|','|','|',('project_have_steps', '=', True),('transportation_expenses_amount_spec_exist', '=', True),('is_transportation_expenses', '=', False)
-                                                ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                                attrs="{'invisible': ['|','|','|',('project_have_steps', '=', True),('transportation_expenses_amount_spec_exist', '=', True),('is_transportation_expenses', '=', False)
+                                                ,('can_edit', '=', False)]}"
                                         />
                                     </group>
                                     <group colspan="2">
@@ -924,8 +925,8 @@
                                                 attrs="{'invisible': ['|','|',('project_have_steps', '=', True),('rko_other_amount_spec_exist', '=', False),('is_rko_other', '=', False)]}"
                                         />
                                         <button name="action_open_amount_spec_rko_other" type="object" title="View project" string="spec" icon="fa-plus-square-o" class="btn btn-link "
-                                                attrs="{'invisible': ['|','|','|','|',('project_have_steps', '=', True),('rko_other_amount_spec_exist', '=', True),('is_rko_other', '=', False)
-                                                ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                                attrs="{'invisible': ['|','|','|',('project_have_steps', '=', True),('rko_other_amount_spec_exist', '=', True),('is_rko_other', '=', False)
+                                                ,('can_edit', '=', False)]}"
                                         />
                                     </group>
                                 </group>
@@ -943,8 +944,8 @@
                                                 attrs="{'invisible': ['|','|',('project_have_steps', '=', True),('warranty_service_costs_amount_spec_exist', '=', False),('is_warranty_service_costs', '=', False)]}"
                                         />
                                         <button name="action_open_amount_spec_warranty_service_costs" type="object" title="View project" string="spec" icon="fa-plus-square-o" class="btn btn-link "
-                                                attrs="{'invisible': ['|','|','|','|',('project_have_steps', '=', True),('warranty_service_costs_amount_spec_exist', '=', True),('is_warranty_service_costs', '=', False)
-                                                ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                                attrs="{'invisible': ['|','|','|',('project_have_steps', '=', True),('warranty_service_costs_amount_spec_exist', '=', True),('is_warranty_service_costs', '=', False)
+                                                ,('can_edit', '=', False)]}"
                                         />
                                     </group>
                                     <group colspan="2">
@@ -960,8 +961,8 @@
                                                 attrs="{'invisible': ['|','|',('project_have_steps', '=', True),('other_expenses_amount_spec_exist', '=', False),('is_other_expenses', '=', False)]}"
                                         />
                                         <button name="action_open_amount_spec_other_expenses" type="object" title="View project" string="spec" icon="fa-plus-square-o" class="btn btn-link "
-                                                attrs="{'invisible': ['|','|','|','|',('project_have_steps', '=', True),('other_expenses_amount_spec_exist', '=', True),('is_other_expenses', '=', False)
-                                                ,('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"
+                                                attrs="{'invisible': ['|','|','|',('project_have_steps', '=', True),('other_expenses_amount_spec_exist', '=', True),('is_other_expenses', '=', False)
+                                                ,('can_edit', '=', False)]}"
                                         />
                                     </group>
                                 </group>
