@@ -16,7 +16,7 @@
                     </group>
                 </sheet>
                 <footer>
-                    <button string="Import" name="import_file_data_from_wizard" class="btn-success" type="object"/>
+                    <button string="Import" name="import_file_data" class="btn-success" type="object"/>
                     <button string="Cancel" class="btn-danger" special="cancel"/>
                 </footer>
             </form>
