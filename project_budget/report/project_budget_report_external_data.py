@@ -35,7 +35,7 @@ class ReportExternalData(models.Model):
         attachments = msg_dict.get('attachments', '')
         if self.SUBJECT_STRING in subject and attachments:
             for attachment in attachments:
-                company_name, date = subject.strip('[Отчет для УК]').split('_')
+                company_name, date = subject.split(self.SUBJECT_STRING)[1].split('_')
                 data = self.file_to_data(BytesIO(attachment[1]))
                 if data:
                     defaults = {
@@ -47,5 +47,3 @@ class ReportExternalData(models.Model):
                     defaults.update(custom_values or {})
                     res = super(ReportExternalData, self).message_new(msg_dict, custom_values=defaults)
                     return res
-                else:
-                    continue
