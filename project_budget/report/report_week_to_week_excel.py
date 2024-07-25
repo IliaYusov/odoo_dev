@@ -21,7 +21,7 @@ class ReportWeekToWeekExcel(models.AbstractModel):
         'margin_income': 'МАРЖА 1,\n руб. без НДС',
     }
 
-    def data_to_dict(self, data, quarter, year):
+    def data_to_dict(self, data, quarter, year, stage_ids):
         projects = {}
 
         for section_name in self.section_names:
@@ -31,17 +31,17 @@ class ReportWeekToWeekExcel(models.AbstractModel):
         for p in data:
             if (p['date'].month-1)//3 == quarter and p['date'].year == year:
                 if p['probability'] == 'from_project' or not p['probability']:
-                    if p['stage_id'][1] == 'Выполнено':
+                    if p['stage_id'][0] == stage_ids['100(done)']:
                         prob = 'fact'
-                    elif p['stage_id'][1] in ('Исполнение, 100%', 'Обязательство, 75%'):
+                    elif p['stage_id'][0] in (stage_ids['100'], stage_ids['75']):
                         prob = 'commitment'
-                    elif p['stage_id'][1] == 'Резерв, 50%':
+                    elif p['stage_id'][0] == stage_ids['50']:
                         prob = 'reserve'
-                    elif p['stage_id'][1] == 'Возможность, 30%':
+                    elif p['stage_id'][0] == stage_ids['30']:
                         prob = 'potential'
-                    elif p['stage_id'][1] == 'Потенциал, 10%':
+                    elif p['stage_id'][0] == stage_ids['10']:
                         prob = 'lead'
-                    elif p['stage_id'][1] == 'Отменен':
+                    elif p['stage_id'][0] == stage_ids['0']:
                         prob = 'cancelled'
                 else:
                     prob = p['probability']
@@ -55,7 +55,7 @@ class ReportWeekToWeekExcel(models.AbstractModel):
 
         return projects
 
-    def find_difference(self, old_data, new_data, year):
+    def find_difference(self, old_data, new_data, year, stage_ids):
         res = []
 
         for quarter in range(4):
@@ -65,8 +65,8 @@ class ReportWeekToWeekExcel(models.AbstractModel):
                 for probability_name in self.probability_names:
                     res_dict.setdefault(section_name, {}).setdefault(probability_name, 0)
 
-            old_dict = self.data_to_dict(old_data, quarter, year)
-            new_dict = self.data_to_dict(new_data, quarter, year)
+            old_dict = self.data_to_dict(old_data, quarter, year, stage_ids)
+            new_dict = self.data_to_dict(new_data, quarter, year, stage_ids)
             if new_dict and not old_dict:
                 res.append(new_dict)
             elif old_dict and not new_dict:
@@ -125,6 +125,10 @@ class ReportWeekToWeekExcel(models.AbstractModel):
             'valign': 'vcenter',
             "num_format": '#,##0',
         })
+
+        stage_ids = {}  # словарик соответствия кодов стадий и id стадий
+        for stage in self.env['project_budget.project.stage'].search([]):
+            stage_ids[stage.code] = stage.id
 
         row = 2
         col = 3
@@ -198,7 +202,7 @@ class ReportWeekToWeekExcel(models.AbstractModel):
                 company = ''
                 office = ''
 
-            if new_data and not old_data and new_data[0]['stage_id'][1] not in ('Отменен', 'Потенциал'):
+            if new_data and not old_data and new_data[0]['stage_id'][0] not in (stage_ids['0'], stage_ids['10']):
                 sheet.write_string(row, 0, company, line_format_left)
                 sheet.write_string(row, 1, office, line_format_left)
                 sheet.write_string(row, 2, 'NEW', line_format)
@@ -210,7 +214,7 @@ class ReportWeekToWeekExcel(models.AbstractModel):
                 sheet.write_string(row, 2, 'REMOVED', line_format)
                 for quarter_n in range(5):
                     sheet.merge_range(row, col + quarter_n * len(self.probability_names), row, col + (1 + quarter_n) * len(self.probability_names) - 1, prj_id + ('|' + stp_id if stp_id else ''), line_format)
-            elif new_data and old_data and not (new_data[0]['stage_id'][1] in ('Отменен', 'Потенциал') and old_data[0]['stage_id'][1] in ('Отменен', 'Потенциал')):
+            elif new_data and old_data and not (new_data[0]['stage_id'][0] in (stage_ids['0'], stage_ids['10']) and old_data[0]['stage_id'][0] in (stage_ids['0'], stage_ids['10'])):
                 sheet.write_string(row, 0, company, line_format_left)
                 sheet.write_string(row, 1, office, line_format_left)
                 sheet.write_string(row, 2, 'CHANGED', line_format)
@@ -226,7 +230,7 @@ class ReportWeekToWeekExcel(models.AbstractModel):
                 sheet.write_string(row + self.section_names.index(section), 1, office, line_format_left)
                 sheet.write_string(row + self.section_names.index(section), 2, self.section_titles[section], line_format)
 
-            difference = self.find_difference(old_data, new_data, year)
+            difference = self.find_difference(old_data, new_data, year, stage_ids)
 
             for quarter_n in range(4):
                 if quarter_n % 2:
