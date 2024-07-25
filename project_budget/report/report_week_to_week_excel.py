@@ -57,6 +57,7 @@ class ReportWeekToWeekExcel(models.AbstractModel):
 
     def find_difference(self, old_data, new_data, year, stage_ids):
         res = []
+        has_changed = False
 
         for quarter in range(4):
 
@@ -75,17 +76,19 @@ class ReportWeekToWeekExcel(models.AbstractModel):
                         res_dict[type][probability] = -old_dict[type][probability]
                 res.append(res_dict)
             else:
-                has_changed = False
                 for type in self.section_names:
                     for probability in self.probability_names:
                         res_dict[type][probability] = new_dict[type][probability] - old_dict[type][probability]
-                        if res_dict[type][probability] != 0:
+                        if abs(res_dict[type][probability]) >= 1:
                             has_changed = True
                 if has_changed:
                     res.append(res_dict)
                 else:
                     res.append(False)
-        return res
+        if has_changed:
+            return res
+        else:
+            return False
 
     def data_to_set(self, data):
         projects_set = set()
@@ -140,7 +143,10 @@ class ReportWeekToWeekExcel(models.AbstractModel):
         sheet.hide_zero()
         sheet.autofilter(1, 0, 1, 2)
 
-        sheet.merge_range(0, 0, 0, 2, past_budget.date_actual.strftime("%d/%m/%y") + ' -> ' + date.today().strftime("%d/%m/%y"), line_format)
+        if budget.budget_state == 'work':
+            sheet.merge_range(0, 0, 0, 2, past_budget.date_actual.strftime("%d/%m/%y") + ' -> ' + date.today().strftime("%d/%m/%y"), line_format)
+        else:
+            sheet.merge_range(0, 0, 0, 2, past_budget.date_actual.strftime("%d/%m/%y") + ' -> ' + budget.date_actual.strftime("%d/%m/%y"), line_format)
 
         for quarter_n in range(5):
             if quarter_n % 2:
@@ -185,88 +191,89 @@ class ReportWeekToWeekExcel(models.AbstractModel):
 
         print(changed_ids)
 
-        for changed_id in changed_ids:
+        for changed_id in sorted(changed_ids):
 
             prj_id, stp_id = changed_id.split('|')
 
             old_data = [x for x in old_dict if prj_id == x['project_id'][1].split('|')[0] and (not x['step_id'] or stp_id == x['step_id'][1].split('|')[0])]
             new_data = [x for x in new_dict if prj_id == x['project_id'][1].split('|')[0] and (not x['step_id'] or stp_id in x['step_id'][1].split('|')[0])]
 
-            if old_data:
-                company = old_data[0]['company_id'][1]
-                office = old_data[0]['project_office_id'][1]
-            elif new_data:
-                company = new_data[0]['company_id'][1]
-                office = new_data[0]['project_office_id'][1]
-            else:
-                company = ''
-                office = ''
-
-            if new_data and not old_data and new_data[0]['stage_id'][0] not in (stage_ids['0'], stage_ids['10']):
-                sheet.write_string(row, 0, company, line_format_left)
-                sheet.write_string(row, 1, office, line_format_left)
-                sheet.write_string(row, 2, 'NEW', line_format)
-                for quarter_n in range(5):
-                    sheet.merge_range(row, col + quarter_n * len(self.probability_names), row, col + (1 + quarter_n) * len(self.probability_names) - 1, prj_id + ('|' + stp_id if stp_id else ''), line_format)
-            elif old_data and not new_data:
-                sheet.write_string(row, 0, company, line_format_left)
-                sheet.write_string(row, 1, office, line_format_left)
-                sheet.write_string(row, 2, 'REMOVED', line_format)
-                for quarter_n in range(5):
-                    sheet.merge_range(row, col + quarter_n * len(self.probability_names), row, col + (1 + quarter_n) * len(self.probability_names) - 1, prj_id + ('|' + stp_id if stp_id else ''), line_format)
-            elif new_data and old_data and not (new_data[0]['stage_id'][0] in (stage_ids['0'], stage_ids['10']) and old_data[0]['stage_id'][0] in (stage_ids['0'], stage_ids['10'])):
-                sheet.write_string(row, 0, company, line_format_left)
-                sheet.write_string(row, 1, office, line_format_left)
-                sheet.write_string(row, 2, 'CHANGED', line_format)
-                for quarter_n in range(5):
-                    sheet.merge_range(row, col + quarter_n * len(self.probability_names), row, col + (1 + quarter_n) * len(self.probability_names) - 1, prj_id + ('|' + stp_id if stp_id else ''), line_format)
-            else:
-                continue
-
-            row += 1
-
-            for section in self.section_names:
-                sheet.write_string(row + self.section_names.index(section), 0, company, line_format_left)
-                sheet.write_string(row + self.section_names.index(section), 1, office, line_format_left)
-                sheet.write_string(row + self.section_names.index(section), 2, self.section_titles[section], line_format)
-
             difference = self.find_difference(old_data, new_data, year, stage_ids)
 
-            for quarter_n in range(4):
-                if quarter_n % 2:
-                    formating = line_format
+            if difference:
+                if old_data:
+                    company = old_data[0]['company_id'][1]
+                    office = old_data[0]['project_office_id'][1]
+                elif new_data:
+                    company = new_data[0]['company_id'][1]
+                    office = new_data[0]['project_office_id'][1]
                 else:
-                    formating = line_format_grey
-                for section_n in range(len(self.section_names)):
-                    for probability_n in range(len(self.probability_names)):
-                        if difference[quarter_n]:
-                            sheet.write_number(
-                                row + section_n,
-                                col + probability_n + quarter_n * len(self.probability_names),
-                                difference[quarter_n][self.section_names[section_n]][self.probability_names[probability_n]],
-                                formating
-                            )
-                        else:
-                            sheet.write_number(
-                                row + section_n,
-                                col + probability_n + quarter_n * len(self.probability_names),
-                                0,
-                                formating
-                            )
-                        sheet.write_formula(
-                            row + section_n,
-                            col + 4 * len(self.probability_names) + probability_n,
-                            '=sum({1}{0},{2}{0},{3}{0},{4}{0})'.format(
-                                row + section_n + 1,
-                                xl_col_to_name(col + probability_n),
-                                xl_col_to_name(col + 1 * len(self.probability_names) + probability_n),
-                                xl_col_to_name(col + 2 * len(self.probability_names) + probability_n),
-                                xl_col_to_name(col + 3 * len(self.probability_names) + probability_n),
-                            ),
-                            line_format_grey
-                        )
+                    company = ''
+                    office = ''
 
-            row += 4
+                if new_data and not old_data and new_data[0]['stage_id'][0] not in (stage_ids['0'], stage_ids['10']):
+                    sheet.write_string(row, 0, company, line_format_left)
+                    sheet.write_string(row, 1, office, line_format_left)
+                    sheet.write_string(row, 2, 'NEW', line_format)
+                    for quarter_n in range(5):
+                        sheet.merge_range(row, col + quarter_n * len(self.probability_names), row, col + (1 + quarter_n) * len(self.probability_names) - 1, prj_id + ('|' + stp_id if stp_id else ''), line_format)
+                elif old_data and not new_data:
+                    sheet.write_string(row, 0, company, line_format_left)
+                    sheet.write_string(row, 1, office, line_format_left)
+                    sheet.write_string(row, 2, 'REMOVED', line_format)
+                    for quarter_n in range(5):
+                        sheet.merge_range(row, col + quarter_n * len(self.probability_names), row, col + (1 + quarter_n) * len(self.probability_names) - 1, prj_id + ('|' + stp_id if stp_id else ''), line_format)
+                elif new_data and old_data and not (new_data[0]['stage_id'][0] in (stage_ids['0'], stage_ids['10']) and old_data[0]['stage_id'][0] in (stage_ids['0'], stage_ids['10'])):
+                    sheet.write_string(row, 0, company, line_format_left)
+                    sheet.write_string(row, 1, office, line_format_left)
+                    sheet.write_string(row, 2, 'CHANGED', line_format)
+                    for quarter_n in range(5):
+                        sheet.merge_range(row, col + quarter_n * len(self.probability_names), row, col + (1 + quarter_n) * len(self.probability_names) - 1, prj_id + ('|' + stp_id if stp_id else ''), line_format)
+                else:
+                    continue
+
+                row += 1
+
+                for section in self.section_names:
+                    sheet.write_string(row + self.section_names.index(section), 0, company, line_format_left)
+                    sheet.write_string(row + self.section_names.index(section), 1, office, line_format_left)
+                    sheet.write_string(row + self.section_names.index(section), 2, self.section_titles[section], line_format)
+
+                for quarter_n in range(4):
+                    if quarter_n % 2:
+                        formating = line_format
+                    else:
+                        formating = line_format_grey
+                    for section_n in range(len(self.section_names)):
+                        for probability_n in range(len(self.probability_names)):
+                            if difference[quarter_n]:
+                                sheet.write_number(
+                                    row + section_n,
+                                    col + probability_n + quarter_n * len(self.probability_names),
+                                    difference[quarter_n][self.section_names[section_n]][self.probability_names[probability_n]],
+                                    formating
+                                )
+                            else:
+                                sheet.write_number(
+                                    row + section_n,
+                                    col + probability_n + quarter_n * len(self.probability_names),
+                                    0,
+                                    formating
+                                )
+                            sheet.write_formula(
+                                row + section_n,
+                                col + 4 * len(self.probability_names) + probability_n,
+                                '=sum({1}{0},{2}{0},{3}{0},{4}{0})'.format(
+                                    row + section_n + 1,
+                                    xl_col_to_name(col + probability_n),
+                                    xl_col_to_name(col + 1 * len(self.probability_names) + probability_n),
+                                    xl_col_to_name(col + 2 * len(self.probability_names) + probability_n),
+                                    xl_col_to_name(col + 3 * len(self.probability_names) + probability_n),
+                                ),
+                                line_format_grey
+                            )
+
+                row += 4
 
     def generate_xlsx_report(self, workbook, data, budgets):
 
