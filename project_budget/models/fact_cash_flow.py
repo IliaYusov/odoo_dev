@@ -13,8 +13,6 @@ class fact_cash_flow(models.Model):
     can_edit = fields.Boolean(related='projects_id.can_edit', readonly=True)
     project_have_steps = fields.Boolean(related='projects_id.project_have_steps', string='project have steps',
                                         readonly=True)
-    project_steps_id = fields.Many2one('project_budget.project_steps', string='project_steps_id', index=True,
-                                       ondelete='cascade')   # TODO убрать после миграции
     step_project_child_id = fields.Many2one('project_budget.projects', string="step-project child id", index=True,
                                             ondelete='cascade')
     date_cash = fields.Date(string="date_cash", required=True, copy=True)

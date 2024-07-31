@@ -34,8 +34,6 @@
               name="legal_entity_signing" action="show_legal_entity_signing"/>
     <menuitem id="project_budget_catalogs_project_type" parent="project_budget_catalogs" name="project_type"
               action="show_project_type"/>
-    <menuitem id="project_budget_catalogs_project_steps_type" parent="project_budget_catalogs"
-              name="type of project steps" action="show_project_steps_type"/>
     <menuitem id="project_budget_catalogs_technological_direction" parent="project_budget_catalogs"
               name="technological_direction" action="show_technological_direction"/>
     <menuitem id="project_budget_catalogs_tender_current_status" parent="project_budget_catalogs" name="tender status"

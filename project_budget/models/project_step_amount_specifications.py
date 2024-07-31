@@ -54,12 +54,7 @@ class project_budget_step_amount_spec(models.Model):
     _name = 'project_budget.step_amount_spec'
     _description = "projects step amount specification"
     _inherit = ['mail.thread', 'mail.activity.mixin']
-    step_id = fields.Many2one('project_budget.project_steps', string='step_id', index=True, ondelete='cascade')
-    type = fields.Selection([('revenue_from_the_sale_of_works', 'revenue_from_the_sale_of_works'), ('revenue_from_the_sale_of_goods', 'revenue_from_the_sale_of_goods'),
-                             ('cost_of_goods', 'cost_of_goods'),('travel_expenses', 'travel_expenses'),('third_party_works', 'third_party_works'),
-                             ('representation_expenses', 'representation_expenses'),('transportation_expenses', 'transportation_expenses'),
-                             ('rko_other', 'rko_other'),('warranty_service_costs', 'warranty_service_costs'),('other_expenses', 'other_expenses'),
-                            ], required=True, index=True, default= _get_default_amount_spec_type,  copy=True,)
+
     currency_id = fields.Many2one('res.currency', string='Account Currency',  domain = _get_domain_currency)
     # project_currency_id = fields.Many2one('project_budget.project_currency_rates', string='Projects currency',  required = True, copy = True,
     #                               tracking=True, domain=False)

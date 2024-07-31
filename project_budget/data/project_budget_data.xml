@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <record id="project_steps_type_product" model="project_budget.project_steps_type">
-            <field name="name">Поставка</field>
-        </record>
-        <record id="project_steps_type_Service" model="project_budget.project_steps_type">
-            <field name="name">Услуги</field>
-        </record>
-
         <record id="mail_act_send_project_to_supervisor_for_approval" model="mail.activity.type">
             <field name="name">Send project to supervisor for approval</field>
             <field name="summary">You have to change some fields if its nessesary and/or send project to supervisor for approval</field>

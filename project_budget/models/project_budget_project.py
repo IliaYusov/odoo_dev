@@ -379,10 +379,7 @@ class Project(models.Model):
     )
     project_have_steps = fields.Boolean(string="project have steps", default=False, copy=True, tracking=True)
     is_framework = fields.Boolean(string="project is framework", default=False, copy=True, tracking=True)
-    project_steps_ids = fields.One2many(
-        comodel_name='project_budget.project_steps',
-        inverse_name='projects_id',
-        string="project steps", auto_join=True)  # TODO убрать после миграции
+
     different_project_offices_in_steps = fields.Boolean(
         related='legal_entity_signing_id.different_project_offices_in_steps', readonly=True)
 

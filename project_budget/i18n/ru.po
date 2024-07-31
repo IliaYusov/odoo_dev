@@ -216,9 +216,7 @@ msgstr "Доступы"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_cash_flow__currency_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__currency_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__currency_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__currency_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__currency_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__currency_id
 msgid "Account Currency"
 msgstr "Валюта"
 
@@ -237,9 +235,7 @@ msgstr "Бухгалтерский учет"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__message_needaction
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__message_needaction
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_currency_rates__message_needaction
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__message_needaction
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__message_needaction
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__message_needaction
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__message_needaction
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__message_needaction
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__message_needaction
@@ -267,9 +263,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__activity_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__activity_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_currency_rates__activity_ids
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__activity_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__activity_ids
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__activity_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__activity_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__activity_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__activity_ids
@@ -286,9 +280,7 @@ msgstr "Активности"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__activity_exception_decoration
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__activity_exception_decoration
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_currency_rates__activity_exception_decoration
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__activity_exception_decoration
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__activity_exception_decoration
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__activity_exception_decoration
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__activity_exception_decoration
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__activity_exception_decoration
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__activity_exception_decoration
@@ -305,9 +297,7 @@ msgstr "Оформление исключения"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__activity_state
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__activity_state
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_currency_rates__activity_state
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__activity_state
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__activity_state
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__activity_state
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__activity_state
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__activity_state
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__activity_state
@@ -324,9 +314,7 @@ msgstr "Состояние активности"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__activity_type_icon
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__activity_type_icon
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_currency_rates__activity_type_icon
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__activity_type_icon
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__activity_type_icon
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__activity_type_icon
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__activity_type_icon
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__activity_type_icon
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__activity_type_icon
@@ -337,7 +325,6 @@ msgstr "Иконка типа активности"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_commercial_budget__date_actual
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__date_actual
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__date_actual
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__date_actual
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__date_actual
 msgid "Actuality date"
 msgstr "Дата актуализации"
@@ -407,7 +394,6 @@ msgstr "Утвердить"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_cash_flow__approve_state
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__approve_state
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__approve_state
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__approve_state
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__approve_state
 msgid "Approve State"
 msgstr "На согласовании"
@@ -445,9 +431,7 @@ msgstr "В архиве"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__message_attachment_count
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__message_attachment_count
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_currency_rates__message_attachment_count
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__message_attachment_count
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__message_attachment_count
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__message_attachment_count
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__message_attachment_count
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__message_attachment_count
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__message_attachment_count
@@ -478,7 +462,6 @@ msgid "Avatar 128"
 msgstr "Аватарка 128"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__awards_on_results_project
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__awards_on_results_project
 msgid "Awards based on the results of the project"
 msgstr "Премии по итогам проекта"
@@ -495,7 +478,6 @@ msgstr "ПЛАН БЮДЖЕТНЫХ ПОКАЗАТЕЛЕЙ"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_cash_flow__budget_state
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__budget_state
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__budget_state
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__budget_state
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__budget_state
 msgid "Budget State"
 msgstr "Состояние бюджета"
@@ -514,7 +496,6 @@ msgstr "Коммерческая деятельность"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_acceptance_flow__can_edit
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_cash_flow__can_edit
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_member__can_edit
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__can_edit
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__can_edit
 msgid "Can Edit"
 msgstr ""
@@ -758,11 +739,6 @@ msgid "Create a new project office."
 msgstr "Создайте новый проектный офис."
 
 #. module: project_budget
-#: model_terms:ir.actions.act_window,help:project_budget.show_project_steps_type
-msgid "Create a new project_steps_type"
-msgstr "Создать новый тип этапа проекта"
-
-#. module: project_budget
 #: model_terms:ir.actions.act_window,help:project_budget.show_project_supervisor
 msgid "Create a new project_supervisor"
 msgstr "Добавить куратора проекта"
@@ -808,11 +784,6 @@ msgid "Create a project amount specification"
 msgstr "Создать расшифровку суммы"
 
 #. module: project_budget
-#: model_terms:ir.actions.act_window,help:project_budget.show_step_amount_spec_empty
-msgid "Create a project step amount specification"
-msgstr "Создать расшифровку суммы этапа"
-
-#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_amount_spec__create_uid
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_kam__create_uid
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_kam_spec__create_uid
@@ -833,15 +804,12 @@ msgstr "Создать расшифровку суммы этапа"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_office__create_uid
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_role__create_uid
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_stage__create_uid
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__create_uid
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps_type__create_uid
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_supervisor__create_uid
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_supervisor_access__create_uid
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_type__create_uid
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__create_uid
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects_report_wizard__create_uid
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_scheduled_report__create_uid
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__create_uid
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_technological_direction__create_uid
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__create_uid
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments_type__create_uid
@@ -877,15 +845,12 @@ msgstr "Создано кем"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_office__create_date
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_role__create_date
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_stage__create_date
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__create_date
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps_type__create_date
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_supervisor__create_date
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_supervisor_access__create_date
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_type__create_date
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__create_date
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects_report_wizard__create_date
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_scheduled_report__create_date
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__create_date
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_technological_direction__create_date
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__create_date
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments_type__create_date
@@ -977,7 +942,6 @@ msgstr ""
 "{2}"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__end_presale_project_month
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__end_presale_project_month
 msgid "Date of transition to the Production Budget(MONTH)"
 msgstr "Дата контрактования"
@@ -1055,15 +1019,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_overdue_report__display_name
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_role__display_name
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_stage__display_name
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__display_name
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps_type__display_name
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_supervisor__display_name
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_supervisor_access__display_name
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_type__display_name
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__display_name
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects_report_wizard__display_name
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_scheduled_report__display_name
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__display_name
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_technological_direction__display_name
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__display_name
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments_type__display_name
@@ -1079,7 +1040,6 @@ msgid "Display Name"
 msgstr "Отображаемое имя"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__dogovor_number
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__dogovor_number
 msgid "Dogovor number"
 msgstr "Номер договора"
@@ -1101,7 +1061,6 @@ msgstr ""
 
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_amount_spec
-#: model_terms:ir.ui.view,arch_db:project_budget.show_step_amount_spec
 msgid "Edit summ specification:"
 msgstr "Просмотр/редактирование расшифровки суммы"
 
@@ -1111,13 +1070,11 @@ msgid "Employee"
 msgstr "Сотрудник"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__end_presale_project_quarter
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__end_presale_project_quarter
 msgid "End date of the Presale project(quarter)"
 msgstr "Квартал контрактования"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__end_sale_project_quarter
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__end_sale_project_quarter
 msgid "End date of the Sale project(quarter)"
 msgstr "Квартал последней отгрузки"
@@ -1169,9 +1126,7 @@ msgstr "Свернуть на Kanban-доске"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__message_follower_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__message_follower_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_currency_rates__message_follower_ids
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__message_follower_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__message_follower_ids
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__message_follower_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__message_follower_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__message_follower_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__message_follower_ids
@@ -1188,9 +1143,7 @@ msgstr "Подписчики"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__message_partner_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__message_partner_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_currency_rates__message_partner_ids
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__message_partner_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__message_partner_ids
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__message_partner_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__message_partner_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__message_partner_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__message_partner_ids
@@ -1207,9 +1160,7 @@ msgstr "Подписчики (Партнеры)"
 #: model:ir.model.fields,help:project_budget.field_project_budget_planned_acceptance_flow__activity_type_icon
 #: model:ir.model.fields,help:project_budget.field_project_budget_planned_cash_flow__activity_type_icon
 #: model:ir.model.fields,help:project_budget.field_project_budget_project_currency_rates__activity_type_icon
-#: model:ir.model.fields,help:project_budget.field_project_budget_project_steps__activity_type_icon
 #: model:ir.model.fields,help:project_budget.field_project_budget_projects__activity_type_icon
-#: model:ir.model.fields,help:project_budget.field_project_budget_step_amount_spec__activity_type_icon
 #: model:ir.model.fields,help:project_budget.field_project_budget_tender_comments__activity_type_icon
 #: model:ir.model.fields,help:project_budget.field_project_budget_tender_sums__activity_type_icon
 #: model:ir.model.fields,help:project_budget.field_project_budget_tenders__activity_type_icon
@@ -1257,9 +1208,7 @@ msgstr "Группировать по"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__has_message
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__has_message
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_currency_rates__has_message
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__has_message
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__has_message
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__has_message
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__has_message
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__has_message
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__has_message
@@ -1293,15 +1242,12 @@ msgstr "Помогает управлять бюджетными проекта�
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_overdue_report__id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_role__id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_stage__id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps_type__id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_supervisor__id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_supervisor_access__id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_type__id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects_report_wizard__id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_scheduled_report__id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_technological_direction__id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments_type__id
@@ -1326,9 +1272,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__activity_exception_icon
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__activity_exception_icon
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_currency_rates__activity_exception_icon
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__activity_exception_icon
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__activity_exception_icon
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__activity_exception_icon
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__activity_exception_icon
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__activity_exception_icon
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__activity_exception_icon
@@ -1345,9 +1289,7 @@ msgstr "Иконка"
 #: model:ir.model.fields,help:project_budget.field_project_budget_planned_acceptance_flow__activity_exception_icon
 #: model:ir.model.fields,help:project_budget.field_project_budget_planned_cash_flow__activity_exception_icon
 #: model:ir.model.fields,help:project_budget.field_project_budget_project_currency_rates__activity_exception_icon
-#: model:ir.model.fields,help:project_budget.field_project_budget_project_steps__activity_exception_icon
 #: model:ir.model.fields,help:project_budget.field_project_budget_projects__activity_exception_icon
-#: model:ir.model.fields,help:project_budget.field_project_budget_step_amount_spec__activity_exception_icon
 #: model:ir.model.fields,help:project_budget.field_project_budget_tender_comments__activity_exception_icon
 #: model:ir.model.fields,help:project_budget.field_project_budget_tender_sums__activity_exception_icon
 #: model:ir.model.fields,help:project_budget.field_project_budget_tenders__activity_exception_icon
@@ -1364,9 +1306,7 @@ msgstr "Икондля для индикации исключения"
 #: model:ir.model.fields,help:project_budget.field_project_budget_planned_acceptance_flow__message_needaction
 #: model:ir.model.fields,help:project_budget.field_project_budget_planned_cash_flow__message_needaction
 #: model:ir.model.fields,help:project_budget.field_project_budget_project_currency_rates__message_needaction
-#: model:ir.model.fields,help:project_budget.field_project_budget_project_steps__message_needaction
 #: model:ir.model.fields,help:project_budget.field_project_budget_projects__message_needaction
-#: model:ir.model.fields,help:project_budget.field_project_budget_step_amount_spec__message_needaction
 #: model:ir.model.fields,help:project_budget.field_project_budget_tender_comments__message_needaction
 #: model:ir.model.fields,help:project_budget.field_project_budget_tender_sums__message_needaction
 #: model:ir.model.fields,help:project_budget.field_project_budget_tenders__message_needaction
@@ -1383,9 +1323,7 @@ msgstr "Если отмечено, то сообщения требуют вни
 #: model:ir.model.fields,help:project_budget.field_project_budget_planned_acceptance_flow__message_has_error
 #: model:ir.model.fields,help:project_budget.field_project_budget_planned_cash_flow__message_has_error
 #: model:ir.model.fields,help:project_budget.field_project_budget_project_currency_rates__message_has_error
-#: model:ir.model.fields,help:project_budget.field_project_budget_project_steps__message_has_error
 #: model:ir.model.fields,help:project_budget.field_project_budget_projects__message_has_error
-#: model:ir.model.fields,help:project_budget.field_project_budget_step_amount_spec__message_has_error
 #: model:ir.model.fields,help:project_budget.field_project_budget_tender_comments__message_has_error
 #: model:ir.model.fields,help:project_budget.field_project_budget_tender_sums__message_has_error
 #: model:ir.model.fields,help:project_budget.field_project_budget_tenders__message_has_error
@@ -1431,9 +1369,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__message_is_follower
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__message_is_follower
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_currency_rates__message_is_follower
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__message_is_follower
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__message_is_follower
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__message_is_follower
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__message_is_follower
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__message_is_follower
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__message_is_follower
@@ -1512,15 +1448,12 @@ msgstr "КАМ"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_overdue_report____last_update
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_role____last_update
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_stage____last_update
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps____last_update
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps_type____last_update
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_supervisor____last_update
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_supervisor_access____last_update
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_type____last_update
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects____last_update
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects_report_wizard____last_update
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_scheduled_report____last_update
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec____last_update
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_technological_direction____last_update
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments____last_update
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments_type____last_update
@@ -1556,15 +1489,12 @@ msgstr "Дата последней модификации"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_office__write_uid
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_role__write_uid
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_stage__write_uid
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__write_uid
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps_type__write_uid
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_supervisor__write_uid
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_supervisor_access__write_uid
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_type__write_uid
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__write_uid
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects_report_wizard__write_uid
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_scheduled_report__write_uid
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__write_uid
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_technological_direction__write_uid
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__write_uid
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments_type__write_uid
@@ -1600,15 +1530,12 @@ msgstr "Автор последнего изменения"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_office__write_date
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_role__write_date
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_stage__write_date
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__write_date
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps_type__write_date
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_supervisor__write_date
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_supervisor_access__write_date
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_type__write_date
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__write_date
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects_report_wizard__write_date
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_scheduled_report__write_date
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__write_date
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_technological_direction__write_date
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__write_date
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments_type__write_date
@@ -1668,9 +1595,7 @@ msgstr "Валюта"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__message_main_attachment_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__message_main_attachment_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_currency_rates__message_main_attachment_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__message_main_attachment_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__message_main_attachment_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__message_main_attachment_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__message_main_attachment_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__message_main_attachment_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__message_main_attachment_id
@@ -1684,7 +1609,6 @@ msgstr "Отчет для УК"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_legal_entity_signing__is_percent_fot_manual
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__is_percent_fot_manual
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__is_percent_fot_manual
 msgid "Manual fot_percent"
 msgstr "Ручной % ФОТ"
@@ -1701,7 +1625,6 @@ msgid "Margin"
 msgstr "Маржа 1"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__margin_income
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__margin_income
 msgid "Margin income"
 msgstr "Маржа"
@@ -1721,9 +1644,7 @@ msgstr "Участники"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__message_has_error
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__message_has_error
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_currency_rates__message_has_error
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__message_has_error
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__message_has_error
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__message_has_error
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__message_has_error
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__message_has_error
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__message_has_error
@@ -1740,9 +1661,7 @@ msgstr "Ошибка доставки сообщения"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__message_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__message_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_currency_rates__message_ids
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__message_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__message_ids
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__message_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__message_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__message_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__message_ids
@@ -1759,9 +1678,7 @@ msgstr "Сообщения"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__my_activity_date_deadline
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__my_activity_date_deadline
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_currency_rates__my_activity_date_deadline
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__my_activity_date_deadline
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__my_activity_date_deadline
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__my_activity_date_deadline
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__my_activity_date_deadline
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__my_activity_date_deadline
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__my_activity_date_deadline
@@ -1808,9 +1725,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__activity_calendar_event_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__activity_calendar_event_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_currency_rates__activity_calendar_event_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__activity_calendar_event_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__activity_calendar_event_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__activity_calendar_event_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__activity_calendar_event_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__activity_calendar_event_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__activity_calendar_event_id
@@ -1827,9 +1742,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__activity_date_deadline
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__activity_date_deadline
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_currency_rates__activity_date_deadline
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__activity_date_deadline
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__activity_date_deadline
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__activity_date_deadline
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__activity_date_deadline
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__activity_date_deadline
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__activity_date_deadline
@@ -1846,9 +1759,7 @@ msgstr "Следйбший срок активности"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__activity_summary
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__activity_summary
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_currency_rates__activity_summary
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__activity_summary
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__activity_summary
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__activity_summary
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__activity_summary
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__activity_summary
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__activity_summary
@@ -1865,9 +1776,7 @@ msgstr "Следующая активность"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__activity_type_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__activity_type_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_currency_rates__activity_type_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__activity_type_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__activity_type_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__activity_type_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__activity_type_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__activity_type_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__activity_type_id
@@ -1911,9 +1820,7 @@ msgstr "Этапы не найдены. Давайте создадим перв
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__message_needaction_counter
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__message_needaction_counter
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_currency_rates__message_needaction_counter
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__message_needaction_counter
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__message_needaction_counter
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__message_needaction_counter
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__message_needaction_counter
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__message_needaction_counter
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__message_needaction_counter
@@ -1930,9 +1837,7 @@ msgstr "Количество активости"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__message_has_error_counter
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__message_has_error_counter
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_currency_rates__message_has_error_counter
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__message_has_error_counter
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__message_has_error_counter
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__message_has_error_counter
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__message_has_error_counter
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__message_has_error_counter
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__message_has_error_counter
@@ -1949,9 +1854,7 @@ msgstr "Количество ошибок"
 #: model:ir.model.fields,help:project_budget.field_project_budget_planned_acceptance_flow__message_needaction_counter
 #: model:ir.model.fields,help:project_budget.field_project_budget_planned_cash_flow__message_needaction_counter
 #: model:ir.model.fields,help:project_budget.field_project_budget_project_currency_rates__message_needaction_counter
-#: model:ir.model.fields,help:project_budget.field_project_budget_project_steps__message_needaction_counter
 #: model:ir.model.fields,help:project_budget.field_project_budget_projects__message_needaction_counter
-#: model:ir.model.fields,help:project_budget.field_project_budget_step_amount_spec__message_needaction_counter
 #: model:ir.model.fields,help:project_budget.field_project_budget_tender_comments__message_needaction_counter
 #: model:ir.model.fields,help:project_budget.field_project_budget_tender_sums__message_needaction_counter
 #: model:ir.model.fields,help:project_budget.field_project_budget_tenders__message_needaction_counter
@@ -1968,9 +1871,7 @@ msgstr "Количество сообщений, для которых треб�
 #: model:ir.model.fields,help:project_budget.field_project_budget_planned_acceptance_flow__message_has_error_counter
 #: model:ir.model.fields,help:project_budget.field_project_budget_planned_cash_flow__message_has_error_counter
 #: model:ir.model.fields,help:project_budget.field_project_budget_project_currency_rates__message_has_error_counter
-#: model:ir.model.fields,help:project_budget.field_project_budget_project_steps__message_has_error_counter
 #: model:ir.model.fields,help:project_budget.field_project_budget_projects__message_has_error_counter
-#: model:ir.model.fields,help:project_budget.field_project_budget_step_amount_spec__message_has_error_counter
 #: model:ir.model.fields,help:project_budget.field_project_budget_tender_comments__message_has_error_counter
 #: model:ir.model.fields,help:project_budget.field_project_budget_tender_sums__message_has_error_counter
 #: model:ir.model.fields,help:project_budget.field_project_budget_tenders__message_has_error_counter
@@ -2142,13 +2043,6 @@ msgstr "Пожалуйста добавьте код проекта из AXAPTA 
 
 #. module: project_budget
 #. odoo-python
-#: code:addons/project_budget/models/project_steps.py:0
-#, python-format
-msgid "Please enter AXAPTA code to project {0} step {1}"
-msgstr "Пожалуйста добавьте код этапа из AXAPTA в этап {1} проекта {0}"
-
-#. module: project_budget
-#. odoo-python
 #: code:addons/project_budget/models/project_budget_project.py:0
 #, python-format
 msgid "Please enter financial data to project {0}"
@@ -2164,15 +2058,6 @@ msgid "Please enter financial data to step {0}"
 msgstr ""
 "Пожалуйста добавьте Финансовые показатели в этап {0}, его вероятность "
 "больше 10%"
-
-#. module: project_budget
-#. odoo-python
-#: code:addons/project_budget/models/project_steps.py:0
-#, python-format
-msgid "Please enter financial data to project {0} step {1}"
-msgstr ""
-"Пожалуйста добавьте Финансовые показатели в этап {1} проекта {0}, его "
-"вероятность больше 30%"
 
 #. module: project_budget
 #. odoo-python
@@ -2310,7 +2195,6 @@ msgid "Production"
 msgstr "ПБ"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__profitability
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__profitability
 msgid "Profitability(share of Sale margin in revenue)"
 msgstr "Рентабельность"
@@ -2373,7 +2257,6 @@ msgstr "Участник проекта"
 #. module: project_budget
 #: model:ir.model,name:project_budget.model_project_budget_project_office
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_overdue_report__project_office_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__project_office_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__project_office_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__project_office_id
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_office_view_from
@@ -2690,9 +2573,7 @@ msgstr "Резерв"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__activity_user_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__activity_user_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_currency_rates__activity_user_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__activity_user_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__activity_user_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__activity_user_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__activity_user_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__activity_user_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__activity_user_id
@@ -2826,7 +2707,6 @@ msgstr "Перечень проектов"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_overdue_report__stage_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__stage_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__stage_id
 msgid "Stage"
 msgstr "Этап"
@@ -2846,9 +2726,7 @@ msgstr "Этапы"
 #: model:ir.model.fields,help:project_budget.field_project_budget_planned_acceptance_flow__activity_state
 #: model:ir.model.fields,help:project_budget.field_project_budget_planned_cash_flow__activity_state
 #: model:ir.model.fields,help:project_budget.field_project_budget_project_currency_rates__activity_state
-#: model:ir.model.fields,help:project_budget.field_project_budget_project_steps__activity_state
 #: model:ir.model.fields,help:project_budget.field_project_budget_projects__activity_state
-#: model:ir.model.fields,help:project_budget.field_project_budget_step_amount_spec__activity_state
 #: model:ir.model.fields,help:project_budget.field_project_budget_tender_comments__activity_state
 #: model:ir.model.fields,help:project_budget.field_project_budget_tender_sums__activity_state
 #: model:ir.model.fields,help:project_budget.field_project_budget_tenders__activity_state
@@ -2874,16 +2752,6 @@ msgstr "Этап"
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_step_project_view_form
 msgid "Step ID"
 msgstr "ID этапа"
-
-#. module: project_budget
-#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_project_steps_tree
-msgid "Step stage"
-msgstr "Вероятность этапа"
-
-#. module: project_budget
-#: model_terms:ir.ui.view,arch_db:project_budget.show_step_amount_spec
-msgid "Steps"
-msgstr ""
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_res_users__supervisor_rule
@@ -2977,7 +2845,6 @@ msgid "Tenders with that term not found!"
 msgstr "По указанным условиям тендеры не найдены"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__end_sale_project_month
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__end_sale_project_month
 msgid "The period of shipment or provision of services to the Client(MONTH)"
 msgstr "Последняя отгрузка"
@@ -2996,7 +2863,6 @@ msgstr "Год должен быть между 2022 и 2030"
 #: code:addons/project_budget/models/planned_acceptance_flow.py:0
 #: code:addons/project_budget/models/planned_cash_flow.py:0
 #: code:addons/project_budget/models/project_budget_project.py:0
-#: code:addons/project_budget/models/project_steps.py:0
 #, python-format
 msgid "This project is in fixed budget. Copy deny"
 msgstr "Копирование запрещено: этот проект в зафиксированном бюджете"
@@ -3009,7 +2875,6 @@ msgstr "Передача прав сотруднику"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_amount_spec__type
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__type
 #: model:ir.model.fields,field_description:project_budget.field_res_company_partner_type__name
 #: model_terms:ir.ui.view,arch_db:project_budget.res_company_partner_type_view_form
 msgid "Type"
@@ -3043,9 +2908,7 @@ msgstr "Тип плана"
 #: model:ir.model.fields,help:project_budget.field_project_budget_planned_acceptance_flow__activity_exception_decoration
 #: model:ir.model.fields,help:project_budget.field_project_budget_planned_cash_flow__activity_exception_decoration
 #: model:ir.model.fields,help:project_budget.field_project_budget_project_currency_rates__activity_exception_decoration
-#: model:ir.model.fields,help:project_budget.field_project_budget_project_steps__activity_exception_decoration
 #: model:ir.model.fields,help:project_budget.field_project_budget_projects__activity_exception_decoration
-#: model:ir.model.fields,help:project_budget.field_project_budget_step_amount_spec__activity_exception_decoration
 #: model:ir.model.fields,help:project_budget.field_project_budget_tender_comments__activity_exception_decoration
 #: model:ir.model.fields,help:project_budget.field_project_budget_tender_sums__activity_exception_decoration
 #: model:ir.model.fields,help:project_budget.field_project_budget_tenders__activity_exception_decoration
@@ -3082,12 +2945,6 @@ msgid "Visible fields in project"
 msgstr "Видимость полей в проекте (если есть этапы, то все поля видимые)"
 
 #. module: project_budget
-#: model_terms:ir.ui.view,arch_db:project_budget.show_project_steps_type_form
-msgid "Visible fields in step"
-msgstr "Видимость полей в этапе"
-
-#. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__warranty_service_costs
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__warranty_service_costs
 msgid "Warranty service costs"
 msgstr " Расходы на гарант. обслуж."
@@ -3102,9 +2959,7 @@ msgstr " Расходы на гарант. обслуж."
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__website_message_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__website_message_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_currency_rates__website_message_ids
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__website_message_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__website_message_ids
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__website_message_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_comments__website_message_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__website_message_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__website_message_ids
@@ -3121,9 +2976,7 @@ msgstr ""
 #: model:ir.model.fields,help:project_budget.field_project_budget_planned_acceptance_flow__website_message_ids
 #: model:ir.model.fields,help:project_budget.field_project_budget_planned_cash_flow__website_message_ids
 #: model:ir.model.fields,help:project_budget.field_project_budget_project_currency_rates__website_message_ids
-#: model:ir.model.fields,help:project_budget.field_project_budget_project_steps__website_message_ids
 #: model:ir.model.fields,help:project_budget.field_project_budget_projects__website_message_ids
-#: model:ir.model.fields,help:project_budget.field_project_budget_step_amount_spec__website_message_ids
 #: model:ir.model.fields,help:project_budget.field_project_budget_tender_comments__website_message_ids
 #: model:ir.model.fields,help:project_budget.field_project_budget_tender_sums__website_message_ids
 #: model:ir.model.fields,help:project_budget.field_project_budget_tenders__website_message_ids
@@ -3204,18 +3057,12 @@ msgid "acceptance_id"
 msgstr "актирование"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__amount_spec_ids
-msgid "amount spec of project sum"
-msgstr "Расшифровка суммы этапа"
-
-#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__amount_spec_ids
 msgid "amount spec revenue from the sale of works"
 msgstr "Расшифровка суммы выручки от реализации работ(услуг)"
 
 #. module: project_budget
 #: model:ir.actions.act_window,name:project_budget.show_amount_spec_empty
-#: model:ir.actions.act_window,name:project_budget.show_step_amount_spec_empty
 msgid "amount specification"
 msgstr "Расшифровка суммы"
 
@@ -3386,23 +3233,18 @@ msgstr "Контрактование 6+6"
 #. module: project_budget
 #. odoo-python
 #: code:addons/project_budget/models/project_budget_project.py:0
-#: code:addons/project_budget/models/project_steps.py:0
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__cost_of_goods
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__cost_of_goods
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_amount_spec__type__cost_of_goods
-#: model:ir.model.fields.selection,name:project_budget.selection__project_budget_step_amount_spec__type__cost_of_goods
 #, python-format
 msgid "cost_of_goods"
 msgstr "Себестоимость товаров"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__cost_of_goods_amount_spec_exist
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__cost_of_goods_amount_spec_exist
 msgid "cost_of_goods_amount_spec_exist"
 msgstr "Есть расшифровка себестоимости товаров "
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__cost_price
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__cost_price
 msgid "cost_price"
 msgstr "Себестоимость проекта"
@@ -3423,7 +3265,6 @@ msgid "currency rates"
 msgstr "Курсы валют"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__current_amount_spec_type
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__current_amount_spec_type
 msgid "current amount spec type"
 msgstr "Тип расшифровки суммы"
@@ -3494,7 +3335,6 @@ msgstr "Детализированный отчет"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_legal_entity_signing__different_project_offices_in_steps
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__different_project_offices_in_steps
 msgid "different project offices in steps"
 msgstr "Различные проектные офисы в этапах проектов"
 
@@ -3629,22 +3469,10 @@ msgid "each project can have a tenders"
 msgstr "Каждый проект может иметь тендеры"
 
 #. module: project_budget
-#: model_terms:ir.actions.act_window,help:project_budget.show_project_steps_type
-msgid "each project step have type"
-msgstr "Каждый этап проекта имеет тип"
-
-#. module: project_budget
 #: model_terms:ir.actions.act_window,help:project_budget.show_amount_spec_empty
 msgid ""
 "each sum in project may have amount specification in different currencies"
 msgstr "каждая сумма проекта может иметь расшифровку в разных валютах"
-
-#. module: project_budget
-#: model_terms:ir.actions.act_window,help:project_budget.show_step_amount_spec_empty
-msgid ""
-"each sum in project step may have amount specification in different "
-"currencies"
-msgstr "каждая сумма этапа проекта может иметь расшифровку в разныхвалютах"
 
 #. module: project_budget
 #: model_terms:ir.actions.act_window,help:project_budget.show_budget_plan_supervisor
@@ -3743,7 +3571,6 @@ msgid "enter project code from AXAPTA"
 msgstr "Введите код проекта из AXAPTA"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__essence_project
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__essence_project
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__essence_project
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_view_search
@@ -3754,7 +3581,6 @@ msgstr "Наименование"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_commercial_budget__etalon_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__etalon_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__etalon_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__etalon_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__etalon_budget
 msgid "etalon_budget"
 msgstr "Эталонный бюджет"
@@ -3809,15 +3635,6 @@ msgid "fact_acceptance_flow"
 msgstr "Актирование"
 
 #. module: project_budget
-#. odoo-python
-#: code:addons/project_budget/models/project_steps.py:0
-#, python-format
-msgid "fact_acceptance_flow exist with this step"
-msgstr ""
-"Удаление запрещено!\n"
-"Есть фактическое Актирование/Валовая выручка по этапу"
-
-#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__fact_acceptance_flow_sum
 msgid "fact_acceptance_flow_sum"
 msgstr "Сумма актов с НДС"
@@ -3832,15 +3649,6 @@ msgstr "Сумма актов без НДС"
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
 msgid "fact_cash_flow"
 msgstr "ПДС"
-
-#. module: project_budget
-#. odoo-python
-#: code:addons/project_budget/models/project_steps.py:0
-#, python-format
-msgid "fact_cash_flow exist with this step"
-msgstr ""
-"Удаление запрещено!\n"
-"Есть фактическое поступление денег по этапу"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__fact_cash_flow_sum
@@ -3925,24 +3733,18 @@ msgid "is prohibit selection in projects"
 msgstr "Запрет выбора в проектах"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__is_awards_on_results_project
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps_type__is_awards_on_results_project
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_type__is_awards_on_results_project
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__is_awards_on_results_project
 msgid "is_Awards based on the results of the project"
 msgstr "Премии по итогам проекта"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__is_warranty_service_costs
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps_type__is_warranty_service_costs
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_type__is_warranty_service_costs
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__is_warranty_service_costs
 msgid "is_Warranty service costs"
 msgstr "Расходы на гарант. обслуж."
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__is_cost_of_goods
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps_type__is_cost_of_goods
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_type__is_cost_of_goods
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__is_cost_of_goods
 msgid "is_cost_of_goods"
@@ -3994,16 +3796,12 @@ msgid "is_need_site_payment"
 msgstr "Есть оплата площадки"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__is_other_expenses
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps_type__is_other_expenses
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_type__is_other_expenses
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__is_other_expenses
 msgid "is_other_expenses"
 msgstr "Прочие расходы"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__is_own_works_fot
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps_type__is_own_works_fot
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_type__is_own_works_fot
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__is_own_works_fot
 msgid "is_own_works_fot"
@@ -4015,56 +3813,42 @@ msgid "is_report_for_management"
 msgstr "Отчет для руководства"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__is_representation_expenses
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps_type__is_representation_expenses
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_type__is_representation_expenses
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__is_representation_expenses
 msgid "is_representation_expenses"
 msgstr "Представительские расходы"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__is_revenue_from_the_sale_of_goods
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps_type__is_revenue_from_the_sale_of_goods
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_type__is_revenue_from_the_sale_of_goods
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__is_revenue_from_the_sale_of_goods
 msgid "is_revenue_from the sale of goods"
 msgstr "Выручка от реализации товара"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__is_revenue_from_the_sale_of_works
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps_type__is_revenue_from_the_sale_of_works
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_type__is_revenue_from_the_sale_of_works
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__is_revenue_from_the_sale_of_works
 msgid "is_revenue_from_the_sale_of_works(services)"
 msgstr "Выручка от реализации работ(услуг)"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__is_rko_other
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps_type__is_rko_other
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_type__is_rko_other
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__is_rko_other
 msgid "is_rko_other"
 msgstr "РКО прочие"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__is_third_party_works
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps_type__is_third_party_works
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_type__is_third_party_works
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__is_third_party_works
 msgid "is_third_party_works(subcontracting)"
 msgstr "Работы сторонние (субподряд)"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__is_transportation_expenses
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps_type__is_transportation_expenses
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_type__is_transportation_expenses
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__is_transportation_expenses
 msgid "is_transportation_expenses"
 msgstr "Транспортные расходы"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__is_travel_expenses
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps_type__is_travel_expenses
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_type__is_travel_expenses
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__is_travel_expenses
 msgid "is_travel_expenses"
@@ -4090,7 +3874,6 @@ msgid "legal_entity_signing"
 msgstr "Юрлицо, подписывающее договор"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__legal_entity_signing_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__legal_entity_signing_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__participant_id
 msgid "legal_entity_signing a contract from the NCC"
@@ -4193,8 +3976,6 @@ msgstr "Сделать руководителя проекта обязател�
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_amount_spec__name
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_currency_rates__name
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps_type__name
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__name
 msgid "name"
 msgstr "Наименование"
 
@@ -4226,7 +4007,6 @@ msgstr "ОКПД 2"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_commercial_budget__name_to_show
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__name_to_show
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__name_to_show
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__name_to_show
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__name_to_show
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__name_to_show
 msgid "name_to_show"
@@ -4265,20 +4045,6 @@ msgstr "Чистая прибыль"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_supervisor__sum_net_profit_year_6_6
 msgid "net_profit plan year 6+6"
 msgstr "Чистая прибыль 6+6"
-
-#. module: project_budget
-#. odoo-python
-#: code:addons/project_budget/models/project_steps.py:0
-#, python-format
-msgid "only in 'Working' budget project step can be deleted"
-msgstr "Удаление этапа возможно только в текущем бюджете"
-
-#. module: project_budget
-#. odoo-python
-#: code:addons/project_budget/models/project_steps.py:0
-#, python-format
-msgid "only in state 'need approve manager' project can be deleted"
-msgstr "Удаление этапа возможно только в статусе 'Согласование КАМ'"
 
 #. module: project_budget
 #. odoo-python
@@ -4334,23 +4100,18 @@ msgstr "Организатор"
 #. module: project_budget
 #. odoo-python
 #: code:addons/project_budget/models/project_budget_project.py:0
-#: code:addons/project_budget/models/project_steps.py:0
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__other_expenses
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__other_expenses
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_amount_spec__type__other_expenses
-#: model:ir.model.fields.selection,name:project_budget.selection__project_budget_step_amount_spec__type__other_expenses
 #, python-format
 msgid "other_expenses"
 msgstr "Прочие расходы"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__other_expenses_amount_spec_exist
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__other_expenses_amount_spec_exist
 msgid "other_expenses_amount_spec_exist"
 msgstr "Есть расшифровка суммы прочие расходы"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__own_works_fot
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__own_works_fot
 msgid "own_works_fot"
 msgstr "Работы собственные (ФОТ)"
@@ -4426,14 +4187,12 @@ msgstr "План ПО спецификация"
 
 #. module: project_budget
 #: model:ir.model,name:project_budget.model_project_budget_planned_acceptance_flow
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__planned_acceptance_flow_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__planned_acceptance_flow_ids
 msgid "planned acceptance flow"
 msgstr "ПДС"
 
 #. module: project_budget
 #: model:ir.model,name:project_budget.model_project_budget_planned_cash_flow
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__planned_cash_flow_ids
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__planned_cash_flow_ids
 msgid "planned cash flow"
 msgstr "ПДС"
@@ -4445,21 +4204,11 @@ msgid "planned_acceptance_flow"
 msgstr "Актирование"
 
 #. module: project_budget
-#. odoo-python
-#: code:addons/project_budget/models/project_steps.py:0
-#, python-format
-msgid "planned_acceptance_flow exist with this step"
-msgstr ""
-"Удаление запрещено!\n"
-"Есть плановое Актирование/Валовая выручка по этапу"
-
-#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__planned_acceptance_flow_sum
 msgid "planned_acceptance_flow_sum"
 msgstr "Сумма актирования с НДС"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__planned_acceptance_flow_sum_without_vat
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__planned_acceptance_flow_sum_without_vat
 msgid "planned_acceptance_flow_sum_without_vat"
 msgstr "Сумма актирования без НДС"
@@ -4471,23 +4220,12 @@ msgid "planned_cash_flow"
 msgstr "ПДС"
 
 #. module: project_budget
-#. odoo-python
-#: code:addons/project_budget/models/project_steps.py:0
-#, python-format
-msgid "planned_cash_flow exist with this step"
-msgstr ""
-"Удаление запрещено!\n"
-"Есть плановое поступление денег по этапу"
-
-#. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__planned_cash_flow_sum
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__planned_cash_flow_sum
 msgid "planned_cash_flow_sum"
 msgstr "Сумма ПДС"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_amount_spec__summa
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__summa
 msgid "position sum"
 msgstr "Сумма позиции"
 
@@ -4552,23 +4290,10 @@ msgid "project is parent"
 msgstr "Материнский проект"
 
 #. module: project_budget
-#: model:ir.model,name:project_budget.model_project_budget_project_steps
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__project_steps_ids
-#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
-msgid "project steps"
-msgstr "Этапы проекта"
-
-#. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__step_project_child_ids
 msgid "step-projects"
 msgstr "Этапы проекта"
-
-#. module: project_budget
-#: model:ir.model,name:project_budget.model_project_budget_project_steps_type
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__project_steps_type_id
-msgid "project steps type"
-msgstr "Тип этапа"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_supervisor_access__descr
@@ -4599,11 +4324,6 @@ msgstr "План бюджетных показателей компании/пр
 #: model:ir.model,name:project_budget.model_project_budget_budget_plan_supervisor_spec
 msgid "project_budget.budget_plan_supervisor_spec"
 msgstr "План ПО спецификация"
-
-#. module: project_budget
-#: model:ir.actions.act_window,name:project_budget.show_project_steps_type
-msgid "project_budget.project_steps_type"
-msgstr "Тип этапа проекта"
 
 #. module: project_budget
 #: model:ir.model,name:project_budget.model_report_project_budget_report_budget_excel
@@ -4704,14 +4424,6 @@ msgid "project_office commercial budget projects"
 msgstr "Проекты"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_acceptance_flow__project_steps_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_cash_flow__project_steps_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__project_steps_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__project_steps_id
-msgid "project_steps_id"
-msgstr "Этап проекта"
-
-#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_acceptance_flow__step_project_child_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_cash_flow__step_project_child_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__step_project_child_id
@@ -4763,7 +4475,6 @@ msgstr "Технологическое направление"
 #: model:ir.model,name:project_budget.model_project_budget_project_type
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__project_type_id
 #: model:ir.ui.menu,name:project_budget.project_budget_catalogs_project_type
-#: model_terms:ir.ui.view,arch_db:project_budget.show_project_steps_type_form
 #: model_terms:ir.ui.view,arch_db:project_budget.show_project_type_form
 #: model_terms:ir.ui.view,arch_db:project_budget.show_project_type_tree
 msgid "project_type"
@@ -4800,11 +4511,6 @@ msgid "projects currency rates"
 msgstr "Курсы валют проекта"
 
 #. module: project_budget
-#: model:ir.model,name:project_budget.model_project_budget_step_amount_spec
-msgid "projects step amount specification"
-msgstr "Расшифровка суммы этапа проекта"
-
-#. module: project_budget
 #: model:ir.model,name:project_budget.model_project_budget_tender_comments
 msgid "projects tender comments"
 msgstr "Комментарии"
@@ -4826,7 +4532,6 @@ msgstr "Тендеры"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__projects_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__projects_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_currency_rates__projects_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__projects_id
 msgid "projects_id"
 msgstr "Проект"
 
@@ -4931,17 +4636,13 @@ msgstr "Период отчета"
 #. module: project_budget
 #. odoo-python
 #: code:addons/project_budget/models/project_budget_project.py:0
-#: code:addons/project_budget/models/project_steps.py:0
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__representation_expenses
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__representation_expenses
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_amount_spec__type__representation_expenses
-#: model:ir.model.fields.selection,name:project_budget.selection__project_budget_step_amount_spec__type__representation_expenses
 #, python-format
 msgid "representation_expenses"
 msgstr "Представительские расходы"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__representation_expenses_amount_spec_exist
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__representation_expenses_amount_spec_exist
 msgid "representation_expenses_amount_spec_exist"
 msgstr "Есть расшифрова суммы представительские расходы"
@@ -4958,7 +4659,6 @@ msgid "responsibles_dkp"
 msgstr "Ответственные от ДКП"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__revenue_from_the_sale_of_goods
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__revenue_from_the_sale_of_goods
 msgid "revenue_from the sale of goods"
 msgstr " Выручка от реализации товара"
@@ -4966,15 +4666,12 @@ msgstr " Выручка от реализации товара"
 #. module: project_budget
 #. odoo-python
 #: code:addons/project_budget/models/project_budget_project.py:0
-#: code:addons/project_budget/models/project_steps.py:0
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_amount_spec__type__revenue_from_the_sale_of_goods
-#: model:ir.model.fields.selection,name:project_budget.selection__project_budget_step_amount_spec__type__revenue_from_the_sale_of_goods
 #, python-format
 msgid "revenue_from_the_sale_of_goods"
 msgstr "Выручка от реализации товара"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__revenue_from_the_sale_of_goods_amount_spec_exist
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__revenue_from_the_sale_of_goods_amount_spec_exist
 msgid "revenue_from_the_sale_of_goods_amount_spec_exist"
 msgstr "Есть расшифровка суммы выручки от реализации товара"
@@ -4982,21 +4679,17 @@ msgstr "Есть расшифровка суммы выручки от реал�
 #. module: project_budget
 #. odoo-python
 #: code:addons/project_budget/models/project_budget_project.py:0
-#: code:addons/project_budget/models/project_steps.py:0
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_amount_spec__type__revenue_from_the_sale_of_works
-#: model:ir.model.fields.selection,name:project_budget.selection__project_budget_step_amount_spec__type__revenue_from_the_sale_of_works
 #, python-format
 msgid "revenue_from_the_sale_of_works"
 msgstr "Выручка от реализации работ(Услуг)"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__revenue_from_the_sale_of_works
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__revenue_from_the_sale_of_works
 msgid "revenue_from_the_sale_of_works(services)"
 msgstr " Выручка от реализации работ(услуг)"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__revenue_from_the_sale_of_works_amount_spec_exist
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__revenue_from_the_sale_of_works_amount_spec_exist
 msgid "revenue_from_the_sale_of_works_amount_spec_exist"
 msgstr "Есть расшифровка суммы выручки от реализации работ (услуг)"
@@ -5004,17 +4697,13 @@ msgstr "Есть расшифровка суммы выручки от реал�
 #. module: project_budget
 #. odoo-python
 #: code:addons/project_budget/models/project_budget_project.py:0
-#: code:addons/project_budget/models/project_steps.py:0
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__rko_other
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__rko_other
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_amount_spec__type__rko_other
-#: model:ir.model.fields.selection,name:project_budget.selection__project_budget_step_amount_spec__type__rko_other
 #, python-format
 msgid "rko_other"
 msgstr "РКО прочие"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__rko_other_amount_spec_exist
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__rko_other_amount_spec_exist
 msgid "rko_other_amount_spec_exist"
 msgstr "Есть расшифровка РКО прочие"
@@ -5103,35 +4792,10 @@ msgid "start of report"
 msgstr "начало периода отчета"
 
 #. module: project_budget
-#: model_terms:ir.ui.view,arch_db:project_budget.show_step_amount_spec_form
-msgid "step amount spec"
-msgstr ""
-
-#. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__code
-msgid "step code"
-msgstr "Код этапа"
-
-#. module: project_budget
-#. odoo-python
-#: code:addons/project_budget/models/project_steps.py:0
-#, python-format
-msgid "step exist in another version of budget"
-msgstr ""
-"Удаление запрещено!\n"
-"Этап присутствует в зафиксированных версиях бюджета"
-
-#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__step_project_number
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_view_search
 msgid "step project number"
 msgstr "Номер этапа проекта"
-
-#. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__step_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_step_amount_spec__step_id
-msgid "step_id"
-msgstr ""
 
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_projects_tenders_sums_form
@@ -5187,7 +4851,6 @@ msgid "sum_cash_without_vat_plan"
 msgstr "Сумма планового поступления без НДС"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__taxes_fot_premiums
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__taxes_fot_premiums
 msgid "taxes_FOT and premiums"
 msgstr "Налоги на ФОТ и премии"
@@ -5197,7 +4860,6 @@ msgstr "Налоги на ФОТ и премии"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__technological_direction_id
 #: model:ir.ui.menu,name:project_budget.project_budget_catalogs_technological_direction
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_view_search
-#: model_terms:ir.ui.view,arch_db:project_budget.show_project_steps_type_tree
 #: model_terms:ir.ui.view,arch_db:project_budget.show_technological_direction_tree
 msgid "technological_direction"
 msgstr "Технологическое направление"
@@ -5298,21 +4960,17 @@ msgstr "Текст комментария"
 #. module: project_budget
 #. odoo-python
 #: code:addons/project_budget/models/project_budget_project.py:0
-#: code:addons/project_budget/models/project_steps.py:0
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_amount_spec__type__third_party_works
-#: model:ir.model.fields.selection,name:project_budget.selection__project_budget_step_amount_spec__type__third_party_works
 #, python-format
 msgid "third_party_works"
 msgstr "Работы сторонние (субподряд)"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__third_party_works
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__third_party_works
 msgid "third_party_works(subcontracting)"
 msgstr "Работы сторонние (субподряд)"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__third_party_works_amount_spec_exist
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__third_party_works_amount_spec_exist
 msgid "third_party_works_amount_spec_exist"
 msgstr "Есть расшифровка суммы работ сторонних (субподряд)?"
@@ -5328,13 +4986,11 @@ msgid "total margin of child projects"
 msgstr "Сумма маржи дочерних проектов"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__total_amount_of_revenue
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__total_amount_of_revenue
 msgid "total_amount_of_revenue"
 msgstr "Сумма выручки"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__total_amount_of_revenue_with_vat
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__total_amount_of_revenue_with_vat
 msgid "total_amount_of_revenue_with_vat"
 msgstr "Сумма контрактования"
@@ -5342,17 +4998,13 @@ msgstr "Сумма контрактования"
 #. module: project_budget
 #. odoo-python
 #: code:addons/project_budget/models/project_budget_project.py:0
-#: code:addons/project_budget/models/project_steps.py:0
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__transportation_expenses
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__transportation_expenses
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_amount_spec__type__transportation_expenses
-#: model:ir.model.fields.selection,name:project_budget.selection__project_budget_step_amount_spec__type__transportation_expenses
 #, python-format
 msgid "transportation_expenses"
 msgstr "Транспортные расходы"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__transportation_expenses_amount_spec_exist
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__transportation_expenses_amount_spec_exist
 msgid "transportation_expenses_amount_spec_exist"
 msgstr "Есть расшифровка суммы транспортных расходов"
@@ -5360,17 +5012,13 @@ msgstr "Есть расшифровка суммы транспортных ра
 #. module: project_budget
 #. odoo-python
 #: code:addons/project_budget/models/project_budget_project.py:0
-#: code:addons/project_budget/models/project_steps.py:0
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__travel_expenses
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__travel_expenses
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_amount_spec__type__travel_expenses
-#: model:ir.model.fields.selection,name:project_budget.selection__project_budget_step_amount_spec__type__travel_expenses
 #, python-format
 msgid "travel_expenses"
 msgstr "Командировочные расходы"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__travel_expenses_amount_spec_exist
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__travel_expenses_amount_spec_exist
 msgid "travel_expenses_amount_spec_exist"
 msgstr "Есть расшифровка суммы транспортных расходов"
@@ -5388,24 +5036,9 @@ msgid "type here essence of the project"
 msgstr "Напишите наименование проекта"
 
 #. module: project_budget
-#: model:ir.ui.menu,name:project_budget.project_budget_catalogs_project_steps_type
-msgid "type of project steps"
-msgstr "Тип этапа проекта"
-
-#. module: project_budget
-#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_project_steps_tree
-msgid "type step code DAX e.g. 0001"
-msgstr "из AXAPTA"
-
-#. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_step_project_view_form
 msgid "type step code e.g. 0001"
 msgstr "из AXAPTA"
-
-#. module: project_budget
-#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_project_steps_tree
-msgid "type step name e.g. products recieve"
-msgstr "введине наименование этапа, например поставка"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__url_contract
@@ -5454,7 +5087,6 @@ msgstr "НДС"
 
 #. module: project_budget
 #: model:ir.actions.act_window,name:project_budget.show_vat_attribute
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__vat_attribute_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__vat_attribute_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__vat_attribute_id
 #: model:ir.ui.menu,name:project_budget.project_budget_catalogs_vat_attribute
@@ -5496,21 +5128,17 @@ msgstr "ВГО2"
 #. module: project_budget
 #. odoo-python
 #: code:addons/project_budget/models/project_budget_project.py:0
-#: code:addons/project_budget/models/project_steps.py:0
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_amount_spec__type__warranty_service_costs
-#: model:ir.model.fields.selection,name:project_budget.selection__project_budget_step_amount_spec__type__warranty_service_costs
 #, python-format
 msgid "warranty_service_costs"
 msgstr "Расходы на гарантийное обслуживание"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__warranty_service_costs_amount_spec_exist
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__warranty_service_costs_amount_spec_exist
 msgid "warranty_service_costs_amount_spec_exist"
 msgstr "Есть расшифровка суммы расходов на гарантийное обслуживание"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_steps__was_changes
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__was_changes
 msgid "was_changes"
 msgstr "Есть изменения"
@@ -5548,16 +5176,6 @@ msgstr "Год план"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_supervisor_spec__year_plan_6_6
 msgid "year_plan 6+6"
 msgstr "Год план 6+6"
-
-#. module: project_budget
-#: model:project_budget.project_steps_type,name:project_budget.project_steps_type_product
-msgid "Поставка"
-msgstr ""
-
-#. module: project_budget
-#: model:project_budget.project_steps_type,name:project_budget.project_steps_type_Service
-msgid "Услуги"
-msgstr ""
 
 #. module: project_budget
 #: model:ir.actions.act_window,name:project_budget.action_view_project_budget_report_external_data

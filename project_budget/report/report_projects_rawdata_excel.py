@@ -118,9 +118,9 @@ class report_projects_rawdata_excel(models.AbstractModel):
         sheet.write_string(row, column, 'Номер договора (проекта)', row_format)
         column += 1
 
-        sheet.write_string(row, column, "step_id", row_format)  # step_id)
+        sheet.write_string(row, column, "step_id", row_format)  # project_id)
         column += 1
-        sheet.write_string(row, column, "Тип этапа", row_format)  # project_steps_type_id)
+        sheet.write_string(row, column, "Тип этапа", row_format)  # project_type_id)
         column += 1
         sheet.write_string(row, column, "Валюта", row_format)  # currency_id
         column += 1
@@ -262,9 +262,9 @@ class report_projects_rawdata_excel(models.AbstractModel):
                 column += 1
 
                 if spec.step_status == 'project':
-                    sheet.write_string(row, column, "", row_format) #step_id)
+                    sheet.write_string(row, column, "", row_format) #project_id)
                     column += 1
-                    sheet.write_string(row, column, "", row_format) #project_steps_type_id)
+                    sheet.write_string(row, column, "", row_format) #project_type_id)
                     column += 1
                     sheet.write_string(row, column, "", row_format) #currency_id
                     column += 1
@@ -274,10 +274,10 @@ class report_projects_rawdata_excel(models.AbstractModel):
                     column += 1
 
                 elif spec.step_status == 'step':
-                    sheet.write_string(row, column, spec.project_id, row_format)  # step_id)
+                    sheet.write_string(row, column, spec.project_id, row_format)  # project_id)
                     column += 1
                     sheet.write_string(row, column, spec.project_type_id.name,
-                                       row_format)  # project_steps_type_id)
+                                       row_format)  # project_type_id)
                     column += 1
                     sheet.write_string(row, column, spec.currency_id.name, row_format)  # currency_id
                     column += 1

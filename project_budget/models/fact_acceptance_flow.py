@@ -6,17 +6,6 @@ from datetime import date
 
 class fact_acceptance_flow(models.Model):
 
-    def get_project_steps_list(self):
-        domain = [('id', '=', 0)]
-        project_steps = self.env['project_budget.project_steps'].search([('projects_id.id', '=', self.env.projects_id.id)])
-        project_steps_list = []
-        for each in project_steps:
-            project_steps_list.append(each.id)
-        if project_steps_list:
-            domain = [('id', 'in', project_steps_list)]
-            return domain
-        return domain
-
     _name = 'project_budget.fact_acceptance_flow'
     _description = "fact acceptance flow"
     _inherit = ['mail.thread', 'mail.activity.mixin']
@@ -25,8 +14,6 @@ class fact_acceptance_flow(models.Model):
     can_edit = fields.Boolean(related='projects_id.can_edit', readonly=True)
     project_have_steps = fields.Boolean(related='projects_id.project_have_steps', string='project have steps',
                                         readonly=True)
-    project_steps_id = fields.Many2one('project_budget.project_steps', string='project_steps_id', index=True,ondelete='cascade',
-                                       )  # TODO убрать после миграции
     step_project_child_id = fields.Many2one('project_budget.projects', string="step-project child id", index=True,
                                             ondelete='cascade')
     date_cash = fields.Date(string="date_cash", required=True, copy=True)
