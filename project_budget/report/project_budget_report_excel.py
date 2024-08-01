@@ -308,8 +308,8 @@ class report_budget_excel(models.AbstractModel):
                 ('id','in',project_office_ids)], order='name')  # для сортировки так делаем
         else:
             project_offices = self.env['project_budget.project_office'].search([], order='name')
-        key_account_managers = self.env.ref(
-            'project_budget.group_project_budget_key_account_manager').users.employee_ids.sorted('name')
+
+        key_account_managers = self.env['project_budget.projects'].search([]).key_account_manager_id.sorted('name')
         # project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
         stages = self.env['project_budget.project.stage'].search([], order='sequence desc')  # для сортировки так делаем
 

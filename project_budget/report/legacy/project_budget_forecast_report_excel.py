@@ -2037,7 +2037,8 @@ class report_budget_forecast_excel(models.AbstractModel):
         column = self.print_month_head_revenue_margin(workbook, sheet, row, column)
         row += 2
         project_offices = self.env['project_budget.project_office'].search([('parent_id', '=', False)], order='name')  # для сортировки так делаем + берем сначала только верхние элементы
-        key_account_managers = self.env.ref('project_budget.group_project_budget_key_account_manager').users
+        key_account_managers = self.env['project_budget.projects'].search([]).key_account_manager_id.sorted('name')
+        # key_account_managers = self.env.ref('project_budget.group_project_budget_key_account_manager').users
         # project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
 
         formulaItogo = '=sum(0'

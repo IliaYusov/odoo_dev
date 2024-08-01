@@ -289,7 +289,7 @@ class report_budget_excel(models.AbstractModel):
         # sheet.set_column(20, 29, False, False, {'hidden': 1, 'level': 1})
 
         project_offices = self.env['project_budget.project_office'].search([], order='name')  # для сортировки так делаем
-        key_account_managers = self.env.ref('project_budget.group_project_budget_key_account_manager').users.sorted('name')
+        # key_account_managers = self.env.ref('project_budget.group_project_budget_key_account_manager').users.sorted('name')
         # project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
         stages = self.env['project_budget.project.stage'].search([], order='name desc').ids  # для сортировки так делаем
 

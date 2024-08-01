@@ -1005,7 +1005,8 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
 
         companies = self.env['res.company'].search([], order='name').filtered(lambda r: r in project_offices.company_id)
 
-        key_account_managers = self.env.ref('project_budget.group_project_budget_key_account_manager').users.sorted('name').filtered(lambda r: r in cur_budget_projects.key_account_manager_id.user_id)
+        key_account_managers = self.env['project_budget.projects'].search([]).key_account_manager_id.sorted('name')
+        # key_account_managers = self.env.ref('project_budget.group_project_budget_key_account_manager').users.sorted('name').filtered(lambda r: r in cur_budget_projects.key_account_manager_id.user_id)
 
         data = self.get_plans(year, self.get_data_from_projects(cur_budget_projects, stages, year))
 

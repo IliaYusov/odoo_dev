@@ -1668,9 +1668,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
                 formulaProjectOffice = '=sum(0'
 
-                for project_manager in cur_project_managers.filtered(lambda r: r in (office for office in self.env.ref(
-                        'project_budget.group_project_budget_key_account_manager').users.employee_ids.filtered(
-                            lambda emp: emp.company_id == company))):
+                for project_manager in cur_project_managers.filtered(lambda emp: emp.company_id == company):
 
                     print('project_manager =', project_manager.name)
                     isFoundProjectsByManager = False
@@ -2577,10 +2575,11 @@ class report_budget_forecast_excel(models.AbstractModel):
         project_offices = self.env['project_budget.project_office'].search([
             ('id','in',project_office_ids), ('parent_id', 'not in', project_office_ids)], order='name')  # для сортировки так делаем + не берем дочерние оффисы, если выбраны их материнские
 
-        key_account_managers = self.env.ref('project_budget.group_project_budget_key_account_manager').users
+        key_account_managers = self.env['project_budget.projects'].search([]).key_account_manager_id.sorted('name')
+        # key_account_managers = self.env.ref('project_budget.group_project_budget_key_account_manager').users
         # project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
 
-        row = self.print_row(sheet, workbook, companies, project_offices, key_account_managers.employee_ids.sorted('name'), estimated_probabilities, budget, row, 1, project_office_ids)
+        row = self.print_row(sheet, workbook, companies, project_offices, key_account_managers, estimated_probabilities, budget, row, 1, project_office_ids)
 
         # ИТОГО
         row += 1
@@ -2870,15 +2869,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
             stages = self.env['project_budget.project.stage'].search([('code', '!=', '10')], order='sequence desc')
             self.printworksheet(workbook, budget, 'Прогноз', stages, systmatica_ids, True, oblako_row)
-
-            dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
-            stages = self.env['project_budget.project.stage'].search([('code', '=', '10')], order='sequence desc')
-            self.printworksheet(workbook, budget, '10%', stages, project_office_ids, False, 0)
         else:
             dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
             stages = self.env['project_budget.project.stage'].search([('code', '!=', '10')], order='sequence desc')  # для сортировки так делаем
             self.printworksheet(workbook, budget, 'Прогноз', stages, project_office_ids, systematica_forecast, 0)
-
-            dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
-            stages = self.env['project_budget.project.stage'].search([('code', '=', '10')], order='sequence desc')
-            self.printworksheet(workbook, budget, '10%', stages, project_office_ids, systematica_forecast, 0)
