@@ -2869,7 +2869,15 @@ class report_budget_forecast_excel(models.AbstractModel):
             dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
             stages = self.env['project_budget.project.stage'].search([('code', '!=', '10')], order='sequence desc')
             self.printworksheet(workbook, budget, 'Прогноз', stages, systmatica_ids, True, oblako_row)
+
+            dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
+            stages = self.env['project_budget.project.stage'].search([('code', '=', '10')], order='sequence desc')
+            self.printworksheet(workbook, budget, '10%', stages, project_office_ids, False, 0)
         else:
             dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
             stages = self.env['project_budget.project.stage'].search([('code', '!=', '10')], order='sequence desc')  # для сортировки так делаем
             self.printworksheet(workbook, budget, 'Прогноз', stages, project_office_ids, systematica_forecast, 0)
+
+            dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
+            stages = self.env['project_budget.project.stage'].search([('code', '=', '10')], order='sequence desc')
+            self.printworksheet(workbook, budget, '10%', stages, project_office_ids, systematica_forecast, 0)
