@@ -599,7 +599,7 @@ class Project(models.Model):
     @api.depends('company_id', 'currency_id', 'commercial_budget_id', 'key_account_manager_id', 'project_supervisor_id',
                  'project_manager_id', 'industry_id', 'legal_entity_signing_id', 'signer_id',
                  'technological_direction_id', 'partner_id', 'project_office_id', 'is_correction_project', 'is_not_for_mc_report',
-                 'active', 'approve_state')
+                 'active', 'approve_state', 'project_have_steps')
     def _compute_step_project_details(self):
         for row in self:
             if row.project_have_steps and row.step_project_child_ids:

@@ -9,6 +9,15 @@ import pytz
 class report_projects_wizard(models.TransientModel):
     _name = 'project_budget.projects.report.wizard'
     _description = 'Projects report Wizard'
+
+    def _get_last_fixed_budget(self):
+        last_fixed_budget = self.env['project_budget.commercial_budget'].search(
+            [('budget_state', '=', 'fixed')], order='date_actual desc', limit=1
+        )
+        if not last_fixed_budget:
+            return self.env['project_budget.commercial_budget'].search([('budget_state', '=', 'work')], limit=1)
+        return last_fixed_budget
+
     year = fields.Integer(string='Year of the report', required=True,default=date.today().year)
     year_end = fields.Integer(string='end Year of the report', required=True, default=date.today().year)
     type_report = fields.Selection([
@@ -23,11 +32,15 @@ class report_projects_wizard(models.TransientModel):
         ('management_committee', 'Management Committee'),
         ('pds_acceptance_by_date', 'PDS, Acceptance'),
         ('pds_weekly', 'PDS weekly'),
+        ('week_to_week', 'Week to Week'),
     ],
         required=True, default='kb')
     commercial_budget_id = fields.Many2one('project_budget.commercial_budget', string='commercial_budget-',required=True
                                            ,default=lambda self: self.env['project_budget.commercial_budget'].search([('budget_state', '=', 'work')], limit=1)
                                           )
+    past_commercial_budget_id = fields.Many2one(
+        'project_budget.commercial_budget', string='past budget', required=True, default=_get_last_fixed_budget
+    )
     use_koeff_reserve = fields.Boolean(string='use koefficient for reserve', default = False)
     koeff_reserve = fields.Float(string='koefficient for reserve', default=0.6)
     koeff_potential = fields.Float(string='koefficient for potential', default=0.1)
@@ -52,6 +65,7 @@ class report_projects_wizard(models.TransientModel):
         datas['date_start']= self.date_start
         datas['date_end']= self.date_end
         datas['commercial_budget_id'] = self.commercial_budget_id.id
+        datas['past_commercial_budget_id'] = self.past_commercial_budget_id.id
         datas['koeff_reserve'] = 1 if not self.use_koeff_reserve else self.koeff_reserve
         datas['koeff_potential'] = 1 if not self.use_koeff_reserve else self.koeff_potential
         datas['pds_accept'] = self.pds_accept
@@ -100,3 +114,6 @@ class report_projects_wizard(models.TransientModel):
 
         if self.type_report == 'pds_weekly':
             return self.env.ref('project_budget.action_projects_list_report_xlsx_pds_weekly').report_action(self, data=datas)
+
+        if self.type_report == 'week_to_week':
+            return self.env.ref('project_budget.action_projects_list_report_xlsx_week_to_week').report_action(self, data=datas)
