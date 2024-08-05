@@ -71,7 +71,7 @@ FROM
     FROM project_budget_projects p
     INNER JOIN project_budget_project_stage st ON st.id = p.stage_id
     INNER JOIN project_budget_project_office po ON po.id = p.project_office_id
-    WHERE step_status = 'project' AND p.project_have_steps = false AND p.total_amount_of_revenue_with_vat != 0
+    WHERE step_status = 'project' AND p.project_have_steps = false AND p.total_amount_of_revenue_with_vat != 0 AND p.active = true
     UNION
     SELECT
         ps.company_id,
@@ -97,7 +97,7 @@ FROM
     INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id
     AND p.project_have_steps = true AND ps.step_status = 'step'
     INNER JOIN project_budget_project_stage st ON st.id = ps.stage_id
-    WHERE ps.total_amount_of_revenue_with_vat != 0
+    WHERE ps.total_amount_of_revenue_with_vat != 0  AND ps.active = true
     UNION
     SELECT
         p.company_id,
@@ -131,7 +131,7 @@ FROM
         FROM project_budget_distribution_cash
         GROUP BY planned_cash_flow_id
     ) AS da ON da.planned_cash_flow_id = pc.id
-    WHERE step_status = 'project' AND p.project_have_steps = false 
+    WHERE step_status = 'project' AND p.project_have_steps = false AND p.active = true
     AND ROUND(pc.sum_cash, c.decimal_places) - ROUND(COALESCE(da.sum_distr_cash, 0), c.decimal_places) != 0
     UNION
     SELECT
@@ -167,7 +167,7 @@ FROM
         FROM project_budget_distribution_cash
         GROUP BY planned_cash_flow_id
     ) AS da ON da.planned_cash_flow_id = pc.id
-    WHERE ROUND(pc.sum_cash, c.decimal_places) - ROUND(COALESCE(da.sum_distr_cash, 0), c.decimal_places) != 0
+    WHERE ROUND(pc.sum_cash, c.decimal_places) - ROUND(COALESCE(da.sum_distr_cash, 0), c.decimal_places) != 0 AND ps.active = true
     UNION
     SELECT
         p.company_id,
@@ -193,7 +193,7 @@ FROM
     INNER JOIN project_budget_project_stage st ON st.id = p.stage_id
     INNER JOIN project_budget_project_office po ON po.id = p.project_office_id
     INNER JOIN project_budget_fact_cash_flow fc ON fc.projects_id = p.id
-    WHERE step_status = 'project' AND p.project_have_steps = false
+    WHERE step_status = 'project' AND p.project_have_steps = false AND p.active = true
     UNION
     SELECT
         ps.company_id,
@@ -220,6 +220,7 @@ FROM
     AND p.project_have_steps = true AND ps.step_status = 'step'
     INNER JOIN project_budget_project_stage st ON st.id = ps.stage_id
     INNER JOIN project_budget_fact_cash_flow fc ON fc.step_project_child_id = ps.id
+    WHERE ps.active = true
     UNION
     SELECT
         p.company_id,
@@ -253,7 +254,7 @@ FROM
         FROM project_budget_distribution_acceptance
         GROUP BY planned_acceptance_flow_id
     ) AS da ON da.planned_acceptance_flow_id = pa.id
-    WHERE step_status = 'project' AND p.project_have_steps = false 
+    WHERE step_status = 'project' AND p.project_have_steps = false AND p.active = true
     AND ROUND(pa.sum_cash_without_vat, c.decimal_places) - ROUND(COALESCE(da.sum_distr_cash, 0), c.decimal_places) != 0
     UNION
     SELECT
@@ -289,7 +290,7 @@ FROM
         FROM project_budget_distribution_acceptance
         GROUP BY planned_acceptance_flow_id
     ) AS da ON da.planned_acceptance_flow_id = pa.id
-    WHERE ROUND(pa.sum_cash_without_vat, c.decimal_places) - ROUND(COALESCE(da.sum_distr_cash, 0), c.decimal_places) != 0
+    WHERE ROUND(pa.sum_cash_without_vat, c.decimal_places) - ROUND(COALESCE(da.sum_distr_cash, 0), c.decimal_places) != 0 AND ps.active = true
     UNION
     SELECT
         p.company_id,
@@ -315,7 +316,7 @@ FROM
     INNER JOIN project_budget_project_stage st ON st.id = p.stage_id
     INNER JOIN project_budget_project_office po ON po.id = p.project_office_id
     INNER JOIN project_budget_fact_acceptance_flow fa ON fa.projects_id = p.id
-    WHERE step_status = 'project' AND p.project_have_steps = false
+    WHERE step_status = 'project' AND p.project_have_steps = false AND p.active = true
     UNION
     SELECT
         ps.company_id,
@@ -342,6 +343,7 @@ FROM
     AND p.project_have_steps = true AND ps.step_status = 'step'
     INNER JOIN project_budget_project_stage st ON st.id = ps.stage_id
     INNER JOIN project_budget_fact_acceptance_flow fa ON fa.step_project_child_id = ps.id
+    WHERE ps.active = true
     UNION
     SELECT
         p.company_id,
@@ -371,7 +373,7 @@ FROM
     INNER JOIN project_budget_project_stage st ON st.id = p.stage_id
     INNER JOIN project_budget_project_office po ON po.id = p.project_office_id
     INNER JOIN project_budget_fact_acceptance_flow fa ON fa.projects_id = p.id
-    WHERE step_status = 'project' AND p.project_have_steps = false
+    WHERE step_status = 'project' AND p.project_have_steps = false AND p.active = true
     UNION
     SELECT
         ps.company_id,
@@ -402,6 +404,7 @@ FROM
     AND p.project_have_steps = true AND ps.step_status = 'step'
     INNER JOIN project_budget_project_stage st ON st.id = ps.stage_id
     INNER JOIN project_budget_fact_acceptance_flow fa ON fa.step_project_child_id = ps.id
+    WHERE ps.active = true
 ) p
 GROUP BY
     company_id,
