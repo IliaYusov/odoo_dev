@@ -599,7 +599,7 @@ class Project(models.Model):
     @api.depends('company_id', 'currency_id', 'commercial_budget_id', 'key_account_manager_id', 'project_supervisor_id',
                  'project_manager_id', 'industry_id', 'legal_entity_signing_id', 'signer_id',
                  'technological_direction_id', 'partner_id', 'project_office_id', 'is_correction_project', 'is_not_for_mc_report',
-                 'active', 'approve_state', 'project_have_steps')
+                 'approve_state', 'project_have_steps')
     def _compute_step_project_details(self):
         for row in self:
             if row.project_have_steps and row.step_project_child_ids:
@@ -628,7 +628,6 @@ class Project(models.Model):
                         step_project_child_id.project_office_id = row.project_office_id
                     step_project_child_id.is_correction_project = row.is_correction_project
                     step_project_child_id.is_not_for_mc_report = row.is_not_for_mc_report
-                    step_project_child_id.active = row.active
 
     def _culculate_all_sums(self, project):
         if not project.project_have_steps:
@@ -1697,6 +1696,15 @@ class Project(models.Model):
             if empty_fields:
                 raise ValidationError(
                     _("Fields '%s' are required at the stage '%s'!") % (', '.join(empty_fields), stage.name))
+
+    def toggle_active(self):
+        for project in self:
+            if project.project_have_steps:
+                project_without_active_test = (self.env['project_budget.projects'].with_context({'active_test': False})
+                                               .search([('id', '=', project.id)]))
+                for step in project_without_active_test.step_project_child_ids:
+                    step.active = not project.active
+        return super(Project, self).toggle_active()
 
     def action_copy_step(self):
         self.ensure_one()
