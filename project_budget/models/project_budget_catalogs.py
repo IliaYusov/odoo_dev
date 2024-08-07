@@ -42,7 +42,7 @@ class project_supervisor(models.Model):
 class project_supervisor_access(models.Model):
     _name = 'project_budget.project_supervisor_access'
     _description = "project_supervisor_access"
-    project_supervisor_id = fields.Many2one('project_budget.project_supervisor', string='project supervisor id',  required=True,)
+    project_supervisor_id = fields.Many2one('project_budget.project_supervisor', string='project supervisor id')
     user_id = fields.Many2one('res.users', string='user id',  required=True,)
     can_approve_project = fields.Boolean(string="Can approve project as supervisor", default = False)
     descr = fields.Char(string="project supervisor access description" , translate=True)

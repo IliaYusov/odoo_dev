@@ -12,6 +12,14 @@
                     <group>
                         <field name="project_manager_function"/>
                     </group>
+                    <group>
+                        <field name="project_curator_function"/>
+                    </group>
+                    <group>
+                        <field name="can_approve_projects"
+                               attrs="{'invisible': [('project_curator_function', '=', False)]}"
+                        />
+                    </group>
                 </group>
             </xpath>
         </field>
