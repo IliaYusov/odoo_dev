@@ -6,6 +6,8 @@
         <field name="arch" type="xml">
             <xpath expr="//notebook/page[@name='page_functions']" position="inside">
                 <group string="Project Management" invisible="not context.get('project_management_functions', False)">
+                    <field name="allowed_groups" invisible="1"/>
+                    <field name="replaceable_groups_ids" options="{'no_create': True}" widget="many2many_checkboxes" domain="[('id', 'in', allowed_groups)]"/>
                     <group>
                         <field name="kam_function"/>
                     </group>
