@@ -27,6 +27,24 @@
             <field name="perm_unlink" eval="True"/>
         </record>
 
+        <record id="project_budget_group_delegation_rule" model="ir.rule">
+            <field name="name">Access to projects by group delegation</field>
+            <field name="model_id" ref="model_project_budget_projects"/>
+            <field name="domain_force">user.employee_id.get_group_domain(
+                ('key_account_manager_id.user_id', 'project_budget.group_project_budget_key_account_manager'),
+                ('project_manager_id.user_id', 'project_budget.group_project_budget_project_manager'),
+                ('project_curator_id.user_id', 'project_budget.group_project_budget_project_curator'),
+                ('parent_project_id.key_account_manager_id.user_id', 'project_budget.group_project_budget_key_account_manager'),
+                ('parent_project_id.project_manager_id.user_id', 'project_budget.group_project_budget_project_manager'),
+                ('parent_project_id.project_curator_id.user_id', 'project_budget.group_project_budget_project_curator'),
+                )</field>
+            <field name="groups" eval="[(4, ref('project_budget.project_budget_users'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
 <!--        <record id="project_budget_project_key_account_manager_rule" model="ir.rule">-->
 <!--            <field name="name">Access to projects to key account manager</field>-->
 <!--            <field name="model_id" ref="model_project_budget_projects"/>-->
