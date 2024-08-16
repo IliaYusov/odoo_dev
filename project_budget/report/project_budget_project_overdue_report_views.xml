@@ -22,7 +22,7 @@
                 <field name="stage_id" string="Probability" context="{'code_only': True}"
                        options="{'always_reload': True}"/>
 <!--                <field name="project_curator_id" widget="many2one_avatar_employee"/>-->
-                <field name="project_supervisor_id"/>
+                <field name="project_curator_id"/>
                 <field name="key_account_manager_id" widget="many2one_avatar_employee"/>
                 <field name="project_manager_id" widget="many2one_avatar_employee"/>
                 <field name="project_id" string="Deal"/>

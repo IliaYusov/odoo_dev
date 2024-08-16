@@ -28,7 +28,7 @@ class tenders(models.Model):
                                   default=lambda self: self.env['res.currency'].search([('name', '=', 'RUB')], limit=1),tracking=True)
     vat_attribute_id = fields.Many2one('project_budget.vat_attribute', string='vat_attribute', copy=True, tracking=True, required=True)
     project_office_id = fields.Many2one(related='projects_id.project_office_id', readonly=True)
-    project_supervisor_id = fields.Many2one(related='projects_id.project_supervisor_id', readonly=True)
+    project_curator_id = fields.Many2one(related='projects_id.project_curator_id', readonly=True)
     key_account_manager_id = fields.Many2one(related='projects_id.key_account_manager_id', readonly=True)
     project_manager_id = fields.Many2one(related='projects_id.project_manager_id', readonly=True)
 

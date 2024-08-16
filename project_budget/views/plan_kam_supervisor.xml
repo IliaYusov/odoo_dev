@@ -6,12 +6,12 @@
             <field name="model">project_budget.budget_plan_kam</field>
             <field name="arch" type="xml">
                 <tree string="plan kam">
-                    <field name="supervisor_user_id" invisible="1"/>
+                    <field name="curator_user_id" invisible="1"/>
                     <field name="company_id"/>
                     <field name="year"/>
                     <field name="company_id"/>
                     <field name="project_office_id"/>
-                    <field name="supervisor_id" widget="many2one_avatar"/>
+                    <field name="curator_id" widget="many2one_avatar"/>
                     <field name="key_account_manager_id" widget="many2one_avatar_employee"/>
 <!--                    <field name="kam_id" widget="many2one_avatar"/>-->
                     <field name="currency_id"/>
@@ -24,7 +24,7 @@
             <field name="arch" type="xml">
                 <form>
                     <sheet string="budget_plan_kam" >
-                        <field name="supervisor_user_id" invisible="1"/>
+                        <field name="curator_user_id" invisible="1"/>
                         <h4>
                             <group string="BUDGET PERFORMANCE PLAN" >\
                                 <field name="plan_supervisor_id" options="{'no_create': True}"/>
@@ -134,12 +134,12 @@
             <field name="model">project_budget.budget_plan_supervisor</field>
             <field name="arch" type="xml">
                 <tree string="plan supervisor">
-                    <field name="supervisor_user_id" invisible="1"/>
+                    <field name="curator_user_id" invisible="1"/>
                     <field name="company_id"/>
                     <field name="year"/>
                     <field name="company_id"/>
                     <field name="project_office_id"/>
-                    <field name="supervisor_id" widget="many2one_avatar"/>
+                    <field name="curator_id" widget="many2one_avatar"/>
                     <field name="currency_id"/>
                     <field name="is_use_ebit" widget="boolean_toggle"/>
                     <field name="is_use_net_profit" widget="boolean_toggle"/>
@@ -155,7 +155,7 @@
                     <sheet string="budget_plan_supervisor" >
                         <notebook>
                             <page string = "Supervisor's plan">
-                                <field name="supervisor_user_id" invisible="1"/>
+                                <field name="curator_user_id" invisible="1"/>
                                 <h4>
                                     <group string="BUDGET PERFORMANCE PLAN" >
                                     </group>
@@ -171,7 +171,7 @@
                                         <field name="project_office_id" options="{'no_create': True, 'no_open': True}"
                                                attrs="{'invisible': [('is_company_plan', '=', True)], 'required': [('is_company_plan', '=', False)]}"
                                         />
-                                        <field name="supervisor_id" options="{'no_create': True, 'no_open': True}" widget="many2one_avatar"
+                                        <field name="curator_id" options="{'no_create': True, 'no_open': True}" widget="many2one_avatar"
                                                attrs="{'invisible': [('is_company_plan', '=', True)], 'required': [('is_company_plan', '=', False)]}"
                                         />
                                     </group>

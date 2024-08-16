@@ -148,17 +148,16 @@ class Project(models.Model):
 
         return domain
 
-
-    def _get_supervisor_list(self):
-        domain = []
-        supervisor_access = self.env['project_budget.project_supervisor_access'].search([('user_id.id', '=', self.env.user.id)])
-        supervisor_list = []
-        for each in supervisor_access:
-            supervisor_list.append(each.project_supervisor_id.id)
-        if supervisor_list:
-            domain = [('id', 'in', supervisor_list)]
-            return domain
-        return domain
+    # def _get_supervisor_list(self):  # TODO убрать после миграции на кураторов
+    #     domain = []
+    #     supervisor_access = self.env['project_budget.project_supervisor_access'].search([('user_id.id', '=', self.env.user.id)])
+    #     supervisor_list = []
+    #     for each in supervisor_access:
+    #         supervisor_list.append(each.project_supervisor_id.id)
+    #     if supervisor_list:
+    #         domain = [('id', 'in', supervisor_list)]
+    #         return domain
+    #     return domain
 
     def _get_commercial_budget_list(self):
         domain = [('id', 'in','-1')]
@@ -210,7 +209,7 @@ class Project(models.Model):
                                             compute='_compute_project_supervisor_id',
                                             inverse='_inverse_project_supervisor_id', copy=True,
                                             domain="[('company_id', 'in', (False, company_id))]",
-                                            store=True, tracking=True)
+                                            store=True, tracking=True)  # TODO убрать после миграции на кураторов
     project_curator_id = fields.Many2one('hr.employee', string='Project Curator',
                                              compute='_compute_project_curator_id',
                                              inverse='_inverse_project_curator_id', copy=True, required=True,
@@ -437,7 +436,7 @@ class Project(models.Model):
                 diff.remove(self.env.ref('project_budget.project_role_key_account_manager'))
             if self.env.ref('project_budget.project_role_project_manager') in diff and record.project_manager_id:
                 diff.remove(self.env.ref('project_budget.project_role_project_manager'))
-            if self.env.ref('project_budget.project_role_project_curator') in diff and record.project_supervisor_id:
+            if self.env.ref('project_budget.project_role_project_curator') in diff and record.project_curator_id:
                 diff.remove(self.env.ref('project_budget.project_role_project_curator'))
             if diff:
                 raise ValidationError(_("Roles '%s' are required for the project!") % ', '.join([r.name for r in diff]))
@@ -506,7 +505,7 @@ class Project(models.Model):
                         if step.stage_id.code != '0':
                             step.stage_id = rec.stage_id
 
-    @api.onchange('project_office_id','project_status','currency_id','project_supervisor_id','key_account_manager_id',
+    @api.onchange('project_office_id','project_status','currency_id','project_curator_id','key_account_manager_id',
                   'industry_id','essence_project','end_presale_project_month','end_sale_project_month','vat_attribute_id','total_amount_of_revenue',
                   'total_amount_of_revenue_with_vat','revenue_from_the_sale_of_works','revenue_from_the_sale_of_goods','cost_price','cost_of_goods','own_works_fot',
                   'third_party_works','awards_on_results_project','transportation_expenses','travel_expenses','representation_expenses','taxes_fot_premiums','warranty_service_costs',
@@ -543,10 +542,10 @@ class Project(models.Model):
                 if row.project_type_id.is_other_expenses== False: row.other_expenses = 0
 
 
-    @api.depends('project_supervisor_id.user_id')
-    def _get_supervisor_user_id(self):
-        for row in self:
-            row.project_supervisor_user_id = row.project_supervisor_id.user_id
+    # @api.depends('project_supervisor_id.user_id')  # TODO убрать после миграции на кураторов
+    # def _get_supervisor_user_id(self):
+    #     for row in self:
+    #         row.project_supervisor_user_id = row.project_supervisor_id.user_id
 
     @api.depends("planned_cash_flow_ids.sum_cash")
     def _compute_planned_cash_flow_sum(self):
@@ -820,7 +819,7 @@ class Project(models.Model):
                 })]
 
     @api.depends('project_member_ids.role_id')
-    def _compute_project_supervisor_id(self):
+    def _compute_project_supervisor_id(self): # TODO убрать после миграции на кураторов
         for project in self:
             curator = project.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
                 'project_budget.project_role_project_curator'))[:1].employee_id
@@ -829,7 +828,7 @@ class Project(models.Model):
                 ('company_id', '=', project.company_id.id)
             ])[:1] or False
 
-    def _inverse_project_supervisor_id(self):
+    def _inverse_project_supervisor_id(self): # TODO убрать после миграции на кураторов
         for project in self.filtered(lambda pr: pr.budget_state == 'work' and pr.project_supervisor_id):
             member_team = self.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
                 'project_budget.project_role_project_curator'))[:1]
@@ -989,19 +988,23 @@ class Project(models.Model):
             'flags': {'initial_mode': 'view'}
         }
 
-    def user_is_supervisor(self,supervisor_id):
-        supervisor_access = self.env['project_budget.project_supervisor_access'].search([('user_id.id', '=', self.env.user.id)
-                                                                                        ,('project_supervisor_id.id', '=', supervisor_id)
-                                                                                        ,('can_approve_project','=',True)])
-        if not supervisor_access :
-            return False
-        else: return True
+    # def user_is_supervisor(self,supervisor_id):
+    #     supervisor_access = self.env['project_budget.project_supervisor_access'].search([('user_id.id', '=', self.env.user.id)
+    #                                                                                     ,('project_supervisor_id.id', '=', supervisor_id)
+    #                                                                                     ,('can_approve_project','=',True)])
+    #     if not supervisor_access :
+    #         return False
+    #     else: return True
 
-    def user_is_curator(self, curator_id):
+    def user_is_curator(self, curator):
+        if curator.user_id.user_has_groups('project_budget.group_project_budget_can_approve_projects'):
+            return True
         curator_access = self.env['hr.employee.replacement'].search([
-            ('replaceable_employee_id.id', '=', curator_id),
-            ('replacement_employee_id.id', '=', self.env.user.id),
-            ('can_approve_projects', '=', True),
+            ('replaceable_employee_id.user_id.id', '=', curator.user_id.id),
+            ('replacement_employee_id.user_id.id', '=', self.env.user.id),
+            ('date_start', '<=', fields.Date.today()),
+            '|', ('date_end', '=', False), ('date_end', '>=', fields.Date.today()),
+            ('replaceable_groups_ids', '=', self.env.ref('project_budget.group_project_budget_can_approve_projects').id)
         ])
         if curator_access :
             return True
@@ -1448,7 +1451,7 @@ class Project(models.Model):
                 for activitie in activities:
                     activitie.action_done()
 
-                user_id = rows.project_supervisor_id.user_id.id
+                user_id = rows.project_curator_id.user_id.id
                 print('user_id = ',user_id)
                 if rows.project_office_id.receive_tasks_for_approve_project: # не куратору посылать, а руководителю проектного офиса надо
                     if rows.project_office_id.user_id: # вдруг просто галочка стоит, а пользователь не выбран
@@ -1469,33 +1472,33 @@ class Project(models.Model):
                     # rows.approve_state="need_approve_supervisor"
         return False
 
-    def set_approve_supervisor(self):
-        for rows in self:
-            if rows.approve_state=="need_approve_supervisor" and rows.budget_state == 'work' and rows.project_status !='cancel':
-
-                isok, raisetext,emptydict = self.check_overdue_date(False)
-                if isok == False:
-                    raise ValidationError(raisetext)
-
-                user_id = False
-                if rows.project_office_id.receive_tasks_for_approve_project: # не только куратор может утвекрждать, но и руководитель проектного офиса надо
-                    if rows.project_office_id.user_id: # вдруг просто галочка стоит, а пользователь не выбран
-                        user_id = rows.project_office_id.user_id.id
-
-                if self.user_is_supervisor(rows.project_supervisor_id.id) or self.user_has_groups('project_budget.project_budget_admin') or self.env.user.id == user_id :
-                    # rows.approve_state="approved"
-                   rows.write({
-                       'approve_state': "approved"
-                     })
-                   activity_model = self.env['mail.activity']
-                   activities = activity_model.search([('res_id', '=', rows.id),
-                                                        ('activity_type_id', '=', self.env.ref(
-                                                            'project_budget.mail_act_approve_project_by_supervisor').id)
-                                                        ])
-                   # Update the state of each activity to 'done'
-                   for activitie in activities:
-                       activitie.action_done()
-        return False
+    # def set_approve_supervisor(self):  # TODO убрать после миграции на кураторов
+    #     for rows in self:
+    #         if rows.approve_state=="need_approve_supervisor" and rows.budget_state == 'work' and rows.project_status !='cancel':
+    #
+    #             isok, raisetext,emptydict = self.check_overdue_date(False)
+    #             if isok == False:
+    #                 raise ValidationError(raisetext)
+    #
+    #             user_id = False
+    #             if rows.project_office_id.receive_tasks_for_approve_project: # не только куратор может утвекрждать, но и руководитель проектного офиса надо
+    #                 if rows.project_office_id.user_id: # вдруг просто галочка стоит, а пользователь не выбран
+    #                     user_id = rows.project_office_id.user_id.id
+    #
+    #             if self.user_is_supervisor(rows.project_supervisor_id.id) or self.user_has_groups('project_budget.project_budget_admin') or self.env.user.id == user_id :
+    #                 # rows.approve_state="approved"
+    #                rows.write({
+    #                    'approve_state': "approved"
+    #                  })
+    #                activity_model = self.env['mail.activity']
+    #                activities = activity_model.search([('res_id', '=', rows.id),
+    #                                                     ('activity_type_id', '=', self.env.ref(
+    #                                                         'project_budget.mail_act_approve_project_by_supervisor').id)
+    #                                                     ])
+    #                # Update the state of each activity to 'done'
+    #                for activitie in activities:
+    #                    activitie.action_done()
+    #     return False
 
     def set_approve_curator(self):
         for rows in self:
@@ -1510,7 +1513,7 @@ class Project(models.Model):
                     if rows.project_office_id.user_id: # вдруг просто галочка стоит, а пользователь не выбран
                         user_id = rows.project_office_id.user_id.id
 
-                if self.user_is_curator(rows.project_curator_id.id) or self.user_has_groups('project_budget.project_budget_admin') or self.env.user.id == user_id :
+                if self.user_is_curator(rows.project_curator_id) or self.user_has_groups('project_budget.project_budget_admin') or self.env.user.id == user_id :
                     # rows.approve_state="approved"
                    rows.write({
                        'approve_state': "approved"
@@ -1525,37 +1528,37 @@ class Project(models.Model):
                        activitie.action_done()
         return False
 
-    def cancel_approve(self):
-        for rows in self:
-            if (rows.approve_state=="approved" or rows.approve_state=="need_approve_supervisor") and rows.budget_state == 'work' and rows.project_status !='cancel':
-                user_id = False
-                if rows.project_office_id.receive_tasks_for_approve_project: # не только куратор может утвекрждать, но и руководитель проектного офиса надо
-                    if rows.project_office_id.user_id: # вдруг просто галочка стоит, а пользователь не выбран
-                        user_id = rows.project_office_id.user_id.id
-
-                if self.user_is_supervisor(rows.project_supervisor_id.id) or self.user_has_groups('project_budget.project_budget_admin') or self.env.user.id == user_id :
-                    # rows.approve_state="need_approve_manager"
-                    rows.write({
-                        'approve_state': "need_approve_manager"
-                    })
-                    activity_model = self.env['mail.activity']
-                    activities = activity_model.search([('res_id','=', rows.id),
-                                                        ('activity_type_id','=',self.env.ref('project_budget.mail_act_approve_project_by_supervisor').id)
-                                                       ])
-                    # Update the state of each activity to 'done'
-                    for activitie in activities:
-                        activitie.action_done()
-
-                    self.env['mail.activity'].create({
-                        'display_name': _('Supervisor declined project. Change nessesary values and send supervisor for approval'),
-                        'summary': _('Supervisor declined project. Change nessesary values and send supervisor for approval'),
-                        'date_deadline': fields.datetime.now(),
-                        'user_id': rows.key_account_manager_id.user_id.id,
-                        'res_id': rows.id,
-                        'res_model_id': self.env['ir.model'].search([('model', '=', 'project_budget.projects')]).id,
-                        'activity_type_id': self.env.ref('project_budget.mail_act_send_project_to_supervisor_for_approval').id
-                    })
-        return False
+    # def cancel_approve(self):  # TODO убрать после миграции на кураторов
+    #     for rows in self:
+    #         if (rows.approve_state=="approved" or rows.approve_state=="need_approve_supervisor") and rows.budget_state == 'work' and rows.project_status !='cancel':
+    #             user_id = False
+    #             if rows.project_office_id.receive_tasks_for_approve_project: # не только куратор может утвекрждать, но и руководитель проектного офиса надо
+    #                 if rows.project_office_id.user_id: # вдруг просто галочка стоит, а пользователь не выбран
+    #                     user_id = rows.project_office_id.user_id.id
+    #
+    #             if self.user_is_supervisor(rows.project_supervisor_id.id) or self.user_has_groups('project_budget.project_budget_admin') or self.env.user.id == user_id :
+    #                 # rows.approve_state="need_approve_manager"
+    #                 rows.write({
+    #                     'approve_state': "need_approve_manager"
+    #                 })
+    #                 activity_model = self.env['mail.activity']
+    #                 activities = activity_model.search([('res_id','=', rows.id),
+    #                                                     ('activity_type_id','=',self.env.ref('project_budget.mail_act_approve_project_by_supervisor').id)
+    #                                                    ])
+    #                 # Update the state of each activity to 'done'
+    #                 for activitie in activities:
+    #                     activitie.action_done()
+    #
+    #                 self.env['mail.activity'].create({
+    #                     'display_name': _('Supervisor declined project. Change nessesary values and send supervisor for approval'),
+    #                     'summary': _('Supervisor declined project. Change nessesary values and send supervisor for approval'),
+    #                     'date_deadline': fields.datetime.now(),
+    #                     'user_id': rows.key_account_manager_id.user_id.id,
+    #                     'res_id': rows.id,
+    #                     'res_model_id': self.env['ir.model'].search([('model', '=', 'project_budget.projects')]).id,
+    #                     'activity_type_id': self.env.ref('project_budget.mail_act_send_project_to_supervisor_for_approval').id
+    #                 })
+    #     return False
 
     def cancel_approve_curator(self):
         for rows in self:
@@ -1565,7 +1568,7 @@ class Project(models.Model):
                     if rows.project_office_id.user_id: # вдруг просто галочка стоит, а пользователь не выбран
                         user_id = rows.project_office_id.user_id.id
 
-                if self.user_is_curator(rows.project_curator_id.id) or self.user_has_groups('project_budget.project_budget_admin') or self.env.user.id == user_id :
+                if self.user_is_curator(rows.project_curator_id) or self.user_has_groups('project_budget.project_budget_admin') or self.env.user.id == user_id :
                     # rows.approve_state="need_approve_manager"
                     rows.write({
                         'approve_state': "need_approve_manager"
@@ -1639,7 +1642,33 @@ class Project(models.Model):
                 """ % _("Add tenders for this project")
         }
 
-    def reopen(self):
+    # def reopen(self):
+    #     """
+    #     return not fixed project from '-' to 'need_approve_manager' status.
+    #     for admins only
+    #     """
+    #     for record in self:
+    #         user_id = False
+    #         if record.project_office_id.receive_tasks_for_approve_project:  # не только куратор может утвекрждать, но и руководитель проектного офиса надо
+    #             if record.project_office_id.user_id:  # вдруг просто галочка стоит, а пользователь не выбран
+    #                 user_id = record.project_office_id.user_id.id
+    #
+    #         if not (self.user_is_supervisor(record.project_supervisor_id.id) or self.user_has_groups(
+    #             'project_budget.project_budget_admin') or self.env.user.id == user_id):
+    #             raise_text = _("only project admin or supervisor or project office manager can reopen projects")
+    #             raise ValidationError(raise_text)
+    #
+    #         if record.approve_state != '-':
+    #             raise_text = _("only project in '-' status can be reopened")
+    #             raise ValidationError(raise_text)
+    #
+    #         if record.budget_state == 'fixed':
+    #             raise_text = _("only project not in fixed budget can be reopened")
+    #             raise ValidationError(raise_text)
+    #
+    #         record.approve_state = 'need_approve_manager'
+
+    def reopen_curator(self):
         """
         return not fixed project from '-' to 'need_approve_manager' status.
         for admins only
@@ -1650,7 +1679,7 @@ class Project(models.Model):
                 if record.project_office_id.user_id:  # вдруг просто галочка стоит, а пользователь не выбран
                     user_id = record.project_office_id.user_id.id
 
-            if not (self.user_is_supervisor(record.project_supervisor_id.id) or self.user_has_groups(
+            if not (self.user_is_curator(record.project_curator_id) or self.user_has_groups(
                 'project_budget.project_budget_admin') or self.env.user.id == user_id):
                 raise_text = _("only project admin or supervisor or project office manager can reopen projects")
                 raise ValidationError(raise_text)

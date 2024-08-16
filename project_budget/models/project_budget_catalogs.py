@@ -23,7 +23,7 @@ class project_type(models.Model):
     is_rko_other = fields.Boolean(string='is_rko_other', tracking=True, default=True)
     is_other_expenses = fields.Boolean(string='is_other_expenses', tracking=True, default=True)
 
-class project_supervisor(models.Model):
+class project_supervisor(models.Model):  # TODO убрать после миграции на кураторов
     _name = 'project_budget.project_supervisor'
     _description = "project_supervisor"
     name = fields.Char(string="project_supervisor name", required=True, translate=True)
@@ -39,7 +39,7 @@ class project_supervisor(models.Model):
             copy=True, auto_join=True)
 
 
-class project_supervisor_access(models.Model):
+class project_supervisor_access(models.Model):  # TODO убрать после миграции на кураторов
     _name = 'project_budget.project_supervisor_access'
     _description = "project_supervisor_access"
     project_supervisor_id = fields.Many2one('project_budget.project_supervisor', string='project supervisor id')

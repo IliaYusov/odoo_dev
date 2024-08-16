@@ -230,7 +230,7 @@ class report_projects_rawdata_excel(models.AbstractModel):
                 column += 1
                 sheet.write_string(row, column, spec.project_office_id.name, row_format)
                 column += 1
-                sheet.write_string(row, column, spec.project_supervisor_id.name, row_format)
+                sheet.write_string(row, column, spec.project_curator_id.name, row_format)
                 column += 1
                 sheet.write_string(row, column, spec.key_account_manager_id.name, row_format)
                 column += 1

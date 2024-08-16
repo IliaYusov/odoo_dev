@@ -1398,8 +1398,8 @@ msgid "KAM's plans"
 msgstr "План КАМа"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_kam__supervisor_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_supervisor__supervisor_id
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_kam__curator_id
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_supervisor__curator_id
 msgid "KAMs supervisor"
 msgstr "Руководитель ПО"
 
@@ -2213,7 +2213,7 @@ msgstr "Проект"
 #. module: project_budget
 #: model:res.groups,name:project_budget.project_budget_admin
 msgid "Project Admin"
-msgstr "Администратор бюджетов проектов"
+msgstr "Администратор модуля Бюджеты проектов"
 
 #. module: project_budget
 #: model:project_budget.project.role,name:project_budget.project_role_project_administrator
@@ -2233,6 +2233,12 @@ msgstr "Количество проектов"
 #: model:res.groups,name:project_budget.group_project_budget_project_curator
 msgid "Project Curator"
 msgstr "Куратор проекта"
+
+#. module: project_budget
+#: model:project_budget.project.role,name:project_budget.project_role_can_approve_projects
+#: model:res.groups,name:project_budget.group_project_budget_can_approve_projects
+msgid "Can approve projects"
+msgstr "Может утверждать проекты"
 
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.hr_employee_replacement_view_form_inherit_project_budget
@@ -2312,12 +2318,12 @@ msgid "Project Status"
 msgstr "Статус проекта"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_overdue_report__project_supervisor_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__project_supervisor_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__project_supervisor_id
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_overdue_report__project_curator_id
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__project_curator_id
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__project_curator_id
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_view_search
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
-msgid "Project Supervisor"
+msgid "Project Curator"
 msgstr "Куратор проекта"
 
 #. module: project_budget

@@ -35,8 +35,11 @@ class budget_plan_supervisor(models.Model):
     project_office_id = fields.Many2one('project_budget.project_office', string='project_office', copy=True,
                                         tracking=True, check_company=True)
     supervisor_id = fields.Many2one('project_budget.project_supervisor', string='KAMs supervisor', copy=True,
+                                    tracking=True, check_company=True)  # TODO убрать после миграции на кураторов
+    curator_id = fields.Many2one('hr.employee', string='KAMs supervisor', copy=True,
                                     tracking=True, check_company=True)
-    supervisor_user_id = fields.Many2one(related='supervisor_id.user_id', readonly=True)
+    supervisor_user_id = fields.Many2one(related='supervisor_id.user_id', readonly=True)  # TODO убрать после миграции на кураторов
+    curator_user_id = fields.Many2one(related='curator_id.user_id', readonly=True)
     name_to_show = fields.Char(string='name_to_show', compute='_get_name_to_show')
 
     is_use_ebit = fields.Boolean(string="using EBIT", tracking=True)
@@ -129,11 +132,11 @@ class budget_plan_supervisor(models.Model):
                 self.sum_net_profit_year_6_6 = row.year_plan_6_6
                 self.sum_net_profit_year_fact = row.year_fact
 
-    @api.depends('supervisor_id', 'year')
+    @api.depends('curator_id', 'year')
     def _get_name_to_show(self):
         for plan_supervisor in self:
             plan_supervisor.name_to_show = str(
-                plan_supervisor.year) + ' ' + (plan_supervisor.project_office_id.name or plan_supervisor.company_id.name) + ' ' + (plan_supervisor.supervisor_id.name or '')
+                plan_supervisor.year) + ' ' + (plan_supervisor.project_office_id.name or plan_supervisor.company_id.name) + ' ' + (plan_supervisor.curator_id.name or '')
 
     def insert_spec(self,type_row, plan_id):
         type_plan_row_vals = []
