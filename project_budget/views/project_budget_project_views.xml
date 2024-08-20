@@ -117,7 +117,7 @@
                 <field name="stage_id" string="Probability" context="{'code_only': True}" optional="show"
                        options="{'always_reload': True}"/>
                 <field name="vat_attribute_id" optional="hide"/>
-                <field name="legal_entity_signing_id" optional="hide"/>
+                <field name="signer_id" optional="hide"/>
                 <field name="project_type_id" optional="hide"/>
                 <field name="comments" optional="hide"/>
                 <field name="technological_direction_id" optional="hide"/>
@@ -182,7 +182,7 @@
                 <field name="profitability" optional="hide" readonly="1"/>
                 <field name="stage_id" string="Probability" context="{'code_only': True}" optional="show" readonly="1"/>
                 <field name="vat_attribute_id" optional="hide" readonly="1"/>
-                <field name="legal_entity_signing_id" options="{'no_open': True,}" optional="hide"
+                <field name="signer_id" options="{'no_open': True,}" optional="hide"
                        readonly="1"/>
                 <field name="project_type_id" optional="hide" readonly="1" options="{'no_open': True}"/>
                 <field name="comments" optional="hide" readonly="1"/>
@@ -204,7 +204,6 @@
                     <field name="different_project_offices_in_steps" invisible="1"/>
                     <field name="project_curator_id" invisible="1"/>
                     <field name="industry_id" invisible="1"/>
-                    <field name="legal_entity_signing_id" invisible="1"/>
                     <field name="technological_direction_id" invisible="1"/>
                     <field name="partner_id" invisible="1"/>
                     <field name="step_status" invisible="1"/>
@@ -569,7 +568,7 @@
                                         'default_parent_id': active_id,
                                         'default_stage_id': stage_id,
                                         'default_partner_id': partner_id,
-                                        'default_legal_entity_signing_id': legal_entity_signing_id
+                                        'default_signer_id': signer_id
                                     }">
                                 <field name="child_count" string="Child Projects" widget="statinfo"/>
                             </button>
@@ -585,6 +584,7 @@
                         <field name="active" invisible="1"/>
                         <field name="is_correction_project" invisible="1"/>
                         <field name="is_not_for_mc_report" invisible="1"/>
+                        <field name="allowed_signer_ids" invisible="1"/>
                         <widget name="web_ribbon" title="Archived" bg_color="bg-danger"
                                 attrs="{'invisible': [('active', '=', True)]}"/>
 
@@ -740,12 +740,9 @@
                                         <field name="company_partner_id" placeholder="Company Partner"
                                                options="{'no_create_edit': True, 'no_open': True}"
                                                attrs="{'readonly': [('can_edit', '=', False)]}"/>
-                                        <field name="legal_entity_signing_id"
+                                        <field name="signer_id" domain="[('id', 'in', allowed_signer_ids)]"
                                                options="{'no_open': True,}" placeholder="select legal entity signing"
                                                attrs="{'readonly': [('can_edit', '=', False)]}"/>
-                                        <field name="signer_id"
-                                               options="{'no_open': True,}" placeholder="select legal entity signing"
-                                               attrs="{'readonly': [('can_edit', '=', False)], 'invisible': True}"/>
                                     </group>
                                 </group>
                                 <field name="comments" nolabel="1" placeholder="type comments for the project"
@@ -1012,7 +1009,6 @@
                                    'default_project_curator_id': project_curator_id,
                                    'default_project_manager_id': project_manager_id,
                                    'default_industry_id': industry_id,
-                                   'default_legal_entity_signing_id': legal_entity_signing_id,
                                    'default_signer_id': signer_id,
                                    'default_technological_direction_id': technological_direction_id,
                                    'default_partner_id': partner_id,
@@ -1275,7 +1271,6 @@
                 <field name="industry_id"/>
                 <field name="company_partner_id"/>
                 <field name="comments"/>
-                <field name="legal_entity_signing_id"/>
                 <field name="signer_id"/>
                 <field name="approve_state"/>
                 <field name="project_have_steps"/>
@@ -1402,7 +1397,7 @@
                 <field name="profitability" type="measure"/>
                 <field name="stage_id"/>
                 <field name="vat_attribute_id"/>
-                <field name="legal_entity_signing_id"/>
+                <field name="signer_id"/>
                 <field name="project_type_id"/>
                 <field name="comments"/>
                 <field name="technological_direction_id"/>

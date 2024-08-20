@@ -66,7 +66,7 @@ class vat_attribute(models.Model):
     is_prohibit_selection = fields.Boolean(string="is prohibit selection in projects", default=False)
 
 
-class legal_entity_signing(models.Model):
+class legal_entity_signing(models.Model):  # TODO: удалить после миграции на signer_id
     _name = 'project_budget.legal_entity_signing'
     _description = "project_legal entity signing"
     name = fields.Char(string="legal_entity_signing name", required=True, translate=True)

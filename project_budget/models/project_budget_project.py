@@ -284,9 +284,11 @@ class Project(models.Model):
     taxes_fot_premiums = fields.Monetary(string='taxes_FOT and premiums', store=True, tracking=True)
 
     # TODO: необходимо мигрировать на signer_id
-    legal_entity_signing_id = fields.Many2one('project_budget.legal_entity_signing', string='legal_entity_signing a contract from the NCC', required=True, copy=True,tracking=True)
+    legal_entity_signing_id = fields.Many2one('project_budget.legal_entity_signing', string='legal_entity_signing a contract from the NCC', copy=True,tracking=True) # TODO: удалить после миграции на signer_id
     signer_id = fields.Many2one('res.partner', string='Signer', copy=True,
                                 default=lambda self: self.env.company.partner_id, required=True, tracking=True)
+    allowed_signer_ids = fields.Many2many('res.partner', compute="_get_allowed_signer_ids")
+
     project_type_id = fields.Many2one('project_budget.project_type',string='project_type', copy=True, tracking=True)
 
     is_revenue_from_the_sale_of_works =fields.Boolean(related='project_type_id.is_revenue_from_the_sale_of_works', readonly=True)
@@ -301,7 +303,7 @@ class Project(models.Model):
     is_warranty_service_costs = fields.Boolean(related='project_type_id.is_warranty_service_costs', readonly=True)
     is_rko_other = fields.Boolean(related='project_type_id.is_rko_other', readonly=True)
     is_other_expenses = fields.Boolean(related='project_type_id.is_other_expenses', readonly=True)
-    is_percent_fot_manual = fields.Boolean(related='legal_entity_signing_id.is_percent_fot_manual', readonly=True)
+    is_percent_fot_manual = fields.Boolean(related='signer_id.is_percent_fot_manual', readonly=True)
 
     comments = fields.Text(string='comments project', default="")
     technological_direction_id = fields.Many2one('project_budget.technological_direction',
@@ -381,7 +383,7 @@ class Project(models.Model):
     is_framework = fields.Boolean(string="project is framework", default=False, copy=True, tracking=True)
 
     different_project_offices_in_steps = fields.Boolean(
-        related='legal_entity_signing_id.different_project_offices_in_steps', readonly=True)
+        related='signer_id.different_project_offices_in_steps', readonly=True)
 
     project_currency_rates_ids = fields.One2many(
         comodel_name='project_budget.project_currency_rates',
@@ -509,7 +511,7 @@ class Project(models.Model):
                   'industry_id','essence_project','end_presale_project_month','end_sale_project_month','vat_attribute_id','total_amount_of_revenue',
                   'total_amount_of_revenue_with_vat','revenue_from_the_sale_of_works','revenue_from_the_sale_of_goods','cost_price','cost_of_goods','own_works_fot',
                   'third_party_works','awards_on_results_project','transportation_expenses','travel_expenses','representation_expenses','taxes_fot_premiums','warranty_service_costs',
-                  'rko_other','other_expenses','margin_income','profitability','stage_id','legal_entity_signing_id','project_type_id','comments','technological_direction_id',
+                  'rko_other','other_expenses','margin_income','profitability','stage_id','signer_id','project_type_id','comments','technological_direction_id',
                   'planned_cash_flow_sum','planned_cash_flow_ids','step_project_number','dogovor_number','planned_acceptance_flow_sum','planned_acceptance_flow_ids','fact_cash_flow_sum',
                   'fact_cash_flow_ids','fact_acceptance_flow_sum','fact_acceptance_flow_ids','project_have_steps','step_project_child_ids'
                 )
@@ -597,7 +599,7 @@ class Project(models.Model):
                     row.fact_acceptance_flow_sum += row_flow.sum_cash
                     row.fact_acceptance_flow_sum_without_vat += row_flow.sum_cash_without_vat
     @api.depends('company_id', 'currency_id', 'commercial_budget_id', 'key_account_manager_id', 'project_curator_id',
-                 'project_manager_id', 'industry_id', 'legal_entity_signing_id', 'signer_id',
+                 'project_manager_id', 'industry_id', 'signer_id',
                  'technological_direction_id', 'partner_id', 'project_office_id', 'is_correction_project', 'is_not_for_mc_report',
                  'approve_state', 'project_have_steps')
     def _compute_step_project_details(self):
@@ -611,7 +613,6 @@ class Project(models.Model):
                     step_project_child_id.project_curator_id = row.project_curator_id
                     step_project_child_id.project_manager_id = row.project_manager_id
                     step_project_child_id.industry_id = row.industry_id
-                    step_project_child_id.legal_entity_signing_id = row.legal_entity_signing_id
                     step_project_child_id.signer_id = row.signer_id
                     step_project_child_id.technological_direction_id = row.technological_direction_id
                     step_project_child_id.partner_id = row.partner_id
@@ -642,7 +643,7 @@ class Project(models.Model):
             project.cost_price = project.cost_price + project.transportation_expenses + project.travel_expenses + project.representation_expenses
             project.cost_price = project.cost_price + project.warranty_service_costs + project.rko_other + project.other_expenses
             if project.is_percent_fot_manual == False:
-                project.taxes_fot_premiums = (project.awards_on_results_project + project.own_works_fot) * project.legal_entity_signing_id.percent_fot / 100
+                project.taxes_fot_premiums = (project.awards_on_results_project + project.own_works_fot) * project.signer_id.percent_fot / 100
 
             project.cost_price = project.cost_price + project.taxes_fot_premiums
 
@@ -719,7 +720,7 @@ class Project(models.Model):
 
     @api.depends('taxes_fot_premiums', "revenue_from_the_sale_of_works", 'revenue_from_the_sale_of_goods', 'cost_of_goods', 'own_works_fot',
                  'third_party_works', "awards_on_results_project", 'transportation_expenses', 'travel_expenses', 'representation_expenses',
-                 "warranty_service_costs", 'rko_other', 'other_expenses','vat_attribute_id','legal_entity_signing_id','project_have_steps',
+                 "warranty_service_costs", 'rko_other', 'other_expenses','vat_attribute_id','signer_id','project_have_steps',
                  'parent_project_id','child_project_ids','margin_rate_for_parent','amount_spec_ids', 'total_margin_of_child_projects',
                  'child_project_ids.margin_rate_for_parent', 'child_project_ids.margin_for_parent_project', 'child_project_ids.total_amount_of_revenue',
                  'child_project_ids.cost_price','child_project_ids.margin_rate_for_parent', "step_project_child_ids",)
@@ -845,6 +846,12 @@ class Project(models.Model):
                         ('company_id', '=', project.company_id.id)
                     ])[:1].id or 0
                 })]
+
+    @api.depends('signer_id')
+    def _get_allowed_signer_ids(self):  # формируем домен партнеров, которые являются нашими компаниями
+        res = self.env['res.company'].search([]).partner_id
+        for record in self:
+            record.allowed_signer_ids = res
 
     def action_open_project(self):
         return {

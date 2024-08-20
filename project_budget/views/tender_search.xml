@@ -7,7 +7,7 @@
             <search string="Search customer_organization">
                 <field name="name_of_the_purchase" filter_domain="[('name_of_the_purchase','ilike',self)]" string="name_of_the_purchase"/>
                 <field name="tender_id" filter_domain="[('tender_id','ilike',self)]" string="tender_id"/>
-                <field name="participant_id" filter_domain="[('participant_id','ilike',self)]" string="legal_entity_signing"/>
+                <field name="signer_id" filter_domain="[('signer_id','ilike',self)]" string="legal_entity_signing"/>
                 <field name="auction_number" filter_domain="[('auction_number','ilike',self)]" string="auction_number"/>
                 <field name="partner_id" filter_domain="[('partner_id','ilike',self)]" string="organization"/>
                 <field name="organizer_partner_id" filter_domain="[('organizer_partner_id','ilike',self)]" string="organizer"/>
