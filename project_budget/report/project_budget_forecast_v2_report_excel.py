@@ -22,7 +22,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         if project:
             if project.stage_id.code == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
-                last_fixed_project = self.env['project_budget.projects'].search(
+                last_fixed_project = self.env['project_budget.projects'].sudo().search(
                     [('date_actual', '<', datetime.date(YEARint,1,1)),
                      ('budget_state', '=', 'fixed'),
                      ('project_id', '=', project.project_id),
@@ -60,10 +60,10 @@ class report_budget_forecast_excel(models.AbstractModel):
                     return True
         return False
 
-    month_rus_name_contract_pds = ['Январь','Февраль','Март','Q1 итого','Апрель','Май','Июнь','Q2 итого','HY1/YEAR итого',
+    month_rus_name_contract_pds = ['Январь','Февраль','Март','Q1 итого','Апрель','Май','Июнь','Q2 итого','HY1 YEAR итого',
                                     'Июль','Август','Сентябрь','Q3 итого','Октябрь','Ноябрь','Декабрь','Q4 итого',
-                                   'HY2/YEAR итого','YEAR итого']
-    month_rus_name_revenue_margin = ['Q1','Q2','HY1/YEAR','Q3','Q4','HY2/YEAR','YEAR итого']
+                                   'HY2 YEAR итого','YEAR итого']
+    month_rus_name_revenue_margin = ['Q1','Q2','HY1 YEAR','Q3','Q4','HY2 YEAR','YEAR итого']
 
     # array_col_itogi = [28, 49, 55, 76, 97, 103, 109, 130, 151, 157, 178, 199, 205, 211, 217, 223, 229, 235, 241, 254, 260, 266, 272, 278, 284, 297,]
     #
@@ -207,19 +207,33 @@ class report_budget_forecast_excel(models.AbstractModel):
             strYEARprint = str(year)
 
             element = elementone.replace('YEAR',strYEARprint)
-            if element.find('итого') != -1:
-                if elementone.find('Q') != -1:
-                    sheet.set_column(column, column + 4, False, False, {'hidden': 1, 'level': 2})
-                if elementone.find('HY') != -1:
-                    sheet.set_column(column, column + 4, False, False, {'hidden': 1, 'level': 1})
-
+            if 'итого' in element:
                 if next:
                     sheet.merge_range(row, column, row, column + 3, element, head_format_month)
                 else:
-                    sheet.merge_range(row, column, row, column + 4, element, head_format_month)
+                    if 'Q1' in elementone or 'Q2' in elementone:
+                        sheet.set_column(column, column + 4, False, False, {'hidden': 1, 'level': 2})
+                        sheet.merge_range(row, column, row, column + 4, element, head_format_month)
+                    elif 'Q3' in elementone or 'Q4' in elementone:
+                        sheet.set_column(column, column + 5, False, False, {'hidden': 1, 'level': 2})
+                        sheet.merge_range(row, column, row, column + 5, element, head_format_month)
+                    elif 'HY1' in elementone:
+                        sheet.set_column(column, column + 4, False, False, {'hidden': 1, 'level': 1})
+                        sheet.merge_range(row, column, row, column + 4, element, head_format_month)
+                    elif 'HY2' in elementone:
+                        sheet.set_column(column, column + 5, False, False, {'hidden': 1, 'level': 1})
+                        sheet.merge_range(row, column, row, column + 5, element, head_format_month)
+                    elif elementone == 'YEAR итого':
+                        sheet.merge_range(row, column, row, column + 5, element, head_format_month)
 
-                sheet.merge_range(row + 1, column, row + 2, column, "План "+element.replace(' итого',''), head_format_month_itogo)
+                sheet.merge_range(row + 1, column, row + 2, column, "План " + element.replace(' итого',''), head_format_month_itogo)
                 column += 1
+
+                if not ('Q1' in element or 'Q2' in element or 'HY1' in element) and not next:
+                    sheet.merge_range(row + 1, column, row + 2, column, "План " + element.replace(' итого','') + " 6+6"
+                                      , head_format_month_itogo)
+                    column += 1
+
             else:
                 sheet.merge_range(row, column, row, column + 3, element, head_format_month)
                 sheet.set_column(column, column+4, False, False, {'hidden': 1, 'level': 3})
@@ -233,11 +247,13 @@ class report_budget_forecast_excel(models.AbstractModel):
             column += 1
             sheet.write_string(row + 2, column, 'Потенциал', head_format_month_detail)
             column += 1
-            if elementone.find('Q') != -1 or elementone.find('НY') != -1 or elementone.find('YEAR') != -1:
+
+            if 'Q' in elementone or 'НY' in elementone or 'YEAR' in elementone:
                 colbegQ = column
 
-            if elementone.find('НY') != -1 or elementone.find('YEAR') != -1:
+            if 'НY' in elementone or 'YEAR' in elementone:
                 colbegH = column
+
         sheet.merge_range(row-1, colbeg, row-1, column - 1, y[0], head_format_month)
 
         return column
@@ -293,19 +309,33 @@ class report_budget_forecast_excel(models.AbstractModel):
             strYEARprint = str(year)
 
             element = elementone.replace('YEAR',strYEARprint)
-            if element.find('итого') != -1:
-                if elementone.find('Q') != -1:
-                    sheet.set_column(column, column + 3, False, False, {'hidden': 1, 'level': 2})
-                if elementone.find('HY') != -1:
-                    sheet.set_column(column, column + 3, False, False, {'hidden': 1, 'level': 1})
-
+            if 'итого' in element:
                 if next:
                     sheet.merge_range(row, column, row, column + 2, element, head_format_month)
                 else:
-                    sheet.merge_range(row, column, row, column + 3, element, head_format_month)
+                    if 'Q1' in elementone or 'Q2' in elementone:
+                        sheet.set_column(column, column + 3, False, False, {'hidden': 1, 'level': 2})
+                        sheet.merge_range(row, column, row, column + 3, element, head_format_month)
+                    elif 'Q3' in elementone or 'Q4' in elementone:
+                        sheet.set_column(column, column + 4, False, False, {'hidden': 1, 'level': 2})
+                        sheet.merge_range(row, column, row, column + 4, element, head_format_month)
+                    elif 'HY1' in elementone:
+                        sheet.set_column(column, column + 3, False, False, {'hidden': 1, 'level': 1})
+                        sheet.merge_range(row, column, row, column + 3, element, head_format_month)
+                    elif 'HY2' in elementone:
+                        sheet.set_column(column, column + 4, False, False, {'hidden': 1, 'level': 1})
+                        sheet.merge_range(row, column, row, column + 4, element, head_format_month)
+                    elif elementone == 'YEAR итого':
+                        sheet.merge_range(row, column, row, column + 4, element, head_format_month)
 
                 sheet.merge_range(row + 1, column, row + 2, column, "План "+element.replace(' итого',''), head_format_month_itogo)
                 column += 1
+
+                if not ('Q1' in element or 'Q2' in element or 'HY1' in element) and not next:
+                    sheet.merge_range(row + 1, column, row + 2, column, "План " + element.replace(' итого','') + " 6+6"
+                                      , head_format_month_itogo)
+                    column += 1
+
             else:
                 sheet.merge_range(row, column, row, column + 2, element, head_format_month)
                 sheet.set_column(column, column+4, False, False, {'hidden': 1, 'level': 3})
@@ -370,34 +400,38 @@ class report_budget_forecast_excel(models.AbstractModel):
             strYEARprint = str(year)
 
             colbeg = column
+
             for elementone in elements:
                 element = elementone.replace('YEAR', strYEARprint)
+                potential_column = 0
 
-                addcolumn = potential_column = 0
-                if element.find('HY2') != -1:
-                    addcolumn = 1
-                elif 'итого' in element and x[0] == 1:
+                if 'итого' in element and x[0] == 1:
                     potential_column = 1
 
-                if elementone.find('Q') != -1:
-                    sheet.set_column(column, column + 3, False, False, {'hidden': 1, 'level': 2})
-
-                if elementone.find('HY') != -1:
-                    sheet.set_column(column, column + 3 + addcolumn, False, False, {'hidden': 1, 'level': 1})
-
                 if next:
-                    sheet.merge_range(row, column, row, column + 2 + addcolumn + potential_column, element, head_format_month)
+                    sheet.merge_range(row, column, row, column + 2 + potential_column, element, head_format_month)
                 else:
-                    sheet.merge_range(row, column, row, column + 3 + addcolumn + potential_column, element,
-                                      head_format_month)
-
+                    if 'Q1' in elementone or 'Q2' in elementone:
+                        sheet.set_column(column, column + 3, False, False, {'hidden': 1, 'level': 2})
+                        sheet.merge_range(row, column, row, column + 3, element, head_format_month)
+                    elif 'Q3' in elementone or 'Q4' in elementone:
+                        sheet.set_column(column, column + 4, False, False, {'hidden': 1, 'level': 2})
+                        sheet.merge_range(row, column, row, column + 4, element, head_format_month)
+                    elif 'HY1' in elementone:
+                        sheet.set_column(column, column + 3, False, False, {'hidden': 1, 'level': 1})
+                        sheet.merge_range(row, column, row, column + 3, element, head_format_month)
+                    elif 'HY2' in elementone:
+                        sheet.set_column(column, column + 4, False, False, {'hidden': 1, 'level': 1})
+                        sheet.merge_range(row, column, row, column + 4, element, head_format_month)
+                    elif elementone == 'YEAR итого':
+                        sheet.merge_range(row, column, row, column + 4 + potential_column, element, head_format_month)
 
                 sheet.merge_range(row + 1, column, row + 2, column, "План " + element.replace(' итого', ''),
                                   head_format_month_itogo)
                 column += 1
 
-                if element.find('HY2') != -1:
-                    sheet.merge_range(row + 1, column, row + 2, column, "План HY2/"+strYEARprint+ " 6+6"
+                if not ('Q1' in element or 'Q2' in element or 'HY1' in element) and not next:
+                    sheet.merge_range(row + 1, column, row + 2, column, "План " + element.replace(' итого','') + " 6+6"
                                       , head_format_month_itogo)
                     column += 1
 
@@ -1035,10 +1069,16 @@ class report_budget_forecast_excel(models.AbstractModel):
         for element in self.month_rus_name_contract_pds:
             column += 1
             sumQ75tmpetalon = sumQ50tmpetalon = sumQ100tmp = sumQ75tmp = sumQ50tmp = sumQ30tmp = 0
+            shift = 0
 
             if 'итого' in element:
                 sheet.write_string(row, column, "", head_format_month_itogo)
                 column += 1
+            if 'Q3' in element or 'Q4' in element or 'HY2' in element or element == 'YEAR итого':
+                sheet.write_string(row, column, "", head_format_month_itogo)
+                column += 1
+                shift = 1
+
             sheet.write_string(row, column + 0, "", row_format_number_color_fact)
             sheet.write_string(row, column + 1, "", row_format_number)
             sheet.write_string(row, column + 2, "", row_format_number)
@@ -1047,9 +1087,9 @@ class report_budget_forecast_excel(models.AbstractModel):
 
             sumQ75tmpetalon, sumQ50tmpetalon, sumQ100tmp, sumQ75tmp, sumQ50tmp, sumQ30tmp= self.print_month_revenue_project(sheet, row, column, self.get_month_number_rus(element),
                                                                                     project, YEARint, row_format_number, row_format_number_color_fact, False)
-            _, _, _, _, _, _= self.print_month_revenue_project(sheet, row, 217, self.get_month_number_rus(element),
+            _, _, _, _, _, _= self.print_month_revenue_project(sheet, row, 231, self.get_month_number_rus(element),
                                                                                     project, YEARint + 1, row_format_number, row_format_number_color_fact, True)
-            _, _, _, _, _, _= self.print_month_revenue_project(sheet, row, 232, self.get_month_number_rus(element),
+            _, _, _, _, _, _= self.print_month_revenue_project(sheet, row, 246, self.get_month_number_rus(element),
                                                                                     project, YEARint + 2, row_format_number, row_format_number_color_fact, True)
             sumQ75etalon += sumQ75tmpetalon
             sumQ50etalon += sumQ50tmpetalon
@@ -1058,15 +1098,15 @@ class report_budget_forecast_excel(models.AbstractModel):
             sumQ50 += sumQ50tmp
             sumQ30 += sumQ30tmp
 
-            if element.find('Q') != -1: #'Q1 итого' 'Q2 итого' 'Q3 итого' 'Q4 итого'
+            if 'Q' in element: #'Q1 итого' 'Q2 итого' 'Q3 итого' 'Q4 итого'
 
-                formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1,xl_col_to_name(column - 13),xl_col_to_name(column - 9),xl_col_to_name(column - 5))
+                formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1,xl_col_to_name(column - 13 - shift),xl_col_to_name(column - 9 - shift),xl_col_to_name(column - 5 - shift))
                 sheet.write_formula(row, column + 0,formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1,xl_col_to_name(column - 12),xl_col_to_name(column - 8),xl_col_to_name(column - 4))
+                formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1,xl_col_to_name(column - 12 - shift),xl_col_to_name(column - 8 - shift),xl_col_to_name(column - 4 - shift))
                 sheet.write_formula(row, column + 1,formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1,xl_col_to_name(column - 11),xl_col_to_name(column - 7),xl_col_to_name(column - 3))
+                formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1,xl_col_to_name(column - 11 - shift),xl_col_to_name(column - 7 - shift),xl_col_to_name(column - 3 - shift))
                 sheet.write_formula(row, column + 2,formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1,xl_col_to_name(column - 10),xl_col_to_name(column - 6),xl_col_to_name(column - 2))
+                formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1,xl_col_to_name(column - 10 - shift),xl_col_to_name(column - 6 - shift),xl_col_to_name(column - 2 - shift))
                 sheet.write_formula(row, column + 3,formula, row_format_number)
 
                 sumHY100etalon += sumQ100etalon
@@ -1078,15 +1118,15 @@ class report_budget_forecast_excel(models.AbstractModel):
                 sumHY30 += sumQ30
                 sumQ100etalon = sumQ75etalon = sumQ50etalon = sumQ100 = sumQ75  = sumQ50  = sumQ50 = 0
 
-            if element.find('HY') != -1:  # 'HY1/YEAR итого' 'HY2/YEAR итого'
+            if 'HY' in element:  # 'HY1/YEAR итого' 'HY2/YEAR итого'
 
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 22),xl_col_to_name(column - 5))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 22 - shift - shift),xl_col_to_name(column - 5 - shift))
                 sheet.write_formula(row, column + 0, formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21),xl_col_to_name(column - 4))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21 - shift - shift),xl_col_to_name(column - 4 - shift))
                 sheet.write_formula(row, column + 1, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 20),xl_col_to_name(column - 3))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 20 - shift - shift),xl_col_to_name(column - 3 - shift))
                 sheet.write_formula(row, column + 2, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 19),xl_col_to_name(column - 2))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 19 - shift - shift),xl_col_to_name(column - 2 - shift))
                 sheet.write_formula(row, column + 3, formula, row_format_number)
 
 
@@ -1100,13 +1140,13 @@ class report_budget_forecast_excel(models.AbstractModel):
 
             if element == 'YEAR итого':  # 'YEAR итого'
 
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 44), xl_col_to_name(column - 5))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 48), xl_col_to_name(column - 6))
                 sheet.write_formula(row, column + 0, formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 43), xl_col_to_name(column - 4))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 47), xl_col_to_name(column - 5))
                 sheet.write_formula(row, column + 1, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 42), xl_col_to_name(column - 3))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 46), xl_col_to_name(column - 4))
                 sheet.write_formula(row, column + 2, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 41), xl_col_to_name(column - 2))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 45), xl_col_to_name(column - 3))
                 sheet.write_formula(row, column + 3, formula, row_format_number)
             column += 3
         #end печать Контрактование, с НДС
@@ -1120,9 +1160,16 @@ class report_budget_forecast_excel(models.AbstractModel):
             column += 1
             sumQ75tmpetalon = sumQ50tmpetalon = sumQ100tmp = sumQ75tmp = sumQ50tmp = 0
 
-            if element.find('итого') != -1:
+            shift = 0
+
+            if 'итого' in element:
                 sheet.write_string(row, column, "", head_format_month_itogo)
                 column += 1
+            if 'Q3' in element or 'Q4' in element or 'HY2' in element or element == 'YEAR итого':
+                sheet.write_string(row, column, "", head_format_month_itogo)
+                column += 1
+                shift = 1
+
             sheet.write_string(row, column + 0, "", row_format_number_color_fact)
             sheet.write_string(row, column + 1, "", row_format_number)
             sheet.write_string(row, column + 2, "", row_format_number)
@@ -1149,11 +1196,11 @@ class report_budget_forecast_excel(models.AbstractModel):
                 sumHY75 += sumQ75
                 sumHY50 += sumQ50
                 sumQ100etalon = sumQ75etalon = sumQ50etalon = sumQ100 = sumQ75 = sumQ50 = 0
-                formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1, xl_col_to_name(column - 10),xl_col_to_name(column - 7), xl_col_to_name(column - 4))
+                formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1, xl_col_to_name(column - 10 - shift),xl_col_to_name(column - 7 - shift), xl_col_to_name(column - 4 - shift))
                 sheet.write_formula(row, column + 0, formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1, xl_col_to_name(column - 9),xl_col_to_name(column - 6), xl_col_to_name(column - 3))
+                formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1, xl_col_to_name(column - 9 - shift),xl_col_to_name(column - 6 - shift), xl_col_to_name(column - 3 - shift))
                 sheet.write_formula(row, column + 1, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1, xl_col_to_name(column - 8),xl_col_to_name(column - 5), xl_col_to_name(column - 2))
+                formula = '=sum({1}{0},{2}{0},{3}{0})'.format(row + 1, xl_col_to_name(column - 8 - shift),xl_col_to_name(column - 5 - shift), xl_col_to_name(column - 2 - shift))
                 sheet.write_formula(row, column + 2, formula, row_format_number)
 
             if element.find('HY') != -1:  # 'HY1/YEAR итого' 'HY2/YEAR итого'
@@ -1164,24 +1211,24 @@ class report_budget_forecast_excel(models.AbstractModel):
                 sumYear75 += sumHY75
                 sumYear50 += sumHY50
                 sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 17), xl_col_to_name(column - 4))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 17 - shift - shift), xl_col_to_name(column - 4 - shift))
                 sheet.write_formula(row, column + 0, formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 16), xl_col_to_name(column - 3))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 16 - shift - shift), xl_col_to_name(column - 3 - shift))
                 sheet.write_formula(row, column + 1, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 15), xl_col_to_name(column - 2))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 15 - shift - shift), xl_col_to_name(column - 2 - shift))
                 sheet.write_formula(row, column + 2, formula, row_format_number)
 
             if element == 'YEAR итого':  # 'YEAR итого'
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 34), xl_col_to_name(column - 4))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 38), xl_col_to_name(column - 5))
                 sheet.write_formula(row, column + 0, formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 33), xl_col_to_name(column - 3))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 37), xl_col_to_name(column - 4))
                 sheet.write_formula(row, column + 1, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 32), xl_col_to_name(column - 2))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 36), xl_col_to_name(column - 3))
                 sheet.write_formula(row, column + 2, formula, row_format_number)
             column += 2
-        _, _, _, _, _ = self.print_year_pds_project(sheet, row, 221, project, YEARint + 1, row_format_number,
+        _, _, _, _, _ = self.print_year_pds_project(sheet, row, 235, project, YEARint + 1, row_format_number,
                                                     row_format_number_color_fact, True)
-        _, _, _, _, _ = self.print_year_pds_project(sheet, row, 236, project, YEARint + 2, row_format_number,
+        _, _, _, _, _ = self.print_year_pds_project(sheet, row, 250, project, YEARint + 2, row_format_number,
                                                     row_format_number_color_fact, True)
         # end Поступление денежных средств, с НДС
 
@@ -1195,7 +1242,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             column += 1
             sheet.write_string(row, column, "", head_format_month_itogo)
             sheet.write_string(row, column + margin_shift, "", head_format_month_itogo)
-            if element.find('HY2') != -1:
+            if 'Q3' in element or 'Q4' in element or 'HY2' in element or element == 'YEAR итого':
                 addcolumn = 1
                 column += 1
                 sheet.write_string(row, column, "", head_format_month_itogo)
@@ -1223,7 +1270,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
             if element.find('HY') != -1:  # 'HY1/YEAR итого' 'HY2/YEAR итого'
                 addcolumn = 0
-                if element.find('HY2') != -1:
+                if 'Q3' in element or 'Q4' in element or 'HY2' in element or element == 'YEAR итого':
                     addcolumn = 1
 
                 sumYear100etalon += sumHY100etalon
@@ -1234,42 +1281,42 @@ class report_budget_forecast_excel(models.AbstractModel):
                 sumYear50 += sumHY50
                 sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
 
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8 - addcolumn), xl_col_to_name(column - 4 - addcolumn))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8 - addcolumn - addcolumn), xl_col_to_name(column - 4 - addcolumn))
                 sheet.write_formula(row, column + 0, formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 7 - addcolumn),  xl_col_to_name(column - 3 - addcolumn))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 7 - addcolumn - addcolumn),  xl_col_to_name(column - 3 - addcolumn))
                 sheet.write_formula(row, column + 1, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 6 - addcolumn),  xl_col_to_name(column - 2 - addcolumn))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 6 - addcolumn - addcolumn),  xl_col_to_name(column - 2 - addcolumn))
                 sheet.write_formula(row, column + 2, formula, row_format_number)
 
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8 + margin_shift - addcolumn), xl_col_to_name(column - 4 + margin_shift - addcolumn))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8 + margin_shift - addcolumn - addcolumn), xl_col_to_name(column - 4 + margin_shift - addcolumn))
                 sheet.write_formula(row, column + 0 + margin_shift, formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 7 + margin_shift - addcolumn),  xl_col_to_name(column - 3 + margin_shift - addcolumn))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 7 + margin_shift - addcolumn - addcolumn),  xl_col_to_name(column - 3 + margin_shift - addcolumn))
                 sheet.write_formula(row, column + 1 + margin_shift, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 6 + margin_shift - addcolumn),  xl_col_to_name(column - 2 + margin_shift - addcolumn))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 6 + margin_shift - addcolumn - addcolumn),  xl_col_to_name(column - 2 + margin_shift - addcolumn))
                 sheet.write_formula(row, column + 2 + margin_shift, formula, row_format_number)
 
             if element == 'YEAR итого':  # 'YEAR итого'
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 17), xl_col_to_name(column - 4))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 20), xl_col_to_name(column - 5))
                 sheet.write_formula(row, column + 0, formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 16), xl_col_to_name(column - 3))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 19), xl_col_to_name(column - 4))
                 sheet.write_formula(row, column + 1, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 15), xl_col_to_name(column - 2))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 18), xl_col_to_name(column - 3))
                 sheet.write_formula(row, column + 2, formula, row_format_number)
 
                 self.print_acceptance_potential(sheet, row, column, project, YEARint, row_format_number)
                 self.print_acceptance_potential(sheet, row, 223, project, YEARint + 1, row_format_number)
                 self.print_acceptance_potential(sheet, row, 238, project, YEARint + 2, row_format_number)
 
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 17 + margin_shift), xl_col_to_name(column - 4 + margin_shift))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 20 + margin_shift), xl_col_to_name(column - 5 + margin_shift))
                 sheet.write_formula(row, column + 0 + margin_shift, formula, row_format_number_color_fact)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 16 + margin_shift), xl_col_to_name(column - 3 + margin_shift))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 19 + margin_shift), xl_col_to_name(column - 4 + margin_shift))
                 sheet.write_formula(row, column + 1 + margin_shift, formula, row_format_number)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 15 + margin_shift), xl_col_to_name(column - 2 + margin_shift))
+                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 18 + margin_shift), xl_col_to_name(column - 3 + margin_shift))
                 sheet.write_formula(row, column + 2 + margin_shift, formula, row_format_number)
 
             column += 2
-        _, _, _, _, _ = self.print_year_planned_acceptance_project(sheet,row,224,project,YEARint + 1,row_format_number,row_format_number_color_fact,next_margin_shift, True)
-        _, _, _, _, _ = self.print_year_planned_acceptance_project(sheet,row,239,project,YEARint + 2,row_format_number,row_format_number_color_fact,next_margin_shift, True)
+        _, _, _, _, _ = self.print_year_planned_acceptance_project(sheet,row,238,project,YEARint + 1,row_format_number,row_format_number_color_fact,next_margin_shift, True)
+        _, _, _, _, _ = self.print_year_planned_acceptance_project(sheet,row,253,project,YEARint + 2,row_format_number,row_format_number_color_fact,next_margin_shift, True)
 
         # end Валовая Выручка, без НДС
 
@@ -1305,7 +1352,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         for colFormula in range(2, 9):
             sheet.write_string(row, colFormula, '', format)
 
-        for colFormula in list(range(9, 215)) + list(range(216, 230)) + list(range(231, 245)):
+        for colFormula in list(range(9, 229)) + list(range(230, 244)) + list(range(245, 259)):
             sheet.write_string(row, colFormula, '', format)
 
         for type in plan_shift:  # формулы расчетных планов
@@ -1315,11 +1362,13 @@ class report_budget_forecast_excel(models.AbstractModel):
                 if type == 'revenue':
                     width = 4
                 elif type == 'pds':
-                    start_column += 83
+                    start_column += 87
                     width = 3
                 for element in range(len(self.month_rus_name_contract_pds)):
-                    if element in [3, 7, 8, 12, 16, 17, 18]:  # учитываем колонки планов
+                    if element in [3, 7, 8]:  # учитываем колонки планов
                         shift += 1
+                    elif element in [12, 16, 17, 18]:  # учитываем колонки планов 6+6
+                        shift += 2
                     formula_fact = '={1}{0}'.format(
                         row,
                         xl_col_to_name(start_column + shift + element * width),
@@ -1349,13 +1398,13 @@ class report_budget_forecast_excel(models.AbstractModel):
             else:
                 shift = 0
                 if type == 'acceptance':
-                    start_column += 148
+                    start_column += 156
                     width = 4
                 elif type == 'margin':
-                    start_column += 178
+                    start_column += 189
                     width = 4
                 for element in range(len(self.month_rus_name_revenue_margin)):
-                    if element in [5]:  # учитываем колонки планов
+                    if element in [3, 4, 5, 6]:  # учитываем колонки планов
                         shift += 1
                     formula_fact = '={1}{0}'.format(
                         row,
@@ -1734,7 +1783,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                 sheet.write_number(row, column, spec.profitability, cur_row_format_number)
                                 column += 1
                                 sheet.write_string(row, column, '', head_format_1)
-                                self.print_row_values(workbook, sheet, row, column, spec, 30, 4)
+                                self.print_row_values(workbook, sheet, row, column, spec, 33, 4)
                                 dict_formula['printed_projects'].add(spec.id)
 
                         if isFoundProjectsByProbability:
@@ -1747,7 +1796,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                             formulaProjectManager = formulaProjectManager + ',{0}' + str(row + 1)
                             for colFormula in range(2, 9):
                                 sheet.write_string(row, colFormula, '', row_format_probability)
-                            for colFormula in list(range(9, 215)) + list(range(216, 230)) + list(range(231, 245)):
+                            for colFormula in list(range(9, 229)) + list(range(230, 244)) + list(range(245, 259)):
                                 formula = '=sum({2}{0}:{2}{1})'.format(begRowProjectsByProbability + 2, row,
                                                                        xl_col_to_name(colFormula))
                                 if colFormula in fact_columns and stage.code not in ('100', '100(done)'):
@@ -1772,7 +1821,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                         for colFormula in range(2, 9):
                             sheet.write_string(row, colFormula, '', row_format_manager)
 
-                        for colFormula in list(range(9, 215)) + list(range(216, 230)) + list(range(231, 245)):
+                        for colFormula in list(range(9, 229)) + list(range(230, 244)) + list(range(245, 259)):
                             formula = formulaProjectManager.format(xl_col_to_name(colFormula)) + ')'
                             sheet.write_formula(row, colFormula, formula, row_format_manager)
 
@@ -1853,42 +1902,74 @@ class report_budget_forecast_excel(models.AbstractModel):
                         ])
 
                         for plan in (
-                                {'column': plan_shift['revenue']['Q1'], 'formula': f'{plan_revenue.q1_plan}'},
-                                {'column': plan_shift['revenue']['Q2'], 'formula': f'{plan_revenue.q2_plan}'},
-                                {'column': plan_shift['revenue']['Q3'], 'formula': f'{plan_revenue.q3_plan}'},
-                                {'column': plan_shift['revenue']['Q4'], 'formula': f'{plan_revenue.q4_plan}'},
-                                {'column': plan_shift['pds']['Q1'], 'formula': f'{plan_pds.q1_plan}'},
-                                {'column': plan_shift['pds']['Q2'], 'formula': f'{plan_pds.q2_plan}'},
-                                {'column': plan_shift['pds']['Q3'], 'formula': f'{plan_pds.q3_plan}'},
-                                {'column': plan_shift['pds']['Q4'], 'formula': f'{plan_pds.q4_plan}'},
-                                {'column': plan_shift['acceptance']['Q1'], 'formula': f'{plan_acceptance.q1_plan}'},
-                                {'column': plan_shift['acceptance']['Q2'], 'formula': f'{plan_acceptance.q2_plan}'},
-                                {'column': plan_shift['acceptance']['Q3'], 'formula': f'{plan_acceptance.q3_plan}'},
-                                {'column': plan_shift['acceptance']['Q4'], 'formula': f'{plan_acceptance.q4_plan}'},
-                                {'column': plan_shift['acceptance']['6+6'],
-                                 'formula': f'{plan_acceptance.q3_plan_6_6} + {plan_acceptance.q4_plan_6_6}'},
-                                {'column': plan_shift['margin']['Q1'], 'formula': f'{plan_margin.q1_plan}'},
-                                {'column': plan_shift['margin']['Q2'], 'formula': f'{plan_margin.q2_plan}'},
-                                {'column': plan_shift['margin']['Q3'], 'formula': f'{plan_margin.q3_plan}'},
-                                {'column': plan_shift['margin']['Q4'], 'formula': f'{plan_margin.q4_plan}'},
-                                {'column': plan_shift['margin']['6+6'],
-                                 'formula': f'{plan_margin.q3_plan_6_6} + {plan_margin.q4_plan_6_6}'},
-                                {'column': plan_shift['revenue']['NEXT'],
-                                 'formula': f'{plan_revenue_next.q1_plan + plan_revenue_next.q2_plan + plan_revenue_next.q3_plan + plan_revenue_next.q4_plan}'},
-                                {'column': plan_shift['pds']['NEXT'],
-                                 'formula': f'{plan_pds_next.q1_plan + plan_pds_next.q2_plan + plan_pds_next.q3_plan + plan_pds_next.q4_plan}'},
-                                {'column': plan_shift['acceptance']['NEXT'],
-                                 'formula': f'{plan_acceptance_next.q1_plan + plan_acceptance_next.q2_plan + plan_acceptance_next.q3_plan + plan_acceptance_next.q4_plan}'},
-                                {'column': plan_shift['margin']['NEXT'],
-                                 'formula': f'{plan_margin_next.q1_plan + plan_margin_next.q2_plan + plan_margin_next.q3_plan + plan_margin_next.q4_plan}'},
-                                {'column': plan_shift['revenue']['AFTER_NEXT'],
-                                 'formula': f'{plan_revenue_after_next.q1_plan + plan_revenue_after_next.q2_plan + plan_revenue_after_next.q3_plan + plan_revenue_after_next.q4_plan}'},
-                                {'column': plan_shift['pds']['AFTER_NEXT'],
-                                 'formula': f'{plan_pds_after_next.q1_plan + plan_pds_after_next.q2_plan + plan_pds_after_next.q3_plan + plan_pds_after_next.q4_plan}'},
-                                {'column': plan_shift['acceptance']['AFTER_NEXT'],
-                                 'formula': f'{plan_acceptance_after_next.q1_plan + plan_acceptance_after_next.q2_plan + plan_acceptance_after_next.q3_plan + plan_acceptance_after_next.q4_plan}'},
-                                {'column': plan_shift['margin']['AFTER_NEXT'],
-                                 'formula': f'{plan_margin_after_next.q1_plan + plan_margin_after_next.q2_plan + plan_margin_after_next.q3_plan + plan_margin_after_next.q4_plan}'},
+                            {'column': plan_shift['revenue']['Q1'], 'formula': f'{plan_revenue.q1_plan}'},
+                            {'column': plan_shift['revenue']['Q2'], 'formula': f'{plan_revenue.q2_plan}'},
+                            {'column': plan_shift['revenue']['HY1'], 'formula': f'{plan_revenue.q1_plan} + {plan_revenue.q2_plan}'},
+                            {'column': plan_shift['revenue']['Q3'], 'formula': f'{plan_revenue.q3_plan}'},
+                            {'column': plan_shift['revenue']['Q3 6+6'], 'formula': f'{plan_revenue.q3_plan_6_6}'},
+                            {'column': plan_shift['revenue']['Q4'], 'formula': f'{plan_revenue.q4_plan}'},
+                            {'column': plan_shift['revenue']['Q4 6+6'], 'formula': f'{plan_revenue.q4_plan_6_6}'},
+                            {'column': plan_shift['revenue']['HY2'],
+                             'formula': f'{plan_revenue.q3_plan} + {plan_revenue.q4_plan}'},
+                            {'column': plan_shift['revenue']['HY2 6+6'], 'formula': f'{plan_revenue.q3_plan_6_6} + {plan_revenue.q4_plan_6_6}'},
+                            {'column': plan_shift['revenue']['Y'], 'formula': f'{plan_revenue.q1_plan} + {plan_revenue.q2_plan} + {plan_revenue.q3_plan} + {plan_revenue.q4_plan}'},
+                            {'column': plan_shift['revenue']['Y 6+6'], 'formula': f'{plan_revenue.q3_plan_6_6} + {plan_revenue.q4_plan_6_6} + {plan_revenue.q1_fact} + {plan_revenue.q2_fact}'},
+                            {'column': plan_shift['pds']['Q1'], 'formula': f'{plan_pds.q1_plan}'},
+                            {'column': plan_shift['pds']['Q2'], 'formula': f'{plan_pds.q2_plan}'},
+                            {'column': plan_shift['pds']['HY1'], 'formula': f'{plan_pds.q1_plan} + {plan_pds.q2_plan}'},
+                            {'column': plan_shift['pds']['Q3'], 'formula': f'{plan_pds.q3_plan}'},
+                            {'column': plan_shift['pds']['Q3 6+6'], 'formula': f'{plan_pds.q3_plan_6_6}'},
+                            {'column': plan_shift['pds']['Q4'], 'formula': f'{plan_pds.q4_plan}'},
+                            {'column': plan_shift['pds']['Q4 6+6'], 'formula': f'{plan_pds.q3_plan_6_6}'},
+                            {'column': plan_shift['pds']['HY2'],
+                             'formula': f'{plan_pds.q3_plan} + {plan_pds.q4_plan}'},
+                            {'column': plan_shift['pds']['HY2 6+6'], 'formula': f'{plan_pds.q3_plan_6_6} + {plan_pds.q4_plan_6_6}'},
+                            {'column': plan_shift['pds']['Y'], 'formula': f'{plan_pds.q1_plan} + {plan_pds.q2_plan} + {plan_pds.q3_plan} + {plan_pds.q4_plan}'},
+                            {'column': plan_shift['pds']['Y 6+6'], 'formula': f'{plan_pds.q3_plan_6_6} + {plan_pds.q4_plan_6_6} + {plan_pds.q1_fact} + {plan_pds.q2_fact}'},
+                            {'column': plan_shift['acceptance']['Q1'], 'formula': f'{plan_acceptance.q1_plan}'},
+                            {'column': plan_shift['acceptance']['Q2'], 'formula': f'{plan_acceptance.q2_plan}'},
+                            {'column': plan_shift['acceptance']['HY1'],
+                             'formula': f'{plan_acceptance.q1_plan} + {plan_acceptance.q2_plan}'},
+                            {'column': plan_shift['acceptance']['Q3'], 'formula': f'{plan_acceptance.q3_plan}'},
+                            {'column': plan_shift['acceptance']['Q3 6+6'], 'formula': f'{plan_acceptance.q3_plan_6_6}'},
+                            {'column': plan_shift['acceptance']['Q4'], 'formula': f'{plan_acceptance.q4_plan}'},
+                            {'column': plan_shift['acceptance']['Q4 6+6'], 'formula': f'{plan_acceptance.q4_plan_6_6}'},
+                            {'column': plan_shift['acceptance']['HY2'],
+                             'formula': f'{plan_acceptance.q3_plan} + {plan_acceptance.q4_plan}'},
+                            {'column': plan_shift['acceptance']['HY2 6+6'], 'formula': f'{plan_acceptance.q3_plan_6_6} + {plan_acceptance.q4_plan_6_6}'},
+                            {'column': plan_shift['acceptance']['Y'],
+                             'formula': f'{plan_acceptance.q1_plan} + {plan_acceptance.q2_plan} + {plan_acceptance.q3_plan} + {plan_acceptance.q4_plan}'},
+                            {'column': plan_shift['acceptance']['Y 6+6'], 'formula': f'{plan_acceptance.q3_plan_6_6} + {plan_acceptance.q4_plan_6_6} + {plan_acceptance.q1_fact} + {plan_acceptance.q2_fact}'},
+                            {'column': plan_shift['margin']['Q1'], 'formula': f'{plan_margin.q1_plan}'},
+                            {'column': plan_shift['margin']['Q2'], 'formula': f'{plan_margin.q2_plan}'},
+                            {'column': plan_shift['margin']['HY1'],
+                             'formula': f'{plan_margin.q1_plan} + {plan_margin.q2_plan}'},
+                            {'column': plan_shift['margin']['Q3'], 'formula': f'{plan_margin.q3_plan}'},
+                            {'column': plan_shift['margin']['Q3 6+6'], 'formula': f'{plan_margin.q3_plan_6_6}'},
+                            {'column': plan_shift['margin']['Q4'], 'formula': f'{plan_margin.q4_plan}'},
+                            {'column': plan_shift['margin']['Q4 6+6'], 'formula': f'{plan_margin.q4_plan_6_6}'},
+                            {'column': plan_shift['margin']['HY2'],
+                             'formula': f'{plan_margin.q3_plan} + {plan_margin.q4_plan}'},
+                            {'column': plan_shift['margin']['HY2 6+6'], 'formula': f'{plan_margin.q3_plan_6_6} + {plan_margin.q4_plan_6_6}'},
+                            {'column': plan_shift['margin']['Y'],
+                             'formula': f'{plan_margin.q1_plan} + {plan_margin.q2_plan} + {plan_margin.q3_plan} + {plan_margin.q4_plan}'},
+                            {'column': plan_shift['margin']['Y 6+6'], 'formula': f'{plan_margin.q3_plan_6_6} + {plan_margin.q4_plan_6_6} + {plan_margin.q1_fact} + {plan_margin.q2_fact}'},
+                            {'column': plan_shift['revenue']['NEXT'],
+                             'formula': f'{plan_revenue_next.q1_plan + plan_revenue_next.q2_plan + plan_revenue_next.q3_plan + plan_revenue_next.q4_plan}'},
+                            {'column': plan_shift['pds']['NEXT'],
+                             'formula': f'{plan_pds_next.q1_plan + plan_pds_next.q2_plan + plan_pds_next.q3_plan + plan_pds_next.q4_plan}'},
+                            {'column': plan_shift['acceptance']['NEXT'],
+                             'formula': f'{plan_acceptance_next.q1_plan + plan_acceptance_next.q2_plan + plan_acceptance_next.q3_plan + plan_acceptance_next.q4_plan}'},
+                            {'column': plan_shift['margin']['NEXT'],
+                             'formula': f'{plan_margin_next.q1_plan + plan_margin_next.q2_plan + plan_margin_next.q3_plan + plan_margin_next.q4_plan}'},
+                            {'column': plan_shift['revenue']['AFTER_NEXT'],
+                             'formula': f'{plan_revenue_after_next.q1_plan + plan_revenue_after_next.q2_plan + plan_revenue_after_next.q3_plan + plan_revenue_after_next.q4_plan}'},
+                            {'column': plan_shift['pds']['AFTER_NEXT'],
+                             'formula': f'{plan_pds_after_next.q1_plan + plan_pds_after_next.q2_plan + plan_pds_after_next.q3_plan + plan_pds_after_next.q4_plan}'},
+                            {'column': plan_shift['acceptance']['AFTER_NEXT'],
+                             'formula': f'{plan_acceptance_after_next.q1_plan + plan_acceptance_after_next.q2_plan + plan_acceptance_after_next.q3_plan + plan_acceptance_after_next.q4_plan}'},
+                            {'column': plan_shift['margin']['AFTER_NEXT'],
+                             'formula': f'{plan_margin_after_next.q1_plan + plan_margin_after_next.q2_plan + plan_margin_after_next.q3_plan + plan_margin_after_next.q4_plan}'},
                         ):
 
                             kam_formula = '(' + plan['formula'] + ')'
@@ -1896,33 +1977,33 @@ class report_budget_forecast_excel(models.AbstractModel):
                             sheet.write_formula(row, plan['column'], kam_formula, row_format_plan)
                             sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 1})
 
-                        for plan in (
-                                {'column': plan_shift['revenue']['HY1'],
-                                 'formula': f"={xl_col_to_name(plan_shift['revenue']['Q1'])}{row + 1} + {xl_col_to_name(plan_shift['revenue']['Q2'])}{row + 1}"},
-                                {'column': plan_shift['revenue']['HY2'],
-                                 'formula': f"={xl_col_to_name(plan_shift['revenue']['Q3'])}{row + 1} + {xl_col_to_name(plan_shift['revenue']['Q4'])}{row + 1}"},
-                                {'column': plan_shift['revenue']['Y'],
-                                 'formula': f"={xl_col_to_name(plan_shift['revenue']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['revenue']['HY2'])}{row + 1}"},
-                                {'column': plan_shift['pds']['HY1'],
-                                 'formula': f"={xl_col_to_name(plan_shift['pds']['Q1'])}{row + 1} + {xl_col_to_name(plan_shift['pds']['Q2'])}{row + 1}"},
-                                {'column': plan_shift['pds']['HY2'],
-                                 'formula': f"={xl_col_to_name(plan_shift['pds']['Q3'])}{row + 1} + {xl_col_to_name(plan_shift['pds']['Q4'])}{row + 1}"},
-                                {'column': plan_shift['pds']['Y'],
-                                 'formula': f"={xl_col_to_name(plan_shift['pds']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['pds']['HY2'])}{row + 1}"},
-                                {'column': plan_shift['acceptance']['HY1'],
-                                 'formula': f"={xl_col_to_name(plan_shift['acceptance']['Q1'])}{row + 1} + {xl_col_to_name(plan_shift['acceptance']['Q2'])}{row + 1}"},
-                                {'column': plan_shift['acceptance']['HY2'],
-                                 'formula': f"={xl_col_to_name(plan_shift['acceptance']['Q3'])}{row + 1} + {xl_col_to_name(plan_shift['acceptance']['Q4'])}{row + 1}"},
-                                {'column': plan_shift['acceptance']['Y'],
-                                 'formula': f"={xl_col_to_name(plan_shift['acceptance']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['acceptance']['HY2'])}{row + 1}"},
-                                {'column': plan_shift['margin']['HY1'],
-                                 'formula': f"={xl_col_to_name(plan_shift['margin']['Q1'])}{row + 1} + {xl_col_to_name(plan_shift['margin']['Q2'])}{row + 1}"},
-                                {'column': plan_shift['margin']['HY2'],
-                                 'formula': f"={xl_col_to_name(plan_shift['margin']['Q3'])}{row + 1} + {xl_col_to_name(plan_shift['margin']['Q4'])}{row + 1}"},
-                                {'column': plan_shift['margin']['Y'],
-                                 'formula': f"={xl_col_to_name(plan_shift['margin']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['margin']['HY2'])}{row + 1}"},
-                        ):
-                            sheet.write_formula(row, plan['column'], plan['formula'], row_format_plan)
+                        # for plan in (
+                        #         {'column': plan_shift['revenue']['HY1'],
+                        #          'formula': f"={xl_col_to_name(plan_shift['revenue']['Q1'])}{row + 1} + {xl_col_to_name(plan_shift['revenue']['Q2'])}{row + 1}"},
+                        #         {'column': plan_shift['revenue']['HY2'],
+                        #          'formula': f"={xl_col_to_name(plan_shift['revenue']['Q3'])}{row + 1} + {xl_col_to_name(plan_shift['revenue']['Q4'])}{row + 1}"},
+                        #         {'column': plan_shift['revenue']['Y'],
+                        #          'formula': f"={xl_col_to_name(plan_shift['revenue']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['revenue']['HY2'])}{row + 1}"},
+                        #         {'column': plan_shift['pds']['HY1'],
+                        #          'formula': f"={xl_col_to_name(plan_shift['pds']['Q1'])}{row + 1} + {xl_col_to_name(plan_shift['pds']['Q2'])}{row + 1}"},
+                        #         {'column': plan_shift['pds']['HY2'],
+                        #          'formula': f"={xl_col_to_name(plan_shift['pds']['Q3'])}{row + 1} + {xl_col_to_name(plan_shift['pds']['Q4'])}{row + 1}"},
+                        #         {'column': plan_shift['pds']['Y'],
+                        #          'formula': f"={xl_col_to_name(plan_shift['pds']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['pds']['HY2'])}{row + 1}"},
+                        #         {'column': plan_shift['acceptance']['HY1'],
+                        #          'formula': f"={xl_col_to_name(plan_shift['acceptance']['Q1'])}{row + 1} + {xl_col_to_name(plan_shift['acceptance']['Q2'])}{row + 1}"},
+                        #         {'column': plan_shift['acceptance']['HY2'],
+                        #          'formula': f"={xl_col_to_name(plan_shift['acceptance']['Q3'])}{row + 1} + {xl_col_to_name(plan_shift['acceptance']['Q4'])}{row + 1}"},
+                        #         {'column': plan_shift['acceptance']['Y'],
+                        #          'formula': f"={xl_col_to_name(plan_shift['acceptance']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['acceptance']['HY2'])}{row + 1}"},
+                        #         {'column': plan_shift['margin']['HY1'],
+                        #          'formula': f"={xl_col_to_name(plan_shift['margin']['Q1'])}{row + 1} + {xl_col_to_name(plan_shift['margin']['Q2'])}{row + 1}"},
+                        #         {'column': plan_shift['margin']['HY2'],
+                        #          'formula': f"={xl_col_to_name(plan_shift['margin']['Q3'])}{row + 1} + {xl_col_to_name(plan_shift['margin']['Q4'])}{row + 1}"},
+                        #         {'column': plan_shift['margin']['Y'],
+                        #          'formula': f"={xl_col_to_name(plan_shift['margin']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['margin']['HY2'])}{row + 1}"},
+                        # ):
+                        #     sheet.write_formula(row, plan['column'], plan['formula'], row_format_plan)
 
                 if isFoundProjectsByOffice:
                     row += 1
@@ -1961,7 +2042,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                     for colFormula in range(2, 9):
                         sheet.write_string(row, colFormula, '', row_format_office)
 
-                    for colFormula in list(range(9, 215)) + list(range(216, 230)) + list(range(231, 245)):
+                    for colFormula in list(range(9, 229)) + list(range(230, 244)) + list(range(245, 259)):
                         formula = formulaProjectOffice.format(xl_col_to_name(colFormula))
                         # print('formula = ', formula)
                         sheet.write_formula(row, colFormula, formula, row_format_office)
@@ -2042,43 +2123,85 @@ class report_budget_forecast_excel(models.AbstractModel):
                     ])
 
                     for plan in (
-                            {'column': plan_shift['revenue']['Q1'], 'formula': f'{plan_revenue.q1_plan}'},
-                            {'column': plan_shift['revenue']['Q2'], 'formula': f'{plan_revenue.q2_plan}'},
-                            {'column': plan_shift['revenue']['Q3'], 'formula': f'{plan_revenue.q3_plan}'},
-                            {'column': plan_shift['revenue']['Q4'], 'formula': f'{plan_revenue.q4_plan}'},
-                            {'column': plan_shift['pds']['Q1'], 'formula': f'{plan_pds.q1_plan}'},
-                            {'column': plan_shift['pds']['Q2'], 'formula': f'{plan_pds.q2_plan}'},
-                            {'column': plan_shift['pds']['Q3'], 'formula': f'{plan_pds.q3_plan}'},
-                            {'column': plan_shift['pds']['Q4'], 'formula': f'{plan_pds.q4_plan}'},
-                            {'column': plan_shift['acceptance']['Q1'], 'formula': f'{plan_acceptance.q1_plan}'},
-                            {'column': plan_shift['acceptance']['Q2'], 'formula': f'{plan_acceptance.q2_plan}'},
-                            {'column': plan_shift['acceptance']['Q3'], 'formula': f'{plan_acceptance.q3_plan}'},
-                            {'column': plan_shift['acceptance']['Q4'], 'formula': f'{plan_acceptance.q4_plan}'},
-                            {'column': plan_shift['acceptance']['6+6'],
-                             'formula': f'{plan_acceptance.q3_plan_6_6} + {plan_acceptance.q4_plan_6_6}'},
-                            {'column': plan_shift['margin']['Q1'], 'formula': f'{plan_margin.q1_plan}'},
-                            {'column': plan_shift['margin']['Q2'], 'formula': f'{plan_margin.q2_plan}'},
-                            {'column': plan_shift['margin']['Q3'], 'formula': f'{plan_margin.q3_plan}'},
-                            {'column': plan_shift['margin']['Q4'], 'formula': f'{plan_margin.q4_plan}'},
-                            {'column': plan_shift['margin']['6+6'],
-                             'formula': f'{plan_margin.q3_plan_6_6} + {plan_margin.q4_plan_6_6}'},
-                            {'column': plan_shift['revenue']['NEXT'],
-                             'formula': f'{plan_revenue_next.q1_plan + plan_revenue_next.q2_plan + plan_revenue_next.q3_plan + plan_revenue_next.q4_plan}'},
-                            {'column': plan_shift['pds']['NEXT'],
-                             'formula': f'{plan_pds_next.q1_plan + plan_pds_next.q2_plan + plan_pds_next.q3_plan + plan_pds_next.q4_plan}'},
-                            {'column': plan_shift['acceptance']['NEXT'],
-                             'formula': f'{plan_acceptance_next.q1_plan + plan_acceptance_next.q2_plan + plan_acceptance_next.q3_plan + plan_acceptance_next.q4_plan}'},
-                            {'column': plan_shift['margin']['NEXT'],
-                             'formula': f'{plan_margin_next.q1_plan + plan_margin_next.q2_plan + plan_margin_next.q3_plan + plan_margin_next.q4_plan}'},
-                            {'column': plan_shift['revenue']['AFTER_NEXT'],
-                             'formula': f'{plan_revenue_after_next.q1_plan + plan_revenue_after_next.q2_plan + plan_revenue_after_next.q3_plan + plan_revenue_after_next.q4_plan}'},
-                            {'column': plan_shift['pds']['AFTER_NEXT'],
-                             'formula': f'{plan_pds_after_next.q1_plan + plan_pds_after_next.q2_plan + plan_pds_after_next.q3_plan + plan_pds_after_next.q4_plan}'},
-                            {'column': plan_shift['acceptance']['AFTER_NEXT'],
-                             'formula': f'{plan_acceptance_after_next.q1_plan + plan_acceptance_after_next.q2_plan + plan_acceptance_after_next.q3_plan + plan_acceptance_after_next.q4_plan}'},
-                            {'column': plan_shift['margin']['AFTER_NEXT'],
-                             'formula': f'{plan_margin_after_next.q1_plan + plan_margin_after_next.q2_plan + plan_margin_after_next.q3_plan + plan_margin_after_next.q4_plan}'},
-
+                        {'column': plan_shift['revenue']['Q1'], 'formula': f'{plan_revenue.q1_plan}'},
+                        {'column': plan_shift['revenue']['Q2'], 'formula': f'{plan_revenue.q2_plan}'},
+                        {'column': plan_shift['revenue']['HY1'],
+                         'formula': f'{plan_revenue.q1_plan} + {plan_revenue.q2_plan}'},
+                        {'column': plan_shift['revenue']['Q3'], 'formula': f'{plan_revenue.q3_plan}'},
+                        {'column': plan_shift['revenue']['Q3 6+6'], 'formula': f'{plan_revenue.q3_plan_6_6}'},
+                        {'column': plan_shift['revenue']['Q4'], 'formula': f'{plan_revenue.q4_plan}'},
+                        {'column': plan_shift['revenue']['Q4 6+6'], 'formula': f'{plan_revenue.q4_plan_6_6}'},
+                        {'column': plan_shift['revenue']['HY2'],
+                         'formula': f'{plan_revenue.q3_plan} + {plan_revenue.q4_plan}'},
+                        {'column': plan_shift['revenue']['HY2 6+6'],
+                         'formula': f'{plan_revenue.q3_plan_6_6} + {plan_revenue.q4_plan_6_6}'},
+                        {'column': plan_shift['revenue']['Y'],
+                         'formula': f'{plan_revenue.q1_plan} + {plan_revenue.q2_plan} + {plan_revenue.q3_plan} + {plan_revenue.q4_plan}'},
+                        {'column': plan_shift['revenue']['Y 6+6'],
+                         'formula': f'{plan_revenue.q3_plan_6_6} + {plan_revenue.q4_plan_6_6} + {plan_revenue.q1_fact} + {plan_revenue.q2_fact}'},
+                        {'column': plan_shift['pds']['Q1'], 'formula': f'{plan_pds.q1_plan}'},
+                        {'column': plan_shift['pds']['Q2'], 'formula': f'{plan_pds.q2_plan}'},
+                        {'column': plan_shift['pds']['HY1'], 'formula': f'{plan_pds.q1_plan} + {plan_pds.q2_plan}'},
+                        {'column': plan_shift['pds']['Q3'], 'formula': f'{plan_pds.q3_plan}'},
+                        {'column': plan_shift['pds']['Q3 6+6'], 'formula': f'{plan_pds.q3_plan_6_6}'},
+                        {'column': plan_shift['pds']['Q4'], 'formula': f'{plan_pds.q4_plan}'},
+                        {'column': plan_shift['pds']['Q4 6+6'], 'formula': f'{plan_pds.q3_plan_6_6}'},
+                        {'column': plan_shift['pds']['HY2'],
+                         'formula': f'{plan_pds.q3_plan} + {plan_pds.q4_plan}'},
+                        {'column': plan_shift['pds']['HY2 6+6'],
+                         'formula': f'{plan_pds.q3_plan_6_6} + {plan_pds.q4_plan_6_6}'},
+                        {'column': plan_shift['pds']['Y'],
+                         'formula': f'{plan_pds.q1_plan} + {plan_pds.q2_plan} + {plan_pds.q3_plan} + {plan_pds.q4_plan}'},
+                        {'column': plan_shift['pds']['Y 6+6'],
+                         'formula': f'{plan_pds.q3_plan_6_6} + {plan_pds.q4_plan_6_6} + {plan_pds.q1_fact} + {plan_pds.q2_fact}'},
+                        {'column': plan_shift['acceptance']['Q1'], 'formula': f'{plan_acceptance.q1_plan}'},
+                        {'column': plan_shift['acceptance']['Q2'], 'formula': f'{plan_acceptance.q2_plan}'},
+                        {'column': plan_shift['acceptance']['HY1'],
+                         'formula': f'{plan_acceptance.q1_plan} + {plan_acceptance.q2_plan}'},
+                        {'column': plan_shift['acceptance']['Q3'], 'formula': f'{plan_acceptance.q3_plan}'},
+                        {'column': plan_shift['acceptance']['Q3 6+6'], 'formula': f'{plan_acceptance.q3_plan_6_6}'},
+                        {'column': plan_shift['acceptance']['Q4'], 'formula': f'{plan_acceptance.q4_plan}'},
+                        {'column': plan_shift['acceptance']['Q4 6+6'], 'formula': f'{plan_acceptance.q4_plan_6_6}'},
+                        {'column': plan_shift['acceptance']['HY2'],
+                         'formula': f'{plan_acceptance.q3_plan} + {plan_acceptance.q4_plan}'},
+                        {'column': plan_shift['acceptance']['HY2 6+6'],
+                         'formula': f'{plan_acceptance.q3_plan_6_6} + {plan_acceptance.q4_plan_6_6}'},
+                        {'column': plan_shift['acceptance']['Y'],
+                         'formula': f'{plan_acceptance.q1_plan} + {plan_acceptance.q2_plan} + {plan_acceptance.q3_plan} + {plan_acceptance.q4_plan}'},
+                        {'column': plan_shift['acceptance']['Y 6+6'],
+                         'formula': f'{plan_acceptance.q3_plan_6_6} + {plan_acceptance.q4_plan_6_6} + {plan_acceptance.q1_fact} + {plan_acceptance.q2_fact}'},
+                        {'column': plan_shift['margin']['Q1'], 'formula': f'{plan_margin.q1_plan}'},
+                        {'column': plan_shift['margin']['Q2'], 'formula': f'{plan_margin.q2_plan}'},
+                        {'column': plan_shift['margin']['HY1'],
+                         'formula': f'{plan_margin.q1_plan} + {plan_margin.q2_plan}'},
+                        {'column': plan_shift['margin']['Q3'], 'formula': f'{plan_margin.q3_plan}'},
+                        {'column': plan_shift['margin']['Q3 6+6'], 'formula': f'{plan_margin.q3_plan_6_6}'},
+                        {'column': plan_shift['margin']['Q4'], 'formula': f'{plan_margin.q4_plan}'},
+                        {'column': plan_shift['margin']['Q4 6+6'], 'formula': f'{plan_margin.q4_plan_6_6}'},
+                        {'column': plan_shift['margin']['HY2'],
+                         'formula': f'{plan_margin.q3_plan} + {plan_margin.q4_plan}'},
+                        {'column': plan_shift['margin']['HY2 6+6'],
+                         'formula': f'{plan_margin.q3_plan_6_6} + {plan_margin.q4_plan_6_6}'},
+                        {'column': plan_shift['margin']['Y'],
+                         'formula': f'{plan_margin.q1_plan} + {plan_margin.q2_plan} + {plan_margin.q3_plan} + {plan_margin.q4_plan}'},
+                        {'column': plan_shift['margin']['Y 6+6'],
+                         'formula': f'{plan_margin.q3_plan_6_6} + {plan_margin.q4_plan_6_6} + {plan_margin.q1_fact} + {plan_margin.q2_fact}'},
+                        {'column': plan_shift['revenue']['NEXT'],
+                         'formula': f'{plan_revenue_next.q1_plan + plan_revenue_next.q2_plan + plan_revenue_next.q3_plan + plan_revenue_next.q4_plan}'},
+                        {'column': plan_shift['pds']['NEXT'],
+                         'formula': f'{plan_pds_next.q1_plan + plan_pds_next.q2_plan + plan_pds_next.q3_plan + plan_pds_next.q4_plan}'},
+                        {'column': plan_shift['acceptance']['NEXT'],
+                         'formula': f'{plan_acceptance_next.q1_plan + plan_acceptance_next.q2_plan + plan_acceptance_next.q3_plan + plan_acceptance_next.q4_plan}'},
+                        {'column': plan_shift['margin']['NEXT'],
+                         'formula': f'{plan_margin_next.q1_plan + plan_margin_next.q2_plan + plan_margin_next.q3_plan + plan_margin_next.q4_plan}'},
+                        {'column': plan_shift['revenue']['AFTER_NEXT'],
+                         'formula': f'{plan_revenue_after_next.q1_plan + plan_revenue_after_next.q2_plan + plan_revenue_after_next.q3_plan + plan_revenue_after_next.q4_plan}'},
+                        {'column': plan_shift['pds']['AFTER_NEXT'],
+                         'formula': f'{plan_pds_after_next.q1_plan + plan_pds_after_next.q2_plan + plan_pds_after_next.q3_plan + plan_pds_after_next.q4_plan}'},
+                        {'column': plan_shift['acceptance']['AFTER_NEXT'],
+                         'formula': f'{plan_acceptance_after_next.q1_plan + plan_acceptance_after_next.q2_plan + plan_acceptance_after_next.q3_plan + plan_acceptance_after_next.q4_plan}'},
+                        {'column': plan_shift['margin']['AFTER_NEXT'],
+                         'formula': f'{plan_margin_after_next.q1_plan + plan_margin_after_next.q2_plan + plan_margin_after_next.q3_plan + plan_margin_after_next.q4_plan}'},
                     ):
 
                         child_office_formula = dict_formula.get(str_project_office_id, '')
@@ -2089,33 +2212,33 @@ class report_budget_forecast_excel(models.AbstractModel):
 
                         sheet.write_formula(row, plan['column'], office_formula, row_format_plan)
 
-                    for plan in (
-                            {'column': plan_shift['revenue']['HY1'],
-                             'formula': f"={xl_col_to_name(plan_shift['revenue']['Q1'])}{row + 1} + {xl_col_to_name(plan_shift['revenue']['Q2'])}{row + 1}"},
-                            {'column': plan_shift['revenue']['HY2'],
-                             'formula': f"={xl_col_to_name(plan_shift['revenue']['Q3'])}{row + 1} + {xl_col_to_name(plan_shift['revenue']['Q4'])}{row + 1}"},
-                            {'column': plan_shift['revenue']['Y'],
-                             'formula': f"={xl_col_to_name(plan_shift['revenue']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['revenue']['HY2'])}{row + 1}"},
-                            {'column': plan_shift['pds']['HY1'],
-                             'formula': f"={xl_col_to_name(plan_shift['pds']['Q1'])}{row + 1} + {xl_col_to_name(plan_shift['pds']['Q2'])}{row + 1}"},
-                            {'column': plan_shift['pds']['HY2'],
-                             'formula': f"={xl_col_to_name(plan_shift['pds']['Q3'])}{row + 1} + {xl_col_to_name(plan_shift['pds']['Q4'])}{row + 1}"},
-                            {'column': plan_shift['pds']['Y'],
-                             'formula': f"={xl_col_to_name(plan_shift['pds']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['pds']['HY2'])}{row + 1}"},
-                            {'column': plan_shift['acceptance']['HY1'],
-                             'formula': f"={xl_col_to_name(plan_shift['acceptance']['Q1'])}{row + 1} + {xl_col_to_name(plan_shift['acceptance']['Q2'])}{row + 1}"},
-                            {'column': plan_shift['acceptance']['HY2'],
-                             'formula': f"={xl_col_to_name(plan_shift['acceptance']['Q3'])}{row + 1} + {xl_col_to_name(plan_shift['acceptance']['Q4'])}{row + 1}"},
-                            {'column': plan_shift['acceptance']['Y'],
-                             'formula': f"={xl_col_to_name(plan_shift['acceptance']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['acceptance']['HY2'])}{row + 1}"},
-                            {'column': plan_shift['margin']['HY1'],
-                             'formula': f"={xl_col_to_name(plan_shift['margin']['Q1'])}{row + 1} + {xl_col_to_name(plan_shift['margin']['Q2'])}{row + 1}"},
-                            {'column': plan_shift['margin']['HY2'],
-                             'formula': f"={xl_col_to_name(plan_shift['margin']['Q3'])}{row + 1} + {xl_col_to_name(plan_shift['margin']['Q4'])}{row + 1}"},
-                            {'column': plan_shift['margin']['Y'],
-                             'formula': f"={xl_col_to_name(plan_shift['margin']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['margin']['HY2'])}{row + 1}"},
-                    ):
-                        sheet.write_formula(row, plan['column'], plan['formula'], row_format_plan)
+                    # for plan in (
+                    #         {'column': plan_shift['revenue']['HY1'],
+                    #          'formula': f"={xl_col_to_name(plan_shift['revenue']['Q1'])}{row + 1} + {xl_col_to_name(plan_shift['revenue']['Q2'])}{row + 1}"},
+                    #         {'column': plan_shift['revenue']['HY2'],
+                    #          'formula': f"={xl_col_to_name(plan_shift['revenue']['Q3'])}{row + 1} + {xl_col_to_name(plan_shift['revenue']['Q4'])}{row + 1}"},
+                    #         {'column': plan_shift['revenue']['Y'],
+                    #          'formula': f"={xl_col_to_name(plan_shift['revenue']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['revenue']['HY2'])}{row + 1}"},
+                    #         {'column': plan_shift['pds']['HY1'],
+                    #          'formula': f"={xl_col_to_name(plan_shift['pds']['Q1'])}{row + 1} + {xl_col_to_name(plan_shift['pds']['Q2'])}{row + 1}"},
+                    #         {'column': plan_shift['pds']['HY2'],
+                    #          'formula': f"={xl_col_to_name(plan_shift['pds']['Q3'])}{row + 1} + {xl_col_to_name(plan_shift['pds']['Q4'])}{row + 1}"},
+                    #         {'column': plan_shift['pds']['Y'],
+                    #          'formula': f"={xl_col_to_name(plan_shift['pds']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['pds']['HY2'])}{row + 1}"},
+                    #         {'column': plan_shift['acceptance']['HY1'],
+                    #          'formula': f"={xl_col_to_name(plan_shift['acceptance']['Q1'])}{row + 1} + {xl_col_to_name(plan_shift['acceptance']['Q2'])}{row + 1}"},
+                    #         {'column': plan_shift['acceptance']['HY2'],
+                    #          'formula': f"={xl_col_to_name(plan_shift['acceptance']['Q3'])}{row + 1} + {xl_col_to_name(plan_shift['acceptance']['Q4'])}{row + 1}"},
+                    #         {'column': plan_shift['acceptance']['Y'],
+                    #          'formula': f"={xl_col_to_name(plan_shift['acceptance']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['acceptance']['HY2'])}{row + 1}"},
+                    #         {'column': plan_shift['margin']['HY1'],
+                    #          'formula': f"={xl_col_to_name(plan_shift['margin']['Q1'])}{row + 1} + {xl_col_to_name(plan_shift['margin']['Q2'])}{row + 1}"},
+                    #         {'column': plan_shift['margin']['HY2'],
+                    #          'formula': f"={xl_col_to_name(plan_shift['margin']['Q3'])}{row + 1} + {xl_col_to_name(plan_shift['margin']['Q4'])}{row + 1}"},
+                    #         {'column': plan_shift['margin']['Y'],
+                    #          'formula': f"={xl_col_to_name(plan_shift['margin']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['margin']['HY2'])}{row + 1}"},
+                    # ):
+                    #     sheet.write_formula(row, plan['column'], plan['formula'], row_format_plan)
 
             if isFoundProjectsByCompany:
                 if project_office.parent_id or set(self.env['project_budget.project_office'].search([]).ids) != set(project_office_ids): # печатаем компанию только по корневым офисам и если выбраны все оффисы
@@ -2134,7 +2257,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 for colFormula in range(2, 9):
                     sheet.write_string(row, colFormula, '', row_format_number_itogo)
 
-                for colFormula in list(range(9, 215)) + list(range(216, 230)) + list(range(231, 245)):
+                for colFormula in list(range(9, 229)) + list(range(230, 244)) + list(range(245, 259)):
                     formula = formulaCompany.format(xl_col_to_name(colFormula))
                     sheet.write_formula(row, colFormula, formula, row_format_number_itogo)
 
@@ -2228,24 +2351,67 @@ class report_budget_forecast_excel(models.AbstractModel):
                 for plan in (
                     {'column': plan_shift['revenue']['Q1'], 'formula': f'{plan_revenue.q1_plan}'},
                     {'column': plan_shift['revenue']['Q2'], 'formula': f'{plan_revenue.q2_plan}'},
+                    {'column': plan_shift['revenue']['HY1'],
+                     'formula': f'{plan_revenue.q1_plan} + {plan_revenue.q2_plan}'},
                     {'column': plan_shift['revenue']['Q3'], 'formula': f'{plan_revenue.q3_plan}'},
+                    {'column': plan_shift['revenue']['Q3 6+6'], 'formula': f'{plan_revenue.q3_plan_6_6}'},
                     {'column': plan_shift['revenue']['Q4'], 'formula': f'{plan_revenue.q4_plan}'},
+                    {'column': plan_shift['revenue']['Q4 6+6'], 'formula': f'{plan_revenue.q4_plan_6_6}'},
+                    {'column': plan_shift['revenue']['HY2'],
+                     'formula': f'{plan_revenue.q3_plan} + {plan_revenue.q4_plan}'},
+                    {'column': plan_shift['revenue']['HY2 6+6'],
+                     'formula': f'{plan_revenue.q3_plan_6_6} + {plan_revenue.q4_plan_6_6}'},
+                    {'column': plan_shift['revenue']['Y'],
+                     'formula': f'{plan_revenue.q1_plan} + {plan_revenue.q2_plan} + {plan_revenue.q3_plan} + {plan_revenue.q4_plan}'},
+                    {'column': plan_shift['revenue']['Y 6+6'],
+                     'formula': f'{plan_revenue.q3_plan_6_6} + {plan_revenue.q4_plan_6_6} + {plan_revenue.q1_fact} + {plan_revenue.q2_fact}'},
                     {'column': plan_shift['pds']['Q1'], 'formula': f'{plan_pds.q1_plan}'},
                     {'column': plan_shift['pds']['Q2'], 'formula': f'{plan_pds.q2_plan}'},
+                    {'column': plan_shift['pds']['HY1'], 'formula': f'{plan_pds.q1_plan} + {plan_pds.q2_plan}'},
                     {'column': plan_shift['pds']['Q3'], 'formula': f'{plan_pds.q3_plan}'},
+                    {'column': plan_shift['pds']['Q3 6+6'], 'formula': f'{plan_pds.q3_plan_6_6}'},
                     {'column': plan_shift['pds']['Q4'], 'formula': f'{plan_pds.q4_plan}'},
+                    {'column': plan_shift['pds']['Q4 6+6'], 'formula': f'{plan_pds.q3_plan_6_6}'},
+                    {'column': plan_shift['pds']['HY2'],
+                     'formula': f'{plan_pds.q3_plan} + {plan_pds.q4_plan}'},
+                    {'column': plan_shift['pds']['HY2 6+6'],
+                     'formula': f'{plan_pds.q3_plan_6_6} + {plan_pds.q4_plan_6_6}'},
+                    {'column': plan_shift['pds']['Y'],
+                     'formula': f'{plan_pds.q1_plan} + {plan_pds.q2_plan} + {plan_pds.q3_plan} + {plan_pds.q4_plan}'},
+                    {'column': plan_shift['pds']['Y 6+6'],
+                     'formula': f'{plan_pds.q3_plan_6_6} + {plan_pds.q4_plan_6_6} + {plan_pds.q1_fact} + {plan_pds.q2_fact}'},
                     {'column': plan_shift['acceptance']['Q1'], 'formula': f'{plan_acceptance.q1_plan}'},
                     {'column': plan_shift['acceptance']['Q2'], 'formula': f'{plan_acceptance.q2_plan}'},
+                    {'column': plan_shift['acceptance']['HY1'],
+                     'formula': f'{plan_acceptance.q1_plan} + {plan_acceptance.q2_plan}'},
                     {'column': plan_shift['acceptance']['Q3'], 'formula': f'{plan_acceptance.q3_plan}'},
+                    {'column': plan_shift['acceptance']['Q3 6+6'], 'formula': f'{plan_acceptance.q3_plan_6_6}'},
                     {'column': plan_shift['acceptance']['Q4'], 'formula': f'{plan_acceptance.q4_plan}'},
-                    {'column': plan_shift['acceptance']['6+6'],
+                    {'column': plan_shift['acceptance']['Q4 6+6'], 'formula': f'{plan_acceptance.q4_plan_6_6}'},
+                    {'column': plan_shift['acceptance']['HY2'],
+                     'formula': f'{plan_acceptance.q3_plan} + {plan_acceptance.q4_plan}'},
+                    {'column': plan_shift['acceptance']['HY2 6+6'],
                      'formula': f'{plan_acceptance.q3_plan_6_6} + {plan_acceptance.q4_plan_6_6}'},
+                    {'column': plan_shift['acceptance']['Y'],
+                     'formula': f'{plan_acceptance.q1_plan} + {plan_acceptance.q2_plan} + {plan_acceptance.q3_plan} + {plan_acceptance.q4_plan}'},
+                    {'column': plan_shift['acceptance']['Y 6+6'],
+                     'formula': f'{plan_acceptance.q3_plan_6_6} + {plan_acceptance.q4_plan_6_6} + {plan_acceptance.q1_fact} + {plan_acceptance.q2_fact}'},
                     {'column': plan_shift['margin']['Q1'], 'formula': f'{plan_margin.q1_plan}'},
                     {'column': plan_shift['margin']['Q2'], 'formula': f'{plan_margin.q2_plan}'},
+                    {'column': plan_shift['margin']['HY1'],
+                     'formula': f'{plan_margin.q1_plan} + {plan_margin.q2_plan}'},
                     {'column': plan_shift['margin']['Q3'], 'formula': f'{plan_margin.q3_plan}'},
+                    {'column': plan_shift['margin']['Q3 6+6'], 'formula': f'{plan_margin.q3_plan_6_6}'},
                     {'column': plan_shift['margin']['Q4'], 'formula': f'{plan_margin.q4_plan}'},
-                    {'column': plan_shift['margin']['6+6'],
+                    {'column': plan_shift['margin']['Q4 6+6'], 'formula': f'{plan_margin.q4_plan_6_6}'},
+                    {'column': plan_shift['margin']['HY2'],
+                     'formula': f'{plan_margin.q3_plan} + {plan_margin.q4_plan}'},
+                    {'column': plan_shift['margin']['HY2 6+6'],
                      'formula': f'{plan_margin.q3_plan_6_6} + {plan_margin.q4_plan_6_6}'},
+                    {'column': plan_shift['margin']['Y'],
+                     'formula': f'{plan_margin.q1_plan} + {plan_margin.q2_plan} + {plan_margin.q3_plan} + {plan_margin.q4_plan}'},
+                    {'column': plan_shift['margin']['Y 6+6'],
+                     'formula': f'{plan_margin.q3_plan_6_6} + {plan_margin.q4_plan_6_6} + {plan_margin.q1_fact} + {plan_margin.q2_fact}'},
                     {'column': plan_shift['revenue']['NEXT'],
                      'formula': f'{plan_revenue_next.q1_plan + plan_revenue_next.q2_plan + plan_revenue_next.q3_plan + plan_revenue_next.q4_plan}'},
                     {'column': plan_shift['pds']['NEXT'],
@@ -2268,33 +2434,33 @@ class report_budget_forecast_excel(models.AbstractModel):
                     sheet.write_formula(row, plan['column'], company_formula, row_format_plan)
                     # sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 1})
 
-                for plan in (
-                        {'column': plan_shift['revenue']['HY1'],
-                         'formula': f"={xl_col_to_name(plan_shift['revenue']['Q1'])}{row + 1} + {xl_col_to_name(plan_shift['revenue']['Q2'])}{row + 1}"},
-                        {'column': plan_shift['revenue']['HY2'],
-                         'formula': f"={xl_col_to_name(plan_shift['revenue']['Q3'])}{row + 1} + {xl_col_to_name(plan_shift['revenue']['Q4'])}{row + 1}"},
-                        {'column': plan_shift['revenue']['Y'],
-                         'formula': f"={xl_col_to_name(plan_shift['revenue']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['revenue']['HY2'])}{row + 1}"},
-                        {'column': plan_shift['pds']['HY1'],
-                         'formula': f"={xl_col_to_name(plan_shift['pds']['Q1'])}{row + 1} + {xl_col_to_name(plan_shift['pds']['Q2'])}{row + 1}"},
-                        {'column': plan_shift['pds']['HY2'],
-                         'formula': f"={xl_col_to_name(plan_shift['pds']['Q3'])}{row + 1} + {xl_col_to_name(plan_shift['pds']['Q4'])}{row + 1}"},
-                        {'column': plan_shift['pds']['Y'],
-                         'formula': f"={xl_col_to_name(plan_shift['pds']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['pds']['HY2'])}{row + 1}"},
-                        {'column': plan_shift['acceptance']['HY1'],
-                         'formula': f"={xl_col_to_name(plan_shift['acceptance']['Q1'])}{row + 1} + {xl_col_to_name(plan_shift['acceptance']['Q2'])}{row + 1}"},
-                        {'column': plan_shift['acceptance']['HY2'],
-                         'formula': f"={xl_col_to_name(plan_shift['acceptance']['Q3'])}{row + 1} + {xl_col_to_name(plan_shift['acceptance']['Q4'])}{row + 1}"},
-                        {'column': plan_shift['acceptance']['Y'],
-                         'formula': f"={xl_col_to_name(plan_shift['acceptance']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['acceptance']['HY2'])}{row + 1}"},
-                        {'column': plan_shift['margin']['HY1'],
-                         'formula': f"={xl_col_to_name(plan_shift['margin']['Q1'])}{row + 1} + {xl_col_to_name(plan_shift['margin']['Q2'])}{row + 1}"},
-                        {'column': plan_shift['margin']['HY2'],
-                         'formula': f"={xl_col_to_name(plan_shift['margin']['Q3'])}{row + 1} + {xl_col_to_name(plan_shift['margin']['Q4'])}{row + 1}"},
-                        {'column': plan_shift['margin']['Y'],
-                         'formula': f"={xl_col_to_name(plan_shift['margin']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['margin']['HY2'])}{row + 1}"},
-                ):
-                    sheet.write_formula(row, plan['column'], plan['formula'], row_format_plan)
+                # for plan in (
+                #         {'column': plan_shift['revenue']['HY1'],
+                #          'formula': f"={xl_col_to_name(plan_shift['revenue']['Q1'])}{row + 1} + {xl_col_to_name(plan_shift['revenue']['Q2'])}{row + 1}"},
+                #         {'column': plan_shift['revenue']['HY2'],
+                #          'formula': f"={xl_col_to_name(plan_shift['revenue']['Q3'])}{row + 1} + {xl_col_to_name(plan_shift['revenue']['Q4'])}{row + 1}"},
+                #         {'column': plan_shift['revenue']['Y'],
+                #          'formula': f"={xl_col_to_name(plan_shift['revenue']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['revenue']['HY2'])}{row + 1}"},
+                #         {'column': plan_shift['pds']['HY1'],
+                #          'formula': f"={xl_col_to_name(plan_shift['pds']['Q1'])}{row + 1} + {xl_col_to_name(plan_shift['pds']['Q2'])}{row + 1}"},
+                #         {'column': plan_shift['pds']['HY2'],
+                #          'formula': f"={xl_col_to_name(plan_shift['pds']['Q3'])}{row + 1} + {xl_col_to_name(plan_shift['pds']['Q4'])}{row + 1}"},
+                #         {'column': plan_shift['pds']['Y'],
+                #          'formula': f"={xl_col_to_name(plan_shift['pds']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['pds']['HY2'])}{row + 1}"},
+                #         {'column': plan_shift['acceptance']['HY1'],
+                #          'formula': f"={xl_col_to_name(plan_shift['acceptance']['Q1'])}{row + 1} + {xl_col_to_name(plan_shift['acceptance']['Q2'])}{row + 1}"},
+                #         {'column': plan_shift['acceptance']['HY2'],
+                #          'formula': f"={xl_col_to_name(plan_shift['acceptance']['Q3'])}{row + 1} + {xl_col_to_name(plan_shift['acceptance']['Q4'])}{row + 1}"},
+                #         {'column': plan_shift['acceptance']['Y'],
+                #          'formula': f"={xl_col_to_name(plan_shift['acceptance']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['acceptance']['HY2'])}{row + 1}"},
+                #         {'column': plan_shift['margin']['HY1'],
+                #          'formula': f"={xl_col_to_name(plan_shift['margin']['Q1'])}{row + 1} + {xl_col_to_name(plan_shift['margin']['Q2'])}{row + 1}"},
+                #         {'column': plan_shift['margin']['HY2'],
+                #          'formula': f"={xl_col_to_name(plan_shift['margin']['Q3'])}{row + 1} + {xl_col_to_name(plan_shift['margin']['Q4'])}{row + 1}"},
+                #         {'column': plan_shift['margin']['Y'],
+                #          'formula': f"={xl_col_to_name(plan_shift['margin']['HY1'])}{row + 1} + {xl_col_to_name(plan_shift['margin']['HY2'])}{row + 1}"},
+                # ):
+                #     sheet.write_formula(row, plan['column'], plan['formula'], row_format_plan)
 
         return row
 
@@ -2599,7 +2765,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         if formula_itogo:
             for colFormula in range(2, 9):
                 sheet.write_string(row, colFormula, '', row_format_number_itogo)
-            for colFormula in list(range(9, 215)) + list(range(216, 230)) + list(range(231, 245)):
+            for colFormula in list(range(9, 229)) + list(range(230, 244)) + list(range(245, 259)):
                 formula = formula_itogo.format(xl_col_to_name(colFormula))
                 sheet.write_formula(row, colFormula, formula, row_format_number_itogo)
 
@@ -2626,7 +2792,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             sheet.set_row(row + 1, False, False, {'hidden': 1, 'level': 1})
             for colFormula in range(2, 9):
                 sheet.write_string(row + 1, colFormula, '', row_format_number_itogo)
-            for colFormula in list(range(9, 215)) + list(range(216, 230)) + list(range(231, 245)):
+            for colFormula in list(range(9, 229)) + list(range(230, 244)) + list(range(245, 259)):
                 formula = '=sum({2}{0},{3}{2}{1})'.format(row, oblako_row, xl_col_to_name(colFormula), "'Прогноз (Облако.ру)'!")
                 sheet.write_formula(row + 1, colFormula, formula, row_format_number_itogo)
             # расчетный план по отчету
@@ -2645,8 +2811,8 @@ class report_budget_forecast_excel(models.AbstractModel):
                     formula = '=sum({2}{0},{3}{2}{1})'.format(row + 1, oblako_row + 1, xl_col_to_name(shift),"'Прогноз (Облако.ру)'!")
                     sheet.write_string(row + 1, shift, '', row_format_plan_cross)
                     sheet.write_formula(row + 2, shift, formula, row_format_plan)
-                    if 'NEXT' not in period and period != '6+6':
-                        if type in ('acceptance', 'margin') and period == 'HY2':
+                    if 'NEXT' not in period and '6+6' not in period:
+                        if period in ('HY2', 'Q3', 'Q4', 'Y'):
                             formula_diff = '={1}{0}-{2}{0}'.format(row + 3, xl_col_to_name(shift + 2), xl_col_to_name(shift + 1))
                             sheet.merge_range(row + 3, shift + 2, row + 3, shift + 4, formula_diff, row_format_diff)
                         else:
@@ -2662,49 +2828,49 @@ class report_budget_forecast_excel(models.AbstractModel):
         sheet.write_string(row, 3, '', summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint)}:', summary_format_border_top)
-        sheet.write_formula(row, 3, '=CK{0}+CL{0}+CM{0}'.format(total_row), summary_format_border_top)
+        sheet.write_formula(row, 3, '=CO{0}+CP{0}+CQ{0}'.format(total_row), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=CK{0}'.format(total_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=CO{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint + 1)}:', summary_format_border_top)
-        sheet.write_formula(row, 3, '=HJ{0}+HK{0}'.format(total_row), summary_format_border_top)
+        sheet.write_formula(row, 3, '=HX{0}+HY{0}'.format(total_row), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint + 1)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=HJ{0}'.format(total_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=HX{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint + 2)}:', summary_format_border_top)
-        sheet.write_formula(row, 3, '=HY{0}+HZ{0}'.format(total_row), summary_format_border_top)
+        sheet.write_formula(row, 3, '=IM{0}+IN{0}'.format(total_row), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint + 2)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=HY{0}'.format(total_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=IM{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Итого по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format_border_top)
         sheet.write_formula(row, 3, '=D{0}+D{1}+D{2}'.format(row - 1, row - 3, row - 5), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Итого Расчетный План по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=CK{0}+HJ{0}+HY{0}'.format(total_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=CO{0}+HX{0}+IM{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 2
         sheet.merge_range(row, 1, row, 2, 'Валовая выручка, без НДС', summary_format_border_top_center)
         sheet.write_string(row, 3, '', summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint)}:', summary_format_border_top)
-        sheet.write_formula(row, 3, '=GA{0}+GB{0}+GC{0}'.format(total_row), summary_format_border_top)
+        sheet.write_formula(row, 3, '=GL{0}+GM{0}+GN{0}'.format(total_row), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=GA{0}'.format(total_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=GL{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint + 1)}:', summary_format_border_top)
-        sheet.write_formula(row, 3, '=HQ{0}+HR{0}'.format(total_row), summary_format_border_top)
+        sheet.write_formula(row, 3, '=IE{0}+IF{0}'.format(total_row), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint + 1)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=HQ{0}'.format(total_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=IE{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint + 2)}:', summary_format_border_top)
-        sheet.write_formula(row, 3, '=IF{0}+IG{0}'.format(total_row), summary_format_border_top)
+        sheet.write_formula(row, 3, '=IT{0}+IU{0}'.format(total_row), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint + 2)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=IF{0}'.format(total_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=IT{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Итого по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format_border_top)
         sheet.write_formula(row, 3, '=D{0}+D{1}+D{2}'.format(row - 1, row - 3, row - 5), summary_format_border_top)
@@ -2716,22 +2882,22 @@ class report_budget_forecast_excel(models.AbstractModel):
         sheet.write_string(row, 3, '', summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint)}:', summary_format_border_top)
-        sheet.write_formula(row, 3, '=EX{0}+EY{0}+EZ{0}'.format(total_row), summary_format_border_top)
+        sheet.write_formula(row, 3, '=FF{0}+FG{0}+FH{0}'.format(total_row), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=EX{0}'.format(total_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=FF{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint + 1)}:', summary_format_border_top)
-        sheet.write_formula(row, 3, '=HN{0}+HO{0}'.format(total_row), summary_format_border_top)
+        sheet.write_formula(row, 3, '=IB{0}+IC{0}'.format(total_row), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint + 1)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=HN{0}'.format(total_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=IB{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint + 2)}:', summary_format_border_top)
-        sheet.write_formula(row, 3, '=IC{0}+ID{0}'.format(total_row), summary_format_border_top)
+        sheet.write_formula(row, 3, '=IQ{0}+IR{0}'.format(total_row), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint + 2)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=IC{0}'.format(total_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=IQ{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Итого по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format_border_top)
         sheet.write_formula(row, 3, '=D{0}+D{1}+D{2}'.format(row - 1, row - 3, row - 5), summary_format_border_top)
@@ -2743,22 +2909,22 @@ class report_budget_forecast_excel(models.AbstractModel):
         sheet.write_string(row, 3, '', summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint)}:', summary_format_border_top)
-        sheet.write_formula(row, 3, '=HE{0}+HF{0}+HG{0}'.format(total_row), summary_format_border_top)
+        sheet.write_formula(row, 3, '=HS{0}+HT{0}+HU{0}'.format(total_row), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=HE{0}'.format(total_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=HS{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint + 1)}:', summary_format_border_top)
-        sheet.write_formula(row, 3, '=HU{0}+HV{0}'.format(total_row), summary_format_border_top)
+        sheet.write_formula(row, 3, '=II{0}+IJ{0}'.format(total_row), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint + 1)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=HU{0}'.format(total_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=II{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint + 2)}:', summary_format_border_top)
-        sheet.write_formula(row, 3, '=IJ{0}+IK{0}'.format(total_row), summary_format_border_top)
+        sheet.write_formula(row, 3, '=IX{0}+IY{0}'.format(total_row), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint + 2)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=IJ{0}'.format(total_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=IX{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Итого по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format_border_top)
         sheet.write_formula(row, 3, '=D{0}+D{1}+D{2}'.format(row - 1, row - 3, row - 5), summary_format_border_top)
@@ -2795,46 +2961,60 @@ class report_budget_forecast_excel(models.AbstractModel):
                 'Q2': 21 + 17,
                 'HY1': 21 + 22,
                 'Q3': 21 + 39,
-                'Q4': 21 + 56,
-                'HY2': 21 + 61,
-                'Y': 21 + 66,
-                'NEXT': 216,
-                'AFTER_NEXT': 231,
+                'Q3 6+6': 21 + 40,
+                'Q4': 21 + 57,
+                'Q4 6+6': 21 + 58,
+                'HY2': 21 + 63,
+                'HY2 6+6': 21 + 64,
+                'Y': 21 + 69,
+                'Y 6+6': 21 + 70,
+                'NEXT': 230,
+                'AFTER_NEXT': 245,
             },
             'pds': {
-                'Q1': 101,
-                'Q2': 101 + 13,
-                'HY1': 101 + 17,
-                'Q3': 101 + 30,
-                'Q4': 101 + 43,
-                'HY2': 101 + 47,
-                'Y': 101 + 51,
-                'NEXT': 220,
-                'AFTER_NEXT': 235,
+                'Q1': 105,
+                'Q2': 105 + 13,
+                'HY1': 105 + 17,
+                'Q3': 105 + 30,
+                'Q3 6+6': 105 + 31,
+                'Q4': 105 + 44,
+                'Q4 6+6': 105 + 45,
+                'HY2': 105 + 49,
+                'HY2 6+6': 105 + 50,
+                'Y': 105 + 54,
+                'Y 6+6': 105 + 55,
+                'NEXT': 234,
+                'AFTER_NEXT': 249,
             },
             'acceptance': {
-                'Q1': 156,
-                'Q2': 156 + 4,
-                'HY1': 156 + 8,
-                'Q3': 156 + 12,
-                'Q4': 156 + 16,
-                'HY2': 156 + 20,
-                '6+6': 156 + 21,
-                'Y': 156 + 25,
-                'NEXT': 223,
-                'AFTER_NEXT': 238,
+                'Q1': 164,
+                'Q2': 164 + 4,
+                'HY1': 164 + 8,
+                'Q3': 164 + 12,
+                'Q3 6+6': 164 + 13,
+                'Q4': 164 + 17,
+                'Q4 6+6': 164 + 18,
+                'HY2': 164 + 22,
+                'HY2 6+6': 164 + 23,
+                'Y': 164 + 27,
+                'Y 6+6': 164 + 28,
+                'NEXT': 237,
+                'AFTER_NEXT': 252,
             },
             'margin': {
-                'Q1': 186,
-                'Q2': 186 + 4,
-                'HY1': 186 + 8,
-                'Q3': 186 + 12,
-                'Q4': 186 + 16,
-                'HY2': 186 + 20,
-                '6+6': 186 + 21,
-                'Y': 186 + 25,
-                'NEXT': 227,
-                'AFTER_NEXT': 242,
+                'Q1': 197,
+                'Q2': 197 + 4,
+                'HY1': 197 + 8,
+                'Q3': 197 + 12,
+                'Q3 6+6': 197 + 13,
+                'Q4': 197 + 17,
+                'Q4 6+6': 197 + 18,
+                'HY2': 197 + 22,
+                'HY2 6+6': 197 + 23,
+                'Y': 197 + 27,
+                'Y 6+6': 197 + 28,
+                'NEXT': 241,
+                'AFTER_NEXT': 256,
             },
         }
 
