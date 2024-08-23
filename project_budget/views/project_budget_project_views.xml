@@ -688,7 +688,6 @@
                                 <group col="1">
                                     <field name="commercial_budget_id" required="1" invisible="1"
                                           options="{'no_open': True}" attrs="{'readonly': [('can_edit', '=', False)]}"/>
-                                    <field name="is_percent_fot_manual" invisible="1"/>
                                 </group>
                                 <h5>
                                     <group col="3">
@@ -761,7 +760,7 @@
                                 <field name="is_warranty_service_costs" invisible="1"/>
                                 <field name="is_rko_other" invisible="1"/>
                                 <field name="is_other_expenses" invisible="1"/>
-                                <field name="revenue_from_the_sale_of_works_amount_spec_exist" invisible="1"/>
+                                <field name="is_percent_fot_manual" invisible="1"/>
                                 <field name="revenue_from_the_sale_of_goods_amount_spec_exist" invisible="1"/>
                                 <field name="cost_of_goods_amount_spec_exist" invisible="1"/>
                                 <field name="travel_expenses_amount_spec_exist" invisible="1"/>
@@ -986,7 +985,7 @@
                                                attrs="
                                                {
                                                     'invisible': [('is_own_works_fot', '=', False), ('is_awards_on_results_project', '=', False),('project_have_steps', '=', False)],
-                                                    'readonly': [('can_edit', '=', False)]
+                                                    'readonly': [('is_percent_fot_manual', '=', False)]
                                                }"/>
                                     </group>
                                 </group>

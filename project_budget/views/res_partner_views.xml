@@ -43,14 +43,6 @@
                     <field name="project_count" string="Projects" widget="statinfo"/>
                 </button>
             </xpath>
-            <xpath expr="//field[@name='vat']" position="after">
-                <field name="different_project_offices_in_steps" string="different project offices in steps"
-                       attrs="{'invisible': [('is_company', '=', False)]}"/>
-                <field name="is_percent_fot_manual" string="Manual FOT percent"
-                       attrs="{'invisible': [('is_company', '=', False)]}"/>
-                <field name="percent_fot" string="FOT percent" placeholder="enter FOT percent. e.g. 25"
-                       attrs="{'invisible': ['|', ('is_company', '=', False), ('is_percent_fot_manual', '=', True)]}"/>
-            </xpath>
         </field>
     </record>
 </odoo>

@@ -970,7 +970,7 @@ class report_pds_weekly_excel(models.AbstractModel):
 
                 formulaProjectOffice = '=sum(0'
 
-                for spec in cur_budget_projects.filtered(lambda r: r.project_office_id == project_office or (r.signer_id.different_project_offices_in_steps and r.project_have_steps)):
+                for spec in cur_budget_projects.filtered(lambda r: r.project_office_id == project_office or (r.different_project_offices_in_steps and r.project_have_steps)):
 
                     if spec.vgo == '-':
 

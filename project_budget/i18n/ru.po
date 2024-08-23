@@ -1609,8 +1609,8 @@ msgstr "Отчет для УК"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__is_percent_fot_manual
-#: model:ir.model.fields,field_description:project_budget.field_res_partner__is_percent_fot_manual
-#: model_terms:ir.ui.view,arch_db:project_budget.res_partner_view_form_inherit_project_budget
+#: model:ir.model.fields,field_description:project_budget.field_res_company__is_percent_fot_manual
+#: model_terms:ir.ui.view,arch_db:project_budget.view_company_form
 msgid "Manual FOT percent"
 msgstr "Ручной % ФОТ"
 
@@ -3346,8 +3346,8 @@ msgid "detailed report"
 msgstr "Детализированный отчет"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_res_partner__different_project_offices_in_steps
-#: model_terms:ir.ui.view,arch_db:project_budget.res_partner_view_form_inherit_project_budget
+#: model:ir.model.fields,field_description:project_budget.field_res_company__different_project_offices_in_steps
+#: model_terms:ir.ui.view,arch_db:project_budget.view_company_form
 msgid "different project offices in steps"
 msgstr "Различные проектные офисы в этапах проектов"
 
@@ -3537,7 +3537,7 @@ msgid "end of report"
 msgstr "конец периода отчета"
 
 #. module: project_budget
-#: model_terms:ir.ui.view,arch_db:project_budget.res_partner_view_form_inherit_project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.view_company_form
 msgid "enter FOT percent. e.g. 25"
 msgstr "Введите процент ФОТ, например 25"
 
@@ -3669,8 +3669,9 @@ msgid "fact_cash_flow_sum"
 msgstr "Сумма ПДС"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_res_partner__percent_fot
-#: model_terms:ir.ui.view,arch_db:project_budget.res_partner_view_form_inherit_project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__percent_fot
+#: model:ir.model.fields,field_description:project_budget.field_res_company__percent_fot
+#: model_terms:ir.ui.view,arch_db:project_budget.view_company_form
 msgid "FOT percent"
 msgstr "Процент ФОТ"
 

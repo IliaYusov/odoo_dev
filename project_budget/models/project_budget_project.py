@@ -303,7 +303,8 @@ class Project(models.Model):
     is_warranty_service_costs = fields.Boolean(related='project_type_id.is_warranty_service_costs', readonly=True)
     is_rko_other = fields.Boolean(related='project_type_id.is_rko_other', readonly=True)
     is_other_expenses = fields.Boolean(related='project_type_id.is_other_expenses', readonly=True)
-    is_percent_fot_manual = fields.Boolean(related='signer_id.is_percent_fot_manual', readonly=True)
+    is_percent_fot_manual = fields.Boolean(compute='_get_signer_settings', readonly=True)
+    percent_fot = fields.Float(compute='_get_signer_settings', readonly=True)
 
     comments = fields.Text(string='comments project', default="")
     technological_direction_id = fields.Many2one('project_budget.technological_direction',
@@ -382,8 +383,7 @@ class Project(models.Model):
     project_have_steps = fields.Boolean(string="project have steps", default=False, copy=True, tracking=True)
     is_framework = fields.Boolean(string="project is framework", default=False, copy=True, tracking=True)
 
-    different_project_offices_in_steps = fields.Boolean(
-        related='signer_id.different_project_offices_in_steps', readonly=True)
+    different_project_offices_in_steps = fields.Boolean(compute='_get_signer_settings', readonly=True)
 
     project_currency_rates_ids = fields.One2many(
         comodel_name='project_budget.project_currency_rates',
@@ -643,7 +643,7 @@ class Project(models.Model):
             project.cost_price = project.cost_price + project.transportation_expenses + project.travel_expenses + project.representation_expenses
             project.cost_price = project.cost_price + project.warranty_service_costs + project.rko_other + project.other_expenses
             if project.is_percent_fot_manual == False:
-                project.taxes_fot_premiums = (project.awards_on_results_project + project.own_works_fot) * project.signer_id.percent_fot / 100
+                project.taxes_fot_premiums = (project.awards_on_results_project + project.own_works_fot) * project.percent_fot / 100
 
             project.cost_price = project.cost_price + project.taxes_fot_premiums
 
@@ -852,6 +852,14 @@ class Project(models.Model):
         res = self.env['res.company'].search([]).partner_id
         for record in self:
             record.allowed_signer_ids = res
+
+    @api.depends('signer_id')
+    def _get_signer_settings(self):  # получаем настройки подписывающего юр лица из компании
+        for record in self:
+            company = self.env['res.company'].search([('partner_id', '=', record.signer_id.id)])
+            record.is_percent_fot_manual = company.is_percent_fot_manual
+            record.percent_fot = company.percent_fot
+            record.different_project_offices_in_steps = company.different_project_offices_in_steps
 
     def action_open_project(self):
         return {

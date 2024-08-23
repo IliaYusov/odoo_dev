@@ -38,6 +38,7 @@
         'views/project_currency_rates.xml',
         'views/tenders.xml',
         'views/res_partner_views.xml',
+        'views/res_company_views.xml',
         'views/scheduled_report_views.xml',
         'views/res_config_settings.xml',
         'views/hr_employee_replacement_views.xml',

@@ -123,7 +123,7 @@ class project_steps(models.Model):
 
     name_to_show = fields.Char(string = 'name_to_show', compute = '_get_name_to_show')
     projects_id = fields.Many2one('project_budget.projects', string='projects_id', index=True, ondelete='cascade')
-    different_project_offices_in_steps = fields.Boolean(related='projects_id.signer_id.different_project_offices_in_steps', readonly=True)
+    different_project_offices_in_steps = fields.Boolean(related='projects_id.different_project_offices_in_steps', readonly=True)
     etalon_budget = fields.Boolean(related='projects_id.etalon_budget', readonly=True)
     date_actual = fields.Datetime(related='projects_id.date_actual', readonly=True, store=True)
     budget_state = fields.Selection(related='projects_id.budget_state', readonly=True, store=True)
@@ -278,8 +278,8 @@ class project_steps(models.Model):
             budget_spec.cost_price = budget_spec.cost_of_goods + budget_spec.own_works_fot + budget_spec.third_party_works + budget_spec.awards_on_results_project
             budget_spec.cost_price = budget_spec.cost_price + budget_spec.transportation_expenses + budget_spec.travel_expenses + budget_spec.representation_expenses
             budget_spec.cost_price = budget_spec.cost_price + budget_spec.warranty_service_costs + budget_spec.rko_other + budget_spec.other_expenses
-            if budget_spec.is_percent_fot_manual == False:
-                budget_spec.taxes_fot_premiums = (budget_spec.awards_on_results_project + budget_spec.own_works_fot) * budget_spec.projects_id.signer_id.percent_fot / 100
+            if budget_spec.projects_id.is_percent_fot_manual == False:
+                budget_spec.taxes_fot_premiums = (budget_spec.awards_on_results_project + budget_spec.own_works_fot) * budget_spec.projects_id.percent_fot / 100
             budget_spec.cost_price = budget_spec.cost_price + budget_spec.taxes_fot_premiums
 
             budget_spec.margin_income = budget_spec.total_amount_of_revenue - budget_spec.cost_price

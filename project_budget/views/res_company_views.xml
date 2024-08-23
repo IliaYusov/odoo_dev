@@ -1,0 +1,17 @@
+<odoo>
+    <data>
+        <record id="view_company_form" model="ir.ui.view">
+            <field name="name">res.company.form</field>
+            <field name="model">res.company</field>
+            <field name="inherit_id" ref="base.view_company_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='currency_id']" position="after">
+                <field name="different_project_offices_in_steps" string="different project offices in steps"/>
+                <field name="is_percent_fot_manual" string="Manual FOT percent"/>
+                <field name="percent_fot" string="FOT percent" placeholder="enter FOT percent. e.g. 25"
+                       attrs="{'invisible': [('is_percent_fot_manual', '=', True)]}"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
