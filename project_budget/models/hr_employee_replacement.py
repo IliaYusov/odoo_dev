@@ -8,7 +8,6 @@ class HrEmployeeReplacement(models.Model):
     project_manager_function = fields.Boolean(string='Can See Project Manager Projects', default=False)  # TODO убрать после миграции на кураторов
     project_curator_function = fields.Boolean(string='Can See Project Supervisor Projects', inverse='_disable_can_approve_projects', default=False)  # TODO убрать после миграции на кураторов
     can_approve_projects = fields.Boolean(string='Can Approve Projects as Supervisor', default=False)  # TODO убрать после миграции на кураторов
-    replaceable_groups_ids = fields.Many2many('res.groups', string='Groups')
     allowed_groups = fields.Many2many('res.groups', compute="_get_allowed_groups")
 
     @api.depends('project_curator_function')  # TODO убрать после миграции на кураторов
