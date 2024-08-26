@@ -1733,6 +1733,7 @@ class report_management_committee_excel(models.AbstractModel):
 
                 po_q_plan = [po_plan_spec.q1_plan, po_plan_spec.q2_plan, po_plan_spec.q3_plan, po_plan_spec.q4_plan]
                 po_q66_plan = [po_plan_spec.q1_plan_6_6, po_plan_spec.q2_plan_6_6, po_plan_spec.q3_plan_6_6, po_plan_spec.q4_plan_6_6]
+                po_q_fact = [po_plan_spec.q1_fact, po_plan_spec.q2_fact, po_plan_spec.q3_fact, po_plan_spec.q4_fact]
 
                 if child_offices_rows:
                     sheet.write_formula(row, column, 'sum(' + str(po_q_plan[int(element[1]) - 1]) + child_offices_rows.format(xl_col_to_name(column)) + ')',
@@ -1795,7 +1796,13 @@ class report_management_committee_excel(models.AbstractModel):
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21), xl_col_to_name(column - 5))
                 sheet.write_formula(row, column, formula, row_format_number_color_plan)
 
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 20), xl_col_to_name(column - 4))
+                formula = '=sum({1}{0},{2}{0},{3},{4})'.format(
+                    row + 1,
+                    xl_col_to_name(column - 20),
+                    xl_col_to_name(column - 4),
+                    str(po_q_fact[0]),
+                    str(po_q_fact[1]),
+                )
                 sheet.write_formula(row, column + 1, formula, row_format_number_color_plan)
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 19), xl_col_to_name(column - 3))
@@ -1888,6 +1895,7 @@ class report_management_committee_excel(models.AbstractModel):
 
                 po_q_plan = [po_plan_spec.q1_plan, po_plan_spec.q2_plan, po_plan_spec.q3_plan, po_plan_spec.q4_plan]
                 po_q66_plan = [po_plan_spec.q1_plan_6_6, po_plan_spec.q2_plan_6_6, po_plan_spec.q3_plan_6_6, po_plan_spec.q4_plan_6_6]
+                po_q_fact = [po_plan_spec.q1_fact, po_plan_spec.q2_fact, po_plan_spec.q3_fact, po_plan_spec.q4_fact]
 
                 if child_offices_rows:
                     sheet.write_formula(row, column, 'sum(' + str(po_q_plan[int(element[1]) - 1]) + child_offices_rows.format(xl_col_to_name(column)) + ')',
@@ -1952,8 +1960,13 @@ class report_management_committee_excel(models.AbstractModel):
                                                        xl_col_to_name(column - 5))
                 sheet.write_formula(row, column, formula, row_format_number_color_plan)
 
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 20),
-                                                       xl_col_to_name(column - 4))
+                formula = '=sum({1}{0},{2}{0},{3},{4})'.format(
+                    row + 1,
+                    xl_col_to_name(column - 20),
+                    xl_col_to_name(column - 4),
+                    str(po_q_fact[0]),
+                    str(po_q_fact[1]),
+                )
                 sheet.write_formula(row, column + 1, formula, row_format_number_color_plan)
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 19),
@@ -2062,9 +2075,11 @@ class report_management_committee_excel(models.AbstractModel):
 
                 po_q_plan_acc = [po_plan_acc.q1_plan, po_plan_acc.q2_plan, po_plan_acc.q3_plan, po_plan_acc.q4_plan]
                 po_q66_plan_acc = [po_plan_acc.q1_plan_6_6, po_plan_acc.q2_plan_6_6, po_plan_acc.q3_plan_6_6, po_plan_acc.q4_plan_6_6]
+                po_q_fact_acc = [po_plan_acc.q1_fact, po_plan_acc.q2_fact, po_plan_acc.q3_fact, po_plan_acc.q4_fact]
 
                 po_q_plan_margin = [po_plan_margin.q1_plan, po_plan_margin.q2_plan, po_plan_margin.q3_plan, po_plan_margin.q4_plan]
                 po_q66_plan_margin = [po_plan_margin.q1_plan_6_6, po_plan_margin.q2_plan_6_6, po_plan_margin.q3_plan_6_6, po_plan_margin.q4_plan_6_6]
+                po_q_fact_margin = [po_plan_margin.q1_fact, po_plan_margin.q2_fact, po_plan_margin.q3_fact, po_plan_margin.q4_fact]
 
                 if child_offices_rows:
                     sheet.write_formula(row, column, 'sum(' + str(po_q_plan_acc[int(element[1]) - 1]) + child_offices_rows.format(xl_col_to_name(column)) + ')',
@@ -2152,13 +2167,24 @@ class report_management_committee_excel(models.AbstractModel):
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21), xl_col_to_name(column - 5))
                 sheet.write_formula(row, column, formula, row_format_number_color_plan)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 20), xl_col_to_name(column - 4))
+                formula = '=sum({1}{0},{2}{0},{3},{4})'.format(
+                    row + 1,
+                    xl_col_to_name(column - 20),
+                    xl_col_to_name(column - 4),
+                    str(po_q_fact_acc[0]),
+                    str(po_q_fact_acc[1]),
+                )
                 sheet.write_formula(row, column + 1, formula, row_format_number_color_plan)
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21 + params['margin_shift']),
                                                        xl_col_to_name(column - 5 + params['margin_shift']))
                 sheet.write_formula(row, column + params['margin_shift'], formula, row_format_number_color_plan)
-                formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 20 + params['margin_shift']),
-                                                       xl_col_to_name(column - 4 + params['margin_shift']))
+                formula = '=sum({1}{0},{2}{0},{3},{4})'.format(
+                    row + 1,
+                    xl_col_to_name(column - 20 + params['margin_shift']),
+                    xl_col_to_name(column - 4 + params['margin_shift']),
+                    str(po_q_fact_margin[0]),
+                    str(po_q_fact_margin[1]),
+                )
                 sheet.write_formula(row, column + 1 + params['margin_shift'], formula, row_format_number_color_plan)
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 19), xl_col_to_name(column - 3))
@@ -2667,8 +2693,10 @@ class report_management_committee_excel(models.AbstractModel):
                             plan_shift['contracting']['Q4_66']) + '{0})',
                         'Y': '=SUM(' + xl_col_to_name(plan_shift['contracting']['HY1']) + '{0} + ' + xl_col_to_name(
                             plan_shift['contracting']['HY2']) + '{0})',
-                        'Y_66': '=SUM(' + xl_col_to_name(plan_shift['contracting']['HY1_66']) + '{0} + ' + xl_col_to_name(
-                            plan_shift['contracting']['HY2_66']) + '{0})',
+                        'Y_66': '=SUM(' + xl_col_to_name(plan_shift['contracting']['HY1_66']) + '{0} + '
+                                + xl_col_to_name(plan_shift['contracting']['HY2_66']) + '{0} + '
+                                + str(company_plan_contracting.q1_fact) + ' + '
+                                + str(company_plan_contracting.q2_fact) + ')',
                     },
                     'cash': {
                         'Q1': str(company_plan_cash.q1_plan),
@@ -2691,9 +2719,10 @@ class report_management_committee_excel(models.AbstractModel):
                             plan_shift['cash']['Q4_66']) + '{0})',
                         'Y': '=SUM(' + xl_col_to_name(plan_shift['cash']['HY1']) + '{0} + ' + xl_col_to_name(
                             plan_shift['cash']['HY2']) + '{0})',
-                        'Y_66': '=SUM(' + xl_col_to_name(
-                            plan_shift['cash']['HY1_66']) + '{0} + ' + xl_col_to_name(
-                            plan_shift['cash']['HY2_66']) + '{0})',
+                        'Y_66': '=SUM(' + xl_col_to_name(plan_shift['cash']['HY1_66']) + '{0} + '
+                                + xl_col_to_name(plan_shift['cash']['HY2_66']) + '{0} + '
+                                + str(company_plan_cash.q1_fact) + ' + '
+                                + str(company_plan_cash.q2_fact) + ')',
                     },
                     'acceptance': {
                         'Q1': str(company_plan_acceptance.q1_plan),
@@ -2716,9 +2745,10 @@ class report_management_committee_excel(models.AbstractModel):
                             plan_shift['acceptance']['Q4_66']) + '{0})',
                         'Y': '=SUM(' + xl_col_to_name(plan_shift['acceptance']['HY1']) + '{0} + ' + xl_col_to_name(
                             plan_shift['acceptance']['HY2']) + '{0})',
-                        'Y_66': '=SUM(' + xl_col_to_name(
-                            plan_shift['acceptance']['HY1_66']) + '{0} + ' + xl_col_to_name(
-                            plan_shift['acceptance']['HY2_66']) + '{0})',
+                        'Y_66': '=SUM(' + xl_col_to_name(plan_shift['acceptance']['HY1_66']) + '{0} + '
+                                + xl_col_to_name(plan_shift['acceptance']['HY2_66']) + '{0} + '
+                                + str(company_plan_acceptance.q1_fact) + ' + '
+                                + str(company_plan_acceptance.q2_fact) + ')',
                     },
                     'margin_income': {
                         'Q1': str(company_plan_margin_income.q1_plan),
@@ -2741,9 +2771,10 @@ class report_management_committee_excel(models.AbstractModel):
                             plan_shift['margin_income']['Q4_66']) + '{0})',
                         'Y': '=SUM(' + xl_col_to_name(plan_shift['margin_income']['HY1']) + '{0} + ' + xl_col_to_name(
                             plan_shift['margin_income']['HY2']) + '{0})',
-                        'Y_66': '=SUM(' + xl_col_to_name(
-                            plan_shift['margin_income']['HY1_66']) + '{0} + ' + xl_col_to_name(
-                            plan_shift['margin_income']['HY2_66']) + '{0})',
+                        'Y_66': '=SUM(' + xl_col_to_name(plan_shift['margin_income']['HY1_66']) + '{0} + '
+                                + xl_col_to_name(plan_shift['margin_income']['HY2_66']) + '{0} + '
+                                + str(company_plan_margin_income.q1_fact) + ' + '
+                                + str(company_plan_margin_income.q2_fact) + ')',
                     },
                 }
 
