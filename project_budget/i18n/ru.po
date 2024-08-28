@@ -3031,25 +3031,31 @@ msgstr "__КОПИЯ__ "
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_budget_plan_kam_spec__type_row__acceptance
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_budget_plan_supervisor_spec__type_row__acceptance
 msgid "acceptance"
-msgstr "Актирование"
+msgstr "Выручка"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_kam__sum_acceptance_year_fact
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_supervisor__sum_acceptance_year_fact
 msgid "acceptance fact year"
-msgstr "Актирование факт"
+msgstr "Выручка факт"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_kam__sum_acceptance_year
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_supervisor__sum_acceptance_year
 msgid "acceptance plan year"
-msgstr "Актирование"
+msgstr "Выручка"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_kam__sum_acceptance_year_6_6
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_supervisor__sum_acceptance_year_6_6
 msgid "acceptance plan year 6+6"
-msgstr "Актирование 6+6"
+msgstr "Выручка 6+6"
+
+#. module: project_budget
+#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_budget_plan_kam_view_search
+#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_budget_plan_supervisor_view_search
+msgid "Actual year"
+msgstr "Текущий год"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_acceptance_flow__acceptance_id

@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="odoo" type="PythonConfigurationType" factoryName="Python">
-    <module name="16.0" />
+  <configuration default="false" name="odoo-bin" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+    <module name="dev" />
     <option name="ENV_FILES" value="" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />

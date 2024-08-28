@@ -1000,6 +1000,12 @@ class report_budget_forecast_excel(models.AbstractModel):
         if monthNameRus == 'Декабрь' : return 12
         return False
 
+    def office_has_plan(self, project_office):
+        return self.env['project_budget.budget_plan_supervisor_spec'].search([
+                    ('budget_plan_supervisor_id.year', '=', YEARint),
+                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                ])
+
     def print_row_values(self, workbook, sheet, row, column,  project, margin_shift, next_margin_shift):
         global YEARint
 
@@ -2005,6 +2011,10 @@ class report_budget_forecast_excel(models.AbstractModel):
                         # ):
                         #     sheet.write_formula(row, plan['column'], plan['formula'], row_format_plan)
 
+                if self.office_has_plan(project_office):
+                    isFoundProjectsByOffice = True
+                    isFoundProjectsByCompany = True
+
                 if isFoundProjectsByOffice:
                     row += 1
                     column = 0
@@ -2207,8 +2217,16 @@ class report_budget_forecast_excel(models.AbstractModel):
                         child_office_formula = dict_formula.get(str_project_office_id, '')
                         if child_office_formula:  # увеличиваем все номера строк на 1
                             child_office_formula = ',' + ','.join(('{0}' + str(int(c[3:]) + 1)) for c in child_office_formula.strip(',').split(','))
+                            office_formula = '(' + plan['formula'] + child_office_formula.format(xl_col_to_name(plan['column'])).replace(',', ' + ') + ')'
+                        else:
+                            office_formula = '(' + plan['formula'] + ')'
 
-                        office_formula = '(' + plan['formula'] + child_office_formula.format(xl_col_to_name(plan['column'])).replace(',', ' + ') + ')'
+                        # if child_office_formula:  # увеличиваем все номера строк на 1
+                        #     child_office_formula = ','.join(('{0}' + str(int(c[3:]) + 1)) for c in child_office_formula.strip(',').split(','))
+                        #     office_formula = '=sum(' + child_office_formula.format(xl_col_to_name(plan['column'])) + ')'
+                        # else:
+                        #     office_formula = '(' + plan['formula'] + ')'
+
 
                         sheet.write_formula(row, plan['column'], office_formula, row_format_plan)
 
@@ -2429,9 +2447,11 @@ class report_budget_forecast_excel(models.AbstractModel):
                     {'column': plan_shift['margin']['AFTER_NEXT'],
                      'formula': f'{plan_margin_after_next.q1_plan + plan_margin_after_next.q2_plan + plan_margin_after_next.q3_plan + plan_margin_after_next.q4_plan}'},
                 ):
-                    company_formula = '(' + plan['formula'] + ')'
-
-                    sheet.write_formula(row, plan['column'], company_formula, row_format_plan)
+                    formula = '=sum(' + ','.join(('{0}' + str(int(c.strip(')')) + 1)) for c in formulaCompany.split(',{0}')[1:]) + ')'  # увеличиваем все номера строк на 1
+                    formula = formula.format(xl_col_to_name(plan['column']))
+                    sheet.write_formula(row, plan['column'], formula, row_format_plan)
+                    # company_formula = '(' + plan['formula'] + ')'
+                    # sheet.write_formula(row, plan['column'], company_formula, row_format_plan)
                     # sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 1})
 
                 # for plan in (
@@ -2822,6 +2842,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             sheet.activate()
             sheet.set_row(row + 3, 32)
             row += 3
+            total_row += 2
 
         row += 2
         sheet.merge_range(row, 1, row, 2, 'Контрактование, с НДС', summary_format_border_top_center)
@@ -2831,7 +2852,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         sheet.write_formula(row, 3, '=CO{0}+CP{0}+CQ{0}'.format(total_row), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=CO{0}'.format(total_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=CO{0}+CP{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint + 1)}:', summary_format_border_top)
         sheet.write_formula(row, 3, '=HX{0}+HY{0}'.format(total_row), summary_format_border_top)
@@ -2849,7 +2870,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         sheet.write_formula(row, 3, '=D{0}+D{1}+D{2}'.format(row - 1, row - 3, row - 5), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Итого Расчетный План по Компании {str(YEARint)}-{str(YEARint + 2)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=CO{0}+HX{0}+IM{0}'.format(total_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=D{0}+D{1}+D{2}'.format(row - 1, row - 3, row - 5), summary_format_border_bottom)
         row += 2
         sheet.merge_range(row, 1, row, 2, 'Валовая выручка, без НДС', summary_format_border_top_center)
         sheet.write_string(row, 3, '', summary_format_border_top)
@@ -2858,7 +2879,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         sheet.write_formula(row, 3, '=GL{0}+GM{0}+GN{0}'.format(total_row), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=GL{0}'.format(total_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=GL{0}+GM{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint + 1)}:', summary_format_border_top)
         sheet.write_formula(row, 3, '=IE{0}+IF{0}'.format(total_row), summary_format_border_top)
@@ -2885,7 +2906,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         sheet.write_formula(row, 3, '=FF{0}+FG{0}+FH{0}'.format(total_row), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=FF{0}'.format(total_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=FF{0}+FG{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint + 1)}:', summary_format_border_top)
         sheet.write_formula(row, 3, '=IB{0}+IC{0}'.format(total_row), summary_format_border_top)
@@ -2912,7 +2933,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         sheet.write_formula(row, 3, '=HS{0}+HT{0}+HU{0}'.format(total_row), summary_format_border_top)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(YEARint)}:', summary_format_border_bottom)
-        sheet.write_formula(row, 3, '=HS{0}'.format(total_row + 1), summary_format_border_bottom)
+        sheet.write_formula(row, 3, '=HS{0}+HT{0}'.format(total_row + 1), summary_format_border_bottom)
         row += 1
         sheet.merge_range(row, 1, row, 2, f'По Компании {str(YEARint + 1)}:', summary_format_border_top)
         sheet.write_formula(row, 3, '=II{0}+IJ{0}'.format(total_row), summary_format_border_top)
