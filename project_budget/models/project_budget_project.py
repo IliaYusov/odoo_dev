@@ -771,6 +771,7 @@ class Project(models.Model):
             project.key_account_manager_id = project.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
                 'project_budget.project_role_key_account_manager'))[:1].employee_id or False
 
+    @api.onchange('key_account_manager_id')
     def _inverse_key_account_manager_id(self):
         for project in self.filtered(lambda pr: pr.budget_state == 'work' and pr.key_account_manager_id):
             member_team = self.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
@@ -789,6 +790,7 @@ class Project(models.Model):
             project.project_manager_id = project.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
                 'project_budget.project_role_project_manager'))[:1].employee_id or False
 
+    @api.onchange('project_manager_id')
     def _inverse_project_manager_id(self):
         for project in self.filtered(lambda pr: pr.budget_state == 'work' and pr.project_manager_id):
             member_team = self.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
@@ -807,6 +809,7 @@ class Project(models.Model):
             project.project_curator_id = project.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
                 'project_budget.project_role_project_curator'))[:1].employee_id or False
 
+    @api.onchange('project_curator_id')
     def _inverse_project_curator_id(self):
         for project in self.filtered(lambda pr: pr.budget_state == 'work' and pr.project_curator_id):
             member_team = self.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
@@ -819,33 +822,33 @@ class Project(models.Model):
                     'employee_id': project.project_curator_id.id
                 })]
 
-    @api.depends('project_member_ids.role_id')
-    def _compute_project_supervisor_id(self): # TODO убрать после миграции на кураторов
-        for project in self:
-            curator = project.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
-                'project_budget.project_role_project_curator'))[:1].employee_id
-            project.project_supervisor_id = self.env['project_budget.project_supervisor'].search([
-                ('user_id', '=', curator.user_id.id or 0),
-                ('company_id', '=', project.company_id.id)
-            ])[:1] or False
-
-    def _inverse_project_supervisor_id(self): # TODO убрать после миграции на кураторов
-        for project in self.filtered(lambda pr: pr.budget_state == 'work' and pr.project_supervisor_id):
-            member_team = self.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
-                'project_budget.project_role_project_curator'))[:1]
-            if member_team:
-                member_team.employee_id = self.env['hr.employee'].search([
-                    ('user_id', '=', project.project_supervisor_id.user_id.id),
-                    ('company_id', '=', project.company_id.id)
-                ])[:1]
-            else:
-                project.project_member_ids = [Command.create({
-                    'role_id': self.env.ref('project_budget.project_role_project_curator').id,
-                    'employee_id': self.env['hr.employee'].search([
-                        ('user_id', '=', project.project_supervisor_id.user_id.id),
-                        ('company_id', '=', project.company_id.id)
-                    ])[:1].id or 0
-                })]
+    # @api.depends('project_member_ids.role_id')
+    # def _compute_project_supervisor_id(self): # TODO убрать после миграции на кураторов
+    #     for project in self:
+    #         curator = project.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
+    #             'project_budget.project_role_project_curator'))[:1].employee_id
+    #         project.project_supervisor_id = self.env['project_budget.project_supervisor'].search([
+    #             ('user_id', '=', curator.user_id.id or 0),
+    #             ('company_id', '=', project.company_id.id)
+    #         ])[:1] or False
+    #
+    # def _inverse_project_supervisor_id(self): # TODO убрать после миграции на кураторов
+    #     for project in self.filtered(lambda pr: pr.budget_state == 'work' and pr.project_supervisor_id):
+    #         member_team = self.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
+    #             'project_budget.project_role_project_curator'))[:1]
+    #         if member_team:
+    #             member_team.employee_id = self.env['hr.employee'].search([
+    #                 ('user_id', '=', project.project_supervisor_id.user_id.id),
+    #                 ('company_id', '=', project.company_id.id)
+    #             ])[:1]
+    #         else:
+    #             project.project_member_ids = [Command.create({
+    #                 'role_id': self.env.ref('project_budget.project_role_project_curator').id,
+    #                 'employee_id': self.env['hr.employee'].search([
+    #                     ('user_id', '=', project.project_supervisor_id.user_id.id),
+    #                     ('company_id', '=', project.company_id.id)
+    #                 ])[:1].id or 0
+    #             })]
 
     @api.depends('signer_id')
     def _get_allowed_signer_ids(self):  # формируем домен партнеров, которые являются нашими компаниями

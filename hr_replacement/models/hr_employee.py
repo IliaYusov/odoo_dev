@@ -26,8 +26,9 @@ class HrEmployee(models.Model):
         for _ in range(len(args) - 1):
             domain.append('|')
         for field, group in args:
+            current_employee_ids = self.env['hr.employee'].search([('user_id', '=', self.env.uid)]).ids
             replacement_ids = self.env['hr.employee.replacement'].search([
-                ('replacement_employee_id', '=', self.id),
+                ('replacement_employee_id', 'in', current_employee_ids),
                 ('date_start', '<=', fields.Date.today()),
                 '|', ('date_end', '=', False), ('date_end', '>=', fields.Date.today()),
                 ('replaceable_groups_ids', '=', self.env.ref(group).id)
