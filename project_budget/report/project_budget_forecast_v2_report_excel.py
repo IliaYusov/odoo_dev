@@ -2833,10 +2833,20 @@ class report_budget_forecast_excel(models.AbstractModel):
                     sheet.write_formula(row + 2, shift, formula, row_format_plan)
                     if 'NEXT' not in period and '6+6' not in period:
                         if period in ('HY2', 'Q3', 'Q4', 'Y'):
-                            formula_diff = '={1}{0}-{2}{0}'.format(row + 3, xl_col_to_name(shift + 2), xl_col_to_name(shift + 1))
+                            formula_diff = '=({1}{0}+{2}{0})-{3}{0}'.format(
+                                row + 3,
+                                xl_col_to_name(shift + 2),
+                                xl_col_to_name(shift + 3),
+                                xl_col_to_name(shift + 1),
+                            )
                             sheet.merge_range(row + 3, shift + 2, row + 3, shift + 4, formula_diff, row_format_diff)
                         else:
-                            formula_diff = '={1}{0}-{2}{0}'.format(row + 3, xl_col_to_name(shift + 1), xl_col_to_name(shift))
+                            formula_diff = '=({1}{0}+{2}{0})-{3}{0}'.format(
+                                row + 3,
+                                xl_col_to_name(shift + 1),
+                                xl_col_to_name(shift + 2),
+                                xl_col_to_name(shift),
+                            )
                             sheet.merge_range(row + 3, shift + 1, row + 3, shift + 3, formula_diff, row_format_diff)
 
             sheet.activate()
