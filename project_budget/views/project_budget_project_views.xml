@@ -524,7 +524,10 @@
                         </group>
                         <group>
                             <field name="taxes_fot_premiums"
-                                   attrs="{'invisible': [('is_own_works_fot', '=', False),('is_awards_on_results_project', '=', False)]}"
+                                   attrs="{
+                                   'invisible': [('is_own_works_fot', '=', False),('is_awards_on_results_project', '=', False)],
+                                   'readonly': [('is_percent_fot_manual', '=', False)],
+                                   }"
                                    style="text-align:right"
                             />
                         </group>

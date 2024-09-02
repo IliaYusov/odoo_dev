@@ -852,7 +852,7 @@ class Project(models.Model):
 
     @api.depends('signer_id')
     def _get_allowed_signer_ids(self):  # формируем домен партнеров, которые являются нашими компаниями
-        res = self.env['res.company'].search([]).partner_id
+        res = self.env['res.company'].sudo().search([]).partner_id
         for record in self:
             record.allowed_signer_ids = res
 
