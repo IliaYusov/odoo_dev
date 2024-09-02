@@ -226,7 +226,7 @@ class report_new_tender_excel(models.AbstractModel):
                 column = 0
                 sheet.merge_range(row, column, row + tendersum_qty, column, tender.date_of_filling_in.strftime("%d.%m.%Y"), row_format_text)
                 column += 1
-                sheet.merge_range(row, column, row + tendersum_qty, column, (tender.participant_id.name or ''), row_format_text)
+                sheet.merge_range(row, column, row + tendersum_qty, column, (tender.signer_id.name or ''), row_format_text)
                 column += 1
                 sheet.merge_range(row, column, row + tendersum_qty, column, (tender.auction_number or ''), row_format_text)
                 column += 1
@@ -354,7 +354,7 @@ class report_new_tender_excel(models.AbstractModel):
                 column = 0
                 sheet.write(row, column, tender.date_of_filling_in.strftime("%d.%m.%Y"), row_format_text)
                 column += 1
-                sheet.write(row, column, (tender.participant_id.name or ''), row_format_text)
+                sheet.write(row, column, (tender.signer_id.name or ''), row_format_text)
                 column += 1
                 sheet.write(row, column, (tender.auction_number or ''), row_format_text)
                 column += 1

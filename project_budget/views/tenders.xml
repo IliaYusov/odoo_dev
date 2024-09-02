@@ -188,7 +188,7 @@
                     <field name="projects_id" optional="show"/>
 <!--                    <field name="currency_id" optional="show"/>-->
                     <field name="date_of_filling_in"/>
-                    <field name="participant_id" optional="show"/>
+                    <field name="signer_id" optional="show"/>
                     <field name="auction_number" optional="show"/>
                     <field name="url_tender" widget="html" optional="show" class="text-wrap"/>
                     <field name="partner_id" optional="show" class="text-wrap"/>
@@ -264,7 +264,8 @@
                                 <field name="current_status"/>
                             </group>
                             <group>
-                                <field name="participant_id" options="{'no_open': True,}"/>
+                                <field name="allowed_signer_ids" invisible="True"/>
+                                <field name="signer_id" options="{'no_open': True,}" domain="[('id', 'in', allowed_signer_ids)]"/>
                             </group>
                         </group>
                         <group col="3">

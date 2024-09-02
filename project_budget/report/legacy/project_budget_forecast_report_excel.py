@@ -1596,7 +1596,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                     for spec in cur_budget_projects:
                         if spec.id in dict_formula['printed_projects']:
                             continue
-                        if not ((spec.project_office_id == project_office or (spec.legal_entity_signing_id.different_project_offices_in_steps and spec.project_have_steps)) and spec.key_account_manager_id == project_manager):
+                        if not ((spec.project_office_id == project_office or (spec.different_project_offices_in_steps and spec.project_have_steps)) and spec.key_account_manager_id == project_manager):
                             continue
                         # if spec.estimated_probability_id.name != '0':
                         # if spec.is_framework == True and spec.project_have_steps == False: continue # рамка без этапов - пропускаем
@@ -1614,8 +1614,8 @@ class report_budget_forecast_excel(models.AbstractModel):
                                     if step.id in dict_formula['printed_steps']:
                                         continue
 
-                                    if ((spec.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
-                                            or ((not spec.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and spec.project_office_id == project_office)):
+                                    if ((spec.different_project_offices_in_steps and step.project_office_id == project_office)
+                                            or ((not spec.different_project_offices_in_steps or not step.project_office_id) and spec.project_office_id == project_office)):
 
                                         if step.stage_id == stage:
                                             if self.isStepinYear( spec, step) == False:
@@ -1636,7 +1636,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                                 cur_row_format = row_format_canceled_project
                                                 cur_row_format_number = row_format_number_canceled_project
                                             column = 0
-                                            if spec.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id:
+                                            if spec.different_project_offices_in_steps and step.project_office_id:
                                                 sheet.write_string(row, column, step.project_office_id.name, cur_row_format)
                                             else:
                                                 sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)

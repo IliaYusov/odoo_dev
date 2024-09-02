@@ -31,8 +31,10 @@ class budget_plan_kam(models.Model):
 
 
     project_office_id = fields.Many2one(related='plan_supervisor_id.project_office_id', string='project_office')
-    supervisor_id = fields.Many2one(related = 'plan_supervisor_id.supervisor_id', string='KAMs supervisor')
-    supervisor_user_id = fields.Many2one(related='plan_supervisor_id.supervisor_user_id', readonly=True)
+    supervisor_id = fields.Many2one(related = 'plan_supervisor_id.supervisor_id', string='KAMs supervisor')  # TODO убрать после миграции на кураторов
+    supervisor_user_id = fields.Many2one(related='plan_supervisor_id.supervisor_user_id', readonly=True)  # TODO убрать после миграции на кураторов
+    curator_id = fields.Many2one(related='plan_supervisor_id.curator_id', string='KAMs supervisor')
+    curator_user_id = fields.Many2one(related='plan_supervisor_id.curator_user_id', readonly=True)
     key_account_manager_id = fields.Many2one('hr.employee', string='Key Account Manager', check_company=True, copy=True,
                                              required=True, tracking=True)
 
@@ -140,7 +142,7 @@ class budget_plan_kam(models.Model):
                 self.sum_net_profit_year_6_6 = row.year_plan_6_6
                 self.sum_net_profit_year_fact = row.year_fact
 
-    @api.depends('supervisor_id', 'year')
+    @api.depends('curator_id', 'year')
     def _get_name_to_show(self):
         for plan_kam in self:
             plan_kam.name_to_show = str(

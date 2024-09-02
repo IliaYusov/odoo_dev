@@ -83,14 +83,14 @@ class Contract(models.Model):
         if self._origin:
             access_delete = [self._origin.project_id.key_account_manager_id.user_id,
                              self._origin.project_id.project_manager_id.user_id,
-                             self._origin.project_id.project_supervisor_id.user_id]
+                             self._origin.project_id.project_curator_id.user_id]
             if self._origin.project_id != self.project_id:
                 [Command.delete(access.id) for access in
                  self.access_ids.filtered(lambda acc: acc.user_id in set(access_delete))]
         access_insert = [self.author_id.user_id,
                          self.project_id.key_account_manager_id.user_id,
                          self.project_id.project_manager_id.user_id,
-                         self.project_id.project_supervisor_id.user_id]
+                         self.project_id.project_curator_id.user_id]
         access_ids = []
         for usr in filter(None, set(access_insert)):
             access = next(iter(self.access_ids.filtered(lambda acc: acc.ids == usr.id)), False)

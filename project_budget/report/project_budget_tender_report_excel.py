@@ -152,7 +152,7 @@ class report_tender_excel(models.AbstractModel):
             column = 0
             sheet.write_string(row, column, tender.date_of_filling_in.strftime("%d.%m.%Y"), row_format_text)
             column += 1
-            sheet.write_string(row, column, (tender.participant_id.name or ''), row_format_text)
+            sheet.write_string(row, column, (tender.signer_id.name or ''), row_format_text)
             column += 1
             sheet.write_string(row, column, (tender.auction_number or ''), row_format_text)
             column += 1

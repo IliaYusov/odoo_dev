@@ -189,7 +189,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                 ]).sorted(key=lambda r: (r.project_id if r.step_status == 'project' else r.step_project_parent_id.project_id + r.project_id))
 
         shift = 0
-        for entity_id in cur_budget_projects.legal_entity_signing_id:
+        for entity_id in cur_budget_projects.signer_id:
             if entity_id.name not in legal_entity_shift:
                 legal_entity_shift[entity_id.name] = shift
                 column += 1
@@ -202,7 +202,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                           date.strftime(date_end, '%d.%m.%y') + ')', head_format)
 
         for project in cur_budget_projects:
-            if project.legal_entity_signing_id.name == project.company_id.name:
+            if project.signer_id.name == project.company_id.name:
                 row_format = row_format_light
             else:
                 row_format = row_format_dark
@@ -246,10 +246,10 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
 
             sheet.write_string(row, column, project.essence_project, row_format)
             column += 1
-            sheet.write_string(row, column, project.legal_entity_signing_id.name, row_format)
+            sheet.write_string(row, column, project.signer_id.name, row_format)
             for shift in range(len(legal_entity_shift)):
                 sheet.write_number(row, column + 1 + shift, 0, row_format)
-            column += 1 + legal_entity_shift[project.legal_entity_signing_id.name]
+            column += 1 + legal_entity_shift[project.signer_id.name]
             sheet.write_number(row, column, summ, row_format)
 
         row += 1

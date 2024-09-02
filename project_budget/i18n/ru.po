@@ -1398,8 +1398,8 @@ msgid "KAM's plans"
 msgstr "План КАМа"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_kam__supervisor_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_supervisor__supervisor_id
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_kam__curator_id
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_supervisor__curator_id
 msgid "KAMs supervisor"
 msgstr "Руководитель ПО"
 
@@ -1608,9 +1608,10 @@ msgid "Management Committee"
 msgstr "Отчет для УК"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_legal_entity_signing__is_percent_fot_manual
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__is_percent_fot_manual
-msgid "Manual fot_percent"
+#: model:ir.model.fields,field_description:project_budget.field_res_company__is_percent_fot_manual
+#: model_terms:ir.ui.view,arch_db:project_budget.view_company_form
+msgid "Manual FOT percent"
 msgstr "Ручной % ФОТ"
 
 #. module: project_budget
@@ -2213,7 +2214,7 @@ msgstr "Проект"
 #. module: project_budget
 #: model:res.groups,name:project_budget.project_budget_admin
 msgid "Project Admin"
-msgstr "Администратор бюджетов проектов"
+msgstr "Администратор модуля Бюджеты проектов"
 
 #. module: project_budget
 #: model:project_budget.project.role,name:project_budget.project_role_project_administrator
@@ -2233,6 +2234,12 @@ msgstr "Количество проектов"
 #: model:res.groups,name:project_budget.group_project_budget_project_curator
 msgid "Project Curator"
 msgstr "Куратор проекта"
+
+#. module: project_budget
+#: model:project_budget.project.role,name:project_budget.project_role_can_approve_projects
+#: model:res.groups,name:project_budget.group_project_budget_can_approve_projects
+msgid "Can approve projects"
+msgstr "Может утверждать проекты"
 
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.hr_employee_replacement_view_form_inherit_project_budget
@@ -2312,12 +2319,12 @@ msgid "Project Status"
 msgstr "Статус проекта"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_overdue_report__project_supervisor_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__project_supervisor_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__project_supervisor_id
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_overdue_report__project_curator_id
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__project_curator_id
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__project_curator_id
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_view_search
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
-msgid "Project Supervisor"
+msgid "Project Curator"
 msgstr "Куратор проекта"
 
 #. module: project_budget
@@ -3345,7 +3352,8 @@ msgid "detailed report"
 msgstr "Детализированный отчет"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_legal_entity_signing__different_project_offices_in_steps
+#: model:ir.model.fields,field_description:project_budget.field_res_company__different_project_offices_in_steps
+#: model_terms:ir.ui.view,arch_db:project_budget.view_company_form
 msgid "different project offices in steps"
 msgstr "Различные проектные офисы в этапах проектов"
 
@@ -3535,7 +3543,7 @@ msgid "end of report"
 msgstr "конец периода отчета"
 
 #. module: project_budget
-#: model_terms:ir.ui.view,arch_db:project_budget.show_legal_entity_signing_form
+#: model_terms:ir.ui.view,arch_db:project_budget.view_company_form
 msgid "enter FOT percent. e.g. 25"
 msgstr "Введите процент ФОТ, например 25"
 
@@ -3667,8 +3675,10 @@ msgid "fact_cash_flow_sum"
 msgstr "Сумма ПДС"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_legal_entity_signing__percent_fot
-msgid "fot_percent"
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__percent_fot
+#: model:ir.model.fields,field_description:project_budget.field_res_company__percent_fot
+#: model_terms:ir.ui.view,arch_db:project_budget.view_company_form
+msgid "FOT percent"
 msgstr "Процент ФОТ"
 
 #. module: project_budget
@@ -3885,8 +3895,7 @@ msgid "legal_entity_signing"
 msgstr "Юрлицо, подписывающее договор"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__legal_entity_signing_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__participant_id
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__signer_id
 msgid "legal_entity_signing a contract from the NCC"
 msgstr "Юрлицо, подписывающее договор от НКК"
 

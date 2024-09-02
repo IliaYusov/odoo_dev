@@ -22,6 +22,7 @@ from . import project_currency_rates
 from . import project_step_amount_specifications
 from . import res_config_settings
 from . import res_partner
+from . import res_company
 from . import res_company_partner_type
 from . import res_company_partner_grade
 from . import res_company_partner

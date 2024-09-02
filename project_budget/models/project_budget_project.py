@@ -148,17 +148,16 @@ class Project(models.Model):
 
         return domain
 
-
-    def _get_supervisor_list(self):
-        domain = []
-        supervisor_access = self.env['project_budget.project_supervisor_access'].search([('user_id.id', '=', self.env.user.id)])
-        supervisor_list = []
-        for each in supervisor_access:
-            supervisor_list.append(each.project_supervisor_id.id)
-        if supervisor_list:
-            domain = [('id', 'in', supervisor_list)]
-            return domain
-        return domain
+    # def _get_supervisor_list(self):  # TODO убрать после миграции на кураторов
+    #     domain = []
+    #     supervisor_access = self.env['project_budget.project_supervisor_access'].search([('user_id.id', '=', self.env.user.id)])
+    #     supervisor_list = []
+    #     for each in supervisor_access:
+    #         supervisor_list.append(each.project_supervisor_id.id)
+    #     if supervisor_list:
+    #         domain = [('id', 'in', supervisor_list)]
+    #         return domain
+    #     return domain
 
     def _get_commercial_budget_list(self):
         domain = [('id', 'in','-1')]
@@ -206,13 +205,16 @@ class Project(models.Model):
                                         copy=True,
                                         domain="[('is_prohibit_selection','=', False), '|', ('company_id', '=', False), ('company_id', '=', company_id)]",
                                         required=True, tracking=True)
-    # project_supervisor_id = fields.Many2one('project_budget.project_supervisor', string='project_supervisor',
-    #                                         required=True, copy=True, domain=_get_supervisor_list, tracking=True, check_company=True)
     project_supervisor_id = fields.Many2one('project_budget.project_supervisor', string='Project Supervisor',
-                                            compute='_compute_project_curator_id',
-                                            inverse='_inverse_project_curator_id', copy=True,
-                                            domain="[('company_id', 'in', (False, company_id))]", required=True,
-                                            store=True, tracking=True)
+                                            compute='_compute_project_supervisor_id',
+                                            inverse='_inverse_project_supervisor_id', copy=True,
+                                            domain="[('company_id', 'in', (False, company_id))]",
+                                            store=True, tracking=True)  # TODO убрать после миграции на кураторов
+    project_curator_id = fields.Many2one('hr.employee', string='Project Curator',
+                                             compute='_compute_project_curator_id',
+                                             inverse='_inverse_project_curator_id', copy=True, required=True,
+                                             domain="[('company_id', 'in', (False, company_id))]",
+                                             store=True, tracking=True)
     key_account_manager_id = fields.Many2one('hr.employee', string='Key Account Manager',
                                              compute='_compute_key_account_manager_id',
                                              inverse='_inverse_key_account_manager_id', copy=True,
@@ -222,8 +224,6 @@ class Project(models.Model):
                                          inverse='_inverse_project_manager_id', copy=True,
                                          domain="[('company_id', 'in', (False, company_id))]", required=False,
                                          store=True, tracking=True)
-    # project_curator_id = fields.Many2one('hr.employee', string='Project Curator', copy=True,
-    #                                      domain=_get_project_curator_id_domain, required=True, tracking=True)
     project_member_ids = fields.One2many('project_budget.project.member', 'project_id', string='Members', copy=False,
                                          default=_get_default_member_ids)
     partner_id = fields.Many2one('res.partner', string='Customer', copy=True,
@@ -284,9 +284,11 @@ class Project(models.Model):
     taxes_fot_premiums = fields.Monetary(string='taxes_FOT and premiums', store=True, tracking=True)
 
     # TODO: необходимо мигрировать на signer_id
-    legal_entity_signing_id = fields.Many2one('project_budget.legal_entity_signing', string='legal_entity_signing a contract from the NCC', required=True, copy=True,tracking=True)
+    legal_entity_signing_id = fields.Many2one('project_budget.legal_entity_signing', string='legal_entity_signing a contract from the NCC', copy=True,tracking=True) # TODO: удалить после миграции на signer_id
     signer_id = fields.Many2one('res.partner', string='Signer', copy=True,
                                 default=lambda self: self.env.company.partner_id, required=True, tracking=True)
+    allowed_signer_ids = fields.Many2many('res.partner', compute="_get_allowed_signer_ids")
+
     project_type_id = fields.Many2one('project_budget.project_type',string='project_type', copy=True, tracking=True)
 
     is_revenue_from_the_sale_of_works =fields.Boolean(related='project_type_id.is_revenue_from_the_sale_of_works', readonly=True)
@@ -301,7 +303,8 @@ class Project(models.Model):
     is_warranty_service_costs = fields.Boolean(related='project_type_id.is_warranty_service_costs', readonly=True)
     is_rko_other = fields.Boolean(related='project_type_id.is_rko_other', readonly=True)
     is_other_expenses = fields.Boolean(related='project_type_id.is_other_expenses', readonly=True)
-    is_percent_fot_manual = fields.Boolean(related='legal_entity_signing_id.is_percent_fot_manual', readonly=True)
+    is_percent_fot_manual = fields.Boolean(compute='_get_signer_settings', readonly=True)
+    percent_fot = fields.Float(compute='_get_signer_settings', readonly=True)
 
     comments = fields.Text(string='comments project', default="")
     technological_direction_id = fields.Many2one('project_budget.technological_direction',
@@ -380,8 +383,7 @@ class Project(models.Model):
     project_have_steps = fields.Boolean(string="project have steps", default=False, copy=True, tracking=True)
     is_framework = fields.Boolean(string="project is framework", default=False, copy=True, tracking=True)
 
-    different_project_offices_in_steps = fields.Boolean(
-        related='legal_entity_signing_id.different_project_offices_in_steps', readonly=True)
+    different_project_offices_in_steps = fields.Boolean(compute='_get_signer_settings', readonly=True)
 
     project_currency_rates_ids = fields.One2many(
         comodel_name='project_budget.project_currency_rates',
@@ -436,7 +438,7 @@ class Project(models.Model):
                 diff.remove(self.env.ref('project_budget.project_role_key_account_manager'))
             if self.env.ref('project_budget.project_role_project_manager') in diff and record.project_manager_id:
                 diff.remove(self.env.ref('project_budget.project_role_project_manager'))
-            if self.env.ref('project_budget.project_role_project_curator') in diff and record.project_supervisor_id:
+            if self.env.ref('project_budget.project_role_project_curator') in diff and record.project_curator_id:
                 diff.remove(self.env.ref('project_budget.project_role_project_curator'))
             if diff:
                 raise ValidationError(_("Roles '%s' are required for the project!") % ', '.join([r.name for r in diff]))
@@ -505,11 +507,11 @@ class Project(models.Model):
                         if step.stage_id.code != '0':
                             step.stage_id = rec.stage_id
 
-    @api.onchange('project_office_id','project_status','currency_id','project_supervisor_id','key_account_manager_id',
+    @api.onchange('project_office_id','project_status','currency_id','project_curator_id','key_account_manager_id',
                   'industry_id','essence_project','end_presale_project_month','end_sale_project_month','vat_attribute_id','total_amount_of_revenue',
                   'total_amount_of_revenue_with_vat','revenue_from_the_sale_of_works','revenue_from_the_sale_of_goods','cost_price','cost_of_goods','own_works_fot',
                   'third_party_works','awards_on_results_project','transportation_expenses','travel_expenses','representation_expenses','taxes_fot_premiums','warranty_service_costs',
-                  'rko_other','other_expenses','margin_income','profitability','stage_id','legal_entity_signing_id','project_type_id','comments','technological_direction_id',
+                  'rko_other','other_expenses','margin_income','profitability','stage_id','signer_id','project_type_id','comments','technological_direction_id',
                   'planned_cash_flow_sum','planned_cash_flow_ids','step_project_number','dogovor_number','planned_acceptance_flow_sum','planned_acceptance_flow_ids','fact_cash_flow_sum',
                   'fact_cash_flow_ids','fact_acceptance_flow_sum','fact_acceptance_flow_ids','project_have_steps','step_project_child_ids'
                 )
@@ -542,10 +544,10 @@ class Project(models.Model):
                 if row.project_type_id.is_other_expenses== False: row.other_expenses = 0
 
 
-    @api.depends('project_supervisor_id.user_id')
-    def _get_supervisor_user_id(self):
-        for row in self:
-            row.project_supervisor_user_id = row.project_supervisor_id.user_id
+    # @api.depends('project_supervisor_id.user_id')  # TODO убрать после миграции на кураторов
+    # def _get_supervisor_user_id(self):
+    #     for row in self:
+    #         row.project_supervisor_user_id = row.project_supervisor_id.user_id
 
     @api.depends("planned_cash_flow_ids.sum_cash")
     def _compute_planned_cash_flow_sum(self):
@@ -596,8 +598,8 @@ class Project(models.Model):
                 for row_flow in row.fact_step_acceptance_flow_ids:
                     row.fact_acceptance_flow_sum += row_flow.sum_cash
                     row.fact_acceptance_flow_sum_without_vat += row_flow.sum_cash_without_vat
-    @api.depends('company_id', 'currency_id', 'commercial_budget_id', 'key_account_manager_id', 'project_supervisor_id',
-                 'project_manager_id', 'industry_id', 'legal_entity_signing_id', 'signer_id',
+    @api.depends('company_id', 'currency_id', 'commercial_budget_id', 'key_account_manager_id', 'project_curator_id',
+                 'project_manager_id', 'industry_id', 'signer_id',
                  'technological_direction_id', 'partner_id', 'project_office_id', 'is_correction_project', 'is_not_for_mc_report',
                  'approve_state', 'project_have_steps')
     def _compute_step_project_details(self):
@@ -608,10 +610,9 @@ class Project(models.Model):
                     step_project_child_id.currency_id = row.currency_id
                     step_project_child_id.commercial_budget_id = row.commercial_budget_id
                     step_project_child_id.key_account_manager_id = row.key_account_manager_id
-                    step_project_child_id.project_supervisor_id = row.project_supervisor_id
+                    step_project_child_id.project_curator_id = row.project_curator_id
                     step_project_child_id.project_manager_id = row.project_manager_id
                     step_project_child_id.industry_id = row.industry_id
-                    step_project_child_id.legal_entity_signing_id = row.legal_entity_signing_id
                     step_project_child_id.signer_id = row.signer_id
                     step_project_child_id.technological_direction_id = row.technological_direction_id
                     step_project_child_id.partner_id = row.partner_id
@@ -642,7 +643,7 @@ class Project(models.Model):
             project.cost_price = project.cost_price + project.transportation_expenses + project.travel_expenses + project.representation_expenses
             project.cost_price = project.cost_price + project.warranty_service_costs + project.rko_other + project.other_expenses
             if project.is_percent_fot_manual == False:
-                project.taxes_fot_premiums = (project.awards_on_results_project + project.own_works_fot) * project.legal_entity_signing_id.percent_fot / 100
+                project.taxes_fot_premiums = (project.awards_on_results_project + project.own_works_fot) * project.percent_fot / 100
 
             project.cost_price = project.cost_price + project.taxes_fot_premiums
 
@@ -719,7 +720,7 @@ class Project(models.Model):
 
     @api.depends('taxes_fot_premiums', "revenue_from_the_sale_of_works", 'revenue_from_the_sale_of_goods', 'cost_of_goods', 'own_works_fot',
                  'third_party_works', "awards_on_results_project", 'transportation_expenses', 'travel_expenses', 'representation_expenses',
-                 "warranty_service_costs", 'rko_other', 'other_expenses','vat_attribute_id','legal_entity_signing_id','project_have_steps',
+                 "warranty_service_costs", 'rko_other', 'other_expenses','vat_attribute_id','signer_id','project_have_steps',
                  'parent_project_id','child_project_ids','margin_rate_for_parent','amount_spec_ids', 'total_margin_of_child_projects',
                  'child_project_ids.margin_rate_for_parent', 'child_project_ids.margin_for_parent_project', 'child_project_ids.total_amount_of_revenue',
                  'child_project_ids.cost_price','child_project_ids.margin_rate_for_parent', "step_project_child_ids",)
@@ -770,6 +771,7 @@ class Project(models.Model):
             project.key_account_manager_id = project.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
                 'project_budget.project_role_key_account_manager'))[:1].employee_id or False
 
+    @api.onchange('key_account_manager_id')
     def _inverse_key_account_manager_id(self):
         for project in self.filtered(lambda pr: pr.budget_state == 'work' and pr.key_account_manager_id):
             member_team = self.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
@@ -788,6 +790,7 @@ class Project(models.Model):
             project.project_manager_id = project.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
                 'project_budget.project_role_project_manager'))[:1].employee_id or False
 
+    @api.onchange('project_manager_id')
     def _inverse_project_manager_id(self):
         for project in self.filtered(lambda pr: pr.budget_state == 'work' and pr.project_manager_id):
             member_team = self.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
@@ -803,30 +806,63 @@ class Project(models.Model):
     @api.depends('project_member_ids.role_id')
     def _compute_project_curator_id(self):
         for project in self:
-            curator = project.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
-                'project_budget.project_role_project_curator'))[:1].employee_id
-            project.project_supervisor_id = self.env['project_budget.project_supervisor'].search([
-                ('user_id', '=', curator.user_id.id or 0),
-                ('company_id', '=', project.company_id.id)
-            ])[:1] or False
+            project.project_curator_id = project.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
+                'project_budget.project_role_project_curator'))[:1].employee_id or False
 
+    @api.onchange('project_curator_id')
     def _inverse_project_curator_id(self):
-        for project in self.filtered(lambda pr: pr.budget_state == 'work' and pr.project_supervisor_id):
+        for project in self.filtered(lambda pr: pr.budget_state == 'work' and pr.project_curator_id):
             member_team = self.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
                 'project_budget.project_role_project_curator'))[:1]
             if member_team:
-                member_team.employee_id = self.env['hr.employee'].search([
-                    ('user_id', '=', project.project_supervisor_id.user_id.id),
-                    ('company_id', '=', project.company_id.id)
-                ])[:1]
+                member_team.employee_id = project.project_curator_id
             else:
                 project.project_member_ids = [Command.create({
                     'role_id': self.env.ref('project_budget.project_role_project_curator').id,
-                    'employee_id': self.env['hr.employee'].search([
-                        ('user_id', '=', project.project_supervisor_id.user_id.id),
-                        ('company_id', '=', project.company_id.id)
-                    ])[:1].id or 0
+                    'employee_id': project.project_curator_id.id
                 })]
+
+    # @api.depends('project_member_ids.role_id')
+    # def _compute_project_supervisor_id(self): # TODO убрать после миграции на кураторов
+    #     for project in self:
+    #         curator = project.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
+    #             'project_budget.project_role_project_curator'))[:1].employee_id
+    #         project.project_supervisor_id = self.env['project_budget.project_supervisor'].search([
+    #             ('user_id', '=', curator.user_id.id or 0),
+    #             ('company_id', '=', project.company_id.id)
+    #         ])[:1] or False
+    #
+    # def _inverse_project_supervisor_id(self): # TODO убрать после миграции на кураторов
+    #     for project in self.filtered(lambda pr: pr.budget_state == 'work' and pr.project_supervisor_id):
+    #         member_team = self.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
+    #             'project_budget.project_role_project_curator'))[:1]
+    #         if member_team:
+    #             member_team.employee_id = self.env['hr.employee'].search([
+    #                 ('user_id', '=', project.project_supervisor_id.user_id.id),
+    #                 ('company_id', '=', project.company_id.id)
+    #             ])[:1]
+    #         else:
+    #             project.project_member_ids = [Command.create({
+    #                 'role_id': self.env.ref('project_budget.project_role_project_curator').id,
+    #                 'employee_id': self.env['hr.employee'].search([
+    #                     ('user_id', '=', project.project_supervisor_id.user_id.id),
+    #                     ('company_id', '=', project.company_id.id)
+    #                 ])[:1].id or 0
+    #             })]
+
+    @api.depends('signer_id')
+    def _get_allowed_signer_ids(self):  # формируем домен партнеров, которые являются нашими компаниями
+        res = self.env['res.company'].search([]).partner_id
+        for record in self:
+            record.allowed_signer_ids = res
+
+    @api.depends('signer_id')
+    def _get_signer_settings(self):  # получаем настройки подписывающего юр лица из компании
+        for record in self:
+            company = self.env['res.company'].search([('partner_id', '=', record.signer_id.id)])
+            record.is_percent_fot_manual = company.is_percent_fot_manual
+            record.percent_fot = company.percent_fot
+            record.different_project_offices_in_steps = company.different_project_offices_in_steps
 
     def action_open_project(self):
         return {
@@ -970,13 +1006,28 @@ class Project(models.Model):
             'flags': {'initial_mode': 'view'}
         }
 
-    def user_is_supervisor(self,supervisor_id):
-        supervisor_access = self.env['project_budget.project_supervisor_access'].search([('user_id.id', '=', self.env.user.id)
-                                                                                        ,('project_supervisor_id.id', '=', supervisor_id)
-                                                                                        ,('can_approve_project','=',True)])
-        if not supervisor_access :
+    # def user_is_supervisor(self,supervisor_id):
+    #     supervisor_access = self.env['project_budget.project_supervisor_access'].search([('user_id.id', '=', self.env.user.id)
+    #                                                                                     ,('project_supervisor_id.id', '=', supervisor_id)
+    #                                                                                     ,('can_approve_project','=',True)])
+    #     if not supervisor_access :
+    #         return False
+    #     else: return True
+
+    def user_is_curator(self, curator):
+        if curator.user_id.user_has_groups('project_budget.group_project_budget_can_approve_projects'):
+            return True
+        curator_access = self.env['hr.employee.replacement'].search([
+            ('replaceable_employee_id.user_id.id', '=', curator.user_id.id),
+            ('replacement_employee_id.user_id.id', '=', self.env.user.id),
+            ('date_start', '<=', fields.Date.today()),
+            '|', ('date_end', '=', False), ('date_end', '>=', fields.Date.today()),
+            ('replaceable_groups_ids', '=', self.env.ref('project_budget.group_project_budget_can_approve_projects').id)
+        ])
+        if curator_access :
+            return True
+        else:
             return False
-        else: return True
 
     @api.constrains('stage_id', 'total_amount_of_revenue', 'cost_price', 'planned_acceptance_flow_ids',
                     'planned_cash_flow_ids', 'planned_step_acceptance_flow_ids', 'planned_step_cash_flow_ids')
@@ -1418,7 +1469,7 @@ class Project(models.Model):
                 for activitie in activities:
                     activitie.action_done()
 
-                user_id = rows.project_supervisor_id.user_id.id
+                user_id = rows.project_curator_id.user_id.id
                 print('user_id = ',user_id)
                 if rows.project_office_id.receive_tasks_for_approve_project: # не куратору посылать, а руководителю проектного офиса надо
                     if rows.project_office_id.user_id: # вдруг просто галочка стоит, а пользователь не выбран
@@ -1439,7 +1490,35 @@ class Project(models.Model):
                     # rows.approve_state="need_approve_supervisor"
         return False
 
-    def set_approve_supervisor(self):
+    # def set_approve_supervisor(self):  # TODO убрать после миграции на кураторов
+    #     for rows in self:
+    #         if rows.approve_state=="need_approve_supervisor" and rows.budget_state == 'work' and rows.project_status !='cancel':
+    #
+    #             isok, raisetext,emptydict = self.check_overdue_date(False)
+    #             if isok == False:
+    #                 raise ValidationError(raisetext)
+    #
+    #             user_id = False
+    #             if rows.project_office_id.receive_tasks_for_approve_project: # не только куратор может утвекрждать, но и руководитель проектного офиса надо
+    #                 if rows.project_office_id.user_id: # вдруг просто галочка стоит, а пользователь не выбран
+    #                     user_id = rows.project_office_id.user_id.id
+    #
+    #             if self.user_is_supervisor(rows.project_supervisor_id.id) or self.user_has_groups('project_budget.project_budget_admin') or self.env.user.id == user_id :
+    #                 # rows.approve_state="approved"
+    #                rows.write({
+    #                    'approve_state': "approved"
+    #                  })
+    #                activity_model = self.env['mail.activity']
+    #                activities = activity_model.search([('res_id', '=', rows.id),
+    #                                                     ('activity_type_id', '=', self.env.ref(
+    #                                                         'project_budget.mail_act_approve_project_by_supervisor').id)
+    #                                                     ])
+    #                # Update the state of each activity to 'done'
+    #                for activitie in activities:
+    #                    activitie.action_done()
+    #     return False
+
+    def set_approve_curator(self):
         for rows in self:
             if rows.approve_state=="need_approve_supervisor" and rows.budget_state == 'work' and rows.project_status !='cancel':
 
@@ -1452,7 +1531,7 @@ class Project(models.Model):
                     if rows.project_office_id.user_id: # вдруг просто галочка стоит, а пользователь не выбран
                         user_id = rows.project_office_id.user_id.id
 
-                if self.user_is_supervisor(rows.project_supervisor_id.id) or self.user_has_groups('project_budget.project_budget_admin') or self.env.user.id == user_id :
+                if self.user_is_curator(rows.project_curator_id) or self.user_has_groups('project_budget.project_budget_admin') or self.env.user.id == user_id :
                     # rows.approve_state="approved"
                    rows.write({
                        'approve_state': "approved"
@@ -1467,7 +1546,39 @@ class Project(models.Model):
                        activitie.action_done()
         return False
 
-    def cancel_approve(self):
+    # def cancel_approve(self):  # TODO убрать после миграции на кураторов
+    #     for rows in self:
+    #         if (rows.approve_state=="approved" or rows.approve_state=="need_approve_supervisor") and rows.budget_state == 'work' and rows.project_status !='cancel':
+    #             user_id = False
+    #             if rows.project_office_id.receive_tasks_for_approve_project: # не только куратор может утвекрждать, но и руководитель проектного офиса надо
+    #                 if rows.project_office_id.user_id: # вдруг просто галочка стоит, а пользователь не выбран
+    #                     user_id = rows.project_office_id.user_id.id
+    #
+    #             if self.user_is_supervisor(rows.project_supervisor_id.id) or self.user_has_groups('project_budget.project_budget_admin') or self.env.user.id == user_id :
+    #                 # rows.approve_state="need_approve_manager"
+    #                 rows.write({
+    #                     'approve_state': "need_approve_manager"
+    #                 })
+    #                 activity_model = self.env['mail.activity']
+    #                 activities = activity_model.search([('res_id','=', rows.id),
+    #                                                     ('activity_type_id','=',self.env.ref('project_budget.mail_act_approve_project_by_supervisor').id)
+    #                                                    ])
+    #                 # Update the state of each activity to 'done'
+    #                 for activitie in activities:
+    #                     activitie.action_done()
+    #
+    #                 self.env['mail.activity'].create({
+    #                     'display_name': _('Supervisor declined project. Change nessesary values and send supervisor for approval'),
+    #                     'summary': _('Supervisor declined project. Change nessesary values and send supervisor for approval'),
+    #                     'date_deadline': fields.datetime.now(),
+    #                     'user_id': rows.key_account_manager_id.user_id.id,
+    #                     'res_id': rows.id,
+    #                     'res_model_id': self.env['ir.model'].search([('model', '=', 'project_budget.projects')]).id,
+    #                     'activity_type_id': self.env.ref('project_budget.mail_act_send_project_to_supervisor_for_approval').id
+    #                 })
+    #     return False
+
+    def cancel_approve_curator(self):
         for rows in self:
             if (rows.approve_state=="approved" or rows.approve_state=="need_approve_supervisor") and rows.budget_state == 'work' and rows.project_status !='cancel':
                 user_id = False
@@ -1475,7 +1586,7 @@ class Project(models.Model):
                     if rows.project_office_id.user_id: # вдруг просто галочка стоит, а пользователь не выбран
                         user_id = rows.project_office_id.user_id.id
 
-                if self.user_is_supervisor(rows.project_supervisor_id.id) or self.user_has_groups('project_budget.project_budget_admin') or self.env.user.id == user_id :
+                if self.user_is_curator(rows.project_curator_id) or self.user_has_groups('project_budget.project_budget_admin') or self.env.user.id == user_id :
                     # rows.approve_state="need_approve_manager"
                     rows.write({
                         'approve_state': "need_approve_manager"
@@ -1549,7 +1660,33 @@ class Project(models.Model):
                 """ % _("Add tenders for this project")
         }
 
-    def reopen(self):
+    # def reopen(self):
+    #     """
+    #     return not fixed project from '-' to 'need_approve_manager' status.
+    #     for admins only
+    #     """
+    #     for record in self:
+    #         user_id = False
+    #         if record.project_office_id.receive_tasks_for_approve_project:  # не только куратор может утвекрждать, но и руководитель проектного офиса надо
+    #             if record.project_office_id.user_id:  # вдруг просто галочка стоит, а пользователь не выбран
+    #                 user_id = record.project_office_id.user_id.id
+    #
+    #         if not (self.user_is_supervisor(record.project_supervisor_id.id) or self.user_has_groups(
+    #             'project_budget.project_budget_admin') or self.env.user.id == user_id):
+    #             raise_text = _("only project admin or supervisor or project office manager can reopen projects")
+    #             raise ValidationError(raise_text)
+    #
+    #         if record.approve_state != '-':
+    #             raise_text = _("only project in '-' status can be reopened")
+    #             raise ValidationError(raise_text)
+    #
+    #         if record.budget_state == 'fixed':
+    #             raise_text = _("only project not in fixed budget can be reopened")
+    #             raise ValidationError(raise_text)
+    #
+    #         record.approve_state = 'need_approve_manager'
+
+    def reopen_curator(self):
         """
         return not fixed project from '-' to 'need_approve_manager' status.
         for admins only
@@ -1560,7 +1697,7 @@ class Project(models.Model):
                 if record.project_office_id.user_id:  # вдруг просто галочка стоит, а пользователь не выбран
                     user_id = record.project_office_id.user_id.id
 
-            if not (self.user_is_supervisor(record.project_supervisor_id.id) or self.user_has_groups(
+            if not (self.user_is_curator(record.project_curator_id) or self.user_has_groups(
                 'project_budget.project_budget_admin') or self.env.user.id == user_id):
                 raise_text = _("only project admin or supervisor or project office manager can reopen projects")
                 raise ValidationError(raise_text)

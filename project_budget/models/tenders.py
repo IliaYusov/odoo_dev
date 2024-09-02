@@ -28,7 +28,7 @@ class tenders(models.Model):
                                   default=lambda self: self.env['res.currency'].search([('name', '=', 'RUB')], limit=1),tracking=True)
     vat_attribute_id = fields.Many2one('project_budget.vat_attribute', string='vat_attribute', copy=True, tracking=True, required=True)
     project_office_id = fields.Many2one(related='projects_id.project_office_id', readonly=True)
-    project_supervisor_id = fields.Many2one(related='projects_id.project_supervisor_id', readonly=True)
+    project_curator_id = fields.Many2one(related='projects_id.project_curator_id', readonly=True)
     key_account_manager_id = fields.Many2one(related='projects_id.key_account_manager_id', readonly=True)
     project_manager_id = fields.Many2one(related='projects_id.project_manager_id', readonly=True)
 
@@ -37,7 +37,10 @@ class tenders(models.Model):
     date_of_filling_in = fields.Date(string='date_of_filling_in tender', required=True, default=fields.Date.context_today, tracking=True)
     participant_id = fields.Many2one('project_budget.legal_entity_signing',
                                               string='legal_entity_signing a contract from the NCC', required=True,
-                                              copy=True, tracking=True)
+                                              copy=True, tracking=True)  # TODO удалить после миграции на signer_id
+    signer_id = fields.Many2one('res.partner', string='legal_entity_signing a contract from the NCC', required=True,
+                                copy=True, tracking=True)
+    allowed_signer_ids = fields.Many2many('res.partner', compute="_get_allowed_signer_ids")
     auction_number = fields.Char(string='auction_number', default = "",tracking=True, required = True)
     url_tender = fields.Html(string='url of tender', default = "",tracking=True, required = True)
     url_contract = fields.Html(string='url of contract', default="", tracking=True)
@@ -96,6 +99,11 @@ class tenders(models.Model):
                 ('res_id', '=', tender.id)
             ])
 
+    @api.depends('signer_id')
+    def _get_allowed_signer_ids(self):  # формируем домен партнеров, которые являются нашими компаниями
+        for record in self:
+            record.allowed_signer_ids = self.env['res.company'].search([]).partner_id
+
     def action_open_attachments(self):
         self.ensure_one()
         return {
@@ -110,7 +118,7 @@ class tenders(models.Model):
                 """ % _("Add attachments for this tender")
         }
 
-    @api.onchange('is_need_projects','projects_id','currency_id','participant_id','auction_number','url_tender'
+    @api.onchange('is_need_projects','projects_id','currency_id','signer_id','auction_number','url_tender'
         ,'contact_information','name_of_the_purchase','is_need_initial_maximum_contract_price'
         ,'is_need_securing_the_application','is_need_contract_security','is_need_provision_of_GO'
         ,'is_need_licenses_SRO','licenses_SRO','current_status','responsible_ids','is_need_payment_for_the_victory'

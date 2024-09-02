@@ -8,18 +8,30 @@
             <field name="model_id" ref="model_project_budget_projects"/>
             <field name="domain_force">
                 [
-                    '|', '|', '|', '|', '|', '|', '|', '|',
+                    '|', '|',
                     ('project_office_id.user_id', '=', user.id),
                     ('project_member_ids.employee_id.user_id', '=', user.id),
-                    ('project_member_ids.employee_id.user_id', 'in', user.with_context(kam_function=True).employee_id.replaceable_employee_ids.user_id.ids),
-                    ('project_member_ids.employee_id.user_id', 'in', user.with_context(project_manager_function=True).employee_id.replaceable_employee_ids.user_id.ids),
                     ('parent_project_id.project_member_ids.employee_id.user_id', '=', user.id),
-                    ('parent_project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(kam_function=True).employee_id.replaceable_employee_ids.user_id.ids),
-                    ('parent_project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(project_manager_function=True).employee_id.replaceable_employee_ids.user_id.ids),
-                    ('project_supervisor_id.id','in', user.supervisor_rule.ids),
-                    ('parent_project_id.project_supervisor_id.id','in', user.supervisor_rule.ids)
                 ]
             </field>
+            <field name="groups" eval="[(4, ref('project_budget.project_budget_users'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <record id="project_budget_group_delegation_rule" model="ir.rule">
+            <field name="name">Access to projects by group delegation</field>
+            <field name="model_id" ref="model_project_budget_projects"/>
+            <field name="domain_force">user.employee_id.get_group_domain(
+                ('key_account_manager_id.user_id', 'project_budget.group_project_budget_key_account_manager'),
+                ('project_manager_id.user_id', 'project_budget.group_project_budget_project_manager'),
+                ('project_curator_id.user_id', 'project_budget.group_project_budget_project_curator'),
+                ('parent_project_id.key_account_manager_id.user_id', 'project_budget.group_project_budget_key_account_manager'),
+                ('parent_project_id.project_manager_id.user_id', 'project_budget.group_project_budget_project_manager'),
+                ('parent_project_id.project_curator_id.user_id', 'project_budget.group_project_budget_project_curator'),
+                )</field>
             <field name="groups" eval="[(4, ref('project_budget.project_budget_users'))]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -69,7 +81,7 @@
         <record id="ir_rule_project_budget_access_budget_plan_kam" model="ir.rule">
             <field name="name">Access to budget plan kam</field>
             <field name="model_id" ref="model_project_budget_budget_plan_kam"/>
-            <field name="domain_force">["|",('supervisor_user_id.id','=', user.id)
+            <field name="domain_force">["|",('curator_user_id.id','=', user.id)
                                            ,('key_account_manager_id.user_id', '=', user.id)
                                        ]
             </field>
@@ -92,7 +104,7 @@
         <record id="ir_rule_project_budget_access_budget_plan_supervisor" model="ir.rule">
             <field name="name">Access to budgeе plan supervisor</field>
             <field name="model_id" ref="model_project_budget_budget_plan_supervisor"/>
-            <field name="domain_force">[('supervisor_user_id.id','=', user.id)
+            <field name="domain_force">[('curator_user_id.id','=', user.id)
                                        ]
             </field>
             <field name="groups" eval="[(4, ref('project_budget.project_budget_users'))]"/>
@@ -185,11 +197,11 @@
                     ('project_id.project_member_ids.employee_id.user_id', '=', user.id),
                     ('project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(kam_function=True).employee_id.replaceable_employee_ids.user_id.ids),
                     ('project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(project_manager_function=True).employee_id.replaceable_employee_ids.user_id.ids),
+                    ('project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(project_curator_function=True).employee_id.replaceable_employee_ids.user_id.ids),
                     ('project_id.parent_project_id.project_member_ids.employee_id.user_id', '=', user.id),
                     ('project_id.parent_project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(kam_function=True).employee_id.replaceable_employee_ids.user_id.ids),
                     ('project_id.parent_project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(project_manager_function=True).employee_id.replaceable_employee_ids.user_id.ids),
-                    ('project_id.project_supervisor_id.id','in', user.supervisor_rule.ids),
-                    ('project_id.parent_project_id.project_supervisor_id.id','in', user.supervisor_rule.ids)
+                    ('project_id.parent_project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(project_curator_function=True).employee_id.replaceable_employee_ids.user_id.ids),
                 ]
             </field>
             <field name="groups" eval="[(4, ref('project_budget.project_budget_users'))]"/>
@@ -205,11 +217,11 @@
                     ('project_id.project_member_ids.employee_id.user_id', '=', user.id),
                     ('project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(kam_function=True).employee_id.replaceable_employee_ids.user_id.ids),
                     ('project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(project_manager_function=True).employee_id.replaceable_employee_ids.user_id.ids),
+                    ('project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(project_curator_function=True).employee_id.replaceable_employee_ids.user_id.ids),
                     ('project_id.parent_project_id.project_member_ids.employee_id.user_id', '=', user.id),
                     ('project_id.parent_project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(kam_function=True).employee_id.replaceable_employee_ids.user_id.ids),
                     ('project_id.parent_project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(project_manager_function=True).employee_id.replaceable_employee_ids.user_id.ids),
-                    ('project_id.project_supervisor_id.id','in', user.supervisor_rule.ids),
-                    ('project_id.parent_project_id.project_supervisor_id.id','in', user.supervisor_rule.ids)
+                    ('project_id.parent_project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(project_curator_function=True).employee_id.replaceable_employee_ids.user_id.ids),
                 ]
             </field>
             <field name="groups" eval="[(4, ref('project_budget.project_budget_users'))]"/>

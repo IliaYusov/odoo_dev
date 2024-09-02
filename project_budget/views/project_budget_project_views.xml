@@ -12,7 +12,7 @@
                        string="essence_project"/>
                 <field name="project_office_id" filter_domain="[('project_office_id.name', 'ilike', self)]"
                        string="project_office"/>
-                <field name="project_supervisor_id" filter_domain="[('project_supervisor_id.name', 'ilike', self)]"
+                <field name="project_curator_id" filter_domain="[('project_curator_id.name', 'ilike', self)]"
                        string="project_supervisor"/>
                 <field name="key_account_manager_id" filter_domain="[('key_account_manager_id.name', 'ilike', self)]"
                        string="Key Account Manager"/>
@@ -34,8 +34,8 @@
                             context="{'group_by': 'project_status'}"/>
                     <filter name="group_by_project_office" string="Project Office"
                             context="{'group_by': 'project_office_id'}"/>
-                    <filter name="group_by_project_supervisor" string="Project Supervisor"
-                            context="{'group_by': 'project_supervisor_id'}"/>
+                    <filter name="group_by_project_curator" string="Project Supervisor"
+                            context="{'group_by': 'project_curator_id'}"/>
                 </group>
             </search>
         </field>
@@ -65,9 +65,9 @@
                   decoration-success="approve_state == 'approved' and project_status != 'cancel'">
                 <header>
                     <button string="approve (manager)" type="object" name="set_approve_manager" class="oe_highlight"/>
-                    <button string="approve (supervisor)" type="object" name="set_approve_supervisor"
+                    <button string="approve (supervisor)" type="object" name="set_approve_curator"
                             class="oe_highlight"/>
-                    <button string="cancel approve (supervisor)" type="object" name="cancel_approve"
+                    <button string="cancel approve (supervisor)" type="object" name="cancel_approve_curator"
                             class="oe_highlight"/>
                 </header>
                 <field name="company_id" invisible="1"/>
@@ -97,7 +97,7 @@
                 <field name="commercial_budget_id" optional="hide"/>
                 <field name="currency_id" optional="show"/>
                 <field name="project_office_id" optional="show"/>
-                <field name="project_supervisor_id" optional="show" widget="many2one_avatar"/>
+                <field name="project_curator_id" optional="show" widget="many2one_avatar"/>
                 <field name="key_account_manager_id" optional="show" widget="many2one_avatar_employee"
                        options="{'relation': 'hr.employee.public'}"/>
                 <field name="project_manager_id" optional="show" widget="many2one_avatar_employee"
@@ -117,7 +117,7 @@
                 <field name="stage_id" string="Probability" context="{'code_only': True}" optional="show"
                        options="{'always_reload': True}"/>
                 <field name="vat_attribute_id" optional="hide"/>
-                <field name="legal_entity_signing_id" optional="hide"/>
+                <field name="signer_id" optional="hide"/>
                 <field name="project_type_id" optional="hide"/>
                 <field name="comments" optional="hide"/>
                 <field name="technological_direction_id" optional="hide"/>
@@ -164,7 +164,7 @@
                 <field name="project_have_steps" optional="show" readonly="1"/>
                 <field name="budget_state" optional="hide" readonly="1"/>
                 <field name="project_office_id" optional="show" options="{'no_open': True}" readonly="1"/>
-                <field name="project_supervisor_id" optional="show" widget="many2one_avatar" readonly="1"
+                <field name="project_curator_id" optional="show" widget="many2one_avatar" readonly="1"
                        options="{'no_open': True}"/>
                 <field name="key_account_manager_id" optional="show" widget="many2one_avatar_employee" readonly="1"
                        options="{'no_open': True}"/>
@@ -182,7 +182,7 @@
                 <field name="profitability" optional="hide" readonly="1"/>
                 <field name="stage_id" string="Probability" context="{'code_only': True}" optional="show" readonly="1"/>
                 <field name="vat_attribute_id" optional="hide" readonly="1"/>
-                <field name="legal_entity_signing_id" options="{'no_open': True,}" optional="hide"
+                <field name="signer_id" options="{'no_open': True,}" optional="hide"
                        readonly="1"/>
                 <field name="project_type_id" optional="hide" readonly="1" options="{'no_open': True}"/>
                 <field name="comments" optional="hide" readonly="1"/>
@@ -202,9 +202,8 @@
                     <field name="approve_state" invisible="1"/>
                     <field name="is_percent_fot_manual" invisible="1"/>
                     <field name="different_project_offices_in_steps" invisible="1"/>
-                    <field name="project_supervisor_id" invisible="1"/>
+                    <field name="project_curator_id" invisible="1"/>
                     <field name="industry_id" invisible="1"/>
-                    <field name="legal_entity_signing_id" invisible="1"/>
                     <field name="technological_direction_id" invisible="1"/>
                     <field name="partner_id" invisible="1"/>
                     <field name="step_status" invisible="1"/>
@@ -545,10 +544,10 @@
                         <button string="Cancel" class="btn btn-secondary" special="cancel" data-hotkey="z" attrs="{'invisible': ['|',('approve_state', '=', '-'),('budget_state', '=', 'fixed')]}"/>
                         <button string="Delete" type="object" class="btn-danger" name="unlink" attrs="{'invisible': ['|','|',('approve_state', '!=', 'need_approve_manager'),('budget_state', '=', 'fixed'),('id', '=', False)]}"/>
                         <button string="Send to approve" type="object" name="set_approve_manager" class="oe_highlight" attrs="{'invisible': ['|',('approve_state', '!=', 'need_approve_manager'),('budget_state', '=', 'fixed')]}"/>
-                        <button string="Approve" type="object" name="set_approve_supervisor" class="oe_highlight" attrs="{'invisible': ['|',('approve_state', '!=', 'need_approve_supervisor'),('budget_state', '=', 'fixed')]}"/>
-                        <button string="Decline" type="object" name="cancel_approve" class="oe_highlight" attrs="{'invisible': ['|',('approve_state', 'not in', ('approved','need_approve_supervisor')),('budget_state', '=', 'fixed')]}"/>
-                        <button string="Reopen" type="object" name="reopen" class="oe_highlight" groups="project_budget.project_budget_admin" attrs="{'invisible': ['|',('approve_state', '!=', '-'),('budget_state', '=', 'fixed')]}"/>
-                        <field name="approve_state" widget="statusbar" statusbar_visible="need_approve_manager,need_approve_supervisor,approved"/>
+                        <button string="Approve" type="object" name="set_approve_curator" class="oe_highlight" attrs="{'invisible': ['|',('approve_state', '!=', 'need_approve_supervisor'),('budget_state', '=', 'fixed')]}"/>
+                        <button string="Decline" type="object" name="cancel_approve_curator" class="oe_highlight" attrs="{'invisible': ['|',('approve_state', 'not in', ('approved','need_approve_supervisor')),('budget_state', '=', 'fixed')]}"/>
+                        <button string="Reopen" type="object" name="reopen_curator" class="oe_highlight" groups="project_budget.project_budget_admin" attrs="{'invisible': ['|',('approve_state', '!=', '-'),('budget_state', '=', 'fixed')]}"/>
+                        <field name="approve_state" widget="statusbar" statusbar_visible="need_approve_manager, need_approve_supervisor, approved"/>
                     </header>
                     <sheet string="Project">
 						<div class="oe_button_box" name="button_box">
@@ -569,7 +568,7 @@
                                         'default_parent_id': active_id,
                                         'default_stage_id': stage_id,
                                         'default_partner_id': partner_id,
-                                        'default_legal_entity_signing_id': legal_entity_signing_id
+                                        'default_signer_id': signer_id
                                     }">
                                 <field name="child_count" string="Child Projects" widget="statinfo"/>
                             </button>
@@ -585,6 +584,7 @@
                         <field name="active" invisible="1"/>
                         <field name="is_correction_project" invisible="1"/>
                         <field name="is_not_for_mc_report" invisible="1"/>
+                        <field name="allowed_signer_ids" invisible="1"/>
                         <widget name="web_ribbon" title="Archived" bg_color="bg-danger"
                                 attrs="{'invisible': [('active', '=', True)]}"/>
 
@@ -688,7 +688,6 @@
                                 <group col="1">
                                     <field name="commercial_budget_id" required="1" invisible="1"
                                           options="{'no_open': True}" attrs="{'readonly': [('can_edit', '=', False)]}"/>
-                                    <field name="is_percent_fot_manual" invisible="1"/>
                                 </group>
                                 <h5>
                                     <group col="3">
@@ -717,8 +716,9 @@
                                                    'invisible': [('project_have_steps', '=', True)]}"/>
                                         </group>
                                         <group>
-                                            <field name="project_supervisor_id" widget="many2one_avatar"
-                                                   placeholder="Project Supervisor" options="{'no_open': True}"
+                                            <field name="project_curator_id" widget="many2one_avatar"
+                                                   placeholder="Project Supervisor"
+                                                   options="{'no_create_edit': True, 'no_open': True, 'relation': 'hr.employee.public'}"
                                                    attrs="{'readonly': [('can_edit', '=', False)]}"/>
                                             <field name="technological_direction_id" options="{'no_open': True}"
                                                    placeholder="Technological Direction"
@@ -739,12 +739,9 @@
                                         <field name="company_partner_id" placeholder="Company Partner"
                                                options="{'no_create_edit': True, 'no_open': True}"
                                                attrs="{'readonly': [('can_edit', '=', False)]}"/>
-                                        <field name="legal_entity_signing_id"
+                                        <field name="signer_id" domain="[('id', 'in', allowed_signer_ids)]"
                                                options="{'no_open': True,}" placeholder="select legal entity signing"
                                                attrs="{'readonly': [('can_edit', '=', False)]}"/>
-                                        <field name="signer_id"
-                                               options="{'no_open': True,}" placeholder="select legal entity signing"
-                                               attrs="{'readonly': [('can_edit', '=', False)], 'invisible': True}"/>
                                     </group>
                                 </group>
                                 <field name="comments" nolabel="1" placeholder="type comments for the project"
@@ -763,6 +760,7 @@
                                 <field name="is_warranty_service_costs" invisible="1"/>
                                 <field name="is_rko_other" invisible="1"/>
                                 <field name="is_other_expenses" invisible="1"/>
+                                <field name="is_percent_fot_manual" invisible="1"/>
                                 <field name="revenue_from_the_sale_of_works_amount_spec_exist" invisible="1"/>
                                 <field name="revenue_from_the_sale_of_goods_amount_spec_exist" invisible="1"/>
                                 <field name="cost_of_goods_amount_spec_exist" invisible="1"/>
@@ -988,7 +986,7 @@
                                                attrs="
                                                {
                                                     'invisible': [('is_own_works_fot', '=', False), ('is_awards_on_results_project', '=', False),('project_have_steps', '=', False)],
-                                                    'readonly': [('can_edit', '=', False)]
+                                                    'readonly': [('is_percent_fot_manual', '=', False)]
                                                }"/>
                                     </group>
                                 </group>
@@ -1008,10 +1006,9 @@
                                    'default_currency_id': currency_id,
                                    'default_commercial_budget_id': commercial_budget_id,
                                    'default_key_account_manager_id': key_account_manager_id,
-                                   'default_project_supervisor_id': project_supervisor_id,
+                                   'default_project_curator_id': project_curator_id,
                                    'default_project_manager_id': project_manager_id,
                                    'default_industry_id': industry_id,
-                                   'default_legal_entity_signing_id': legal_entity_signing_id,
                                    'default_signer_id': signer_id,
                                    'default_technological_direction_id': technological_direction_id,
                                    'default_partner_id': partner_id,
@@ -1266,7 +1263,7 @@
                 <field name="vat_attribute_id"/>
                 <field name="step_project_number"/>
                 <field name="key_account_manager_id"/>
-                <field name="project_supervisor_id"/>
+                <field name="project_curator_id"/>
                 <field name="project_manager_id"/>
                 <field name="project_office_id"/>
                 <field name="technological_direction_id"/>
@@ -1274,7 +1271,6 @@
                 <field name="industry_id"/>
                 <field name="company_partner_id"/>
                 <field name="comments"/>
-                <field name="legal_entity_signing_id"/>
                 <field name="signer_id"/>
                 <field name="approve_state"/>
                 <field name="project_have_steps"/>
@@ -1368,7 +1364,7 @@
         <field name="model">project_budget.projects</field>
         <field name="arch" type="xml">
             <graph string="Project list estimated probability">
-                <field name="project_supervisor_id" type="row"/>
+                <field name="project_curator_id" type="row"/>
                 <field name="stage_id" type="row"/>
                 <field name="project_id" type="measure"/>
             </graph>
@@ -1387,7 +1383,7 @@
                 <field name="project_status"/>
                 <field name="currency_id"/>
                 <field name="project_office_id"/>
-                <field name="project_supervisor_id"/>
+                <field name="project_curator_id"/>
                 <field name="key_account_manager_id"/>
                 <field name="project_manager_id"/>
                 <field name="industry_id"/>
@@ -1401,7 +1397,7 @@
                 <field name="profitability" type="measure"/>
                 <field name="stage_id"/>
                 <field name="vat_attribute_id"/>
-                <field name="legal_entity_signing_id"/>
+                <field name="signer_id"/>
                 <field name="project_type_id"/>
                 <field name="comments"/>
                 <field name="technological_direction_id"/>

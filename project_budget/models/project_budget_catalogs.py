@@ -23,7 +23,7 @@ class project_type(models.Model):
     is_rko_other = fields.Boolean(string='is_rko_other', tracking=True, default=True)
     is_other_expenses = fields.Boolean(string='is_other_expenses', tracking=True, default=True)
 
-class project_supervisor(models.Model):
+class project_supervisor(models.Model):  # TODO убрать после миграции на кураторов
     _name = 'project_budget.project_supervisor'
     _description = "project_supervisor"
     name = fields.Char(string="project_supervisor name", required=True, translate=True)
@@ -39,10 +39,10 @@ class project_supervisor(models.Model):
             copy=True, auto_join=True)
 
 
-class project_supervisor_access(models.Model):
+class project_supervisor_access(models.Model):  # TODO убрать после миграции на кураторов
     _name = 'project_budget.project_supervisor_access'
     _description = "project_supervisor_access"
-    project_supervisor_id = fields.Many2one('project_budget.project_supervisor', string='project supervisor id',  required=True,)
+    project_supervisor_id = fields.Many2one('project_budget.project_supervisor', string='project supervisor id')
     user_id = fields.Many2one('res.users', string='user id',  required=True,)
     can_approve_project = fields.Boolean(string="Can approve project as supervisor", default = False)
     descr = fields.Char(string="project supervisor access description" , translate=True)
@@ -66,7 +66,7 @@ class vat_attribute(models.Model):
     is_prohibit_selection = fields.Boolean(string="is prohibit selection in projects", default=False)
 
 
-class legal_entity_signing(models.Model):
+class legal_entity_signing(models.Model):  # TODO: удалить после миграции на signer_id
     _name = 'project_budget.legal_entity_signing'
     _description = "project_legal entity signing"
     name = fields.Char(string="legal_entity_signing name", required=True, translate=True)

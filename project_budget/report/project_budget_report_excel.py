@@ -362,7 +362,7 @@ class report_budget_excel(models.AbstractModel):
                             column += 1
                             sheet.write_string(row, column, spec.project_office_id.name, row_format)
                             column += 1
-                            sheet.write_string(row, column, spec.project_supervisor_id.name, row_format)
+                            sheet.write_string(row, column, spec.project_curator_id.name, row_format)
                             column += 1
                             if spec.project_office_id.print_rukovoditel_in_kb == False:
                                 sheet.write_string(row, column, spec.key_account_manager_id.name, row_format)
@@ -438,7 +438,7 @@ class report_budget_excel(models.AbstractModel):
                             column += 1
                             sheet.write(row, column, spec.stage_id.code, row_format_number)
                             column += 1
-                            sheet.write(row, column, spec.legal_entity_signing_id.name, row_format)
+                            sheet.write(row, column, spec.signer_id.name, row_format)
                             column += 1
                             sheet.write_string(row, column, spec.project_type_id.name or "", row_format)
                             column += 1

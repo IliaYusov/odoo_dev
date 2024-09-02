@@ -14,9 +14,9 @@ class ProjectOverdueReport(models.Model):
     stage_id = fields.Many2one('project_budget.project.stage', string='Stage', readonly=True)
     key_account_manager_id = fields.Many2one('hr.employee', string='Key Account Manager', readonly=True)
     project_manager_id = fields.Many2one('hr.employee', string='Project Manager', readonly=True)
-    project_supervisor_id = fields.Many2one('project_budget.project_supervisor', string='Project Supervisor',
-                                            readonly=True)
-    # project_curator_id = fields.Many2one('hr.employee', string='Project Curator', readonly=True)
+    # project_supervisor_id = fields.Many2one('project_budget.project_supervisor', string='Project Supervisor',
+    #                                         readonly=True)
+    project_curator_id = fields.Many2one('hr.employee', string='Project Curator', readonly=True)
     project_office_id = fields.Many2one('project_budget.project_office', string='Project Office', readonly=True)
     step_id = fields.Many2one('project_budget.projects', string='Step', readonly=True)
     customer_id = fields.Many2one('res.partner', string='Customer', readonly=True)
@@ -33,8 +33,8 @@ SELECT
     project_office_id,
     key_account_manager_id,
     project_manager_id,
-    --project_curator_id,
-    project_supervisor_id,
+    project_curator_id,
+    --project_supervisor_id,
     step_id,
     partner_id AS customer_id,
     name,
@@ -48,8 +48,8 @@ FROM
         p.project_office_id,        
         p.key_account_manager_id,
         p.project_manager_id,
-        --p.project_curator_id,
-        p.project_supervisor_id,
+        p.project_curator_id,
+        --p.project_supervisor_id,
         NULL AS step_id,
         p.partner_id,
         p.essence_project AS name,	
@@ -71,8 +71,8 @@ FROM
         p.project_office_id,        
         p.key_account_manager_id,
         p.project_manager_id,
-        --p.project_curator_id,
-        p.project_supervisor_id,
+        p.project_curator_id,
+        --p.project_supervisor_id,
         ps.id AS step_id,
         p.partner_id,
         p.essence_project AS name,	
@@ -95,8 +95,8 @@ FROM
         p.project_office_id,        
         p.key_account_manager_id,
         p.project_manager_id,
-        --p.project_curator_id,
-        p.project_supervisor_id,
+        p.project_curator_id,
+        --p.project_supervisor_id,
         pa.step_project_child_id AS step_id,
         p.partner_id,
         p.essence_project AS name,
@@ -121,8 +121,8 @@ FROM
         p.project_office_id,        
         p.key_account_manager_id,
         p.project_manager_id,
-        --p.project_curator_id,
-        p.project_supervisor_id,
+        p.project_curator_id,
+        --p.project_supervisor_id,
         pc.step_project_child_id AS step_id,
         p.partner_id,
         p.essence_project AS name,
@@ -147,8 +147,8 @@ GROUP BY
     project_office_id,
     key_account_manager_id,
     project_manager_id,
-    --project_curator_id,
-    project_supervisor_id,
+    project_curator_id,
+    --project_supervisor_id,
     step_id,
     partner_id,
     name
