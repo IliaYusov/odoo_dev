@@ -206,9 +206,7 @@ class Project(models.Model):
                                         domain="[('is_prohibit_selection','=', False), '|', ('company_id', '=', False), ('company_id', '=', company_id)]",
                                         required=True, tracking=True)
     project_supervisor_id = fields.Many2one('project_budget.project_supervisor', string='Project Supervisor',
-                                            compute='_compute_project_supervisor_id',
-                                            inverse='_inverse_project_supervisor_id', copy=True,
-                                            domain="[('company_id', 'in', (False, company_id))]",
+                                            copy=True, domain="[('company_id', 'in', (False, company_id))]",
                                             store=True, tracking=True)  # TODO убрать после миграции на кураторов
     project_curator_id = fields.Many2one('hr.employee', string='Project Curator',
                                              compute='_compute_project_curator_id',
