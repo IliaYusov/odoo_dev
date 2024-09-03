@@ -264,8 +264,7 @@
                                 <field name="current_status"/>
                             </group>
                             <group>
-                                <field name="allowed_signer_ids" invisible="True"/>
-                                <field name="signer_id" options="{'no_open': True,}" domain="[('id', 'in', allowed_signer_ids)]"/>
+                                <field name="signer_id" options="{'no_open': True,}"/>
                             </group>
                         </group>
                         <group col="3">

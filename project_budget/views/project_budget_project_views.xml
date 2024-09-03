@@ -587,7 +587,6 @@
                         <field name="active" invisible="1"/>
                         <field name="is_correction_project" invisible="1"/>
                         <field name="is_not_for_mc_report" invisible="1"/>
-                        <field name="allowed_signer_ids" invisible="1"/>
                         <widget name="web_ribbon" title="Archived" bg_color="bg-danger"
                                 attrs="{'invisible': [('active', '=', True)]}"/>
 
@@ -742,7 +741,7 @@
                                         <field name="company_partner_id" placeholder="Company Partner"
                                                options="{'no_create_edit': True, 'no_open': True}"
                                                attrs="{'readonly': [('can_edit', '=', False)]}"/>
-                                        <field name="signer_id" domain="[('id', 'in', allowed_signer_ids)]"
+                                        <field name="signer_id"
                                                options="{'no_open': True,}" placeholder="select legal entity signing"
                                                attrs="{'readonly': [('can_edit', '=', False)]}"/>
                                     </group>

@@ -19,6 +19,9 @@ class tenders(models.Model):
             domain = [('department_id', '=', int(dkp_department_id))]
         return domain
 
+    def _get_domain_signer_id(self):
+        return [('id', 'in', self.env['res.company'].sudo().search([]).partner_id.ids)]
+
     tender_id = fields.Char(string="Tender ID", required=True, index=True, copy=True, group_operator = 'count',
                              default='ID') #lambda self: self.env['ir.sequence'].sudo().next_by_code('project_budget.projects'))
     company_id = fields.Many2one('res.company', required=True, default=lambda self: self.env.company)
@@ -36,11 +39,9 @@ class tenders(models.Model):
 
     date_of_filling_in = fields.Date(string='date_of_filling_in tender', required=True, default=fields.Date.context_today, tracking=True)
     participant_id = fields.Many2one('project_budget.legal_entity_signing',
-                                              string='legal_entity_signing a contract from the NCC', required=True,
-                                              copy=True, tracking=True)  # TODO удалить после миграции на signer_id
+                                     string='legal_entity_signing a contract from the NCC', copy=True, tracking=True)  # TODO удалить после миграции на signer_id
     signer_id = fields.Many2one('res.partner', string='legal_entity_signing a contract from the NCC', required=True,
-                                copy=True, tracking=True)
-    allowed_signer_ids = fields.Many2many('res.partner', compute="_get_allowed_signer_ids")
+                                domain=_get_domain_signer_id, copy=True, tracking=True)
     auction_number = fields.Char(string='auction_number', default = "",tracking=True, required = True)
     url_tender = fields.Html(string='url of tender', default = "",tracking=True, required = True)
     url_contract = fields.Html(string='url of contract', default="", tracking=True)
@@ -98,11 +99,6 @@ class tenders(models.Model):
                 ('res_model', '=', self._name),
                 ('res_id', '=', tender.id)
             ])
-
-    @api.depends('signer_id')
-    def _get_allowed_signer_ids(self):  # формируем домен партнеров, которые являются нашими компаниями
-        for record in self:
-            record.allowed_signer_ids = self.env['res.company'].search([]).partner_id
 
     def action_open_attachments(self):
         self.ensure_one()

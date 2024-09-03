@@ -159,6 +159,9 @@ class Project(models.Model):
     #         return domain
     #     return domain
 
+    def _get_domain_signer_id(self):
+        return [('id', 'in', self.env['res.company'].sudo().search([]).partner_id.ids)]
+
     def _get_commercial_budget_list(self):
         domain = [('id', 'in','-1')]
         commercial_budget = self.env['project_budget.commercial_budget'].search([('budget_state', '=', 'work')])
@@ -283,10 +286,8 @@ class Project(models.Model):
 
     # TODO: необходимо мигрировать на signer_id
     legal_entity_signing_id = fields.Many2one('project_budget.legal_entity_signing', string='legal_entity_signing a contract from the NCC', copy=True,tracking=True) # TODO: удалить после миграции на signer_id
-    signer_id = fields.Many2one('res.partner', string='Signer', copy=True,
+    signer_id = fields.Many2one('res.partner', string='Signer', copy=True, domain=_get_domain_signer_id,
                                 default=lambda self: self.env.company.partner_id, required=True, tracking=True)
-    allowed_signer_ids = fields.Many2many('res.partner', compute="_get_allowed_signer_ids")
-
     project_type_id = fields.Many2one('project_budget.project_type',string='project_type', copy=True, tracking=True)
 
     is_revenue_from_the_sale_of_works =fields.Boolean(related='project_type_id.is_revenue_from_the_sale_of_works', readonly=True)
@@ -847,12 +848,6 @@ class Project(models.Model):
     #                     ('company_id', '=', project.company_id.id)
     #                 ])[:1].id or 0
     #             })]
-
-    @api.depends('signer_id')
-    def _get_allowed_signer_ids(self):  # формируем домен партнеров, которые являются нашими компаниями
-        res = self.env['res.company'].sudo().search([]).partner_id
-        for record in self:
-            record.allowed_signer_ids = res
 
     @api.depends('signer_id')
     def _get_signer_settings(self):  # получаем настройки подписывающего юр лица из компании
