@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="project_budget.FinancialIndicatorGraph" owl="1">
+        <div class="o_financial_indicator_graph">
+            <canvas t-ref="chartRef"/>
+        </div>
+    </t>
+</templates>

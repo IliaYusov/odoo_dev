@@ -1,0 +1,29 @@
+.project_budget_report_filter.period .period_filter:hover .btn_previous_period,
+.project_budget_report_filter.period .period_filter:hover .btn_next_period:not(:disabled) {
+    color: #5f636f;
+}
+
+.project_budget_report_filter.period .filter_name {
+    width: 120px;
+}
+
+.project_budget_report_filter.period .time_text {
+    width: 120px;
+}
+
+.project_budget_report_filter.period .btn_previous_period, .project_budget_report_filter.period .btn_next_period {
+    background: inherit;
+    border: none;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    color: #d8dadd;
+}
+
+.project_budget_report_filter.period .dropdown-item.focus {
+    background: transparent;
+}
+
+.project_budget_report_filter.period .dropdown-item.focus:hover {
+    background: rgba(0, 0, 0, 0.08);
+}

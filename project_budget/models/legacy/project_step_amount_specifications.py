@@ -60,4 +60,3 @@ class project_budget_step_amount_spec(models.Model):
     #                               tracking=True, domain=False)
     name = fields.Char(string='name',tracking=True, required = True)
     summa = fields.Monetary(string='position sum',tracking=True)
-

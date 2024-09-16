@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="project_budget_reports.FilterPeriod" owl="1">
+        <Dropdown class="'project_budget_report_filter period'" togglerClass="'btn btn-secondary'">
+            <t t-set-slot="toggler">
+                <i class="fa fa-calendar me-1"/>
+                <t t-out="state.options.date.string"/>
+            </t>
+
+            <t t-call="project_budget_reports.FilterPeriodSelection"/>
+        </Dropdown>
+    </t>
+
+    <t t-name="project_budget_reports.FilterPeriodSelection" owl="1">
+        <t t-foreach="this.periodFilters()" t-as="periodFilter" t-key="periodFilter_index">
+            <DropdownItem class="{ 'd-flex justify-content-between period_filter': true, 'selected': true }"
+                          parentClosingMode="'none'">
+                <div class="filter_name pe-3">
+                    <t t-out="periodFilter.name"/>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <button class="btn_previous_period fa fa-caret-left"
+                            t-on-click="() => this.selectPreviousPeriod(periodFilter.period)"/>
+                    <time class="d-flex justify-content-center time_text">
+                        <t t-out="this.displayPeriod(periodFilter.period)"/>
+                    </time>
+                    <button class="btn_next_period fa fa-caret-right"
+                            t-on-click="() => this.selectNextPeriod(periodFilter.period)"/>
+                </div>
+            </DropdownItem>
+        </t>
+    </t>
+</templates>

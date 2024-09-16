@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates>
+    <t t-name="project_budget_reports.FilterRoundingUnit" owl="1">
+        <Dropdown togglerClass="'btn btn-secondary'">
+            <t t-set-slot="toggler">
+                <t t-out="roundingUnitName(this.state.options['rounding_unit'])"/>
+            </t>
+
+            <t t-foreach="state.options.rounding_unit_names" t-as="roundingUnitValue" t-key="roundingUnitValue_index">
+                <DropdownItem class="{ 'selected': (state.options.rounding_unit == roundingUnitValue) }"
+                              onSelected="() => this.filterRoundingUnit(roundingUnitValue)">
+                    <t t-out="roundingUnitName(roundingUnitValue)"/>
+                </DropdownItem>
+            </t>
+        </Dropdown>
+    </t>
+</templates>

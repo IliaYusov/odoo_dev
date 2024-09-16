@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="forecast_probability_from_project" model="project_budget.forecast.probability">
+            <field name="name">From Project/Step</field>
+            <field name="sequence">1</field>
+        </record>
+
+        <record id="sale_figure_contracting" model="project_budget.sale.figure">
+            <field name="name">Contracting</field>
+            <field name="sequence">1</field>
+        </record>
+
+        <record id="sale_figure_cash_flow" model="project_budget.sale.figure">
+            <field name="name">Cash Flow</field>
+            <field name="sequence">2</field>
+        </record>
+
+        <record id="sale_figure_gross_revenue" model="project_budget.sale.figure">
+            <field name="name">Gross Revenue</field>
+            <field name="sequence">3</field>
+        </record>
+
+        <record id="sale_figure_margin" model="project_budget.sale.figure">
+            <field name="name">Margin</field>
+            <field name="sequence">4</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_project_budget_financial_indicator_user,project.budget.financial.indicator.user,model_project_budget_financial_indicator,project_budget.project_budget_users,1,0,0,0
+access_project_budget_financial_indicator_manager,project.budget.financial.indicator.manager,model_project_budget_financial_indicator,project_budget.project_budget_admin,1,0,0,0
+
+access_project_budget_report_sales_forecast_user,project.budget.report.sales.forecast.user,model_project_budget_report_sales_forecast,project_budget.project_budget_users,1,0,0,0
+access_project_budget_report_sales_forecast_manager,project.budget.report.sales.forecast.manager,model_project_budget_report_sales_forecast,project_budget.project_budget_admin,1,1,1,1

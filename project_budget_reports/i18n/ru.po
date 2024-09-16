@@ -1,0 +1,248 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* project_budget_reports
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-09-04 11:14+0000\n"
+"PO-Revision-Date: 2024-09-04 11:14+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: project_budget_reports
+#: model:ir.model.fields,field_description:project_budget_reports.field_project_budget_financial_indicator__amount
+msgid "Amount"
+msgstr "Сумма"
+
+#. module: project_budget_reports
+#. odoo-python
+#: code:addons/project_budget_reports/models/project_budget_report_sales_forecast.py:0
+#, python-format
+msgid "B%s"
+msgstr "млрд %s"
+
+#. module: project_budget_reports
+#. odoo-javascript
+#: code:addons/project_budget_reports/static/src/components/sales_forecast_dashboard/sales_forecast_dashboard.xml:0
+#, python-format
+msgid "Cash Flow"
+msgstr "Поступление ДС"
+
+#. module: project_budget_reports
+#: model:ir.model.fields,field_description:project_budget_reports.field_project_budget_financial_indicator__commercial_budget_id
+msgid "Commercial Budget"
+msgstr "Коммерческий бюджет"
+
+#. module: project_budget_reports
+#. odoo-javascript
+#: code:addons/project_budget_reports/static/src/components/sales_forecast_dashboard/sales_forecast_dashboard.xml:0
+#: model:ir.model.fields,field_description:project_budget_reports.field_project_budget_financial_indicator__company_id
+#, python-format
+msgid "Company"
+msgstr "Компания"
+
+#. module: project_budget_reports
+#. odoo-javascript
+#: code:addons/project_budget_reports/static/src/components/sales_forecast_dashboard/sales_forecast_dashboard.xml:0
+#, python-format
+msgid "Contracting"
+msgstr "Контрактование"
+
+#. module: project_budget_reports
+#: model:ir.model.fields,field_description:project_budget_reports.field_project_budget_financial_indicator__currency_id
+msgid "Currency"
+msgstr "Валюта"
+
+#. module: project_budget_reports
+#: model:ir.model.fields,field_description:project_budget_reports.field_project_budget_financial_indicator__customer_id
+msgid "Customer"
+msgstr "Заказчик"
+
+#. module: project_budget_reports
+#: model:ir.model.fields,field_description:project_budget_reports.field_project_budget_financial_indicator__date
+msgid "Date"
+msgstr "Дата"
+
+#. module: project_budget_reports
+#: model:ir.model.fields,field_description:project_budget_reports.field_project_budget_financial_indicator__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: project_budget_reports
+#: model:ir.model.fields,field_description:project_budget_reports.field_project_budget_financial_indicator__distribution
+msgid "Distribution"
+msgstr ""
+
+#. module: project_budget_reports
+#. odoo-javascript
+#: code:addons/project_budget_reports/static/src/components/financial_indicator/financial_indicator.xml:0
+#, python-format
+msgid "Fact at the date"
+msgstr "Факт на дату"
+
+#. module: project_budget_reports
+#: model:ir.model,name:project_budget_reports.model_project_budget_financial_indicator
+msgid "Financial Indicator"
+msgstr "Финансовый индикатор"
+
+#. module: project_budget_reports
+#: model:ir.model.fields,field_description:project_budget_reports.field_project_budget_financial_indicator__forecast_probability_id
+msgid "Forecast Probability"
+msgstr "Прогнозная вероятность"
+
+#. module: project_budget_reports
+#. odoo-javascript
+#: code:addons/project_budget_reports/static/src/components/financial_indicator/financial_indicator.xml:0
+#, python-format
+msgid "Forecast until the end of the period"
+msgstr "Прогноз до конца периода"
+
+#. module: project_budget_reports
+#. odoo-javascript
+#: code:addons/project_budget_reports/static/src/components/sales_forecast_dashboard/sales_forecast_dashboard.xml:0
+#, python-format
+msgid "Gross Revenue"
+msgstr "Валовая выручка"
+
+#. module: project_budget_reports
+#: model:ir.model.fields,field_description:project_budget_reports.field_project_budget_financial_indicator__id
+msgid "ID"
+msgstr ""
+
+#. module: project_budget_reports
+#. odoo-javascript
+#: code:addons/project_budget_reports/static/src/components/sales_forecast_dashboard/sales_forecast_dashboard.js:0
+#, python-format
+msgid "In %s"
+msgstr "В %s"
+
+#. module: project_budget_reports
+#. odoo-python
+#: code:addons/project_budget_reports/models/project_budget_report_sales_forecast.py:0
+#, python-format
+msgid "K%s"
+msgstr "тыс %s"
+
+#. module: project_budget_reports
+#: model:ir.model.fields,field_description:project_budget_reports.field_project_budget_financial_indicator__key_account_manager_id
+msgid "Key Account Manager"
+msgstr "КАМ"
+
+#. module: project_budget_reports
+#: model:ir.model.fields,field_description:project_budget_reports.field_project_budget_financial_indicator____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: project_budget_reports
+#. odoo-python
+#: code:addons/project_budget_reports/models/project_budget_report_sales_forecast.py:0
+#, python-format
+msgid "M%s"
+msgstr "млн %s"
+
+#. module: project_budget_reports
+#. odoo-javascript
+#: code:addons/project_budget_reports/static/src/components/sales_forecast_dashboard/sales_forecast_dashboard.xml:0
+#, python-format
+msgid "Margin"
+msgstr "Валовая прибыль"
+
+#. module: project_budget_reports
+#: model:ir.model.fields,field_description:project_budget_reports.field_project_budget_financial_indicator__name
+msgid "Name"
+msgstr "Наименование"
+
+#. module: project_budget_reports
+#. odoo-python
+#: code:addons/project_budget_reports/models/project_budget_report_sales_forecast.py:0
+#, python-format
+msgid "No"
+msgstr "Нет"
+
+#. module: project_budget_reports
+#. odoo-javascript
+#: code:addons/project_budget_reports/static/src/components/financial_indicator/financial_indicator.xml:0
+#, python-format
+msgid "Plan for the period"
+msgstr "План на период"
+
+#. module: project_budget_reports
+#: model:ir.model.fields,field_description:project_budget_reports.field_project_budget_financial_indicator__profitability
+msgid "Profitability"
+msgstr "Рентабельность"
+
+#. module: project_budget_reports
+#: model:ir.model.fields,field_description:project_budget_reports.field_project_budget_financial_indicator__project_id
+msgid "Project"
+msgstr "Проект"
+
+#. module: project_budget_reports
+#: model:ir.model,name:project_budget_reports.model_project_budget_report_sales_forecast
+msgid "Project Budget Sales Forecast Report"
+msgstr ""
+
+#. module: project_budget_reports
+#: model:ir.model.fields,field_description:project_budget_reports.field_project_budget_financial_indicator__project_office_id
+msgid "Project Office"
+msgstr "Проектный офис"
+
+#. module: project_budget_reports
+#. odoo-javascript
+#: code:addons/project_budget_reports/static/src/components/sales_forecast_dashboard/sales_forecast_dashboard.xml:0
+#: model:ir.actions.client,name:project_budget_reports.action_sales_forecast_dashboard
+#: model:ir.ui.menu,name:project_budget_reports.menu_project_budget_sales_forecast
+#, python-format
+msgid "Sales Forecast"
+msgstr "Прогноз продаж"
+
+#. module: project_budget_reports
+#: model:ir.model.fields,field_description:project_budget_reports.field_project_budget_financial_indicator__stage_id
+msgid "Stage"
+msgstr "Этап"
+
+#. module: project_budget_reports
+#: model:ir.model.fields,field_description:project_budget_reports.field_project_budget_financial_indicator__step_id
+msgid "Step"
+msgstr "Этап проекта"
+
+#. module: project_budget_reports
+#. odoo-javascript
+#: code:addons/project_budget_reports/static/src/components/sales_forecast_dashboard/sales_forecast_dashboard.xml:0
+#: code:addons/project_budget_reports/static/src/components/sales_forecast_dashboard/sales_forecast_dashboard.xml:0
+#: code:addons/project_budget_reports/static/src/components/sales_forecast_dashboard/sales_forecast_dashboard.xml:0
+#: code:addons/project_budget_reports/static/src/components/sales_forecast_dashboard/sales_forecast_dashboard.xml:0
+#, python-format
+msgid "To Plan"
+msgstr "К плану"
+
+#. module: project_budget_reports
+#. odoo-javascript
+#: code:addons/project_budget_reports/static/src/components/financial_indicator/financial_indicator.xml:0
+#, python-format
+msgid "To plan"
+msgstr "К плану"
+
+#. module: project_budget_reports
+#: model:ir.model.fields,field_description:project_budget_reports.field_project_budget_financial_indicator__type
+msgid "Type"
+msgstr "Тип"
+
+#. module: project_budget_reports
+#. odoo-javascript
+#: code:addons/project_budget_reports/static/src/components/sales_forecast_dashboard/sales_forecast_dashboard.js:0
+#, python-format
+msgid "Year"
+msgstr "Год"
+
+#. module: project_budget_reports
+#. odoo-python
+#: code:addons/project_budget_reports/models/project_budget_report_sales_forecast.py:0
+#, python-format
+msgid "Yes"
+msgstr "Да"

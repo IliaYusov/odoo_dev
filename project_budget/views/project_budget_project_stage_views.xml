@@ -18,7 +18,9 @@
             <tree editable="bottom" sample="1">
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
+                <field name="project_state"/>
                 <field name="fold"/>
+                <field name="company_ids" widget="many2many_tags" groups="base.group_multi_company"/>
             </tree>
         </field>
     </record>
@@ -31,6 +33,7 @@
                 <group>
                     <field name="name"/>
                     <field name="code"/>
+                    <field name="project_state"/>
                     <field name="fold"/>
                     <field name="color" widget="color_picker"/>
                 </group>
@@ -48,12 +51,15 @@
                     <widget name="web_ribbon" title="Archived" bg_color="bg-danger"
                             attrs="{'invisible': [('active', '=', True)]}"/>
                     <h1><field name="name" placeholder="New"/></h1>
-                    <group>
-                        <group>
+                    <group col="4">
+                        <group colspan="2">
                             <field name="code" placeholder="Code"/>
                         </group>
-                        <group>
+                        <group colspan="1">
                             <field name="project_status"/>
+                        </group>
+                        <group colspan="1">
+                            <field name="project_state"/>
                         </group>
                     </group>
                     <group>
@@ -71,6 +77,9 @@
                         <group>
                             <field name="color" widget="color_picker"/>
                         </group>
+                    </group>
+                    <group name="companies">
+                        <field name="company_ids" widget="many2many_tags" groups="base.group_multi_company"/>
                     </group>
                 </sheet>
             </form>

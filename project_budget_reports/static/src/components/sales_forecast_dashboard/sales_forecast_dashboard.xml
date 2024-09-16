@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="project_budget_reports.SalesForecastDashboard" owl="1">
+        <div class="o_action project_budget_report">
+            <div class="vh-100 overflow-auto bg-muted">
+                <div class="row m-3">
+                    <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col m-0 p-0">
+                                <div class="shadow-sm border m-2 p-4 bg-white">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <h1 class="text-primary fw-bold">Sales Forecast</h1>
+                                        <div class="d-flex gap-1 flex-wrap">
+                                            <t t-call="project_budget_reports.Filters"/>
+                                        </div>
+                                        <div/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <FinancialIndicator name="'Contracting'" plan="state.data.contraction.plan.value"
+                                            fact="state.data.contraction.fact.value"
+                                            forecast="state.data.contraction.forecast.value"
+                                            percentage="state.data.contraction.percentage"/>
+                        <FinancialIndicator name="'Cash Flow'" plan="state.data.cash_flow.plan.value"
+                                            fact="state.data.cash_flow.fact.value"
+                                            forecast="state.data.cash_flow.forecast.value"
+                                            percentage="state.data.cash_flow.percentage"/>
+                        <FinancialIndicator name="'Gross Revenue'" plan="state.data.gross_revenue.plan.value"
+                                            fact="state.data.gross_revenue.fact.value"
+                                            forecast="state.data.gross_revenue.forecast.value"
+                                            percentage="state.data.gross_revenue.percentage"/>
+                        <FinancialIndicator name="'Margin'" plan="state.data.margin.plan.value"
+                                            fact="state.data.margin.fact.value"
+                                            forecast="state.data.margin.forecast.value"
+                                            percentage="state.data.margin.percentage"/>
+                    </div>
+                </div>
+                <div class="row m-3">
+                    <table class="table table-bordered border-dark table-hover table-sm" style="table-layout: fixed;">
+                        <thead>
+                            <tr>
+                                <th style="width: 20%" class="table border border-dark text-center">Company</th>
+                                <th style="width: 15%" class="table border border-dark text-center">Contracting</th>
+                                <th style="width: 5%" class="table border border-dark text-center">To Plan</th>
+                                <th style="width: 15%" class="table border border-dark text-center">Cash Flow</th>
+                                <th style="width: 5%" class="table border border-dark text-center">To Plan</th>
+                                <th style="width: 15%" class="table border border-dark text-center">Gross Revenue</th>
+                                <th style="width: 5%" class="table border border-dark text-center">To Plan</th>
+                                <th style="width: 15%" class="table border border-dark text-center">Margin</th>
+                                <th style="width: 5%" class="table border border-dark text-center">To Plan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="state.data.companies" t-as="company" t-key="company.id">
+                                <td class="link-primary text-start text-truncate">
+                                    <span t-esc="company.name"/>
+                                </td>
+                                <td>
+                                    <FinancialIndicatorGraph name="'Contraction'" type="'bar'"
+                                                             value="company.contraction.fact and company.contraction.fact.rounded_value or 0"
+                                                             max="state.data.contraction.fact.rounded_value"/>
+                                </td>
+                                <td>
+                                    <span t-attf-class="text-#{ company.contraction.to_plan > 40 ? company.contraction.to_plan > 70 ? 'success' : 'warning' : 'danger' }">
+                                        <span t-attf-class="me-1 fa fa-arrow-#{ company.contraction.to_plan > 100 ? 'up' : 'down' }"/>
+                                        <span t-esc="company.contraction.to_plan or 0"/>%
+                                    </span>
+                                </td>
+                                <td>
+                                    <FinancialIndicatorGraph name="'Cash Flow'" type="'bar'"
+                                                             value="company.cash_flow.fact and company.cash_flow.fact.rounded_value or 0"
+                                                             max="state.data.cash_flow.fact.rounded_value"/>
+                                </td>
+                                <td>
+                                    <span t-attf-class="text-#{ company.cash_flow.to_plan > 40 ? company.cash_flow.to_plan > 70 ? 'success' : 'warning' : 'danger' }">
+                                        <span t-attf-class="me-1 fa fa-arrow-#{ company.cash_flow.to_plan > 100 ? 'up' : 'down' }"/>
+                                        <span t-esc="company.cash_flow.to_plan or 0"/>%
+                                    </span>
+                                </td>
+                                <td>
+                                    <FinancialIndicatorGraph name="'Gross Revenue'" type="'bar'"
+                                                             value="company.gross_revenue.fact and company.gross_revenue.fact.rounded_value or 0"
+                                                             max="state.data.gross_revenue.fact.rounded_value"/>
+                                </td>
+                                <td>
+                                    <span t-attf-class="text-#{ company.gross_revenue.to_plan > 40 ? company.gross_revenue.to_plan > 70 ? 'success' : 'warning' : 'danger' }">
+                                        <span t-attf-class="me-1 fa fa-arrow-#{ company.gross_revenue.to_plan > 100 ? 'up' : 'down' }"/>
+                                        <span t-esc="company.gross_revenue.to_plan or 0"/>%
+                                    </span>
+                                </td>
+                                <td>
+                                    <FinancialIndicatorGraph name="'Margin'" type="'bar'"
+                                                             value="company.margin.fact and company.margin.fact.rounded_value or 0"
+                                                             max="state.data.margin.fact.rounded_value"/>
+                                </td>
+                                <td>
+                                    <span t-attf-class="text-#{ company.margin.to_plan > 40 ? company.margin.to_plan > 70 ? 'success' : 'warning' : 'danger' }">
+                                        <span t-attf-class="me-1 fa fa-arrow-#{ company.margin.to_plan > 100 ? 'up' : 'down' }"/>
+                                        <span t-esc="company.margin.to_plan or 0"/>%
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

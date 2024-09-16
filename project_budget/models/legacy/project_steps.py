@@ -101,7 +101,7 @@ class project_steps(models.Model):
             if row.representation_expenses_amount_spec_exist == True:
                 row.representation_expenses = self._get_sums_from_amount_spec_type(row, 'representation_expenses')
             if row.rko_other_amount_spec_exist == True:
-                row.rko_other = self._get_sums_from_amount_spec_type(row, 'rko_other')
+               row.rko_other = self._get_sums_from_amount_spec_type(row, 'rko_other')
             if row.warranty_service_costs_amount_spec_exist == True:
                 row.warranty_service_costs = self._get_sums_from_amount_spec_type(row, 'warranty_service_costs')
             if row.other_expenses_amount_spec_exist == True:
@@ -123,7 +123,7 @@ class project_steps(models.Model):
 
     name_to_show = fields.Char(string = 'name_to_show', compute = '_get_name_to_show')
     projects_id = fields.Many2one('project_budget.projects', string='projects_id', index=True, ondelete='cascade')
-    different_project_offices_in_steps = fields.Boolean(related='projects_id.different_project_offices_in_steps', readonly=True)
+    different_project_offices_in_steps = fields.Boolean(related='projects_id.legal_entity_signing_id.different_project_offices_in_steps', readonly=True)
     etalon_budget = fields.Boolean(related='projects_id.etalon_budget', readonly=True)
     date_actual = fields.Datetime(related='projects_id.date_actual', readonly=True, store=True)
     budget_state = fields.Selection(related='projects_id.budget_state', readonly=True, store=True)
@@ -203,7 +203,7 @@ class project_steps(models.Model):
     @api.onchange('currency_id','essence_project','end_presale_project_month','end_sale_project_month','vat_attribute_id','total_amount_of_revenue',
                   'total_amount_of_revenue_with_vat','revenue_from_the_sale_of_works','revenue_from_the_sale_of_goods','cost_price','cost_of_goods','own_works_fot',
                   'third_party_works','awards_on_results_project','transportation_expenses','travel_expenses','representation_expenses','taxes_fot_premiums','warranty_service_costs',
-                  'rko_other','other_expenses','margin_income','profitability','stage_id','signer_id','project_steps_type_id',
+                  'rko_other','other_expenses','margin_income','profitability','stage_id','legal_entity_signing_id','project_steps_type_id',
                   'code','dogovor_number','amount_spec_ids'
                 )
     def _check_changes_step(self):
@@ -257,10 +257,9 @@ class project_steps(models.Model):
     @api.depends("planned_acceptance_flow_ids.sum_cash")
     def _compute_planned_acceptance_flow_sum(self):
         for row in self:
-            row.planned_acceptance_flow_sum_without_vat = 0
-            for row_flow in row.planned_acceptance_flow_ids:
+           row.planned_acceptance_flow_sum_without_vat = 0
+           for row_flow in row.planned_acceptance_flow_ids:
                 row.planned_acceptance_flow_sum_without_vat += row_flow.sum_cash_without_vat
-
     @api.depends('essence_project', 'step_id')
     def _get_name_to_show(self):
         for step in self:
@@ -269,7 +268,7 @@ class project_steps(models.Model):
     @api.depends("revenue_from_the_sale_of_works", 'revenue_from_the_sale_of_goods', 'cost_of_goods', 'own_works_fot',
                  'third_party_works', "awards_on_results_project", 'transportation_expenses', 'travel_expenses',
                  'representation_expenses',"warranty_service_costs", 'rko_other', 'other_expenses', 'vat_attribute_id',
-                 'projects_id.signer_id', 'taxes_fot_premiums')
+                 'projects_id.legal_entity_signing_id', 'taxes_fot_premiums')
     def _compute_spec_totals(self):
         for budget_spec in self:
             self._compute_sums_from_amount_spec()
@@ -278,8 +277,8 @@ class project_steps(models.Model):
             budget_spec.cost_price = budget_spec.cost_of_goods + budget_spec.own_works_fot + budget_spec.third_party_works + budget_spec.awards_on_results_project
             budget_spec.cost_price = budget_spec.cost_price + budget_spec.transportation_expenses + budget_spec.travel_expenses + budget_spec.representation_expenses
             budget_spec.cost_price = budget_spec.cost_price + budget_spec.warranty_service_costs + budget_spec.rko_other + budget_spec.other_expenses
-            if budget_spec.projects_id.is_percent_fot_manual == False:
-                budget_spec.taxes_fot_premiums = (budget_spec.awards_on_results_project + budget_spec.own_works_fot) * budget_spec.projects_id.percent_fot / 100
+            if budget_spec.is_percent_fot_manual == False:
+                budget_spec.taxes_fot_premiums = (budget_spec.awards_on_results_project + budget_spec.own_works_fot) * budget_spec.projects_id.legal_entity_signing_id.percent_fot / 100
             budget_spec.cost_price = budget_spec.cost_price + budget_spec.taxes_fot_premiums
 
             budget_spec.margin_income = budget_spec.total_amount_of_revenue - budget_spec.cost_price
@@ -293,7 +292,7 @@ class project_steps(models.Model):
 
     @api.depends('end_presale_project_month','end_sale_project_month')
     def _compute_quarter(self):
-        for fieldquarter in self:
+       for fieldquarter in self:
             if fieldquarter.end_presale_project_month == False:
                 continue
             tmp_date = fieldquarter.end_presale_project_month

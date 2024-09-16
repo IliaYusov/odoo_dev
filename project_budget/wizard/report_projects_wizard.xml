@@ -39,7 +39,6 @@
                                    options="{'no_create_edit': True}"
                                    attrs="{'invisible': [('type_report', 'not in', ('forecast_v2', 'kb', 'overdue', 'pds_acceptance_by_date', 'pds_weekly'))]}"
                                    placeholder="All POs if none selected"
-
                             />
                         </group>
                         <group>

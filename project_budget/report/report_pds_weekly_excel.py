@@ -34,7 +34,7 @@ class report_pds_weekly_excel(models.AbstractModel):
 
         if project:
             if project.stage_id.code == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
-                last_fixed_project = self.env['project_budget.projects'].search(
+                last_fixed_project = self.env['project_budget.projects'].sudo().search(
                     [('date_actual', '<', datetime.date(YEARint,1,1)),
                      ('budget_state', '=', 'fixed'),
                      ('project_id', '=', project.project_id),

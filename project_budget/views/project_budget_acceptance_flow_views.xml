@@ -1,6 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <record id="show_fact_acceptance_flow_form" model="ir.ui.view">
-        <field name="name">project_budget.fact_acceptance_flow.form</field>
+    <record id="project_budget_planned_acceptance_flow_view_tree" model="ir.ui.view">
+        <field name="name">project.budget.planned.acceptance.flow.tree</field>
+        <field name="model">project_budget.planned_acceptance_flow</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom" default_order="date_cash" limit="100">
+                <button name="action_copy_planned_acceptance" type="object" title="Copy acceptance"
+                        string="Copy acceptance" class="btn btn-link"/>
+                <field name="acceptance_id"/>
+                <field name="forecast"/>
+                <field name="project_have_steps" invisible="True"/>
+                <field name="date_cash" placeholder="enter planned cash flow date"/>
+                <field name="step_project_child_id" options="{'no_open': True}" placeholder="select project steps"
+                       domain="[('id', 'in', parent.step_project_child_ids), ('stage_id.project_state', '!=', 'cancel')]"
+                       attrs="
+                       {
+                            'invisible': [('project_have_steps', '=', False)],
+                            'required': [('project_have_steps', '=', True)]
+                       }"/>
+                <field name="sum_cash_without_vat" placeholder="enter planned cash flow sum "/>
+                <field name="sum_cash" placeholder="enter planned cash flow sum " optional="hide"/>
+                <field name="distribution_sum_without_vat_ostatok"
+                       decoration-success="distribution_sum_without_vat_ostatok == 0"
+                       decoration-danger="distribution_sum_without_vat_ostatok &lt; 0"
+                       decoration-warning="distribution_sum_without_vat_ostatok != 0"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="project_budget_fact_acceptance_flow_view_tree" model="ir.ui.view">
+        <field name="name">project.budget.fact.acceptance.flow.tree</field>
+        <field name="model">project_budget.fact_acceptance_flow</field>
+        <field name="arch" type="xml">
+            <tree default_order="date_cash" limit="100">
+                <button name="action_copy_fact_acceptance" type="object" title="Copy acceptance"
+                        string="Copy acceptance" class="btn btn-link"/>
+                <field name="project_have_steps" invisible="True"/>
+                <field name="projects_id" optional="hide"/>
+                <field name="date_cash" placeholder="enter planned acceptance flow date"/>
+                <field name="step_project_child_id" options="{'no_open': True}" placeholder="select project steps"
+                       attrs="
+                       {
+                            'invisible': [('parent.project_have_steps', '=', False)],
+                            'required': [('parent.project_have_steps', '=', True)]
+                       }"/>
+                <field name="sum_cash_without_vat" placeholder="enter planned acceptance flow sum "/>
+                <field name="sum_cash" placeholder="enter planned acceptance flow sum " optional="hide"/>
+                <field name="distribution_sum_without_vat"
+                       decoration-success="sum_cash == distribution_sum_with_vat"
+                       decoration-danger="sum_cash != distribution_sum_with_vat"/>
+                <field name="distribution_sum_with_vat"
+                       decoration-success="sum_cash == distribution_sum_with_vat"
+                       decoration-danger="sum_cash != distribution_sum_with_vat"
+                       optional="hide"/>
+                <field name="distribution_sum_without_vat_ostatok"
+                       decoration-warning="distribution_sum_with_vat_ostatok != 0"/>
+                <field name="distribution_sum_with_vat_ostatok"
+                       decoration-warning="distribution_sum_with_vat_ostatok != 0" optional="hide"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="project_budget_fact_acceptance_flow_view_form" model="ir.ui.view">
+        <field name="name">project.budget.fact.acceptance.flow.form</field>
         <field name="model">project_budget.fact_acceptance_flow</field>
         <field name="arch" type="xml">
             <form create="0" delete="0">
@@ -17,9 +79,12 @@
                         <group>
                             <field name="step_project_child_id" options="{'no_open': True,}"
                                    placeholder="select project steps"
-                                   attrs="{'invisible': [('parent.project_have_steps', '=', False)], 'required': [('parent.project_have_steps', '=', True)]}"
-                                   domain="[('id', 'in', parent.step_project_child_ids),('stage_id.code', '!=', '0')]"
-                            />
+                                   domain="[('id', 'in', parent.step_project_child_ids), ('stage_id.project_state', '!=', 'cancel')]"
+                                   attrs="
+                                   {
+                                        'invisible': [('parent.project_have_steps', '=', False)],
+                                        'required': [('parent.project_have_steps', '=', True)]
+                                   }"/>
                         </group>
                     </group>
                     <!-- #20230403 Вавилова Ирина сказла убрать...                                       <field name="doc_cash" placeholder="type docs description"/>-->
@@ -75,37 +140,6 @@
                     </field>
                 </sheet>
             </form>
-        </field>
-    </record>
-
-    <record id="show_fact_acceptance_flow_tree" model="ir.ui.view">
-        <field name="name">project_budget.fact_acceptance_flow.tree</field>
-        <field name="model">project_budget.fact_acceptance_flow</field>
-        <field name="arch" type="xml">
-            <tree default_order="date_cash" limit="100">
-                <button name="action_copy_fact_acceptance" type="object" title="Copy acceptance"
-                        string="Copy acceptance" class="btn btn-link"/>
-                <field name="project_have_steps" invisible="True"/>
-                <field name="projects_id" optional="hide"/>
-                <field name="date_cash" placeholder="enter planned acceptance flow date"/>
-                <field name="step_project_child_id" options="{'no_open': True,}" placeholder="select project steps"
-                       attrs="{'column_invisible': [('parent.project_have_steps', '=', False)], 'required': [('parent.project_have_steps', '=', True)]}"
-                />
-                <!--#20230403 Вавилова Ирина сказла убрать...                                        <field name="doc_cash" placeholder="type docs description"/>-->
-                <field name="sum_cash_without_vat" placeholder="enter planned acceptance flow sum "/>
-                <field name="sum_cash" placeholder="enter planned acceptance flow sum " optional="hide"/>
-                <field name="distribution_sum_without_vat"
-                       decoration-success="sum_cash == distribution_sum_with_vat"
-                       decoration-danger="sum_cash != distribution_sum_with_vat"/>
-                <field name="distribution_sum_with_vat"
-                       decoration-success="sum_cash == distribution_sum_with_vat"
-                       decoration-danger="sum_cash != distribution_sum_with_vat"
-                       optional="hide"/>
-                <field name="distribution_sum_without_vat_ostatok"
-                       decoration-warning="distribution_sum_with_vat_ostatok != 0"/>
-                <field name="distribution_sum_with_vat_ostatok"
-                       decoration-warning="distribution_sum_with_vat_ostatok != 0" optional="hide"/>
-            </tree>
         </field>
     </record>
 </odoo>

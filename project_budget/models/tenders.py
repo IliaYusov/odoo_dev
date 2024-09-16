@@ -39,7 +39,8 @@ class tenders(models.Model):
 
     date_of_filling_in = fields.Date(string='date_of_filling_in tender', required=True, default=fields.Date.context_today, tracking=True)
     participant_id = fields.Many2one('project_budget.legal_entity_signing',
-                                     string='legal_entity_signing a contract from the NCC', copy=True, tracking=True)  # TODO удалить после миграции на signer_id
+                                              string='legal_entity_signing a contract from the NCC',
+                                              copy=True, tracking=True)  # TODO удалить после миграции на signer_id
     signer_id = fields.Many2one('res.partner', string='legal_entity_signing a contract from the NCC', required=True,
                                 domain=_get_domain_signer_id, copy=True, tracking=True)
     auction_number = fields.Char(string='auction_number', default = "",tracking=True, required = True)

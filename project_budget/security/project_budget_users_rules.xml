@@ -121,6 +121,16 @@
             <field name="groups" eval="[(4, ref('project_budget.project_budget_admin'))]"/>
         </record>
 
+        <record id="project_budget_budget_plan_curator_company_rule" model="ir.rule">
+            <field name="name">Curator budget plan multi-company</field>
+            <field name="model_id" ref="model_project_budget_budget_plan_supervisor"/>
+            <field name="domain_force">
+                [
+                    '|', ('company_id', '=', False), ('company_id', 'in', company_ids)
+                ]
+            </field>
+        </record>
+
         <record id="record_restricted_company_rule" model="ir.rule" >
             <field name="name">Budget projects Restricted Record: multi-company</field>
             <field name="model_id" ref="model_project_budget_projects"/>
