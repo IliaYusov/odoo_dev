@@ -33,6 +33,9 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
     def calculate_periods_dict(self, actual_date):
         periods_dict = OrderedDict()
         period_limits = []
+        col = 0
+        month_cols = []
+        week_cols = []
         actual_quarter_start = date(actual_date.year, (actual_date.month - 1) // 3 * 3 + 1, 1)
         for month_delta in (-3, -2, -1, 0, 1, 2, 3, 4, 5):  # месяцы от начала текущего квартала
             month_start = actual_quarter_start + relativedelta(months=month_delta)
@@ -57,6 +60,11 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                             }
                         ],
                     }
+                    col += 2
+                    if week_start.isocalendar()[1] > actual_date.isocalendar()[1]:
+                        week_cols.append(col - 1)
+                    else:
+                        week_cols.append(col)
                     actual_week = actual_week + timedelta(weeks=1)
                     actual_week_number = actual_week.isocalendar()[1]
                     actual_week_year = actual_week.isocalendar()[0]
@@ -77,15 +85,29 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                                 }
                             ],
                         }
+                        col += 2
+                        if week_start.isocalendar()[1] > actual_date.isocalendar()[1]:
+                            week_cols.append(col - 1)
+                        else:
+                            week_cols.append(col)
+                        formula = week_cols
+                        week_cols = []
                         periods_dict['sum_month_' + str(week_start.month)] = {
                             'type': 'sum_month',
-                            'date': week_start
+                            'date': week_start,
+                            'formula': formula,
                         }
-                        if month_start.month % 3 == 0:
+                        col += 1
+                        month_cols.append(col)
+                        if week_start.month % 3 == 0:
+                            formula = month_cols
+                            month_cols = []
                             periods_dict['sum_quarter_' + str((month_start.month - 1) // 3 + 1)] = {
                                 'type': 'sum_quarter',
-                                'date': month_start
+                                'date': month_end,
+                                'formula': formula,
                             }
+                            col += 1
                         week_start = week_month_start
             elif month_start.month == actual_date.month + 1:  # пропускаем следующий за текущим месяц
                 pass
@@ -108,6 +130,8 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                             }
                         ]
                     }
+                    col += 3
+                    month_cols.append(col - 1)
                 else:
                     periods_dict[(month_start, month_end)] = {
                         'type': 'month',
@@ -118,13 +142,17 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                             }
                         ]
                     }
-
-                if month_start.month % 3 == 0:  # добавляем суммы по кварталам
+                    col += 1
+                    month_cols.append(col)
+                if month_start.month % 3 == 0:  # добавляем суммы и формулы по кварталам
+                    formula = month_cols
+                    month_cols = []
                     periods_dict['sum_quarter_' + str((month_start.month - 1) // 3 + 1)] = {
                         'type': 'sum_quarter',
-                        'date': month_start
+                        'date': month_end,
+                        'formula': formula,
                     }
-
+                    col += 1
                 if month_delta == -3:  # начало и конец всего переода
                     period_limits.append(month_start)
                 elif month_delta == 5:
@@ -166,9 +194,11 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
     def get_data_from_projects(self, projects, periods_dict, budget):
         data = {}
         for project in projects:
+            pds_is_present = False
+            project_data = {}
             for period, options in periods_dict.items():
                 if 'sum' not in period:
-                    data.setdefault(project.company_id.name, {}).setdefault(project.project_office_id.name, {}).setdefault(project.project_id, {}).setdefault('periods', {}).setdefault(period, {'commitment': 0, 'fact': 0})
+                    project_data.setdefault(period, {'commitment': 0, 'fact': 0})
 
                     if project.step_status == 'project':
                         pds_fact_list = project.fact_cash_flow_ids
@@ -179,24 +209,10 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                         pds_plan_list = project.planned_step_cash_flow_ids
                         project_id = (project.step_project_number or '') + ' | ' + project.step_project_parent_id.project_id + " | " + project.project_id
 
-                    currency_rate = self.get_currency_rate_by_project(project)
-
-                    data[project.company_id.name][project.project_office_id.name][project.project_id]['info'] = {
-                        'key_account_manager_id': project.key_account_manager_id.name,
-                        'partner_id': project.partner_id.name,
-                        'essence_project': project.essence_project,
-                        'project_id': project_id,
-                        'probability': self.get_estimated_probability_name_forecast(project.stage_id.code),
-                        'total_amount_of_revenue_with_vat': project.total_amount_of_revenue_with_vat * currency_rate,
-                        'margin_income': project.margin_income * currency_rate,
-                        'profitability': project.profitability,
-                        'dogovor_number': project.dogovor_number or '',
-                        'vat_attribute_id': project.vat_attribute_id.name,
-                    }
-
                     for pds_fact in pds_fact_list:
                         if period[0] <= pds_fact.date_cash <= period[1] and project.commercial_budget_id == budget:
-                            data[project.company_id.name][project.project_office_id.name][project.project_id]['periods'][period]['fact'] += pds_fact.sum_cash
+                            pds_is_present = True
+                            project_data[period]['fact'] += pds_fact.sum_cash
 
                     for pds_plan in pds_plan_list:
                         if (period[0] <= pds_plan.date_cash <= period[1]
@@ -204,7 +220,29 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                                 and (pds_plan.forecast == 'commitment'
                                      or (pds_plan.forecast == 'from_project'
                                          and project.stage_id.code in ('100(done)', '100', '75')))):
-                            data[project.company_id.name][project.project_office_id.name][project.project_id]['periods'][period]['commitment'] += pds_plan.sum_cash
+                            pds_is_present = True
+                            project_data[period]['commitment'] += pds_plan.sum_cash
+
+            if pds_is_present:
+                data.setdefault(project.company_id.name, {}).setdefault(project.project_office_id.name, {}).setdefault(
+                    project.project_id, {})
+
+                currency_rate = self.get_currency_rate_by_project(project)
+
+                data[project.company_id.name][project.project_office_id.name][project.project_id]['info'] = {
+                    'key_account_manager_id': project.key_account_manager_id.name,
+                    'partner_id': project.partner_id.name,
+                    'essence_project': project.essence_project,
+                    'project_id': project_id,
+                    'probability': self.get_estimated_probability_name_forecast(project.stage_id.code),
+                    'total_amount_of_revenue_with_vat': project.total_amount_of_revenue_with_vat * currency_rate,
+                    'margin_income': project.margin_income * currency_rate,
+                    'profitability': project.profitability,
+                    'dogovor_number': project.dogovor_number or '',
+                    'vat_attribute_id': project.vat_attribute_id.name,
+                }
+
+                data[project.company_id.name][project.project_office_id.name][project.project_id]['periods'] = project_data
         return data
 
     def is_project_in_year(self, project):
@@ -600,61 +638,61 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                 column += 1
         return column
 
-    def print_week_pds_project(self, sheet, row, column, week_number, project, row_format_number, row_format_number_color_fact):
-        global strYEAR
-        global YEARint
-
-        sum75tmpetalon = sum50tmpetalon = sum100tmp = sum75tmp = sum50tmp = 0
-
-        sum100tmp = self.get_sum_fact_pds_project_week(project, week_number)
-        if sum100tmp:
-            sheet.write_number(row, column, sum100tmp, row_format_number_color_fact)
-
-        sum = self.get_sum_plan_pds_project_week(project, week_number)
-
-        if sum100tmp >= sum['commitment']:
-            sum100tmp_ostatok = sum100tmp - sum['commitment']
-            sum['commitment'] = 0
-            sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
-        else:
-            sum['commitment'] = sum['commitment'] - sum100tmp
-
-        # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-        sum_distribution_pds = 0
-        sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
-
-        if project.step_status == 'project':
-            pds_list = project.planned_cash_flow_ids
-        elif project.step_status == 'step':
-            pds_list = project.planned_step_cash_flow_ids
-
-        stage_id_code = project.stage_id.code
-
-        for planned_cash_flow in pds_list:
-            if planned_cash_flow.date_cash.isocalendar()[1] == week_number and planned_cash_flow.date_cash.isocalendar()[0] == YEARint:
-                if planned_cash_flow.forecast == 'from_project':
-                    if stage_id_code in ('100(done)', '100', '75'):
-                        sum_ostatok_pds['commitment'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                    elif stage_id_code == '50':
-                        sum_ostatok_pds['reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
-                else:
-                    if stage_id_code != '0':
-                        sum_ostatok_pds[planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
-
-                sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
-
-        if sum_distribution_pds != 0 : # если есть распределение, то остаток = остатку распределения
-            sum = sum_ostatok_pds
-            for key in sum:
-                if sum[key] < 0:
-                    sum[key] = 0
-
-        sheet.write_number(row, column + 1, sum['commitment'], row_format_number)
-        sum75tmp += sum['commitment']
-        sheet.write_number(row, column + 2, sum['reserve'], row_format_number)
-        sum50tmp += sum['reserve']
-
-        return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
+    # def print_week_pds_project(self, sheet, row, column, week_number, project, row_format_number, row_format_number_color_fact):
+    #     global strYEAR
+    #     global YEARint
+    #
+    #     sum75tmpetalon = sum50tmpetalon = sum100tmp = sum75tmp = sum50tmp = 0
+    #
+    #     sum100tmp = self.get_sum_fact_pds_project_week(project, week_number)
+    #     if sum100tmp:
+    #         sheet.write_number(row, column, sum100tmp, row_format_number_color_fact)
+    #
+    #     sum = self.get_sum_plan_pds_project_week(project, week_number)
+    #
+    #     if sum100tmp >= sum['commitment']:
+    #         sum100tmp_ostatok = sum100tmp - sum['commitment']
+    #         sum['commitment'] = 0
+    #         sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
+    #     else:
+    #         sum['commitment'] = sum['commitment'] - sum100tmp
+    #
+    #     # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
+    #     sum_distribution_pds = 0
+    #     sum_ostatok_pds = {'commitment': 0, 'reserve': 0, 'potential': 0}
+    #
+    #     if project.step_status == 'project':
+    #         pds_list = project.planned_cash_flow_ids
+    #     elif project.step_status == 'step':
+    #         pds_list = project.planned_step_cash_flow_ids
+    #
+    #     stage_id_code = project.stage_id.code
+    #
+    #     for planned_cash_flow in pds_list:
+    #         if planned_cash_flow.date_cash.isocalendar()[1] == week_number and planned_cash_flow.date_cash.isocalendar()[0] == YEARint:
+    #             if planned_cash_flow.forecast == 'from_project':
+    #                 if stage_id_code in ('100(done)', '100', '75'):
+    #                     sum_ostatok_pds['commitment'] += planned_cash_flow.distribution_sum_with_vat_ostatok
+    #                 elif stage_id_code == '50':
+    #                     sum_ostatok_pds['reserve'] += planned_cash_flow.distribution_sum_with_vat_ostatok
+    #             else:
+    #                 if stage_id_code != '0':
+    #                     sum_ostatok_pds[planned_cash_flow.forecast] += planned_cash_flow.distribution_sum_with_vat_ostatok
+    #
+    #             sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
+    #
+    #     if sum_distribution_pds != 0 : # если есть распределение, то остаток = остатку распределения
+    #         sum = sum_ostatok_pds
+    #         for key in sum:
+    #             if sum[key] < 0:
+    #                 sum[key] = 0
+    #
+    #     sheet.write_number(row, column + 1, sum['commitment'], row_format_number)
+    #     sum75tmp += sum['commitment']
+    #     sheet.write_number(row, column + 2, sum['reserve'], row_format_number)
+    #     sum50tmp += sum['reserve']
+    #
+    #     return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
     def calculate_quarter_pds(self, element, project, multipliers):
         global strYEAR
@@ -906,9 +944,50 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                         sheet.write_formula(row, column, formula, row_format_number)
                     column += 1
             else:
-                sheet.write_string(row, column, period, row_format_number)
-                column += 1
-
+                if 'sum_quarter' in period:
+                    formula = 'sum({1}{0},{2}{0},{3}{0})'.format(
+                            row + 1,
+                            xl_col_to_name(11 + periods_dict[period]['formula'][0]),
+                            xl_col_to_name(11 + periods_dict[period]['formula'][1]),
+                            xl_col_to_name(11 + periods_dict[period]['formula'][2]),
+                        )
+                    sheet.write_formula(row, column, formula, row_format_number)
+                    column += 1
+                elif 'sum_month' in period:
+                    if len(periods_dict[period]['formula']) == 4:  # учитываем разное количество недель в месяце
+                        formula = 'sum({1}{0},{2}{0},{3}{0},{4}{0})'.format(
+                            row + 1,
+                            xl_col_to_name(11 + periods_dict[period]['formula'][0]),
+                            xl_col_to_name(11 + periods_dict[period]['formula'][1]),
+                            xl_col_to_name(11 + periods_dict[period]['formula'][2]),
+                            xl_col_to_name(11 + periods_dict[period]['formula'][3]),
+                        )
+                        sheet.write_formula(row, column, formula, row_format_number)
+                    elif len(periods_dict[period]['formula']) == 5:
+                        formula = 'sum({1}{0},{2}{0},{3}{0},{4}{0},{5}{0})'.format(
+                            row + 1,
+                            xl_col_to_name(11 + periods_dict[period]['formula'][0]),
+                            xl_col_to_name(11 + periods_dict[period]['formula'][1]),
+                            xl_col_to_name(11 + periods_dict[period]['formula'][2]),
+                            xl_col_to_name(11 + periods_dict[period]['formula'][3]),
+                            xl_col_to_name(11 + periods_dict[period]['formula'][4]),
+                        )
+                        sheet.write_formula(row, column, formula, row_format_number)
+                    elif len(periods_dict[period]['formula']) == 6:
+                        formula = 'sum({1}{0},{2}{0},{3}{0},{4}{0},{5}{0},{6}{0})'.format(
+                            row + 1,
+                            xl_col_to_name(11 + periods_dict[period]['formula'][0]),
+                            xl_col_to_name(11 + periods_dict[period]['formula'][1]),
+                            xl_col_to_name(11 + periods_dict[period]['formula'][2]),
+                            xl_col_to_name(11 + periods_dict[period]['formula'][3]),
+                            xl_col_to_name(11 + periods_dict[period]['formula'][4]),
+                            xl_col_to_name(11 + periods_dict[period]['formula'][5]),
+                        )
+                        sheet.write_formula(row, column, formula, row_format_number)
+                    column += 1
+                else:
+                    sheet.write_string(row, column, period, row_format_number)
+                    column += 1
         #
         # # Поступление денежных средсв, с НДС
         # sumYear100etalon = sumYear75etalon = sumYear50etalon = sumYear100 = sumYear75 = sumYear50 = 0
@@ -1033,7 +1112,6 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
         for company in data:
             for office in data[company]:
                 for project, content in data[company][office].items():
-                    print(company, office, project, content)
                     # печатаем строки проектов
                     row += 1
                     sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level + 1})
