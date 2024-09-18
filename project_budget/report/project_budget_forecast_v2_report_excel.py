@@ -822,7 +822,8 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         for planned_acceptance_flow in acceptance_list:
             if any(distribution.fact_acceptance_flow_id.margin_manual_input for distribution in
-                   planned_acceptance_flow.distribution_acceptance_ids):  # если есть ручная маржа - пропускаем
+                   planned_acceptance_flow.distribution_acceptance_ids):  # если есть ручная маржа - отдаем нулевой прогноз
+                sum_distribution_acceptance += 1
                 continue
 
             if (not months or planned_acceptance_flow.date_cash.month in months) and planned_acceptance_flow.date_cash.year == year:
