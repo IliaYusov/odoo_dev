@@ -16,6 +16,9 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
     strYEAR = '2023'
     YEARint = int(strYEAR)
 
+    month_rus_name = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь',
+                      'Ноябрь', 'Декабрь',]
+
     def get_currency_rate_by_project(self,project):
         project_currency_rates = self.env['project_budget.project_currency_rates']
         return project_currency_rates._get_currency_rate_for_project_in_company_currency(project)
@@ -41,7 +44,19 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                 week_start = month_start
                 week_end = self.get_dates_from_week(actual_week_number, actual_week_year)[1]
                 while week_start.month < actual_date.month + 2:  # недели в течение двух месяцев
-                    periods_dict[(week_start, week_end)] = {'type': 'week'}
+                    periods_dict[(week_start, week_end)] = {
+                        'type': 'week',
+                        'cols': [
+                            {
+                                'print': 'commitment',
+                                'print_head': 'прогноз'
+                            },
+                            {
+                                'print': 'fact',
+                                'print_head': 'факт'
+                            }
+                        ],
+                    }
                     actual_week = actual_week + timedelta(weeks=1)
                     actual_week_number = actual_week.isocalendar()[1]
                     actual_week_year = actual_week.isocalendar()[0]
@@ -49,21 +64,72 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                     if week_start.month != week_end.month:  # учитываем разбиение недель по месяцам
                         week_month_end = week_end.replace(day=1) - timedelta(days=1)
                         week_month_start = week_end.replace(day=1)
-                        periods_dict[(week_start, week_month_end)] = {'type': 'week'}
-                        periods_dict['sum_month_' + str(week_start.month)] = {}
+                        periods_dict[(week_start, week_month_end)] = {
+                            'type': 'week',
+                            'cols': [
+                                {
+                                    'print': 'commitment',
+                                    'print_head': 'прогноз'
+                                },
+                                {
+                                    'print': 'fact',
+                                    'print_head': 'факт'
+                                }
+                            ],
+                        }
+                        periods_dict['sum_month_' + str(week_start.month)] = {
+                            'type': 'sum_month',
+                            'date': week_start
+                        }
                         if month_start.month % 3 == 0:
-                            periods_dict['sum_quarter_' + str((month_start.month - 1) // 3 + 1)] = {}
+                            periods_dict['sum_quarter_' + str((month_start.month - 1) // 3 + 1)] = {
+                                'type': 'sum_quarter',
+                                'date': month_start
+                            }
                         week_start = week_month_start
             elif month_start.month == actual_date.month + 1:  # пропускаем следующий за текущим месяц
                 pass
             else:
-                periods_dict[(month_start, month_end)] = {'type': 'month'}
-                if month_start.month % 3 == 0:
-                    periods_dict['sum_quarter_' + str((month_start.month - 1) // 3 + 1)] = {}
-                if month_delta == -3:
+                if month_end < actual_date:  # в прошлом печатаем прогноз и факт, в будущем - только прогноз
+                    periods_dict[(month_start, month_end)] = {
+                        'type': 'month',
+                        'cols': [
+                            {
+                                'print': 'commitment',
+                                'print_head': 'план-прогноз на начало месяца'
+                            },
+                            {
+                                'print': 'fact',
+                                'print_head': 'факт'
+                            },
+                            {
+                                'print': 'difference',
+                                'print_head': 'разница'
+                            }
+                        ]
+                    }
+                else:
+                    periods_dict[(month_start, month_end)] = {
+                        'type': 'month',
+                        'cols': [
+                            {
+                                'print': 'commitment',
+                                'print_head': 'прогноз на текущую дату'
+                            }
+                        ]
+                    }
+
+                if month_start.month % 3 == 0:  # добавляем суммы по кварталам
+                    periods_dict['sum_quarter_' + str((month_start.month - 1) // 3 + 1)] = {
+                        'type': 'sum_quarter',
+                        'date': month_start
+                    }
+
+                if month_delta == -3:  # начало и конец всего переода
                     period_limits.append(month_start)
                 elif month_delta == 5:
                     period_limits.append(month_end)
+
         return periods_dict, period_limits
 
     def calculate_budget_ids(self, budget, periods_dict):
@@ -96,6 +162,50 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                     options['budget_id'] = budget.id
                     budget_ids.add(budget.id)
         return (periods_dict, list(budget_ids))
+
+    def get_data_from_projects(self, projects, periods_dict, budget):
+        data = {}
+        for project in projects:
+            for period, options in periods_dict.items():
+                if 'sum' not in period:
+                    data.setdefault(project.company_id.name, {}).setdefault(project.project_office_id.name, {}).setdefault(project.project_id, {}).setdefault('periods', {}).setdefault(period, {'commitment': 0, 'fact': 0})
+
+                    if project.step_status == 'project':
+                        pds_fact_list = project.fact_cash_flow_ids
+                        pds_plan_list = project.planned_cash_flow_ids
+                        project_id = (project.step_project_number or '') + ' | ' + (project.project_id or '')
+                    elif project.step_status == 'step':
+                        pds_fact_list = project.fact_step_cash_flow_ids
+                        pds_plan_list = project.planned_step_cash_flow_ids
+                        project_id = (project.step_project_number or '') + ' | ' + project.step_project_parent_id.project_id + " | " + project.project_id
+
+                    currency_rate = self.get_currency_rate_by_project(project)
+
+                    data[project.company_id.name][project.project_office_id.name][project.project_id]['info'] = {
+                        'key_account_manager_id': project.key_account_manager_id.name,
+                        'partner_id': project.partner_id.name,
+                        'essence_project': project.essence_project,
+                        'project_id': project_id,
+                        'probability': self.get_estimated_probability_name_forecast(project.stage_id.code),
+                        'total_amount_of_revenue_with_vat': project.total_amount_of_revenue_with_vat * currency_rate,
+                        'margin_income': project.margin_income * currency_rate,
+                        'profitability': project.profitability,
+                        'dogovor_number': project.dogovor_number or '',
+                        'vat_attribute_id': project.vat_attribute_id.name,
+                    }
+
+                    for pds_fact in pds_fact_list:
+                        if period[0] <= pds_fact.date_cash <= period[1] and project.commercial_budget_id == budget:
+                            data[project.company_id.name][project.project_office_id.name][project.project_id]['periods'][period]['fact'] += pds_fact.sum_cash
+
+                    for pds_plan in pds_plan_list:
+                        if (period[0] <= pds_plan.date_cash <= period[1]
+                                and project.commercial_budget_id.id == options['budget_id']
+                                and (pds_plan.forecast == 'commitment'
+                                     or (pds_plan.forecast == 'from_project'
+                                         and project.stage_id.code in ('100(done)', '100', '75')))):
+                            data[project.company_id.name][project.project_office_id.name][project.project_id]['periods'][period]['commitment'] += pds_plan.sum_cash
+        return data
 
     def is_project_in_year(self, project):
         global strYEAR
@@ -447,6 +557,49 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
 
         return column
 
+    def print_head(self, workbook, sheet, row, column, periods_dict, actual_budget_date):
+        sheet.set_row(row, 16)
+        sheet.set_row(row + 1, 65)
+
+        head_format_month = workbook.add_format({
+            'border': 1,
+            'text_wrap': True,
+            'align': 'center',
+            'valign': 'vcenter',
+            "fg_color": '#D096BF',
+            "font_size": 10,
+        })
+
+        for period, options in periods_dict.items():
+            if options['type'] == 'month':
+                for col in options['cols']:
+                    string = period[0].strftime("%B") + '\n' + col['print_head']
+                    sheet.merge_range(row + 1, column, row + 2, column, string, head_format_month)
+                    column += 1
+            elif options['type'] == 'week':
+                for col in options['cols']:
+                    string = period[0].strftime("%B") + ' ' + period[0].strftime("%d") + '-' + period[1].strftime("%d") + '\n' + col['print_head']
+                    sheet.merge_range(row + 1, column, row + 2, column, string, head_format_month)
+                    column += 1
+            elif options['type'] == 'sum_month':
+                string = options['date'].strftime("%B")  + '\n прогноз на текущую дату'
+                sheet.merge_range(row + 1, column, row + 2, column, string, head_format_month)
+                column += 1
+            elif options['type'] == 'sum_quarter':
+                if options['date'] < actual_budget_date:
+                    string = ('ИТОГО \nПДС Q' + str((options['date'].month - 1) // 3 + 1) + '/' +
+                              options['date'].strftime("%Y") + '\nФакт')
+                else:
+                    string = ('ИТОГО \nПДС Q' + str((options['date'].month - 1) // 3 + 1) + '/' +
+                              options['date'].strftime("%Y") + '\nПрогноз')
+                sheet.merge_range(row + 1, column, row + 2, column, string, head_format_month)
+                column += 1
+            else:
+                string = period
+                sheet.merge_range(row + 1, column, row + 2, column, string, head_format_month)
+                column += 1
+        return column
+
     def print_week_pds_project(self, sheet, row, column, week_number, project, row_format_number, row_format_number_color_fact):
         global strYEAR
         global YEARint
@@ -731,47 +884,52 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
         if monthNameRus == 'Декабрь': return 12
         return False
 
-    def print_row_Values(self, workbook, sheet, row, column,  YEAR, project):
-        global strYEAR
-        global YEARint
+    def print_row_values(self, workbook, sheet, row, column, periods_data, periods_dict):
 
         row_format_number = workbook.add_format({
             'border': 1,
             'font_size': 8,
             'num_format': '#,##0',
         })
-        row_format_number_color_fact = workbook.add_format({
-            "fg_color": '#C6E0B4',
-            'border': 1,
-            'font_size': 8,
-            'num_format': '#,##0',
-        })
-        head_format_month_itogo = workbook.add_format({
-            'border': 1,
-            "fg_color": '#D9E1F2',
-            'diag_type': 3
-        })
 
-        # Поступление денежных средсв, с НДС
-        sumYear100etalon = sumYear75etalon = sumYear50etalon = sumYear100 = sumYear75 = sumYear50 = 0
-        sumQ100etalon = sumQ75etalon = sumQ50etalon = sumQ100 = sumQ75 = sumQ50 = 0
-        sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
+        for period in periods_dict:
+            if 'sum' not in period:
+                for col in periods_dict[period]['cols']:
+                    if col['print'] != 'difference':
+                        sheet.write_number(row, column, periods_data[period][col['print']], row_format_number)
+                    else:
+                        formula = '={1}{0}-{2}{0}'.format(
+                            row + 1,
+                            xl_col_to_name(column - 2),
+                            xl_col_to_name(column - 1)
+                        )
+                        sheet.write_formula(row, column, formula, row_format_number)
+                    column += 1
+            else:
+                sheet.write_string(row, column, period, row_format_number)
+                column += 1
 
-        for week_number in range(1, date(YEARint, 12, 28).isocalendar()[1] + 1):
-
-            sumQ100 = sumQ75 = sumQ50 = 0
-
-            sumQ75tmpetalon, sumQ50tmpetalon, sumQ100tmp, sumQ75tmp, sumQ50tmp = self.print_week_pds_project(sheet, row, column, week_number,
-                                                                                        project, row_format_number, row_format_number_color_fact)
-
-            if sumQ100tmp == 0:
-                sheet.write_number(row, column, 0, row_format_number_color_fact)
-            if sumQ75tmp == 0:
-                sheet.write_number(row, column + 1, 0, row_format_number)
-            if sumQ50tmp == 0:
-                sheet.write_number(row, column + 2, 0, row_format_number)
-
-            column += 3
+        #
+        # # Поступление денежных средсв, с НДС
+        # sumYear100etalon = sumYear75etalon = sumYear50etalon = sumYear100 = sumYear75 = sumYear50 = 0
+        # sumQ100etalon = sumQ75etalon = sumQ50etalon = sumQ100 = sumQ75 = sumQ50 = 0
+        # sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
+        #
+        # for week_number in range(1, date(YEARint, 12, 28).isocalendar()[1] + 1):
+        #
+        #     sumQ100 = sumQ75 = sumQ50 = 0
+        #
+        #     sumQ75tmpetalon, sumQ50tmpetalon, sumQ100tmp, sumQ75tmp, sumQ50tmp = self.print_week_pds_project(sheet, row, column, week_number,
+        #                                                                                 project, row_format_number, row_format_number_color_fact)
+        #
+        #     if sumQ100tmp == 0:
+        #         sheet.write_number(row, column, 0, row_format_number_color_fact)
+        #     if sumQ75tmp == 0:
+        #         sheet.write_number(row, column + 1, 0, row_format_number)
+        #     if sumQ50tmp == 0:
+        #         sheet.write_number(row, column + 2, 0, row_format_number)
+        #
+        #     column += 3
 
     def print_row_values_office(self, workbook, sheet, row, column, YEAR, projects, project_office, formula_offices, multipliers):
         global strYEAR
@@ -848,7 +1006,69 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
 
 # end Поступление денежных средсв, с НДС
 
-    def printrow(self, sheet, workbook, companies, project_offices, budget, budget_ids, row, formulaItogo, level, multipliers):
+    def print_row(self, sheet, workbook, row, data, periods_dict, max_level, formula_itogo):
+
+        row_format = workbook.add_format({
+            'border': 1,
+            'font_size': 8
+        })
+
+        row_format_canceled_project = workbook.add_format({
+            'border': 1,
+            'font_size': 8
+        })
+        row_format_canceled_project.set_font_color('red')
+
+        row_format_number = workbook.add_format({
+            'border': 1,
+            'font_size': 9,
+        })
+        row_format_number.set_num_format('#,##0')
+
+        row_format_number_canceled_project = workbook.add_format({
+            'border': 1,
+            'font_size': 9,
+        })
+
+        for company in data:
+            for office in data[company]:
+                for project, content in data[company][office].items():
+                    print(company, office, project, content)
+                    # печатаем строки проектов
+                    row += 1
+                    sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level + 1})
+                    cur_row_format = row_format
+                    cur_row_format_number = row_format_number
+                    column = 0
+                    sheet.write_string(row, column, office, cur_row_format)
+                    column += 1
+                    sheet.write_string(row, column, content['info']['key_account_manager_id'], cur_row_format)
+                    column += 1
+                    sheet.write_string(row, column, content['info']['partner_id'], cur_row_format)
+                    column += 1
+                    sheet.write_string(row, column, content['info']['essence_project'], cur_row_format)
+                    column += 1
+                    sheet.write_string(row, column, content['info']['project_id'], cur_row_format)
+                    column += 1
+                    sheet.write_string(row, column, content['info']['probability'], cur_row_format)
+                    column += 1
+                    sheet.write_number(row, column, content['info']['total_amount_of_revenue_with_vat'], cur_row_format_number)
+                    column += 1
+                    sheet.write_number(row, column, content['info']['margin_income'], cur_row_format_number)
+                    column += 1
+                    sheet.write_number(row, column, content['info']['profitability'], cur_row_format_number)
+                    column += 1
+                    sheet.write_string(row, column, content['info']['dogovor_number'], cur_row_format)
+                    column += 1
+                    sheet.write_string(row, column, content['info']['vat_attribute_id'], cur_row_format)
+                    column += 1
+                    sheet.write_string(row, column, '', cur_row_format)
+                    column += 1
+                    self.print_row_values(workbook, sheet, row, column, content['periods'], periods_dict)
+
+        return row, formula_itogo
+
+    def printrow(self, sheet, workbook, companies, project_offices, budget, budget_ids, row, formula_itogo, level, multipliers):
         global strYEAR
         global YEARint
         global dict_formula, max_level
@@ -1030,7 +1250,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
 
                 if project_office.child_ids:
                     dict_formula['office_ids'][project_office.id] = row
-                    row0, formulaItogo = self.printrow(sheet, workbook, company, child_project_offices, budget, budget_ids, row, formulaItogo, level + 1, multipliers)
+                    row0, formula_itogo = self.printrow(sheet, workbook, company, child_project_offices, budget, budget_ids, row, formula_itogo, level + 1, multipliers)
 
                 isFoundProjectsByOffice = False
                 if row0 != row:
@@ -1174,9 +1394,9 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                     formula = formulaProjectCompany.format(xl_col_to_name(colFormula * 3 + column + 3))
                     sheet.write_formula(company_row, colFormula * 3 + column + 3, formula, row_format_company)
 
-        return row, formulaItogo
+        return row, formula_itogo
 
-    def printworksheet(self, workbook, budget, namesheet, multipliers):
+    def printworksheet(self, workbook, budget, namesheet, max_level, multipliers):
         global strYEAR
         global YEARint
         global project_office_ids
@@ -1196,13 +1416,13 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
             'valign': 'vcenter',
             'fg_color': '#FFFF00'
         })
-        head_format_1 = workbook.add_format({
+        head_format_grey = workbook.add_format({
             'border': 1,
             'text_wrap': True,
             'align': 'center',
             'valign': 'vcenter',
             "bold": False,
-            "fg_color": '#C6E0B4',
+            "fg_color": '#d9d9d9',
             "font_size": 10,
         })
         row_format_date_month = workbook.add_format({
@@ -1286,57 +1506,44 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
         date_format = workbook.add_format({'num_format': 'd mmmm yyyy'})
         row = 0
         sheet.write_string(row, 0, budget.name + ' ' + str(date.today()), bold)
-        row = 2
         column = 0
-        sheet.merge_range(row - 1, 0, row, 11, "Прогноз", head_format)
-        sheet.merge_range(row + 1, 0, row + 2, 0, "БЮ/Проектный офис", head_format_1)
+        sheet.merge_range(row + 1, 0, row + 2, 0, "БЮ/Проектный офис", head_format_grey)
         sheet.set_column(column, column, 16)
         column += 1
-        sheet.write_string(row, column, "", head_format)
-        sheet.merge_range(row + 1, column, row + 2, column, "КАМ", head_format_1)
+        sheet.merge_range(row + 1, column, row + 2, column, "КАМ", head_format_grey)
         sheet.set_column(column, column, 16)
         column += 1
-        sheet.write_string(row, column, "", head_format)
-        sheet.merge_range(row + 1, column, row + 2, column, "Заказчик", head_format_1)
+        sheet.merge_range(row + 1, column, row + 2, column, "Заказчик", head_format_grey)
         sheet.set_column(column, column, 25)
         column += 1
-        sheet.write_string(row, column, "", head_format)
-        sheet.merge_range(row + 1, column, row + 2, column, "Наименование Проекта", head_format_1)
+        sheet.merge_range(row + 1, column, row + 2, column, "Наименование Проекта", head_format_grey)
         sheet.set_column(column, column, 25, False, {'hidden': 1, 'level': 2})
         column += 1
-        sheet.write_string(row, column, "", head_format)
-        sheet.merge_range(row + 1, column, row + 2, column, "Номер этапа проекта", head_format_1)
+        sheet.merge_range(row + 1, column, row + 2, column, "Номер этапа проекта", head_format_grey)
         sheet.set_column(column, column, 16, False, {'hidden': 1, 'level': 2})
         column += 1
-        sheet.write_string(row, column, "", head_format)
-        sheet.merge_range(row + 1, column, row + 2, column, "Стадия продажи", head_format_1)
+        sheet.merge_range(row + 1, column, row + 2, column, "Стадия продажи", head_format_grey)
         sheet.set_column(column, column, 10, False, {'hidden': 1, 'level': 2})
         column += 1
-        sheet.write_string(row, column, "", head_format)
-        sheet.merge_range(row + 1, column, row + 2, column, "Сумма проекта, руб.", head_format_1)
+        sheet.merge_range(row + 1, column, row + 2, column, "Сумма проекта, руб.", head_format_grey)
         sheet.set_column(column, column, 14, False, {'hidden': 1, 'level': 2})
         column += 1
-        sheet.write_string(row, column, "", head_format)
-        sheet.merge_range(row + 1, column, row + 2, column, "Валовая прибыль экспертно, руб.", head_format_1)
+        sheet.merge_range(row + 1, column, row + 2, column, "Валовая прибыль экспертно, руб.", head_format_grey)
         sheet.set_column(column, column, 14, False, {'hidden': 1, 'level': 2})
         column += 1
-        sheet.write_string(row, column, "", head_format)
-        sheet.merge_range(row + 1, column, row + 2, column, "Прибыльность экспертно, %", head_format_1)
+        sheet.merge_range(row + 1, column, row + 2, column, "Прибыльность экспертно, %", head_format_grey)
         sheet.set_column(column, column, 9, False, {'hidden': 1, 'level': 2})
         column += 1
-        sheet.write_string(row, column, "", head_format)
-        sheet.merge_range(row + 1, column, row + 2, column, "Номер договора", head_format_1)
+        sheet.merge_range(row + 1, column, row + 2, column, "Номер договора", head_format_grey)
         sheet.set_column(column, column, 11.88, False, {'hidden': 1, 'level': 2})
         column += 1
-        sheet.write_string(row, column, "", head_format)
-        sheet.merge_range(row + 1, column, row + 2, column, "НДС", head_format_1)
+        sheet.merge_range(row + 1, column, row + 2, column, "НДС", head_format_grey)
         sheet.set_column(column, column, 4, False, {'hidden': 1, 'level': 2})
         column += 1
-        sheet.write_string(row, column, "", head_format)
-        sheet.merge_range(row + 1, column, row + 2, column, "", head_format_1)
+        sheet.merge_range(row + 1, column, row + 2, column, "", head_format_grey)
         sheet.set_column(column, column, 2)
 
-        sheet.freeze_panes(5, 12)
+        sheet.freeze_panes(3, 12)
         column += 1
 
         actual_budget_date = budget.date_actual or date.today()
@@ -1357,38 +1564,9 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
             ('id', 'in', [plan.step_project_child_id.id for plan in self.env['project_budget.planned_cash_flow'].search([]) if plan.date_cash >= period_limits[0] and plan.date_cash <= period_limits[1]]),
         ], order='project_id')
 
-        data = {}
-        for project in projects:
-            for period, options in periods_dict.items():
-                if 'sum' not in period:
-                    data.setdefault(project.company_id.name, {}).setdefault(project.project_office_id.name, {}).setdefault(project.project_id, {}).setdefault(period, {'commitment': 0, 'fact': 0})
+        data = self.get_data_from_projects(projects, periods_dict, budget)
 
-                    if project.step_status == 'project':
-                        pds_fact_list = project.fact_cash_flow_ids
-                        pds_plan_list = project.planned_cash_flow_ids
-                    elif project.step_status == 'step':
-                        pds_fact_list = project.fact_step_cash_flow_ids
-                        pds_plan_list = project.planned_step_cash_flow_ids
-
-                    for pds_fact in pds_fact_list:
-                        if (period[0] <= pds_fact.date_cash <= period[1]
-                                and project.commercial_budget_id.id == options['budget_id']):
-                            data[project.company_id.name][project.project_office_id.name][project.project_id][period]['fact'] += pds_fact.sum_cash
-
-                    for pds_plan in pds_plan_list:
-                        if (period[0] <= pds_plan.date_cash <= period[1]
-                                and project.commercial_budget_id.id == options['budget_id']
-                                and (pds_plan.forecast == 'commitment'
-                                     or (pds_plan.forecast == 'from_project'
-                                         and project.stage_id.code in ('100(done)', '100', '75')))):
-                            data[project.company_id.name][project.project_office_id.name][project.project_id][period]['commitment'] += pds_plan.sum_cash
-
-        for company in data:
-            for office in data[company]:
-                for project, period in data[company][office].items():
-                    print(company, office, project, period)
-
-        column = self.print_week_head(workbook, sheet, row, column,  strYEAR)
+        column = self.print_head(workbook, sheet, row, column, periods_dict, actual_budget_date)
         row += 2
 
         companies = self.env['res.company'].search([], order='name')
@@ -1400,19 +1578,19 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
             project_offices = self.env['project_budget.project_office'].search([
                 ('parent_id', '=', False)], order='report_sort')  # для сортировки так делаем + берем сначала только верхние элементы
 
-        formulaItogo = '=sum(0'
+        formula_itogo = '=sum(0'
 
-        row, formulaItogo = self.printrow(sheet, workbook, companies, project_offices, budget, budget_ids, row, formulaItogo, 1, multipliers)
+        row, formula_itogo = self.print_row(sheet, workbook, row, data, periods_dict, max_level, formula_itogo)
 
         if set(self.env['project_budget.project_office'].search([]).ids) == set(project_office_ids):
             row += 1
             column = 0
             sheet.merge_range(row, column, row, column + 11, 'ИТОГО по отчету', row_format_number_itogo)
             for company_row in dict_formula['company_ids'].values():
-                formulaItogo += ',{0}' + str(company_row + 1)
-            formulaItogo = formulaItogo + ')'
+                formula_itogo += ',{0}' + str(company_row + 1)
+            formula_itogo = formula_itogo + ')'
             for colFormula in range(12, date(YEARint, 12, 28).isocalendar()[1] * 3 + 12):
-                formula = formulaItogo.format(xl_col_to_name(colFormula))
+                formula = formula_itogo.format(xl_col_to_name(colFormula))
                 sheet.write_formula(row, colFormula, formula, row_format_number_itogo)
             print('dict_formula = ', dict_formula)
 
@@ -1443,4 +1621,4 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
         commercial_budget_id = data['commercial_budget_id']
         print('commercial_budget_id', commercial_budget_id)
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
-        self.printworksheet(workbook, budget, 'ПДС', multipliers)
+        self.printworksheet(workbook, budget, 'ПДС', max_level, multipliers)
