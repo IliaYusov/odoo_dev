@@ -13,6 +13,21 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
     _description = 'project_budget.report_pds_weekly_plan_fact_excel'
     _inherit = 'report.report_xlsx.abstract'
 
+    month_rus_name = [
+        'Январь',
+        'Февраль',
+        'Март',
+        'Апрель',
+        'Май',
+        'Июнь',
+        'Июль',
+        'Август',
+        'Сентябрь',
+        'Октябрь',
+        'Ноябрь',
+        'Декабрь',
+    ]
+
     def get_currency_rate_by_project(self,project):
         project_currency_rates = self.env['project_budget.project_currency_rates']
         return project_currency_rates._get_currency_rate_for_project_in_company_currency(project)
@@ -519,18 +534,18 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
         for period, options in periods_dict.items():
             if options['type'] == 'month':
                 for col in options['cols']:
-                    string = period[0].strftime("%B") + '\n' + col['print_head']
+                    string = self.month_rus_name[period[0].month - 1] + '\n' + col['print_head']
                     sheet.set_column(column, column, *(col['col_format']))
                     sheet.merge_range(row + 1, column, row + 2, column, string, col['format_head'])
                     column += 1
             elif options['type'] == 'week':
                 for col in options['cols']:
-                    string = period[0].strftime("%B") + ' ' + period[0].strftime("%d") + '-' + period[1].strftime("%d") + '\n' + col['print_head']
+                    string = self.month_rus_name[period[0].month - 1] + ' ' + period[0].strftime("%d") + '-' + period[1].strftime("%d") + '\n' + col['print_head']
                     sheet.set_column(column, column, *(col['col_format']))
                     sheet.merge_range(row + 1, column, row + 2, column, string, col['format_head'])
                     column += 1
             elif options['type'] == 'sum_month':
-                string = options['date'].strftime("%B")  + '\n прогноз на текущую дату'
+                string = self.month_rus_name[options['date'].month - 1]  + '\n прогноз на текущую дату'
                 sheet.set_column(column, column, *(options['cols'][0]['col_format']))
                 sheet.merge_range(row + 1, column, row + 2, column, string, options['cols'][0]['format_head'])
                 column += 1
