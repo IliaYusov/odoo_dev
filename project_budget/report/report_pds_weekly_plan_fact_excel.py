@@ -239,7 +239,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                         formula = week_cols
                         week_cols = []
 
-                        if week_start < actual_date:
+                        if week_start < actual_date.date():
                             month_format = fact_format
                             month_head_format = fact_head_format
                             month_office_format = fact_office_format
@@ -272,7 +272,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                             formula = month_cols
                             month_cols = []
 
-                            if month_end < actual_date:
+                            if month_end < actual_date.date():
                                 quater_format = fact_format
                                 quater_head_format = fact_head_format
                                 quater_office_format = fact_office_format
@@ -304,7 +304,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
             elif month_start.month == actual_date.month + 1:  # пропускаем следующий за текущим месяц
                 pass
             else:
-                if month_end < actual_date:  # в прошлом печатаем прогноз и факт, в будущем - только прогноз
+                if month_end < actual_date.date():  # в прошлом печатаем прогноз и факт, в будущем - только прогноз
                     periods_dict[(month_start, month_end)] = {
                         'type': 'month',
                         'cols': [
@@ -360,7 +360,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                     formula = month_cols
                     month_cols = []
 
-                    if month_start < actual_date:
+                    if month_start < actual_date.date():
                         quater_format = fact_format
                         quater_head_format = fact_head_format
                         quater_office_format = fact_office_format
@@ -535,7 +535,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                 sheet.merge_range(row + 1, column, row + 2, column, string, options['cols'][0]['format_head'])
                 column += 1
             elif options['type'] == 'sum_quarter':
-                if options['date'] < actual_budget_date:
+                if options['date'] < actual_budget_date.date():
                     string = ('ИТОГО \nПДС Q' + str((options['date'].month - 1) // 3 + 1) + '/' +
                               options['date'].strftime("%Y") + '\nФакт')
                 else:
@@ -837,9 +837,11 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
             "num_format": '#,##0',
         })
 
+        actual_budget_date = budget.date_actual or datetime.now()
+
         date_format = workbook.add_format({'num_format': 'd mmmm yyyy'})
         row = 0
-        sheet.write_string(row, 0, budget.name + ' ' + str(date.today()), bold)
+        sheet.write_string(row, 0, budget.name + ' ' + str(actual_budget_date.date()), bold)
         column = 0
         sheet.merge_range(row + 1, 0, row + 2, 0, "БЮ/Проектный офис", head_format_grey)
         sheet.set_column(column, column, 16)
@@ -880,7 +882,6 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
         sheet.freeze_panes(3, 12)
         column += 1
 
-        actual_budget_date = budget.date_actual or date.today()
         periods_dict, period_limits = self.calculate_periods_dict(workbook, actual_budget_date)
         periods_dict, budget_ids = self.calculate_budget_ids(budget, periods_dict)
 
