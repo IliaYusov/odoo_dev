@@ -81,6 +81,74 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
             "font_size": 10,
             'fg_color': '#BDD7EE',
         })
+        commitment_office_format = workbook.add_format({
+            'border': 1,
+            'font_size': 10,
+            'bold': True,
+            'num_format': '#,##0',
+            'fg_color': '#d9d9d9',
+        })
+        fact_office_format = workbook.add_format({
+            'border': 1,
+            'font_size': 10,
+            'bold': True,
+            'num_format': '#,##0',
+            'fg_color': '#E2EFDA',
+        })
+        plan_fact_office_format = workbook.add_format({
+            'border': 1,
+            'font_size': 10,
+            'bold': True,
+            'num_format': '#,##0',
+            'fg_color': '#FFF2CC',
+        })
+        difference_office_format = workbook.add_format({
+            'border': 1,
+            'font_size': 10,
+            'bold': True,
+            'num_format': '#,##0',
+            'fg_color': '#BDD7EE',
+        })
+        commitment_company_format = workbook.add_format({
+            'top': 2,
+            'bottom': 2,
+            'left': 1,
+            'right': 1,
+            'font_size': 12,
+            'bold': True,
+            'num_format': '#,##0',
+            'fg_color': '#d9d9d9',
+        })
+        fact_company_format = workbook.add_format({
+            'top': 2,
+            'bottom': 2,
+            'left': 1,
+            'right': 1,
+            'font_size': 12,
+            'bold': True,
+            'num_format': '#,##0',
+            'fg_color': '#E2EFDA',
+        })
+        plan_fact_company_format = workbook.add_format({
+            'top': 2,
+            'bottom': 2,
+            'left': 1,
+            'right': 1,
+            'font_size': 12,
+            'bold': True,
+            'num_format': '#,##0',
+            'fg_color': '#FFF2CC',
+        })
+        difference_company_format = workbook.add_format({
+            'top': 2,
+            'bottom': 2,
+            'left': 1,
+            'right': 1,
+            'font_size': 12,
+            'bold': True,
+            'num_format': '#,##0',
+            'fg_color': '#BDD7EE',
+        })
         periods_dict = OrderedDict()
         period_limits = []
         col = 0
@@ -90,6 +158,12 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
         for month_delta in (-3, -2, -1, 0, 1, 2, 3, 4, 5):  # месяцы от начала текущего квартала
             month_start = actual_quarter_start + relativedelta(months=month_delta)
             month_end = actual_quarter_start + relativedelta(months=month_delta + 1) - timedelta(days=1)
+
+            if month_delta in (0, 1, 2):
+                col_format = (10, None)
+            else:
+                col_format = (10, None, {'hidden': 1, 'level': 1})
+
             if month_start.month == actual_date.month:
                 actual_week = month_start
                 actual_week_number = actual_week.isocalendar()[1]
@@ -97,6 +171,8 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                 week_start = month_start
                 week_end = self.get_dates_from_week(actual_week_number, actual_week_year)[1]
                 while week_start.month < actual_date.month + 2:  # недели в течение двух месяцев
+                    if week_start.month >= actual_date.month + 1:
+                        col_format = (10, None, {'hidden': 1, 'level': 1})
                     periods_dict[(week_start, week_end)] = {
                         'type': 'week',
                         'cols': [
@@ -105,12 +181,18 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                                 'print_head': 'прогноз',
                                 'format': commitment_format,
                                 'format_head': commitment_head_format,
+                                'format_office': commitment_office_format,
+                                'format_company': commitment_company_format,
+                                'col_format': col_format,
                             },
                             {
                                 'print': 'fact',
                                 'print_head': 'факт',
                                 'format': fact_format,
                                 'format_head': fact_head_format,
+                                'format_office': fact_office_format,
+                                'format_company': fact_company_format,
+                                'col_format': col_format,
                             }
                         ],
                     }
@@ -134,12 +216,18 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                                     'print_head': 'прогноз',
                                     'format': commitment_format,
                                     'format_head': commitment_head_format,
+                                    'format_office': commitment_office_format,
+                                    'format_company': commitment_company_format,
+                                    'col_format': col_format,
                                 },
                                 {
                                     'print': 'fact',
                                     'print_head': 'факт',
                                     'format': fact_format,
                                     'format_head': fact_head_format,
+                                    'format_office': fact_office_format,
+                                    'format_company': fact_company_format,
+                                    'col_format': col_format,
                                 }
                             ],
                         }
@@ -150,20 +238,66 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                             week_cols.append(col)
                         formula = week_cols
                         week_cols = []
+
+                        if week_start < actual_date:
+                            month_format = fact_format
+                            month_head_format = fact_head_format
+                            month_office_format = fact_office_format
+                            month_company_format = fact_company_format
+                        else:
+                            month_format = commitment_format
+                            month_head_format = commitment_head_format
+                            month_office_format = commitment_office_format
+                            month_company_format = commitment_company_format
+
                         periods_dict['sum_month_' + str(week_start.month)] = {
                             'type': 'sum_month',
                             'date': week_start,
                             'formula': formula,
+                            'cols': [
+                                {
+                                    'print': 'commitment',
+                                    'print_head': 'прогноз',
+                                    'format': month_format,
+                                    'format_head': month_head_format,
+                                    'format_office': month_office_format,
+                                    'format_company': month_company_format,
+                                    'col_format': col_format,
+                                },
+                            ],
                         }
                         col += 1
                         month_cols.append(col)
                         if week_start.month % 3 == 0:
                             formula = month_cols
                             month_cols = []
+
+                            if month_end < actual_date:
+                                quater_format = fact_format
+                                quater_head_format = fact_head_format
+                                quater_office_format = fact_office_format
+                                quater_company_format = fact_company_format
+                            else:
+                                quater_format = commitment_format
+                                quater_head_format = commitment_head_format
+                                quater_office_format = commitment_office_format
+                                quater_company_format = commitment_company_format
+
                             periods_dict['sum_quarter_' + str((month_start.month - 1) // 3 + 1)] = {
                                 'type': 'sum_quarter',
                                 'date': month_end,
                                 'formula': formula,
+                                'cols': [
+                                    {
+                                        'print': 'commitment',
+                                        'print_head': 'прогноз',
+                                        'format': quater_format,
+                                        'format_head': quater_head_format,
+                                        'format_office': quater_office_format,
+                                        'format_company': quater_company_format,
+                                        'col_format': col_format,
+                                    },
+                                ],
                             }
                             col += 1
                         week_start = week_month_start
@@ -177,20 +311,29 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                             {
                                 'print': 'commitment',
                                 'print_head': 'план-прогноз на начало месяца',
-                                'format': commitment_format,
-                                'format_head': commitment_head_format,
+                                'format': plan_fact_format,
+                                'format_head': plan_fact_head_format,
+                                'format_office': plan_fact_office_format,
+                                'format_company': plan_fact_company_format,
+                                'col_format': col_format,
                             },
                             {
                                 'print': 'fact',
                                 'print_head': 'факт',
                                 'format': fact_format,
                                 'format_head': fact_head_format,
+                                'format_office': fact_office_format,
+                                'format_company': fact_company_format,
+                                'col_format': col_format,
                             },
                             {
                                 'print': 'difference',
                                 'print_head': 'разница',
                                 'format': difference_format,
                                 'format_head': difference_head_format,
+                                'format_office': difference_office_format,
+                                'format_company': difference_company_format,
+                                'col_format': col_format,
                             }
                         ]
                     }
@@ -205,6 +348,9 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                                 'print_head': 'прогноз на текущую дату',
                                 'format': commitment_format,
                                 'format_head': commitment_head_format,
+                                'format_office': commitment_office_format,
+                                'format_company': commitment_company_format,
+                                'col_format': col_format,
                             }
                         ]
                     }
@@ -213,10 +359,33 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                 if month_start.month % 3 == 0:  # добавляем суммы и формулы по кварталам
                     formula = month_cols
                     month_cols = []
+
+                    if month_start < actual_date:
+                        quater_format = fact_format
+                        quater_head_format = fact_head_format
+                        quater_office_format = fact_office_format
+                        quater_company_format = fact_company_format
+                    else:
+                        quater_format = commitment_format
+                        quater_head_format = commitment_head_format
+                        quater_office_format = commitment_office_format
+                        quater_company_format = commitment_company_format
+
                     periods_dict['sum_quarter_' + str((month_start.month - 1) // 3 + 1)] = {
                         'type': 'sum_quarter',
                         'date': month_end,
                         'formula': formula,
+                        'cols': [
+                            {
+                                'print': 'commitment',
+                                'print_head': 'прогноз',
+                                'format': quater_format,
+                                'format_head': quater_head_format,
+                                'format_office': quater_office_format,
+                                'format_company': quater_company_format,
+                                'col_format': col_format,
+                            },
+                        ],
                     }
                     col += 1
                 if month_delta == -3:  # начало и конец всего переода
@@ -351,16 +520,19 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
             if options['type'] == 'month':
                 for col in options['cols']:
                     string = period[0].strftime("%B") + '\n' + col['print_head']
+                    sheet.set_column(column, column, *(col['col_format']))
                     sheet.merge_range(row + 1, column, row + 2, column, string, col['format_head'])
                     column += 1
             elif options['type'] == 'week':
                 for col in options['cols']:
                     string = period[0].strftime("%B") + ' ' + period[0].strftime("%d") + '-' + period[1].strftime("%d") + '\n' + col['print_head']
+                    sheet.set_column(column, column, *(col['col_format']))
                     sheet.merge_range(row + 1, column, row + 2, column, string, col['format_head'])
                     column += 1
             elif options['type'] == 'sum_month':
                 string = options['date'].strftime("%B")  + '\n прогноз на текущую дату'
-                sheet.merge_range(row + 1, column, row + 2, column, string, head_format_month)
+                sheet.set_column(column, column, *(options['cols'][0]['col_format']))
+                sheet.merge_range(row + 1, column, row + 2, column, string, options['cols'][0]['format_head'])
                 column += 1
             elif options['type'] == 'sum_quarter':
                 if options['date'] < actual_budget_date:
@@ -369,11 +541,13 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                 else:
                     string = ('ИТОГО \nПДС Q' + str((options['date'].month - 1) // 3 + 1) + '/' +
                               options['date'].strftime("%Y") + '\nПрогноз')
-                sheet.merge_range(row + 1, column, row + 2, column, string, head_format_month)
+                sheet.set_column(column, column, *(options['cols'][0]['col_format']))
+                sheet.merge_range(row + 1, column, row + 2, column, string, options['cols'][0]['format_head'])
                 column += 1
             else:
                 string = period
-                sheet.merge_range(row + 1, column, row + 2, column, string, head_format_month)
+                sheet.set_column(column, column, *(options['cols'][0]['col_format']))
+                sheet.merge_range(row + 1, column, row + 2, column, string,  options['cols'][0]['format_head'])
                 column += 1
         return column
 
@@ -399,50 +573,51 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                         sheet.write_formula(row, column, formula, col['format'])
                     column += 1
             else:
-                if 'sum_quarter' in period:
-                    formula = 'sum({1}{0},{2}{0},{3}{0})'.format(
-                            row + 1,
-                            xl_col_to_name(11 + periods_dict[period]['formula'][0]),
-                            xl_col_to_name(11 + periods_dict[period]['formula'][1]),
-                            xl_col_to_name(11 + periods_dict[period]['formula'][2]),
-                        )
-                    sheet.write_formula(row, column, formula, row_format_number)
-                    column += 1
-                elif 'sum_month' in period:
-                    if len(periods_dict[period]['formula']) == 4:  # учитываем разное количество недель в месяце
-                        formula = 'sum({1}{0},{2}{0},{3}{0},{4}{0})'.format(
-                            row + 1,
-                            xl_col_to_name(11 + periods_dict[period]['formula'][0]),
-                            xl_col_to_name(11 + periods_dict[period]['formula'][1]),
-                            xl_col_to_name(11 + periods_dict[period]['formula'][2]),
-                            xl_col_to_name(11 + periods_dict[period]['formula'][3]),
-                        )
-                        sheet.write_formula(row, column, formula, row_format_number)
-                    elif len(periods_dict[period]['formula']) == 5:
-                        formula = 'sum({1}{0},{2}{0},{3}{0},{4}{0},{5}{0})'.format(
-                            row + 1,
-                            xl_col_to_name(11 + periods_dict[period]['formula'][0]),
-                            xl_col_to_name(11 + periods_dict[period]['formula'][1]),
-                            xl_col_to_name(11 + periods_dict[period]['formula'][2]),
-                            xl_col_to_name(11 + periods_dict[period]['formula'][3]),
-                            xl_col_to_name(11 + periods_dict[period]['formula'][4]),
-                        )
-                        sheet.write_formula(row, column, formula, row_format_number)
-                    elif len(periods_dict[period]['formula']) == 6:
-                        formula = 'sum({1}{0},{2}{0},{3}{0},{4}{0},{5}{0},{6}{0})'.format(
-                            row + 1,
-                            xl_col_to_name(11 + periods_dict[period]['formula'][0]),
-                            xl_col_to_name(11 + periods_dict[period]['formula'][1]),
-                            xl_col_to_name(11 + periods_dict[period]['formula'][2]),
-                            xl_col_to_name(11 + periods_dict[period]['formula'][3]),
-                            xl_col_to_name(11 + periods_dict[period]['formula'][4]),
-                            xl_col_to_name(11 + periods_dict[period]['formula'][5]),
-                        )
-                        sheet.write_formula(row, column, formula, row_format_number)
-                    column += 1
-                else:
-                    sheet.write_string(row, column, period, row_format_number)
-                    column += 1
+                for col in periods_dict[period]['cols']:
+                    if 'sum_quarter' in period:
+                        formula = 'sum({1}{0},{2}{0},{3}{0})'.format(
+                                row + 1,
+                                xl_col_to_name(11 + periods_dict[period]['formula'][0]),
+                                xl_col_to_name(11 + periods_dict[period]['formula'][1]),
+                                xl_col_to_name(11 + periods_dict[period]['formula'][2]),
+                            )
+                        sheet.write_formula(row, column, formula, col['format'])
+                        column += 1
+                    elif 'sum_month' in period:
+                        if len(periods_dict[period]['formula']) == 4:  # учитываем разное количество недель в месяце
+                            formula = 'sum({1}{0},{2}{0},{3}{0},{4}{0})'.format(
+                                row + 1,
+                                xl_col_to_name(11 + periods_dict[period]['formula'][0]),
+                                xl_col_to_name(11 + periods_dict[period]['formula'][1]),
+                                xl_col_to_name(11 + periods_dict[period]['formula'][2]),
+                                xl_col_to_name(11 + periods_dict[period]['formula'][3]),
+                            )
+                            sheet.write_formula(row, column, formula, col['format'])
+                        elif len(periods_dict[period]['formula']) == 5:
+                            formula = 'sum({1}{0},{2}{0},{3}{0},{4}{0},{5}{0})'.format(
+                                row + 1,
+                                xl_col_to_name(11 + periods_dict[period]['formula'][0]),
+                                xl_col_to_name(11 + periods_dict[period]['formula'][1]),
+                                xl_col_to_name(11 + periods_dict[period]['formula'][2]),
+                                xl_col_to_name(11 + periods_dict[period]['formula'][3]),
+                                xl_col_to_name(11 + periods_dict[period]['formula'][4]),
+                            )
+                            sheet.write_formula(row, column, formula, col['format'])
+                        elif len(periods_dict[period]['formula']) == 6:
+                            formula = 'sum({1}{0},{2}{0},{3}{0},{4}{0},{5}{0},{6}{0})'.format(
+                                row + 1,
+                                xl_col_to_name(11 + periods_dict[period]['formula'][0]),
+                                xl_col_to_name(11 + periods_dict[period]['formula'][1]),
+                                xl_col_to_name(11 + periods_dict[period]['formula'][2]),
+                                xl_col_to_name(11 + periods_dict[period]['formula'][3]),
+                                xl_col_to_name(11 + periods_dict[period]['formula'][4]),
+                                xl_col_to_name(11 + periods_dict[period]['formula'][5]),
+                            )
+                            sheet.write_formula(row, column, formula, col['format'])
+                        column += 1
+                    else:
+                        sheet.write_string(row, column, period, row_format_number)
+                        column += 1
 
     def print_row(self, sheet, workbook, companies, project_offices, actual_office_ids, row, data, periods_dict, level, max_level, dict_formula):
         row_format = workbook.add_format({
@@ -455,7 +630,10 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
             'bold': True,
         })
         company_format = workbook.add_format({
-            'border': 1,
+            'top': 2,
+            'bottom': 2,
+            'left': 1,
+            'right': 1,
             'font_size': 12,
             'bold': True,
         })
@@ -537,21 +715,24 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                             if child_office.id in actual_office_ids:
                                 project_lines.append(dict_formula['office_ids'][child_office.id])
 
-                    self.print_vertical_sum_formula(sheet, dict_formula['office_ids'][office.id], range(12, 56), project_lines, office_format_number)
+                    self.print_vertical_sum_formula(sheet, dict_formula['office_ids'][office.id], project_lines, periods_dict, 12, 'format_office')
 
                 if level == 1:
-                    self.print_vertical_sum_formula(sheet, dict_formula['company_ids'][company.id], range(12, 56), office_lines, company_format_number)
+                    self.print_vertical_sum_formula(sheet, dict_formula['company_ids'][company.id], office_lines, periods_dict, 12, 'format_company')
 
         return row, dict_formula
 
-    def print_vertical_sum_formula(self, sheet, row, col_range, sum_lines, format):
+    def print_vertical_sum_formula(self, sheet, row, sum_lines, periods_dict, start_col, format):
         formula = '=sum('
         for n in range(len(sum_lines)):
             formula += '{0}{' + str(n + 1) + '},'
         formula += ')'
-        for col in col_range:
-            result_formula = formula.format(xl_col_to_name(col), *[line + 1 for line in sum_lines])
-            sheet.write_formula(row, col, result_formula, format)
+        col_counter = start_col
+        for period, options in periods_dict.items():
+            for col in options['cols']:
+                result_formula = formula.format(xl_col_to_name(col_counter), *[line + 1 for line in sum_lines])
+                sheet.write_formula(row, col_counter, result_formula, col[format])
+                col_counter += 1
 
     def printworksheet(self, workbook, budget, namesheet, project_office_ids, max_level, multipliers, dict_formula):
         report_name = budget.name
@@ -632,7 +813,6 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
             'right': 1,
             'font_size': 12,
             "bold": True,
-            "fg_color": '#95B3D7',
             "num_format": '#,##0',
         })
         row_format_number_itogo_percent = workbook.add_format({
@@ -749,7 +929,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
 
             sheet.merge_range(row, 0, row, 11, 'ИТОГО по отчету', row_format_number_itogo)
 
-            self.print_vertical_sum_formula(sheet, row, range(12, 56), dict_formula['company_ids'].values(), row_format_number_itogo)
+            self.print_vertical_sum_formula(sheet, row, dict_formula['company_ids'].values(), periods_dict, 12, 'format_company')
 
     def generate_xlsx_report(self, workbook, data, budgets):
 
