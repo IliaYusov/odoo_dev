@@ -37,9 +37,8 @@
                             <field name="commercial_budget_id" groups="project_budget.project_budget_admin"/>
                             <field name="project_office_ids" widget="many2many_tags"
                                    options="{'no_create_edit': True}"
-                                   attrs="{'invisible': [('type_report', 'not in', ('forecast_v2', 'kb', 'overdue', 'pds_acceptance_by_date', 'pds_weekly'))]}"
+                                   attrs="{'invisible': [('type_report', 'not in', ('forecast_v2', 'kb', 'overdue', 'pds_acceptance_by_date', 'pds_weekly', 'pds_weekly_plan_fact'))]}"
                                    placeholder="All POs if none selected"
-
                             />
                         </group>
                         <group>
