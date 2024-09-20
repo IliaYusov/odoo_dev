@@ -2068,6 +2068,11 @@ msgid "PDS weekly"
 msgstr "ПДС по неделям"
 
 #. module: project_budget
+#: model:ir.model.fields.selection,name:project_budget.selection__project_budget_projects_report_wizard__type_report__pds_weekly_plan_fact
+msgid "PDS weekly plan fact"
+msgstr "ПДС план-прогноз"
+
+#. module: project_budget
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_projects_report_wizard__type_report__pds_acceptance_by_date
 msgid "PDS, Acceptance"
 msgstr "Прогноз ПДС/валовая выручка"
@@ -2610,6 +2615,11 @@ msgstr "Отчет для УК"
 #: model:ir.actions.report,name:project_budget.action_projects_list_report_xlsx_pds_weekly
 msgid "Projects Report PDS by week"
 msgstr "ПДС по неделям"
+
+#. module: project_budget
+#: model:ir.actions.report,name:project_budget.action_projects_list_report_xlsx_pds_weekly_plan_fact
+msgid "Projects Report PDS by week plan fact"
+msgstr "ПДС план-факт"
 
 #. module: project_budget
 #: model:ir.actions.report,name:project_budget.action_projects_list_report_xlsx_pds_acceptance_by_date

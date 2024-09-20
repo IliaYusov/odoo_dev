@@ -567,8 +567,8 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                     else:
                         formula = '={1}{0}-{2}{0}'.format(
                             row + 1,
-                            xl_col_to_name(column - 2),
-                            xl_col_to_name(column - 1)
+                            xl_col_to_name(column - 1),
+                            xl_col_to_name(column - 2)
                         )
                         sheet.write_formula(row, column, formula, col['format'])
                     column += 1
@@ -661,13 +661,14 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                 sheet.merge_range(row, 0, row, 11, company.name, company_format)
             office_lines = list()
 
-            for office in project_offices:
+            for office in project_offices.filtered(lambda r: r.company_id == company):
                 if office.id in actual_office_ids:
-                    row += 1
-                    dict_formula['office_ids'][office.id] = row
+                    if office.id not in dict_formula['company_ids']:
+                        row += 1
+                        dict_formula['office_ids'][office.id] = row
+                        sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
+                        sheet.merge_range(row, 0, row, 11, office.name, office_format)
                     project_lines = list()
-                    sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
-                    sheet.merge_range(row, 0, row, 11, office.name, office_format)
                     office_lines.append(row)
                     if office.name in data[company.name]:
                         for project, content in data[company.name][office.name].items():
@@ -708,7 +709,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                         [('parent_id', '=', office.id)], order='report_sort')
 
                     if child_offices:
-                        row, formula_itogo = self.print_row(sheet, workbook, companies, child_offices,
+                        row, formula_itogo = self.print_row(sheet, workbook, company, child_offices,
                                                             actual_office_ids, row, data, periods_dict,
                                                             level + 1, max_level, dict_formula)
                         for child_office in child_offices:
