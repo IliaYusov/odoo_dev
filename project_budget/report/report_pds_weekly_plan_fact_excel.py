@@ -180,6 +180,22 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                 col_format = (10, None, {'hidden': 1, 'level': 1})
 
             if month_start.month == actual_date.month:
+
+                periods_dict[(month_start, month_end)] = {
+                    'type': 'month',
+                    'cols': [
+                        {
+                            'print': 'commitment',
+                            'print_head': 'план-прогноз на начало месяца',
+                            'format': plan_fact_format,
+                            'format_head': plan_fact_head_format,
+                            'format_office': plan_fact_office_format,
+                            'format_company': plan_fact_company_format,
+                            'col_format': col_format,
+                        },
+                    ]
+                }
+
                 actual_week = month_start
                 actual_week_number = actual_week.isocalendar()[1]
                 actual_week_year = actual_week.isocalendar()[0]
