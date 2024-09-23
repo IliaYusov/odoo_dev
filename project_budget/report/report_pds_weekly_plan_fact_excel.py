@@ -919,8 +919,6 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
             ('id', 'in', [plan.step_project_child_id.id for plan in self.env['project_budget.planned_cash_flow'].search([]) if plan.date_cash >= period_limits[0] and plan.date_cash <= period_limits[1]]),
         ], order='project_id')
 
-        print()
-
         data = self.get_data_from_projects(projects, periods_dict, budget)
 
         actual_office_ids_set = set()
