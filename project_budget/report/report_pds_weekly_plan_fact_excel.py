@@ -442,57 +442,64 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
         return (periods_dict, list(budget_ids))
 
     def get_data_from_projects(self, projects, periods_dict, budget):
+        project_project_ids = set(projects.mapped('project_id'))
         data = {}
-        for project in projects:
+        for project_project_id in sorted(project_project_ids):
             pds_is_present = False
             project_data = {}
             for period, options in periods_dict.items():
                 if 'sum' not in period:
-                    project_data.setdefault(period, {'commitment': 0, 'fact': 0})
+                    for project in projects.filtered(lambda pr: pr.project_id == project_project_id):
+                        project_data.setdefault(period, {'commitment': 0, 'fact': 0})
 
-                    if project.step_status == 'project':
-                        pds_fact_list = project.fact_cash_flow_ids
-                        pds_plan_list = project.planned_cash_flow_ids
-                        project_id = (project.step_project_number or '') + ' | ' + (project.project_id or '')
-                    elif project.step_status == 'step':
-                        pds_fact_list = project.fact_step_cash_flow_ids
-                        pds_plan_list = project.planned_step_cash_flow_ids
-                        project_id = (project.step_project_number or '') + ' | ' + project.step_project_parent_id.project_id + " | " + project.project_id
+                        if project.step_status == 'project':
+                            pds_fact_list = project.fact_cash_flow_ids
+                            pds_plan_list = project.planned_cash_flow_ids
+                            project_id = (project.step_project_number or '') + ' | ' + (project.project_id or '')
+                        elif project.step_status == 'step':
+                            pds_fact_list = project.fact_step_cash_flow_ids
+                            pds_plan_list = project.planned_step_cash_flow_ids
+                            project_id = (project.step_project_number or '') + ' | ' + project.step_project_parent_id.project_id + " | " + project.project_id
 
-                    for pds_fact in pds_fact_list:
-                        if period[0] <= pds_fact.date_cash <= period[1] and project.commercial_budget_id == budget:
-                            pds_is_present = True
-                            project_data[period]['fact'] += pds_fact.sum_cash
+                        for pds_fact in pds_fact_list:
+                            if period[0] <= pds_fact.date_cash <= period[1] and project.commercial_budget_id.id == budget.id:
+                                pds_is_present = True
+                                project_data[period]['fact'] += pds_fact.sum_cash
 
-                    for pds_plan in pds_plan_list:
-                        if (period[0] <= pds_plan.date_cash <= period[1]
-                                and project.commercial_budget_id.id == options['budget_id']
-                                and (pds_plan.forecast == 'commitment'
-                                     or (pds_plan.forecast == 'from_project'
-                                         and project.stage_id.code in ('100(done)', '100', '75')))):
-                            pds_is_present = True
-                            project_data[period]['commitment'] += pds_plan.sum_cash
+                        for pds_plan in pds_plan_list:
+                            if (period[0] <= pds_plan.date_cash <= period[1]
+                                    and project.commercial_budget_id.id == options['budget_id']
+                                    and (pds_plan.forecast == 'commitment'
+                                         or (pds_plan.forecast == 'from_project'
+                                             and project.stage_id.code in ('100(done)', '100', '75')))):
+                                pds_is_present = True
+                                project_data[period]['commitment'] += pds_plan.distribution_sum_with_vat_ostatok
 
             if pds_is_present:
-                data.setdefault(project.company_id.name, {}).setdefault(project.project_office_id.name, {}).setdefault(
-                    project.project_id, {})
+                current_project = projects.filtered(lambda pr: pr.project_id == project_project_id and pr.commercial_budget_id.id == budget.id)
+                data.setdefault(current_project.company_id.name, {}).setdefault(current_project.project_office_id.name, {}).setdefault(
+                    current_project.project_id, {})
 
-                currency_rate = self.get_currency_rate_by_project(project)
+                currency_rate = self.get_currency_rate_by_project(current_project)
+                if current_project.step_status == 'project':
+                    project_step_id = (current_project.step_project_number or '') + ' | ' + (current_project.project_id or '')
+                elif current_project.step_status == 'step':
+                    project_step_id = (current_project.step_project_number or '') + ' | ' + current_project.step_project_parent_id.project_id + " | " + current_project.project_id
 
-                data[project.company_id.name][project.project_office_id.name][project.project_id]['info'] = {
-                    'key_account_manager_id': project.key_account_manager_id.name,
-                    'partner_id': project.partner_id.name,
-                    'essence_project': project.essence_project,
-                    'project_id': project_id,
-                    'probability': self.get_estimated_probability_name_forecast(project.stage_id.code),
-                    'total_amount_of_revenue_with_vat': project.total_amount_of_revenue_with_vat * currency_rate,
-                    'margin_income': project.margin_income * currency_rate,
-                    'profitability': project.profitability,
-                    'dogovor_number': project.dogovor_number or '',
-                    'vat_attribute_id': project.vat_attribute_id.name,
+                data[current_project.company_id.name][current_project.project_office_id.name][current_project.project_id]['info'] = {
+                    'key_account_manager_id': current_project.key_account_manager_id.name,
+                    'partner_id': current_project.partner_id.name,
+                    'essence_project': current_project.essence_project,
+                    'project_id': project_step_id,
+                    'probability': self.get_estimated_probability_name_forecast(current_project.stage_id.code),
+                    'total_amount_of_revenue_with_vat': current_project.total_amount_of_revenue_with_vat * currency_rate,
+                    'margin_income': current_project.margin_income * currency_rate,
+                    'profitability': current_project.profitability,
+                    'dogovor_number': current_project.dogovor_number or '',
+                    'vat_attribute_id': current_project.vat_attribute_id.name,
                 }
 
-                data[project.company_id.name][project.project_office_id.name][project.project_id]['periods'] = project_data
+                data[current_project.company_id.name][current_project.project_office_id.name][current_project.project_id]['periods'] = project_data
         return data
 
     def get_estimated_probability_name_forecast(self, name):
@@ -913,6 +920,8 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
             ('id', 'in', [fact.step_project_child_id.id for fact in self.env['project_budget.fact_cash_flow'].search([]) if fact.date_cash >= period_limits[0] and fact.date_cash <= period_limits[1]]),
             ('id', 'in', [plan.step_project_child_id.id for plan in self.env['project_budget.planned_cash_flow'].search([]) if plan.date_cash >= period_limits[0] and plan.date_cash <= period_limits[1]]),
         ], order='project_id')
+
+        print()
 
         data = self.get_data_from_projects(projects, periods_dict, budget)
 
