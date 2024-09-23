@@ -455,11 +455,9 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                         if project.step_status == 'project':
                             pds_fact_list = project.fact_cash_flow_ids
                             pds_plan_list = project.planned_cash_flow_ids
-                            project_id = (project.step_project_number or '') + ' | ' + (project.project_id or '')
                         elif project.step_status == 'step':
                             pds_fact_list = project.fact_step_cash_flow_ids
                             pds_plan_list = project.planned_step_cash_flow_ids
-                            project_id = (project.step_project_number or '') + ' | ' + project.step_project_parent_id.project_id + " | " + project.project_id
 
                         for pds_fact in pds_fact_list:
                             if period[0] <= pds_fact.date_cash <= period[1] and project.commercial_budget_id.id == budget.id:
