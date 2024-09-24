@@ -77,7 +77,9 @@ class report_projects_rawdata_excel(models.AbstractModel):
         column += 1
         sheet.write_string(row, column, 'Статус проекта', row_format)
         column += 1
-        sheet.write_string(row, column, 'Номер этапа проекта', row_format)
+        sheet.write_string(row, column, 'Номер этапа из AXAPTA проекта', row_format)
+        column += 1
+        sheet.write_string(row, column, 'Номер этапа из AXAPTA этапа', row_format)
         column += 1
         sheet.write_string(row, column, 'Есть этапы', row_format)
         column += 1
@@ -209,9 +211,14 @@ class report_projects_rawdata_excel(models.AbstractModel):
                     sheet.write_string(row, column, spec.step_project_parent_id.project_status, row_format)
                 column += 1
                 if spec.step_status == 'project':
-                    sheet.write_string(row, column, (spec.step_project_number or""), row_format)
+                    sheet.write_string(row, column, (spec.step_project_number or ""), row_format)
                 elif spec.step_status == 'step':
-                    sheet.write_string(row, column, (spec.step_project_parent_id.step_project_number or""), row_format)
+                    sheet.write_string(row, column, (spec.step_project_parent_id.step_project_number or ""), row_format)
+                column += 1
+                if spec.step_status == 'project':
+                    sheet.write_string(row, column, '', row_format)
+                elif spec.step_status == 'step':
+                    sheet.write_string(row, column, (spec.step_project_number or ""), row_format)
                 column += 1
                 if spec.step_status == 'step':
                     sheet.write_string(row, column, "True", row_format)
