@@ -130,7 +130,7 @@ class ReportWeekToWeekExcel(models.AbstractModel):
         })
 
         stage_ids = {}  # словарик соответствия кодов стадий и id стадий
-        for stage in self.env['project_budget.project.stage'].search([]):
+        for stage in self.env['project_budget.project.stage'].sudo().search([]):
             stage_ids[stage.code] = stage.id
 
         row = 2

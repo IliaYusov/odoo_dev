@@ -85,11 +85,13 @@
         <field name="view_mode">kanban,tree,form,pivot,graph</field>
         <field name="domain">
             [
-                ('budget_state', '=', 'work')
+                ('budget_state', '=', 'work'),
+                ('step_status', '=', 'project')
             ]
         </field>
         <field name="context">
             {
+                'default_step_status': 'project',
                 'default_project_office_id': active_id,
                 'search_default_project_office_id': active_id,
                 'search_default_in_the_pipe': True

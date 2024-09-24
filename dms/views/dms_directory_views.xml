@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <record id="action_dms_directory_documents" model="ir.actions.act_window">
-        <field name="name">Documents</field>
+    <record id="action_dms_directory_files" model="ir.actions.act_window">
+        <field name="name">Files</field>
         <field name="res_model">dms.document</field>
         <field name="view_mode">kanban,tree,form</field>
         <field name="domain">
@@ -84,7 +84,7 @@
                 <field name="create_uid"/>
                 <field name="write_date"/>
                 <field name="directory_count"/>
-                <field name="document_count"/>
+                <field name="file_count"/>
                 <templates>
                     <t t-name="kanban-box">
                         <div t-attf-class="oe_kanban_global_click">
@@ -102,10 +102,10 @@
                                                 <i class="fa fa-folder-o"/>
                                                 Directories
                                             </a>
-                                            <a name="%(action_dms_directory_documents)d" type="action"
+                                            <a name="%(action_dms_directory_files)d" type="action"
                                                role="menuitem" class="dropdown-item">
                                                 <i class="fa fa-file-o"/>
-                                                Documents
+                                                Files
                                             </a>
                                         </div>
 <!--                                        <div-->
@@ -163,9 +163,9 @@
                                             t-att-title="record.directory_count.raw_value">
                                             <i class="fa fa-lg fa-folder"/>
                                         </a>
-                                        <a name="%(action_dms_directory_documents)d" type="action" role="button"
+                                        <a name="%(action_dms_directory_files)d" type="action" role="button"
                                             class="btn btn-sm btn-outline-primary dms_directory_kanban_files"
-                                            t-att-title="record.document_count.raw_value">
+                                            t-att-title="record.file_count.raw_value">
                                             <i class="fa fa-lg fa-file" />
                                         </a>
                                     </div>
@@ -220,7 +220,7 @@
                 <field name="name"/>
                 <field name="write_date"/>
                 <field name="directory_count" string="Directories"/>
-                <field name="document_count" string="Documents"/>
+                <field name="file_count" string="Files"/>
                 <field name="storage_id" groups="dms.group_dms_manager"/>
             </tree>
         </field>
@@ -240,9 +240,9 @@
                                 icon="fa-folder-open-o">
                             <field name="directory_count" string="Subdirectories" widget="statinfo"/>
                         </button>
-                        <button name="%(action_dms_directory_documents)d" type="action" class="oe_stat_button"
+                        <button name="%(action_dms_directory_files)d" type="action" class="oe_stat_button"
                                 icon="fa-file-text-o">
-                            <field name="document_count" string="Documents" widget="statinfo"/>
+                            <field name="file_count" string="Files" widget="statinfo"/>
                         </button>
                     </div>
                     <div class="oe_title">
@@ -274,7 +274,7 @@
                                 <tree limit="10">
                                     <field name="name"/>
                                     <field name="directory_count" string="Directories"/>
-                                    <field name="document_count" string="Documents"/>
+                                    <field name="file_count" string="Files"/>
                                     <field name="size" widget="integer"/>
                                 </tree>
                             </field>

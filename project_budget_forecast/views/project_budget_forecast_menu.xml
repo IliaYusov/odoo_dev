@@ -1,0 +1,7 @@
+<odoo>
+    <menuitem id="menu_project_budget_forecast" parent="project_budget.menu_project_budget_configuration"
+              name="Forecast" sequence="11" groups="project_budget.project_budget_admin">
+        <menuitem id="menu_project_budget_forecast_probability" name="Forecast Probabilities" sequence="11"
+                  action="action_project_budget_forecast_probabilities"/>
+    </menuitem>
+</odoo>

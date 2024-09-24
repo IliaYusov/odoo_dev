@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="action_dms_document_form" model="ir.actions.act_window">
-        <field name="name">Documents</field>
+    <record id="action_dms_document_files" model="ir.actions.act_window">
+        <field name="name">Files</field>
         <field name="res_model">dms.document</field>
         <field name="view_mode">kanban,tree,form</field>
         <field name="domain">[("is_hidden", "=", False)]</field>
@@ -16,11 +16,11 @@
         <field name="name">dms.document.search</field>
         <field name="model">dms.document</field>
         <field name="arch" type="xml">
-            <search string="Documents">
-                <field name="name" string="Document"/>
+            <search string="Files">
+                <field name="name" string="File"/>
                 <field name="create_uid" string="Created by"/>
                 <field name="partner_id" string="Partner"/>
-                <filter name="filter_my_documents" string="My Documents" domain="[('create_uid', '=', uid)]"/>
+                <filter name="filter_my_documents" string="My Files" domain="[('create_uid', '=', uid)]"/>
                 <filter name="filter_my_favorites" string="My Favorites" domain="[('favorited_ids', 'in', uid)]"/>
                 <separator/>
                 <filter name="filter_pdf_doc" string="PDF/Document" domain="['|', ('mimetype', 'ilike', 'pdf'), ('name', 'ilike', '.doc')]"/>
@@ -208,7 +208,7 @@
                            attrs="{'invisible': [('thumbnail', '=', False)]}"/>
                     <div class="oe_title" aria-label="Name">
                         <h1>
-                            <field name="name" class="oe_inline" placeholder="Document Name" attrs="{'readonly': [('is_locked', '=', True)]}" required="True"/>&amp;nbsp;
+                            <field name="name" class="oe_inline" placeholder="File Name" attrs="{'readonly': [('is_locked', '=', True)]}" required="True"/>&amp;nbsp;
                             <i class="fa fa-lock oe_inline" title="Locked" attrs="{'invisible': [('locker_id', '=', False)]}"/>
                         </h1>
                     </div>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="project_budget_planned_acceptance_flow_view_form_inherit_forecast" model="ir.ui.view">
+        <field name="name">project.budget.planned.acceptance.flow.form.inherit.forecast</field>
+        <field name="model">project_budget.planned_acceptance_flow</field>
+        <field name="inherit_id" ref="project_budget.project_budget_planned_acceptance_flow_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='acceptance_id']" position="after">
+                <field name="forecast_probability_id" options="{'no_create_edit': True, 'no_open': True}"/>
+            </xpath>
+            <xpath expr="//field[@name='forecast']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

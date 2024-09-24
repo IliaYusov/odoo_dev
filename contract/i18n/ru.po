@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-30 19:48+0000\n"
-"PO-Revision-Date: 2024-05-30 19:48+0000\n"
+"POT-Creation-Date: 2024-07-10 10:50+0000\n"
+"PO-Revision-Date: 2024-07-10 10:50+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -19,7 +19,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:contract.contract_view_form
 msgid ""
 "<i class=\"fa fa-long-arrow-right mx-2\" aria-label=\"Arrow icon\" "
-"title=\"Arrow\"/>"
+"title=\"Arrow\" attrs=\"{'invisible': [('is_unlimited', '=', True)]}\"/>"
 msgstr ""
 
 #. module: contract
@@ -167,6 +167,7 @@ msgid "Contract Kinds"
 msgstr "Типы договоров"
 
 #. module: contract
+#: model:ir.module.category,name:contract.module_category_contract_management
 #: model:ir.ui.menu,name:contract.menu_contract_contract
 msgid "Contract Management"
 msgstr "Управление договорами"
@@ -313,6 +314,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:contract.field_contract_contract__has_message
 msgid "Has Message"
 msgstr ""
+
+#. module: contract
+#: model:ir.module.category,description:contract.module_category_contract_management
+msgid "Helps you manage your contracts."
+msgstr "Помогает управлять вашими договорами."
 
 #. module: contract
 #: model:ir.model.fields,field_description:contract.field_contract_state__hidden
@@ -583,6 +589,13 @@ msgid "Templates"
 msgstr "Шаблоны"
 
 #. module: contract
+#: model:res.groups,comment:contract.group_contract_user_all_contracts
+msgid ""
+"The user will have access to all contracts of everyone in the contract "
+"application."
+msgstr "Пользователь будет иметь доступ ко всем договорам."
+
+#. module: contract
 #: model:ir.model.fields,field_description:contract.field_contract_contract__type_id
 msgid "Type"
 msgstr "Вид"
@@ -594,8 +607,14 @@ msgstr ""
 
 #. module: contract
 #: model:ir.model.fields,field_description:contract.field_contract_contract__is_unlimited
+#: model_terms:ir.ui.view,arch_db:contract.contract_view_form
 msgid "Unlimited"
 msgstr "Бессрочный"
+
+#. module: contract
+#: model:res.groups,name:contract.group_contract_user_all_contracts
+msgid "User: All Contracts"
+msgstr "Пользователь: все договоры"
 
 #. module: contract
 #: model:ir.model.fields,field_description:contract.field_contract_contract__website_message_ids

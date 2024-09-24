@@ -6,27 +6,27 @@ class DmsDocumentMixin(models.AbstractModel):
     _description = 'DMS Document creation mixin'
 
     directory_id = fields.Many2one('dms.directory', string='Directory', copy=False, ondelete='set null')
-    document_ids = fields.One2many('dms.document', 'res_id', string='Documents',
-                                   domain=lambda self: [('res_model', '=', self._name)])
-    document_count = fields.Integer(string='Documents Count', compute='_compute_document_count', readonly=True)
+    file_ids = fields.One2many('dms.document', 'res_id', string='Files',
+                               domain=lambda self: [('res_model', '=', self._name)])
+    file_count = fields.Integer(string='Files Count', compute='_compute_file_count', readonly=True)
 
     # ------------------------------------------------------
     # COMPUTE METHODS
     # ------------------------------------------------------
 
-    @api.depends('document_ids')
-    def _compute_document_count(self):
+    @api.depends('file_ids')
+    def _compute_file_count(self):
         for document in self:
-            document.document_count = len(document.document_ids)
+            document.file_count = len(document.file_ids)
 
     # ------------------------------------------------------
     # ACTIONS
     # ------------------------------------------------------
 
-    def action_open_documents(self):
+    def action_open_files(self):
         self.ensure_one()
         action_vals = {
-            'name': _('Documents'),
+            'name': _('Files'),
             'type': 'ir.actions.act_window',
             'res_model': 'dms.document',
             'view_mode': 'kanban,tree,form',

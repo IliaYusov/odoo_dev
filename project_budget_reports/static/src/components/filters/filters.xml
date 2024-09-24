@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates>
+    <t t-name="project_budget_reports.Filters" owl="1">
+        <div id="filter_period" class="filter_period">
+            <t t-call="project_budget_reports.FilterPeriod"/>
+        </div>
+
+        <div id="filter_rounding_unit">
+            <t t-call="project_budget_reports.FilterRoundingUnit"/>
+        </div>
+    </t>
+</templates>

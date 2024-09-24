@@ -38,7 +38,7 @@ class Contract(models.Model):
 
         res = super(Contract, self).write(vals)
         if res and vals.get('partner_id'):
-            [contract._move_documents_to_partner() for contract in self]
+            [contract._move_files_to_partner() for contract in self]
         return res
 
     # ------------------------------------------------------
@@ -54,11 +54,11 @@ class Contract(models.Model):
             })
             contract.write({'directory_id': directory.id})
 
-    def _move_documents_to_partner(self):
-        documents = self.env['dms.document'].sudo().search([
+    def _move_files_to_partner(self):
+        files = self.env['dms.document'].sudo().search([
             ('res_model', '=', self._name),
             ('res_id', '=', self.id),
             ('partner_id', '!=', self.partner_id.id)
         ])
-        if documents:
-            documents.write({'partner_id': self.partner_id.id})
+        if files:
+            files.write({'partner_id': self.partner_id.id})

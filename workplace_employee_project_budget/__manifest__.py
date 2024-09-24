@@ -1,6 +1,6 @@
 {
     'name': 'Workplace Employee: Project Budget',
-    'version': '1.0.0',
+    'version': '1.0.3',
     'category': '',
     'depends': ['workplace_employee', 'project_budget'],
     'description': """

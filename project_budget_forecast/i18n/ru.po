@@ -1,0 +1,171 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* project_budget_forecast
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-09-02 08:57+0000\n"
+"PO-Revision-Date: 2024-09-02 08:57+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: project_budget_forecast
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_forecast_probability__active
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_sale_figure__active
+msgid "Active"
+msgstr ""
+
+#. module: project_budget_forecast
+#: model:project_budget.sale.figure,name:project_budget_forecast.sale_figure_cash_flow
+msgid "Cash Flow"
+msgstr "Поступление ДС"
+
+#. module: project_budget_forecast
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_forecast_probability__coefficient
+msgid "Coefficient"
+msgstr "Коэффициент"
+
+#. module: project_budget_forecast
+#: model:project_budget.sale.figure,name:project_budget_forecast.sale_figure_contracting
+msgid "Contracting"
+msgstr "Контрактование"
+
+#. module: project_budget_forecast
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_forecast_probability__create_uid
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_project_stage_forecast_probability__create_uid
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_sale_figure__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: project_budget_forecast
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_forecast_probability__create_date
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_project_stage_forecast_probability__create_date
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_sale_figure__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: project_budget_forecast
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_forecast_probability__description
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_sale_figure__description
+msgid "Description"
+msgstr "Описание"
+
+#. module: project_budget_forecast
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_forecast_probability__display_name
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_project_stage_forecast_probability__display_name
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_sale_figure__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: project_budget_forecast
+#: model:ir.ui.menu,name:project_budget_forecast.menu_project_budget_forecast
+msgid "Forecast"
+msgstr "Прогнозирование"
+
+#. module: project_budget_forecast
+#: model:ir.actions.act_window,name:project_budget_forecast.action_project_budget_forecast_probabilities
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_project_stage__forecast_probability_ids
+#: model:ir.ui.menu,name:project_budget_forecast.menu_project_budget_forecast_probability
+#: model_terms:ir.ui.view,arch_db:project_budget_forecast.project_budget_project_stage_view_form_inherit_forecast
+msgid "Forecast Probabilities"
+msgstr "Прогнозные вероятности"
+
+#. module: project_budget_forecast
+#: model:ir.model,name:project_budget_forecast.model_project_budget_forecast_probability
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_planned_acceptance_flow__forecast_probability_id
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_planned_cash_flow__forecast_probability_id
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_project_stage_forecast_probability__forecast_probability_id
+msgid "Forecast Probability"
+msgstr "Прогнозная вероятность"
+
+#. module: project_budget_forecast
+#: model:project_budget.forecast.probability,name:project_budget_forecast.forecast_probability_from_project
+msgid "From Project/Step"
+msgstr "На основании проекта/этапа"
+
+#. module: project_budget_forecast
+#: model:project_budget.sale.figure,name:project_budget_forecast.sale_figure_gross_revenue
+msgid "Gross Revenue"
+msgstr "Валовая выручка"
+
+#. module: project_budget_forecast
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_forecast_probability__id
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_project_stage_forecast_probability__id
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_sale_figure__id
+msgid "ID"
+msgstr ""
+
+#. module: project_budget_forecast
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_forecast_probability____last_update
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_project_stage_forecast_probability____last_update
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_sale_figure____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: project_budget_forecast
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_forecast_probability__write_uid
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_project_stage_forecast_probability__write_uid
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_sale_figure__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: project_budget_forecast
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_forecast_probability__write_date
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_project_stage_forecast_probability__write_date
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_sale_figure__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: project_budget_forecast
+#: model:project_budget.sale.figure,name:project_budget_forecast.sale_figure_margin
+msgid "Margin"
+msgstr "Валовая прибыль"
+
+#. module: project_budget_forecast
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_forecast_probability__name
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_sale_figure__name
+msgid "Name"
+msgstr "Наименование"
+
+#. module: project_budget_forecast
+#: model:ir.model,name:project_budget_forecast.model_project_budget_project_stage
+msgid "Project Stage"
+msgstr "Этап проекта"
+
+#. module: project_budget_forecast
+#: model:ir.model,name:project_budget_forecast.model_project_budget_project_stage_forecast_probability
+msgid "Project Stage Forecast Probability"
+msgstr "Прогнозная вероятность этапа проекта"
+
+#. module: project_budget_forecast
+#: model:ir.model,name:project_budget_forecast.model_project_budget_sale_figure
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_project_stage_forecast_probability__sale_figure_id
+msgid "Sale Figure"
+msgstr "Показатель продаж"
+
+#. module: project_budget_forecast
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_forecast_probability__sequence
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_sale_figure__sequence
+msgid "Sequence"
+msgstr "Последовательность"
+
+#. module: project_budget_forecast
+#: model:ir.model.fields,field_description:project_budget_forecast.field_project_budget_project_stage_forecast_probability__stage_id
+msgid "Stage"
+msgstr "Этап"
+
+#. module: project_budget_forecast
+#: model:ir.model,name:project_budget_forecast.model_project_budget_planned_acceptance_flow
+msgid "planned acceptance flow"
+msgstr "ПДС"
+
+#. module: project_budget_forecast
+#: model:ir.model,name:project_budget_forecast.model_project_budget_planned_cash_flow
+msgid "planned cash flow"
+msgstr "ПДС"

@@ -6,9 +6,9 @@
         <field name="inherit_id" ref="document_flow.document_view_form"/>
         <field name="arch" type="xml">
             <xpath expr="//div[@name='button_box']" position="inside">
-                <button name="action_open_documents" type="object" class="oe_stat_button"
-                        groups="dms.group_dms_user" icon="fa-files-o">
-                    <field name="document_count" string="Documents" widget="statinfo"/>
+                <button name="action_open_files" type="object" class="oe_stat_button"
+                        groups="dms.group_dms_user" icon="fa-folder-open-o">
+                    <field name="file_count" string="Files" widget="statinfo"/>
                 </button>
             </xpath>
         </field>

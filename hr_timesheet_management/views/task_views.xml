@@ -5,7 +5,7 @@
         <field name="model">task.task</field>
         <field name="inherit_id" ref="task.task_view_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//notebook/page[@name='description_page']" position="after">
+            <xpath expr="//notebook/page[@name='sub_tasks_page']" position="after">
                 <t groups="hr_timesheet_management.group_hr_timesheet_user">
                     <field name="subtask_count" invisible="1"/>
                     <field name="allow_timesheets" invisible="1"/>

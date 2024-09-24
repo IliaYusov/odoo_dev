@@ -822,7 +822,8 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         for planned_acceptance_flow in acceptance_list:
             if any(distribution.fact_acceptance_flow_id.margin_manual_input for distribution in
-                   planned_acceptance_flow.distribution_acceptance_ids):  # если есть ручная маржа - пропускаем
+                   planned_acceptance_flow.distribution_acceptance_ids):  # если есть ручная маржа - отдаем нулевой прогноз
+                sum_distribution_acceptance += 1
                 continue
 
             if (not months or planned_acceptance_flow.date_cash.month in months) and planned_acceptance_flow.date_cash.year == year:
@@ -1061,15 +1062,16 @@ class report_budget_forecast_excel(models.AbstractModel):
         sumYear50 = 0
         sumYear30 = 0
 
-        for shifts in plan_shift.values():
+        for name, shifts in plan_shift.items():  # формат ячеек в следующих годах
             sheet.write_string(row, shifts['NEXT'], "", head_format_month_itogo)
+            sheet.write_string(row, shifts['NEXT'] + 1, "", row_format_number)
+            sheet.write_string(row, shifts['NEXT'] + 2, "", row_format_number)
             sheet.write_string(row, shifts['AFTER_NEXT'], "", head_format_month_itogo)
-        sheet.write_string(row, 217 + 0, "", row_format_number)
-        sheet.write_string(row, 217 + 1, "", row_format_number)
-        sheet.write_string(row, 217 + 2, "", row_format_number)
-        sheet.write_string(row, 232 + 0, "", row_format_number)
-        sheet.write_string(row, 232 + 1, "", row_format_number)
-        sheet.write_string(row, 232 + 2, "", row_format_number)
+            sheet.write_string(row, shifts['AFTER_NEXT'] + 1, "", row_format_number)
+            sheet.write_string(row, shifts['AFTER_NEXT'] + 2, "", row_format_number)
+            if name in ('revenue', 'acceptance'):
+                sheet.write_string(row, shifts['AFTER_NEXT'] + 3, "", row_format_number)
+                sheet.write_string(row, shifts['NEXT'] + 3, "", row_format_number)
 
         # печать Контрактование, с НДС
         for element in self.month_rus_name_contract_pds:
@@ -1093,9 +1095,9 @@ class report_budget_forecast_excel(models.AbstractModel):
 
             sumQ75tmpetalon, sumQ50tmpetalon, sumQ100tmp, sumQ75tmp, sumQ50tmp, sumQ30tmp= self.print_month_revenue_project(sheet, row, column, self.get_month_number_rus(element),
                                                                                     project, YEARint, row_format_number, row_format_number_color_fact, False)
-            _, _, _, _, _, _= self.print_month_revenue_project(sheet, row, 231, self.get_month_number_rus(element),
+            _, _, _, _, _, _= self.print_month_revenue_project(sheet, row, plan_shift['revenue']['NEXT'] + 1, self.get_month_number_rus(element),
                                                                                     project, YEARint + 1, row_format_number, row_format_number_color_fact, True)
-            _, _, _, _, _, _= self.print_month_revenue_project(sheet, row, 246, self.get_month_number_rus(element),
+            _, _, _, _, _, _= self.print_month_revenue_project(sheet, row, plan_shift['revenue']['AFTER_NEXT'] + 1, self.get_month_number_rus(element),
                                                                                     project, YEARint + 2, row_format_number, row_format_number_color_fact, True)
             sumQ75etalon += sumQ75tmpetalon
             sumQ50etalon += sumQ50tmpetalon
@@ -1232,9 +1234,9 @@ class report_budget_forecast_excel(models.AbstractModel):
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 36), xl_col_to_name(column - 3))
                 sheet.write_formula(row, column + 2, formula, row_format_number)
             column += 2
-        _, _, _, _, _ = self.print_year_pds_project(sheet, row, 235, project, YEARint + 1, row_format_number,
+        _, _, _, _, _ = self.print_year_pds_project(sheet, row, plan_shift['pds']['NEXT'] + 1, project, YEARint + 1, row_format_number,
                                                     row_format_number_color_fact, True)
-        _, _, _, _, _ = self.print_year_pds_project(sheet, row, 250, project, YEARint + 2, row_format_number,
+        _, _, _, _, _ = self.print_year_pds_project(sheet, row, plan_shift['pds']['AFTER_NEXT'] + 1, project, YEARint + 2, row_format_number,
                                                     row_format_number_color_fact, True)
         # end Поступление денежных средств, с НДС
 
@@ -1310,8 +1312,8 @@ class report_budget_forecast_excel(models.AbstractModel):
                 sheet.write_formula(row, column + 2, formula, row_format_number)
 
                 self.print_acceptance_potential(sheet, row, column, project, YEARint, row_format_number)
-                self.print_acceptance_potential(sheet, row, 223, project, YEARint + 1, row_format_number)
-                self.print_acceptance_potential(sheet, row, 238, project, YEARint + 2, row_format_number)
+                self.print_acceptance_potential(sheet, row, plan_shift['acceptance']['NEXT'], project, YEARint + 1, row_format_number)
+                self.print_acceptance_potential(sheet, row, plan_shift['acceptance']['AFTER_NEXT'], project, YEARint + 2, row_format_number)
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 20 + margin_shift), xl_col_to_name(column - 5 + margin_shift))
                 sheet.write_formula(row, column + 0 + margin_shift, formula, row_format_number_color_fact)
@@ -1321,8 +1323,8 @@ class report_budget_forecast_excel(models.AbstractModel):
                 sheet.write_formula(row, column + 2 + margin_shift, formula, row_format_number)
 
             column += 2
-        _, _, _, _, _ = self.print_year_planned_acceptance_project(sheet,row,238,project,YEARint + 1,row_format_number,row_format_number_color_fact,next_margin_shift, True)
-        _, _, _, _, _ = self.print_year_planned_acceptance_project(sheet,row,253,project,YEARint + 2,row_format_number,row_format_number_color_fact,next_margin_shift, True)
+        _, _, _, _, _ = self.print_year_planned_acceptance_project(sheet,row,plan_shift['acceptance']['NEXT'] + 1,project,YEARint + 1,row_format_number,row_format_number_color_fact,next_margin_shift, True)
+        _, _, _, _, _ = self.print_year_planned_acceptance_project(sheet,row,plan_shift['acceptance']['AFTER_NEXT'] + 1,project,YEARint + 2,row_format_number,row_format_number_color_fact,next_margin_shift, True)
 
         # end Валовая Выручка, без НДС
 

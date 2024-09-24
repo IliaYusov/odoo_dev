@@ -34,7 +34,7 @@ class report_pds_weekly_excel(models.AbstractModel):
 
         if project:
             if project.stage_id.code == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
-                last_fixed_project = self.env['project_budget.projects'].search(
+                last_fixed_project = self.env['project_budget.projects'].sudo().search(
                     [('date_actual', '<', datetime.date(YEARint,1,1)),
                      ('budget_state', '=', 'fixed'),
                      ('project_id', '=', project.project_id),
@@ -1216,7 +1216,8 @@ class report_pds_weekly_excel(models.AbstractModel):
 
         date_format = workbook.add_format({'num_format': 'd mmmm yyyy'})
         row = 0
-        sheet.write_string(row, 0, budget.name + ' ' + str(date.today()), bold)
+        date_actual = budget.date_actual if budget.date_actual else date.today()
+        sheet.write_string(row, 0, budget.name + ' ' + date_actual.strftime("%d/%m/%Y"), bold)
         row = 2
         column = 0
         sheet.merge_range(row - 1, 0, row, 11, "Прогноз", head_format)

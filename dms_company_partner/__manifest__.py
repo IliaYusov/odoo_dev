@@ -1,6 +1,6 @@
 {
     'name': 'DMS: Company Partner',
-    'version': '1.0.0',
+    'version': '1.0.1',
     'category': 'Document Management',
     'depends': ['dms', 'project_budget'],
     'description': """

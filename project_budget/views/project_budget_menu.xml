@@ -30,8 +30,6 @@
               action="show_industry"/>
     <menuitem id="project_budget_catalogs_vat_attribute" parent="project_budget_catalogs" name="vat_attribute"
               action="show_vat_attribute"/>
-    <menuitem id="project_budget_catalogs_legal_entity_signing" parent="project_budget_catalogs"
-              name="legal_entity_signing" action="show_legal_entity_signing"/>
     <menuitem id="project_budget_catalogs_project_type" parent="project_budget_catalogs" name="project_type"
               action="show_project_type"/>
     <menuitem id="project_budget_catalogs_technological_direction" parent="project_budget_catalogs"
@@ -61,9 +59,6 @@
                       groups="project_budget_users,project_budget_admin,project_budget_users_readonly"/>
             <menuitem id="menu_project_budget_overdue_projects" name="Overdue Projects" sequence="2"
                       action="action_project_budget_overdue_projects"
-                      groups="project_budget_users,project_budget_admin"/>
-            <menuitem id="menu_project_budget_financial_data_report" name="Financial Data Report" sequence="3"
-                      action="action_project_budget_financial_data_report"
                       groups="project_budget_users,project_budget_admin"/>
         </menuitem>
     </menuitem>

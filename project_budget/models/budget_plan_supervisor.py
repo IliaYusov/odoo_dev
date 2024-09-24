@@ -11,7 +11,7 @@ type_plan_rows = [
     ('margin3_income', 'margin3_income'),
     ('ebit', 'ebit'),
     ('net_profit', 'net_profit'),
-    ]
+]
 
 
 class budget_plan_supervisor(models.Model):
@@ -46,34 +46,48 @@ class budget_plan_supervisor(models.Model):
     is_use_net_profit = fields.Boolean(string="using Net Profit", tracking=True)
     is_company_plan = fields.Boolean(string="Company plan", tracking=True)
 
-    sum_contracting_year = fields.Monetary(string='contracting plan year', tracking=True, readonly = True, compute='_compute_totals_year')
-    sum_contracting_year_6_6 = fields.Monetary(string='contracting plan year 6+6', tracking=True, readonly = True, compute='_compute_totals_year')
-    sum_contracting_year_fact = fields.Monetary(string='contracting fact year', tracking=True, readonly=True,
+    sum_contracting_year = fields.Monetary(string='contracting plan year', tracking=True, readonly=True,
+                                           compute='_compute_totals_year')
+    sum_contracting_year_6_6 = fields.Monetary(string='contracting plan year 6+6', tracking=True, readonly=True,
                                                compute='_compute_totals_year')
-    sum_cash_year = fields.Monetary(string='cash plan year', tracking=True, readonly = True, compute='_compute_totals_year')
-    sum_cash_year_6_6 = fields.Monetary(string='cash plan year 6+6', tracking=True, readonly=True, compute='_compute_totals_year')
+    sum_contracting_year_fact = fields.Monetary(string='contracting fact year', tracking=True, readonly=True,
+                                                compute='_compute_totals_year')
+    sum_cash_year = fields.Monetary(string='cash plan year', tracking=True, readonly=True,
+                                    compute='_compute_totals_year')
+    sum_cash_year_6_6 = fields.Monetary(string='cash plan year 6+6', tracking=True, readonly=True,
+                                        compute='_compute_totals_year')
     sum_cash_year_fact = fields.Monetary(string='cash fact year', tracking=True, readonly=True,
-                                        compute='_compute_totals_year')
-    sum_acceptance_year = fields.Monetary(string='acceptance plan year', tracking=True, readonly = True, compute='_compute_totals_year')
-    sum_acceptance_year_6_6 = fields.Monetary(string='acceptance plan year 6+6', tracking=True, readonly=True, compute='_compute_totals_year')
+                                         compute='_compute_totals_year')
+    sum_acceptance_year = fields.Monetary(string='acceptance plan year', tracking=True, readonly=True,
+                                          compute='_compute_totals_year')
+    sum_acceptance_year_6_6 = fields.Monetary(string='acceptance plan year 6+6', tracking=True, readonly=True,
+                                              compute='_compute_totals_year')
     sum_acceptance_year_fact = fields.Monetary(string='acceptance fact year', tracking=True, readonly=True,
-                                              compute='_compute_totals_year')
-    sum_margin_income_year = fields.Monetary(string='margin plan year', tracking=True, readonly = True, compute='_compute_totals_year')
-    sum_margin_income_year_6_6 = fields.Monetary(string='margin plan year 6+6', tracking=True, readonly=True, compute='_compute_totals_year')
-    sum_margin_income_year_fact = fields.Monetary(string='margin fact year', tracking=True, readonly=True,
+                                               compute='_compute_totals_year')
+    sum_margin_income_year = fields.Monetary(string='margin plan year', tracking=True, readonly=True,
+                                             compute='_compute_totals_year')
+    sum_margin_income_year_6_6 = fields.Monetary(string='margin plan year 6+6', tracking=True, readonly=True,
                                                  compute='_compute_totals_year')
-    sum_margin3_income_year = fields.Monetary(string='margin3 plan year', tracking=True, readonly = True, compute='_compute_totals_year')
-    sum_margin3_income_year_6_6 = fields.Monetary(string='margin3 plan year 6+6', tracking=True, readonly=True, compute='_compute_totals_year')
-    sum_margin3_income_year_fact = fields.Monetary(string='margin3 fact year', tracking=True, readonly=True,
+    sum_margin_income_year_fact = fields.Monetary(string='margin fact year', tracking=True, readonly=True,
                                                   compute='_compute_totals_year')
-    sum_ebit_year = fields.Monetary(string='ebit plan year', tracking=True, readonly = True, compute='_compute_totals_year')
-    sum_ebit_year_6_6 = fields.Monetary(string='ebit plan year 6+6', tracking=True, readonly=True, compute='_compute_totals_year')
-    sum_ebit_year_fact = fields.Monetary(string='ebit fact year', tracking=True, readonly=True,
-                                        compute='_compute_totals_year')
-    sum_net_profit_year = fields.Monetary(string='net_profit plan year', tracking=True, readonly = True, compute='_compute_totals_year')
-    sum_net_profit_year_6_6 = fields.Monetary(string='net_profit plan year 6+6', tracking=True, readonly=True, compute='_compute_totals_year')
-    sum_net_profit_year_fact = fields.Monetary(string='net_profit fact year', tracking=True, readonly=True,
+    sum_margin3_income_year = fields.Monetary(string='margin3 plan year', tracking=True, readonly=True,
                                               compute='_compute_totals_year')
+    sum_margin3_income_year_6_6 = fields.Monetary(string='margin3 plan year 6+6', tracking=True, readonly=True,
+                                                  compute='_compute_totals_year')
+    sum_margin3_income_year_fact = fields.Monetary(string='margin3 fact year', tracking=True, readonly=True,
+                                                   compute='_compute_totals_year')
+    sum_ebit_year = fields.Monetary(string='ebit plan year', tracking=True, readonly=True,
+                                    compute='_compute_totals_year')
+    sum_ebit_year_6_6 = fields.Monetary(string='ebit plan year 6+6', tracking=True, readonly=True,
+                                        compute='_compute_totals_year')
+    sum_ebit_year_fact = fields.Monetary(string='ebit fact year', tracking=True, readonly=True,
+                                         compute='_compute_totals_year')
+    sum_net_profit_year = fields.Monetary(string='net_profit plan year', tracking=True, readonly=True,
+                                          compute='_compute_totals_year')
+    sum_net_profit_year_6_6 = fields.Monetary(string='net_profit plan year 6+6', tracking=True, readonly=True,
+                                              compute='_compute_totals_year')
+    sum_net_profit_year_fact = fields.Monetary(string='net_profit fact year', tracking=True, readonly=True,
+                                               compute='_compute_totals_year')
 
     @api.depends('budget_plan_supervisor_spec_ids')
     def _compute_totals_year(self):
@@ -135,16 +149,21 @@ class budget_plan_supervisor(models.Model):
     @api.depends('curator_id', 'year')
     def _get_name_to_show(self):
         for plan_supervisor in self:
-            plan_supervisor.name_to_show = str(
-                plan_supervisor.year) + ' ' + (plan_supervisor.project_office_id.name or plan_supervisor.company_id.name) + ' ' + (plan_supervisor.curator_id.name or '')
+            plan_supervisor.name_to_show = (
+                    str(plan_supervisor.year)
+                    + ' '
+                    + (plan_supervisor.project_office_id.name or plan_supervisor.company_id.name)
+                    + ' '
+                    + (plan_supervisor.curator_id.name or '')
+            )
 
-    def insert_spec(self,type_row, plan_id):
+    def insert_spec(self, type_row, plan_id):
         type_plan_row_vals = []
         type_plan_row_vals.append(dict(
-              type_row=type_row
+            type_row=type_row
             , budget_plan_supervisor_id=plan_id
         ))
-        print('insert_spec type_row = ',type_row)
+        print('insert_spec type_row = ', type_row)
         self.env['project_budget.budget_plan_supervisor_spec'].create(type_plan_row_vals)
 
     # @api.onchange('is_use_ebit', 'is_use_net_profit')
@@ -163,9 +182,9 @@ class budget_plan_supervisor(models.Model):
                 for budget_plan_supervisor_spec in row.budget_plan_supervisor_spec_ids:
                     if budget_plan_supervisor_spec.type_row == 'ebit':
                         isexistebit = True
-                print('isexistebit=',isexistebit)
+                print('isexistebit=', isexistebit)
                 if isexistebit == False:
-                    self.insert_spec('ebit',row.id)
+                    self.insert_spec('ebit', row.id)
 
             if row.is_use_net_profit == False:
                 for budget_plan_supervisor_spec in row.budget_plan_supervisor_spec_ids:
@@ -191,7 +210,7 @@ class budget_plan_supervisor(models.Model):
         budget_plan_supervisors = super(budget_plan_supervisor, self).create(vals_list)
         for spec_plan_supervisor in budget_plan_supervisors:
             for type_plan_row in type_plan_rows:
-                self.insert_spec( type_plan_row[0], spec_plan_supervisor.id)
+                self.insert_spec(type_plan_row[0], spec_plan_supervisor.id)
         budget_plan_supervisors._check_use_ebit_use_net_profit()
         self.env.flush_all()
         return budget_plan_supervisors
@@ -199,31 +218,31 @@ class budget_plan_supervisor(models.Model):
 
 class budget_plan_supervisor_spec(models.Model):
     _name = 'project_budget.budget_plan_supervisor_spec'
+
     budget_plan_supervisor_id = fields.Many2one('project_budget.budget_plan_supervisor', string='plan supervisor',
                                                 index=True, ondelete='cascade')
+    company_id = fields.Many2one(related='budget_plan_supervisor_id.company_id', readonly=True, store=True)
     currency_id = fields.Many2one(related='budget_plan_supervisor_id.currency_id', readonly=True)
 
+    type_row = fields.Selection(type_plan_rows, index=True, readonly=True, required=True)
 
-    type_row = fields.Selection(type_plan_rows, required=True, index=True, readonly=True)
+    q1_plan = fields.Monetary(string='q1_plan')
+    q2_plan = fields.Monetary(string='q2_plan')
+    q3_plan = fields.Monetary(string='q3_plan')
+    q4_plan = fields.Monetary(string='q4_plan')
+    year_plan = fields.Monetary(string='year_plan', compute='_compute_totals', store=False)
 
-    q1_plan = fields.Monetary(string='q1_plan', tracking=True)
-    q2_plan = fields.Monetary(string='q2_plan', tracking=True)
-    q3_plan = fields.Monetary(string='q3_plan', tracking=True)
-    q4_plan = fields.Monetary(string='q4_plan', tracking=True)
-    year_plan = fields.Monetary(string='year_plan', compute='_compute_totals', store=False, tracking=True)
+    q1_fact = fields.Monetary(string='q1 fact')
+    q2_fact = fields.Monetary(string='q2 fact')
+    q3_fact = fields.Monetary(string='q3 fact')
+    q4_fact = fields.Monetary(string='q4 fact')
+    year_fact = fields.Monetary(string='year fact', compute='_compute_totals', store=False)
 
-    q1_fact = fields.Monetary(string='q1 fact', tracking=True)
-    q2_fact = fields.Monetary(string='q2 fact', tracking=True)
-    q3_fact = fields.Monetary(string='q3 fact', tracking=True)
-    q4_fact = fields.Monetary(string='q4 fact', tracking=True)
-    year_fact = fields.Monetary(string='year fact', compute='_compute_totals', store=False, tracking=True)
-
-    q1_plan_6_6 = fields.Monetary(string='q1_plan 6+6', tracking=True)
-    q2_plan_6_6 = fields.Monetary(string='q2_plan 6+6', tracking=True)
-    q3_plan_6_6 = fields.Monetary(string='q3_plan 6+6', tracking=True)
-    q4_plan_6_6 = fields.Monetary(string='q4_plan 6+6', tracking=True)
-    year_plan_6_6 = fields.Monetary(string='year_plan 6+6', compute='_compute_totals', store=False,
-                                    tracking=True)
+    q1_plan_6_6 = fields.Monetary(string='q1_plan 6+6')
+    q2_plan_6_6 = fields.Monetary(string='q2_plan 6+6')
+    q3_plan_6_6 = fields.Monetary(string='q3_plan 6+6')
+    q4_plan_6_6 = fields.Monetary(string='q4_plan 6+6')
+    year_plan_6_6 = fields.Monetary(string='year_plan 6+6', compute='_compute_totals', store=False)
 
     @api.depends("q1_plan", "q2_plan", "q3_plan", "q4_plan",
                  "q1_plan_6_6", "q2_plan_6_6", "q3_plan_6_6", "q4_plan_6_6",
@@ -233,8 +252,3 @@ class budget_plan_supervisor_spec(models.Model):
             row.year_plan = row.q1_plan + row.q2_plan + row.q3_plan + row.q4_plan
             row.year_plan_6_6 = row.q1_plan_6_6 + row.q2_plan_6_6 + row.q3_plan_6_6 + row.q4_plan_6_6 + row.q1_fact + row.q2_fact
             row.year_fact = row.q1_fact + row.q2_fact + row.q3_fact + row.q4_fact
-
-
-    def calc_fact(self):
-        for plan_kam in self:
-            return False

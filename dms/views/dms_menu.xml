@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <menuitem id="menu_dms" name="Documents" sequence="65" groups="group_dms_manager">
-        <menuitem id="menu_dms_document" name="Documents" sequence="10" action="action_dms_document_form"/>
+        <menuitem id="menu_dms_document" name="Documents" sequence="10" action="action_dms_document_files"/>
         <menuitem id="menu_dms_config" name="Configuration" sequence="100">
             <menuitem id="menu_dms_storage" name="Storages" sequence="10" action="action_dms_storage_form"/>
             <menuitem id="menu_dms_directory" name="Directories" sequence="20" action="action_dms_directory_form"/>

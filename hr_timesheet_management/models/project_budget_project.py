@@ -4,9 +4,10 @@ from odoo import api, fields, models, _
 class Project(models.Model):
     _inherit = 'project_budget.projects'
 
-    allow_timesheets = fields.Boolean(string='Allow Timesheets', default=False)
+    allow_timesheets = fields.Boolean(string='Allow Timesheets', copy=True, default=False)
     analytic_account_id = fields.Many2one('account.analytic.account', copy=False, domain="""[
-        '|', ('company_id', '=', False), ('company_id', '=', company_id)], ('partner_id', '=?', partner_id)""")
+        '|', ('company_id', '=', False), ('company_id', '=', company_id)], ('partner_id', '=?', partner_id)""",
+                                          groups='analytic.group_analytic_accounting')
 
     timesheet_ids = fields.One2many('account.analytic.line', 'project_id', string='Timesheets')
     total_hours_spent = fields.Float(compute='_compute_total_hours_spent', string='Hours')

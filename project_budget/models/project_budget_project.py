@@ -21,7 +21,10 @@ class Project(models.Model):
         return self.env['project_budget.project.stage'].search([], order=order)
 
     def _get_default_stage_id(self):
-        return self.env['project_budget.project.stage'].search([('fold', '=', False)], limit=1)
+        return self.env['project_budget.project.stage'].search([
+            ('fold', '=', False),
+            '|', ('company_ids', '=', False), ('company_ids', 'in', [self.env.company.id])
+        ], limit=1)
 
     def _get_default_employee_id(self):
         employee = self.env['hr.employee'].search([
@@ -29,17 +32,6 @@ class Project(models.Model):
             ('company_id', '=', self.env.company.id)
         ], limit=1)
         return employee.id
-
-    def _get_default_member_ids(self):
-        result = []
-        employee_id = self._get_default_employee_id()
-        if employee_id:
-            result.append((0, 0, {
-                'project_id': self.id,
-                'role_id': self.env.ref('project_budget.project_role_key_account_manager').id,
-                'employee_id': employee_id
-            }))
-        return result
 
     def _get_current_amount_spec_type(self):
         context = self.env.context
@@ -178,6 +170,7 @@ class Project(models.Model):
     project_id = fields.Char(string='Project_ID', copy=True, default='ID', group_operator='count', index=True,
                              required=True)
     stage_id = fields.Many2one('project_budget.project.stage', string='Stage', copy=True, default=_get_default_stage_id,
+                               domain="['|', ('company_ids', '=', False), ('company_ids', 'in', company_id)]",
                                group_expand='_read_group_stage_ids', index=True, ondelete='restrict', required=True,
                                tracking=True)
     project_status = fields.Selection(selection=PROJECT_STATUS, string='Project Status',
@@ -219,14 +212,14 @@ class Project(models.Model):
     key_account_manager_id = fields.Many2one('hr.employee', string='Key Account Manager',
                                              compute='_compute_key_account_manager_id',
                                              inverse='_inverse_key_account_manager_id', copy=True,
+                                             default=_get_default_employee_id,
                                              domain="[('company_id', 'in', (False, company_id))]", required=True,
                                              store=True, tracking=True)
     project_manager_id = fields.Many2one('hr.employee', string='Project Manager', compute='_compute_project_manager_id',
                                          inverse='_inverse_project_manager_id', copy=True,
                                          domain="[('company_id', 'in', (False, company_id))]", required=False,
                                          store=True, tracking=True)
-    project_member_ids = fields.One2many('project_budget.project.member', 'project_id', string='Members', copy=False,
-                                         default=_get_default_member_ids)
+    project_member_ids = fields.One2many('project_budget.project.member', 'project_id', string='Members', copy=False)
     partner_id = fields.Many2one('res.partner', string='Customer', copy=True,
                                  domain="[('is_company', '=', True)]", ondelete='restrict', required=True,
                                  tracking=True)
@@ -430,7 +423,7 @@ class Project(models.Model):
         required_members = self.env['project_budget.project.role'].search([
             ('is_required', '=', True)
         ])
-        for record in self:
+        for record in self.filtered(lambda pr: pr.step_status == 'project'):
             diff = set(required_members) - set(record.project_member_ids.mapped('role_id'))
             if self.env.ref(
                     'project_budget.project_role_key_account_manager') in diff and record.key_account_manager_id:
@@ -442,11 +435,17 @@ class Project(models.Model):
             if diff:
                 raise ValidationError(_("Roles '%s' are required for the project!") % ', '.join([r.name for r in diff]))
 
+    @api.constrains('stage_id', 'company_id')
+    def _check_company_id(self):
+        for rec in self.filtered(lambda pr: pr.step_status == 'project' and pr.budget_state == 'work'):
+            if rec.stage_id.company_ids and rec.company_id.id not in rec.stage_id.company_ids.ids:
+                raise ValidationError(_('The selected stage belongs to another company than the project.'))
+
     def _compute_can_edit(self):
-        for record in self:
-            record.can_edit = record.active and (
-                (record.approve_state == 'need_approve_manager' and record.budget_state != 'fixed') or (
-                    self.env.user.has_group('project_budget.project_budget_admin') and record.budget_state == 'fixed'))
+        for rec in self:
+            rec.can_edit = rec.active and (
+                (rec.approve_state == 'need_approve_manager' and rec.budget_state != 'fixed') or (
+                    self.env.user.has_group('project_budget.project_budget_admin') and rec.budget_state == 'fixed'))
 
     def _check_project_is_child(self):
         for record in self:
@@ -455,10 +454,10 @@ class Project(models.Model):
                 record.is_child_project = True
 
     def _compute_attachment_count(self):
-        for project in self:
-            project.attachment_count = self.env['ir.attachment'].search_count([
+        for rec in self:
+            rec.attachment_count = self.env['ir.attachment'].search_count([
                 ('res_model', '=', self._name),
-                ('res_id', '=', project.id)
+                ('res_id', '=', rec.id)
             ])
 
     def _compute_tenders_count(self):
@@ -772,7 +771,8 @@ class Project(models.Model):
 
     @api.onchange('key_account_manager_id')
     def _inverse_key_account_manager_id(self):
-        for project in self.filtered(lambda pr: pr.budget_state == 'work' and pr.key_account_manager_id):
+        for project in self.filtered(
+                lambda pr: pr.step_status == 'project' and pr.budget_state == 'work' and pr.key_account_manager_id):
             member_team = self.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
                 'project_budget.project_role_key_account_manager'))[:1]
             if member_team:
@@ -791,7 +791,8 @@ class Project(models.Model):
 
     @api.onchange('project_manager_id')
     def _inverse_project_manager_id(self):
-        for project in self.filtered(lambda pr: pr.budget_state == 'work' and pr.project_manager_id):
+        for project in self.filtered(
+                lambda pr: pr.step_status == 'project' and pr.budget_state == 'work' and pr.project_manager_id):
             member_team = self.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
                 'project_budget.project_role_project_manager'))[:1]
             if member_team:

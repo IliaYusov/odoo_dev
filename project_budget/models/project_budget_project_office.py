@@ -37,6 +37,7 @@ class ProjectOffice(models.Model):
         for rec in self:
             rec.project_ids = self.env['project_budget.projects'].search([
                 ('budget_state', '=', 'work'),
+                ('step_status', '=', 'project'),
                 ('project_office_id', '=', rec.id)
             ])
 

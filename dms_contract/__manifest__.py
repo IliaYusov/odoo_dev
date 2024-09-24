@@ -1,6 +1,6 @@
 {
     'name': 'DMS: Contract',
-    'version': '1.0.0',
+    'version': '1.0.1',
     'category': 'Document Management',
     'depends': ['dms', 'contract'],
     'description': """

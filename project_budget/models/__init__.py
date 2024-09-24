@@ -3,7 +3,6 @@ from . import fact_acceptance_flow
 from . import fact_cash_flow
 from . import planned_acceptance_flow
 from . import planned_cash_flow
-from . import project_steps
 from . import project_budget_project_role
 from . import project_budget_project_member
 from . import project_budget_project_stage
@@ -19,7 +18,6 @@ from . import budget_plan_kam
 from . import tenders
 from . import project_amount_specifications
 from . import project_currency_rates
-from . import project_step_amount_specifications
 from . import res_config_settings
 from . import res_partner
 from . import res_company

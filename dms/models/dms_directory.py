@@ -28,9 +28,9 @@ class DmsDirectory(models.Model):
                                 default=lambda self: self._get_default_parent_id(), index='btree', ondelete='restrict')
     child_ids = fields.One2many('dms.directory', 'parent_id', string='Subdirectories', copy=False)
     directory_count = fields.Integer(compute='_compute_directory_count', string='Subdirectories Count')
-    document_ids = fields.One2many('dms.document', 'directory_id', string='Documents', copy=False)
-    document_count = fields.Integer(compute='_compute_document_count', string='Documents Count')
-    document_total_count = fields.Integer(compute='_compute_document_total_count', string='Total Documents')
+    file_ids = fields.One2many('dms.document', 'directory_id', string='Files', copy=False)
+    file_count = fields.Integer(compute='_compute_file_count', string='Files Count')
+    file_total_count = fields.Integer(compute='_compute_file_total_count', string='Total Files')
     size = fields.Float(compute='_compute_size')
 
     group_ids = fields.Many2many('res.groups', string='Write Groups',
@@ -68,14 +68,14 @@ class DmsDirectory(models.Model):
         for directory in self:
             directory.directory_count = len(directory.child_ids)
 
-    @api.depends('document_ids')
-    def _compute_document_count(self):
+    @api.depends('file_ids')
+    def _compute_file_count(self):
         for directory in self:
-            directory.document_count = len(directory.document_ids)
+            directory.file_count = len(directory.file_ids)
 
-    def _compute_document_total_count(self):
+    def _compute_file_total_count(self):
         for directory in self:
-            directory.document_total_count = self.env['dms.document'].search_count(
+            directory.file_total_count = self.env['dms.document'].search_count(
                 [('directory_id', 'child_of', directory.id)]) if directory.id else 0
 
     def _compute_size(self):

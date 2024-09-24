@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="project_budget.FinancialIndicator" owl="1">
+        <div class="col-lg-3 m-0 p-0">
+            <div class="shadow-sm border m-2 p-4 bg-white text-center">
+                <div class="h3 text-muted">
+                    <span t-esc="props.name"/>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="row">
+                            <h3 t-esc="props.plan"/>
+                            <span>Plan for the period</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="row">
+                            <h3 t-esc="props.fact"/>
+                            <span>Fact at the date</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="row">
+                            <h3 t-esc="props.forecast"/>
+                            <span>Forecast until the end of the period</span>
+                        </div>
+                    </div>
+                    <div class="h3 mt-2">
+                        <span t-attf-class="text-#{ props.percentage > 40 ? props.percentage > 70 ? 'success' : 'warning' : 'danger' }">
+                            <span t-attf-class="me-1 fa fa-arrow-#{ props.percentage > 100 ? 'up' : 'down' }"/>
+                            <span t-esc="props.percentage"/>%
+                        </span>
+                        <span>To plan</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

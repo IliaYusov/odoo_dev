@@ -1,6 +1,6 @@
 {
     'name': 'Contract Management',
-    'version': '1.0.3',
+    'version': '1.0.4',
     'category': 'Contract Management',
     'website': '',
     'author': '',

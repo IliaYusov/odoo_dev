@@ -39,11 +39,30 @@ patch(WorkplaceEmployeeDashboard.prototype, "workplace_employee_project_budget.W
             name: _t("Overdue Projects"),
             type: "ir.actions.act_window",
             res_model: "project.budget.project.overdue.report",
-            view_mode: "tree,form",
-            views: [[false, "tree"], [false, "form"]],
+            view_mode: "tree,form,graph",
+            views: [[false, "tree"], [false, "form"], [false, "graph"]],
             context: {
                 ...session.context
             },
+            target: "current"
+        });
+    },
+
+    openProjects(projectId) {
+        this.action.doAction({
+            name: _t("My Projects"),
+            type: "ir.actions.act_window",
+            res_model: "project_budget.projects",
+            view_mode: "kanban,tree,form,pivot,graph",
+            views: [[false, "kanban"], [false, "tree"], [false, "form"], [false, "pivot"], [false, "graph"]],
+            context: {
+                ...session.context,
+                'search_default_in_the_pipe': true
+            },
+            domain: [
+                ['budget_state', '=', 'work'],
+                ['step_status', '=', 'project']
+            ],
             target: "current"
         });
     },
@@ -76,16 +95,23 @@ patch(WorkplaceEmployeeDashboard.prototype, "workplace_employee_project_budget.W
     },
 
     viewStep(stepId) {
-        this.action.doAction({
-            type: "ir.actions.act_window",
-            res_model: "project_budget.steps",
-            res_id: parseInt(stepId),
-            view_mode: "form",
-            views: [[false, "form"]],
-            context: {
-                ...session.context
-            },
-            target: "current"
+        this.orm.call(
+            "ir.ui.view",
+            "search_read",
+            [[["name", "=", "project_budget.step-project.form"]]],
+            { limit: 1 }
+        ).then(formViewId => {
+            this.action.doAction({
+                type: "ir.actions.act_window",
+                res_model: "project_budget.projects",
+                res_id: parseInt(stepId),
+                view_mode: "form",
+                views: [[formViewId[0]["id"], "form"]],
+                context: {
+                    ...session.context
+                },
+                target: "current"
+            })
         });
     }
 })

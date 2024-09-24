@@ -32,18 +32,18 @@ class ResCompanyPartner(models.Model):
     def write(self, vals):
         res = super(ResCompanyPartner, self).write(vals)
         if res and vals.get('partner_id'):
-            [rec._move_documents_to_partner() for rec in self]
+            [rec._move_files_to_partner() for rec in self]
         return res
 
     # ------------------------------------------------------
     # PRIVATE METHODS
     # ------------------------------------------------------
 
-    def _move_documents_to_partner(self):
-        documents = self.env['dms.document'].sudo().search([
+    def _move_files_to_partner(self):
+        files = self.env['dms.document'].sudo().search([
             ('res_model', '=', self._name),
             ('res_id', '=', self.id),
             ('partner_id', '!=', self.partner_id.id)
         ])
-        if documents:
-            documents.write({'partner_id': self.partner_id.id})
+        if files:
+            files.write({'partner_id': self.partner_id.id})

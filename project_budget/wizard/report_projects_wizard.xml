@@ -31,15 +31,12 @@
                     <group col ="2">
                         <group>
                             <field name="past_commercial_budget_id"
-                                   attrs="{'invisible': [('type_report', 'not in', ('week_to_week',))]}"
-                                   groups="project_budget.project_budget_admin"
-                            />
-                            <field name="commercial_budget_id" groups="project_budget.project_budget_admin"/>
+                                   attrs="{'invisible': [('type_report', 'not in', ('week_to_week',))]}"/>
+                            <field name="commercial_budget_id"/>
                             <field name="project_office_ids" widget="many2many_tags"
                                    options="{'no_create_edit': True}"
-                                   attrs="{'invisible': [('type_report', 'not in', ('forecast_v2', 'kb', 'overdue', 'pds_acceptance_by_date', 'pds_weekly'))]}"
+                                   attrs="{'invisible': [('type_report', 'not in', ('forecast_v2', 'kb', 'overdue', 'pds_acceptance_by_date', 'pds_weekly', 'pds_weekly_plan_fact'))]}"
                                    placeholder="All POs if none selected"
-
                             />
                         </group>
                         <group>
@@ -47,13 +44,13 @@
                             <field name="systematica_forecast" attrs="{'invisible': [('type_report', 'not in', ('forecast_v2'))]}"/>
                         </group>
                     </group>
-                    <group col = "4" string="report period">
+                    <group col = "4" string="report period" attrs="{'invisible': [('type_report', 'in', ('raw_data','overdue','pds_acceptance_by_date', 'pds_weekly_plan_fact'))]}">
                         <group>
-                            <field string="year from" name="year" attrs="{'invisible': [('type_report', 'in', ('raw_data','overdue','pds_acceptance_by_date'))]}"/>
+                            <field string="year from" name="year" attrs="{'invisible': [('type_report', 'in', ('raw_data','overdue','pds_acceptance_by_date', 'pds_weekly_plan_fact'))]}"/>
                             <field string="from date" name="date_start" attrs="{'invisible': [('type_report', 'not in', ('pds_acceptance_by_date'))]}"/>
                         </group>
                         <group>
-                            <field string="year to" name="year_end" attrs="{'invisible': [('type_report', 'in', ('week_to_week', 'raw_data','overdue','management_committee','pds_acceptance_by_date', 'pds_weekly', 'forecast_v2', 'plan_fact'))]}"/>
+                            <field string="year to" name="year_end" attrs="{'invisible': [('type_report', 'in', ('week_to_week', 'raw_data','overdue','management_committee','pds_acceptance_by_date', 'pds_weekly', 'pds_weekly_plan_fact', 'forecast_v2', 'plan_fact'))]}"/>
                             <field string="to date" name="date_end" attrs="{'invisible': [('type_report', 'not in', ('pds_acceptance_by_date'))]}"/>
                         </group>
                         <group></group>

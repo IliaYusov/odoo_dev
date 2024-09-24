@@ -42,7 +42,7 @@ class report_svod_excel(models.AbstractModel):
 
         if project:
             if project.stage_id.code == '0':  # проверяем последний зафиксированный бюджет в предыдущих годах
-                last_fixed_project = self.env['project_budget.projects'].search(
+                last_fixed_project = self.env['project_budget.projects'].sudo().search(
                     [('date_actual', '<', datetime.date(YEARint,1,1)),
                      ('budget_state', '=', 'fixed'),
                      ('project_id', '=', project.project_id),
@@ -102,13 +102,13 @@ class report_svod_excel(models.AbstractModel):
         return 0
 
     def get_etalon_budget(self):
-        etalon_budget = self.env['project_budget.commercial_budget'].search(
+        etalon_budget = self.env['project_budget.commercial_budget'].sudo().search(
             [('etalon_budget', '=', True), ('budget_state', '=', 'fixed'),('name','!=','ФИНАНСЫ эталон Q2')], limit=1,
             order='date_actual desc')
         return etalon_budget
 
     def get_etalon_project(self, spec):
-        etalon_project = self.env['project_budget.projects'].search([
+        etalon_project = self.env['project_budget.projects'].sudo().search([
             ('etalon_budget', '=', True),
             ('budget_state', '=', 'fixed'),
             ('project_id', '=', spec.project_id),
@@ -121,7 +121,7 @@ class report_svod_excel(models.AbstractModel):
         global YEARint
 
         datesearch = datetime.date(YEARint, 1, 1)  # будем искать первый утвержденный в году
-        etalon_project = self.env['project_budget.projects'].search([
+        etalon_project = self.env['project_budget.projects'].sudo().search([
             ('etalon_budget', '=', True),
             ('budget_state', '=', 'fixed'),
             ('project_id', '=', spec.project_id),
@@ -1179,7 +1179,7 @@ class report_svod_excel(models.AbstractModel):
         key_account_managers = self.env['project_budget.projects'].search([]).key_account_manager_id.sorted('name')
         # key_account_managers = self.env.ref('project_budget.group_project_budget_key_account_manager').users.employee_ids.sorted('name')
         # project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
-        stages = self.env['project_budget.project.stage'].search([('name', '!=', '10')], order='sequence desc')  # для сортировки так делаем
+        stages = self.env['project_budget.project.stage'].search([('code', '!=', '10')], order='sequence desc')  # для сортировки так делаем
 
         isFoundProjects = False
         begRowProjectsByManager = 0

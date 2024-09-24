@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <menuitem id="menu_yk_main"
-              name="Yk_modul"
-              sequence = "10"/>
-</odoo>

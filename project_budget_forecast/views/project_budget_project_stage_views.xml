@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="project_budget_project_stage_view_form_inherit_forecast" model="ir.ui.view">
+        <field name="name">project.budget.project.stage.form.inherit.forecast</field>
+        <field name="model">project_budget.project.stage</field>
+        <field name="inherit_id" ref="project_budget.project_budget_project_stage_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='companies']" position="before">
+                <notebook>
+                    <page name="page_forecast" string="Forecast Probabilities">
+                        <field name="forecast_probability_ids" mode="tree"
+                               context="{'default_stage_id': active_id}">
+                            <tree editable="bottom">
+                                <field name="stage_id" invisible="1"/>
+                                <field name="sale_figure_id"/>
+                                <field name="forecast_probability_id"/>
+                            </tree>
+                        </field>
+                    </page>
+                </notebook>
+            </xpath>
+        </field>
+    </record>
+</odoo>

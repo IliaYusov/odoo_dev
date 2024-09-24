@@ -29,16 +29,16 @@ class DmsStorage(models.Model):
                                          domain="[('parent_id', '=', False)]", readonly=False)
     directory_ids = fields.One2many('dms.directory', 'storage_id', string='Directories', copy=False,
                                     readonly=True)
-    directory_count = fields.Integer(compute='_compute_directory_count', string='Count Directories')
-    document_ids = fields.One2many('dms.document', 'storage_id', string='Documents', copy=False, readonly=True)
-    document_count = fields.Integer(compute='_compute_document_count', string='Count Documents')
+    directory_count = fields.Integer(compute='_compute_directory_count', string='Directories Count')
+    file_ids = fields.One2many('dms.document', 'storage_id', string='Files', copy=False, readonly=True)
+    file_count = fields.Integer(compute='_compute_file_count', string='Files Count')
 
     @api.depends('directory_ids')
     def _compute_directory_count(self):
         for record in self:
             record.directory_count = len(record.directory_ids)
 
-    @api.depends('document_ids')
-    def _compute_document_count(self):
+    @api.depends('file_ids')
+    def _compute_file_count(self):
         for record in self:
-            record.document_count = len(record.document_ids)
+            record.file_count = len(record.file_ids)

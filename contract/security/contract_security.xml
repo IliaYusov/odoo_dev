@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <record id="module_category_contract_management" model="ir.module.category">
+        <field name="name">Contract Management</field>
+        <field name="description">Helps you manage your contracts.</field>
+        <field name="sequence">14</field>
+    </record>
+
+    <record id="group_contract_user_all_contracts" model="res.groups">
+        <field name="name">User: All Contracts</field>
+        <field name="category_id" ref="module_category_contract_management"/>
+        <field name="comment">The user will have access to all contracts of everyone in the contract application.</field>
+    </record>
+
     <data>
         <record id="contract_contract_company_rule" model="ir.rule">
             <field name="name">Contract multi-company</field>
@@ -25,6 +37,17 @@
             <field name="model_id" ref="model_contract_contract"/>
             <field name="domain_force">[(1, '=', 1)]</field>
             <field name="groups" eval="[(4,ref('base.group_system'))]"/>
+        </record>
+
+        <record id="contract_contract_manager_rule" model="ir.rule">
+            <field name="name">Contract manager: see all contracts</field>
+            <field name="model_id" ref="model_contract_contract"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="
+                [
+                    (4, ref('contract.group_contract_user_all_contracts')),
+                    (4, ref('base.group_system'))
+                ]"/>
         </record>
     </data>
 </odoo>

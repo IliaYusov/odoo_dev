@@ -1,4 +1,5 @@
 from odoo import api, fields, models, _
+from odoo.osv import expression
 
 
 class Project(models.Model):
@@ -27,7 +28,7 @@ class Project(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         # т.к. project_id не сгенерирован перед записью, сначала дергаем метод создания. Мб precompute?
-        records = super().create(vals_list)
+        records = super(Project, self).create(vals_list)
 
         [project._create_project_directory() for project in
          records.filtered(lambda pr: not pr.directory_id and pr.budget_state == 'work')]
@@ -41,8 +42,23 @@ class Project(models.Model):
 
         res = super(Project, self).write(vals)
         if res and vals.get('partner_id'):
-            [project._move_documents_to_partner() for project in self]
+            [project._move_files_to_partner() for project in self]
         return res
+
+    # ------------------------------------------------------
+    # ACTIONS
+    # ------------------------------------------------------
+
+    def action_open_files(self):
+        self.ensure_one()
+        action_vals = super(Project, self).action_open_files()
+        # action_vals.update({
+        #     'domain': expression.OR([
+        #         action_vals['domain'],
+        #         [('res_model', '=', 'document_flow.document'), ('res_id', 'in', self.document_ids.ids)]
+        #     ])
+        # })
+        return action_vals
 
     # ------------------------------------------------------
     # PRIVATE METHODS
@@ -57,11 +73,11 @@ class Project(models.Model):
             })
             project.with_context(form_fix_budget=True).write({'directory_id': directory.id})
 
-    def _move_documents_to_partner(self):
-        documents = self.env['dms.document'].sudo().search([
+    def _move_files_to_partner(self):
+        files = self.env['dms.document'].sudo().search([
             ('res_model', '=', self._name),
             ('res_id', '=', self.id),
             ('partner_id', '!=', self.partner_id.id)
         ])
-        if documents:
-            documents.write({'partner_id': self.partner_id.id})
+        if files:
+            files.write({'partner_id': self.partner_id.id})

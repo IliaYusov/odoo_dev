@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-19 14:40+0000\n"
-"PO-Revision-Date: 2024-03-19 14:40+0000\n"
+"POT-Creation-Date: 2024-06-25 08:24+0000\n"
+"PO-Revision-Date: 2024-06-25 08:24+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -62,10 +62,10 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:dms.dms_directory_view_kanban
 msgid ""
 "<i class=\"fa fa-file-o\"/>\n"
-"                                                Documents"
+"                                                Files"
 msgstr ""
 "<i class=\"fa fa-file-o\"/>\n"
-"                                                Документы"
+"                                                Файлы"
 
 #. module: dms
 #: model_terms:ir.ui.view,arch_db:dms.dms_directory_view_kanban
@@ -215,8 +215,8 @@ msgid "Click to add a new directory."
 msgstr "Нажмите для добавления нового каталога."
 
 #. module: dms
-#: model_terms:ir.actions.act_window,help:dms.action_dms_directory_documents
-#: model_terms:ir.actions.act_window,help:dms.action_dms_storage_documents
+#: model_terms:ir.actions.act_window,help:dms.action_dms_directory_files
+#: model_terms:ir.actions.act_window,help:dms.action_dms_storage_files
 msgid "Click to add a new document."
 msgstr "Нажмите для добавления нового документа"
 
@@ -238,16 +238,6 @@ msgstr "Настройки"
 #: model:ir.model,name:dms.model_res_partner
 msgid "Contact"
 msgstr ""
-
-#. module: dms
-#: model:ir.model.fields,field_description:dms.field_dms_storage__directory_count
-msgid "Count Directories"
-msgstr "Количество каталогов"
-
-#. module: dms
-#: model:ir.model.fields,field_description:dms.field_dms_storage__document_count
-msgid "Count Documents"
-msgstr "Количество документов"
 
 #. module: dms
 #. odoo-javascript
@@ -342,6 +332,11 @@ msgid "Directories"
 msgstr "Каталоги"
 
 #. module: dms
+#: model:ir.model.fields,field_description:dms.field_dms_storage__directory_count
+msgid "Directories Count"
+msgstr "Количество каталогов"
+
+#. module: dms
 #: model_terms:ir.actions.act_window,help:dms.action_dms_directory_form
 #: model_terms:ir.actions.act_window,help:dms.action_dms_directory_subdirectories
 #: model_terms:ir.actions.act_window,help:dms.action_dms_storage_directories
@@ -371,21 +366,9 @@ msgstr ""
 #. module: dms
 #: model:ir.model.fields,field_description:dms.field_dms_document_version__document_id
 #: model_terms:ir.ui.view,arch_db:dms.dms_document_view_kanban
-#: model_terms:ir.ui.view,arch_db:dms.dms_document_view_search
 #: model_terms:ir.ui.view,arch_db:dms.dms_document_view_tree
 msgid "Document"
 msgstr "Документ"
-
-#. module: dms
-#: model:ir.model.fields,field_description:dms.field_res_partner__document_count
-#: model:ir.model.fields,field_description:dms.field_res_users__document_count
-msgid "Document Count"
-msgstr ""
-
-#. module: dms
-#: model_terms:ir.ui.view,arch_db:dms.dms_document_view_form
-msgid "Document Name"
-msgstr ""
 
 #. module: dms
 #: model:ir.ui.menu,name:dms.menu_dms_document_versioning
@@ -393,33 +376,12 @@ msgid "Document Versioning"
 msgstr "Версионность документов"
 
 #. module: dms
-#. odoo-python
-#: code:addons/dms/models/dms_document_mixin.py:0
-#: model:ir.actions.act_window,name:dms.action_dms_directory_documents
-#: model:ir.actions.act_window,name:dms.action_dms_document_form
 #: model:ir.actions.act_window,name:dms.action_dms_partner_documents
-#: model:ir.actions.act_window,name:dms.action_dms_storage_documents
-#: model:ir.model.fields,field_description:dms.field_dms_directory__document_ids
-#: model:ir.model.fields,field_description:dms.field_dms_document_mixin__document_ids
-#: model:ir.model.fields,field_description:dms.field_dms_storage__document_ids
-#: model:ir.model.fields,field_description:dms.field_res_partner__document_ids
-#: model:ir.model.fields,field_description:dms.field_res_users__document_ids
 #: model:ir.module.category,name:dms.category_dms_security
 #: model:ir.ui.menu,name:dms.menu_dms
 #: model:ir.ui.menu,name:dms.menu_dms_document
-#: model_terms:ir.ui.view,arch_db:dms.dms_directory_view_form
-#: model_terms:ir.ui.view,arch_db:dms.dms_directory_view_tree
-#: model_terms:ir.ui.view,arch_db:dms.dms_document_view_search
-#: model_terms:ir.ui.view,arch_db:dms.dms_storage_view_form
-#, python-format
 msgid "Documents"
 msgstr "Документы"
-
-#. module: dms
-#: model:ir.model.fields,field_description:dms.field_dms_directory__document_count
-#: model:ir.model.fields,field_description:dms.field_dms_document_mixin__document_count
-msgid "Documents Count"
-msgstr "Количество документов"
 
 #. module: dms
 #: model_terms:ir.ui.view,arch_db:dms.dms_version_config_view_tree
@@ -427,8 +389,8 @@ msgid "Documents Version Config"
 msgstr "Настройки версионности документов"
 
 #. module: dms
-#: model_terms:ir.actions.act_window,help:dms.action_dms_directory_documents
-#: model_terms:ir.actions.act_window,help:dms.action_dms_storage_documents
+#: model_terms:ir.actions.act_window,help:dms.action_dms_directory_files
+#: model_terms:ir.actions.act_window,help:dms.action_dms_storage_files
 msgid "Documents are used to save content."
 msgstr "Документы используются для сохранения содержимого."
 
@@ -456,6 +418,11 @@ msgid "Favorite of"
 msgstr "Избранное"
 
 #. module: dms
+#: model_terms:ir.ui.view,arch_db:dms.dms_document_view_search
+msgid "File"
+msgstr "Файл"
+
+#. module: dms
 #: model:ir.model.fields,field_description:dms.field_dms_document__datas
 msgid "File Content (base64)"
 msgstr "Содержимое файла (base64)"
@@ -466,10 +433,47 @@ msgid "File Content (raw)"
 msgstr ""
 
 #. module: dms
+#: model:ir.model.fields,field_description:dms.field_res_partner__file_count
+#: model:ir.model.fields,field_description:dms.field_res_users__file_count
+msgid "File Count"
+msgstr "Количество файлов"
+
+#. module: dms
+#: model_terms:ir.ui.view,arch_db:dms.dms_document_view_form
+msgid "File Name"
+msgstr "Наименование файла"
+
+#. module: dms
 #: model:ir.model.fields,field_description:dms.field_dms_document__size
 #: model:ir.model.fields,field_description:dms.field_dms_document_version__file_size
 msgid "File Size"
 msgstr "Размер файла"
+
+#. module: dms
+#. odoo-python
+#: code:addons/dms/models/dms_document_mixin.py:0
+#: model:ir.actions.act_window,name:dms.action_dms_directory_files
+#: model:ir.actions.act_window,name:dms.action_dms_document_files
+#: model:ir.actions.act_window,name:dms.action_dms_storage_files
+#: model:ir.model.fields,field_description:dms.field_dms_directory__file_ids
+#: model:ir.model.fields,field_description:dms.field_dms_document_mixin__file_ids
+#: model:ir.model.fields,field_description:dms.field_dms_storage__file_ids
+#: model:ir.model.fields,field_description:dms.field_res_partner__file_ids
+#: model:ir.model.fields,field_description:dms.field_res_users__file_ids
+#: model_terms:ir.ui.view,arch_db:dms.dms_directory_view_form
+#: model_terms:ir.ui.view,arch_db:dms.dms_directory_view_tree
+#: model_terms:ir.ui.view,arch_db:dms.dms_document_view_search
+#: model_terms:ir.ui.view,arch_db:dms.dms_storage_view_form
+#, python-format
+msgid "Files"
+msgstr "Файлы"
+
+#. module: dms
+#: model:ir.model.fields,field_description:dms.field_dms_directory__file_count
+#: model:ir.model.fields,field_description:dms.field_dms_document_mixin__file_count
+#: model:ir.model.fields,field_description:dms.field_dms_storage__file_count
+msgid "Files Count"
+msgstr "Количество файлов"
 
 #. module: dms
 #: model:ir.model.fields,field_description:dms.field_dms_document__message_follower_ids
@@ -701,7 +705,6 @@ msgstr "Мои каталоги"
 
 #. module: dms
 #: model_terms:ir.ui.view,arch_db:dms.dms_directory_view_form
-#: model_terms:ir.ui.view,arch_db:dms.dms_document_view_search
 msgid "My Documents"
 msgstr "Мои документы"
 
@@ -709,6 +712,11 @@ msgstr "Мои документы"
 #: model_terms:ir.ui.view,arch_db:dms.dms_document_view_search
 msgid "My Favorites"
 msgstr "Избранные"
+
+#. module: dms
+#: model_terms:ir.ui.view,arch_db:dms.dms_document_view_search
+msgid "My Files"
+msgstr "Мои файлы"
 
 #. module: dms
 #. odoo-python
@@ -911,9 +919,9 @@ msgid "Thumbnail"
 msgstr "Миниатюра"
 
 #. module: dms
-#: model:ir.model.fields,field_description:dms.field_dms_directory__document_total_count
-msgid "Total Documents"
-msgstr "Всего документов"
+#: model:ir.model.fields,field_description:dms.field_dms_directory__file_total_count
+msgid "Total Files"
+msgstr "Всего файлов"
 
 #. module: dms
 #: model:ir.model.fields,help:dms.field_dms_document__activity_exception_decoration
@@ -928,7 +936,7 @@ msgid "Upload"
 msgstr "Загрузить"
 
 #. module: dms
-#: model_terms:ir.actions.act_window,help:dms.action_dms_document_form
+#: model_terms:ir.actions.act_window,help:dms.action_dms_document_files
 #: model_terms:ir.actions.act_window,help:dms.action_dms_partner_documents
 msgid ""
 "Upload <span class=\"fw-normal\">a file or</span> drag\n"

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="project_budget_forecast_probability_view_tree" model="ir.ui.view">
+        <field name="name">project.budget.forecast.probability.tree</field>
+        <field name="model">project_budget.forecast.probability</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom" sample="1">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="coefficient"/>
+                <field name="description"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_project_budget_forecast_probabilities" model="ir.actions.act_window">
+        <field name="name">Forecast Probabilities</field>
+        <field name="res_model">project_budget.forecast.probability</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

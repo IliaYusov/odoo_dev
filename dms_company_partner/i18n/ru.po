@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-06 14:33+0000\n"
-"PO-Revision-Date: 2024-05-06 14:33+0000\n"
+"POT-Creation-Date: 2024-06-23 13:40+0000\n"
+"PO-Revision-Date: 2024-06-23 13:40+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -26,15 +26,15 @@ msgid "Directory"
 msgstr "Каталог"
 
 #. module: dms_company_partner
-#: model:ir.model.fields,field_description:dms_company_partner.field_res_company_partner__document_ids
+#: model:ir.model.fields,field_description:dms_company_partner.field_res_company_partner__file_ids
 #: model_terms:ir.ui.view,arch_db:dms_company_partner.res_company_partner_view_form_inherit_dms
-msgid "Documents"
-msgstr "Документы"
+msgid "Files"
+msgstr "Файлы"
 
 #. module: dms_company_partner
-#: model:ir.model.fields,field_description:dms_company_partner.field_res_company_partner__document_count
-msgid "Documents Count"
-msgstr "Количество документов"
+#: model:ir.model.fields,field_description:dms_company_partner.field_res_company_partner__file_count
+msgid "Files Count"
+msgstr "Количество файлов"
 
 #. module: dms_company_partner
 #: model:dms.directory,name:dms_company_partner.dms_directory_company_partner_directory
