@@ -195,6 +195,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                         },
                     ]
                 }
+                col += 1
 
                 actual_week = month_start
                 actual_week_number = actual_week.isocalendar()[1]
