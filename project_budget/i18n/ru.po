@@ -378,13 +378,8 @@ msgstr "Все проектные офисы"
 msgid "Already exists budget in work!"
 msgstr "Уже есть бюджет в работе"
 
-#. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_financial_data_report__amount
-msgid "Amount"
-msgstr ""
 
 #. module: project_budget
-#: model_terms:ir.actions.act_window,help:project_budget.action_project_budget_financial_data_report
 #: model_terms:ir.actions.act_window,help:project_budget.action_project_budget_overdue_projects
 msgid "Analyze your overdue projects."
 msgstr "Анализируйте просроченные даты в сделках."
@@ -589,11 +584,6 @@ msgid "Comercial budgets"
 msgstr "Коммерческие бюджеты"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_financial_data_report__commercial_budget_id
-msgid "Commercial Budget"
-msgstr ""
-
-#. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budgets_form
 msgid "Commercial budget"
 msgstr "Коммерческие бюджеты"
@@ -613,7 +603,6 @@ msgstr "Компании"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_kam__company_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_supervisor__company_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_supervisor_spec__company_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_financial_data_report__company_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_link_project_wizard__company_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_open_file_wizard__company_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_member__company_id
@@ -903,7 +892,6 @@ msgid "Currencies"
 msgstr "Валюты"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_financial_data_report__currency_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_office__currency_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_sums__currency_id
 msgid "Currency"
@@ -915,7 +903,6 @@ msgid "Current Status"
 msgstr "Текущий статус"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_financial_data_report__customer_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_link_project_wizard__partner_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_overdue_report__customer_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__partner_id
@@ -986,17 +973,11 @@ msgid "Data file"
 msgstr "Файл с данными"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_financial_data_report__date
-msgid "Date"
-msgstr ""
-
-#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__end_presale_project_month
 msgid "Date of transition to the Production Budget(MONTH)"
 msgstr "Дата контрактования"
 
 #. module: project_budget
-#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_financial_data_report_view_tree
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_overdue_report_view_tree
 msgid "Deal"
 msgstr "Сделка"
@@ -1058,7 +1039,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_distribution_cash__display_name
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_acceptance_flow__display_name
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_cash_flow__display_name
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_financial_data_report__display_name
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_industry__display_name
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_legal_entity_signing__display_name
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_link_project_wizard__display_name
@@ -1091,11 +1071,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:project_budget.field_res_company_partner_type__display_name
 msgid "Display Name"
 msgstr "Отображаемое имя"
-
-#. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_financial_data_report__distribution
-msgid "Distribution"
-msgstr ""
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__dogovor_number
@@ -1157,19 +1132,6 @@ msgstr "Файл"
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tender_report_wizard__FileName
 msgid "File name"
-msgstr ""
-
-#. module: project_budget
-#: model:ir.model,name:project_budget.model_project_budget_financial_data_report
-msgid "Financial Data Report"
-msgstr ""
-
-#. module: project_budget
-#: model:ir.actions.act_window,name:project_budget.action_project_budget_financial_data_report
-#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_financial_data_report_view_form
-#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_financial_data_report_view_graph
-#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_financial_data_report_view_tree
-msgid "Financial Data report"
 msgstr ""
 
 #. module: project_budget
@@ -1310,7 +1272,6 @@ msgstr "Помогает управлять бюджетными проекта�
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_distribution_cash__id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_acceptance_flow__id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_cash_flow__id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_financial_data_report__id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_industry__id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_legal_entity_signing__id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_link_project_wizard__id
@@ -1505,7 +1466,6 @@ msgstr "КБ в финуправление"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_kam__key_account_manager_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_financial_data_report__key_account_manager_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_overdue_report__key_account_manager_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__key_account_manager_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__key_account_manager_id
@@ -1528,7 +1488,6 @@ msgstr "КАМ"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_distribution_cash____last_update
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_acceptance_flow____last_update
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_cash_flow____last_update
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_financial_data_report____last_update
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_industry____last_update
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_legal_entity_signing____last_update
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_link_project_wizard____last_update
@@ -1788,7 +1747,6 @@ msgid "My Activity Deadline"
 msgstr "Срок моей активности"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_financial_data_report__name
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_office__name
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_overdue_report__name
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_role__name
@@ -1887,7 +1845,6 @@ msgid "Next Activity Type"
 msgstr "Тип следующей активности"
 
 #. module: project_budget
-#: model_terms:ir.actions.act_window,help:project_budget.action_project_budget_financial_data_report
 #: model_terms:ir.actions.act_window,help:project_budget.action_project_budget_overdue_projects
 msgid "No data for analysis."
 msgstr "Нет данных для анализа."
@@ -2250,7 +2207,6 @@ msgid "Print tenders list"
 msgstr "Реестр тендеров"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_financial_data_report__probability
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_child_view_tree
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_overdue_report_view_tree
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_view_tree
@@ -2269,17 +2225,11 @@ msgid "Production"
 msgstr "ПБ"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_financial_data_report__profitability
-msgid "Profitability"
-msgstr ""
-
-#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__profitability
 msgid "Profitability(share of Sale margin in revenue)"
 msgstr "Рентабельность"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_financial_data_report__project_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_link_project_wizard__project_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_member__project_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_overdue_report__project_id
@@ -2342,7 +2292,6 @@ msgstr "Участник проекта"
 
 #. module: project_budget
 #: model:ir.model,name:project_budget.model_project_budget_project_office
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_financial_data_report__project_office_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_overdue_report__project_office_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__project_office_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__project_office_id
@@ -2840,7 +2789,6 @@ msgid "Search Company Partner"
 msgstr ""
 
 #. module: project_budget
-#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_financial_data_report_view_search
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_overdue_report_view_search
 msgid "Search Overdue Projects"
 msgstr ""
@@ -2913,10 +2861,8 @@ msgid "Specification"
 msgstr "Перечень проектов"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_financial_data_report__stage_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_overdue_report__stage_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__stage_id
-#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_financial_data_report_view_tree
 msgid "Stage"
 msgstr "Этап"
 
@@ -2951,7 +2897,6 @@ msgstr ""
 "Запланировано: будущие мероприятия"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_financial_data_report__step_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_overdue_report__step_id
 msgid "Step"
 msgstr "Этап"
@@ -3097,7 +3042,6 @@ msgstr "Передача прав сотруднику"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_amount_spec__type
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_financial_data_report__type
 #: model:ir.model.fields,field_description:project_budget.field_res_company_partner_type__name
 #: model_terms:ir.ui.view,arch_db:project_budget.res_company_partner_type_view_form
 msgid "Type"

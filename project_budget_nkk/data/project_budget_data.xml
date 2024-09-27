@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data noupdate="1">
+        <record id="project_budget_forecast_probability_commitment" model="project_budget.forecast.probability">
+            <field name="name">Commitment</field>
+            <field name="coefficient">1</field>
+            <field name="sequence">2</field>
+        </record>
+
+        <record id="project_budget_forecast_probability_reserve" model="project_budget.forecast.probability">
+            <field name="name">Reserve</field>
+            <field name="coefficient">0.6</field>
+            <field name="sequence">3</field>
+        </record>
+
+        <record id="project_budget_forecast_probability_potential" model="project_budget.forecast.probability">
+            <field name="name">Potential</field>
+            <field name="coefficient">0.1</field>
+            <field name="sequence">4</field>
+        </record>
+
+        <record id="project_budget_project_step_project_number_required" model="base.automation">
+            <field name="name">Step project number required</field>
+            <field name="state">code</field>
+            <field name="model_id" ref="project_budget.model_project_budget_projects"/>
+            <field name="trigger">on_create_or_write</field>
+            <field name="trigger_field_ids"
+                   eval="[(6, 0, [ref('project_budget.field_project_budget_projects__stage_id'), ref('project_budget.field_project_budget_projects__step_project_number')])]"/>
+            <field name="filter_domain">
+                [
+                    ['budget_state', '=', 'work'],
+                    ['is_correction_project', '=', False]
+                ]
+            </field>
+            <field name="code">
+                <![CDATA[
+for record in records:
+    if (record.stage_id.code in ('75', '100') and not record.step_project_number):
+        raise UserError('Пожалуйста укажите код проекта из AXAPTA для %s %s' % ('проекта' if record.step_status == 'project' else 'этапа', record.project_id))
+        ]]></field>
+        </record>
+    </data>
+</odoo>

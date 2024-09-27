@@ -217,36 +217,6 @@
             <field name="groups" eval="[(4, ref('project_budget.project_budget_users'))]"/>
         </record>
 
-        <record id="project_budget_financial_data_report_user_rule" model="ir.rule">
-            <field name="name">Financial data report user rule</field>
-            <field name="model_id" ref="model_project_budget_financial_data_report"/>
-            <field name="domain_force">
-                [
-                    '|', '|', '|', '|', '|', '|', '|', '|',
-                    ('project_office_id.user_id.id', '=', user.id),
-                    ('project_id.project_member_ids.employee_id.user_id', '=', user.id),
-                    ('project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(kam_function=True).employee_id.replaceable_employee_ids.user_id.ids),
-                    ('project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(project_manager_function=True).employee_id.replaceable_employee_ids.user_id.ids),
-                    ('project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(project_curator_function=True).employee_id.replaceable_employee_ids.user_id.ids),
-                    ('project_id.parent_project_id.project_member_ids.employee_id.user_id', '=', user.id),
-                    ('project_id.parent_project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(kam_function=True).employee_id.replaceable_employee_ids.user_id.ids),
-                    ('project_id.parent_project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(project_manager_function=True).employee_id.replaceable_employee_ids.user_id.ids),
-                    ('project_id.parent_project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(project_curator_function=True).employee_id.replaceable_employee_ids.user_id.ids),
-                ]
-            </field>
-            <field name="groups" eval="[(4, ref('project_budget.project_budget_users'))]"/>
-        </record>
-
-        <record id="project_budget_financial_data_report_company_rule" model="ir.rule">
-            <field name="name">Financial data report multi-company rule</field>
-            <field name="model_id" ref="model_project_budget_financial_data_report"/>
-            <field name="domain_force">
-                [
-                    '|', ('company_id', '=', False), ('company_id', 'in', company_ids)
-                ]
-            </field>
-        </record>
-
         <record id="project_budget_project_overdue_report_manager_rule" model="ir.rule">
             <field name="name">Project budget manager: see all overdue projects</field>
             <field name="model_id" ref="model_project_budget_project_overdue_report"/>

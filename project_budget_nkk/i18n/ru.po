@@ -1,0 +1,36 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* project_budget_nkk
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-09-26 15:36+0000\n"
+"PO-Revision-Date: 2024-09-26 15:36+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: project_budget_nkk
+#: model:project_budget.forecast.probability,name:project_budget_nkk.project_budget_forecast_probability_commitment
+msgid "Commitment"
+msgstr "Обязательство"
+
+#. module: project_budget_nkk
+#: model:project_budget.forecast.probability,name:project_budget_nkk.project_budget_forecast_probability_potential
+msgid "Potential"
+msgstr "Потенциал"
+
+#. module: project_budget_nkk
+#: model:project_budget.forecast.probability,name:project_budget_nkk.project_budget_forecast_probability_reserve
+msgid "Reserve"
+msgstr "Резерв"
+
+#. module: project_budget_nkk
+#: model:ir.actions.server,name:project_budget_nkk.project_budget_project_step_project_number_required_ir_actions_server
+msgid "Step project number required"
+msgstr "Обязательность номера этапа проекта"
