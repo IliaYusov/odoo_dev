@@ -458,7 +458,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                     budget_ids.add(budget.id)
         return (periods_dict, list(budget_ids))
 
-    def get_data_from_projects(self, projects, periods_dict, budget):
+    def get_data_from_projects(self, projects, periods_dict, budget, budget_ids):
         project_project_ids = set(projects.mapped('project_id'))
         data = {}
         for project_project_id in sorted(project_project_ids):
@@ -492,8 +492,18 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
 
             if pds_is_present:
                 current_project = projects.filtered(lambda pr: pr.project_id == project_project_id and pr.commercial_budget_id.id == budget.id)
+
+                if not current_project:  # если в текущем бюджете проекта нет, ищем самый последний и берем info из него
+                    for budget_id in sorted(budget_ids, reverse=True):
+                        if budget_id != budget.id:
+                            current_project = projects.filtered(lambda pr: pr.project_id == project_project_id and pr.commercial_budget_id.id == budget_id)
+                            if current_project:
+                                break
+
                 data.setdefault(current_project.company_id.name, {}).setdefault(current_project.project_office_id.name, {}).setdefault(
                     current_project.project_id, {})
+
+                project_step_id = ''
 
                 currency_rate = self.get_currency_rate_by_project(current_project)
                 if current_project.step_status == 'project':
@@ -936,7 +946,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
             ('id', 'in', [plan.step_project_child_id.id for plan in self.env['project_budget.planned_cash_flow'].search([]) if plan.date_cash >= period_limits[0] and plan.date_cash <= period_limits[1]]),
         ], order='project_id')
 
-        data = self.get_data_from_projects(projects, periods_dict, budget)
+        data = self.get_data_from_projects(projects, periods_dict, budget, budget_ids)
 
         actual_office_ids_set = set()
         for company in data:
