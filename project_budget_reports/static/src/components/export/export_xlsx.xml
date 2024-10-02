@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="project_budget_reports.ExportXlsx" owl="1">
+        <div class="pe-3">
+            <div class="btn_export_xlsx"
+                t-on-click="() => this.exportXlsx()">
+                XLSX
+            </div>
+        </div>
+    </t>
+</templates>
