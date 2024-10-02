@@ -214,7 +214,7 @@ FROM
         GROUP BY planned_cash_flow_id
     ) AS dc ON dc.planned_cash_flow_id = pc.id    
     INNER JOIN res_currency c ON c.id = p.currency_id
-    INNER JOIN ir_model_data fp on fp.name = 'forecast_probability_from_project'    
+    INNER JOIN ir_model_data fp on fp.name = 'project_budget_forecast_probability_from_project'
     INNER JOIN ir_model_data sf on sf.name = 'sale_figure_cash_flow'
     INNER JOIN project_budget_project_stage_forecast_probability psfp ON psfp.stage_id = p.stage_id
     AND psfp.sale_figure_id = sf.res_id
@@ -256,7 +256,7 @@ FROM
         GROUP BY planned_cash_flow_id
     ) AS dc ON dc.planned_cash_flow_id = pc.id    
     INNER JOIN res_currency c ON c.id = ps.currency_id
-    INNER JOIN ir_model_data fp on fp.name = 'forecast_probability_from_project'    
+    INNER JOIN ir_model_data fp on fp.name = 'project_budget_forecast_probability_from_project'
     INNER JOIN ir_model_data sf on sf.name = 'sale_figure_cash_flow'
     INNER JOIN project_budget_project_stage_forecast_probability psfp ON psfp.stage_id = ps.stage_id
     AND psfp.sale_figure_id = sf.res_id
@@ -364,7 +364,7 @@ FROM
         FROM project_budget_distribution_acceptance
         GROUP BY planned_acceptance_flow_id
     ) AS da ON da.planned_acceptance_flow_id = pa.id
-    INNER JOIN ir_model_data fp on fp.name = 'forecast_probability_from_project'    
+    INNER JOIN ir_model_data fp on fp.name = 'project_budget_forecast_probability_from_project'
     INNER JOIN ir_model_data sf on sf.name = 'sale_figure_gross_revenue'
     INNER JOIN project_budget_project_stage_forecast_probability psfp ON psfp.stage_id = p.stage_id
     AND psfp.sale_figure_id = sf.res_id
@@ -406,7 +406,7 @@ FROM
         GROUP BY planned_acceptance_flow_id
     ) AS da ON da.planned_acceptance_flow_id = pa.id
     INNER JOIN res_currency c ON c.id = ps.currency_id
-    INNER JOIN ir_model_data fp on fp.name = 'forecast_probability_from_project'    
+    INNER JOIN ir_model_data fp on fp.name = 'project_budget_forecast_probability_from_project'
     INNER JOIN ir_model_data sf on sf.name = 'sale_figure_cash_flow'
     INNER JOIN project_budget_project_stage_forecast_probability psfp ON psfp.stage_id = ps.stage_id
     AND psfp.sale_figure_id = sf.res_id

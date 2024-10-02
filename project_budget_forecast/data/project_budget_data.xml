@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="1">
-        <record id="forecast_probability_from_project" model="project_budget.forecast.probability">
+        <record id="project_budget_forecast_probability_from_project" model="project_budget.forecast.probability">
             <field name="name">From Project/Step</field>
             <field name="coefficient">0</field>
             <field name="sequence">1</field>
