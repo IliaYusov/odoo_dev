@@ -1460,6 +1460,7 @@ class report_budget_forecast_excel(models.AbstractModel):
     def print_row(self, sheet, workbook, companies, project_offices, key_account_managers, stages, budget, row, level, project_office_ids):
         global YEARint
         global dict_formula
+        global use_6_6
         head_format = workbook.add_format({
             'bold': True,
             'border': 1,
@@ -1909,6 +1910,10 @@ class report_budget_forecast_excel(models.AbstractModel):
                             ('type_row', '=', 'margin_income'),
                         ])
 
+                        for plan in (plan_revenue, plan_pds, plan_acceptance, plan_margin):
+                            if plan.q3_plan_6_6 != 0 or plan.q4_plan_6_6 != 0:
+                                use_6_6 = True
+
                         for plan in (
                             {'column': plan_shift['revenue']['Q1'], 'formula': f'{plan_revenue.q1_plan}'},
                             {'column': plan_shift['revenue']['Q2'], 'formula': f'{plan_revenue.q2_plan}'},
@@ -2133,6 +2138,10 @@ class report_budget_forecast_excel(models.AbstractModel):
                         ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
                         ('type_row', '=', 'margin_income'),
                     ])
+
+                    for plan in (plan_revenue, plan_pds, plan_acceptance, plan_margin):
+                        if plan.q3_plan_6_6 != 0 or plan.q4_plan_6_6 != 0:
+                            use_6_6 = True
 
                     for plan in (
                         {'column': plan_shift['revenue']['Q1'], 'formula': f'{plan_revenue.q1_plan}'},
@@ -2368,6 +2377,10 @@ class report_budget_forecast_excel(models.AbstractModel):
                     ('type_row', '=', 'margin_income'),
                 ])
 
+                for plan in (plan_revenue, plan_pds, plan_acceptance, plan_margin):
+                    if plan.q3_plan_6_6 != 0 or plan.q4_plan_6_6 != 0:
+                        use_6_6 = True
+
                 for plan in (
                     {'column': plan_shift['revenue']['Q1'], 'formula': f'{plan_revenue.q1_plan}'},
                     {'column': plan_shift['revenue']['Q2'], 'formula': f'{plan_revenue.q2_plan}'},
@@ -2496,7 +2509,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         else:
             return []
 
-    def printworksheet(self,workbook,budget,namesheet, estimated_probabilities, project_office_ids, systematica_forecast, oblako_row):
+    def printworksheet(self,workbook,budget,namesheet, estimated_probabilities, project_office_ids, systematica_forecast, oblako_row, diff_name):
         global YEARint
         print('YEARint=',YEARint)
 
@@ -2822,39 +2835,51 @@ class report_budget_forecast_excel(models.AbstractModel):
                               row_format_itogo_estimated_plan_left)
             self.print_estimated_rows(sheet, row + 2, row_format_itogo_estimated_plan,
                                       row_format_itogo_estimated_plan_cross)
-            # кресты в планах и разница
-            sheet.merge_range(
-                row + 3, 1, row + 3, 3,
-                'Разница Итого; План 2024 (СА+Облако.ру)/ Расчетный план до конца периода (на дату отчета)',
-                row_format_diff
-            )
-            for type in plan_shift:
+
+            for type in plan_shift:  # кресты в планах
                 for period, shift in plan_shift[type].items():
                     formula = '=sum({2}{0},{3}{2}{1})'.format(row + 1, oblako_row + 1, xl_col_to_name(shift),"'Прогноз (Облако.ру)'!")
                     sheet.write_string(row + 1, shift, '', row_format_plan_cross)
                     sheet.write_formula(row + 2, shift, formula, row_format_plan)
+            row += 2
+            sheet.activate()
+            total_row += 2
+
+        if diff_name:  # разница
+            sheet.merge_range(
+                row + 1, 1, row + 1, 3,
+                f'Разница Итого; План ' + ('6+6' if use_6_6 else f'{YEARint}') + f' ({diff_name})/ Расчетный план до конца периода (на дату отчета)',
+                row_format_diff
+            )
+            for type in plan_shift:
+                for period, shift in plan_shift[type].items():
                     if 'NEXT' not in period and '6+6' not in period:
                         if period in ('HY2', 'Q3', 'Q4', 'Y'):
-                            formula_diff = '=({1}{0}+{2}{0})-{3}{0}'.format(
-                                row + 3,
-                                xl_col_to_name(shift + 2),
-                                xl_col_to_name(shift + 3),
-                                xl_col_to_name(shift + 1),
-                            )
-                            sheet.merge_range(row + 3, shift + 2, row + 3, shift + 4, formula_diff, row_format_diff)
+                            if use_6_6:
+                                formula_diff = '=({1}{0}+{2}{0})-{3}{0}'.format(
+                                    row + 1,
+                                    xl_col_to_name(shift + 2),
+                                    xl_col_to_name(shift + 3),
+                                    xl_col_to_name(shift + 1),
+                                )
+                            else:
+                                formula_diff = '=({1}{0}+{2}{0})-{3}{0}'.format(
+                                    row + 1,
+                                    xl_col_to_name(shift + 2),
+                                    xl_col_to_name(shift + 3),
+                                    xl_col_to_name(shift),
+                                )
+                            sheet.merge_range(row + 1, shift + 2, row + 1, shift + 4, formula_diff, row_format_diff)
                         else:
                             formula_diff = '=({1}{0}+{2}{0})-{3}{0}'.format(
-                                row + 3,
+                                row + 1,
                                 xl_col_to_name(shift + 1),
                                 xl_col_to_name(shift + 2),
                                 xl_col_to_name(shift),
                             )
-                            sheet.merge_range(row + 3, shift + 1, row + 3, shift + 3, formula_diff, row_format_diff)
-
-            sheet.activate()
-            sheet.set_row(row + 3, 32)
-            row += 3
-            total_row += 2
+                            sheet.merge_range(row + 1, shift + 1, row + 1, shift + 3, formula_diff, row_format_diff)
+            sheet.set_row(row + 1, 32)
+            row += 1
 
         row += 2
         sheet.merge_range(row, 1, row, 2, 'Контрактование, с НДС', summary_format_border_top_center)
@@ -2981,6 +3006,8 @@ class report_budget_forecast_excel(models.AbstractModel):
         global margin_shift
         global plan_shift
         global fact_columns
+        global use_6_6
+        use_6_6 = False
         koeff_reserve = data['koeff_reserve']
         koeff_potential = data['koeff_potential']
         fact_columns = set()
@@ -3073,24 +3100,24 @@ class report_budget_forecast_excel(models.AbstractModel):
 
             dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
             stages = self.env['project_budget.project.stage'].search([('code', '!=', '10')], order='sequence desc')
-            self.printworksheet(workbook, budget, 'Прогноз (ЛИТР)', stages, litr_ids, False, 0)
+            self.printworksheet(workbook, budget, 'Прогноз (ЛИТР)', stages, litr_ids, False, 0, 'ЛИТР')
 
             dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
             stages = self.env['project_budget.project.stage'].search([('code', '!=', '10')], order='sequence desc')
-            oblako_row = self.printworksheet(workbook, budget, 'Прогноз (Облако.ру)', stages, oblako_ids, False, 0)
+            oblako_row = self.printworksheet(workbook, budget, 'Прогноз (Облако.ру)', stages, oblako_ids, False, 0, False)
 
             dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
             stages = self.env['project_budget.project.stage'].search([('code', '!=', '10')], order='sequence desc')
-            self.printworksheet(workbook, budget, 'Прогноз', stages, systmatica_ids, True, oblako_row)
+            self.printworksheet(workbook, budget, 'Прогноз', stages, systmatica_ids, True, oblako_row, 'СА+Облако.ру')
 
             dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
             stages = self.env['project_budget.project.stage'].search([('code', '=', '10')], order='sequence desc')
-            self.printworksheet(workbook, budget, '10%', stages, project_office_ids, False, 0)
+            self.printworksheet(workbook, budget, '10%', stages, project_office_ids, False, 0, False)
         else:
             dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
             stages = self.env['project_budget.project.stage'].search([('code', '!=', '10')], order='sequence desc')  # для сортировки так делаем
-            self.printworksheet(workbook, budget, 'Прогноз', stages, project_office_ids, systematica_forecast, 0)
+            self.printworksheet(workbook, budget, 'Прогноз', stages, project_office_ids, systematica_forecast, 0, False)
 
             dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'offices_lines': set()}
             stages = self.env['project_budget.project.stage'].search([('code', '=', '10')], order='sequence desc')
-            self.printworksheet(workbook, budget, '10%', stages, project_office_ids, systematica_forecast, 0)
+            self.printworksheet(workbook, budget, '10%', stages, project_office_ids, systematica_forecast, 0, False)
