@@ -42,6 +42,16 @@ class ProjectBudgetReportSalesForecast(models.AbstractModel):
             'margin': {'fact': 0, 'plan': 0, 'forecast': 0, 'percentage': 0}
         }
 
+        offices = self.env['project_budget.project_office'].search_read(
+            fields=['id', 'name', 'parent_id', 'company_id']
+        )
+
+        for company in result['companies']:
+            company['offices'] = []
+            for office in offices:
+                if office['company_id'][0] == company['id']:
+                    company['offices'].append(office)
+
         period_options = options.get('date')
 
         financial_indicators = self.env['project.budget.financial.indicator'].search([
@@ -59,7 +69,7 @@ class ProjectBudgetReportSalesForecast(models.AbstractModel):
         self._prepare_cash_flow_data(result, planned_indicators, financial_indicators, options)
         self._prepare_gross_revenue_data(result, planned_indicators, financial_indicators, options)
         self._prepare_margin_data(result, planned_indicators, financial_indicators, options)
-
+        print(result)
         return result
 
     # ------------------------------------------------------
@@ -69,39 +79,53 @@ class ProjectBudgetReportSalesForecast(models.AbstractModel):
     def _prepare_contraction_data(self, result, planned_indicators, financial_indicators, options):
         for company in result['companies']:
             company['contraction'] = dict()
+            for office in company['offices']:
+                office['contraction'] = dict()
 
         fact_data = financial_indicators.filtered(
             lambda fi: fi.type == 'contracting' and fi.stage_id.project_state == 'won')
         for company in result['companies']:
-            for c, group in groupby(sorted(fact_data, key=lambda i: i.company_id.id), lambda fi: fi.company_id):
-                if company['id'] == c.id:
-                    company['contraction'].update({
-                        'fact': self._build_value_dict(sum(indicator.amount for indicator in group), 'monetary',
-                                                       options)
-                    })
+            company_fact = 0
+            for office in company['offices']:
+                for o, group in groupby(sorted(fact_data, key=lambda i: i.project_office_id.id), lambda fi: fi.project_office_id):
+                    if office['id'] == o.id:
+                        office_fact = sum(indicator.amount for indicator in group)
+                        office['contraction'].update({
+                            'fact': self._build_value_dict(office_fact, 'monetary', options)
+                        })
+                        company_fact += office_fact
+            company['contraction'].update({'fact': self._build_value_dict(company_fact, 'monetary', options)})
         companies_fact = sum(d.amount for d in fact_data)
         result['contraction'].update({'fact': self._build_value_dict(companies_fact, 'monetary', options)})
 
         plan_data = planned_indicators.filtered(lambda p: p.type_row == 'contracting')
         use_plan_6_6 = any(d.q3_plan_6_6 or d.q4_plan_6_6 for d in plan_data)
         for company in result['companies']:
-            for c, group in groupby(sorted(plan_data, key=lambda i: i.company_id.id), lambda fi: fi.company_id):
-                if company['id'] == c.id:
-                    if use_plan_6_6:
-                        company_plan = sum(
-                            indicator.q3_plan_6_6 + indicator.q4_plan_6_6 + indicator.q1_fact + indicator.q2_fact
-                            for indicator in group
-                        )
-                    else:
-                        company_plan = sum(
-                            indicator.q1_plan + indicator.q2_plan + indicator.q3_plan + indicator.q4_plan
-                            for indicator in group
-                        )
-                    company['contraction'].update({
-                        'plan': self._build_value_dict(company_plan, 'monetary', options),
-                        'to_plan': round((company['contraction']['fact']['no_format'] / company_plan) * 100, 2)
-                        if company['contraction'].get('fact') and company_plan > 0 else 0
-                    })
+            company_plan = 0
+            for office in company['offices']:
+                for o, group in groupby(sorted(plan_data, key=lambda i: i.budget_plan_supervisor_id.project_office_id.id), lambda fi: fi.budget_plan_supervisor_id.project_office_id):
+                    if office['id'] == o.id:
+                        if use_plan_6_6:
+                            office_plan = sum(
+                                indicator.q3_plan_6_6 + indicator.q4_plan_6_6 + indicator.q1_fact + indicator.q2_fact
+                                for indicator in group
+                            )
+                        else:
+                            office_plan = sum(
+                                indicator.q1_plan + indicator.q2_plan + indicator.q3_plan + indicator.q4_plan
+                                for indicator in group
+                            )
+                        company_plan += office_plan
+                        office['contraction'].update({
+                            'plan': self._build_value_dict(office_plan, 'monetary', options),
+                            'to_plan': round((office['contraction']['fact']['no_format'] / office_plan) * 100, 2)
+                            if office['contraction'].get('fact') and office_plan > 0 else 0
+                        })
+            company['contraction'].update({
+                'plan': self._build_value_dict(company_plan, 'monetary', options),
+                'to_plan': round((company['contraction']['fact']['no_format'] / company_plan) * 100, 2)
+                if company['contraction'].get('fact') and company_plan > 0 else 0
+            })
         if use_plan_6_6:
             companies_plan = sum(d.q3_plan_6_6 + d.q4_plan_6_6 + d.q1_fact + d.q2_fact for d in plan_data)
         else:
@@ -121,39 +145,55 @@ class ProjectBudgetReportSalesForecast(models.AbstractModel):
     def _prepare_cash_flow_data(self, result, planned_indicators, financial_indicators, options):
         for company in result['companies']:
             company['cash_flow'] = dict()
+            for office in company['offices']:
+                office['cash_flow'] = dict()
 
         fact_data = financial_indicators.filtered(
             lambda fi: fi.type == 'cash_flow' and not fi.forecast_probability_id)
         for company in result['companies']:
-            for c, group in groupby(sorted(fact_data, key=lambda i: i.company_id.id), lambda fi: fi.company_id):
-                if company['id'] == c.id:
-                    company['cash_flow'].update({
-                        'fact': self._build_value_dict(sum(indicator.amount for indicator in group), 'monetary',
-                                                       options)
-                    })
+            company_fact = 0
+            for office in company['offices']:
+                for o, group in groupby(sorted(fact_data, key=lambda i: i.project_office_id.id), lambda fi: fi.project_office_id):
+                    if office['id'] == o.id:
+                        office_fact = sum(indicator.amount for indicator in group)
+                        office['cash_flow'].update({
+                            'fact': self._build_value_dict(office_fact, 'monetary', options)
+                        })
+                        company_fact += office_fact
+            company['cash_flow'].update({
+                'fact': self._build_value_dict(company_fact, 'monetary', options)
+            })
         companies_fact = sum(d.amount for d in fact_data)
         result['cash_flow'].update({'fact': self._build_value_dict(companies_fact, 'monetary', options)})
 
         plan_data = planned_indicators.filtered(lambda p: p.type_row == 'cash')
         use_plan_6_6 = any(d.q3_plan_6_6 or d.q4_plan_6_6 for d in plan_data)
         for company in result['companies']:
-            for c, group in groupby(sorted(plan_data, key=lambda i: i.company_id.id), lambda fi: fi.company_id):
-                if company['id'] == c.id:
-                    if use_plan_6_6:
-                        company_plan = sum(
-                            indicator.q3_plan_6_6 + indicator.q4_plan_6_6 + indicator.q1_fact + indicator.q2_fact
-                            for indicator in group
-                        )
-                    else:
-                        company_plan = sum(
-                            indicator.q1_plan + indicator.q2_plan + indicator.q3_plan + indicator.q4_plan
-                            for indicator in group
-                        )
-                    company['cash_flow'].update({
-                        'plan': self._build_value_dict(company_plan, 'monetary', options),
-                        'to_plan': round((company['cash_flow']['fact']['no_format'] / company_plan) * 100, 2)
-                        if company['cash_flow'].get('fact') and company_plan > 0 else 0
-                    })
+            company_plan = 0
+            for office in company['offices']:
+                for o, group in groupby(sorted(plan_data, key=lambda i: i.budget_plan_supervisor_id.project_office_id.id), lambda fi: fi.budget_plan_supervisor_id.project_office_id):
+                    if office['id'] == o.id:
+                        if use_plan_6_6:
+                            office_plan = sum(
+                                indicator.q3_plan_6_6 + indicator.q4_plan_6_6 + indicator.q1_fact + indicator.q2_fact
+                                for indicator in group
+                            )
+                        else:
+                            office_plan = sum(
+                                indicator.q1_plan + indicator.q2_plan + indicator.q3_plan + indicator.q4_plan
+                                for indicator in group
+                            )
+                        company_plan += office_plan
+                        office['cash_flow'].update({
+                            'plan': self._build_value_dict(office_plan, 'monetary', options),
+                            'to_plan': round((office['cash_flow']['fact']['no_format'] / office_plan) * 100, 2)
+                            if office['cash_flow'].get('fact') and office_plan > 0 else 0
+                        })
+            company['cash_flow'].update({
+                'plan': self._build_value_dict(company_plan, 'monetary', options),
+                'to_plan': round((company['cash_flow']['fact']['no_format'] / company_plan) * 100, 2)
+                if company['cash_flow'].get('fact') and company_plan > 0 else 0
+            })
         if use_plan_6_6:
             companies_plan = sum(d.q3_plan_6_6 + d.q4_plan_6_6 + d.q1_fact + d.q2_fact for d in plan_data)
         else:
@@ -178,39 +218,54 @@ class ProjectBudgetReportSalesForecast(models.AbstractModel):
     def _prepare_gross_revenue_data(self, result, planned_indicators, financial_indicators, options):
         for company in result['companies']:
             company['gross_revenue'] = dict()
+            for office in company['offices']:
+                office['gross_revenue'] = dict()
 
         fact_data = financial_indicators.filtered(
             lambda fi: fi.type == 'gross_revenue' and not fi.forecast_probability_id)
         for company in result['companies']:
-            for c, group in groupby(sorted(fact_data, key=lambda i: i.company_id.id), lambda fi: fi.company_id):
-                if company['id'] == c.id:
-                    company['gross_revenue'].update({
-                        'fact': self._build_value_dict(sum(indicator.amount for indicator in group), 'monetary',
-                                                       options)
-                    })
+            company_fact = 0
+            for office in company['offices']:
+                for o, group in groupby(sorted(fact_data, key=lambda i: i.project_office_id.id), lambda fi: fi.project_office_id):
+                    if office['id'] == o.id:
+                        office_fact = sum(indicator.amount for indicator in group)
+                        office['gross_revenue'].update({
+                            'fact': self._build_value_dict(office_fact, 'monetary',
+                                                           options)
+                        })
+                        company_fact += office_fact
+            company['gross_revenue'].update({'fact': self._build_value_dict(company_fact, 'monetary', options)})
         companies_fact = sum(d.amount for d in fact_data)
         result['gross_revenue'].update({'fact': self._build_value_dict(companies_fact, 'monetary', options)})
 
         plan_data = planned_indicators.filtered(lambda p: p.type_row == 'acceptance')
         use_plan_6_6 = any(d.q3_plan_6_6 or d.q4_plan_6_6 for d in plan_data)
         for company in result['companies']:
-            for c, group in groupby(sorted(plan_data, key=lambda i: i.company_id.id), lambda fi: fi.company_id):
-                if company['id'] == c.id:
-                    if use_plan_6_6:
-                        company_plan = sum(
-                            indicator.q3_plan_6_6 + indicator.q4_plan_6_6 + indicator.q1_fact + indicator.q2_fact
-                            for indicator in group
-                        )
-                    else:
-                        company_plan = sum(
-                            indicator.q1_plan + indicator.q2_plan + indicator.q3_plan + indicator.q4_plan
-                            for indicator in group
-                        )
-                    company['gross_revenue'].update({
-                        'plan': self._build_value_dict(company_plan, 'monetary', options),
-                        'to_plan': round((company['gross_revenue']['fact']['no_format'] / company_plan) * 100, 2)
-                        if company['gross_revenue'].get('fact') and company_plan > 0 else 0
-                    })
+            company_plan = 0
+            for office in company['offices']:
+                for o, group in groupby(sorted(plan_data, key=lambda i: i.budget_plan_supervisor_id.project_office_id.id), lambda fi: fi.budget_plan_supervisor_id.project_office_id):
+                    if office['id'] == o.id:
+                        if use_plan_6_6:
+                            office_plan = sum(
+                                indicator.q3_plan_6_6 + indicator.q4_plan_6_6 + indicator.q1_fact + indicator.q2_fact
+                                for indicator in group
+                            )
+                        else:
+                            office_plan = sum(
+                                indicator.q1_plan + indicator.q2_plan + indicator.q3_plan + indicator.q4_plan
+                                for indicator in group
+                            )
+                        company_plan += office_plan
+                        office['gross_revenue'].update({
+                            'plan': self._build_value_dict(office_plan, 'monetary', options),
+                            'to_plan': round((office['gross_revenue']['fact']['no_format'] / office_plan) * 100, 2)
+                            if office['gross_revenue'].get('fact') and office_plan > 0 else 0
+                        })
+            company['gross_revenue'].update({
+                'plan': self._build_value_dict(company_plan, 'monetary', options),
+                'to_plan': round((company['gross_revenue']['fact']['no_format'] / company_plan) * 100, 2)
+                if company['gross_revenue'].get('fact') and company_plan > 0 else 0
+            })
         if use_plan_6_6:
             companies_plan = sum(d.q3_plan_6_6 + d.q4_plan_6_6 + d.q1_fact + d.q2_fact for d in plan_data)
         else:
@@ -235,39 +290,53 @@ class ProjectBudgetReportSalesForecast(models.AbstractModel):
     def _prepare_margin_data(self, result, planned_indicators, financial_indicators, options):
         for company in result['companies']:
             company['margin'] = dict()
+            for office in company['offices']:
+                office['margin'] = dict()
 
         fact_data = financial_indicators.filtered(
             lambda fi: fi.type == 'margin' and not fi.forecast_probability_id)
         for company in result['companies']:
-            for c, group in groupby(sorted(fact_data, key=lambda i: i.company_id.id), lambda fi: fi.company_id):
-                if company['id'] == c.id:
-                    company['margin'].update({
-                        'fact': self._build_value_dict(sum(indicator.amount for indicator in group), 'monetary',
-                                                       options)
-                    })
+            company_fact = 0
+            for office in company['offices']:
+                for o, group in groupby(sorted(fact_data, key=lambda i: i.project_office_id.id), lambda fi: fi.project_office_id):
+                    if office['id'] == o.id:
+                        office_fact = sum(indicator.amount for indicator in group)
+                        office['margin'].update({
+                            'fact': self._build_value_dict(office_fact, 'monetary', options)
+                        })
+                        company_fact += office_fact
+            company['margin'].update({'fact': self._build_value_dict(company_fact, 'monetary', options)})
         companies_fact = sum(d.amount for d in fact_data)
         result['margin'].update({'fact': self._build_value_dict(companies_fact, 'monetary', options)})
 
         plan_data = planned_indicators.filtered(lambda p: p.type_row == 'margin_income')
         use_plan_6_6 = any(d.q3_plan_6_6 or d.q4_plan_6_6 for d in plan_data)
         for company in result['companies']:
-            for c, group in groupby(sorted(plan_data, key=lambda i: i.company_id.id), lambda fi: fi.company_id):
-                if company['id'] == c.id:
-                    if use_plan_6_6:
-                        company_plan = sum(
-                            indicator.q3_plan_6_6 + indicator.q4_plan_6_6 + indicator.q1_fact + indicator.q2_fact
-                            for indicator in group
-                        )
-                    else:
-                        company_plan = sum(
-                            indicator.q1_plan + indicator.q2_plan + indicator.q3_plan + indicator.q4_plan
-                            for indicator in group
-                        )
-                    company['margin'].update({
-                        'plan': self._build_value_dict(company_plan, 'monetary', options),
-                        'to_plan': round((company['margin']['fact']['no_format'] / company_plan) * 100, 2)
-                        if company['margin'].get('fact') and company_plan > 0 else 0
-                    })
+            company_plan = 0
+            for office in company['offices']:
+                for o, group in groupby(sorted(plan_data, key=lambda i: i.budget_plan_supervisor_id.project_office_id.id), lambda fi: fi.budget_plan_supervisor_id.project_office_id):
+                    if office['id'] == o.id:
+                        if use_plan_6_6:
+                            office_plan = sum(
+                                indicator.q3_plan_6_6 + indicator.q4_plan_6_6 + indicator.q1_fact + indicator.q2_fact
+                                for indicator in group
+                            )
+                        else:
+                            office_plan = sum(
+                                indicator.q1_plan + indicator.q2_plan + indicator.q3_plan + indicator.q4_plan
+                                for indicator in group
+                            )
+                        company_plan += office_plan
+                        office['margin'].update({
+                            'plan': self._build_value_dict(office_plan, 'monetary', options),
+                            'to_plan': round((office['margin']['fact']['no_format'] / office_plan) * 100, 2)
+                            if office['margin'].get('fact') and office_plan > 0 else 0
+                        })
+            company['margin'].update({
+                'plan': self._build_value_dict(company_plan, 'monetary', options),
+                'to_plan': round((company['margin']['fact']['no_format'] / company_plan) * 100, 2)
+                if company['margin'].get('fact') and company_plan > 0 else 0
+            })
         if use_plan_6_6:
             companies_plan = sum(d.q3_plan_6_6 + d.q4_plan_6_6 + d.q1_fact + d.q2_fact for d in plan_data)
         else:
