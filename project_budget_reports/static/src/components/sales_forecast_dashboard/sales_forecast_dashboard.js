@@ -166,6 +166,17 @@ export class SalesForecastDashboard extends Component {
                 throw new Error(`Invalid operation type in _updateOption(): ${ operationType }`);
         }
     }
+
+    async exportXlsx() {
+
+        const action = await this.orm.call(
+            "project.budget.report.sales.forecast.excel",
+            "generate_xlsx_report",
+            [this.state.data, this.state.options]
+        );
+
+        const result = await this.action.doAction(action);
+    }
 }
 
 SalesForecastDashboard.template = "project_budget_reports.SalesForecastDashboard";

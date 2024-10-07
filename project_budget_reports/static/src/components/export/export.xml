@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates>
+    <t t-name="project_budget_reports.Export" owl="1">
+        <div id="export_selection" class="export_selection">
+            <t t-call="project_budget_reports.ExportSelection"/>
+        </div>
+    </t>
+
+    <t t-name="project_budget_reports.ExportSelection" owl="1">
+        <Dropdown togglerClass="'btn btn-secondary'">
+            <t t-set-slot="toggler">
+                Export
+            </t>
+                <DropdownItem>
+                    <div class="pe-3">
+                        <t t-call="project_budget_reports.ExportXlsx"/>
+                    </div>
+                </DropdownItem>
+        </Dropdown>
+    </t>
+</templates>

@@ -481,7 +481,7 @@ class ProjectBudgetReportSalesForecast(models.AbstractModel):
                 if k == 'no_format':
                     data['value'] = self._format_value(options, data['no_format'], currency=data['currency'],
                                                        figure_type=data['figure_type'], digits=data['digits'])
-                    data['rounded_value'] = self._round_value(options, data['no_format'], digits=data['digits']),
+                    data['rounded_value'] = self._round_value(options, data['no_format'], digits=data['digits'])
                 if isinstance(v, dict):
                     self.format_data_values(options, v)
                 elif isinstance(v, list):
