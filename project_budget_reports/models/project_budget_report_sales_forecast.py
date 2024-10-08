@@ -47,10 +47,11 @@ class ProjectBudgetReportSalesForecast(models.AbstractModel):
         )
 
         for company in result['companies']:
-            company['offices'] = []
-            for office in offices:
-                if office['company_id'][0] == company['id']:
-                    company['offices'].append(office)
+            company['offices'] = list()
+            for c, group in groupby(sorted(offices, key=lambda i: i['company_id']),
+                                    lambda fi: fi['company_id']):
+                if c[0] == company['id']:
+                    company['offices'].extend(group)
 
         period_options = options.get('date')
 
@@ -69,7 +70,6 @@ class ProjectBudgetReportSalesForecast(models.AbstractModel):
         self._prepare_cash_flow_data(result, planned_indicators, financial_indicators, options)
         self._prepare_gross_revenue_data(result, planned_indicators, financial_indicators, options)
         self._prepare_margin_data(result, planned_indicators, financial_indicators, options)
-        print(result)
         return result
 
     # ------------------------------------------------------
