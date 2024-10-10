@@ -73,7 +73,7 @@ class ProjectBudgetReportSalesForecastExcel(models.AbstractModel):
             row += 1
             for office_data in company_data['offices']:
                 column = 0
-                worksheet_c.write(row, column, str(office_data['name']))
+                worksheet_c.write(row, column, str(company_data['name']) + '|' + str(office_data['name']))
                 for indicator in self.indicators:
                     if office_data[indicator]:
                         if office_data[indicator].get('plan'):
@@ -98,6 +98,33 @@ class ProjectBudgetReportSalesForecastExcel(models.AbstractModel):
                         worksheet_c.write_number(row, column + 3, 0)
                     column += 4
                 row += 1
+                for manager_data in office_data['managers']:
+                    column = 0
+                    worksheet_c.write(row, column, str(company_data['name']) + '|' + str(office_data['name']) + '|' + str(manager_data['name']))
+                    for indicator in self.indicators:
+                        if manager_data[indicator]:
+                            if manager_data[indicator].get('plan'):
+                                worksheet_c.write_number(row, column + 1,
+                                                         float(manager_data[indicator]['plan']['rounded_value']))
+                            else:
+                                worksheet_c.write_number(row, column + 1, 0)
+
+                            if manager_data[indicator].get('fact'):
+                                worksheet_c.write_number(row, column + 2,
+                                                         float(manager_data[indicator]['fact']['rounded_value']))
+                            else:
+                                worksheet_c.write_number(row, column + 2, 0)
+
+                            if manager_data[indicator].get('to_plan'):
+                                worksheet_c.write_number(row, column + 3, float(manager_data[indicator]['to_plan']))
+                            else:
+                                worksheet_c.write_number(row, column + 3, 0)
+                        else:
+                            worksheet_c.write_number(row, column + 1, 0)
+                            worksheet_c.write_number(row, column + 2, 0)
+                            worksheet_c.write_number(row, column + 3, 0)
+                        column += 4
+                    row += 1
         workbook.close()
 
         result = base64.b64encode(output.getvalue())

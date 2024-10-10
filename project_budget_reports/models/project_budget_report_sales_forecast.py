@@ -31,6 +31,7 @@ class ProjectBudgetReportSalesForecast(models.AbstractModel):
     @api.model
     def retrieve_dashboard(self, options):
         self.env['project.budget.financial.indicator'].check_access_rights('read')
+
         result = {
             'companies': self.env['res.company'].search_read(
                 domain=[('id', 'in', self.env.context.get('allowed_company_ids', []))],
@@ -41,17 +42,6 @@ class ProjectBudgetReportSalesForecast(models.AbstractModel):
             'gross_revenue': {'fact': 0, 'plan': 0, 'forecast': 0, 'percentage': 0},
             'margin': {'fact': 0, 'plan': 0, 'forecast': 0, 'percentage': 0}
         }
-
-        offices = self.env['project_budget.project_office'].search_read(
-            fields=['id', 'name', 'parent_id', 'company_id']
-        )
-
-        for company in result['companies']:
-            company['offices'] = list()
-            for c, group in groupby(sorted(offices, key=lambda i: i['company_id']),
-                                    lambda fi: fi['company_id']):
-                if c[0] == company['id']:
-                    company['offices'].extend(group)
 
         period_options = options.get('date')
 
@@ -66,40 +56,99 @@ class ProjectBudgetReportSalesForecast(models.AbstractModel):
             ('budget_plan_supervisor_id.year', '=', period_options.get('string'))
         ])
 
-        self._prepare_contraction_data(result, planned_indicators, financial_indicators, options)
-        self._prepare_cash_flow_data(result, planned_indicators, financial_indicators, options)
-        self._prepare_gross_revenue_data(result, planned_indicators, financial_indicators, options)
-        self._prepare_margin_data(result, planned_indicators, financial_indicators, options)
+        kam_planned_indicators = self.env['project_budget.budget_plan_kam_spec'].search([
+            ('budget_plan_kam_id.year', '=', period_options.get('string'))
+        ])
+
+        actual_managers = dict()
+
+        for i in financial_indicators:
+            actual_managers.setdefault(i.project_office_id.id, {})
+            actual_managers[i.project_office_id.id].setdefault(i.key_account_manager_id.id, i.key_account_manager_id.name)
+
+        for i in kam_planned_indicators:
+            actual_managers.setdefault(i.budget_plan_kam_id.project_office_id.id, {})
+            actual_managers[i.budget_plan_kam_id.project_office_id.id].setdefault(
+                i.budget_plan_kam_id.key_account_manager_id.id, i.budget_plan_kam_id.key_account_manager_id.name
+            )
+
+        offices = self.env['project_budget.project_office'].search_read(
+            fields=['id', 'name', 'parent_id', 'company_id']
+        )
+
+        for company in result['companies']:
+            company['offices'] = list()
+            for office in offices:
+                if office['company_id'][0] == company['id']:
+                    managers = actual_managers.get(office['id'], False)
+                    office['managers'] = list()
+                    # office['planned_indicators'] = planned_indicators.filtered(
+                    #     lambda fi: fi.budget_plan_supervisor_id.project_office_id.id == office['id']
+                    # ).ids,
+                    if managers:
+                        for m_id, name in managers.items():
+                            office['managers'].append({
+                                'id': m_id,
+                                'name': name,
+                                # 'financial_indicators': financial_indicators.filtered(
+                                #     lambda fi: fi.project_office_id.id == office['id'] and fi.key_account_manager_id.id == m_id
+                                # ).ids,
+                                # 'planned_indicators': kam_planned_indicators.filtered(
+                                #     lambda fi: fi.budget_plan_kam_id.key_account_manager_id.id == m_id
+                                # ).ids,
+                            })
+                    company['offices'].append(office)
+        print(result)
+
+        self._prepare_contraction_data(result, planned_indicators, kam_planned_indicators, financial_indicators, options)
+        self._prepare_cash_flow_data(result, planned_indicators, kam_planned_indicators, financial_indicators, options)
+        self._prepare_gross_revenue_data(result, planned_indicators,  kam_planned_indicators, financial_indicators, options)
+        self._prepare_margin_data(result, planned_indicators,  kam_planned_indicators, financial_indicators, options)
         return result
 
     # ------------------------------------------------------
     # PRIVATE METHODS
     # ------------------------------------------------------
 
-    def _prepare_contraction_data(self, result, planned_indicators, financial_indicators, options):
+    def _prepare_contraction_data(self, result, planned_indicators, kam_planned_indicators, financial_indicators, options):
         for company in result['companies']:
             company['contraction'] = dict()
             for office in company['offices']:
                 office['contraction'] = dict()
+                for manager in office['managers']:
+                    manager['contraction'] = dict()
 
         fact_data = financial_indicators.filtered(
             lambda fi: fi.type == 'contracting' and fi.stage_id.project_state == 'won')
         for company in result['companies']:
             company_fact = 0
             for office in company['offices']:
-                for o, group in groupby(sorted(fact_data, key=lambda i: i.project_office_id.id), lambda fi: fi.project_office_id):
-                    if office['id'] == o.id:
-                        office_fact = sum(indicator.amount for indicator in group)
-                        office['contraction'].update({
-                            'fact': self._build_value_dict(office_fact, 'monetary', options)
-                        })
-                        company_fact += office_fact
+                office_fact = 0
+                for manager in office['managers']:
+                    for m, group in groupby(
+                            sorted(
+                                fact_data.filtered(
+                                    lambda p: p.project_office_id.id == office['id']
+                                              and p.key_account_manager_id.id == manager['id']),
+                                key=lambda i: i.key_account_manager_id.id
+                            ), lambda fi: fi.key_account_manager_id
+                    ):
+                        if manager['id'] == m.id:
+                            manager_fact = sum(indicator.amount for indicator in group)
+                            manager['contraction'].update({
+                                'fact': self._build_value_dict(manager_fact, 'monetary', options)
+                            })
+                            office_fact += manager_fact
+                            company_fact += manager_fact
+                office['contraction'].update({'fact': self._build_value_dict(office_fact, 'monetary', options)})
             company['contraction'].update({'fact': self._build_value_dict(company_fact, 'monetary', options)})
         companies_fact = sum(d.amount for d in fact_data)
         result['contraction'].update({'fact': self._build_value_dict(companies_fact, 'monetary', options)})
 
         plan_data = planned_indicators.filtered(lambda p: p.type_row == 'contracting')
+        kam_plan_data = kam_planned_indicators.filtered(lambda p: p.type_row == 'contracting')
         use_plan_6_6 = any(d.q3_plan_6_6 or d.q4_plan_6_6 for d in plan_data)
+        kam_use_plan_6_6 = any(d.q3_plan_6_6 or d.q4_plan_6_6 for d in kam_plan_data)
         for company in result['companies']:
             company_plan = 0
             for office in company['offices']:
@@ -121,6 +170,30 @@ class ProjectBudgetReportSalesForecast(models.AbstractModel):
                             'to_plan': round((office['contraction']['fact']['no_format'] / office_plan) * 100, 2)
                             if office['contraction'].get('fact') and office_plan > 0 else 0
                         })
+                for manager in office['managers']:
+                    for m, group in groupby(
+                        sorted(
+                            kam_plan_data.filtered(lambda p: p.budget_plan_kam_id.project_office_id.id == office['id']),
+                            key=lambda i: i.budget_plan_kam_id.key_account_manager_id.id
+                        ),
+                        lambda fi: fi.budget_plan_kam_id.key_account_manager_id
+                    ):
+                        if manager['id'] == m.id:
+                            if kam_use_plan_6_6:
+                                manager_plan = sum(
+                                    indicator.q3_plan_6_6 + indicator.q4_plan_6_6 + indicator.q1_fact + indicator.q2_fact
+                                    for indicator in group
+                                )
+                            else:
+                                manager_plan = sum(
+                                    indicator.q1_plan + indicator.q2_plan + indicator.q3_plan + indicator.q4_plan
+                                    for indicator in group
+                                )
+                            manager['contraction'].update({
+                                'plan': self._build_value_dict(manager_plan, 'monetary', options),
+                                'to_plan': round((manager['contraction']['fact']['no_format'] / manager_plan) * 100, 2)
+                                if manager['contraction'].get('fact') and manager_plan > 0 else 0
+                            })
             company['contraction'].update({
                 'plan': self._build_value_dict(company_plan, 'monetary', options),
                 'to_plan': round((company['contraction']['fact']['no_format'] / company_plan) * 100, 2)
@@ -142,24 +215,37 @@ class ProjectBudgetReportSalesForecast(models.AbstractModel):
             if companies_plan > 0 else 0
         })
 
-    def _prepare_cash_flow_data(self, result, planned_indicators, financial_indicators, options):
+    def _prepare_cash_flow_data(self, result, planned_indicators, kam_planned_indicators, financial_indicators, options):
         for company in result['companies']:
             company['cash_flow'] = dict()
             for office in company['offices']:
                 office['cash_flow'] = dict()
+                for manager in office['managers']:
+                    manager['cash_flow'] = dict()
 
         fact_data = financial_indicators.filtered(
             lambda fi: fi.type == 'cash_flow' and not fi.forecast_probability_id)
         for company in result['companies']:
             company_fact = 0
             for office in company['offices']:
-                for o, group in groupby(sorted(fact_data, key=lambda i: i.project_office_id.id), lambda fi: fi.project_office_id):
-                    if office['id'] == o.id:
-                        office_fact = sum(indicator.amount for indicator in group)
-                        office['cash_flow'].update({
-                            'fact': self._build_value_dict(office_fact, 'monetary', options)
-                        })
-                        company_fact += office_fact
+                office_fact = 0
+                for manager in office['managers']:
+                    for m, group in groupby(
+                            sorted(
+                                fact_data.filtered(lambda p: p.project_office_id.id == office['id']),
+                                key=lambda i: i.key_account_manager_id.id
+                            ), lambda fi: fi.key_account_manager_id
+                    ):
+                        if manager['id'] == m.id:
+                            manager_fact = sum(indicator.amount for indicator in group)
+                            manager['cash_flow'].update({
+                                'fact': self._build_value_dict(manager_fact, 'monetary', options)
+                            })
+                            office_fact += manager_fact
+                            company_fact += manager_fact
+                office['cash_flow'].update({
+                    'fact': self._build_value_dict(office_fact, 'monetary', options)
+                })
             company['cash_flow'].update({
                 'fact': self._build_value_dict(company_fact, 'monetary', options)
             })
@@ -167,7 +253,9 @@ class ProjectBudgetReportSalesForecast(models.AbstractModel):
         result['cash_flow'].update({'fact': self._build_value_dict(companies_fact, 'monetary', options)})
 
         plan_data = planned_indicators.filtered(lambda p: p.type_row == 'cash')
+        kam_plan_data = kam_planned_indicators.filtered(lambda p: p.type_row == 'cash')
         use_plan_6_6 = any(d.q3_plan_6_6 or d.q4_plan_6_6 for d in plan_data)
+        kam_use_plan_6_6 = any(d.q3_plan_6_6 or d.q4_plan_6_6 for d in kam_plan_data)
         for company in result['companies']:
             company_plan = 0
             for office in company['offices']:
@@ -189,6 +277,30 @@ class ProjectBudgetReportSalesForecast(models.AbstractModel):
                             'to_plan': round((office['cash_flow']['fact']['no_format'] / office_plan) * 100, 2)
                             if office['cash_flow'].get('fact') and office_plan > 0 else 0
                         })
+                for manager in office['managers']:
+                    for m, group in groupby(
+                        sorted(
+                            kam_plan_data.filtered(lambda p: p.budget_plan_kam_id.project_office_id.id == office['id']),
+                            key=lambda i: i.budget_plan_kam_id.key_account_manager_id.id
+                            ),
+                            lambda fi: fi.budget_plan_kam_id.key_account_manager_id
+                        ):
+                        if manager['id'] == m.id:
+                            if kam_use_plan_6_6:
+                                manager_plan = sum(
+                                    indicator.q3_plan_6_6 + indicator.q4_plan_6_6 + indicator.q1_fact + indicator.q2_fact
+                                    for indicator in group
+                                )
+                            else:
+                                manager_plan = sum(
+                                    indicator.q1_plan + indicator.q2_plan + indicator.q3_plan + indicator.q4_plan
+                                    for indicator in group
+                                )
+                            manager['cash_flow'].update({
+                                'plan': self._build_value_dict(manager_plan, 'monetary', options),
+                                'to_plan': round((manager['cash_flow']['fact']['no_format'] / manager_plan) * 100, 2)
+                                if manager['cash_flow'].get('fact') and manager_plan > 0 else 0
+                            })
             company['cash_flow'].update({
                 'plan': self._build_value_dict(company_plan, 'monetary', options),
                 'to_plan': round((company['cash_flow']['fact']['no_format'] / company_plan) * 100, 2)
@@ -215,31 +327,44 @@ class ProjectBudgetReportSalesForecast(models.AbstractModel):
             if companies_plan > 0 else 0
         })
 
-    def _prepare_gross_revenue_data(self, result, planned_indicators, financial_indicators, options):
+    def _prepare_gross_revenue_data(self, result, planned_indicators,  kam_planned_indicators, financial_indicators, options):
         for company in result['companies']:
             company['gross_revenue'] = dict()
             for office in company['offices']:
                 office['gross_revenue'] = dict()
+                for manager in office['managers']:
+                    manager['gross_revenue'] = dict()
 
         fact_data = financial_indicators.filtered(
             lambda fi: fi.type == 'gross_revenue' and not fi.forecast_probability_id)
         for company in result['companies']:
             company_fact = 0
             for office in company['offices']:
-                for o, group in groupby(sorted(fact_data, key=lambda i: i.project_office_id.id), lambda fi: fi.project_office_id):
-                    if office['id'] == o.id:
-                        office_fact = sum(indicator.amount for indicator in group)
-                        office['gross_revenue'].update({
-                            'fact': self._build_value_dict(office_fact, 'monetary',
-                                                           options)
-                        })
-                        company_fact += office_fact
+                office_fact = 0
+                for manager in office['managers']:
+                    for m, group in groupby(
+                            sorted(
+                                fact_data.filtered(lambda p: p.project_office_id.id == office['id']),
+                                key=lambda i: i.key_account_manager_id.id
+                            ), lambda fi: fi.key_account_manager_id
+                    ):
+                        if manager['id'] == m.id:
+                            manager_fact = sum(indicator.amount for indicator in group)
+                            manager['gross_revenue'].update({
+                                'fact': self._build_value_dict(manager_fact, 'monetary',
+                                                               options)
+                            })
+                            company_fact += manager_fact
+                            office_fact += manager_fact
+                office['gross_revenue'].update({'fact': self._build_value_dict(office_fact, 'monetary', options)})
             company['gross_revenue'].update({'fact': self._build_value_dict(company_fact, 'monetary', options)})
         companies_fact = sum(d.amount for d in fact_data)
         result['gross_revenue'].update({'fact': self._build_value_dict(companies_fact, 'monetary', options)})
 
         plan_data = planned_indicators.filtered(lambda p: p.type_row == 'acceptance')
+        kam_plan_data = kam_planned_indicators.filtered(lambda p: p.type_row == 'acceptance')
         use_plan_6_6 = any(d.q3_plan_6_6 or d.q4_plan_6_6 for d in plan_data)
+        kam_use_plan_6_6 = any(d.q3_plan_6_6 or d.q4_plan_6_6 for d in kam_plan_data)
         for company in result['companies']:
             company_plan = 0
             for office in company['offices']:
@@ -261,6 +386,30 @@ class ProjectBudgetReportSalesForecast(models.AbstractModel):
                             'to_plan': round((office['gross_revenue']['fact']['no_format'] / office_plan) * 100, 2)
                             if office['gross_revenue'].get('fact') and office_plan > 0 else 0
                         })
+                for manager in office['managers']:
+                    for m, group in groupby(
+                        sorted(
+                            kam_plan_data.filtered(lambda p: p.budget_plan_kam_id.project_office_id.id == office['id']),
+                            key=lambda i: i.budget_plan_kam_id.key_account_manager_id.id
+                            ),
+                        lambda fi: fi.budget_plan_kam_id.key_account_manager_id
+                        ):
+                        if manager['id'] == m.id:
+                            if kam_use_plan_6_6:
+                                manager_plan = sum(
+                                    indicator.q3_plan_6_6 + indicator.q4_plan_6_6 + indicator.q1_fact + indicator.q2_fact
+                                    for indicator in group
+                                )
+                            else:
+                                manager_plan = sum(
+                                    indicator.q1_plan + indicator.q2_plan + indicator.q3_plan + indicator.q4_plan
+                                    for indicator in group
+                                )
+                            manager['gross_revenue'].update({
+                                'plan': self._build_value_dict(manager_plan, 'monetary', options),
+                                'to_plan': round((manager['gross_revenue']['fact']['no_format'] / manager_plan) * 100, 2)
+                                if manager['gross_revenue'].get('fact') and manager_plan > 0 else 0
+                            })
             company['gross_revenue'].update({
                 'plan': self._build_value_dict(company_plan, 'monetary', options),
                 'to_plan': round((company['gross_revenue']['fact']['no_format'] / company_plan) * 100, 2)
@@ -287,30 +436,43 @@ class ProjectBudgetReportSalesForecast(models.AbstractModel):
             if companies_plan > 0 else 0
         })
 
-    def _prepare_margin_data(self, result, planned_indicators, financial_indicators, options):
+    def _prepare_margin_data(self, result, planned_indicators,  kam_planned_indicators, financial_indicators, options):
         for company in result['companies']:
             company['margin'] = dict()
             for office in company['offices']:
                 office['margin'] = dict()
+                for manager in office['managers']:
+                    manager['margin'] = dict()
 
         fact_data = financial_indicators.filtered(
             lambda fi: fi.type == 'margin' and not fi.forecast_probability_id)
         for company in result['companies']:
             company_fact = 0
             for office in company['offices']:
-                for o, group in groupby(sorted(fact_data, key=lambda i: i.project_office_id.id), lambda fi: fi.project_office_id):
-                    if office['id'] == o.id:
-                        office_fact = sum(indicator.amount for indicator in group)
-                        office['margin'].update({
-                            'fact': self._build_value_dict(office_fact, 'monetary', options)
-                        })
-                        company_fact += office_fact
+                office_fact = 0
+                for manager in office['managers']:
+                    for m, group in groupby(
+                        sorted(
+                            fact_data.filtered(lambda p: p.project_office_id.id == office['id']),
+                            key=lambda i: i.key_account_manager_id.id
+                        ), lambda fi: fi.key_account_manager_id
+                    ):
+                        if manager['id'] == m.id:
+                            manager_fact = sum(indicator.amount for indicator in group)
+                            manager['margin'].update({
+                                'fact': self._build_value_dict(manager_fact, 'monetary', options)
+                            })
+                            company_fact += manager_fact
+                            office_fact += manager_fact
+                office['margin'].update({'fact': self._build_value_dict(office_fact, 'monetary', options)})
             company['margin'].update({'fact': self._build_value_dict(company_fact, 'monetary', options)})
         companies_fact = sum(d.amount for d in fact_data)
         result['margin'].update({'fact': self._build_value_dict(companies_fact, 'monetary', options)})
 
         plan_data = planned_indicators.filtered(lambda p: p.type_row == 'margin_income')
+        kam_plan_data = kam_planned_indicators.filtered(lambda p: p.type_row == 'margin_income')
         use_plan_6_6 = any(d.q3_plan_6_6 or d.q4_plan_6_6 for d in plan_data)
+        kam_use_plan_6_6 = any(d.q3_plan_6_6 or d.q4_plan_6_6 for d in kam_plan_data)
         for company in result['companies']:
             company_plan = 0
             for office in company['offices']:
@@ -332,6 +494,30 @@ class ProjectBudgetReportSalesForecast(models.AbstractModel):
                             'to_plan': round((office['margin']['fact']['no_format'] / office_plan) * 100, 2)
                             if office['margin'].get('fact') and office_plan > 0 else 0
                         })
+                for manager in office['managers']:
+                    for m, group in groupby(
+                        sorted(
+                            kam_plan_data.filtered(lambda p: p.budget_plan_kam_id.project_office_id.id == office['id']),
+                            key=lambda i: i.budget_plan_kam_id.key_account_manager_id.id
+                        ),
+                        lambda fi: fi.budget_plan_kam_id.key_account_manager_id
+                    ):
+                        if manager['id'] == m.id:
+                            if kam_use_plan_6_6:
+                                manager_plan = sum(
+                                    indicator.q3_plan_6_6 + indicator.q4_plan_6_6 + indicator.q1_fact + indicator.q2_fact
+                                    for indicator in group
+                                )
+                            else:
+                                manager_plan = sum(
+                                    indicator.q1_plan + indicator.q2_plan + indicator.q3_plan + indicator.q4_plan
+                                    for indicator in group
+                                )
+                            manager['margin'].update({
+                                'plan': self._build_value_dict(manager_plan, 'monetary', options),
+                                'to_plan': round((manager['margin']['fact']['no_format'] / manager_plan) * 100, 2)
+                                if manager['margin'].get('fact') and manager_plan > 0 else 0
+                            })
             company['margin'].update({
                 'plan': self._build_value_dict(company_plan, 'monetary', options),
                 'to_plan': round((company['margin']['fact']['no_format'] / company_plan) * 100, 2)
