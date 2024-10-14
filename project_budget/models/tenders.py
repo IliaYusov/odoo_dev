@@ -26,16 +26,15 @@ class tenders(models.Model):
                              default='ID') #lambda self: self.env['ir.sequence'].sudo().next_by_code('project_budget.projects'))
     company_id = fields.Many2one('res.company', required=True, default=lambda self: self.env.company)
     is_need_projects = fields.Boolean(string="is_need_projects", copy=True, default = False,tracking=True)
-    projects_id = fields.Many2one('project_budget.projects', tracking=True, domain = "[('budget_state', '=', 'work')]")
+    projects_id = fields.Many2one('project_budget.projects', tracking=True, domain = "[('budget_state', '=', 'work')]")  # TODO убрать после миграции на множественные проекты
+    project_ids = fields.Many2many('project_budget.projects', tracking=True, domain="[('budget_state', '=', 'work')]")
     currency_id = fields.Many2one('res.currency', string='Main Account Currency',  required = True, copy = True,
                                   default=lambda self: self.env['res.currency'].search([('name', '=', 'RUB')], limit=1),tracking=True)
     vat_attribute_id = fields.Many2one('project_budget.vat_attribute', string='vat_attribute', copy=True, tracking=True, required=True)
-    project_office_id = fields.Many2one(related='projects_id.project_office_id', readonly=True)
-    project_curator_id = fields.Many2one(related='projects_id.project_curator_id', readonly=True)
-    key_account_manager_id = fields.Many2one(related='projects_id.key_account_manager_id', readonly=True)
-    project_manager_id = fields.Many2one(related='projects_id.project_manager_id', readonly=True)
 
-    essence_project = fields.Text(related='projects_id.essence_project', readonly=True)
+    key_account_manager_ids = fields.Many2many('hr.employee', compute='_compute_data_from_projects', readonly=True, store=True)
+
+    essence_projects = fields.Text(readonly=True, compute='_compute_data_from_projects')
 
     date_of_filling_in = fields.Date(string='date_of_filling_in tender', required=True, default=fields.Date.context_today, tracking=True)
     participant_id = fields.Many2one('project_budget.legal_entity_signing',
@@ -45,7 +44,9 @@ class tenders(models.Model):
     auction_number = fields.Char(string='auction_number', default = "",tracking=True, required = True)
     url_tender = fields.Html(string='url of tender', default = "",tracking=True, required = True)
     url_contract = fields.Html(string='url of contract', default="", tracking=True)
-    partner_id = fields.Many2one('res.partner', string='customer_organization', required=True, copy=True, tracking=True,
+    partner_id = fields.Many2one('res.partner', string='customer_organization', copy=True, tracking=True,
+                                 domain="[('is_company','=',True)]")   # TODO убрать после миграции на множественные проекты
+    partner_ids = fields.Many2many('res.partner', string='customer_organizations', required=True, copy=True, tracking=True,
                                  domain="[('is_company','=',True)]")
     organizer_partner_id = fields.Many2one('res.partner', string='organizer', copy=True, tracking=True,
                                            domain="[('is_company','=',True)]")
@@ -63,12 +64,16 @@ class tenders(models.Model):
     licenses_SRO = fields.Char(string='licenses_SRO',tracking=True)
     current_status = fields.Many2one('project_budget.tender_current_status', required=True, tracking=True)
 
-    responsible_ids = fields.Many2many('hr.employee', relation='tender_employee_rel', column1='tender_id', column2='employee_id', string='responsibles')
+    responsible_ids = fields.Many2many('hr.employee', relation='tender_employee_rel', column1='tender_id',
+                                       column2='employee_id', string='responsibles')
     responsible_dkp_ids = fields.Many2many('hr.employee', relation='dkp_employee_rel', column1='tender_id',
-                                       column2='employee_id', string='responsibles_dkp', domain=_get_responsible_dkp_domain)
+                                           column2='employee_id', string='responsibles_dkp',
+                                           domain=_get_responsible_dkp_domain)
+    responsible_dkp_str = fields.Text(string='responsibles_dkp', compute='_compute_responsible_dkp_str',
+                                      compute_sudo=True)
 
-    is_need_payment_for_the_victory = fields.Boolean(string="is_need_payment_for_the_victory", copy=True, default = False)
-    is_need_site_payment  = fields.Boolean(string="is_need_site_payment", copy=True, default = False,tracking=True)
+    is_need_payment_for_the_victory = fields.Boolean(string="is_need_payment_for_the_victory", copy=True, default=False)
+    is_need_site_payment = fields.Boolean(string="is_need_site_payment", copy=True, default=False, tracking=True)
 
     tender_comments_ids = fields.One2many(comodel_name='project_budget.tender_comments',inverse_name='tenders_id',string="tenders comments", auto_join=True, copy=True)
 
@@ -79,6 +84,21 @@ class tenders(models.Model):
     attachment_count = fields.Integer(compute='_compute_attachment_count', string='Attachments')
 
     name_to_show = fields.Char(string='name_to_show', compute='_get_name_to_show')
+
+    @api.depends('responsible_dkp_ids')
+    def _compute_responsible_dkp_str(self):
+        for rec in self:
+            rec.responsible_dkp_str = ', '.join(rec.responsible_dkp_ids.mapped('name'))
+
+    @api.depends('project_ids')
+    def _compute_data_from_projects(self):
+        for rec in self:
+            rec.key_account_manager_ids = rec.project_ids.key_account_manager_id
+            essence = ''
+            for project in rec.project_ids:
+                if project.essence_project:
+                    essence += project.essence_project + '\n\n'
+            rec.essence_projects = essence.strip()
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -119,7 +139,7 @@ class tenders(models.Model):
                 """ % _("Add attachments for this tender")
         }
 
-    @api.onchange('is_need_projects','projects_id','currency_id','signer_id','auction_number','url_tender'
+    @api.onchange('is_need_projects','project_ids','currency_id','signer_id','auction_number','url_tender'
         ,'contact_information','name_of_the_purchase','is_need_initial_maximum_contract_price'
         ,'is_need_securing_the_application','is_need_contract_security','is_need_provision_of_GO'
         ,'is_need_licenses_SRO','licenses_SRO','current_status','responsible_ids','is_need_payment_for_the_victory'
@@ -127,17 +147,15 @@ class tenders(models.Model):
     def _check_changes_tender(self):
         for row in self:
             if row.is_need_projects == False:
-                row.projects_id = False
+                row.project_ids = False
             # Федоренко сказала убрать - будут рками ставить
             # if row.date_of_filling_in != fields.datetime.now():
             #     row.date_of_filling_in = fields.datetime.now()
 
-    @api.onchange('projects_id')
-    def _check_partner_id(self):
+    @api.onchange('project_ids')
+    def _check_partner_ids(self):
         for row in self:
-            row.partner_id = row.projects_id.partner_id
-
-
+            row.partner_ids = row.project_ids.partner_id
 
     # @api.onchange('is_need_initial_maximum_contract_price','is_need_securing_the_application','is_need_contract_security'
     #               ,'is_need_provision_of_GO','is_need_licenses_SRO','is_need_payment_for_the_victory')

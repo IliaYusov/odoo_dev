@@ -240,7 +240,7 @@ class report_new_tender_excel(models.AbstractModel):
                 else:
                     sheet.merge_range(row, column, row + tendersum_qty, column, '', row_format_text)
                 column += 1
-                sheet.merge_range(row, column, row + tendersum_qty, column, (tender.partner_id.name or ''), row_format_text)
+                sheet.merge_range(row, column, row + tendersum_qty, column, (',\n\n'.join(p.name for p in tender.partner_ids) or ''), row_format_text)
                 column += 1
                 if is_report_for_management == False:
                     sheet.merge_range(row, column, row + tendersum_qty, column, (tender.contact_information or ''), row_format_text)
@@ -251,7 +251,7 @@ class report_new_tender_excel(models.AbstractModel):
                 # прикидываем высоту строки
                 max_cell_size = max(
                     len(url or ''),
-                    len(tender.partner_id.name or ''),
+                    sum(len(p.name) + 30 for p in tender.partner_ids),
                     len(tender.contact_information or ''),
                     len(tender.name_of_the_purchase or ''),
                     len(tender.licenses_SRO or ''),
@@ -348,7 +348,7 @@ class report_new_tender_excel(models.AbstractModel):
                 column += 1
                 sheet.merge_range(row, column, row + tendersum_qty, column, str_comment.strip(), row_format_text_comments)
                 column += 1
-                sheet.merge_range(row, column, row + tendersum_qty, column, (tender.projects_id.project_id or ''), row_format_text_left)
+                sheet.merge_range(row, column, row + tendersum_qty, column, (', '.join(p.project_id for p in tender.project_ids) or ''), row_format_text_left)
                 row += 1 + tendersum_qty
             else:
                 column = 0
@@ -367,7 +367,7 @@ class report_new_tender_excel(models.AbstractModel):
                 else:
                     sheet.write(row, column, '', row_format_text)
                 column += 1
-                sheet.write(row, column, (tender.partner_id.name or ''), row_format_text)
+                sheet.write(row, column, (',\n\n'.join(p.name for p in tender.partner_ids) or ''), row_format_text)
                 column += 1
                 if is_report_for_management == False:
                     sheet.write(row, column, (tender.contact_information or ''), row_format_text)
@@ -470,7 +470,7 @@ class report_new_tender_excel(models.AbstractModel):
                                 comment.type_comment_id.name or '') + ' ' + (comment.text_comment or '') + '\n'
                 sheet.write(row, column, str_comment.strip(), row_format_text_comments)
                 column += 1
-                sheet.write(row, column, (tender.projects_id.project_id or ''), row_format_text_left)
+                sheet.write(row, column, (', '.join(p.project_id for p in tender.project_ids) or ''), row_format_text_left)
                 row += 1
 
 

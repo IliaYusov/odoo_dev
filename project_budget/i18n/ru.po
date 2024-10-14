@@ -1468,7 +1468,7 @@ msgstr "КБ в финуправление"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_kam__key_account_manager_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_overdue_report__key_account_manager_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__key_account_manager_id
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__key_account_manager_id
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__key_account_manager_ids
 #: model:project_budget.project.role,name:project_budget.project_role_key_account_manager
 #: model:res.groups,name:project_budget.group_project_budget_key_account_manager
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_view_search
@@ -2533,7 +2533,7 @@ msgstr "ID проекта"
 #: model:ir.actions.act_window,name:project_budget.action_project_budget_project_office_projects
 #: model:ir.actions.act_window,name:project_budget.action_project_budget_projects
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_office__project_ids
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__projects_id
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__project_ids
 #: model:ir.model.fields,field_description:project_budget.field_res_company_partner__project_ids
 #: model:ir.model.fields,field_description:project_budget.field_res_partner__project_ids
 #: model:ir.model.fields,field_description:project_budget.field_res_users__project_ids
@@ -3464,7 +3464,7 @@ msgid "current_status"
 msgstr "Статус"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__partner_id
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__partner_ids
 #: model:ir.ui.menu,name:project_budget.project_budget_catalogs_customer_organization
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_view_search
 msgid "customer_organization"
@@ -3747,7 +3747,7 @@ msgstr "Введите код проекта из AXAPTA"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__essence_project
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__essence_project
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__essence_projects
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_view_search
 msgid "essence_project"
 msgstr "Наименование"
