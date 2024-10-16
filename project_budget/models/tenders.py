@@ -152,10 +152,10 @@ class tenders(models.Model):
             # if row.date_of_filling_in != fields.datetime.now():
             #     row.date_of_filling_in = fields.datetime.now()
 
-    @api.onchange('project_ids')
-    def _check_partner_ids(self):
-        for row in self:
-            row.partner_ids = row.project_ids.partner_id
+    # @api.onchange('project_ids')
+    # def _check_partner_ids(self):
+    #     for row in self:
+    #         row.partner_ids = row.project_ids.partner_id
 
     # @api.onchange('is_need_initial_maximum_contract_price','is_need_securing_the_application','is_need_contract_security'
     #               ,'is_need_provision_of_GO','is_need_licenses_SRO','is_need_payment_for_the_victory')
