@@ -707,6 +707,21 @@ class report_management_committee_excel(models.AbstractModel):
         if quarter:
             months = self.get_months_from_quarter(quarter)
 
+        if project.is_parent_project:
+            parent_sum_cash = 0
+            parent_sum_cash_without_manual = 0
+            for child_project in project.child_project_ids:
+                if child_project.project_have_steps:
+                    for child_step in child_project.step_project_child_ids:
+                        sum_cash, sum_cash_without_manual = self.get_sum_fact_margin_project_year_quarter(child_step, year, quarter)
+                        parent_sum_cash += sum_cash * (1 / (1 - child_project.margin_rate_for_parent)) * child_project.margin_rate_for_parent
+                        parent_sum_cash_without_manual += sum_cash_without_manual * (1 / (1 - child_project.margin_rate_for_parent)) * child_project.margin_rate_for_parent
+                else:
+                    sum_cash, sum_cash_without_manual = self.get_sum_fact_margin_project_year_quarter(child_project, year, quarter)
+                    parent_sum_cash += sum_cash * (1 / (1 - child_project.margin_rate_for_parent)) * child_project.margin_rate_for_parent
+                    parent_sum_cash_without_manual += sum_cash_without_manual * (1 / (1 - child_project.margin_rate_for_parent)) * child_project.margin_rate_for_parent
+            return parent_sum_cash, parent_sum_cash_without_manual
+
         if project.step_status == 'project':
             acceptance_list = project.fact_acceptance_flow_ids
         elif project.step_status == 'step':
@@ -722,10 +737,8 @@ class report_management_committee_excel(models.AbstractModel):
 
         return sum_cash, sum_cash_without_manual
 
-    def get_sum_planned_acceptance_project_year_quarter(self, project, year, quarter, profitability):
-
+    def get_sum_planned_acceptance_project_year_quarter(self, project, year, quarter):
         sum_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
-        sum_margin = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
         if quarter:
             months = self.get_months_from_quarter(quarter)
@@ -749,21 +762,54 @@ class report_management_committee_excel(models.AbstractModel):
                     else:
                         if stage_id_code != '0':
                             sum_acceptance[acceptance.forecast] += acceptance.sum_cash_without_vat
-                    if not any(distribution.fact_acceptance_flow_id.margin_manual_input for distribution in
-                           acceptance.distribution_acceptance_ids):  # если нет ручной маржи - добавляем
-                        if acceptance.forecast == 'from_project':
-                            if stage_id_code in ('75', '100', '100(done)'):
-                                sum_margin['commitment'] += acceptance.sum_cash_without_vat * profitability / 100
-                            elif stage_id_code == '50':
-                                sum_margin['reserve'] += acceptance.sum_cash_without_vat * profitability / 100
-                            elif stage_id_code == '30':
-                                sum_margin['potential'] += acceptance.sum_cash_without_vat * profitability / 100
-                        else:
-                            if stage_id_code != '0':
-                                sum_margin[acceptance.forecast] += acceptance.sum_cash_without_vat * profitability / 100
-        return sum_acceptance, sum_margin
+        return sum_acceptance
 
-    def get_act_margin_forecast_from_distributions(self, sum, margin_sum, margin_plan, project, year, months):
+    def get_sum_planned_margin_project_year_quarter(self, project, year, quarter):
+
+        sum_margin = {'commitment': 0, 'reserve': 0, 'potential': 0}
+
+        if quarter:
+            months = self.get_months_from_quarter(quarter)
+
+        if project.is_parent_project:
+            for child_project in project.child_project_ids:
+                if child_project.project_have_steps:
+                    for child_step in child_project.step_project_child_ids:
+                        for key in sum_margin:
+                            sum_margin[key] += self.get_sum_planned_margin_project_year_quarter(child_step, year, quarter)[key] * (1 / (1 - child_project.margin_rate_for_parent)) * child_project.margin_rate_for_parent
+                else:
+                    for key in sum_margin:
+                        sum_margin[key] += self.get_sum_planned_margin_project_year_quarter(child_project, year, quarter)[key] * (1 / (1 - child_project.margin_rate_for_parent)) * child_project.margin_rate_for_parent
+            return sum_margin
+
+        profitability = project.profitability
+
+        if project.step_status == 'project':
+            acceptance_list = project.planned_acceptance_flow_ids
+        elif project.step_status == 'step':
+            acceptance_list = project.planned_step_acceptance_flow_ids
+            if project.step_project_parent_id.is_child_project:
+                profitability = project.profitability * (1 - project.step_project_parent_id.margin_rate_for_parent)
+
+        if acceptance_list:
+            for acceptance in acceptance_list:
+                if ((not quarter or acceptance.date_cash.month in months)
+                        and acceptance.date_cash.year == year
+                        and not any(distribution.fact_acceptance_flow_id.margin_manual_input for distribution in acceptance.distribution_acceptance_ids)):  # если нет ручной маржи - добавляем
+                    stage_id_code = project.stage_id.code
+                    if acceptance.forecast == 'from_project':
+                        if stage_id_code in ('75', '100', '100(done)'):
+                            sum_margin['commitment'] += acceptance.sum_cash_without_vat * profitability / 100
+                        elif stage_id_code == '50':
+                            sum_margin['reserve'] += acceptance.sum_cash_without_vat * profitability / 100
+                        elif stage_id_code == '30':
+                            sum_margin['potential'] += acceptance.sum_cash_without_vat * profitability / 100
+                    else:
+                        if stage_id_code != '0':
+                            sum_margin[acceptance.forecast] += acceptance.sum_cash_without_vat * profitability / 100
+        return sum_margin
+
+    def get_act_forecast_from_distributions(self, sum, project, year, months):
 
         sum_distribution_acceptance = 0
         sum_ostatok_acceptance = {'commitment': 0, 'reserve': 0, 'potential': 0}
@@ -790,6 +836,38 @@ class report_management_committee_excel(models.AbstractModel):
                         sum_ostatok_acceptance[
                             planned_acceptance.forecast] += planned_acceptance.distribution_sum_without_vat_ostatok
 
+        if sum_distribution_acceptance:  # если есть распределение, то остаток = остатку распределения
+            sum = sum_ostatok_acceptance
+            for key in sum:
+                if not project.is_correction_project:
+                    sum[key] = max(sum[key], 0)
+        return  sum
+
+    def get_margin_forecast_from_distributions(self, margin_sum, margin_plan, project, year, months, margin_rate_for_parent):
+
+        sum_distribution_acceptance = 0
+
+        if project.is_parent_project:
+            for child_project in project.child_project_ids:
+                if child_project.project_have_steps:
+                    for child_step in child_project.step_project_child_ids:
+                        margin_sum = self.get_margin_forecast_from_distributions(
+                            margin_sum, margin_plan, child_step, year, months, (1 / (1 - child_project.margin_rate_for_parent)) * child_project.margin_rate_for_parent
+                        )
+                else:
+                    margin_sum = self.get_margin_forecast_from_distributions(
+                        margin_sum, margin_plan, child_project, year, months, (1 / (1 - child_project.margin_rate_for_parent)) * child_project.margin_rate_for_parent
+                    )
+            return margin_sum
+
+        if project.step_status == 'project':
+            acceptance_list = project.planned_acceptance_flow_ids
+        elif project.step_status == 'step':
+            acceptance_list = project.planned_step_acceptance_flow_ids
+
+        for planned_acceptance in acceptance_list:
+            if (not months or planned_acceptance.date_cash.month in months) and planned_acceptance.date_cash.year == year:
+                sum_distribution_acceptance += planned_acceptance.distribution_sum_without_vat
                 # суммируем доли маржи фактов в соотношении (сумма распределения/суммы факта)
                 margin_distribution = 0
                 for distribution in planned_acceptance.distribution_acceptance_ids:
@@ -803,22 +881,19 @@ class report_management_committee_excel(models.AbstractModel):
 
                 if planned_acceptance.forecast == 'from_project':
                     if stage_id_code in ('75', '100', '100(done)'):
-                        margin_plan['commitment'] -= margin_distribution
+                        margin_plan['commitment'] -= margin_distribution * margin_rate_for_parent
                     elif stage_id_code == '50':
-                        margin_plan['reserve'] -= margin_distribution
+                        margin_plan['reserve'] -= margin_distribution * margin_rate_for_parent
                 else:
                     if stage_id_code != '0':
-                        margin_plan[planned_acceptance.forecast] -= margin_distribution
+                        margin_plan[planned_acceptance.forecast] -= margin_distribution * margin_rate_for_parent
 
         if sum_distribution_acceptance != 0:  # если есть распределение, то остаток = остатку распределения
-            sum = sum_ostatok_acceptance
             margin_sum = margin_plan
-            for key in sum:
+            for key in margin_sum:
                 if not project.is_correction_project:
-                    sum[key] = max(sum[key], 0)
                     margin_sum[key] = max(margin_sum[key], 0)
-
-        return  sum, margin_sum
+        return margin_sum
 
     def print_quarter_planned_acceptance_project(self, sheet, row, column, element, project, project_office, params, row_format_number, row_format_number_color_fact):
         global strYEAR
@@ -854,7 +929,8 @@ class report_management_committee_excel(models.AbstractModel):
             sum100tmp += sum100tmp_proj
             prof100tmp += prof100tmp_proj
 
-            sum, margin_sum = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint, element, profitability)
+            sum = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint, element)
+            margin_sum = self.get_sum_planned_margin_project_year_quarter(project, YEARint, element)
 
             margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
@@ -877,7 +953,8 @@ class report_management_committee_excel(models.AbstractModel):
                     margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_proj_wo_manual
 
             # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-            sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, YEARint, months)
+            sum = self.get_act_forecast_from_distributions(sum, project, YEARint, months)
+            margin_sum = self.get_margin_forecast_from_distributions(margin_sum, margin_plan, project, YEARint, months, 1)
 
             for key in sum:  # убираем отрицательные, если не корректировочный проект
                 if not project.is_correction_project:
@@ -907,8 +984,10 @@ class report_management_committee_excel(models.AbstractModel):
             sum100tmp += sum100tmp_proj
             prof100tmp += prof100tmp_proj
 
-            sum_q1, margin_sum_q1 = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint + 1, 'Q1', profitability)
-            sum, margin_sum = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint + 1, False, profitability)
+            sum_q1 = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint + 1, 'Q1')
+            margin_sum_q1 = self.get_sum_planned_margin_project_year_quarter(project, YEARint + 1, 'Q1')
+            sum = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint + 1, False)
+            margin_sum = self.get_sum_planned_margin_project_year_quarter(project, YEARint + 1, False)
 
             margin_plan_q1 = {'commitment': 0, 'reserve': 0, 'potential': 0}
             margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
@@ -957,8 +1036,11 @@ class report_management_committee_excel(models.AbstractModel):
                     sum['potential'] = project.total_amount_of_revenue
 
             # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-            sum_q1, margin_sum_q1 = self.get_act_margin_forecast_from_distributions(sum_q1, margin_sum_q1, margin_plan_q1, project, YEARint + 1, self.get_months_from_quarter('Q1'))
-            sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, YEARint + 1, False)
+            sum_q1 = self.get_act_forecast_from_distributions(sum_q1, project, YEARint + 1,  self.get_months_from_quarter('Q1'))
+            margin_sum_q1 = self.get_margin_forecast_from_distributions(margin_sum_q1, margin_plan_q1, project, YEARint + 1, self.get_months_from_quarter('Q1'), 1)
+
+            sum = self.get_act_forecast_from_distributions(sum, project, YEARint + 1, False)
+            margin_sum = self.get_margin_forecast_from_distributions(margin_sum, margin_plan, project, YEARint + 1, False, 1)
 
             for key in sum:  # убираем отрицательные, если не корректировочный проект
                 if not project.is_correction_project:
@@ -992,7 +1074,8 @@ class report_management_committee_excel(models.AbstractModel):
             sum100tmp += sum100tmp_proj
             prof100tmp += prof100tmp_proj
 
-            sum, margin_sum = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint + 2, False, profitability)
+            sum = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint + 2, False)
+            margin_sum = self.get_sum_planned_margin_project_year_quarter(project, YEARint + 2, False)
 
             margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
@@ -1019,7 +1102,8 @@ class report_management_committee_excel(models.AbstractModel):
                     sum['potential'] = project.total_amount_of_revenue
 
             # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-            sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, YEARint + 2, False)
+            sum = self.get_act_forecast_from_distributions(sum, project, YEARint + 2, False)
+            margin_sum = self.get_margin_forecast_from_distributions(margin_sum, margin_plan, project, YEARint + 2, False, 1)
 
             for key in sum:  # убираем отрицательные, если не корректировочный проект
                 if not project.is_correction_project:
@@ -1071,7 +1155,8 @@ class report_management_committee_excel(models.AbstractModel):
                 sum100tmp += sum100tmp_proj
                 prof100tmp += prof100tmp_proj
 
-                sum, margin_sum = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint, element, profitability)
+                sum = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint, element)
+                margin_sum = self.get_sum_planned_margin_project_year_quarter(project, YEARint, element)
 
                 margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
@@ -1094,7 +1179,8 @@ class report_management_committee_excel(models.AbstractModel):
                         margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_proj_wo_manual
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, YEARint, months)
+                sum = self.get_act_forecast_from_distributions(sum, project, YEARint, months)
+                margin_sum = self.get_margin_forecast_from_distributions(margin_sum, margin_plan, project, YEARint, months, 1)
 
                 for key in sum: # убираем отрицательные, если не корректировочный проект
                     if not project.is_correction_project:
@@ -1121,8 +1207,10 @@ class report_management_committee_excel(models.AbstractModel):
                 sum100tmp += sum100tmp_proj
                 prof100tmp += prof100tmp_proj
 
-                sum_q1, margin_sum_q1 = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint + 1, 'Q1', profitability)
-                sum, margin_sum = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint + 1, False, profitability)
+                sum_q1 = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint + 1, 'Q1')
+                margin_sum_q1 = self.get_sum_planned_margin_project_year_quarter(project, YEARint + 1, 'Q1')
+                sum = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint + 1, False)
+                margin_sum = self.get_sum_planned_margin_project_year_quarter(project, YEARint + 1, False)
 
                 margin_plan_q1 = {'commitment': 0, 'reserve': 0, 'potential': 0}
                 margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
@@ -1172,8 +1260,13 @@ class report_management_committee_excel(models.AbstractModel):
                         sum['potential'] = project.total_amount_of_revenue
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum_q1, margin_sum_q1 = self.get_act_margin_forecast_from_distributions(sum_q1, margin_sum_q1, margin_plan_q1, project, YEARint + 1, self.get_months_from_quarter('Q1'))
-                sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, YEARint + 1, False)
+                sum_q1 = self.get_act_forecast_from_distributions(sum, project, YEARint + 1, self.get_months_from_quarter('Q1'))
+                margin_sum_q1 = self.get_margin_forecast_from_distributions(margin_sum, margin_plan, project, YEARint + 1,
+                                                                         self.get_months_from_quarter('Q1'), 1)
+
+                sum = self.get_act_forecast_from_distributions(sum, project, YEARint + 1, False)
+                margin_sum = self.get_margin_forecast_from_distributions(margin_sum, margin_plan, project, YEARint + 1,
+                                                                         False, 1)
 
                 for key in sum:  # убираем отрицательные, если не корректировочный проект
                     if not project.is_correction_project:
@@ -1207,7 +1300,8 @@ class report_management_committee_excel(models.AbstractModel):
                 sum100tmp += sum100tmp_proj
                 prof100tmp += prof100tmp_proj
 
-                sum, margin_sum = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint + 2, False, profitability)
+                sum = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint + 2, False)
+                margin_sum = self.get_sum_planned_margin_project_year_quarter(project, YEARint + 2, False)
 
                 margin_plan = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
@@ -1234,7 +1328,9 @@ class report_management_committee_excel(models.AbstractModel):
                         sum['potential'] = project.total_amount_of_revenue
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
-                sum, margin_sum = self.get_act_margin_forecast_from_distributions(sum, margin_sum, margin_plan, project, YEARint + 2, False)
+                sum = self.get_act_forecast_from_distributions(sum, project, YEARint + 2, False)
+                margin_sum = self.get_margin_forecast_from_distributions(margin_sum, margin_plan, project, YEARint + 2,
+                                                                         False, 1)
 
                 for key in sum:  # убираем отрицательные, если не корректировочный проект
                     if not project.is_correction_project:
@@ -2489,7 +2585,6 @@ class report_management_committee_excel(models.AbstractModel):
 
         cur_budget_projects = self.env['project_budget.projects'].search([
             ('commercial_budget_id', '=', budget.id),
-            ('is_parent_project', '=', False),
             ('stage_id.code', '!=', '0'),
             ('is_not_for_mc_report', '=', False),
             '|', '&', ('step_status', '=', 'step'),
@@ -2611,7 +2706,6 @@ class report_management_committee_excel(models.AbstractModel):
                     projects = self.env['project_budget.projects'].search([
                         ('stage_id.code', '!=', '0'),
                         ('commercial_budget_id', '=', budget.id),
-                        ('is_parent_project', '=', False),
                         ('is_not_for_mc_report', '=', False),
                         ('project_office_id', '=', project_office.id),
                         '|', '&', ('step_status', '=', 'step'),
@@ -3155,7 +3249,6 @@ class report_management_committee_excel(models.AbstractModel):
 
         cur_budget_projects = self.env['project_budget.projects'].search([
             ('commercial_budget_id', '=', budget.id),
-            ('is_parent_project', '=', False),
             ('stage_id.code', '!=', '0'),
             ('is_not_for_mc_report', '=', False),
             '|', '&', ('step_status', '=', 'step'),
