@@ -98,7 +98,18 @@ class ProjectBudgetReportSalesForecast(models.AbstractModel):
                                 # ).ids,
                             })
                     company['offices'].append(office)
-        print(result)
+
+        c = self._get_contraction_data(datetime(day=1, month=1, year=2024).date(), datetime(day=31, month=12, year=2024).date(), financial_indicators)
+        print(c['fact'], c[13] + c[14] * 0.6 + c[15] * 0.1)
+
+        c = self._get_cash_flow_data(datetime(day=1, month=1, year=2024).date(), datetime(day=31, month=12, year=2024).date(), financial_indicators)
+        print(c['fact'], c[13] + c[14] * 0.6)
+
+        c = self._get_gross_revenue_data(datetime(day=1, month=1, year=2024).date(), datetime(day=31, month=12, year=2024).date(), financial_indicators)
+        print(c['fact'], c[13] + c[14] * 0.6)
+
+        c = self._get_margin_data(datetime(day=1, month=1, year=2024).date(), datetime(day=31, month=12, year=2024).date(), financial_indicators)
+        print(c['fact'], c[13] + c[14] * 0.6)
 
         self._prepare_contraction_data(result, planned_indicators, kam_planned_indicators, financial_indicators, options)
         self._prepare_cash_flow_data(result, planned_indicators, kam_planned_indicators, financial_indicators, options)
@@ -109,6 +120,113 @@ class ProjectBudgetReportSalesForecast(models.AbstractModel):
     # ------------------------------------------------------
     # PRIVATE METHODS
     # ------------------------------------------------------
+
+    def _get_contraction_data(self, period_start, period_end, financial_indicators):
+        result = {}
+
+        fact_data = financial_indicators.filtered(
+            lambda fi: fi.type == 'contracting'
+                       and fi.stage_id.project_state == 'won'
+                       and period_start <= fi.date <= period_end
+        )
+        result['fact'] = sum(d.amount for d in fact_data)
+
+        forecast_data = financial_indicators.filtered(
+            lambda fi: fi.type == 'contracting'
+                       and fi.forecast_probability_id
+                       and period_start <= fi.date <= period_end
+        )
+
+        for i, group in groupby(
+            sorted(forecast_data, key=lambda i: i.forecast_probability_id.id), lambda i: i.forecast_probability_id.id
+        ):
+            result[i] = sum(i.amount for i in group)
+        return result
+
+    def _get_cash_flow_data(self, period_start, period_end, financial_indicators, close_mode='monthly'):
+        result = {}
+
+        fact_data = financial_indicators.filtered(
+            lambda fi: fi.type == 'cash_flow'
+                       and not fi.forecast_probability_id
+                       and period_start <= fi.date <= period_end
+        )
+        result['fact'] = sum(d.amount for d in fact_data)
+
+        forecast_data = financial_indicators.filtered(
+            lambda fi: fi.type == 'cash_flow'
+                       and fi.forecast_probability_id
+                       and period_start <= fi.date <= period_end
+        )
+
+        closed_forecasts = self._auto_close_forecast_by_fact(fact_data, forecast_data, close_mode)
+
+        for i, group in groupby(
+            sorted(forecast_data, key=lambda i: i.forecast_probability_id.id), lambda i: i.forecast_probability_id.id
+        ):
+            result[i] = sum(
+                closed_forecasts.get(i.id, i.amount - i.distribution) for i in group if i.amount - i.distribution > 0
+            )
+        return result
+
+    def _get_gross_revenue_data(self, period_start, period_end, financial_indicators, close_mode='quarterly'):
+        result = {}
+        fact_data = financial_indicators.filtered(
+            lambda fi: fi.type == 'gross_revenue'
+                       and not fi.forecast_probability_id
+                       and period_start <= fi.date <= period_end
+        )
+        result['fact'] = sum(d.amount for d in fact_data)
+
+        forecast_data = financial_indicators.filtered(
+            lambda fi: fi.type == 'gross_revenue'
+                       and fi.forecast_probability_id
+                       and period_start <= fi.date <= period_end
+        )
+
+        closed_forecasts = self._auto_close_forecast_by_fact(fact_data, forecast_data, close_mode)
+
+        for i, group in groupby(
+            sorted(forecast_data, key=lambda i: i.forecast_probability_id.id), lambda i: i.forecast_probability_id.id
+        ):
+            result[i] = sum(
+                closed_forecasts.get(i.id, i.amount - i.distribution) for i in group if i.amount - i.distribution > 0
+            )
+        return result
+
+    def _get_margin_data(self, period_start, period_end, financial_indicators, close_mode='quarterly'):
+        result = {}
+        fact_data = financial_indicators.filtered(
+            lambda fi: fi.type == 'margin'
+                       and not fi.forecast_probability_id
+                       and period_start <= fi.date <= period_end
+        )
+        result['fact'] = sum(d.amount for d in fact_data)
+
+        fact_gross_revenue_data = financial_indicators.filtered(
+            lambda fi: fi.type == 'gross_revenue'
+                       and not fi.forecast_probability_id
+                       and period_start <= fi.date <= period_end
+        )
+
+        forecast_data = financial_indicators.filtered(
+            lambda fi: fi.type == 'gross_revenue'
+                       and fi.profitability > 0
+                       and fi.forecast_probability_id
+                       and period_start <= fi.date <= period_end
+        )
+
+        closed_forecasts = self._auto_close_forecast_by_fact(fact_gross_revenue_data, forecast_data, close_mode)
+
+        for i, group in groupby(
+            sorted(forecast_data, key=lambda i: i.forecast_probability_id.id), lambda i: i.forecast_probability_id.id
+        ):
+            result[i] = sum(
+                closed_forecasts.get(i.id, i.amount - i.distribution) * i.profitability for i in group
+                if i.amount - i.distribution > 0
+                and not any(distribution.fact_acceptance_flow_id.margin_manual_input for distribution in i.planned_acceptance_flow_id.distribution_acceptance_ids)
+            )
+        return result
 
     def _prepare_contraction_data(self, result, planned_indicators, kam_planned_indicators, financial_indicators, options):
         for company in result['companies']:
