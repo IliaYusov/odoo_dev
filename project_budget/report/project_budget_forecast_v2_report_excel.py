@@ -1777,8 +1777,8 @@ class report_budget_forecast_excel(models.AbstractModel):
                                 isFoundProjectsByManager = True
                                 isFoundProjectsByProbability = True
 
-                                row += 1
-                                sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 2})
+                                project_level = level
+
                                 cur_row_format = row_format
                                 cur_row_format_number = row_format_number
                                 cur_row_format_date = row_format_date
@@ -1786,6 +1786,11 @@ class report_budget_forecast_excel(models.AbstractModel):
                                     cur_row_format = row_format_canceled_project
                                     cur_row_format_number = row_format_number_canceled_project
                                     cur_row_format_date = row_format_date_canceled_project
+                                    project_level = level + 1
+
+                                row += 1
+                                sheet.set_row(row, False, False, {'hidden': 1, 'level': project_level + 2})
+
                                 column = 0
                                 sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
                                 column += 1
