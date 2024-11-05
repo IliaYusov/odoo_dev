@@ -1,9 +1,11 @@
+import logging
+
 from odoo import models
+from odoo.tools import date_utils
 from datetime import date, datetime, timedelta
 from dateutil.relativedelta import *
 from xlsxwriter.utility import xl_col_to_name
 from collections import OrderedDict
-import logging
 
 isdebug = False
 logger = logging.getLogger("*___forecast_report___*")
@@ -196,15 +198,17 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                     ]
                 }
                 col += 1
-
+                
                 actual_week = month_start
                 actual_week_number = actual_week.isocalendar()[1]
                 actual_week_year = actual_week.isocalendar()[0]
                 week_start = month_start
                 week_end = self.get_dates_from_week(actual_week_number, actual_week_year)[1]
-                while week_start.month < actual_date.month + 2:  # недели в течение двух месяцев
+                while week_start < date_utils.start_of(actual_date + relativedelta(months=2), 'month').date():  # недели в течение двух месяцев
                     if week_start.month >= actual_date.month + 1:
-                        col_format = (10, None, {'hidden': 1, 'level': 1})
+                        week_col_format = (10, None, {'hidden': 1, 'level': 1})
+                    else:
+                        week_col_format = (10, None)
                     periods_dict[(week_start, week_end)] = {
                         'type': 'week',
                         'cols': [
@@ -215,7 +219,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                                 'format_head': commitment_head_format,
                                 'format_office': commitment_office_format,
                                 'format_company': commitment_company_format,
-                                'col_format': col_format,
+                                'col_format': week_col_format,
                             },
                             {
                                 'print': 'fact',
@@ -224,7 +228,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                                 'format_head': fact_head_format,
                                 'format_office': fact_office_format,
                                 'format_company': fact_company_format,
-                                'col_format': col_format,
+                                'col_format': week_col_format,
                             }
                         ],
                     }
@@ -250,7 +254,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                                     'format_head': commitment_head_format,
                                     'format_office': commitment_office_format,
                                     'format_company': commitment_company_format,
-                                    'col_format': col_format,
+                                    'col_format': week_col_format,
                                 },
                                 {
                                     'print': 'fact',
@@ -259,7 +263,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                                     'format_head': fact_head_format,
                                     'format_office': fact_office_format,
                                     'format_company': fact_company_format,
-                                    'col_format': col_format,
+                                    'col_format': week_col_format,
                                 }
                             ],
                         }
@@ -710,7 +714,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
 
             for office in project_offices.filtered(lambda r: r.company_id == company):
                 if office.id in actual_office_ids:
-                    if office.id not in dict_formula['company_ids']:
+                    if office.id not in dict_formula['office_ids']:
                         row += 1
                         dict_formula['office_ids'][office.id] = row
                         sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
@@ -951,7 +955,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
         actual_office_ids_set = set()
         for company in data:
             for office_name in data[company]:
-                office = self.env['project_budget.project_office'].search([('name', '=', office_name)])
+                office = self.env['project_budget.project_office'].search([('name', '=', office_name), ('company_id.name', '=', company)])
                 actual_office_ids_set.add(office.id)
                 while office.parent_id:
                     office = office.parent_id
