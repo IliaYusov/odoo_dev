@@ -10,6 +10,8 @@ class ReportBudgetForecastExcel(models.AbstractModel):
     _description = 'project_budget.report_budget_forecast_v3_excel'
     _inherit = 'report.report_xlsx.abstract'
 
+    START_COLUMN = 10
+
     indicators = ['contraction', 'cash_flow', 'gross_revenue', 'margin']
 
     month_rus_name = [
@@ -906,6 +908,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
         data = self.calculate_periods_dict(workbook, year)
 
         start_col = 10
+
         for section in data:  # печатаем шапку
             if section['type'] != 'blank':
                 for period in section['periods']:
@@ -934,10 +937,42 @@ class ReportBudgetForecastExcel(models.AbstractModel):
 
         row += 3
 
+        company_rows = list()
         for company in financial_indicators.company_id:
-            for office in financial_indicators.project_office_id.filtered(lambda o: o.company_id == company):
+            office_rows = list()
+
+            current_offices = financial_indicators.project_office_id.filtered(lambda o: o.company_id == company)
+            current_offices_wo_parents = current_offices.filtered(lambda o: not o.parent_id)
+            all_offices = list()
+            all_offices_sorted = list()
+
+            for office in current_offices:  # добавляем все промежуточные родители в список офисов
+                office_parent = office.parent_id
+                while office_parent:
+                    if office_parent not in all_offices:
+                        all_offices.append(office_parent)
+                    office_parent = office_parent.parent_id
+                all_offices.append(office)
+
+            def get_office_ids(o_wo_parents, all_o, all_o_sorted):  # сортируем офисы так, чтобы потомки шли перед родителями
+                for o in o_wo_parents:
+                    child_offices = o.child_ids
+                    if child_offices:
+                        all_o_sorted = get_office_ids(child_offices, all_o, all_o_sorted)
+                    if o not in all_o_sorted and o in all_o:
+                        all_o_sorted.append(o)
+                return all_o_sorted
+
+            all_offices_sorted = get_office_ids(current_offices_wo_parents, all_offices, all_offices_sorted)
+
+            for office in all_offices_sorted:
+                kam_rows = list()
                 for kam in financial_indicators.key_account_manager_id.filtered(lambda k: k.company_id == company):
+                    stage_rows = list()
+                    kam_is_present = False
                     for stage in financial_indicators.stage_id:
+                        stage_start_row = row + 1
+                        stage_is_present = False
                         for project in financial_indicators.project_id.filtered(
                             lambda p: p.company_id == company
                                       and p.project_office_id == office
@@ -946,7 +981,9 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                         ):
                             current_indicators = financial_indicators.filtered(lambda ci: ci.project_id == project)
                             if current_indicators:
-                                column = 10
+                                stage_is_present = True
+                                kam_is_present = True
+                                column = self.START_COLUMN
                                 sheet.write_string(row, 0, office.name, head_format_1)
                                 sheet.write_string(row, 1, kam.name, head_format_1)
                                 sheet.write_string(row, 2, project.project_id, head_format_1)
@@ -969,6 +1006,77 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                                     else:
                                         column += 1
                                 row += 1
+                        if stage_is_present:  # суммируем по вероятностям
+                            sheet.write_string(row, 0, kam.name + ' ' + stage.name, head_format_1)
+                            column = self.START_COLUMN
+                            for section in data:
+                                if section['type'] != 'blank':
+                                    for period in section['periods']:
+                                        for col in period['cols']:
+                                            formula = '=sum({0}{1}:{0}{2})'.format(xl_col_to_name(column), stage_start_row, row)
+                                            sheet.write_formula(row, column, formula)
+                                            column += 1
+                                else:
+                                    column += 1
+                            row += 1
+                            stage_rows.append(row)
+                    if kam_is_present:  #суммируем по КАМам
+                        sheet.write_string(row, 0, kam.name + ' Итого', head_format_1)
+                        column = self.START_COLUMN
+                        for section in data:
+                            if section['type'] != 'blank':
+                                for period in section['periods']:
+                                    for col in period['cols']:
+                                        formula = '=sum(' + ','.join(xl_col_to_name(column) + str(r) for r in stage_rows) + ')'
+                                        sheet.write_formula(row, column, formula)
+                                        column += 1
+                            else:
+                                column += 1
+                        row += 1
+                        kam_rows.append(row)
+                # суммируем по ПО
+                sheet.write_string(row, 0, office.name + ' Итого', head_format_1)
+                column = self.START_COLUMN
+                for section in data:
+                    if section['type'] != 'blank':
+                        for period in section['periods']:
+                            for col in period['cols']:
+                                formula = '=sum(' + ','.join(
+                                    xl_col_to_name(column) + str(r) for r in kam_rows) + ')'
+                                sheet.write_formula(row, column, formula)
+                                column += 1
+                    else:
+                        column += 1
+                row += 1
+                office_rows.append(row)
+            # суммируем по компании
+            sheet.write_string(row, 0, company.name + ' Итого', head_format_1)
+            column = self.START_COLUMN
+            for section in data:
+                if section['type'] != 'blank':
+                    for period in section['periods']:
+                        for col in period['cols']:
+                            formula = '=sum(' + ','.join(
+                                xl_col_to_name(column) + str(r) for r in office_rows) + ')'
+                            sheet.write_formula(row, column, formula)
+                            column += 1
+                else:
+                    column += 1
+            row += 1
+            company_rows.append(row)
+        sheet.write_string(row, 0, 'Итого по отчету', head_format_1)
+        column = self.START_COLUMN
+        for section in data:
+            if section['type'] != 'blank':
+                for period in section['periods']:
+                    for col in period['cols']:
+                        formula = '=sum(' + ','.join(
+                            xl_col_to_name(column) + str(r) for r in company_rows) + ')'
+                        sheet.write_formula(row, column, formula)
+                        column += 1
+            else:
+                column += 1
+            row += 1
 
     def generate_xlsx_report(self, workbook, data, budgets):
 
@@ -978,5 +1086,4 @@ class ReportBudgetForecastExcel(models.AbstractModel):
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
 
         stages = self.env['project_budget.project.stage'].search([('code', '!=', '10')], order='sequence desc')  # для сортировки так делаем
-        self.print_worksheet(workbook, budget, 'Прогноз',
-                             year)
+        self.print_worksheet(workbook, budget, 'Прогноз', year)
