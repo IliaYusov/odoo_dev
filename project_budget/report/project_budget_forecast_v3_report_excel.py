@@ -33,6 +33,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
         data = [
             {
                 'indicator': 'contraction',
+                'plan_type': 'contracting',
                 'periods': [],
                 'type': 'monthly',
                 'year': year,
@@ -40,6 +41,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
             },
             {
                 'indicator': 'cash_flow',
+                'plan_type': 'cash',
                 'periods': [],
                 'type': 'monthly',
                 'year': year,
@@ -47,6 +49,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
             },
             {
                 'indicator': 'gross_revenue',
+                'plan_type': 'acceptance',
                 'periods': [],
                 'type': 'quarterly',
                 'year': year,
@@ -54,6 +57,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
             },
             {
                 'indicator': 'margin',
+                'plan_type': 'margin_income',
                 'periods': [],
                 'type': 'quarterly',
                 'year': year,
@@ -64,6 +68,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
             },
             {
                 'indicator': 'contraction',
+                'plan_type': 'contracting',
                 'periods': [],
                 'type': 'yearly',
                 'year': year + 1,
@@ -71,6 +76,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
             },
             {
                 'indicator': 'cash_flow',
+                'plan_type': 'cash',
                 'periods': [],
                 'type': 'yearly',
                 'year': year + 1,
@@ -78,6 +84,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
             },
             {
                 'indicator': 'gross_revenue',
+                'plan_type': 'acceptance',
                 'periods': [],
                 'type': 'yearly',
                 'year': year + 1,
@@ -85,6 +92,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
             },
             {
                 'indicator': 'margin',
+                'plan_type': 'margin_income',
                 'periods': [],
                 'type': 'yearly',
                 'year': year + 1,
@@ -95,6 +103,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
             },
             {
                 'indicator': 'contraction',
+                'plan_type': 'contracting',
                 'periods': [],
                 'type': 'yearly',
                 'year': year + 2,
@@ -102,6 +111,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
             },
             {
                 'indicator': 'cash_flow',
+                'plan_type': 'cash',
                 'periods': [],
                 'type': 'yearly',
                 'year': year + 2,
@@ -109,6 +119,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
             },
             {
                 'indicator': 'gross_revenue',
+                'plan_type': 'acceptance',
                 'periods': [],
                 'type': 'yearly',
                 'year': year + 2,
@@ -116,6 +127,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
             },
             {
                 'indicator': 'margin',
+                'plan_type': 'margin_income',
                 'periods': [],
                 'type': 'yearly',
                 'year': year + 2,
@@ -158,6 +170,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                             'cols': [
                                 {
                                     'type': 'plan',
+                                    'plan_type': 'q1_plan',
                                     'amount': 0,
                                     'name': 'План Q1',
                                 },
@@ -189,6 +202,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                             'cols': [
                                 {
                                     'type': 'plan',
+                                    'plan_type': 'q2_plan',
                                     'amount': 0,
                                     'name': 'План Q2',
                                 },
@@ -250,11 +264,13 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                             'cols': [
                                 {
                                     'type': 'plan',
+                                    'plan_type': 'q3_plan',
                                     'amount': 0,
                                     'name': 'План Q3',
                                 },
                                 {
                                     'type': 'plan66',
+                                    'plan_type': 'q3_plan_6_6',
                                     'amount': 0,
                                     'name': 'План Q3 6+6',
                                 },
@@ -286,11 +302,13 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                             'cols': [
                                 {
                                     'type': 'plan',
+                                    'plan_type': 'q4_plan',
                                     'amount': 0,
                                     'name': 'План Q4',
                                 },
                                 {
                                     'type': 'plan66',
+                                    'plan_type': 'q4_plan_6_6',
                                     'amount': 0,
                                     'name': 'План Q4 6+6',
                                 },
@@ -394,6 +412,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                     'cols': [
                         {
                             'type': 'plan',
+                            'plan_type': 'q1_plan',
                             'amount': 0,
                             'name': 'План Q1',
                         },
@@ -426,6 +445,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                     'cols': [
                         {
                             'type': 'plan',
+                            'plan_type': 'q2_plan',
                             'amount': 0,
                             'name': 'План Q2',
                         },
@@ -488,11 +508,13 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                     'cols': [
                         {
                             'type': 'plan',
+                            'plan_type': 'q3_plan',
                             'amount': 0,
                             'name': 'План Q3',
                         },
                         {
                             'type': 'plan66',
+                            'plan_type': 'q3_plan_6_6',
                             'amount': 0,
                             'name': 'План Q3 6+6',
                         },
@@ -525,11 +547,13 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                     'cols': [
                         {
                             'type': 'plan',
+                            'plan_type': 'q4_plan',
                             'amount': 0,
                             'name': 'План Q4',
                         },
                         {
                             'type': 'plan66',
+                            'plan_type': 'q4_plan_6_6',
                             'amount': 0,
                             'name': 'План Q4 6+6',
                         },
@@ -935,7 +959,32 @@ class ReportBudgetForecastExcel(models.AbstractModel):
             ('date', '<=', datetime.datetime(day=31, month=12, year=year + 2))
         ], order='company_id, project_office_id, key_account_manager_id, stage_id, project_id')
 
+        office_planned_indicators = self.env['project_budget.budget_plan_supervisor_spec'].search([
+            ('budget_plan_supervisor_id.is_company_plan', '=', False),
+            ('budget_plan_supervisor_id.year', '=', year)
+        ])
+        office_planned_indicators_next = self.env['project_budget.budget_plan_supervisor_spec'].search([
+            ('budget_plan_supervisor_id.is_company_plan', '=', False),
+            ('budget_plan_supervisor_id.year', '=', year + 1)
+        ])
+        office_planned_indicators_after_next = self.env['project_budget.budget_plan_supervisor_spec'].search([
+            ('budget_plan_supervisor_id.is_company_plan', '=', False),
+            ('budget_plan_supervisor_id.year', '=', year + 2)
+        ])
+
+        kam_planned_indicators = self.env['project_budget.budget_plan_kam_spec'].search([
+            ('budget_plan_kam_id.year', '=', year)
+        ])
+        kam_planned_indicators_next = self.env['project_budget.budget_plan_kam_spec'].search([
+            ('budget_plan_kam_id.year', '=', year + 1)
+        ])
+        kam_planned_indicators_after_next = self.env['project_budget.budget_plan_kam_spec'].search([
+            ('budget_plan_kam_id.year', '=', year + 2)
+        ])
+
         row += 3
+
+        office_parent_rows = {}
 
         company_rows = list()
         for company in financial_indicators.company_id:
@@ -1027,8 +1076,12 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                             if section['type'] != 'blank':
                                 for period in section['periods']:
                                     for col in period['cols']:
-                                        formula = '=sum(' + ','.join(xl_col_to_name(column) + str(r) for r in stage_rows) + ')'
-                                        sheet.write_formula(row, column, formula)
+                                        if col['type'] in ('plan', 'plan66'):
+                                            if col.get('plan_type', False):
+                                                sheet.write_number(row, column, kam_planned_indicators.filtered(lambda p: p.budget_plan_kam_id.key_account_manager_id.id == kam.id and p.type_row == section['plan_type'])[col['plan_type']])
+                                        else:
+                                            formula = '=sum(' + ','.join(xl_col_to_name(column) + str(r) for r in stage_rows) + ')'
+                                            sheet.write_formula(row, column, formula)
                                         column += 1
                             else:
                                 column += 1
@@ -1041,13 +1094,19 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                     if section['type'] != 'blank':
                         for period in section['periods']:
                             for col in period['cols']:
-                                formula = '=sum(' + ','.join(
-                                    xl_col_to_name(column) + str(r) for r in kam_rows) + ')'
-                                sheet.write_formula(row, column, formula)
+                                if col['type'] in ('plan', 'plan66'):
+                                    if col.get('plan_type', False):
+                                        sheet.write_number(row, column, office_planned_indicators.filtered(lambda p: p.budget_plan_supervisor_id.project_office_id.id == office.id and p.type_row == section['plan_type'])[col['plan_type']])
+                                else:
+                                    formula = '=sum(' + ','.join(xl_col_to_name(column) + str(r) for r in kam_rows + office_parent_rows.get(office.id, [])) + ')'
+                                    sheet.write_formula(row, column, formula)
                                 column += 1
                     else:
                         column += 1
                 row += 1
+                if office.parent_id:
+                    office_parent_rows.setdefault(office.parent_id.id, [])
+                    office_parent_rows[office.parent_id.id].append(row)
                 office_rows.append(row)
             # суммируем по компании
             sheet.write_string(row, 0, company.name + ' Итого', head_format_1)
