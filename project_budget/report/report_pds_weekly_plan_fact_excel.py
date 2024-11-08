@@ -181,7 +181,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
             else:
                 col_format = (10, None, {'hidden': 1, 'level': 1})
 
-            if month_start.month == actual_date.month:
+            if date_utils.start_of(month_start, 'month') == date_utils.start_of(actual_date, 'month').date():
 
                 periods_dict[(month_start, month_end)] = {
                     'type': 'month',
@@ -205,7 +205,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                 week_start = month_start
                 week_end = self.get_dates_from_week(actual_week_number, actual_week_year)[1]
                 while week_start < date_utils.start_of(actual_date + relativedelta(months=2), 'month').date():  # недели в течение двух месяцев
-                    if week_start.month >= actual_date.month + 1:
+                    if date_utils.start_of(week_start, 'month') >= date_utils.start_of(actual_date + relativedelta(months=1), 'month').date():
                         week_col_format = (10, None, {'hidden': 1, 'level': 1})
                     else:
                         week_col_format = (10, None)
@@ -233,7 +233,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                         ],
                     }
                     col += 2
-                    if week_start.isocalendar()[1] > actual_date.isocalendar()[1]:
+                    if date_utils.start_of(week_start, 'week') > date_utils.start_of(actual_date, 'week').date():
                         week_cols.append(col - 1)
                     else:
                         week_cols.append(col)
@@ -268,7 +268,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                             ],
                         }
                         col += 2
-                        if week_start.isocalendar()[1] > actual_date.isocalendar()[1]:
+                        if date_utils.start_of(week_start, 'week') > date_utils.start_of(actual_date, 'week').date():
                             week_cols.append(col - 1)
                         else:
                             week_cols.append(col)
@@ -337,7 +337,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                             }
                             col += 1
                         week_start = week_month_start
-            elif month_start.month == actual_date.month + 1:  # пропускаем следующий за текущим месяц
+            elif date_utils.start_of(month_start, 'month') == date_utils.start_of(actual_date + relativedelta(months=1), 'month').date():  # пропускаем следующий за текущим месяц
                 pass
             else:
                 if month_end < actual_date.date():  # в прошлом печатаем прогноз и факт, в будущем - только прогноз
@@ -434,11 +434,9 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
     def calculate_budget_ids(self, budget, periods_dict):
         budget_ids = set()
         actual_budget_date = budget.date_actual or date.today()
-        actual_budget_week = actual_budget_date.isocalendar()[1]
-        actual_budget_month = actual_budget_date.month
         for period, options in periods_dict.items():
             if 'sum' not in period:
-                if options['type'] == 'month' and period[1].month <= actual_budget_month:
+                if options['type'] == 'month' and date_utils.start_of(period[1], 'month') <= date_utils.start_of(actual_budget_date, 'month'):
                     budget_id = self.env['project_budget.commercial_budget'].search([
                         ('date_actual', '<=', period[0]),
                         ('date_actual', '>=', period[0] - relativedelta(months=1)),
@@ -446,7 +444,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                     options['budget_id'] = budget_id
                     if budget_id:
                         budget_ids.add(budget_id)
-                elif options['type'] == 'week' and period[1].isocalendar()[1] <= actual_budget_week:
+                elif options['type'] == 'week' and date_utils.start_of(period[1], 'week') <= date_utils.start_of(actual_budget_date, 'week'):
                     previous_week_number = (period[0] - timedelta(weeks=1)).isocalendar()[1]
                     previous_week_year= (period[0] - timedelta(weeks=1)).isocalendar()[0]
                     previous_week_start, previous_week_end = self.get_dates_from_week(previous_week_number, previous_week_year)
