@@ -966,12 +966,13 @@ class report_budget_forecast_excel(models.AbstractModel):
                 else:
                     sum['commitment'] = sum['commitment'] - sum100tmp
 
-                if margin100tmp >= margin_plan['commitment']:  # маржа если нет распределения
-                    margin100tmp_ostatok = margin100tmp - margin_plan['commitment']
-                    margin_sum['commitment'] = 0
-                    margin_sum['reserve'] = max(margin_plan['reserve'] - margin100tmp_ostatok, 0)
-                else:
-                    margin_sum['commitment'] = margin_plan['commitment'] - margin100tmp
+                if margin100tmp > 0:
+                    if margin100tmp >= margin_plan['commitment']:  # маржа если нет распределения
+                        margin100tmp_ostatok = margin100tmp - margin_plan['commitment']
+                        margin_sum['commitment'] = 0
+                        margin_sum['reserve'] = max(margin_plan['reserve'] - margin100tmp_ostatok, 0)
+                    else:
+                        margin_sum['commitment'] = margin_plan['commitment'] - margin100tmp
 
             sum_ostatok_acceptance = self.get_sum_planned_acceptance_project_from_distribution(project, year, element_name)
             new_margin_plan = self.get_sum_planned_margin_project_from_distribution(project, year, element_name, margin_plan, 1)
@@ -1795,6 +1796,9 @@ class report_budget_forecast_excel(models.AbstractModel):
                                 sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
                                 column += 1
                                 sheet.write_string(row, column, spec.key_account_manager_id.name, cur_row_format)
+                                if self.env.company.name == 'Ландата':
+                                    column += 1
+                                    sheet.write_string(row, column, spec.company_partner_id.partner_id.name or '', cur_row_format)
                                 column += 1
                                 sheet.write_string(row, column, spec.partner_id.name, cur_row_format)
                                 column += 1
@@ -2747,12 +2751,19 @@ class report_budget_forecast_excel(models.AbstractModel):
         column += 1
         sheet.write_string(row - 2, column, "Обязательство", summary_format)
         sheet.write_string(row - 1, column, "Резерв", summary_format)
+        if self.env.company.name == 'Ландата':
+            sheet.write_string(row + 1, column, "Партнер", head_format_1)
+            sheet.write_string(row + 2, column, "", head_format_1)
+            sheet.set_column(column, column, 21.5)
+            column += 1
         sheet.write_string(row + 1, column, "Заказчик", head_format_1)
         sheet.write_string(row + 2, column, "", head_format_1)
         sheet.set_column(column, column, 25)
         column += 1
-        sheet.write_number(row - 2, column, 1, summary_format_percent)
-        sheet.write_number(row - 1, column, 0.6, summary_format_percent)
+        sheet.write_number(row - 2, column - 1 if self.env.company.name == 'Ландата' else column, 1,
+                           summary_format_percent)
+        sheet.write_number(row - 1, column - 1 if self.env.company.name == 'Ландата' else column, 0.6,
+                           summary_format_percent)
         sheet.write_string(row + 1, column, "Наименование Проекта", head_format_1)
         sheet.write_string(row + 2, column, "", head_format_1)
         sheet.set_column(column, column, 12.25)
@@ -2780,7 +2791,8 @@ class report_budget_forecast_excel(models.AbstractModel):
         sheet.write_string(row + 1, column, "Прибыльность, экспертно, %", head_format_1)
         sheet.write_string(row + 2, column, "", head_format_1)
         # sheet.set_column(column, column, 9)
-        sheet.set_column(4, 11, False, False, {'hidden': 1, 'level': 1})
+        sheet.set_column(5 if self.env.company.name == 'Ландата' else 4,
+                         12 if self.env.company.name == 'Ландата' else 11, False, False, {'hidden': 1, 'level': 1})
         column += 1
         # sheet.write_string(row, column, "", head_format)
         sheet.write_string(row + 1, column, "", head_format_1)
@@ -3204,7 +3216,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         systematica_forecast = data['systematica_forecast']
 
-        start_column = 10
+        start_column = 11 if self.env.company.name == 'Ландата' else 10
 
         plan_shift = {
             'revenue': {
