@@ -1403,9 +1403,12 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                                 stage_is_present = True
                                 kam_is_present = True
                                 format = row_format_left_part
+                                level = {'hidden': 1, 'level': 3}
                                 if project.stage_id.project_state == 'cancel':
                                     format = row_format_left_part_red
+                                    level = {'hidden': 1, 'level': 4}
                                 column = self.START_COLUMN
+                                sheet.set_row(row, False, False, level)
                                 sheet.write_string(row, 0, office.name, format)
                                 sheet.write_string(row, 1, kam.name, format)
                                 sheet.write_string(row, 2, project.project_id, format)
@@ -1444,6 +1447,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                                         column += 1
                                 row += 1
                         if stage_is_present:  # суммируем по вероятностям
+                            sheet.set_row(row, False, False, {'hidden': 1, 'level': 3})
                             sheet.merge_range(row, 0, row, self.START_COLUMN - 1, kam.name + ' ' + stage.name, stage_summary_default_format)
                             column = self.START_COLUMN
                             for section in data:
@@ -1458,6 +1462,8 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                             row += 1
                             stage_rows.append(row)
                     if kam_is_present:  #суммируем по КАМам
+                        sheet.set_row(row, False, False, {'hidden': 1, 'level': 2})
+                        sheet.set_row(row + 1, False, False, {'hidden': 1, 'level': 2})
                         sheet.merge_range(row, 0, row, self.START_COLUMN - 1, 'ИТОГО: ' + kam.name, kam_summary_default_format)
                         sheet.merge_range(row + 1, 0, row + 1, self.START_COLUMN - 1, 'ИТОГО: Расчетный План по ' + kam.name,
                                           kam_summary_estimate_format)
@@ -1499,6 +1505,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                         kam_rows.append(row - 1)
 
                 # суммируем по ПО
+                sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
                 sheet.merge_range(row, 0, row, self.START_COLUMN - 1, 'ИТОГО: ' + office.name, office_summary_default_format)
                 sheet.merge_range(row + 1, 0, row + 1, self.START_COLUMN - 1, 'ИТОГО: Расчетный План по ' + office.name,
                                   office_summary_estimate_format)
@@ -1546,6 +1553,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                     office_rows.append(row - 1)
 
             # суммируем по компании
+            sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
             sheet.merge_range(row, 0, row, self.START_COLUMN - 1, 'ИТОГО: ' + company.name, company_summary_default_format)
             sheet.merge_range(row + 1, 0, row + 1, self.START_COLUMN - 1, 'ИТОГО: Расчетный План по ' + company.name,
                               company_summary_estimate_format)
@@ -1582,6 +1590,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
             row += 2
             company_rows.append(row - 1)
 
+        sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
         sheet.merge_range(row, 0, row, self.START_COLUMN - 1, 'ИТОГО по отчету', company_summary_default_format)
         sheet.merge_range(row + 1, 0, row + 1, self.START_COLUMN - 1, 'ИТОГО: Расчетный План по отчету',
                           company_summary_estimate_format)
