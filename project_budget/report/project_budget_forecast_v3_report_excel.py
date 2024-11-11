@@ -145,6 +145,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                         'type': 'M' + str(month),
                         'start': datetime.datetime(day=1, month=month, year=section['year']),
                         'end': datetime.datetime(day=calendar.monthrange(section['year'], month)[1], month=month, year=section['year']),
+                        'level':  {'hidden': 1, 'level': 3},
                         'cols': [
                             {
                                 'type': 'fact',
@@ -172,10 +173,11 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                         section['periods'].append({
                             'name': 'Q1 итого',
                             'type': 'Q1',
+                            'level': {'hidden': 1, 'level': 2},
                             'cols': [
                                 {
                                     'type': 'plan',
-                                    'plan_period': 'q1_plan',
+                                    'plan_period': ('q1_plan',),
                                     'amount': 0,
                                     'name': 'План Q1',
                                 },
@@ -205,10 +207,11 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                         section['periods'].append({
                             'name': 'Q2 итого',
                             'type': 'Q2',
+                            'level': {'hidden': 1, 'level': 2},
                             'cols': [
                                 {
                                     'type': 'plan',
-                                    'plan_period': 'q2_plan',
+                                    'plan_period': ('q2_plan',),
                                     'amount': 0,
                                     'name': 'План Q2',
                                 },
@@ -237,6 +240,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                         section['periods'].append({
                             'name': f'HY1 {section["year"]} итого',
                             'type': 'HY1',
+                            'level': {'hidden': 1, 'level': 1},
                             'cols': [
                                 {
                                     'type': 'plan',
@@ -269,16 +273,17 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                         section['periods'].append({
                             'name': 'Q3 итого',
                             'type': 'Q3',
+                            'level': {'hidden': 1, 'level': 2},
                             'cols': [
                                 {
                                     'type': 'plan',
-                                    'plan_period': 'q3_plan',
+                                    'plan_period': ('q3_plan',),
                                     'amount': 0,
                                     'name': 'План Q3',
                                 },
                                 {
                                     'type': 'plan66',
-                                    'plan_period': 'q3_plan_6_6',
+                                    'plan_period': ('q3_plan_6_6',),
                                     'amount': 0,
                                     'name': 'План Q3 6+6',
                                 },
@@ -308,16 +313,17 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                         section['periods'].append({
                             'name': 'Q4 итого',
                             'type': 'Q4',
+                            'level': {'hidden': 1, 'level': 2},
                             'cols': [
                                 {
                                     'type': 'plan',
-                                    'plan_period': 'q4_plan',
+                                    'plan_period': ('q4_plan',),
                                     'amount': 0,
                                     'name': 'План Q4',
                                 },
                                 {
                                     'type': 'plan66',
-                                    'plan_period': 'q4_plan_6_6',
+                                    'plan_period': ('q4_plan_6_6',),
                                     'amount': 0,
                                     'name': 'План Q4 6+6',
                                 },
@@ -346,6 +352,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                         section['periods'].append({
                             'name': f'HY2 {section["year"]} итого',
                             'type': 'HY2',
+                            'level': {'hidden': 1, 'level': 1},
                             'cols': [
                                 {
                                     'type': 'plan',
@@ -392,6 +399,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                                     'type': 'plan66',
                                     'amount': 0,
                                     'name': f'План {section["year"]} 6+6',
+                                    'plan_period': ('q1_fact', 'q2_fact', 'q3_plan_6_6', 'q4_plan_6_6'),
                                 },
                                 {
                                     'type': 'fact',
@@ -421,10 +429,11 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                     'type': 'Q1',
                     'start': datetime.datetime(day=1, month=1, year=section['year']),
                     'end': datetime.datetime(day=31, month=3, year=section['year']),
+                    'level': {'hidden': 1, 'level': 2},
                     'cols': [
                         {
                             'type': 'plan',
-                            'plan_period': 'q1_plan',
+                            'plan_period': ('q1_plan',),
                             'amount': 0,
                             'name': 'План Q1',
                         },
@@ -455,10 +464,11 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                     'type': 'Q2',
                     'start': datetime.datetime(day=1, month=4, year=section['year']),
                     'end': datetime.datetime(day=30, month=6, year=section['year']),
+                    'level': {'hidden': 1, 'level': 2},
                     'cols': [
                         {
                             'type': 'plan',
-                            'plan_period': 'q2_plan',
+                            'plan_period': ('q2_plan',),
                             'amount': 0,
                             'name': 'План Q2',
                         },
@@ -487,6 +497,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                 section['periods'].append({
                     'name': f'HY1 {section["year"]} итого',
                     'type': 'HY1',
+                    'level': {'hidden': 1, 'level': 1},
                     'cols': [
                         {
                             'type': 'plan',
@@ -520,16 +531,17 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                     'type': 'Q3',
                     'start': datetime.datetime(day=1, month=7, year=section['year']),
                     'end': datetime.datetime(day=30, month=9, year=section['year']),
+                    'level': {'hidden': 1, 'level': 2},
                     'cols': [
                         {
                             'type': 'plan',
-                            'plan_period': 'q3_plan',
+                            'plan_period': ('q3_plan',),
                             'amount': 0,
                             'name': 'План Q3',
                         },
                         {
                             'type': 'plan66',
-                            'plan_period': 'q3_plan_6_6',
+                            'plan_period': ('q3_plan_6_6',),
                             'amount': 0,
                             'name': 'План Q3 6+6',
                         },
@@ -560,16 +572,17 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                     'type': 'Q4',
                     'start': datetime.datetime(day=1, month=10, year=section['year']),
                     'end': datetime.datetime(day=31, month=12, year=section['year']),
+                    'level': {'hidden': 1, 'level': 2},
                     'cols': [
                         {
                             'type': 'plan',
-                            'plan_period': 'q4_plan',
+                            'plan_period': ('q4_plan',),
                             'amount': 0,
                             'name': 'План Q4',
                         },
                         {
                             'type': 'plan66',
-                            'plan_period': 'q4_plan_6_6',
+                            'plan_period': ('q4_plan_6_6',),
                             'amount': 0,
                             'name': 'План Q4 6+6',
                         },
@@ -598,6 +611,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                 section['periods'].append({
                     'name': f'HY2 {section["year"]} итого',
                     'type': 'HY2',
+                    'level': {'hidden': 1, 'level': 1},
                     'cols': [
                         {
                             'type': 'plan',
@@ -644,6 +658,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                             'type': 'plan66',
                             'amount': 0,
                             'name': f'План {section["year"]} 6+6',
+                            'plan_period': ('q1_fact', 'q2_fact', 'q3_plan_6_6', 'q4_plan_6_6'),
                         },
                         {
                             'type': 'fact',
@@ -676,7 +691,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                     'cols': [
                         {
                             'type': 'plan',
-                            'plan_period': 'year_plan',
+                            'plan_period': ('year_plan',),
                             'amount': 0,
                             'name': f'План {section["year"]}',
                         },
@@ -1291,8 +1306,11 @@ class ReportBudgetForecastExcel(models.AbstractModel):
             if section['type'] != 'blank':
                 for period in section['periods']:
                     sheet.merge_range(row, column, row, column + len(period['cols']) - 1, period['name'], section['head_format'])
+                    if period.get('level', False):
+                        sheet.set_column(column, column + len(period['cols']) - 1, False, False, period['level'])
                     for i, col in enumerate(period['cols']):
-
+                        if col.get('level', False):
+                            sheet.set_column(column, column, False, False, col['level'])
                         if col['type'] in ('plan', 'plan66', 'fact'):
                             sheet.merge_range(row + 2, column, row + 1, column, col['name'], col['head_format'])
                         else:
@@ -1401,7 +1419,6 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                                                     'gross_revenue': self.env['project.budget.report.sales.forecast']._get_gross_revenue_data(period['start'].date(), period['end'].date(), current_indicators),
                                                     'margin': self.env['project.budget.report.sales.forecast']._get_margin_data(period['start'].date(), period['end'].date(), current_indicators),
                                                 }
-                                                # print(period['start'].date(), period['end'].date(), project.project_id, contraction)
                                                 for col in period['cols']:
                                                     format = col['column_format']
                                                     if project.stage_id.project_state == 'won':
@@ -1451,7 +1468,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                                     for col in period['cols']:
                                         if col['type'] in ('plan', 'plan66'):
                                             if col.get('plan_period', False):
-                                                plan = kam_plans[section['year']].filtered(lambda p: p.budget_plan_kam_id.key_account_manager_id.id == kam.id and p.type_row == section['plan_type'])[col['plan_period']]
+                                                plan = sum(kam_plans[section['year']].filtered(lambda p: p.budget_plan_kam_id.key_account_manager_id.id == kam.id and p.type_row == section['plan_type'])[plan_period] for plan_period in col['plan_period'])
                                                 sheet.write_number(row, column, 0, col['kam_summary_format'])
                                                 sheet.write_number(row + 1, column, plan, col['kam_estimate_format'])
                                             elif col.get('total_columns', False):  # суммируем кварталы, полугодия и года
@@ -1492,7 +1509,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                             for col in period['cols']:
                                 if col['type'] in ('plan', 'plan66'):
                                     if col.get('plan_period', False):
-                                        plan = office_plans[section['year']].filtered(lambda p: p.budget_plan_supervisor_id.project_office_id.id == office.id and p.type_row == section['plan_type'])[col['plan_period']]
+                                        plan = sum(office_plans[section['year']].filtered(lambda p: p.budget_plan_supervisor_id.project_office_id.id == office.id and p.type_row == section['plan_type'])[plan_period] for plan_period in col['plan_period'])
                                         formula = '=sum(' + str(plan) + ',' + ','.join(xl_col_to_name(column) + str(r + 1) for r in office_parent_rows.get(office.id, [])) + ')'
                                         sheet.write_number(row, column, 0, col['office_summary_format'])
                                         sheet.write_formula(row + 1, column, formula, col['office_estimate_format'])
