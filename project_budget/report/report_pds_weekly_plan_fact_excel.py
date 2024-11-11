@@ -433,7 +433,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
 
     def calculate_budget_ids(self, budget, periods_dict):
         budget_ids = set()
-        actual_budget_date = budget.date_actual or date.today()
+        actual_budget_date = date.today() if not budget.date_actual else budget.date_actual.date()
         for period, options in periods_dict.items():
             if 'sum' not in period:
                 if options['type'] == 'month' and date_utils.start_of(period[1], 'month') <= date_utils.start_of(actual_budget_date, 'month'):
@@ -466,17 +466,16 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
         for project_project_id in sorted(project_project_ids):
             pds_is_present = False
             project_data = {}
-            for period, options in periods_dict.items():
-                if 'sum' not in period:
-                    for project in projects.filtered(lambda pr: pr.project_id == project_project_id):
+            for project in projects.filtered(lambda pr: pr.project_id == project_project_id):
+                if project.step_status == 'project':
+                    pds_fact_list = project.fact_cash_flow_ids
+                    pds_plan_list = project.planned_cash_flow_ids
+                elif project.step_status == 'step':
+                    pds_fact_list = project.fact_step_cash_flow_ids
+                    pds_plan_list = project.planned_step_cash_flow_ids
+                for period, options in periods_dict.items():
+                    if 'sum' not in period:
                         project_data.setdefault(period, {'commitment': 0, 'fact': 0})
-
-                        if project.step_status == 'project':
-                            pds_fact_list = project.fact_cash_flow_ids
-                            pds_plan_list = project.planned_cash_flow_ids
-                        elif project.step_status == 'step':
-                            pds_fact_list = project.fact_step_cash_flow_ids
-                            pds_plan_list = project.planned_step_cash_flow_ids
 
                         for pds_fact in pds_fact_list:
                             if period[0] <= pds_fact.date_cash <= period[1] and project.commercial_budget_id.id == budget.id:
