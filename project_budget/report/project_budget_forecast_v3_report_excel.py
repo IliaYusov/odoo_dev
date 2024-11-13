@@ -977,14 +977,14 @@ class ReportBudgetForecastExcel(models.AbstractModel):
             "num_format": '#,##0',
             'diag_type': 3,
         })
-        office_summary_default_format = workbook.add_format({
+        center_summary_default_format = workbook.add_format({
             'border': 1,
             'font_size': 10,
             "bold": True,
             "fg_color": '#8DB4E2',
             "num_format": '#,##0',
         })
-        office_summary_estimate_format = workbook.add_format({
+        center_summary_estimate_format = workbook.add_format({
             'border': 1,
             'font_size': 10,
             "bold": True,
@@ -992,7 +992,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
             "num_format": '#,##0',
             'align': 'center',
         })
-        office_summary_estimate_format_cross = workbook.add_format({
+        center_summary_estimate_format_cross = workbook.add_format({
             'border': 1,
             'font_size': 10,
             "bold": True,
@@ -1080,21 +1080,21 @@ class ReportBudgetForecastExcel(models.AbstractModel):
             'reserve': kam_summary_estimate_format,
             'potential': kam_summary_estimate_format_cross,
         }
-        office_summary_format = {
+        center_summary_format = {
             'plan': column_format_plan_cross,
             'plan66': column_format_plan_cross,
-            'fact': office_summary_default_format,
-            'commitment': office_summary_default_format,
-            'reserve': office_summary_default_format,
-            'potential': office_summary_default_format,
+            'fact': center_summary_default_format,
+            'commitment': center_summary_default_format,
+            'reserve': center_summary_default_format,
+            'potential': center_summary_default_format,
         }
-        office_estimate_format = {
+        center_estimate_format = {
             'plan': column_format_plan,
             'plan66': column_format_plan,
-            'fact': office_summary_estimate_format,
-            'commitment': office_summary_estimate_format,
-            'reserve': office_summary_estimate_format,
-            'potential': office_summary_estimate_format_cross,
+            'fact': center_summary_estimate_format,
+            'commitment': center_summary_estimate_format,
+            'reserve': center_summary_estimate_format,
+            'potential': center_summary_estimate_format_cross,
         }
         company_summary_format = {
             'plan': column_format_plan_cross,
@@ -1139,15 +1139,15 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                         col['stage_summary_format'] = stage_summary_format[col['type']]
                         col['kam_summary_format'] = kam_summary_format[col['type']]
                         col['kam_estimate_format'] = kam_estimate_format[col['type']]
-                        col['office_summary_format'] = office_summary_format[col['type']]
-                        col['office_estimate_format'] = office_estimate_format[col['type']]
+                        col['center_summary_format'] = center_summary_format[col['type']]
+                        col['center_estimate_format'] = center_estimate_format[col['type']]
                         col['company_summary_format'] = company_summary_format[col['type']]
                         col['company_estimate_format'] = company_estimate_format[col['type']]
                         col['total_summary_format'] = total_summary_format[col['type']]
                         col['total_estimate_format'] = total_estimate_format[col['type']]
         return data
 
-    def print_worksheet(self, workbook, budget, worksheet_name, year):
+    def print_worksheet(self, workbook, budget, worksheet_name, responsibility_center_ids, year):
 
         report_name = budget.name
         sheet = workbook.add_worksheet(worksheet_name)
@@ -1210,14 +1210,14 @@ class ReportBudgetForecastExcel(models.AbstractModel):
             "fg_color": '#FDE9D9',
             "num_format": '#,##0',
         })
-        office_summary_default_format = workbook.add_format({
+        center_summary_default_format = workbook.add_format({
             'border': 1,
             'font_size': 10,
             "bold": True,
             "fg_color": '#8DB4E2',
             "num_format": '#,##0',
         })
-        office_summary_estimate_format = workbook.add_format({
+        center_summary_estimate_format = workbook.add_format({
             'border': 1,
             'font_size': 10,
             "bold": True,
@@ -1329,9 +1329,9 @@ class ReportBudgetForecastExcel(models.AbstractModel):
             ('commercial_budget_id', '=', budget.id),
             ('date', '>=', datetime.datetime(day=1, month=1, year=year)),
             ('date', '<=', datetime.datetime(day=31, month=12, year=year + 2))
-        ], order='company_id, project_office_id, key_account_manager_id, stage_id, project_id')
+        ], order='company_id, responsibility_center_id, key_account_manager_id, stage_id, project_id')
 
-        office_plans = {
+        center_plans = {
             year: self.env['project_budget.budget_plan_supervisor_spec'].search([
                 ('budget_plan_supervisor_id.is_company_plan', '=', False),
                 ('budget_plan_supervisor_id.year', '=', year)]),
@@ -1354,37 +1354,59 @@ class ReportBudgetForecastExcel(models.AbstractModel):
 
         row += 3
 
-        office_parent_rows = {}
+        center_parent_rows = {}
+
+        active_responsibility_centers = self.env['account.analytic.account'].search([
+            '|', ('id', 'in', financial_indicators.responsibility_center_id.ids),
+            ('id', 'in', center_plans[year].budget_plan_supervisor_id.responsibility_center_id.ids),
+        ])
+
+        selected_responsibility_centers = active_responsibility_centers.filtered(lambda o: o.id in responsibility_center_ids)
+
+        # добавляем активных потомков в список выбранных офисов
+        child_responsibility_centers = self.env['account.analytic.account'].search([
+            ('parent_id', 'in', selected_responsibility_centers.ids),
+            ('id', 'in', active_responsibility_centers.ids),
+            ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+        ])
+        while child_responsibility_centers:
+            new_child_responsibility_centers = self.env['account.analytic.account'].search([
+                ('parent_id', 'in', child_responsibility_centers.ids),
+                ('id', 'in', active_responsibility_centers.ids),
+                ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+        ])
+            selected_responsibility_centers += child_responsibility_centers
+            child_responsibility_centers = new_child_responsibility_centers
 
         company_rows = list()
-        for company in financial_indicators.company_id:
-            office_rows = list()
+        for company in financial_indicators.company_id.filtered(lambda c: c.id in selected_responsibility_centers.company_id.ids):
+            center_rows = list()
 
-            current_offices = financial_indicators.project_office_id.filtered(lambda o: o.company_id == company)
-            current_offices_wo_parents = current_offices.filtered(lambda o: not o.parent_id)
-            all_offices = list()
-            all_offices_sorted = list()
+            current_centers = selected_responsibility_centers.filtered(lambda o: o.company_id == company)
+            current_centers_wo_parents = current_centers.filtered(lambda o: not o.parent_id)
+            all_centers = list()
+            all_centers_sorted = list()
 
-            for office in current_offices:  # добавляем все промежуточные родители в список офисов
-                office_parent = office.parent_id
-                while office_parent:
-                    if office_parent not in all_offices:
-                        all_offices.append(office_parent)
-                    office_parent = office_parent.parent_id
-                all_offices.append(office)
+            for center in current_centers:  # добавляем все промежуточные родители в список офисов
+                center_parent = center.parent_id
+                while center_parent:
+                    if center_parent not in all_centers:
+                        all_centers.append(center_parent)
+                    center_parent = center_parent.parent_id
+                all_centers.append(center)
 
-            def get_office_ids(o_wo_parents, all_o, all_o_sorted):  # сортируем офисы так, чтобы потомки шли перед родителями
+            def get_center_ids(o_wo_parents, all_o, all_o_sorted):  # сортируем офисы так, чтобы потомки шли перед родителями
                 for o in o_wo_parents:
-                    child_offices = o.child_ids
-                    if child_offices:
-                        all_o_sorted = get_office_ids(child_offices, all_o, all_o_sorted)
+                    child_centers = o.child_ids
+                    if child_centers:
+                        all_o_sorted = get_center_ids(child_centers, all_o, all_o_sorted)
                     if o not in all_o_sorted and o in all_o:
                         all_o_sorted.append(o)
                 return all_o_sorted
 
-            all_offices_sorted = get_office_ids(current_offices_wo_parents, all_offices, all_offices_sorted)
+            all_centers_sorted = get_center_ids(current_centers_wo_parents, all_centers, all_centers_sorted)
 
-            for office in all_offices_sorted:
+            for center in all_centers_sorted:
                 kam_rows = list()
                 for kam in financial_indicators.key_account_manager_id.filtered(lambda k: k.company_id == company):
                     stage_rows = list()
@@ -1394,7 +1416,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                         stage_is_present = False
                         for project in financial_indicators.project_id.filtered(
                             lambda p: p.company_id == company
-                                      and p.project_office_id == office
+                                      and p.responsibility_center_id == center
                                       and p.key_account_manager_id == kam
                                       and p.stage_id == stage
                         ):
@@ -1409,7 +1431,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                                     level = {'hidden': 1, 'level': 4}
                                 column = self.START_COLUMN
                                 sheet.set_row(row, False, False, level)
-                                sheet.write_string(row, 0, office.name, format)
+                                sheet.write_string(row, 0, center.name, format)
                                 sheet.write_string(row, 1, kam.name, format)
                                 sheet.write_string(row, 2, project.project_id, format)
                                 for section in data:
@@ -1506,9 +1528,9 @@ class ReportBudgetForecastExcel(models.AbstractModel):
 
                 # суммируем по ПО
                 sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
-                sheet.merge_range(row, 0, row, self.START_COLUMN - 1, 'ИТОГО: ' + office.name, office_summary_default_format)
-                sheet.merge_range(row + 1, 0, row + 1, self.START_COLUMN - 1, 'ИТОГО: Расчетный План по ' + office.name,
-                                  office_summary_estimate_format)
+                sheet.merge_range(row, 0, row, self.START_COLUMN - 1, 'ИТОГО: ' + center.name, center_summary_default_format)
+                sheet.merge_range(row + 1, 0, row + 1, self.START_COLUMN - 1, 'ИТОГО: Расчетный План по ' + center.name,
+                                  center_summary_estimate_format)
                 column = self.START_COLUMN
                 for section in data:
                     if section['type'] != 'blank':
@@ -1516,22 +1538,26 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                             for col in period['cols']:
                                 if col['type'] in ('plan', 'plan66'):
                                     if col.get('plan_period', False):
-                                        plan = sum(office_plans[section['year']].filtered(lambda p: p.budget_plan_supervisor_id.project_office_id.id == office.id and p.type_row == section['plan_type'])[plan_period] for plan_period in col['plan_period'])
-                                        formula = '=sum(' + str(plan) + ',' + ','.join(xl_col_to_name(column) + str(r + 1) for r in office_parent_rows.get(office.id, [])) + ')'
-                                        sheet.write_number(row, column, 0, col['office_summary_format'])
-                                        sheet.write_formula(row + 1, column, formula, col['office_estimate_format'])
+                                        plan = sum(center_plans[section['year']].filtered(lambda p: p.budget_plan_supervisor_id.responsibility_center_id.id == center.id and p.type_row == section['plan_type'])[plan_period] for plan_period in col['plan_period'])
+                                        formula = '=sum(' + str(plan) + ',' + ','.join(xl_col_to_name(column) + str(r + 1) for r in center_parent_rows.get(center.id, [])) + ')'
+                                        sheet.write_number(row, column, 0, col['center_summary_format'])
+                                        sheet.write_formula(row + 1, column, formula, col['center_estimate_format'])
                                     elif col.get('total_columns', False):  # суммируем кварталы, полугодия и года
                                         formula = '=sum(' + ','.join(
                                             xl_col_to_name(c) + str(row + 2) for c in
                                             col['total_columns']) + ')'
-                                        sheet.write_number(row, column, 0, col['office_summary_format'])
-                                        sheet.write_formula(row + 1, column, formula, col['office_estimate_format'])
+                                        sheet.write_number(row, column, 0, col['center_summary_format'])
+                                        sheet.write_formula(row + 1, column, formula, col['center_estimate_format'])
                                 else:
-                                    formula = '=sum(' + ','.join(xl_col_to_name(column) + str(r) for r in kam_rows + office_parent_rows.get(office.id, [])) + ')'
-                                    sheet.write_formula(row, column, formula, col['office_summary_format'])
+                                    summary_rows = kam_rows + center_parent_rows.get(center.id, [])
+                                    if summary_rows:
+                                        formula = '=sum(' + ','.join(xl_col_to_name(column) + str(r) for r in summary_rows) + ')'
+                                        sheet.write_formula(row, column, formula, col['center_summary_format'])
+                                    else:
+                                        sheet.write_number(row, column, 0, col['center_summary_format'])
                                     if col['type'] == 'fact':
                                         formula = f'={xl_col_to_name(column)}{row + 1}'
-                                        sheet.write_formula(row + 1, column, formula, col['office_estimate_format'])
+                                        sheet.write_formula(row + 1, column, formula, col['center_estimate_format'])
                                     elif col['type'] == 'commitment':
                                         formula = '={1}{0}*$D$1+{2}{0}*$D$2'.format(
                                             row + 1,
@@ -1539,18 +1565,18 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                                             xl_col_to_name(column + 1),
                                         )
                                         sheet.merge_range(row + 1, column, row + 1, column + 1, formula,
-                                                          col['office_estimate_format'])
+                                                          col['center_estimate_format'])
                                     elif col['type'] == 'potential':
-                                        sheet.write_number(row + 1, column, 0, col['office_estimate_format'])
+                                        sheet.write_number(row + 1, column, 0, col['center_estimate_format'])
                                 column += 1
                     else:
                         column += 1
                 row += 2
-                if office.parent_id:
-                    office_parent_rows.setdefault(office.parent_id.id, [])
-                    office_parent_rows[office.parent_id.id].append(row - 1)
+                if center.parent_id:
+                    center_parent_rows.setdefault(center.parent_id.id, [])
+                    center_parent_rows[center.parent_id.id].append(row - 1)
                 else:
-                    office_rows.append(row - 1)
+                    center_rows.append(row - 1)
 
             # суммируем по компании
             sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
@@ -1564,12 +1590,12 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                         for col in period['cols']:
                             if col['type'] in ('plan', 'plan66'):
                                 formula = '=sum(' + ','.join(
-                                    xl_col_to_name(column) + str(r + 1) for r in office_rows) + ')'
+                                    xl_col_to_name(column) + str(r + 1) for r in center_rows) + ')'
                                 sheet.write_number(row, column, 0, col['company_summary_format'])
                                 sheet.write_formula(row + 1, column, formula, col['company_estimate_format'])
                             else:
                                 formula = '=sum(' + ','.join(
-                                    xl_col_to_name(column) + str(r) for r in office_rows) + ')'
+                                    xl_col_to_name(column) + str(r) for r in center_rows) + ')'
                                 sheet.write_formula(row, column, formula, col['company_summary_format'])
                                 if col['type'] == 'fact':
                                     formula = f'={xl_col_to_name(column)}{row + 1}'
@@ -1630,8 +1656,9 @@ class ReportBudgetForecastExcel(models.AbstractModel):
 
         year = data['year']
         commercial_budget_id = data['commercial_budget_id']
+        responsibility_center_ids = data['responsibility_center_ids']
 
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
 
         stages = self.env['project_budget.project.stage'].search([('code', '!=', '10')], order='sequence desc')  # для сортировки так делаем
-        self.print_worksheet(workbook, budget, 'Прогноз', year)
+        self.print_worksheet(workbook, budget, 'Прогноз', responsibility_center_ids, year)
