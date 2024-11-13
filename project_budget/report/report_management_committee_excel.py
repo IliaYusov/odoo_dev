@@ -314,7 +314,7 @@ class report_management_committee_excel(models.AbstractModel):
             sheet.merge_range(row - 1, colbeg, row - 1, column - 1, y[0], head_format_month)
         return column
 
-    def print_quarter_revenue_project(self, sheet, row, column, element, project, project_office, params, row_format_number, row_format_number_color_fact):
+    def print_quarter_revenue_project(self, sheet, row, column, element, project, responsibility_center, params, row_format_number, row_format_number_color_fact):
         global strYEAR
         global YEARint
 
@@ -379,7 +379,7 @@ class report_management_committee_excel(models.AbstractModel):
 
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
-    def calculate_quarter_revenue(self, element, project, project_office, params):
+    def calculate_quarter_revenue(self, element, project, responsibility_center, params):
         global strYEAR
         global YEARint
 
@@ -483,7 +483,7 @@ class report_management_committee_excel(models.AbstractModel):
                     sum[key] = sum_ostatok_pds[key]
         return sum
 
-    def print_quarter_pds_project(self, sheet, row, column, element, project, project_office, params, row_format_number, row_format_number_color_fact):
+    def print_quarter_pds_project(self, sheet, row, column, element, project, responsibility_center, params, row_format_number, row_format_number_color_fact):
         global strYEAR
         global YEARint
 
@@ -580,7 +580,7 @@ class report_management_committee_excel(models.AbstractModel):
 
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
-    def calculate_quarter_pds(self, element, project, project_office, params):
+    def calculate_quarter_pds(self, element, project, responsibility_center, params):
         global strYEAR
         global YEARint
 
@@ -895,7 +895,7 @@ class report_management_committee_excel(models.AbstractModel):
                     margin_sum[key] = max(margin_sum[key], 0)
         return margin_sum
 
-    def print_quarter_planned_acceptance_project(self, sheet, row, column, element, project, project_office, params, row_format_number, row_format_number_color_fact):
+    def print_quarter_planned_acceptance_project(self, sheet, row, column, element, project, responsibility_center, params, row_format_number, row_format_number_color_fact):
         global strYEAR
         global YEARint
 
@@ -1126,7 +1126,7 @@ class report_management_committee_excel(models.AbstractModel):
 
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
-    def calculate_quarter_planned_acceptance(self, element, project, project_office, params):
+    def calculate_quarter_planned_acceptance(self, element, project, responsibility_center, params):
         global strYEAR
         global YEARint
 
@@ -1375,13 +1375,13 @@ class report_management_committee_excel(models.AbstractModel):
         if monthNameRus == 'Декабрь': return 12
         return False
 
-    def office_has_plan(self, project_office):
+    def center_has_plan(self, responsibility_center):
         return self.env['project_budget.budget_plan_supervisor_spec'].search([
                     ('budget_plan_supervisor_id.year', '=', YEARint),
-                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('budget_plan_supervisor_id.responsibility_center_id', '=', responsibility_center.id),
                 ])
 
-    def print_row_Values(self, workbook, sheet, row, column, YEAR, project, project_office, params):
+    def print_row_Values(self, workbook, sheet, row, column, YEAR, project, responsibility_center, params):
         global strYEAR
         global YEARint
 
@@ -1450,7 +1450,7 @@ class report_management_committee_excel(models.AbstractModel):
                 sheet.write_number(row, column + 3, 0, row_format_number)
 
             sumQ75tmpetalon, sumQ50tmpetalon, sumQ100tmp, sumQ75tmp, sumQ50tmp = self.print_quarter_revenue_project(sheet, row, column, element,
-                                                                                    project, project_office, params, row_format_number, row_format_number_color_fact)
+                                                                                    project, responsibility_center, params, row_format_number, row_format_number_color_fact)
             sumQ75etalon += sumQ75tmpetalon
             sumQ50etalon += sumQ50tmpetalon
             sumQ100 += sumQ100tmp
@@ -1537,7 +1537,7 @@ class report_management_committee_excel(models.AbstractModel):
                 sheet.write_string(row, column + 2, "", row_format_number)
 
             sumQ75tmpetalon, sumQ50tmpetalon, sumQ100tmp, sumQ75tmp, sumQ50tmp = self.print_quarter_pds_project(sheet, row, column, element,
-                                                                                    project, project_office, params, row_format_number, row_format_number_color_fact)
+                                                                                    project, responsibility_center, params, row_format_number, row_format_number_color_fact)
 
             sumQ75etalon += sumQ75tmpetalon
             sumQ50etalon += sumQ50tmpetalon
@@ -1634,7 +1634,7 @@ class report_management_committee_excel(models.AbstractModel):
                 column,
                 element,
                 project,
-                project_office,
+                responsibility_center,
                 params,
                 row_format_number,
                 row_format_number_color_fact
@@ -1739,7 +1739,7 @@ class report_management_committee_excel(models.AbstractModel):
             column += 4
         # end Валовая Выручка, без НДС
 
-    def print_row_values_office(self, workbook, sheet, row, column, YEAR, projects, project_office, formula_offices,
+    def print_row_values_center(self, workbook, sheet, row, column, YEAR, projects, responsibility_center, formula_centers,
                                 params):
         global strYEAR
         global YEARint
@@ -1815,7 +1815,7 @@ class report_management_committee_excel(models.AbstractModel):
                  sumM100tmp, sumM75tmp, sumM50tmp,
                  sum_next_75_q1_tmp, sum_next_50_q1_tmp, sum_next_30_q1_tmp,
                  sum_next_75_tmp, sum_next_50_tmp, sum_next_30_tmp,
-                 sum_after_next_tmp) = self.calculate_quarter_revenue(element, project, project_office, params)
+                 sum_after_next_tmp) = self.calculate_quarter_revenue(element, project, responsibility_center, params)
 
                 sumM75etalon += sumM75tmpetalon
                 sumM50etalon += sumM50tmpetalon
@@ -1830,20 +1830,20 @@ class report_management_committee_excel(models.AbstractModel):
                 sum_next_30 += sum_next_30_tmp
                 sum_after_next += sum_after_next_tmp
 
-            child_offices_rows = formula_offices.get('project_office_' + str(project_office.id)) or ''
+            child_centers_rows = formula_centers.get('responsibility_center_' + str(responsibility_center.id)) or ''
 
             addcolumn = 0
 
             if 'Q' in element:
-                # f_Q75etalon = 'sum(' + str(sumM75etalon) + child_offices_rows.format(xl_col_to_name(column)) + ')'
-                # f_Q50etalon = 'sum(' + str(sumM50etalon) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')'
-                f_Q100 = 'sum(' + str(sumM100) + child_offices_rows.format(xl_col_to_name(column + 2)) + ')'
-                f_Q75 = 'sum(' + str(sumM75) + child_offices_rows.format(xl_col_to_name(column + 3)) + ')'
-                f_Q50 = 'sum(' + str(sumM50) + child_offices_rows.format(xl_col_to_name(column + 4)) + ')'
+                # f_Q75etalon = 'sum(' + str(sumM75etalon) + child_centers_rows.format(xl_col_to_name(column)) + ')'
+                # f_Q50etalon = 'sum(' + str(sumM50etalon) + child_centers_rows.format(xl_col_to_name(column + 1)) + ')'
+                f_Q100 = 'sum(' + str(sumM100) + child_centers_rows.format(xl_col_to_name(column + 2)) + ')'
+                f_Q75 = 'sum(' + str(sumM75) + child_centers_rows.format(xl_col_to_name(column + 3)) + ')'
+                f_Q50 = 'sum(' + str(sumM50) + child_centers_rows.format(xl_col_to_name(column + 4)) + ')'
 
                 po_plan_spec = self.env['project_budget.budget_plan_supervisor_spec'].search([
                     ('budget_plan_supervisor_id.year', '=', YEARint),
-                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('budget_plan_supervisor_id.responsibility_center_id', '=', responsibility_center.id),
                     ('type_row', '=', 'contracting'),
                 ])
 
@@ -1851,11 +1851,11 @@ class report_management_committee_excel(models.AbstractModel):
                 po_q66_plan = [po_plan_spec.q1_plan_6_6, po_plan_spec.q2_plan_6_6, po_plan_spec.q3_plan_6_6, po_plan_spec.q4_plan_6_6]
                 po_q_fact = [po_plan_spec.q1_fact, po_plan_spec.q2_fact, po_plan_spec.q3_fact, po_plan_spec.q4_fact]
 
-                if child_offices_rows:
-                    sheet.write_formula(row, column, 'sum(' + str(po_q_plan[int(element[1]) - 1]) + child_offices_rows.format(xl_col_to_name(column)) + ')',
+                if child_centers_rows:
+                    sheet.write_formula(row, column, 'sum(' + str(po_q_plan[int(element[1]) - 1]) + child_centers_rows.format(xl_col_to_name(column)) + ')',
                                         row_format_number_color_plan)
                     sheet.write_formula(row, column + 1,
-                                        'sum(' + str(po_q66_plan[int(element[1]) - 1]) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')',
+                                        'sum(' + str(po_q66_plan[int(element[1]) - 1]) + child_centers_rows.format(xl_col_to_name(column + 1)) + ')',
                                         row_format_number_color_plan)
                 else:
                     sheet.write_number(row, column, po_q_plan[int(element[1]) - 1], row_format_number_color_plan)
@@ -1867,18 +1867,18 @@ class report_management_committee_excel(models.AbstractModel):
 
             elif 'HY' in element:  # 'HY1/YEAR' 'HY2/YEAR'
 
-                if child_offices_rows:
+                if child_centers_rows:
                     if 'HY1' in element:
-                        sheet.write_formula(row, column, 'sum(' + str(po_q_plan[0]) + ',' + str(po_q_plan[1]) + child_offices_rows.format(xl_col_to_name(column)) + ')',
+                        sheet.write_formula(row, column, 'sum(' + str(po_q_plan[0]) + ',' + str(po_q_plan[1]) + child_centers_rows.format(xl_col_to_name(column)) + ')',
                                             row_format_number_color_plan)
                         sheet.write_formula(row, column + 1,
-                                            'sum(' + str(po_q66_plan[0]) + ',' + str(po_q66_plan[1]) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')',
+                                            'sum(' + str(po_q66_plan[0]) + ',' + str(po_q66_plan[1]) + child_centers_rows.format(xl_col_to_name(column + 1)) + ')',
                                             row_format_number_color_plan)
                     elif 'HY2' in element:
-                        sheet.write_formula(row, column, 'sum(' + str(po_q_plan[2]) + ',' + str(po_q_plan[3]) + child_offices_rows.format(xl_col_to_name(column)) + ')',
+                        sheet.write_formula(row, column, 'sum(' + str(po_q_plan[2]) + ',' + str(po_q_plan[3]) + child_centers_rows.format(xl_col_to_name(column)) + ')',
                                             row_format_number_color_plan)
                         sheet.write_formula(row, column + 1,
-                                            'sum(' + str(po_q66_plan[2]) + ',' +  str(po_q66_plan[3]) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')',
+                                            'sum(' + str(po_q66_plan[2]) + ',' +  str(po_q66_plan[3]) + child_centers_rows.format(xl_col_to_name(column + 1)) + ')',
                                             row_format_number_color_plan)
                 else:
                     formula = '=sum({1}{0},{2}{0})'.format(
@@ -1923,11 +1923,11 @@ class report_management_committee_excel(models.AbstractModel):
 
             elif element == 'YEAR':  # 'YEAR'
 
-                if child_offices_rows:
-                    sheet.write_formula(row, column, 'sum(' + str(po_q_plan[0]) + ',' + str(po_q_plan[1]) + ',' + str(po_q_plan[2]) + ',' + str(po_q_plan[3]) + child_offices_rows.format(xl_col_to_name(column)) + ')',
+                if child_centers_rows:
+                    sheet.write_formula(row, column, 'sum(' + str(po_q_plan[0]) + ',' + str(po_q_plan[1]) + ',' + str(po_q_plan[2]) + ',' + str(po_q_plan[3]) + child_centers_rows.format(xl_col_to_name(column)) + ')',
                                         row_format_number_color_plan)
                     sheet.write_formula(row, column + 1,
-                                        'sum(' + str(po_q_fact[0]) + ',' + str(po_q_fact[1]) + ',' + str(po_q66_plan[2]) + ',' + str(po_q66_plan[3]) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')',
+                                        'sum(' + str(po_q_fact[0]) + ',' + str(po_q_fact[1]) + ',' + str(po_q66_plan[2]) + ',' + str(po_q66_plan[3]) + child_centers_rows.format(xl_col_to_name(column + 1)) + ')',
                                         row_format_number_color_plan)
                 else:
                     formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21), xl_col_to_name(column - 5))
@@ -1960,16 +1960,16 @@ class report_management_committee_excel(models.AbstractModel):
 
             elif element == 'NEXT':
 
-                f_sum_next_75 = 'sum(' + str(sum_next_75) + child_offices_rows.format(xl_col_to_name(column)) + ')'
-                f_sum_next_50 = 'sum(' + str(sum_next_50) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')'
-                f_sum_next_30 = 'sum(' + str(sum_next_30) + child_offices_rows.format(xl_col_to_name(column + 2)) + ')'
+                f_sum_next_75 = 'sum(' + str(sum_next_75) + child_centers_rows.format(xl_col_to_name(column)) + ')'
+                f_sum_next_50 = 'sum(' + str(sum_next_50) + child_centers_rows.format(xl_col_to_name(column + 1)) + ')'
+                f_sum_next_30 = 'sum(' + str(sum_next_30) + child_centers_rows.format(xl_col_to_name(column + 2)) + ')'
                 sheet.write_formula(row, column, f_sum_next_75, row_format_number_color_next)
                 sheet.write_formula(row, column + 1, f_sum_next_50, row_format_number_color_next)
                 sheet.write_formula(row, column + 2, f_sum_next_30, row_format_number_color_next)
                 column -= 2
 
             elif element == 'AFTER NEXT':
-                f_sum_after_next = 'sum(' + str(sum_after_next) + child_offices_rows.format(
+                f_sum_after_next = 'sum(' + str(sum_after_next) + child_centers_rows.format(
                     xl_col_to_name(column)) + ')'
                 sheet.write_formula(row, column, f_sum_after_next, row_format_number_color_next)
                 column -= 4
@@ -1999,7 +1999,7 @@ class report_management_committee_excel(models.AbstractModel):
                  sumM100tmp, sumM75tmp, sumM50tmp,
                  sum_next_75_q1_tmp, sum_next_50_q1_tmp, sum_next_30_q1_tmp,
                  sum_next_75_tmp, sum_next_50_tmp, sum_next_30_tmp,
-                 sum_after_next_tmp) = self.calculate_quarter_pds(element, project, project_office, params)
+                 sum_after_next_tmp) = self.calculate_quarter_pds(element, project, responsibility_center, params)
 
                 sumM75etalon += sumM75tmpetalon
                 sumM50etalon += sumM50tmpetalon
@@ -2014,19 +2014,19 @@ class report_management_committee_excel(models.AbstractModel):
                 sum_next_30 += sum_next_30_tmp
                 sum_after_next += sum_after_next_tmp
 
-            child_offices_rows = formula_offices.get('project_office_' + str(project_office.id)) or ''
+            child_centers_rows = formula_centers.get('responsibility_center_' + str(responsibility_center.id)) or ''
 
             addcolumn = 0
 
             if 'Q' in element:
 
-                f_Q100 = 'sum(' + str(sumM100) + child_offices_rows.format(xl_col_to_name(column + 2)) + ')'
-                f_Q75 = 'sum(' + str(sumM75) + child_offices_rows.format(xl_col_to_name(column + 3)) + ')'
-                f_Q50 = 'sum(' + str(sumM50) + child_offices_rows.format(xl_col_to_name(column + 4)) + ')'
+                f_Q100 = 'sum(' + str(sumM100) + child_centers_rows.format(xl_col_to_name(column + 2)) + ')'
+                f_Q75 = 'sum(' + str(sumM75) + child_centers_rows.format(xl_col_to_name(column + 3)) + ')'
+                f_Q50 = 'sum(' + str(sumM50) + child_centers_rows.format(xl_col_to_name(column + 4)) + ')'
 
                 po_plan_spec = self.env['project_budget.budget_plan_supervisor_spec'].search([
                     ('budget_plan_supervisor_id.year', '=', YEARint),
-                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('budget_plan_supervisor_id.responsibility_center_id', '=', responsibility_center.id),
                     ('type_row', '=', 'cash'),
                 ])
 
@@ -2034,11 +2034,11 @@ class report_management_committee_excel(models.AbstractModel):
                 po_q66_plan = [po_plan_spec.q1_plan_6_6, po_plan_spec.q2_plan_6_6, po_plan_spec.q3_plan_6_6, po_plan_spec.q4_plan_6_6]
                 po_q_fact = [po_plan_spec.q1_fact, po_plan_spec.q2_fact, po_plan_spec.q3_fact, po_plan_spec.q4_fact]
 
-                if child_offices_rows:
-                    sheet.write_formula(row, column, 'sum(' + str(po_q_plan[int(element[1]) - 1]) + child_offices_rows.format(xl_col_to_name(column)) + ')',
+                if child_centers_rows:
+                    sheet.write_formula(row, column, 'sum(' + str(po_q_plan[int(element[1]) - 1]) + child_centers_rows.format(xl_col_to_name(column)) + ')',
                                         row_format_number_color_plan)
                     sheet.write_formula(row, column + 1,
-                                        'sum(' + str(po_q66_plan[int(element[1]) - 1]) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')',
+                                        'sum(' + str(po_q66_plan[int(element[1]) - 1]) + child_centers_rows.format(xl_col_to_name(column + 1)) + ')',
                                         row_format_number_color_plan)
                 else:
                     sheet.write_number(row, column, po_q_plan[int(element[1]) - 1], row_format_number_color_plan)
@@ -2049,18 +2049,18 @@ class report_management_committee_excel(models.AbstractModel):
                 sheet.write_formula(row, column + 4, f_Q50, row_format_number_color_forecast)
 
             elif 'HY' in element:  # 'HY1/YEAR' 'HY2/YEAR'
-                if child_offices_rows:
+                if child_centers_rows:
                     if 'HY1' in element:
-                        sheet.write_formula(row, column, 'sum(' + str(po_q_plan[0]) + ',' + str(po_q_plan[1]) + child_offices_rows.format(xl_col_to_name(column)) + ')',
+                        sheet.write_formula(row, column, 'sum(' + str(po_q_plan[0]) + ',' + str(po_q_plan[1]) + child_centers_rows.format(xl_col_to_name(column)) + ')',
                                             row_format_number_color_plan)
                         sheet.write_formula(row, column + 1,
-                                            'sum(' + str(po_q66_plan[0])  + ',' + str(po_q66_plan[1]) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')',
+                                            'sum(' + str(po_q66_plan[0])  + ',' + str(po_q66_plan[1]) + child_centers_rows.format(xl_col_to_name(column + 1)) + ')',
                                             row_format_number_color_plan)
                     elif 'HY2' in element:
-                        sheet.write_formula(row, column, 'sum(' + str(po_q_plan[2]) + ',' + str(po_q_plan[3]) + child_offices_rows.format(xl_col_to_name(column)) + ')',
+                        sheet.write_formula(row, column, 'sum(' + str(po_q_plan[2]) + ',' + str(po_q_plan[3]) + child_centers_rows.format(xl_col_to_name(column)) + ')',
                                             row_format_number_color_plan)
                         sheet.write_formula(row, column + 1,
-                                            'sum(' + str(po_q66_plan[2])  + ',' + str(po_q66_plan[3]) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')',
+                                            'sum(' + str(po_q66_plan[2])  + ',' + str(po_q66_plan[3]) + child_centers_rows.format(xl_col_to_name(column + 1)) + ')',
                                             row_format_number_color_plan)
                 else:
                     formula = '=sum({1}{0},{2}{0})'.format(
@@ -2106,11 +2106,11 @@ class report_management_committee_excel(models.AbstractModel):
                 sheet.write_formula(row, column + 4, formula, row_format_number_color_forecast)
 
             elif element == 'YEAR':  # 'YEAR'
-                if child_offices_rows:
-                    sheet.write_formula(row, column, 'sum(' + str(po_q_plan[0]) + ',' + str(po_q_plan[1]) + ',' + str(po_q_plan[2]) + ',' + str(po_q_plan[3]) + child_offices_rows.format(xl_col_to_name(column)) + ')',
+                if child_centers_rows:
+                    sheet.write_formula(row, column, 'sum(' + str(po_q_plan[0]) + ',' + str(po_q_plan[1]) + ',' + str(po_q_plan[2]) + ',' + str(po_q_plan[3]) + child_centers_rows.format(xl_col_to_name(column)) + ')',
                                         row_format_number_color_plan)
                     sheet.write_formula(row, column + 1,
-                                        'sum(' + str(po_q_fact[0]) + ',' + str(po_q_fact[1]) + ',' + str(po_q66_plan[2]) + ',' + str(po_q66_plan[3]) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')',
+                                        'sum(' + str(po_q_fact[0]) + ',' + str(po_q_fact[1]) + ',' + str(po_q66_plan[2]) + ',' + str(po_q66_plan[3]) + child_centers_rows.format(xl_col_to_name(column + 1)) + ')',
                                         row_format_number_color_plan)
                 else:
                     formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21),
@@ -2146,16 +2146,16 @@ class report_management_committee_excel(models.AbstractModel):
                 sheet.write_formula(row, column + 4, formula, row_format_number_color_forecast)
 
             elif element == 'NEXT':
-                f_sum_next_75 = 'sum(' + str(sum_next_75) + child_offices_rows.format(xl_col_to_name(column)) + ')'
-                f_sum_next_50 = 'sum(' + str(sum_next_50) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')'
-                # f_sum_next_30 = 'sum(' + str(sum_next_30) + child_offices_rows.format(xl_col_to_name(column + 2)) + ')'
+                f_sum_next_75 = 'sum(' + str(sum_next_75) + child_centers_rows.format(xl_col_to_name(column)) + ')'
+                f_sum_next_50 = 'sum(' + str(sum_next_50) + child_centers_rows.format(xl_col_to_name(column + 1)) + ')'
+                # f_sum_next_30 = 'sum(' + str(sum_next_30) + child_centers_rows.format(xl_col_to_name(column + 2)) + ')'
                 sheet.write_formula(row, column, f_sum_next_75, row_format_number_color_next)
                 sheet.write_formula(row, column + 1, f_sum_next_50, row_format_number_color_next)
                 # sheet.write_formula(row, column + 2, f_sum_next_30, row_format_number_color_next)
                 column -= 3
 
             elif element == 'AFTER NEXT':
-                f_sum_after_next = 'sum(' + str(sum_after_next) + child_offices_rows.format(
+                f_sum_after_next = 'sum(' + str(sum_after_next) + child_centers_rows.format(
                     xl_col_to_name(column)) + ')'
                 sheet.write_formula(row, column, f_sum_after_next, row_format_number_color_next)
                 column -= 4
@@ -2186,7 +2186,7 @@ class report_management_committee_excel(models.AbstractModel):
                  sum_next_75_tmp, sum_next_50_tmp, sum_next_30_tmp, sum_after_next_tmp,
                  prof_next_75_q1_tmp, prof_next_50_q1_tmp, prof_next_30_q1_tmp,
                  prof_next_75_tmp, prof_next_50_tmp, prof_next_30_tmp, prof_after_next_tmp
-                 ) = self.calculate_quarter_planned_acceptance(element, project, project_office, params)
+                 ) = self.calculate_quarter_planned_acceptance(element, project, responsibility_center, params)
 
                 sumQ75etalon += sum75tmpetalon
                 sumQ50etalon += sum50tmpetalon
@@ -2214,19 +2214,19 @@ class report_management_committee_excel(models.AbstractModel):
                 prof_next_30 += prof_next_30_tmp
                 prof_after_next += prof_after_next_tmp
 
-            child_offices_rows = formula_offices.get('project_office_' + str(project_office.id)) or ''
+            child_centers_rows = formula_centers.get('responsibility_center_' + str(responsibility_center.id)) or ''
 
             if 'Q' in element:
 
                 po_plan_acc = self.env['project_budget.budget_plan_supervisor_spec'].search([
                     ('budget_plan_supervisor_id.year', '=', YEARint),
-                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('budget_plan_supervisor_id.responsibility_center_id', '=', responsibility_center.id),
                     ('type_row', '=', 'acceptance'),
                 ])
 
                 po_plan_margin = self.env['project_budget.budget_plan_supervisor_spec'].search([
                     ('budget_plan_supervisor_id.year', '=', YEARint),
-                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('budget_plan_supervisor_id.responsibility_center_id', '=', responsibility_center.id),
                     ('type_row', '=', 'margin_income'),
                 ])
 
@@ -2238,17 +2238,17 @@ class report_management_committee_excel(models.AbstractModel):
                 po_q66_plan_margin = [po_plan_margin.q1_plan_6_6, po_plan_margin.q2_plan_6_6, po_plan_margin.q3_plan_6_6, po_plan_margin.q4_plan_6_6]
                 po_q_fact_margin = [po_plan_margin.q1_fact, po_plan_margin.q2_fact, po_plan_margin.q3_fact, po_plan_margin.q4_fact]
 
-                if child_offices_rows:
-                    sheet.write_formula(row, column, 'sum(' + str(po_q_plan_acc[int(element[1]) - 1]) + child_offices_rows.format(xl_col_to_name(column)) + ')',
+                if child_centers_rows:
+                    sheet.write_formula(row, column, 'sum(' + str(po_q_plan_acc[int(element[1]) - 1]) + child_centers_rows.format(xl_col_to_name(column)) + ')',
                                         row_format_number_color_plan)
                     sheet.write_formula(row, column + 1,
-                                        'sum(' + str(po_q66_plan_acc[int(element[1]) - 1]) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')',
+                                        'sum(' + str(po_q66_plan_acc[int(element[1]) - 1]) + child_centers_rows.format(xl_col_to_name(column + 1)) + ')',
                                         row_format_number_color_plan)
                     sheet.write_formula(row, column + params['margin_shift'],
-                                        'sum(' + str(po_q_plan_margin[int(element[1]) - 1]) + child_offices_rows.format(xl_col_to_name(column + params['margin_shift'])) + ')',
+                                        'sum(' + str(po_q_plan_margin[int(element[1]) - 1]) + child_centers_rows.format(xl_col_to_name(column + params['margin_shift'])) + ')',
                                         row_format_number_color_plan)
                     sheet.write_formula(row, column + 1 + params['margin_shift'],
-                                        'sum(' + str(po_q66_plan_margin[int(element[1]) - 1]) + child_offices_rows.format(xl_col_to_name(column + 1 + params['margin_shift'])) + ')',
+                                        'sum(' + str(po_q66_plan_margin[int(element[1]) - 1]) + child_centers_rows.format(xl_col_to_name(column + 1 + params['margin_shift'])) + ')',
                                         row_format_number_color_plan)
                 else:
                     sheet.write_number(row, column, po_q_plan_acc[int(element[1]) - 1], row_format_number_color_plan)
@@ -2256,12 +2256,12 @@ class report_management_committee_excel(models.AbstractModel):
                     sheet.write_number(row, column + params['margin_shift'], po_q_plan_margin[int(element[1]) - 1], row_format_number_color_plan)
                     sheet.write_number(row, column + 1 + params['margin_shift'], po_q66_plan_margin[int(element[1]) - 1], row_format_number_color_plan)
 
-                f_sumQ100 = 'sum(' + str(sumQ100) + child_offices_rows.format(xl_col_to_name(column + 2)) + ')'
-                f_sumQ75 = 'sum(' + str(sumQ75) + child_offices_rows.format(xl_col_to_name(column + 3)) + ')'
-                f_sumQ50 = 'sum(' + str(sumQ50) + child_offices_rows.format(xl_col_to_name(column + 4)) + ')'
-                f_profQ100 = 'sum(' + str(profQ100) + child_offices_rows.format(xl_col_to_name(column + 2 + params['margin_shift'])) + ')'
-                f_profQ75 = 'sum(' + str(profQ75) + child_offices_rows.format(xl_col_to_name(column + 3 + params['margin_shift'])) + ')'
-                f_profQ50 = 'sum(' + str(profQ50) + child_offices_rows.format(xl_col_to_name(column + 4 + params['margin_shift'])) + ')'
+                f_sumQ100 = 'sum(' + str(sumQ100) + child_centers_rows.format(xl_col_to_name(column + 2)) + ')'
+                f_sumQ75 = 'sum(' + str(sumQ75) + child_centers_rows.format(xl_col_to_name(column + 3)) + ')'
+                f_sumQ50 = 'sum(' + str(sumQ50) + child_centers_rows.format(xl_col_to_name(column + 4)) + ')'
+                f_profQ100 = 'sum(' + str(profQ100) + child_centers_rows.format(xl_col_to_name(column + 2 + params['margin_shift'])) + ')'
+                f_profQ75 = 'sum(' + str(profQ75) + child_centers_rows.format(xl_col_to_name(column + 3 + params['margin_shift'])) + ')'
+                f_profQ50 = 'sum(' + str(profQ50) + child_centers_rows.format(xl_col_to_name(column + 4 + params['margin_shift'])) + ')'
 
                 sheet.write_formula(row, column + 2, f_sumQ100, row_format_number_color_fact)
                 sheet.write_formula(row, column + 2 + params['margin_shift'], f_profQ100, row_format_number_color_fact)
@@ -2271,30 +2271,30 @@ class report_management_committee_excel(models.AbstractModel):
                 sheet.write_formula(row, column + 4 + params['margin_shift'], f_profQ50, row_format_number_color_forecast)
 
             elif 'HY' in element:  # 'HY1/YEAR итого' 'HY2/YEAR итого'
-                if child_offices_rows:
+                if child_centers_rows:
                     if 'HY1' in element:
-                        sheet.write_formula(row, column, 'sum(' + str(po_q_plan_acc[0]) + ',' + str(po_q_plan_acc[1]) + child_offices_rows.format(xl_col_to_name(column)) + ')',
+                        sheet.write_formula(row, column, 'sum(' + str(po_q_plan_acc[0]) + ',' + str(po_q_plan_acc[1]) + child_centers_rows.format(xl_col_to_name(column)) + ')',
                                             row_format_number_color_plan)
                         sheet.write_formula(row, column + 1,
-                                            'sum(' + str(po_q66_plan_acc[0]) + ',' + str(po_q66_plan_acc[1]) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')',
+                                            'sum(' + str(po_q66_plan_acc[0]) + ',' + str(po_q66_plan_acc[1]) + child_centers_rows.format(xl_col_to_name(column + 1)) + ')',
                                             row_format_number_color_plan)
                         sheet.write_formula(row, column + params['margin_shift'],
-                                            'sum(' + str(po_q_plan_margin[0]) + ',' + str(po_q_plan_margin[1]) + child_offices_rows.format(xl_col_to_name(column + params['margin_shift'])) + ')',
+                                            'sum(' + str(po_q_plan_margin[0]) + ',' + str(po_q_plan_margin[1]) + child_centers_rows.format(xl_col_to_name(column + params['margin_shift'])) + ')',
                                             row_format_number_color_plan)
                         sheet.write_formula(row, column + 1 + params['margin_shift'],
-                                            'sum(' + str(po_q66_plan_margin[0]) + ',' + str(po_q66_plan_margin[1]) + child_offices_rows.format(xl_col_to_name(column + 1 + params['margin_shift'])) + ')',
+                                            'sum(' + str(po_q66_plan_margin[0]) + ',' + str(po_q66_plan_margin[1]) + child_centers_rows.format(xl_col_to_name(column + 1 + params['margin_shift'])) + ')',
                                             row_format_number_color_plan)
                     elif 'HY2' in element:
-                        sheet.write_formula(row, column, 'sum(' + str(po_q_plan_acc[2]) + ',' + str(po_q_plan_acc[3]) + child_offices_rows.format(xl_col_to_name(column)) + ')',
+                        sheet.write_formula(row, column, 'sum(' + str(po_q_plan_acc[2]) + ',' + str(po_q_plan_acc[3]) + child_centers_rows.format(xl_col_to_name(column)) + ')',
                                             row_format_number_color_plan)
                         sheet.write_formula(row, column + 1,
-                                            'sum(' + str(po_q66_plan_acc[2]) + ',' + str(po_q66_plan_acc[3]) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')',
+                                            'sum(' + str(po_q66_plan_acc[2]) + ',' + str(po_q66_plan_acc[3]) + child_centers_rows.format(xl_col_to_name(column + 1)) + ')',
                                             row_format_number_color_plan)
                         sheet.write_formula(row, column + params['margin_shift'],
-                                            'sum(' + str(po_q_plan_margin[2]) + ',' + str(po_q_plan_margin[3]) + child_offices_rows.format(xl_col_to_name(column + params['margin_shift'])) + ')',
+                                            'sum(' + str(po_q_plan_margin[2]) + ',' + str(po_q_plan_margin[3]) + child_centers_rows.format(xl_col_to_name(column + params['margin_shift'])) + ')',
                                             row_format_number_color_plan)
                         sheet.write_formula(row, column + 1 + params['margin_shift'],
-                                            'sum(' + str(po_q66_plan_margin[2]) + ',' + str(po_q66_plan_margin[3]) + child_offices_rows.format(xl_col_to_name(column + 1 + params['margin_shift'])) + ')',
+                                            'sum(' + str(po_q66_plan_margin[2]) + ',' + str(po_q66_plan_margin[3]) + child_centers_rows.format(xl_col_to_name(column + 1 + params['margin_shift'])) + ')',
                                             row_format_number_color_plan)
                 else:
                     formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 10), xl_col_to_name(column - 5))
@@ -2347,17 +2347,17 @@ class report_management_committee_excel(models.AbstractModel):
                 sheet.write_formula(row, column + 4 + params['margin_shift'], formula, row_format_number_color_forecast)
 
             elif element == 'YEAR':  # 'YEAR'
-                if child_offices_rows:
-                    sheet.write_formula(row, column, 'sum(' + str(po_q_plan_acc[0]) + ',' + str(po_q_plan_acc[1]) + ',' + str(po_q_plan_acc[2]) + ',' + str(po_q_plan_acc[3]) + child_offices_rows.format(xl_col_to_name(column)) + ')',
+                if child_centers_rows:
+                    sheet.write_formula(row, column, 'sum(' + str(po_q_plan_acc[0]) + ',' + str(po_q_plan_acc[1]) + ',' + str(po_q_plan_acc[2]) + ',' + str(po_q_plan_acc[3]) + child_centers_rows.format(xl_col_to_name(column)) + ')',
                                         row_format_number_color_plan)
                     sheet.write_formula(row, column + 1,
-                                        'sum(' + str(po_q_fact_acc[0]) + ',' + str(po_q_fact_acc[1]) + ',' + str(po_q66_plan_acc[2]) + ',' + str(po_q66_plan_acc[3]) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')',
+                                        'sum(' + str(po_q_fact_acc[0]) + ',' + str(po_q_fact_acc[1]) + ',' + str(po_q66_plan_acc[2]) + ',' + str(po_q66_plan_acc[3]) + child_centers_rows.format(xl_col_to_name(column + 1)) + ')',
                                         row_format_number_color_plan)
                     sheet.write_formula(row, column + params['margin_shift'],
-                                        'sum(' + str(po_q_plan_margin[0]) + ',' + str(po_q_plan_margin[1]) + ',' + str(po_q_plan_margin[2]) + ',' + str(po_q_plan_margin[3]) + child_offices_rows.format(xl_col_to_name(column + params['margin_shift'])) + ')',
+                                        'sum(' + str(po_q_plan_margin[0]) + ',' + str(po_q_plan_margin[1]) + ',' + str(po_q_plan_margin[2]) + ',' + str(po_q_plan_margin[3]) + child_centers_rows.format(xl_col_to_name(column + params['margin_shift'])) + ')',
                                         row_format_number_color_plan)
                     sheet.write_formula(row, column + 1 + params['margin_shift'],
-                                        'sum(' + str(po_q_fact_margin[0]) + ',' + str(po_q_fact_margin[1]) + ',' + str(po_q66_plan_margin[2]) + ',' + str(po_q66_plan_margin[3]) + child_offices_rows.format(xl_col_to_name(column + 1 + params['margin_shift'])) + ')',
+                                        'sum(' + str(po_q_fact_margin[0]) + ',' + str(po_q_fact_margin[1]) + ',' + str(po_q66_plan_margin[2]) + ',' + str(po_q66_plan_margin[3]) + child_centers_rows.format(xl_col_to_name(column + 1 + params['margin_shift'])) + ')',
                                         row_format_number_color_plan)
                 else:
                     formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 21), xl_col_to_name(column - 5))
@@ -2416,17 +2416,17 @@ class report_management_committee_excel(models.AbstractModel):
 
             elif element == 'NEXT':
 
-                f_sum_next_75 = 'sum(' + str(sum_next_75) + child_offices_rows.format(xl_col_to_name(column)) + ')'
-                f_sum_next_50 = 'sum(' + str(sum_next_50) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')'
-                f_sum_next_30 = 'sum(' + str(sum_next_30) + child_offices_rows.format(xl_col_to_name(column + 2)) + ')'
+                f_sum_next_75 = 'sum(' + str(sum_next_75) + child_centers_rows.format(xl_col_to_name(column)) + ')'
+                f_sum_next_50 = 'sum(' + str(sum_next_50) + child_centers_rows.format(xl_col_to_name(column + 1)) + ')'
+                f_sum_next_30 = 'sum(' + str(sum_next_30) + child_centers_rows.format(xl_col_to_name(column + 2)) + ')'
                 sheet.write_formula(row, column, f_sum_next_75, row_format_number_color_next)
                 sheet.write_formula(row, column + 1, f_sum_next_50, row_format_number_color_next)
                 sheet.write_formula(row, column + 2, f_sum_next_30, row_format_number_color_next)
-                f_prof_next_75 = 'sum(' + str(prof_next_75) + child_offices_rows.format(
+                f_prof_next_75 = 'sum(' + str(prof_next_75) + child_centers_rows.format(
                     xl_col_to_name(column + params['margin_shift'])) + ')'
-                f_prof_next_50 = 'sum(' + str(prof_next_50) + child_offices_rows.format(
+                f_prof_next_50 = 'sum(' + str(prof_next_50) + child_centers_rows.format(
                     xl_col_to_name(column + 1 + params['margin_shift'])) + ')'
-                f_prof_next_30 = 'sum(' + str(prof_next_30) + child_offices_rows.format(
+                f_prof_next_30 = 'sum(' + str(prof_next_30) + child_centers_rows.format(
                     xl_col_to_name(column + 2 + params['margin_shift'])) + ')'
                 sheet.write_formula(row, column + params['margin_shift'], f_prof_next_75, row_format_number_color_next)
                 sheet.write_formula(row, column + 1 + params['margin_shift'], f_prof_next_50, row_format_number_color_next)
@@ -2434,10 +2434,10 @@ class report_management_committee_excel(models.AbstractModel):
                 column -= 2
 
             elif element == 'AFTER NEXT':
-                f_sum_after_next = 'sum(' + str(sum_after_next) + child_offices_rows.format(
+                f_sum_after_next = 'sum(' + str(sum_after_next) + child_centers_rows.format(
                     xl_col_to_name(column)) + ')'
                 sheet.write_formula(row, column, f_sum_after_next, row_format_number_color_next)
-                f_prof_after_next = 'sum(' + str(prof_after_next) + child_offices_rows.format(
+                f_prof_after_next = 'sum(' + str(prof_after_next) + child_centers_rows.format(
                     xl_col_to_name(column + params['margin_shift'])) + ')'
                 sheet.write_formula(row, column + params['margin_shift'], f_prof_after_next, row_format_number_color_next)
                 column -= 4
@@ -2445,7 +2445,7 @@ class report_management_committee_excel(models.AbstractModel):
             column += 4
         # end Валовая Выручка, без НДС
 
-    def printrow(self, sheet, workbook, companies, project_offices, budget, row, formulaItogo, level, params):
+    def printrow(self, sheet, workbook, companies, responsibility_centers, budget, row, formulaItogo, level, params):
         global strYEAR
         global YEARint
         global dict_formula
@@ -2482,7 +2482,7 @@ class report_management_committee_excel(models.AbstractModel):
         })
         row_format_manager.set_num_format('#,##0')
 
-        row_format_office = workbook.add_format({
+        row_format_center = workbook.add_format({
             'border': 1,
             'font_size': 10,
             "bold": False,
@@ -2585,11 +2585,9 @@ class report_management_committee_excel(models.AbstractModel):
             "num_format": '#,##0',
         })
 
-        # project_offices = self.env['project_budget.project_office'].search([],order='name')  # для сортировки так делаем + берем сначала только верхние элементы
-
-        isFoundProjectsByOffice = False
+        isFoundProjectsByCenter = False
         isFoundProjectsByManager = False
-        begRowProjectsByOffice = 0
+        begRowProjectsByCenter = 0
 
         cur_budget_projects = self.env['project_budget.projects'].search([
             ('commercial_budget_id', '=', budget.id),
@@ -2602,8 +2600,8 @@ class report_management_committee_excel(models.AbstractModel):
         ]).sorted(key=lambda
             r: (r.key_account_manager_id.name, r.stage_id.code, r.project_id) if r.step_status == 'project' else (r.key_account_manager_id.name, r.stage_id.code, r.step_project_parent_id.project_id + r.project_id))
 
-        # cur_project_offices = project_offices.filtered(lambda r: r in cur_budget_projects.project_office_id or r in {office.parent_id for office in cur_budget_projects.project_office_id if office.parent_id in project_offices})
-        cur_project_offices = project_offices
+        # cur_responsibility_centers = responsibility_centers.filtered(lambda r: r in cur_budget_projects.responsibility_center_id or r in {center.parent_id for center in cur_budget_projects.responsibility_center_id if center.parent_id in responsibility_centers})
+        cur_responsibility_centers = responsibility_centers
         # cur_project_managers = project_managers.filtered(lambda r: r in cur_budget_projects.project_manager_id)
 
         # TODO перевести сортировку в параметры компаний
@@ -2619,118 +2617,123 @@ class report_management_committee_excel(models.AbstractModel):
             9 : 9, # Облако.ру
         }
 
-        cur_companies = companies.filtered(lambda r: r in cur_project_offices.company_id).sorted(key=lambda r: companies_sort.get(r.id, 99))
+        cur_companies = companies.filtered(lambda r: r in cur_responsibility_centers.company_id).sorted(key=lambda r: companies_sort.get(r.id, 99))
 
         for company in cur_companies:
             print('company = ', company.name)
             isFoundProjectsByCompany = False
             formulaProjectCompany = '=sum(0'
 
-            dict_formula['office_ids_not_empty'] = {}
+            dict_formula['center_ids_not_empty'] = {}
 
             if company.id not in dict_formula['company_ids']:
                 row += 1
                 dict_formula['company_ids'][company.id] = row
 
-            for project_office in cur_project_offices.filtered(lambda r: r in (office for office in self.env[
-                'project_budget.project_office'].search([('company_id', '=', company.id), ]))):
+            for responsibility_center in cur_responsibility_centers.filtered(lambda r: r in (center for center in self.env[
+                'account.analytic.account'].search([
+                ('company_id', '=', company.id),
+                ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+            ]))):
 
-                print('project_office.name = ', project_office.name)
+                print('responsibility_center.name = ', responsibility_center.name)
 
-                begRowProjectsByOffice = 0
+                begRowProjectsByCenter = 0
 
                 row0 = row
 
-                child_project_offices = self.env['project_budget.project_office'].search(
-                    [('parent_id', '=', project_office.id)], order='name')
+                child_responsibility_centers = self.env['account.analytic.account'].search([
+                    ('parent_id', '=', responsibility_center.id),
+                    ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+                ], order='name')
 
-                if project_office.child_ids:
+                if responsibility_center.child_ids:
                     row += 1
-                    dict_formula['office_ids'][project_office.id] = row
-                    row0, formulaItogo = self.printrow(sheet, workbook, company, child_project_offices, budget, row,
+                    dict_formula['center_ids'][responsibility_center.id] = row
+                    row0, formulaItogo = self.printrow(sheet, workbook, company, child_responsibility_centers, budget, row,
                                                        formulaItogo, level + 1, params)
 
-                isFoundProjectsByOffice = False
+                isFoundProjectsByCenter = False
                 if row0 != row:
-                    isFoundProjectsByOffice = True
+                    isFoundProjectsByCenter = True
 
                 row = row0
 
-                formulaProjectOffice = '=sum(0'
+                formulaProjectCenter = '=sum(0'
 
                 for spec in cur_budget_projects:
                     if spec.vgo == '-':
 
-                        if begRowProjectsByOffice == 0:
-                            begRowProjectsByOffice = row
+                        if begRowProjectsByCenter == 0:
+                            begRowProjectsByCenter = row
 
-                        if spec.project_office_id == project_office and spec.company_id == company:
+                        if spec.responsibility_center_id == responsibility_center and spec.company_id == company:
                             if self.isProjectinYear(spec) is False or spec.stage_id.code in ('0', '10'):
                                 continue
 
-                            isFoundProjectsByOffice = True
+                            isFoundProjectsByCenter = True
                             isFoundProjectsByCompany = True
 
-                if self.office_has_plan(project_office):
-                    isFoundProjectsByOffice = True
+                if self.center_has_plan(responsibility_center):
+                    isFoundProjectsByCenter = True
                     isFoundProjectsByCompany = True
 
-                if project_office.parent_id:
+                if responsibility_center.parent_id:
                     isFoundProjectsByCompany = False
 
-                if isFoundProjectsByOffice:
+                if isFoundProjectsByCenter:
 
-                    dict_formula['office_ids_not_empty'][project_office.id] = row
+                    dict_formula['center_ids_not_empty'][responsibility_center.id] = row
 
                     column = 0
 
-                    if child_project_offices:
-                        office_row = dict_formula['office_ids'].get(project_office.id)
+                    if child_responsibility_centers:
+                        center_row = dict_formula['center_ids'].get(responsibility_center.id)
                     else:
                         row += 1
-                        office_row = row
+                        center_row = row
 
-                    office_name = project_office.report_name or project_office.name
+                    center_name = responsibility_center.print_name_mc or responsibility_center.name
 
-                    sheet.write_string(office_row, column, '       ' * level + office_name, row_format_office)
+                    sheet.write_string(center_row, column, '       ' * level + center_name, row_format_center)
                     if params['report_with_projects']:
-                        sheet.merge_range(office_row, column + 1, office_row, column + params["shift"] , '', row_format_office)
-                    sheet.set_row(office_row, False, False, {'hidden': 1, 'level': level})
+                        sheet.merge_range(center_row, column + 1, center_row, column + params["shift"] , '', row_format_center)
+                    sheet.set_row(center_row, False, False, {'hidden': 1, 'level': level})
 
-                    str_project_office_id = 'project_office_' + str(int(project_office.parent_id))
-                    if str_project_office_id in dict_formula:
-                        dict_formula[str_project_office_id] = dict_formula[str_project_office_id] + ',{0}' + str(
-                            office_row + 1)
+                    str_responsibility_center_id = 'responsibility_center_' + str(int(responsibility_center.parent_id))
+                    if str_responsibility_center_id in dict_formula:
+                        dict_formula[str_responsibility_center_id] = dict_formula[str_responsibility_center_id] + ',{0}' + str(
+                            center_row + 1)
                     else:
-                        dict_formula[str_project_office_id] = ',{0}' + str(office_row + 1)
+                        dict_formula[str_responsibility_center_id] = ',{0}' + str(center_row + 1)
 
-                    formulaProjectOffice += ',{0}' + f'{begRowProjectsByOffice + 2}' + ':{0}' + f'{office_row}'
+                    formulaProjectCenter += ',{0}' + f'{begRowProjectsByCenter + 2}' + ':{0}' + f'{center_row}'
 
-                    str_project_office_id = 'project_office_' + str(int(project_office.id))
-                    if str_project_office_id in dict_formula:
-                        formulaProjectOffice = formulaProjectOffice + dict_formula[str_project_office_id] + ')'
+                    str_responsibility_center_id = 'responsibility_center_' + str(int(responsibility_center.id))
+                    if str_responsibility_center_id in dict_formula:
+                        formulaProjectCenter = formulaProjectCenter + dict_formula[str_responsibility_center_id] + ')'
                     else:
-                        formulaProjectOffice = formulaProjectOffice + ')'
+                        formulaProjectCenter = formulaProjectCenter + ')'
 
                     projects = self.env['project_budget.projects'].search([
                         ('stage_id.code', '!=', '0'),
                         ('commercial_budget_id', '=', budget.id),
                         ('is_not_for_mc_report', '=', False),
-                        ('project_office_id', '=', project_office.id),
+                        ('responsibility_center_id', '=', responsibility_center.id),
                         '|', '&', ('step_status', '=', 'step'),
                         ('step_project_parent_id.project_have_steps', '=', True),
                         '&', ('step_status', '=', 'project'),
                         ('project_have_steps', '=', False),
                         ])
 
-                    self.print_row_values_office(
+                    self.print_row_values_center(
                         workbook,
                         sheet,
-                        office_row,
+                        center_row,
                         column + params["shift"] ,
                         strYEAR,
                         projects,
-                        project_office,
+                        responsibility_center,
                         dict_formula,
                         params,
                     )
@@ -2738,7 +2741,7 @@ class report_management_committee_excel(models.AbstractModel):
                     if params['report_with_projects']:
                         for spec in cur_budget_projects:
                             if spec.vgo == '-':
-                                if spec.project_office_id == project_office and spec.company_id == company:
+                                if spec.responsibility_center_id == responsibility_center and spec.company_id == company:
                                     if self.isProjectinYear(spec) is False or spec.stage_id.code in ('0', '10'):
                                         continue
 
@@ -2783,18 +2786,18 @@ class report_management_committee_excel(models.AbstractModel):
                                     sheet.write_string(row, column, spec.vat_attribute_id.name or '', cur_row_format)
                                     column += 1
                                     sheet.write_string(row, column, '', cur_row_format)
-                                    self.print_row_Values(workbook, sheet, row, column, strYEAR, spec, project_office, params)
+                                    self.print_row_Values(workbook, sheet, row, column, strYEAR, spec, responsibility_center, params)
 
-                    if not project_office.parent_id:
-                        formulaProjectCompany += ',{0}' + f'{office_row + 1}'
+                    if not responsibility_center.parent_id:
+                        formulaProjectCompany += ',{0}' + f'{center_row + 1}'
                     if params['report_with_projects']:
                         row += 1
                         sheet.write_string(row, column, '', row_format_company_empty)
                         sheet.set_row(row, 14, row_format_company_empty, {'hidden': 1, 'level': level})
                 else:
-                    if project_office.child_ids:
-                        if all(child.id not in dict_formula['office_ids_not_empty'] for child in
-                               project_office.child_ids):
+                    if responsibility_center.child_ids:
+                        if all(child.id not in dict_formula['center_ids_not_empty'] for child in
+                               responsibility_center.child_ids):
                             row -= 1
 
             if isFoundProjectsByCompany:
@@ -3134,13 +3137,13 @@ class report_management_committee_excel(models.AbstractModel):
         })
         row_format_manager.set_num_format('#,##0')
 
-        row_format_office = workbook.add_format({
+        row_format_center = workbook.add_format({
             'border': 1,
             'font_size': 9,
             "bold": True,
             "fg_color": '#8497B0',
         })
-        row_format_office.set_num_format('#,##0')
+        row_format_center.set_num_format('#,##0')
 
         row_format_date_month.set_num_format('mmm yyyy')
 
@@ -3272,34 +3275,42 @@ class report_management_committee_excel(models.AbstractModel):
         parents = [False,]
         new_parents = []
 
-        parent_offices = self.env['project_budget.project_office'].search([('parent_id', 'in', parents)])
-        while parent_offices:
-            for office in parent_offices:
-                depth_dict[office] = max_depth
-                new_parents.append(office.id)
+        parent_centers = self.env['account.analytic.account'].search([
+            ('parent_id', 'in', parents),
+            ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+        ])
+        while parent_centers:
+            for center in parent_centers:
+                depth_dict[center] = max_depth
+                new_parents.append(center.id)
             max_depth += 1
             parents = new_parents
             new_parents = []
-            parent_offices = self.env['project_budget.project_office'].search([('parent_id', 'in', parents)])
+            parent_centers = self.env['account.analytic.account'].search([
+                ('parent_id', 'in', parents),
+                ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+            ])
 
         depth = 1
 
         for project in cur_budget_projects:
-            depth = max(depth, depth_dict[project.project_office_id])
+            depth = max(depth, depth_dict[project.responsibility_center_id])
             if depth == max_depth:
                 break
 
         max_level = depth + 1
 
         companies = self.env['res.company'].search([], order='name')
-        project_offices = self.env['project_budget.project_office'].search([('parent_id', '=', False)],
-                                                                           order='report_sort')  # для сортировки так делаем + берем сначала только верхние элементы
+        responsibility_centers = self.env['account.analytic.account'].search([
+            ('parent_id', '=', False),
+            ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+        ], order='sequence')  # для сортировки так делаем + берем сначала только верхние элементы
         # project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
         # estimated_probabilitys = self.env['project_budget.estimated_probability'].search([('name','!=','10')],order='code desc')  # для сортировки так делаем
 
         formulaItogo = '=sum(0'
 
-        row, formulaItogo = self.printrow(sheet, workbook, companies, project_offices, budget, row, formulaItogo, 1,
+        row, formulaItogo = self.printrow(sheet, workbook, companies, responsibility_centers, budget, row, formulaItogo, 1,
                                           params)
 
         # печатаем данные из внешних источников
@@ -3349,7 +3360,7 @@ class report_management_committee_excel(models.AbstractModel):
         global YEARint
         YEARint = int(strYEAR)
         global dict_formula
-        dict_formula = {'company_ids': {}, 'office_ids': {}, 'office_ids_not_empty': {}}
+        dict_formula = {'company_ids': {}, 'center_ids': {}, 'center_ids_not_empty': {}}
         global max_level
 
         print('YEARint=', YEARint)

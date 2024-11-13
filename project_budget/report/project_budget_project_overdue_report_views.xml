@@ -7,7 +7,7 @@
             <search string="Search Overdue Projects">
                 <group expand="0" string="Group By">
                     <filter name="group_by_project_office" string="Project Office"
-                            context="{'group_by': 'project_office_id'}"/>
+                            context="{'group_by': 'responsibility_center_id'}"/>
                 </group>
             </search>
         </field>
@@ -18,7 +18,7 @@
         <field name="model">project.budget.project.overdue.report</field>
         <field name="arch" type="xml">
             <tree string="Overdue Projects">
-                <field name="project_office_id"/>
+                <field name="responsibility_center_id"/>
                 <field name="stage_id" string="Probability" context="{'code_only': True}"
                        options="{'always_reload': True}"/>
 <!--                <field name="project_curator_id" widget="many2one_avatar_employee"/>-->
@@ -42,7 +42,7 @@
             <form>
                 <sheet string="Overdue Project">
                     <group>
-                        <field name="project_office_id"/>
+                        <field name="responsibility_center_id"/>
                     </group>
                     <group>
                         <group>
@@ -69,7 +69,7 @@
         <field name="model">project.budget.project.overdue.report</field>
         <field name="arch" type="xml">
             <graph string="Overdue Projects" type="pie">
-                <field name="project_office_id"/>
+                <field name="responsibility_center_id"/>
                 <field name="company_id" groups="base.group_multi_company"/>
             </graph>
         </field>

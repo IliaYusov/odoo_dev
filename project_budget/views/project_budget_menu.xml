@@ -7,7 +7,7 @@
         <menuitem id="menu_project_budget_project_offices" name="Projects To Project Offices" sequence="2"
                   action="action_project_budget_project_offices"/>
         <menuitem id="project_budget_budgets_comercial_budget_spec_all" name="Projects all budgets" sequence="3"
-                  action="show_comercial_budget_spec_all" groups="project_budget.project_budget_admin"/>
+                  action="show_comercial_budget_spec_all" groups="project_budget.project_budget_group_project_fixed_editor"/>
         <menuitem id="project_budget_budgets_comercial_budget" name="Comercial budgets" sequence="4"
                   action="show_comercial_budgets" groups="project_budget.project_budget_admin"/>
 <!--        TODO: вынести тендеры в отдельное приложение-->
@@ -33,7 +33,7 @@
     <menuitem id="project_budget_catalogs_project_type" parent="project_budget_catalogs" name="project_type"
               action="show_project_type"/>
     <menuitem id="project_budget_catalogs_technological_direction" parent="project_budget_catalogs"
-              name="technological_direction" action="show_technological_direction"/>
+              name="Technological Directions" action="project_budget_technological_direction_action"/>
     <menuitem id="project_budget_catalogs_tender_current_status" parent="project_budget_catalogs" name="tender status"
               action="show_project_tender_current_status"/>
     <menuitem id="project_budget_catalogs_tender_comments_type" parent="project_budget_catalogs"
@@ -101,6 +101,14 @@
                       action="action_view_project_budget_report_external_data"/>
             <menuitem id="menu_action_add_new_report_external_data" name="Add New Report External Data" sequence="3"
                       action="action_open_file"/>
+        </menuitem>
+
+        <menuitem id="account_analytic_menu" name="Analytic Accounting" sequence="100"
+                  groups="analytic.group_analytic_accounting">
+            <menuitem id="account_analytic_menu_analytics" name="Analytic Accounts" sequence="1"
+                      action="analytic.action_account_analytic_account_form"/>
+            <menuitem id="account_analytic_menu_plans" name="Analytic Plans" sequence="2"
+                      action="analytic.account_analytic_plan_action"/>
         </menuitem>
     </menuitem>
 </odoo>

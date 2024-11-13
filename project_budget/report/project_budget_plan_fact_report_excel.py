@@ -483,7 +483,7 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
     def get_section_data_from_project(self, project, year, data):
 
         company = project.company_id.name
-        office = project.project_office_id.name
+        center = project.responsibility_center_id.name
         manager = project.key_account_manager_id.name
 
         section_data = {}
@@ -505,15 +505,15 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
                     res = section_data.get(section, {}).get(probability, 0)
                     data.setdefault(company, {}).setdefault(manager, {}).setdefault(section, {}).setdefault(year, {}).setdefault(quarter, {}).setdefault(probability, 0)
                     data[company][manager][section][year][quarter][probability] += res
-                    data.setdefault(company, {}).setdefault(office, {}).setdefault(section, {}).setdefault(year, {}).setdefault(quarter, {}).setdefault(probability, 0)
-                    data[company][office][section][year][quarter][probability] += res
+                    data.setdefault(company, {}).setdefault(center, {}).setdefault(section, {}).setdefault(year, {}).setdefault(quarter, {}).setdefault(probability, 0)
+                    data[company][center][section][year][quarter][probability] += res
                     data.setdefault(company, {}).setdefault(section, {}).setdefault(year, {}).setdefault(quarter, {}).setdefault(probability, 0)
                     data[company][section][year][quarter][probability] += res
-                    parent_office = project.project_office_id.parent_id
-                    while parent_office:
-                        data.setdefault(company, {}).setdefault(parent_office.name, {}).setdefault(section, {}).setdefault(year, {}).setdefault(quarter, {}).setdefault(probability, 0)
-                        data[company][parent_office.name][section][year][quarter][probability] += res
-                        parent_office = parent_office.parent_id
+                    parent_center = project.responsibility_center_id.parent_id
+                    while parent_center:
+                        data.setdefault(company, {}).setdefault(parent_center.name, {}).setdefault(section, {}).setdefault(year, {}).setdefault(quarter, {}).setdefault(probability, 0)
+                        data[company][parent_center.name][section][year][quarter][probability] += res
+                        parent_center = parent_center.parent_id
 
         return data
 
@@ -547,52 +547,55 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
                 data.setdefault(company.name, {}).setdefault(company_section, {}).setdefault(year, {}).setdefault('Q4', {})['plan'] = section_plan.q4_plan
                 data.setdefault(company.name, {}).setdefault(company_section, {}).setdefault(year, {}).setdefault('Q3', {})['plan_6_6'] = section_plan.q3_plan_6_6
                 data.setdefault(company.name, {}).setdefault(company_section, {}).setdefault(year, {}).setdefault('Q4', {})['plan_6_6'] = section_plan.q4_plan_6_6
-                for office_section in self.section_names:
-                    for office in self.env['project_budget.project_office'].search([('name', 'in', tuple(data[company.name].keys()))]):
+                for center_section in self.section_names:
+                    for center in self.env['account.analytic.account'].search([
+                        ('name', 'in', tuple(data[company.name].keys())),
+                        ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+                    ]):
                         section_plan = self.env['project_budget.budget_plan_supervisor_spec'].search([
                             ('budget_plan_supervisor_id.year', '=', year),
-                            ('budget_plan_supervisor_id.project_office_id', '=', office.id),
-                            ('type_row', '=', office_section),
+                            ('budget_plan_supervisor_id.responsibility_center_id', '=', center.id),
+                            ('type_row', '=', center_section),
                         ])
-                        data.setdefault(company.name, {}).setdefault(office.name, {}).setdefault(office_section, {}).setdefault(year, {}).setdefault('Q1', {})['plan'] = section_plan.q1_plan
-                        data.setdefault(company.name, {}).setdefault(office.name, {}).setdefault(office_section, {}).setdefault(year, {}).setdefault('Q2', {})['plan'] = section_plan.q2_plan
-                        data.setdefault(company.name, {}).setdefault(office.name, {}).setdefault(office_section, {}).setdefault(year, {}).setdefault('Q3', {})['plan'] = section_plan.q3_plan
-                        data.setdefault(company.name, {}).setdefault(office.name, {}).setdefault(office_section, {}).setdefault(year, {}).setdefault('Q4', {})['plan'] = section_plan.q4_plan
-                        data.setdefault(company.name, {}).setdefault(office.name, {}).setdefault(office_section, {}).setdefault(year, {}).setdefault('Q3', {})['plan_6_6'] = section_plan.q3_plan_6_6
-                        data.setdefault(company.name, {}).setdefault(office.name, {}).setdefault(office_section, {}).setdefault(year, {}).setdefault('Q4', {})['plan_6_6'] = section_plan.q4_plan_6_6
-                        parent_office = office.parent_id
-                        while parent_office:
-                            data.setdefault(company.name, {}).setdefault(parent_office.name, {}).setdefault(office_section, {}).setdefault(year, {}).setdefault('Q1', {}).setdefault('plan', 0)
-                            data[company.name][parent_office.name][office_section][year]['Q1']['plan'] += section_plan.q1_plan
-                            data.setdefault(company.name, {}).setdefault(parent_office.name, {}).setdefault(office_section, {}).setdefault(year, {}).setdefault('Q2', {}).setdefault('plan', 0)
-                            data[company.name][parent_office.name][office_section][year]['Q2']['plan'] += section_plan.q2_plan
-                            data.setdefault(company.name, {}).setdefault(parent_office.name, {}).setdefault(office_section, {}).setdefault(year, {}).setdefault('Q3', {}).setdefault('plan', 0)
-                            data[company.name][parent_office.name][office_section][year]['Q3']['plan'] += section_plan.q3_plan
-                            data.setdefault(company.name, {}).setdefault(parent_office.name, {}).setdefault(office_section, {}).setdefault(year, {}).setdefault('Q4', {}).setdefault('plan', 0)
-                            data[company.name][parent_office.name][office_section][year]['Q4']['plan'] += section_plan.q4_plan
-                            data.setdefault(company.name, {}).setdefault(parent_office.name, {}).setdefault(office_section, {}).setdefault(year, {}).setdefault('Q3', {}).setdefault('plan_6_6', 0)
-                            data[company.name][parent_office.name][office_section][year]['Q3']['plan_6_6'] += section_plan.q3_plan_6_6
-                            data.setdefault(company.name, {}).setdefault(parent_office.name, {}).setdefault(office_section, {}).setdefault(year, {}).setdefault('Q4', {}).setdefault('plan_6_6', 0)
-                            data[company.name][parent_office.name][office_section][year]['Q4']['plan_6_6'] += section_plan.q4_plan_6_6
-                            parent_office = parent_office.parent_id
+                        data.setdefault(company.name, {}).setdefault(center.name, {}).setdefault(center_section, {}).setdefault(year, {}).setdefault('Q1', {})['plan'] = section_plan.q1_plan
+                        data.setdefault(company.name, {}).setdefault(center.name, {}).setdefault(center_section, {}).setdefault(year, {}).setdefault('Q2', {})['plan'] = section_plan.q2_plan
+                        data.setdefault(company.name, {}).setdefault(center.name, {}).setdefault(center_section, {}).setdefault(year, {}).setdefault('Q3', {})['plan'] = section_plan.q3_plan
+                        data.setdefault(company.name, {}).setdefault(center.name, {}).setdefault(center_section, {}).setdefault(year, {}).setdefault('Q4', {})['plan'] = section_plan.q4_plan
+                        data.setdefault(company.name, {}).setdefault(center.name, {}).setdefault(center_section, {}).setdefault(year, {}).setdefault('Q3', {})['plan_6_6'] = section_plan.q3_plan_6_6
+                        data.setdefault(company.name, {}).setdefault(center.name, {}).setdefault(center_section, {}).setdefault(year, {}).setdefault('Q4', {})['plan_6_6'] = section_plan.q4_plan_6_6
+                        parent_center = center.parent_id
+                        while parent_center:
+                            data.setdefault(company.name, {}).setdefault(parent_center.name, {}).setdefault(center_section, {}).setdefault(year, {}).setdefault('Q1', {}).setdefault('plan', 0)
+                            data[company.name][parent_center.name][center_section][year]['Q1']['plan'] += section_plan.q1_plan
+                            data.setdefault(company.name, {}).setdefault(parent_center.name, {}).setdefault(center_section, {}).setdefault(year, {}).setdefault('Q2', {}).setdefault('plan', 0)
+                            data[company.name][parent_center.name][center_section][year]['Q2']['plan'] += section_plan.q2_plan
+                            data.setdefault(company.name, {}).setdefault(parent_center.name, {}).setdefault(center_section, {}).setdefault(year, {}).setdefault('Q3', {}).setdefault('plan', 0)
+                            data[company.name][parent_center.name][center_section][year]['Q3']['plan'] += section_plan.q3_plan
+                            data.setdefault(company.name, {}).setdefault(parent_center.name, {}).setdefault(center_section, {}).setdefault(year, {}).setdefault('Q4', {}).setdefault('plan', 0)
+                            data[company.name][parent_center.name][center_section][year]['Q4']['plan'] += section_plan.q4_plan
+                            data.setdefault(company.name, {}).setdefault(parent_center.name, {}).setdefault(center_section, {}).setdefault(year, {}).setdefault('Q3', {}).setdefault('plan_6_6', 0)
+                            data[company.name][parent_center.name][center_section][year]['Q3']['plan_6_6'] += section_plan.q3_plan_6_6
+                            data.setdefault(company.name, {}).setdefault(parent_center.name, {}).setdefault(center_section, {}).setdefault(year, {}).setdefault('Q4', {}).setdefault('plan_6_6', 0)
+                            data[company.name][parent_center.name][center_section][year]['Q4']['plan_6_6'] += section_plan.q4_plan_6_6
+                            parent_center = parent_center.parent_id
                     for manager in self.env['hr.employee'].search(
                             [('name', 'in', tuple(data[company.name].keys())), ('company_id.name', '=', company.name)]):
                         section_plan = self.env['project_budget.budget_plan_kam_spec'].search([
                             ('budget_plan_kam_id.year', '=', year),
                             ('budget_plan_kam_id.key_account_manager_id', '=', manager.id),
-                            ('type_row', '=', office_section),
+                            ('type_row', '=', center_section),
                         ])
-                        data.setdefault(company.name, {}).setdefault(manager.name, {}).setdefault(office_section, {}).setdefault(year, {}).setdefault('Q1', {})['plan'] = section_plan.q1_plan
-                        data.setdefault(company.name, {}).setdefault(manager.name, {}).setdefault(office_section, {}).setdefault(year, {}).setdefault('Q2', {})['plan'] = section_plan.q2_plan
-                        data.setdefault(company.name, {}).setdefault(manager.name, {}).setdefault(office_section, {}).setdefault(year, {}).setdefault('Q3', {})['plan'] = section_plan.q3_plan
-                        data.setdefault(company.name, {}).setdefault(manager.name, {}).setdefault(office_section, {}).setdefault(year, {}).setdefault('Q4', {})['plan'] = section_plan.q4_plan
-                        data.setdefault(company.name, {}).setdefault(manager.name, {}).setdefault(office_section, {}).setdefault(year, {}).setdefault('Q3', {})['plan_6_6'] = section_plan.q3_plan_6_6
-                        data.setdefault(company.name, {}).setdefault(manager.name, {}).setdefault(office_section, {}).setdefault(year, {}).setdefault('Q4', {})['plan_6_6'] = section_plan.q4_plan_6_6
+                        data.setdefault(company.name, {}).setdefault(manager.name, {}).setdefault(center_section, {}).setdefault(year, {}).setdefault('Q1', {})['plan'] = section_plan.q1_plan
+                        data.setdefault(company.name, {}).setdefault(manager.name, {}).setdefault(center_section, {}).setdefault(year, {}).setdefault('Q2', {})['plan'] = section_plan.q2_plan
+                        data.setdefault(company.name, {}).setdefault(manager.name, {}).setdefault(center_section, {}).setdefault(year, {}).setdefault('Q3', {})['plan'] = section_plan.q3_plan
+                        data.setdefault(company.name, {}).setdefault(manager.name, {}).setdefault(center_section, {}).setdefault(year, {}).setdefault('Q4', {})['plan'] = section_plan.q4_plan
+                        data.setdefault(company.name, {}).setdefault(manager.name, {}).setdefault(center_section, {}).setdefault(year, {}).setdefault('Q3', {})['plan_6_6'] = section_plan.q3_plan_6_6
+                        data.setdefault(company.name, {}).setdefault(manager.name, {}).setdefault(center_section, {}).setdefault(year, {}).setdefault('Q4', {})['plan_6_6'] = section_plan.q4_plan_6_6
         return data
 
-    def print_rows(self, sheet, workbook, companies, project_offices, key_account_managers, year, data, print_managers):
+    def print_rows(self, sheet, workbook, companies, responsibility_centers, key_account_managers, year, data, print_managers):
 
-        office_heading_format = workbook.add_format({
+        center_heading_format = workbook.add_format({
             'bold': True,
             'border': 2,
             'font_size': 14,
@@ -821,7 +824,7 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
                     print('project_manager =', project_manager.name)
 
                     sheet.merge_range(row, 0, row, 26, f'{project_manager.name} - {company.name}',
-                                      office_heading_format)  # печатаем заголовок КАМ
+                                      center_heading_format)  # печатаем заголовок КАМ
                     row += 1
 
                     for section in self.section_names:
@@ -915,17 +918,17 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
                         row += 1
 
             else:  # отключаемая печать офисов
-                for project_office in project_offices:
+                for responsibility_center in responsibility_centers:
 
-                    office_data = data[company.name].get(project_office.name, False)
-                    if not office_data:
+                    center_data = data[company.name].get(responsibility_center.name, False)
+                    if not center_data:
                         continue
 
-                    print('project_office =', project_office.name)
+                    print('responsibility_center =', responsibility_center.name)
 
                     formula_company.append(row)
 
-                    sheet.merge_range(row, 0, row, 26, f'{project_office.name}', office_heading_format)  # печатаем заголовок ПО
+                    sheet.merge_range(row, 0, row, 26, f'{responsibility_center.name}', center_heading_format)  # печатаем заголовок ПО
                     row += 1
 
                     for section in self.section_names:
@@ -940,17 +943,17 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
                             bluegrey_custom_percent_format = bluegrey_percent_format
                         for quarter in self.quarter_names:
                             if self.quarter_names.index(quarter) in (2, 3):  # III и IV кварталы
-                                sheet.write_number(row, column + 1, office_data[section][year][quarter]['plan'], custom_line_format)
-                                sheet.write_number(row, column + 2, office_data[section][year][quarter]['plan_6_6'], custom_line_format)
-                                sheet.write_number(row, column + 3, office_data[section][year][quarter]['100'], custom_line_format)
-                                sheet.write_number(row, column + 4, office_data[section][year][quarter]['75'] + office_data[section][year][quarter]['50'] * self.POTENTIAL, custom_line_format)
+                                sheet.write_number(row, column + 1, center_data[section][year][quarter]['plan'], custom_line_format)
+                                sheet.write_number(row, column + 2, center_data[section][year][quarter]['plan_6_6'], custom_line_format)
+                                sheet.write_number(row, column + 3, center_data[section][year][quarter]['100'], custom_line_format)
+                                sheet.write_number(row, column + 4, center_data[section][year][quarter]['75'] + center_data[section][year][quarter]['50'] * self.POTENTIAL, custom_line_format)
                                 formula = f'=IFERROR({xl_col_to_name(column + 3)}{row + 1}/{xl_col_to_name(column + 2)}{row + 1}, " ")'
                                 sheet.write_formula(row, column + 5, formula, bluegrey_custom_percent_format)
                                 column += 5
                             else:
-                                sheet.write_number(row, column + 1, office_data[section][year][quarter]['plan'], custom_line_format)
-                                sheet.write_number(row, column + 2, office_data[section][year][quarter]['100'], custom_line_format)
-                                sheet.write_number(row, column + 3, office_data[section][year][quarter]['75'] + office_data[section][year][quarter]['50'] * self.POTENTIAL, custom_line_format)
+                                sheet.write_number(row, column + 1, center_data[section][year][quarter]['plan'], custom_line_format)
+                                sheet.write_number(row, column + 2, center_data[section][year][quarter]['100'], custom_line_format)
+                                sheet.write_number(row, column + 3, center_data[section][year][quarter]['75'] + center_data[section][year][quarter]['50'] * self.POTENTIAL, custom_line_format)
                                 formula = f'=IFERROR({xl_col_to_name(column + 2)}{row + 1}/{xl_col_to_name(column + 1)}{row + 1}, " ")'
                                 sheet.write_formula(row, column + 4, formula, bluegrey_custom_percent_format)
                                 column += 4
@@ -1033,10 +1036,10 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
                             formula_fact = formula_forecast = ''
                             if section not in ('ebit', 'net_profit'):
                                 formula_fact = '=sum(' + ','.join(xl_col_to_name(column + 3) + str(
-                                    office_row + self.company_section_names.index(section) + 2) for office_row in
+                                    center_row + self.company_section_names.index(section) + 2) for center_row in
                                                                   formula_company) + ')'
                                 formula_forecast = '=sum(' + ','.join(xl_col_to_name(column + 4) + str(
-                                    office_row + self.company_section_names.index(section) + 2) for office_row in
+                                    center_row + self.company_section_names.index(section) + 2) for center_row in
                                                              formula_company) + ')'
                             sheet.write_formula(row, column + 3, formula_fact, custom_line_format)
                             sheet.write_formula(row, column + 4, formula_forecast, custom_line_format)
@@ -1049,10 +1052,10 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
                             formula_fact = formula_forecast = ''
                             if section not in ('ebit', 'net_profit'):
                                 formula_fact = '=sum(' + ','.join(xl_col_to_name(column + 2) + str(
-                                    office_row + self.company_section_names.index(section) + 2) for office_row in
+                                    center_row + self.company_section_names.index(section) + 2) for center_row in
                                                                   formula_company) + ')'
                                 formula_forecast = '=sum(' + ','.join(xl_col_to_name(column + 3) + str(
-                                    office_row + self.company_section_names.index(section) + 2) for office_row in
+                                    center_row + self.company_section_names.index(section) + 2) for center_row in
                                                              formula_company) + ')'
 
                             sheet.write_formula(row, column + 2, formula_fact, custom_line_format)
@@ -1130,16 +1133,19 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
             ('project_have_steps', '=', False),
         ], order='project_id')
 
-        project_offices = self.env['project_budget.project_office'].search([('parent_id', '=', False)], order='name')  # для сортировки так делаем + берем сначала только верхние элементы
+        responsibility_centers = self.env['account.analytic.account'].search([
+            ('parent_id', '=', False),
+            ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+            ], order='name')  # для сортировки так делаем + берем сначала только верхние элементы
 
-        companies = self.env['res.company'].search([], order='name').filtered(lambda r: r in project_offices.company_id)
+        companies = self.env['res.company'].search([], order='name').filtered(lambda r: r in responsibility_centers.company_id)
 
         key_account_managers = self.env['project_budget.projects'].search([]).key_account_manager_id.sorted('name')
         # key_account_managers = self.env.ref('project_budget.group_project_budget_key_account_manager').users.sorted('name').filtered(lambda r: r in cur_budget_projects.key_account_manager_id.user_id)
 
         data = self.get_plans(year, self.get_data_from_projects(cur_budget_projects, stages, year))
 
-        self.print_rows(sheet, workbook, companies, project_offices, key_account_managers, year, data, print_managers)
+        self.print_rows(sheet, workbook, companies, responsibility_centers, key_account_managers, year, data, print_managers)
 
     def generate_xlsx_report(self, workbook, data, budgets):
 

@@ -587,10 +587,12 @@
                             </button>
                         </div>
                         <field name="id" invisible="True"/>
-                        <field name="child_count" invisible="True"/>
-                        <field name="company_id" invisible="True"/>
-                        <field name="was_changes" invisible="True"/>
-                        <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                        <field name="child_count" invisible="1"/>
+                        <field name="company_id" invisible="1"/>
+                        <field name="was_changes" invisible="1"/>
+                        <field name="project_office_id_domain" invisible="1"/>
+                        <field name="responsibility_center_id_domain" invisible="1"/>
+                        <field name="company_id" groups="base.group_multi_company" options="{'no_create_edit': True}"/>
                         <field name="budget_state" invisible="1"/>
                         <field name="parent_project_id" invisible='1'/>
                         <field name="can_edit" invisible='1'/>
@@ -599,7 +601,6 @@
                         <field name="is_not_for_mc_report" invisible="1"/>
                         <widget name="web_ribbon" title="Archived" bg_color="bg-danger"
                                 attrs="{'invisible': [('active', '=', True)]}"/>
-
                         <group col="6">
                             <group colspan="2">
                                 <field name="project_id" readonly="1" class="h5"/>
@@ -709,8 +710,13 @@
                                             <field class="text-break" name="step_project_number"
                                                    placeholder="enter project code from AXAPTA"
                                                    attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                                            <field name="responsibility_center_id" class="text-break"
+                                                   domain="responsibility_center_id_domain"
+                                                   options="{'no_create_edit': True, 'no_open': True}"
+                                                   attrs="{'readonly': [('can_edit', '=', False)]}"/>
                                             <field name="project_office_id" class="text-break"
-                                                   placeholder="Project Office" options="{'no_open': True}"
+                                                   domain="project_office_id_domain"
+                                                   options="{'no_create_edit': True, 'no_open': True}"
                                                    attrs="{'readonly': [('can_edit', '=', False)]}"/>
                                         </group>
                                         <group>
@@ -1249,6 +1255,7 @@
                 <field name="signer_id"/>
                 <field name="approve_state"/>
                 <field name="project_have_steps"/>
+                <field name="profitability"/>
 <!--            Поведение виджета переопределено, нужно написать свой-->
                 <progressbar field="activity_state" colors='{"planned": "success"}'
                              sum_field="total_amount_of_revenue"/>
@@ -1312,6 +1319,11 @@
                                          class="d-flex justify-content-between font-weight-bold">
                                         <span>Margin:</span>
                                         <field name="margin_income" widget="monetary"/>
+                                    </div>
+                                    <div t-if="record.profitability.raw_value"
+                                         class="d-flex justify-content-between font-weight-bold">
+                                        <div>Profitability:</div>
+                                        <div><field name="profitability" widget="float"/>%</div>
                                     </div>
                                 </div>
                                 <div class="o_kanban_record_bottom" t-if="!selection_mode">

@@ -8,7 +8,7 @@ import datetime
 # TODO: необходимо убрать явные привязки из кода к вероятности
 class Project(models.Model):
     _name = 'project_budget.projects'
-    _description = "project_office commercial budget projects"
+    _description = 'Project'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'name_to_show'
     _check_company_auto = True
@@ -19,6 +19,9 @@ class Project(models.Model):
     @api.model
     def _read_group_stage_ids(self, stages, domain, order):
         return self.env['project_budget.project.stage'].search([], order=order)
+       
+    def _get_signer_id_domain(self):
+        return [('id', 'in', self.env['res.company'].sudo().search([]).partner_id.ids)]
 
     def _get_default_stage_id(self):
         return self.env['project_budget.project.stage'].search([
@@ -26,12 +29,22 @@ class Project(models.Model):
             '|', ('company_ids', '=', False), ('company_ids', 'in', [self.env.company.id])
         ], limit=1)
 
-    def _get_default_employee_id(self):
-        employee = self.env['hr.employee'].search([
-            ('user_id', '=', self.env.user.id),
-            ('company_id', '=', self.env.company.id)
-        ], limit=1)
-        return employee.id
+    def _get_default_key_account_manager_id(self):
+        employee = self._get_current_employee()
+        return employee.id if employee.user_id.has_group(
+            'project_budget.project_budget_group_key_account_manager') else False
+
+    def _get_key_account_manager_id_domain(self):
+        return "[('user_id.groups_id', 'in', %s), '|', ('company_id', '=', False), ('company_id', '=', company_id)]" \
+            % self.env.ref('project_budget.project_budget_group_key_account_manager').id
+
+    def _get_project_manager_id_domain(self):
+        return "[('user_id.groups_id', 'in', %s), '|', ('company_id', '=', False), ('company_id', '=', company_id)]" \
+            % self.env.ref('project_budget.project_budget_group_project_manager').id
+
+    def _get_project_curator_id_domain(self):
+        return "[('user_id.groups_id', 'in', %s), '|', ('company_id', '=', False), ('company_id', '=', company_id)]" \
+            % self.env.ref('project_budget.project_budget_group_project_curator').id
 
     def _get_current_amount_spec_type(self):
         context = self.env.context
@@ -151,8 +164,6 @@ class Project(models.Model):
     #         return domain
     #     return domain
 
-    def _get_domain_signer_id(self):
-        return [('id', 'in', self.env['res.company'].sudo().search([]).partner_id.ids)]
 
     def _get_commercial_budget_list(self):
         domain = [('id', 'in','-1')]
@@ -195,12 +206,8 @@ class Project(models.Model):
     #                                 compute='_compute_reference', store=True, tracking=True)
 
     budget_state = fields.Selection(related='commercial_budget_id.budget_state', index=True, readonly=True, store=True)
-
-    # TODO: необходимо убрать домен и перейти на стандартное поле active
-    project_office_id = fields.Many2one('project_budget.project_office', string='Project Office', check_company=True,
-                                        copy=True,
-                                        domain="[('is_prohibit_selection','=', False), '|', ('company_id', '=', False), ('company_id', '=', company_id)]",
-                                        required=True, tracking=True)
+    # project_supervisor_id = fields.Many2one('project_budget.project_supervisor', string='project_supervisor',
+    #                                         required=True, copy=True, domain=_get_supervisor_list, tracking=True, check_company=True)
     project_supervisor_id = fields.Many2one('project_budget.project_supervisor', string='Project Supervisor',
                                             copy=True, domain="[('company_id', 'in', (False, company_id))]",
                                             store=True, tracking=True)  # TODO убрать после миграции на кураторов
@@ -212,13 +219,22 @@ class Project(models.Model):
     key_account_manager_id = fields.Many2one('hr.employee', string='Key Account Manager',
                                              compute='_compute_key_account_manager_id',
                                              inverse='_inverse_key_account_manager_id', copy=True,
-                                             default=_get_default_employee_id,
-                                             domain="[('company_id', 'in', (False, company_id))]", required=True,
-                                             store=True, tracking=True)
+                                             default=_get_default_key_account_manager_id,
+                                             domain=_get_key_account_manager_id_domain, required=True, store=True,
+                                             tracking=True)
     project_manager_id = fields.Many2one('hr.employee', string='Project Manager', compute='_compute_project_manager_id',
                                          inverse='_inverse_project_manager_id', copy=True,
-                                         domain="[('company_id', 'in', (False, company_id))]", required=False,
-                                         store=True, tracking=True)
+                                         domain=_get_project_manager_id_domain, required=False, store=True,
+                                         tracking=True)
+    project_curator_id = fields.Many2one('hr.employee', string='Project Curator', copy=True,
+                                         domain=_get_project_curator_id_domain, required=True, tracking=True)
+    responsibility_center_id = fields.Many2one('account.analytic.account', string='Responsibility Center', copy=True,
+                                               depends=['key_account_manager_id'], required=True, tracking=True)
+    responsibility_center_id_domain = fields.Binary(compute='_compute_responsibility_center_id_domain')
+    # TODO: необходимо мигрировать на поле responsibility_center_id
+    project_office_id = fields.Many2one('project_budget.project_office', string='Project Office', copy=True,
+                                        depends=['key_account_manager_id'], required=False, tracking=True)
+    project_office_id_domain = fields.Binary(compute='_compute_project_office_id_domain')
     project_member_ids = fields.One2many('project_budget.project.member', 'project_id', string='Members', copy=False)
     partner_id = fields.Many2one('res.partner', string='Customer', copy=True,
                                  domain="[('is_company', '=', True)]", ondelete='restrict', required=True,
@@ -277,10 +293,9 @@ class Project(models.Model):
     own_works_fot = fields.Monetary(string='own_works_fot',tracking=True)
     taxes_fot_premiums = fields.Monetary(string='taxes_FOT and premiums', store=True, tracking=True)
 
-    # TODO: необходимо мигрировать на signer_id
-    legal_entity_signing_id = fields.Many2one('project_budget.legal_entity_signing', string='legal_entity_signing a contract from the NCC', copy=True,tracking=True) # TODO: удалить после миграции на signer_id
-    signer_id = fields.Many2one('res.partner', string='Signer', copy=True, domain=_get_domain_signer_id,
-                                default=lambda self: self.env.company.partner_id, required=True, tracking=True)
+    signer_id = fields.Many2one('res.partner', string='Signer', copy=True,
+                                default=lambda self: self.env.company.partner_id, domain=_get_signer_id_domain,
+                                required=True, tracking=True)
     project_type_id = fields.Many2one('project_budget.project_type',string='project_type', copy=True, tracking=True)
 
     is_revenue_from_the_sale_of_works =fields.Boolean(related='project_type_id.is_revenue_from_the_sale_of_works', readonly=True)
@@ -300,7 +315,8 @@ class Project(models.Model):
 
     comments = fields.Text(string='comments project', default="")
     technological_direction_id = fields.Many2one('project_budget.technological_direction',
-                                              string='technological_direction', required=True,copy=True,tracking=True)
+                                                 string='Technological Direction', copy=True, required=True,
+                                                 tracking=True)
     step_project_number = fields.Char(string='step project number', store=True, tracking=True)  # номер из AXAPTA
     dogovor_number = fields.Char(string='Dogovor number', store=True, tracking=True)
 
@@ -418,6 +434,10 @@ class Project(models.Model):
     is_correction_project = fields.Boolean(string="project for corrections", default=False)
     is_not_for_mc_report = fields.Boolean(string="project is not for MC report", default=False)
 
+    # ------------------------------------------------------
+    # CONSTRAINS
+    # ------------------------------------------------------
+
     @api.constrains('project_member_ids')
     def _check_project_member_ids(self):
         required_members = self.env['project_budget.project.role'].search([
@@ -441,11 +461,51 @@ class Project(models.Model):
             if rec.stage_id.company_ids and rec.company_id.id not in rec.stage_id.company_ids.ids:
                 raise ValidationError(_('The selected stage belongs to another company than the project.'))
 
+    # ------------------------------------------------------
+    # COMPUTE METHODS
+    # ------------------------------------------------------
+
     def _compute_can_edit(self):
         for rec in self:
             rec.can_edit = rec.active and (
                 (rec.approve_state == 'need_approve_manager' and rec.budget_state != 'fixed') or (
-                    self.env.user.has_group('project_budget.project_budget_admin') and rec.budget_state == 'fixed'))
+                    self.env.user.has_group(
+                        'project_budget.project_budget_group_project_fixed_editor') and rec.budget_state == 'fixed'))
+
+    @api.depends('key_account_manager_id')
+    def _compute_responsibility_center_id_domain(self):
+        for rec in self:
+            domain = [
+                ('plan_id', 'child_of',
+                 self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+                '|', ('company_id', '=', False), ('company_id', '=', rec.company_id.id)
+            ]
+            responsibility_centers = self.env['account.analytic.account'].search([
+                ('id', '=',
+                    rec.key_account_manager_id.department_id.responsibility_center_id.id or 0)
+            ])
+            if responsibility_centers:
+                domain = [
+                    ('id', 'in', responsibility_centers.ids)
+                ]
+            rec.responsibility_center_id_domain = domain
+
+    @api.depends('key_account_manager_id')
+    def _compute_project_office_id_domain(self):
+        for rec in self:
+            domain = [
+                ('is_prohibit_selection', '=', False),
+                '|', ('company_id', '=', False), ('company_id', '=', rec.company_id.id)
+            ]
+            project_offices = self.env['project_budget.project_office'].search([
+                ('responsibility_center_id', '=',
+                 rec.key_account_manager_id.department_id.responsibility_center_id.id or 0)
+            ])
+            if project_offices:
+                domain = [
+                    ('id', 'in', project_offices.ids)
+                ]
+            rec.project_office_id_domain = domain
 
     def _check_project_is_child(self):
         for record in self:
@@ -500,7 +560,7 @@ class Project(models.Model):
                                 step.project_id, step.stage_id.code))
                         step.stage_id = rec.stage_id
             elif rec.stage_id.code == '100(done)':
-                if rec.step_project_child_ids:
+                if rec.project_have_steps and rec.step_project_child_ids:
                     for step in rec.step_project_child_ids:
                         if step.stage_id.code != '0':
                             step.stage_id = rec.stage_id
@@ -542,10 +602,10 @@ class Project(models.Model):
                 if row.project_type_id.is_other_expenses== False: row.other_expenses = 0
 
 
-    # @api.depends('project_supervisor_id.user_id')  # TODO убрать после миграции на кураторов
-    # def _get_supervisor_user_id(self):
-    #     for row in self:
-    #         row.project_supervisor_user_id = row.project_supervisor_id.user_id
+    @api.depends('project_supervisor_id.user_id')
+    def _get_supervisor_user_id(self):
+        for row in self:
+            row.project_supervisor_user_id = row.project_supervisor_id.user_id
 
     @api.depends("planned_cash_flow_ids.sum_cash")
     def _compute_planned_cash_flow_sum(self):
@@ -599,7 +659,7 @@ class Project(models.Model):
     @api.depends('company_id', 'currency_id', 'commercial_budget_id', 'key_account_manager_id', 'project_curator_id',
                  'project_manager_id', 'industry_id', 'signer_id',
                  'technological_direction_id', 'partner_id', 'project_office_id', 'is_correction_project', 'is_not_for_mc_report',
-                 'approve_state', 'project_have_steps')
+                 'approve_state')
     def _compute_step_project_details(self):
         for row in self:
             if row.project_have_steps and row.step_project_child_ids:
@@ -853,7 +913,7 @@ class Project(models.Model):
     @api.depends('signer_id')
     def _get_signer_settings(self):  # получаем настройки подписывающего юр лица из компании
         for record in self:
-            company = self.env['res.company'].search([('partner_id', '=', record.signer_id.id)])
+            company = self.env['res.company'].sudo().search([('partner_id', '=', record.signer_id.id)])
             record.is_percent_fot_manual = company.is_percent_fot_manual
             record.percent_fot = company.percent_fot
             record.different_project_offices_in_steps = company.different_project_offices_in_steps
@@ -1026,7 +1086,7 @@ class Project(models.Model):
     @api.constrains('stage_id', 'total_amount_of_revenue', 'cost_price', 'planned_acceptance_flow_ids',
                     'planned_cash_flow_ids', 'planned_step_acceptance_flow_ids', 'planned_step_cash_flow_ids')
     def _check_financial_data_is_present(self):
-        for project in self:
+        for project in self.filtered(lambda pr: pr.budget_state == 'work'):
             if project.env.context.get('form_fix_budget'):
                 continue
             if (project.stage_id.code in ('30', '50', '75', '100')
@@ -1080,51 +1140,6 @@ class Project(models.Model):
                     raisetext = raisetext.format(project.project_id)
                     raise ValidationError(raisetext)
 
-    # @api.constrains('approve_state')
-    # def _check_financial_data_is_accurate_when_approving(self):
-    #     for project in self:
-    #         if (
-    #             project.estimated_probability_id.name in ('50', '75', '100')
-    #             and not
-    #             (
-    #                     abs(project.planned_acceptance_flow_sum_without_vat - project.total_amount_of_revenue) < 1  # учитываем различия в рассчете НДС
-    #                     and abs(project.planned_cash_flow_sum - project.total_amount_of_revenue_with_vat) < 1
-    #             )
-    #             and not project.technological_direction_id.recurring_payments
-    #             and not project.is_parent_project
-    #             and project.budget_state == 'work'
-    #             and not project.is_correction_project
-    #             and project.approve_state == 'need_approve_supervisor'
-    #         ):
-    #             raisetext = _("Acting and/or cash forecast sum is not equal total amout of revenue")
-    #             raisetext = raisetext.format(project.project_id)
-    #             raise ValidationError(raisetext)
-
-    # @api.constrains('project_have_steps', 'project_type_id')
-    # def _check_project_with_steps_is_complex(self):
-    #     for project in self:
-    #         if project.project_have_steps and project.project_type_id.code != '03' and project.budget_state == 'work':  # Проект с этапами только Комплексный
-    #             raisetext = _("Project with steps should be 'Complex' type")
-    #             raise ValidationError(raisetext)
-    #         elif not project.project_have_steps and project.project_type_id.code == '03' and project.budget_state == 'work':  # Комплексный проект только с этапами
-    #             raisetext = _("'Complex' project should be with with steps")
-    #             raise ValidationError(raisetext)
-
-    @api.constrains('stage_id', 'step_project_number')
-    def _check_project_axapta_step(self):
-        for project in self:
-            if (project.stage_id.code in ('75', '100')
-                    and not project.step_project_number
-                    and project.budget_state == 'work'
-                    and not project.is_correction_project
-            ):  # Проект без кода из AXAPTA
-                if project.step_status == 'project':
-                    raisetext = _("Please enter AXAPTA code to project {0}")
-                elif project.step_status == 'step':
-                    raisetext = _("Please enter AXAPTA code to step {0}")
-                raisetext = raisetext.format(project.project_id)
-                raise ValidationError(raisetext)
-
     @api.constrains(
         'stage_id', 'planned_acceptance_flow_ids', 'planned_cash_flow_ids', 'planned_step_cash_flow_ids',
         'planned_step_acceptance_flow_ids',
@@ -1166,6 +1181,10 @@ class Project(models.Model):
                         raisetext = raisetext.format(cash.cash_id)
                         raise ValidationError(raisetext)
 
+    # ------------------------------------------------------
+    # ONCHANGE METHODS
+    # ------------------------------------------------------
+
     @api.onchange('stage_id')
     def _reset_forecasts_stages(self):  # сбрасываем вероятности прогнозов до вероятности проекта при изменении последнего
         for project in self:
@@ -1191,6 +1210,12 @@ class Project(models.Model):
             return {
                 'warning': {'title': "Warning", 'message': message},
             }
+
+    @api.onchange('key_account_manager_id')
+    def _onchange_key_account_manager_id(self):
+        project_office = self._get_employee_project_office(self.key_account_manager_id)
+        if project_office:
+            self.project_office_id = project_office.id
 
     def check_overdue_date(self, vals_list):
         for project in self:
@@ -1788,7 +1813,11 @@ class Project(models.Model):
                 raise_text = _("only project in 'need approve manager' can be deleted")
                 raise ValidationError(raise_text)
 
-            project_is_in_fixed_budgets = self.env['project_budget.projects'].search([('project_id', '=', record.project_id), ('id', '!=', record.id)], limit=1)
+            # NOTE: sudo используется из-за проблем с доступ к проетам в зафиксированном бюджете
+            project_is_in_fixed_budgets = self.env['project_budget.projects'].sudo().search([
+                ('project_id', '=', record.project_id),
+                ('id', '!=', record.id)
+            ], limit=1)
             if project_is_in_fixed_budgets:
                 raise_text = _("only project not in fixed budget can be deleted")
                 raise ValidationError(raise_text)
@@ -1804,29 +1833,35 @@ class Project(models.Model):
     # PRIVATE METHODS
     # ------------------------------------------------------
 
-    def _get_stage_required_fields(self, stage):
-        required_fields = []
-        for required_field in stage.required_field_ids:
-            required_fields.append(required_field.name)
-
-        return required_fields
-
     def _check_required_fields(self, changed_fields):
         for rec in self:
             stage = rec.stage_id
             if changed_fields.get('stage_id', False):
                 stage = self.env['project_budget.project.stage'].browse(changed_fields.get('stage_id', 0))
 
-            required_fields = self._get_stage_required_fields(stage)
+            required_fields = stage.required_field_ids
             empty_fields = []
             for required_field in required_fields:
-                if (not rec[required_field] and not changed_fields.get(required_field, False)) or (
-                        rec[required_field] and not changed_fields.get(required_field, True)):
-                    empty_fields.append(required_field)
+                if (not rec[required_field.name] and not changed_fields.get(required_field.name, False)) or (
+                        rec[required_field.name] and not changed_fields.get(required_field.name, True)):
+                    empty_fields.append(required_field.field_description)
 
             if empty_fields:
                 raise ValidationError(
                     _("Fields '%s' are required at the stage '%s'!") % (', '.join(empty_fields), stage.name))
+
+    def _get_current_employee(self):
+        employee = self.env['hr.employee'].search([
+            ('user_id', '=', self.env.user.id),
+            ('company_id', '=', self.env.company.id)
+        ], limit=1)
+        return employee
+
+    def _get_employee_project_office(self, employee):
+        project_office = self.env['project_budget.project_office'].search([
+            ('responsibility_center_id', '=', employee.department_id.responsibility_center_id.id or 0)
+        ], limit=1)
+        return project_office
 
     def toggle_active(self):
         for project in self:

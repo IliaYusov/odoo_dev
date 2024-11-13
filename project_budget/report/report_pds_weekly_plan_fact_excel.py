@@ -34,12 +34,15 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
         project_currency_rates = self.env['project_budget.project_currency_rates']
         return project_currency_rates._get_currency_rate_for_project_in_company_currency(project)
 
-    def offices_with_parents(self, ids, max_level):
+    def centers_with_parents(self, ids, max_level):
         if not ids:
             return max_level
         max_level += 1
-        new_ids = [office.id for office in self.env['project_budget.project_office'].search([('parent_id', 'in', ids)])]
-        return self.offices_with_parents(new_ids, max_level)
+        new_ids = [center.id for center in self.env['account.analytic.account'].search([
+            ('parent_id', 'in', ids),
+            ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+        ])]
+        return self.centers_with_parents(new_ids, max_level)
 
     def calculate_periods_dict(self, workbook, actual_date):
         commitment_format = workbook.add_format({
@@ -98,28 +101,28 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
             "font_size": 10,
             'fg_color': '#BDD7EE',
         })
-        commitment_office_format = workbook.add_format({
+        commitment_center_format = workbook.add_format({
             'border': 1,
             'font_size': 10,
             'bold': True,
             'num_format': '#,##0',
             'fg_color': '#d9d9d9',
         })
-        fact_office_format = workbook.add_format({
+        fact_center_format = workbook.add_format({
             'border': 1,
             'font_size': 10,
             'bold': True,
             'num_format': '#,##0',
             'fg_color': '#E2EFDA',
         })
-        plan_fact_office_format = workbook.add_format({
+        plan_fact_center_format = workbook.add_format({
             'border': 1,
             'font_size': 10,
             'bold': True,
             'num_format': '#,##0',
             'fg_color': '#FFF2CC',
         })
-        difference_office_format = workbook.add_format({
+        difference_center_format = workbook.add_format({
             'border': 1,
             'font_size': 10,
             'bold': True,
@@ -191,7 +194,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                             'print_head': 'план-прогноз на начало месяца',
                             'format': plan_fact_format,
                             'format_head': plan_fact_head_format,
-                            'format_office': plan_fact_office_format,
+                            'format_center': plan_fact_center_format,
                             'format_company': plan_fact_company_format,
                             'col_format': col_format,
                         },
@@ -217,7 +220,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                                 'print_head': 'прогноз',
                                 'format': commitment_format,
                                 'format_head': commitment_head_format,
-                                'format_office': commitment_office_format,
+                                'format_center': commitment_center_format,
                                 'format_company': commitment_company_format,
                                 'col_format': week_col_format,
                             },
@@ -226,7 +229,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                                 'print_head': 'факт',
                                 'format': fact_format,
                                 'format_head': fact_head_format,
-                                'format_office': fact_office_format,
+                                'format_center': fact_center_format,
                                 'format_company': fact_company_format,
                                 'col_format': week_col_format,
                             }
@@ -252,7 +255,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                                     'print_head': 'прогноз',
                                     'format': commitment_format,
                                     'format_head': commitment_head_format,
-                                    'format_office': commitment_office_format,
+                                    'format_center': commitment_center_format,
                                     'format_company': commitment_company_format,
                                     'col_format': week_col_format,
                                 },
@@ -261,7 +264,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                                     'print_head': 'факт',
                                     'format': fact_format,
                                     'format_head': fact_head_format,
-                                    'format_office': fact_office_format,
+                                    'format_center': fact_center_format,
                                     'format_company': fact_company_format,
                                     'col_format': week_col_format,
                                 }
@@ -278,12 +281,12 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                         if week_start < actual_date.date():
                             month_format = fact_format
                             month_head_format = fact_head_format
-                            month_office_format = fact_office_format
+                            month_center_format = fact_center_format
                             month_company_format = fact_company_format
                         else:
                             month_format = commitment_format
                             month_head_format = commitment_head_format
-                            month_office_format = commitment_office_format
+                            month_center_format = commitment_center_format
                             month_company_format = commitment_company_format
 
                         periods_dict['sum_month_' + str(week_start.month)] = {
@@ -296,7 +299,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                                     'print_head': 'прогноз',
                                     'format': month_format,
                                     'format_head': month_head_format,
-                                    'format_office': month_office_format,
+                                    'format_center': month_center_format,
                                     'format_company': month_company_format,
                                     'col_format': col_format,
                                 },
@@ -311,12 +314,12 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                             if month_end < actual_date.date():
                                 quater_format = fact_format
                                 quater_head_format = fact_head_format
-                                quater_office_format = fact_office_format
+                                quater_center_format = fact_center_format
                                 quater_company_format = fact_company_format
                             else:
                                 quater_format = commitment_format
                                 quater_head_format = commitment_head_format
-                                quater_office_format = commitment_office_format
+                                quater_center_format = commitment_center_format
                                 quater_company_format = commitment_company_format
 
                             periods_dict['sum_quarter_' + str((month_start.month - 1) // 3 + 1)] = {
@@ -329,7 +332,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                                         'print_head': 'прогноз',
                                         'format': quater_format,
                                         'format_head': quater_head_format,
-                                        'format_office': quater_office_format,
+                                        'format_center': quater_center_format,
                                         'format_company': quater_company_format,
                                         'col_format': col_format,
                                     },
@@ -349,7 +352,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                                 'print_head': 'план-прогноз на начало месяца',
                                 'format': plan_fact_format,
                                 'format_head': plan_fact_head_format,
-                                'format_office': plan_fact_office_format,
+                                'format_center': plan_fact_center_format,
                                 'format_company': plan_fact_company_format,
                                 'col_format': col_format,
                             },
@@ -358,7 +361,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                                 'print_head': 'факт',
                                 'format': fact_format,
                                 'format_head': fact_head_format,
-                                'format_office': fact_office_format,
+                                'format_center': fact_center_format,
                                 'format_company': fact_company_format,
                                 'col_format': col_format,
                             },
@@ -367,7 +370,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                                 'print_head': 'разница',
                                 'format': difference_format,
                                 'format_head': difference_head_format,
-                                'format_office': difference_office_format,
+                                'format_center': difference_center_format,
                                 'format_company': difference_company_format,
                                 'col_format': col_format,
                             }
@@ -384,7 +387,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                                 'print_head': 'прогноз на текущую дату',
                                 'format': commitment_format,
                                 'format_head': commitment_head_format,
-                                'format_office': commitment_office_format,
+                                'format_center': commitment_center_format,
                                 'format_company': commitment_company_format,
                                 'col_format': col_format,
                             }
@@ -399,12 +402,12 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                     if month_start < actual_date.date():
                         quater_format = fact_format
                         quater_head_format = fact_head_format
-                        quater_office_format = fact_office_format
+                        quater_center_format = fact_center_format
                         quater_company_format = fact_company_format
                     else:
                         quater_format = commitment_format
                         quater_head_format = commitment_head_format
-                        quater_office_format = commitment_office_format
+                        quater_center_format = commitment_center_format
                         quater_company_format = commitment_company_format
 
                     periods_dict['sum_quarter_' + str((month_start.month - 1) // 3 + 1)] = {
@@ -417,7 +420,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                                 'print_head': 'прогноз',
                                 'format': quater_format,
                                 'format_head': quater_head_format,
-                                'format_office': quater_office_format,
+                                'format_center': quater_center_format,
                                 'format_company': quater_company_format,
                                 'col_format': col_format,
                             },
@@ -501,7 +504,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                             if current_project:
                                 break
 
-                data.setdefault(current_project.company_id.name, {}).setdefault(current_project.project_office_id.name, {}).setdefault(
+                data.setdefault(current_project.company_id.name, {}).setdefault(current_project.responsibility_center_id.name, {}).setdefault(
                     current_project.project_id, {})
 
                 project_step_id = ''
@@ -512,7 +515,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                 elif current_project.step_status == 'step':
                     project_step_id = (current_project.step_project_number or '') + ' | ' + current_project.step_project_parent_id.project_id + " | " + current_project.project_id
 
-                data[current_project.company_id.name][current_project.project_office_id.name][current_project.project_id]['info'] = {
+                data[current_project.company_id.name][current_project.responsibility_center_id.name][current_project.project_id]['info'] = {
                     'key_account_manager_id': current_project.key_account_manager_id.name,
                     'partner_id': current_project.partner_id.name,
                     'essence_project': current_project.essence_project,
@@ -525,7 +528,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                     'vat_attribute_id': current_project.vat_attribute_id.name,
                 }
 
-                data[current_project.company_id.name][current_project.project_office_id.name][current_project.project_id]['periods'] = project_data
+                data[current_project.company_id.name][current_project.responsibility_center_id.name][current_project.project_id]['periods'] = project_data
         return data
 
     def get_estimated_probability_name_forecast(self, name):
@@ -667,12 +670,12 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                         sheet.write_string(row, column, period, row_format_number)
                         column += 1
 
-    def print_row(self, sheet, workbook, companies, project_offices, actual_office_ids, row, data, periods_dict, level, max_level, dict_formula):
+    def print_row(self, sheet, workbook, companies, responsibility_centers, actual_center_ids, row, data, periods_dict, level, max_level, dict_formula):
         row_format = workbook.add_format({
             'border': 1,
             'font_size': 8
         })
-        office_format = workbook.add_format({
+        center_format = workbook.add_format({
             'border': 1,
             'font_size': 10,
             'bold': True,
@@ -690,7 +693,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
             'font_size': 9,
             'num_format': '#,##0',
         })
-        office_format_number = workbook.add_format({
+        center_format_number = workbook.add_format({
             'border': 1,
             'font_size': 10,
             'bold': True,
@@ -707,26 +710,26 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                 row += 1
                 dict_formula['company_ids'][company.id] = row
                 sheet.merge_range(row, 0, row, 11, company.name, company_format)
-            office_lines = list()
+            center_lines = list()
 
-            for office in project_offices.filtered(lambda r: r.company_id == company):
-                if office.id in actual_office_ids:
-                    if office.id not in dict_formula['office_ids']:
+            for center in responsibility_centers.filtered(lambda r: r.company_id == company):
+                if center.id in actual_center_ids:
+                    if center.id not in dict_formula['center_ids']:
                         row += 1
-                        dict_formula['office_ids'][office.id] = row
+                        dict_formula['center_ids'][center.id] = row
                         sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
-                        sheet.merge_range(row, 0, row, 11, office.name, office_format)
+                        sheet.merge_range(row, 0, row, 11, center.name, center_format)
                     project_lines = list()
-                    office_lines.append(row)
-                    if office.name in data[company.name]:
-                        for project, content in data[company.name][office.name].items():
+                    center_lines.append(row)
+                    if center.name in data[company.name]:
+                        for project, content in data[company.name][center.name].items():
                             # печатаем строки проектов
                             row += 1
                             sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level + 1})
                             cur_row_format = row_format
                             cur_row_format_number = row_format_number
                             column = 0
-                            sheet.write_string(row, column, office.name, cur_row_format)
+                            sheet.write_string(row, column, center.name, cur_row_format)
                             column += 1
                             sheet.write_string(row, column, content['info']['key_account_manager_id'], cur_row_format)
                             column += 1
@@ -753,21 +756,23 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                             self.print_row_values(workbook, sheet, row, column, content['periods'], periods_dict)
                             project_lines.append(row)
 
-                    child_offices = self.env['project_budget.project_office'].search(
-                        [('parent_id', '=', office.id)], order='report_sort')
+                    child_centers = self.env['account.analytic.account'].search([
+                        ('parent_id', '=', center.id),
+                        ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+                    ], order='sequence')
 
-                    if child_offices:
-                        row, formula_itogo = self.print_row(sheet, workbook, company, child_offices,
-                                                            actual_office_ids, row, data, periods_dict,
+                    if child_centers:
+                        row, formula_itogo = self.print_row(sheet, workbook, company, child_centers,
+                                                            actual_center_ids, row, data, periods_dict,
                                                             level + 1, max_level, dict_formula)
-                        for child_office in child_offices:
-                            if child_office.id in actual_office_ids:
-                                project_lines.append(dict_formula['office_ids'][child_office.id])
+                        for child_center in child_centers:
+                            if child_center.id in actual_center_ids:
+                                project_lines.append(dict_formula['center_ids'][child_center.id])
 
-                    self.print_vertical_sum_formula(sheet, dict_formula['office_ids'][office.id], project_lines, periods_dict, 12, 'format_office')
+                    self.print_vertical_sum_formula(sheet, dict_formula['center_ids'][center.id], project_lines, periods_dict, 12, 'format_center')
 
                 if level == 1:
-                    self.print_vertical_sum_formula(sheet, dict_formula['company_ids'][company.id], office_lines, periods_dict, 12, 'format_company')
+                    self.print_vertical_sum_formula(sheet, dict_formula['company_ids'][company.id], center_lines, periods_dict, 12, 'format_company')
 
         return row, dict_formula
 
@@ -783,7 +788,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                 sheet.write_formula(row, col_counter, result_formula, col[format])
                 col_counter += 1
 
-    def printworksheet(self, workbook, budget, namesheet, project_office_ids, max_level, multipliers, dict_formula):
+    def printworksheet(self, workbook, budget, namesheet, responsibility_center_ids, max_level, multipliers, dict_formula):
         report_name = budget.name
         sheet = workbook.add_worksheet(namesheet)
         sheet.set_zoom(85)
@@ -821,13 +826,13 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
         })
         row_format_manager.set_num_format('#,##0')
 
-        row_format_office = workbook.add_format({
+        row_format_center = workbook.add_format({
             'border': 1,
             'font_size': 9,
             "bold": True,
             "fg_color": '#8497B0',
         })
-        row_format_office.set_num_format('#,##0')
+        row_format_center.set_num_format('#,##0')
 
         row_format_date_month.set_num_format('mmm yyyy')
 
@@ -949,32 +954,43 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
 
         data = self.get_data_from_projects(projects, periods_dict, budget, budget_ids)
 
-        actual_office_ids_set = set()
+        actual_center_ids_set = set()
         for company in data:
-            for office_name in data[company]:
-                office = self.env['project_budget.project_office'].search([('name', '=', office_name), ('company_id.name', '=', company)])
-                actual_office_ids_set.add(office.id)
-                while office.parent_id:
-                    office = office.parent_id
-                    actual_office_ids_set.add(office.id)
+            for center_name in data[company]:
+                center = self.env['account.analytic.account'].search([
+                    ('name', '=', center_name),
+                    ('company_id.name', '=', company),
+                    ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+                ])
+                actual_center_ids_set.add(center.id)
+                while center.parent_id:
+                    center = center.parent_id
+                    actual_center_ids_set.add(center.id)
 
-        actual_office_ids = list(actual_office_ids_set)
+        actual_center_ids = list(actual_center_ids_set)
 
         column = self.print_head(workbook, sheet, row, column, periods_dict, actual_budget_date)
         row += 2
 
         companies = self.env['res.company'].search([('name', 'in', list(data.keys()))], order='name')
 
-        if project_office_ids:
-            project_offices = self.env['project_budget.project_office'].search([
-                ('id','in',project_office_ids), ('parent_id', 'not in', project_office_ids)], order='report_sort')  # для сортировки так делаем + не берем дочерние оффисы, если выбраны их материнские
+        if responsibility_center_ids:
+            responsibility_centers = self.env['account.analytic.account'].search([
+                ('id','in',responsibility_center_ids),
+                ('parent_id', 'not in', responsibility_center_ids),
+                ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+            ], order='sequence')  # для сортировки так делаем + не берем дочерние оффисы, если выбраны их материнские
         else:
-            project_offices = self.env['project_budget.project_office'].search([
-                ('parent_id', '=', False)], order='report_sort')  # для сортировки так делаем + берем сначала только верхние элементы
+            responsibility_centers = self.env['account.analytic.account'].search([
+                ('parent_id', '=', False),
+                ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+            ], order='sequence')  # для сортировки так делаем + берем сначала только верхние элементы
 
-        row, dict_formula = self.print_row(sheet, workbook, companies, project_offices, actual_office_ids, row, data, periods_dict, 1, max_level, dict_formula)
+        row, dict_formula = self.print_row(sheet, workbook, companies, responsibility_centers, actual_center_ids, row, data, periods_dict, 1, max_level, dict_formula)
 
-        if set(self.env['project_budget.project_office'].search([]).ids) == set(project_office_ids):
+        if set(self.env['account.analytic.account'].search([
+            ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+        ]).ids) == set(responsibility_center_ids):
             row += 1
 
             sheet.merge_range(row, 0, row, 11, 'ИТОГО по отчету', row_format_number_itogo)
@@ -983,14 +999,20 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
 
     def generate_xlsx_report(self, workbook, data, budgets):
 
-        dict_formula = {'company_ids': {}, 'office_ids': {}, 'office_ids_not_empty': {}}
+        dict_formula = {'company_ids': {}, 'center_ids': {}, 'center_ids_not_empty': {}}
 
-        project_office_ids = data['project_office_ids']
+        responsibility_center_ids = data['responsibility_center_ids']
 
-        ids = [office.id for office in self.env['project_budget.project_office'].search([('parent_id', '=', False), ('id', 'in', project_office_ids)])]
-        max_level = self.offices_with_parents(ids, 0)
+        ids = [center.id for center in self.env['account.analytic.account'].search([
+            ('parent_id', '=', False),
+            ('id', 'in', responsibility_center_ids),
+            ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+        ])]
+        max_level = self.centers_with_parents(ids, 0)
 
-        if set(self.env['project_budget.project_office'].search([]).ids) != set(project_office_ids):
+        if set(self.env['account.analytic.account'].search([
+            ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+        ]).ids) != set(responsibility_center_ids):
             max_level -= 1
 
         multipliers = {'50': data['koeff_reserve'], '30': data['koeff_potential']}
@@ -998,4 +1020,4 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
         commercial_budget_id = data['commercial_budget_id']
         print('commercial_budget_id', commercial_budget_id)
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
-        self.printworksheet(workbook, budget, 'ПДС', project_office_ids, max_level, multipliers, dict_formula)
+        self.printworksheet(workbook, budget, 'ПДС', responsibility_center_ids, max_level, multipliers, dict_formula)

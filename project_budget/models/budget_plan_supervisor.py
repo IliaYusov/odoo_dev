@@ -34,6 +34,8 @@ class budget_plan_supervisor(models.Model):
 
     project_office_id = fields.Many2one('project_budget.project_office', string='project_office', copy=True,
                                         tracking=True, check_company=True)
+    responsibility_center_id = fields.Many2one('account.analytic.account', string='Responsibility Center', copy=True,
+                                               tracking=True, check_company=True)
     supervisor_id = fields.Many2one('project_budget.project_supervisor', string='KAMs supervisor', copy=True,
                                     tracking=True, check_company=True)  # TODO убрать после миграции на кураторов
     curator_id = fields.Many2one('hr.employee', string='KAMs supervisor', copy=True,

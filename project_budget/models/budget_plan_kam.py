@@ -31,6 +31,7 @@ class budget_plan_kam(models.Model):
 
 
     project_office_id = fields.Many2one(related='plan_supervisor_id.project_office_id', string='project_office')
+    responsibility_center_id = fields.Many2one(related='plan_supervisor_id.responsibility_center_id', string='project_office')
     supervisor_id = fields.Many2one(related = 'plan_supervisor_id.supervisor_id', string='KAMs supervisor')  # TODO убрать после миграции на кураторов
     supervisor_user_id = fields.Many2one(related='plan_supervisor_id.supervisor_user_id', readonly=True)  # TODO убрать после миграции на кураторов
     curator_id = fields.Many2one(related='plan_supervisor_id.curator_id', string='KAMs supervisor')

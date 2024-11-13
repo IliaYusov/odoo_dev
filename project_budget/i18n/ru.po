@@ -2408,7 +2408,7 @@ msgid "Project list estimated probability"
 msgstr "Список проектов с вероятностью сделки"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects_report_wizard__project_office_ids
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects_report_wizard__responsibility_center_ids
 msgid "Project offices"
 msgstr "Проектные офисы"
 

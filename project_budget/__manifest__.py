@@ -2,12 +2,10 @@
     'name': 'Project_budget',
     'version': '16.0.1.1.2',
     'category': 'Project',
-    'depends': ['base', 'mail', 'hr'],
+    'depends': ['base', 'hr', 'analytic'],
     'external_dependencies': {'python': ['openpyxl']},
     'description': """
     """,
-    'author': 'lapus',
-    'support': 'lapushkov@yandex.ru',
     'assets': {
         'web.assets_backend': [
             'project_budget/static/src/views/**/*.js',
@@ -25,6 +23,7 @@
         'views/plan_kam_supervisor.xml',
         'views/tender_search.xml',
         'views/project_budget_catalogs.xml',
+        'views/project_budget_technological_direction.xml',
         'views/project_budget_comercial_budget_access.xml',
         'views/project_amount_specifications.xml',
         'views/project_budget_project_office_views.xml',

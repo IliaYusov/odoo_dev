@@ -1,0 +1,41 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* analytic_responsibility_center_nkk
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-11-11 09:11+0000\n"
+"PO-Revision-Date: 2024-11-11 09:11+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: analytic_responsibility_center_nkk
+#: model:ir.model,name:analytic_responsibility_center_nkk.model_account_analytic_account
+msgid "Analytic Account"
+msgstr "Аналитический счёт"
+
+#. module: analytic_responsibility_center_nkk
+#: model:ir.model.fields,field_description:analytic_responsibility_center_nkk.field_account_analytic_account__isRukovoditel_required_in_project
+msgid "Mark Project Manager Required In Project"
+msgstr "Сделать руководителя проекта обязательным к заполнению"
+
+#. module: analytic_responsibility_center_nkk
+#: model:ir.model.fields,field_description:analytic_responsibility_center_nkk.field_account_analytic_account__print_name_mc
+msgid "Printed Name For MC Report"
+msgstr "Наименование для печати в отчете УК"
+
+#. module: analytic_responsibility_center_nkk
+#: model:ir.model.fields,field_description:analytic_responsibility_center_nkk.field_account_analytic_account__print_rukovoditel_in_kb
+msgid "Printed Project Manager instead KAM in KB Report"
+msgstr "В отчет КБ выводить руководителя проекта вместо КАМ"
+
+#. module: analytic_responsibility_center_nkk
+#: model:ir.model.fields,field_description:analytic_responsibility_center_nkk.field_account_analytic_account__receive_tasks_for_approve_project
+msgid "Recieve Tasks For Approve Project As Supervisor"
+msgstr "Получать проекты на согласование вместо куратора"

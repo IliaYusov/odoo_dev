@@ -1,0 +1,40 @@
+<odoo>
+    <record id="project_budget_technological_direction_view_search" model="ir.ui.view">
+        <field name="name">project.budget.technological.direction.search</field>
+        <field name="model">project_budget.technological_direction</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" filter_domain="[('name', 'ilike', self)]"
+                       string="project_office"/>
+                <separator/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="project_budget_technological_direction_view_tree" model="ir.ui.view">
+        <field name="name">project.budget.technological.direction.tree</field>
+        <field name="model">project_budget.technological_direction</field>
+        <field name="arch" type="xml">
+            <tree string="Technological Direction" editable="top">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="recurring_payments" widget="boolean_toggle"/>
+                <field name="active" widget="boolean_toggle"/>
+                <field name="descr" class="text-wrap"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="project_budget_technological_direction_action" model="ir.actions.act_window">
+        <field name="name">Technological Directions</field>
+        <field name="res_model">project_budget.technological_direction</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new technological direction
+            </p>
+        </field>
+    </record>
+</odoo>

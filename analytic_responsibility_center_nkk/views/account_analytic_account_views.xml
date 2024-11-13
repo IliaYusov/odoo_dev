@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="account_analytic_account_view_form_inherit_analytic_responsibility_center" model="ir.ui.view">
+        <field name="name">account.analytic.account.form.inherit.analytic.responsibility.center</field>
+        <field name="model">account.analytic.account</field>
+        <field name="inherit_id" ref="analytic.view_account_analytic_account_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet//group[@name='print_names']" position="inside">
+                <group>
+                    <field name="print_name_mc"/>
+                </group>
+            </xpath>
+            <xpath expr="//sheet//group[@name='main']" position="after">
+                <group col="3">
+                    <group>
+                        <field name="receive_tasks_for_approve_project"/>
+                    </group>
+                    <group>
+                        <field name="isRukovoditel_required_in_project"/>
+                    </group>
+                    <group>
+                        <field name="print_rukovoditel_in_kb"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -44,7 +44,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
 
     def print_worksheet(self, workbook, budget, sheet_name, date_start, date_end, pds_accept, legal_entity_shift):
 
-        global project_office_ids
+        global responsibility_center_ids
 
         sheet = workbook.add_worksheet(sheet_name)
 
@@ -140,20 +140,26 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
 
         sheet.freeze_panes(2, 0)
 
-        if project_office_ids:
-            child_project_offices = self.env['project_budget.project_office'].search(
-                [('id', 'in', project_office_ids)]).child_ids
-            while child_project_offices:  # обходим дочерние офисы
-                for child_project_office in child_project_offices:
-                    if child_project_office.id not in project_office_ids:
-                        project_office_ids.append(child_project_office.id)
-                new_child_project_offices = child_project_offices.child_ids
-                child_project_offices = new_child_project_offices
+        if responsibility_center_ids:
+            child_responsibility_centers = self.env['account.analytic.account'].search([
+                ('id', 'in', responsibility_center_ids),
+                ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+            ]).child_ids
+            while child_responsibility_centers:  # обходим дочерние офисы
+                for child_responsibility_center in child_responsibility_centers:
+                    if child_responsibility_center.id not in responsibility_center_ids:
+                        responsibility_center_ids.append(child_responsibility_center.id)
+                new_child_responsibility_centers = child_responsibility_centers.child_ids
+                child_responsibility_centers = new_child_responsibility_centers
 
-            project_offices = self.env['project_budget.project_office'].search([
-                ('id', 'in', project_office_ids)], order='name')  # для сортировки так делаем
+            responsibility_centers = self.env['account.analytic.account'].search([
+                ('id', 'in', responsibility_center_ids),
+                ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+            ], order='name')  # для сортировки так делаем
         else:
-            project_offices = self.env['project_budget.project_office'].search([], order='name')
+            responsibility_centers = self.env['account.analytic.account'].search([
+                ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+            ], order='name')
 
         if pds_accept == 'pds':
             cur_budget_projects = self.env[
@@ -165,7 +171,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                 ('step_project_parent_id.stage_id.code', 'not in', ('0', '10')),
                 ('step_status', '=', 'project'),
                 ('stage_id.code', 'not in', ('0', '10')),
-                ('project_office_id', 'in', project_offices.ids),
+                ('responsibility_center_id', 'in', responsibility_centers.ids),
                 '|', '&', ('step_status', '=', 'step'),
                 ('step_project_parent_id.project_have_steps', '=', True),
                 '&', ('step_status', '=', 'project'),
@@ -181,7 +187,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
                 ('step_project_parent_id.stage_id.code', 'not in', ('0', '10')),
                 ('step_status', '=', 'project'),
                 ('stage_id.code', 'not in', ('0', '10')),
-                ('project_office_id', 'in', project_offices.ids),
+                ('responsibility_center_id', 'in', responsibility_centers.ids),
                 '|', '&', ('step_status', '=', 'step'),
                 ('step_project_parent_id.project_have_steps', '=', True),
                 '&', ('step_status', '=', 'project'),
@@ -220,7 +226,7 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
 
             sheet.write_string(row, column, project.company_id.name, row_format)
             column += 1
-            sheet.write_string(row, column, project.project_office_id.name, row_format)
+            sheet.write_string(row, column, project.responsibility_center_id.name, row_format)
             column += 1
             sheet.write_string(row, column, project.key_account_manager_id.name, row_format)
             column += 1
@@ -261,8 +267,8 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
 
     def generate_xlsx_report(self, workbook, data, budgets):
 
-        global project_office_ids
-        project_office_ids = data['project_office_ids']
+        global responsibility_center_ids
+        responsibility_center_ids = data['responsibility_center_ids']
 
         commercial_budget_id = data['commercial_budget_id']
         date_start = datetime.strptime(data['date_start'], '%Y-%m-%d').date()

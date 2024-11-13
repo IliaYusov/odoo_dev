@@ -51,8 +51,8 @@ class report_projects_wizard(models.TransientModel):
     date_end = fields.Date(string='end of report', default=date.today() + delta, required=True)
     pds_accept = fields.Selection([('pds', 'PDS'), ('accept', 'Acceptance')], string='PDS Accept', default='pds', required=True)
     report_with_projects = fields.Boolean(string='detailed report', default=True)
-    project_office_ids = fields.Many2many('project_budget.project_office', relation='report_project_office_rel',
-                                          column1='id', column2='project_office_id', string='Project offices')
+    responsibility_center_ids = fields.Many2many('account.analytic.account', relation='report_responsibility_center_rel',
+                                          column1='id', column2='responsibility_center_id', string='Project offices')
     print_managers = fields.Boolean(string='print managers', default=False)
     systematica_forecast = fields.Boolean(string='systematica forecast', default=False)
 
@@ -72,7 +72,7 @@ class report_projects_wizard(models.TransientModel):
         datas['koeff_potential'] = 1 if not self.use_koeff_reserve else self.koeff_potential
         datas['pds_accept'] = self.pds_accept
         datas['report_with_projects'] = self.report_with_projects
-        datas['project_office_ids'] = self.env['project_budget.project_office'].search([]).ids if not self.project_office_ids.ids else self.project_office_ids.ids
+        datas['responsibility_center_ids'] = self.env['account.analytic.account'].search([('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id)]).ids if not self.responsibility_center_ids.ids else self.responsibility_center_ids.ids
         datas['print_managers'] = self.print_managers
         datas['systematica_forecast'] = self.systematica_forecast
 

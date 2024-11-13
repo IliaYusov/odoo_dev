@@ -9,6 +9,7 @@ from . import project_budget_project_stage
 from . import project_budget_project
 from . import project_budget_project_office
 from . import project_budget_catalogs
+from . import project_budget_technological_direction
 from . import project_budget_scheduled_report
 from . import res_users
 from . import distribution_acceptance

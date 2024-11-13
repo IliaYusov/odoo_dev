@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="hr_department_view_form_inherit_hr_analytic" model="ir.ui.view">
+        <field name="name">hr.department.form.inherit.hr.analytic</field>
+        <field name="model">hr.department</field>
+        <field name="inherit_id" ref="hr.view_department_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="sheet//field[@name='company_id']" position="before">
+                <field name="responsibility_center_id" groups="analytic.group_analytic_accounting"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

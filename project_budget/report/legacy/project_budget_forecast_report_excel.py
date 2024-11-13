@@ -1424,7 +1424,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             column += 4
         # end Валовая Выручка, без НДС
 
-    def printrow(self, sheet, workbook, project_offices, key_account_managers, stages, budget, row, formulaItogo, level):
+    def printrow(self, sheet, workbook, responsibility_centers, key_account_managers, stages, budget, row, formulaItogo, level):
         global YEARint
         global year_end
         global dict_formula
@@ -1459,13 +1459,13 @@ class report_budget_forecast_excel(models.AbstractModel):
         })
         row_format_manager.set_num_format('#,##0')
 
-        row_format_office = workbook.add_format({
+        row_format_center = workbook.add_format({
             'border': 1,
             'font_size': 9,
             "bold": True,
             "fg_color": '#8497B0',
         })
-        row_format_office.set_num_format('#,##0')
+        row_format_center.set_num_format('#,##0')
 
         row_format_probability = workbook.add_format({
             'border': 1,
@@ -1522,46 +1522,47 @@ class report_budget_forecast_excel(models.AbstractModel):
         head_format_month_itogo.set_num_format('#,##0')
 
         # if isdebug:
-        #     logger.info(f' def printrow | office_parent_id = { office_parent_id }')
+        #     logger.info(f' def printrow | center_parent_id = { center_parent_id }')
 
-        #project_offices = self.env['project_budget.project_office'].search([],order='name')  # для сортировки так делаем + берем сначала только верхние элементы
-
-        isFoundProjectsByOffice = False
+        isFoundProjectsByCenter = False
         isFoundProjectsByManager = False
         begRowProjectsByManager = 0
 
         cur_budget_projects = self.env['project_budget.projects'].search([
             ('commercial_budget_id', '=', budget.id),
         ])
-        # cur_project_offices = project_offices.filtered(lambda r: r in cur_budget_projects.project_office_id or r in {office.parent_id for office in cur_budget_projects.project_office_id if office.parent_id in project_offices})
-        cur_project_offices = project_offices
+        # cur_responsibility_centers = responsibility_centers.filtered(lambda r: r in cur_budget_projects.responsibility_center_id or r in {center.parent_id for center in cur_budget_projects.responsibility_center_id if center.parent_id in responsibility_centers})
+        cur_responsibility_centers = responsibility_centers
         cur_project_managers = key_account_managers.filtered(lambda r: r in cur_budget_projects.key_account_manager_id)
         cur_estimated_probabilities = stages.filtered(lambda r: r in cur_budget_projects.stage_id)
         # print('cur_budget_projects=',cur_budget_projects)
         # print('****')
-        # print('project_offices=',project_offices)
+        # print('responsibility_centers=',responsibility_centers)
         # print('project_managers=',project_managers)
-        # print('cur_project_offices=',cur_project_offices)
+        # print('cur_responsibility_centers=',cur_responsibility_centers)
         # print('cur_project_managers=', cur_project_managers)
         # print('cur_estimated_probabilities=', cur_estimated_probabilities)
 
-        for project_office in cur_project_offices:
-            print('project_office.name = ', project_office.name)
+        for responsibility_center in cur_responsibility_centers:
+            print('responsibility_center.name = ', responsibility_center.name)
             #print('level = ', level)
             #print('row = ', row)
             row0 = row
 
-            child_project_offices = self.env['project_budget.project_office'].search([('parent_id', '=', project_office.id)], order='name')
+            child_responsibility_centers = self.env['account.analytic.account'].search([
+                ('parent_id', '=', responsibility_center.id),
+                ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+            ], order='name')
 
-            row0, formulaItogo = self.printrow(sheet, workbook, child_project_offices, key_account_managers, stages, budget, row, formulaItogo, level + 1)
+            row0, formulaItogo = self.printrow(sheet, workbook, child_responsibility_centers, key_account_managers, stages, budget, row, formulaItogo, level + 1)
 
-            isFoundProjectsByOffice = False
+            isFoundProjectsByCenter = False
             if row0 != row:
-                isFoundProjectsByOffice = True
+                isFoundProjectsByCenter = True
 
             row = row0
 
-            formulaProjectOffice = '=sum(0'
+            formulaProjectCenter = '=sum(0'
             for project_manager in cur_project_managers:
                 #print('project_manager = ', project_manager.name)
                 isFoundProjectsByManager = False
@@ -1577,7 +1578,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
                     # cur_budget_projects = self.env['project_budget.projects'].search([
                     #     ('commercial_budget_id', '=', budget.id),
-                    #     ('project_office_id', '=', project_office.id),
+                    #     ('responsibility_center_id', '=', responsibility_center.id),
                     #     ('project_manager_id', '=', project_manager.id),
                     #     ('estimated_probability_id', '=', estimated_probability.id),
                     #     ('project_have_steps', '=', False),
@@ -1591,12 +1592,12 @@ class report_budget_forecast_excel(models.AbstractModel):
                     #             print('cur_budget_projects_2', cur_budget_projects, step)
 
                     # row += 1
-                    # sheet.write_string(row, column, project_office.name, row_format)
+                    # sheet.write_string(row, column, responsibility_center.name, row_format)
 
                     for spec in cur_budget_projects:
                         if spec.id in dict_formula['printed_projects']:
                             continue
-                        if not ((spec.project_office_id == project_office or (spec.legal_entity_signing_id.different_project_offices_in_steps and spec.project_have_steps)) and spec.key_account_manager_id == project_manager):
+                        if not ((spec.responsibility_center_id == responsibility_center or (spec.legal_entity_signing_id.different_project_offices_in_steps and spec.project_have_steps)) and spec.key_account_manager_id == project_manager):
                             continue
                         # if spec.estimated_probability_id.name != '0':
                         # if spec.is_framework == True and spec.project_have_steps == False: continue # рамка без этапов - пропускаем
@@ -1614,14 +1615,14 @@ class report_budget_forecast_excel(models.AbstractModel):
                                     if step.id in dict_formula['printed_steps']:
                                         continue
 
-                                    if ((spec.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id == project_office)
-                                            or ((not spec.legal_entity_signing_id.different_project_offices_in_steps or not step.project_office_id) and spec.project_office_id == project_office)):
+                                    if ((spec.legal_entity_signing_id.different_project_offices_in_steps and step.responsibility_center_id == responsibility_center)
+                                            or ((not spec.legal_entity_signing_id.different_project_offices_in_steps or not step.responsibility_center_id) and spec.responsibility_center_id == responsibility_center)):
 
                                         if step.stage_id == stage:
                                             if self.isStepinYear( spec, step) == False:
                                                 continue
                                             isFoundProjectsByManager = True
-                                            isFoundProjectsByOffice = True
+                                            isFoundProjectsByCenter = True
                                             isFoundProjectsByProbability = True
 
                                             row += 1
@@ -1636,10 +1637,10 @@ class report_budget_forecast_excel(models.AbstractModel):
                                                 cur_row_format = row_format_canceled_project
                                                 cur_row_format_number = row_format_number_canceled_project
                                             column = 0
-                                            if spec.legal_entity_signing_id.different_project_offices_in_steps and step.project_office_id:
-                                                sheet.write_string(row, column, step.project_office_id.name, cur_row_format)
+                                            if spec.legal_entity_signing_id.different_project_offices_in_steps and step.responsibility_center_id:
+                                                sheet.write_string(row, column, step.responsibility_center_id.name, cur_row_format)
                                             else:
-                                                sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
+                                                sheet.write_string(row, column, spec.responsibility_center_id.name, cur_row_format)
                                             column += 1
                                             sheet.write_string(row, column, spec.key_account_manager_id.name, cur_row_format)
                                             column += 1
@@ -1665,12 +1666,12 @@ class report_budget_forecast_excel(models.AbstractModel):
                                             self.print_row_Values(workbook, sheet, row, column,  spec, step)
                                             dict_formula['printed_steps'].add(step.id)
                             else:
-                                if spec.project_office_id == project_office and spec.stage_id == stage:
+                                if spec.responsibility_center_id == responsibility_center and spec.stage_id == stage:
                                     if self.isProjectinYear(spec) == False:
                                         continue
                                     row += 1
                                     isFoundProjectsByManager = True
-                                    isFoundProjectsByOffice = True
+                                    isFoundProjectsByCenter = True
                                     isFoundProjectsByProbability = True
                                     sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
                                     # print('setrow  row = ', row)
@@ -1684,7 +1685,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                         cur_row_format = row_format_canceled_project
                                         cur_row_format_number = row_format_number_canceled_project
                                     column = 0
-                                    sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
+                                    sheet.write_string(row, column, spec.responsibility_center_id.name, cur_row_format)
                                     column += 1
                                     sheet.write_string(row, column, spec.key_account_manager_id.name, cur_row_format)
                                     column += 1
@@ -1740,7 +1741,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                     # print('setrow manager  row = ', row)
                     # print('setrow manager level = ', level)
 
-                    formulaProjectOffice = formulaProjectOffice + ',{0}'+str(row + 1)
+                    formulaProjectCenter = formulaProjectCenter + ',{0}'+str(row + 1)
 
                     for colFormula in range(1, 12):
                         sheet.write_string(row, colFormula, '', row_format_manager)
@@ -1761,35 +1762,35 @@ class report_budget_forecast_excel(models.AbstractModel):
                     #     formula = '=0'
                     #     sheet.write_formula(row, col - 1, formula, head_format_month_itogo)
 
-            if isFoundProjectsByOffice:
+            if isFoundProjectsByCenter:
                 row += 1
                 column = 0
                 # sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
                 # print('setrow level1 row = ', row)
-                sheet.write_string(row, column, 'ИТОГО ' + project_office.name, row_format_office)
-                str_project_office_id = 'project_office_' + str(int(project_office.parent_id))
-                if str_project_office_id in dict_formula:
-                    dict_formula[str_project_office_id] = dict_formula[str_project_office_id] + ',{0}' + str(row+1)
+                sheet.write_string(row, column, 'ИТОГО ' + responsibility_center.name, row_format_center)
+                str_responsibility_center_id = 'responsibility_center_' + str(int(responsibility_center.parent_id))
+                if str_responsibility_center_id in dict_formula:
+                    dict_formula[str_responsibility_center_id] = dict_formula[str_responsibility_center_id] + ',{0}' + str(row+1)
                 else:
-                    dict_formula[str_project_office_id] = ',{0}'+str(row+1)
+                    dict_formula[str_responsibility_center_id] = ',{0}'+str(row+1)
 
-                str_project_office_id = 'project_office_' + str(int(project_office.id))
+                str_responsibility_center_id = 'responsibility_center_' + str(int(responsibility_center.id))
 
-                if str_project_office_id in dict_formula:
-                    formulaProjectOffice = formulaProjectOffice + dict_formula[str_project_office_id]+')'
+                if str_responsibility_center_id in dict_formula:
+                    formulaProjectCenter = formulaProjectCenter + dict_formula[str_responsibility_center_id]+')'
                 else:
-                    formulaProjectOffice = formulaProjectOffice + ')'
+                    formulaProjectCenter = formulaProjectCenter + ')'
 
-                # print('project_office = ', project_office, dict_formula)
+                # print('responsibility_center = ', responsibility_center, dict_formula)
                 formulaItogo = formulaItogo + ',{0}' + str(row + 1)
-                # print('formulaProjectOffice = ',formulaProjectOffice)
+                # print('formulaProjectCenter = ',formulaProjectCenter)
                 for colFormula in range(1, 12):
-                    sheet.write_string(row, colFormula, '', row_format_office)
+                    sheet.write_string(row, colFormula, '', row_format_center)
 
                 for colFormula in range(12, 303):
-                    formula = formulaProjectOffice.format(xl_col_to_name(colFormula))
+                    formula = formulaProjectCenter.format(xl_col_to_name(colFormula))
                     # print('formula = ', formula)
-                    sheet.write_formula(row, colFormula, formula, row_format_office)
+                    sheet.write_formula(row, colFormula, formula, row_format_center)
 
                 # планы офисов
                 revenue_shift = 27
@@ -1799,22 +1800,22 @@ class report_budget_forecast_excel(models.AbstractModel):
 
                 plan_revenue = self.env['project_budget.budget_plan_supervisor_spec'].search([
                     ('budget_plan_supervisor_id.year', '=', YEARint),
-                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('budget_plan_supervisor_id.responsibility_center_id', '=', responsibility_center.id),
                     ('type_row', '=', 'contracting'),
                 ])
                 plan_pds = self.env['project_budget.budget_plan_supervisor_spec'].search([
                     ('budget_plan_supervisor_id.year', '=', YEARint),
-                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('budget_plan_supervisor_id.responsibility_center_id', '=', responsibility_center.id),
                     ('type_row', '=', 'cash'),
                 ])
                 plan_acceptance = self.env['project_budget.budget_plan_supervisor_spec'].search([
                     ('budget_plan_supervisor_id.year', '=', YEARint),
-                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('budget_plan_supervisor_id.responsibility_center_id', '=', responsibility_center.id),
                     ('type_row', '=', 'acceptance'),
                 ])
                 plan_margin = self.env['project_budget.budget_plan_supervisor_spec'].search([
                     ('budget_plan_supervisor_id.year', '=', YEARint),
-                    ('budget_plan_supervisor_id.project_office_id', '=', project_office.id),
+                    ('budget_plan_supervisor_id.responsibility_center_id', '=', responsibility_center.id),
                     ('type_row', '=', 'margin_income'),
                 ])
 
@@ -1838,7 +1839,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                         {'column': 24 + margin_shift, 'formula': f'{plan_margin.q4_plan}'},
                         {'column': 31 + margin_shift, 'formula': f'{plan_margin.q3_plan_6_6} + {plan_margin.q4_plan_6_6}'},
                 ):
-                    sheet.write_formula(row, plan['column'], '(' + plan['formula'] + dict_formula.get(str_project_office_id, '').format(xl_col_to_name(plan['column'])).replace(',', ' + ') + ')', row_format_office)
+                    sheet.write_formula(row, plan['column'], '(' + plan['formula'] + dict_formula.get(str_responsibility_center_id, '').format(xl_col_to_name(plan['column'])).replace(',', ' + ') + ')', row_format_center)
 
                 for plan in (
                         {'column': 27 + revenue_shift,
@@ -1866,7 +1867,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                         {'column': 37 + margin_shift,
                          'formula': f'={xl_col_to_name(12 + margin_shift)}{row + 1} + {xl_col_to_name(30 + margin_shift)}{row + 1}'},
                 ):
-                    sheet.write_formula(row, plan['column'], plan['formula'], row_format_office)
+                    sheet.write_formula(row, plan['column'], plan['formula'], row_format_center)
 
         return row, formulaItogo
 
@@ -1911,13 +1912,13 @@ class report_budget_forecast_excel(models.AbstractModel):
         })
         row_format_manager.set_num_format('#,##0')
 
-        row_format_office = workbook.add_format({
+        row_format_center = workbook.add_format({
             'border': 1,
             'font_size': 9,
             "bold": True,
             "fg_color": '#8497B0',
         })
-        row_format_office.set_num_format('#,##0')
+        row_format_center.set_num_format('#,##0')
 
         row_format_date_month.set_num_format('mmm yyyy')
 
@@ -2036,21 +2037,24 @@ class report_budget_forecast_excel(models.AbstractModel):
         column = self.print_month_head_contract_pds(workbook, sheet, row, column)
         column = self.print_month_head_revenue_margin(workbook, sheet, row, column)
         row += 2
-        project_offices = self.env['project_budget.project_office'].search([('parent_id', '=', False)], order='name')  # для сортировки так делаем + берем сначала только верхние элементы
+        responsibility_centers = self.env['account.analytic.account'].search([
+            ('parent_id', '=', False),
+            ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+        ], order='name')  # для сортировки так делаем + берем сначала только верхние элементы
         key_account_managers = self.env['project_budget.projects'].search([]).key_account_manager_id.sorted('name')
         # key_account_managers = self.env.ref('project_budget.group_project_budget_key_account_manager').users
         # project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
 
         formulaItogo = '=sum(0'
 
-        row, formulaItogo = self.printrow(sheet, workbook, project_offices, key_account_managers.employee_ids.sorted('name'), stages, budget, row, formulaItogo, 1)
+        row, formulaItogo = self.printrow(sheet, workbook, responsibility_centers, key_account_managers.employee_ids.sorted('name'), stages, budget, row, formulaItogo, 1)
 
         row += 2
         column = 0
         sheet.write_string(row, column, 'ИТОГО по отчету' , row_format_number_itogo)
         formulaItogo = formulaItogo + ')'
-        if 'project_office_0' in dict_formula:
-            formulaItogo = '=sum('+dict_formula['project_office_0'] + ')'
+        if 'responsibility_center_0' in dict_formula:
+            formulaItogo = '=sum('+dict_formula['responsibility_center_0'] + ')'
         for colFormula in range(1, 12):
             sheet.write_string(row, colFormula, '', row_format_number_itogo)
         for colFormula in range(12, 303):

@@ -19,12 +19,15 @@ class report_pds_weekly_excel(models.AbstractModel):
         project_currency_rates = self.env['project_budget.project_currency_rates']
         return project_currency_rates._get_currency_rate_for_project_in_company_currency(project)
 
-    def offices_with_parents(self, ids, max_level):
+    def centers_with_parents(self, ids, max_level):
         if not ids:
             return max_level
         max_level += 1
-        new_ids = [office.id for office in self.env['project_budget.project_office'].search([('parent_id', 'in', ids)])]
-        return self.offices_with_parents(new_ids, max_level)
+        new_ids = [center.id for center in self.env['account.analytic.account'].search([
+            ('parent_id', 'in', ids),
+            ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+        ])]
+        return self.centers_with_parents(new_ids, max_level)
 
     def isProjectinYear(self, project):
         global strYEAR
@@ -586,7 +589,7 @@ class report_pds_weekly_excel(models.AbstractModel):
                 sum_next_75_tmp, sum_next_50_tmp, sum_next_30_tmp,
                 sum_after_next_tmp)
 
-    def calculate_weekly_pds(self, week_number, project, project_office, multipliers):
+    def calculate_weekly_pds(self, week_number, project, responsibility_center, multipliers):
         global strYEAR
         global YEARint
 
@@ -703,7 +706,7 @@ class report_pds_weekly_excel(models.AbstractModel):
 
             column += 3
 
-    def print_row_values_office(self, workbook, sheet, row, column, YEAR, projects, project_office, formula_offices, multipliers):
+    def print_row_values_center(self, workbook, sheet, row, column, YEAR, projects, responsibility_center, formula_centers, multipliers):
         global strYEAR
         global YEARint
 
@@ -758,17 +761,17 @@ class report_pds_weekly_excel(models.AbstractModel):
                 (sumM75tmpetalon, sumM50tmpetalon,
                  sumM100tmp, sumM75tmp, sumM50tmp,
                  sum_next_75_tmp, sum_next_50_tmp, sum_next_30_tmp,
-                 sum_after_next_tmp) = self.calculate_weekly_pds(week_number, project, project_office, multipliers)
+                 sum_after_next_tmp) = self.calculate_weekly_pds(week_number, project, responsibility_center, multipliers)
 
                 sumM100 += sumM100tmp
                 sumM75 += sumM75tmp
                 sumM50 += sumM50tmp
 
-            child_offices_rows = formula_offices.get('project_office_' + str(project_office.id)) or ''
+            child_centers_rows = formula_centers.get('responsibility_center_' + str(responsibility_center.id)) or ''
 
-            f_Q100 = 'sum(' + str(sumM100) + child_offices_rows.format(xl_col_to_name(column)) + ')'
-            f_Q75 = 'sum(' + str(sumM75) + child_offices_rows.format(xl_col_to_name(column + 1)) + ')'
-            f_Q50 = 'sum(' + str(sumM50) + child_offices_rows.format(xl_col_to_name(column + 2)) + ')'
+            f_Q100 = 'sum(' + str(sumM100) + child_centers_rows.format(xl_col_to_name(column)) + ')'
+            f_Q75 = 'sum(' + str(sumM75) + child_centers_rows.format(xl_col_to_name(column + 1)) + ')'
+            f_Q50 = 'sum(' + str(sumM50) + child_centers_rows.format(xl_col_to_name(column + 2)) + ')'
 
             sheet.write_formula(row, column, f_Q100, row_format_number_color_fact)
             sheet.write_formula(row, column + 1, f_Q75, row_format_number)
@@ -778,7 +781,7 @@ class report_pds_weekly_excel(models.AbstractModel):
 
 # end Поступление денежных средсв, с НДС
 
-    def printrow(self, sheet, workbook, companies, project_offices, budget, row, formulaItogo, level, multipliers):
+    def printrow(self, sheet, workbook, companies, responsibility_centers, budget, row, formulaItogo, level, multipliers):
         global strYEAR
         global YEARint
         global dict_formula, max_level
@@ -814,7 +817,7 @@ class report_pds_weekly_excel(models.AbstractModel):
         })
         row_format_manager.set_num_format('#,##0')
 
-        row_format_office = workbook.add_format({
+        row_format_center = workbook.add_format({
             'border': 1,
             'font_size': 10,
             "bold": False,
@@ -908,12 +911,9 @@ class report_pds_weekly_excel(models.AbstractModel):
             "num_format": '#,##0',
         })
 
-
-        #project_offices = self.env['project_budget.project_office'].search([],order='name')  # для сортировки так делаем + берем сначала только верхние элементы
-
-        isFoundProjectsByOffice = False
+        isFoundProjectsByCenter = False
         isFoundProjectsByManager = False
-        begRowProjectsByOffice = 0
+        begRowProjectsByCenter = 0
 
         cur_budget_projects = self.env['project_budget.projects'].search([
             '&','&',
@@ -929,61 +929,66 @@ class report_pds_weekly_excel(models.AbstractModel):
             ('id', 'in', [plan.step_project_child_id.id for plan in self.env['project_budget.planned_cash_flow'].search([]) if plan.date_cash.year == YEARint]),
         ])
 
-        # cur_project_offices = project_offices.filtered(lambda r: r in cur_budget_projects.project_office_id or r in {office.parent_id for office in cur_budget_projects.project_office_id if office.parent_id in project_offices})
+        # cur_responsibility_centers = responsibility_centers.filtered(lambda r: r in cur_budget_projects.responsibility_center_id or r in {center.parent_id for center in cur_budget_projects.responsibility_center_id if center.parent_id in responsibility_centers})
         # cur_project_managers = project_managers.filtered(lambda r: r in cur_budget_projects.project_manager_id)
-        cur_companies = companies.filtered(lambda r: r in cur_budget_projects.project_office_id.company_id)
+        cur_companies = companies.filtered(lambda r: r in cur_budget_projects.responsibility_center_id.company_id)
 
         for company in cur_companies:
             print('company = ', company.name)
             isFoundProjectsByCompany = False
             formulaProjectCompany = '=sum(0'
 
-            dict_formula['office_ids_not_empty'] = {}
+            dict_formula['center_ids_not_empty'] = {}
 
-            if company.id not in dict_formula['company_ids'] and set(self.env['project_budget.project_office'].search([]).ids) == set(project_office_ids):
+            if company.id not in dict_formula['company_ids'] and set(self.env['account.analytic.account'].search([
+                ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+            ]).ids) == set(responsibility_center_ids):
                 row += 1
                 dict_formula['company_ids'][company.id] = row
 
-            for project_office in project_offices.filtered(lambda r: r.company_id == company):
+            for responsibility_center in responsibility_centers.filtered(lambda r: r.company_id == company):
 
-                print('project_office.name = ', project_office.name)
+                print('responsibility_center.name = ', responsibility_center.name)
 
-                begRowProjectsByOffice = 0
+                begRowProjectsByCenter = 0
 
-                if project_office.id not in dict_formula['office_ids']:
+                if responsibility_center.id not in dict_formula['center_ids']:
                     row += 1
-                    dict_formula['office_ids'][project_office.id] = row
+                    dict_formula['center_ids'][responsibility_center.id] = row
 
                 row0 = row
 
-                child_project_offices = self.env['project_budget.project_office'].search([('parent_id', '=', project_office.id)], order='report_sort')
+                child_responsibility_centers = self.env['account.analytic.account'].search([
+                    ('parent_id', '=', responsibility_center.id),
+                    ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+                ], order='sequence')
 
-                if project_office.child_ids:
-                    dict_formula['office_ids'][project_office.id] = row
-                    row0, formulaItogo = self.printrow(sheet, workbook, company, child_project_offices, budget, row, formulaItogo, level + 1, multipliers)
+                if responsibility_center.child_ids:
+                    dict_formula['center_ids'][responsibility_center.id] = row
+                    row0, formulaItogo = self.printrow(sheet, workbook, company, child_responsibility_centers, budget, row, formulaItogo, level + 1, multipliers)
 
-                isFoundProjectsByOffice = False
+                isFoundProjectsByCenter = False
                 if row0 != row:
-                    isFoundProjectsByOffice = True
+                    isFoundProjectsByCenter = True
 
                 row = row0
 
-                formulaProjectOffice = '=sum(0'
+                formulaProjectCenter = '=sum(0'
 
-                for spec in cur_budget_projects.filtered(lambda r: r.project_office_id == project_office or (r.different_project_offices_in_steps and r.project_have_steps)):
+                for spec in cur_budget_projects.filtered(lambda r: r.responsibility_center_id == responsibility_center or (r.different_project_offices_in_steps and r.project_have_steps)):
 
                     if spec.vgo == '-':
 
-                        if begRowProjectsByOffice == 0:
-                            begRowProjectsByOffice = row
+                        if begRowProjectsByCenter == 0:
+                            begRowProjectsByCenter = row
 
-                        if (spec.project_office_id == project_office
+                        if (spec.responsibility_center_id == responsibility_center
                             and spec.company_id == company
                             and spec.stage_id.code in ['100(done)', '100', '75', '50']
                             and self.isProjectinYear(spec)
                         ):
                             currency_rate = self.get_currency_rate_by_project(spec)
-                            isFoundProjectsByOffice = True
+                            isFoundProjectsByCenter = True
                             isFoundProjectsByCompany = True
 
                             # печатаем строки проектов
@@ -995,7 +1000,7 @@ class report_pds_weekly_excel(models.AbstractModel):
                                 cur_row_format = row_format_canceled_project
                                 cur_row_format_number = row_format_number_canceled_project
                             column = 0
-                            sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
+                            sheet.write_string(row, column, spec.responsibility_center_id.name, cur_row_format)
                             column += 1
                             sheet.write_string(row, column, spec.key_account_manager_id.name, cur_row_format)
                             column += 1
@@ -1024,65 +1029,69 @@ class report_pds_weekly_excel(models.AbstractModel):
                             column += 1
                             self.print_row_Values(workbook, sheet, row, column,  strYEAR, spec)
 
-                if project_office.parent_id or set(self.env['project_budget.project_office'].search([]).ids) != set(project_office_ids):
+                if responsibility_center.parent_id or set(self.env['account.analytic.account'].search([
+                    ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+                ]).ids) != set(responsibility_center_ids):
                     isFoundProjectsByCompany = False
 
-                if isFoundProjectsByOffice:
+                if isFoundProjectsByCenter:
 
-                    dict_formula['office_ids_not_empty'][project_office.id] = row
+                    dict_formula['center_ids_not_empty'][responsibility_center.id] = row
 
                     column = 0
 
-                    office_row = dict_formula['office_ids'].get(project_office.id)
+                    center_row = dict_formula['center_ids'].get(responsibility_center.id)
 
-                    office_name = project_office.report_name or project_office.name
+                    center_name = responsibility_center.print_name_mc or responsibility_center.name
 
-                    sheet.merge_range(office_row, column, office_row, column + 11, '       ' * level + office_name, row_format_office)
+                    sheet.merge_range(center_row, column, center_row, column + 11, '       ' * level + center_name, row_format_center)
 
-                    if set(self.env['project_budget.project_office'].search([]).ids) == set(project_office_ids):
-                        sheet.set_row(office_row, False, False, {'level': level})
+                    if set(self.env['account.analytic.account'].search([
+                        ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+                    ]).ids) == set(responsibility_center_ids):
+                        sheet.set_row(center_row, False, False, {'level': level})
                     elif level > 1:
-                        sheet.set_row(office_row, False, False, {'level': level - 1})
+                        sheet.set_row(center_row, False, False, {'level': level - 1})
 
-                    str_project_office_id = 'project_office_' + str(int(project_office.parent_id))
-                    if str_project_office_id in dict_formula:
-                        dict_formula[str_project_office_id] = dict_formula[str_project_office_id] + ',{0}' + str(office_row + 1)
+                    str_responsibility_center_id = 'responsibility_center_' + str(int(responsibility_center.parent_id))
+                    if str_responsibility_center_id in dict_formula:
+                        dict_formula[str_responsibility_center_id] = dict_formula[str_responsibility_center_id] + ',{0}' + str(center_row + 1)
                     else:
-                        dict_formula[str_project_office_id] = ',{0}'+str(office_row+1)
+                        dict_formula[str_responsibility_center_id] = ',{0}'+str(center_row+1)
 
-                    formulaProjectOffice += ',{0}' + f'{begRowProjectsByOffice + 2}' + ':{0}' + f'{office_row}'
+                    formulaProjectCenter += ',{0}' + f'{begRowProjectsByCenter + 2}' + ':{0}' + f'{center_row}'
 
-                    str_project_office_id = 'project_office_' + str(int(project_office.id))
-                    if str_project_office_id in dict_formula:
-                        formulaProjectOffice = formulaProjectOffice + dict_formula[str_project_office_id] + ')'
+                    str_responsibility_center_id = 'responsibility_center_' + str(int(responsibility_center.id))
+                    if str_responsibility_center_id in dict_formula:
+                        formulaProjectCenter = formulaProjectCenter + dict_formula[str_responsibility_center_id] + ')'
                     else:
-                        formulaProjectOffice = formulaProjectOffice + ')'
+                        formulaProjectCenter = formulaProjectCenter + ')'
 
                     projects = self.env['project_budget.projects'].search([
                         ('commercial_budget_id', '=', budget.id),
-                        ('project_office_id', '=', project_office.id),
+                        ('responsibility_center_id', '=', responsibility_center.id),
                         '|', '&', ('step_status', '=', 'step'),
                         ('step_project_parent_id.project_have_steps', '=', True),
                         '&', ('step_status', '=', 'project'),
                         ('project_have_steps', '=', False),
                         ])
 
-                    self.print_row_values_office(
+                    self.print_row_values_center(
                         workbook,
                         sheet,
-                        office_row,
+                        center_row,
                         column,
                         strYEAR,
                         projects,
-                        project_office,
+                        responsibility_center,
                         dict_formula,
                         multipliers,
                         )
 
-                    if not project_office.parent_id:
-                        formulaProjectCompany += ',{0}' + f'{office_row + 1}'
+                    if not responsibility_center.parent_id:
+                        formulaProjectCompany += ',{0}' + f'{center_row + 1}'
                 else:
-                    if all(child.id not in dict_formula['office_ids_not_empty'] for child in project_office.child_ids):
+                    if all(child.id not in dict_formula['center_ids_not_empty'] for child in responsibility_center.child_ids):
                         row -= 1
 
             if isFoundProjectsByCompany:
@@ -1109,7 +1118,7 @@ class report_pds_weekly_excel(models.AbstractModel):
     def printworksheet(self, workbook, budget, namesheet, multipliers):
         global strYEAR
         global YEARint
-        global project_office_ids
+        global responsibility_center_ids
         print('YEARint=', YEARint)
         print('strYEAR =', strYEAR)
 
@@ -1149,13 +1158,13 @@ class report_pds_weekly_excel(models.AbstractModel):
         })
         row_format_manager.set_num_format('#,##0')
 
-        row_format_office = workbook.add_format({
+        row_format_center = workbook.add_format({
             'border': 1,
             'font_size': 9,
             "bold": True,
             "fg_color": '#8497B0',
         })
-        row_format_office.set_num_format('#,##0')
+        row_format_center.set_num_format('#,##0')
 
         row_format_date_month.set_num_format('mmm yyyy')
 
@@ -1275,18 +1284,25 @@ class report_pds_weekly_excel(models.AbstractModel):
 
         companies = self.env['res.company'].search([], order='name')
 
-        if project_office_ids:
-            project_offices = self.env['project_budget.project_office'].search([
-                ('id','in',project_office_ids), ('parent_id', 'not in', project_office_ids)], order='report_sort')  # для сортировки так делаем + не берем дочерние оффисы, если выбраны их материнские
+        if responsibility_center_ids:
+            responsibility_centers = self.env['account.analytic.account'].search([
+                ('id','in',responsibility_center_ids), 
+                ('parent_id', 'not in', responsibility_center_ids),
+                ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+            ], order='sequence')  # для сортировки так делаем + не берем дочерние оффисы, если выбраны их материнские
         else:
-            project_offices = self.env['project_budget.project_office'].search([
-                ('parent_id', '=', False)], order='report_sort')  # для сортировки так делаем + берем сначала только верхние элементы
+            responsibility_centers = self.env['account.analytic.account'].search([
+                ('parent_id', '=', False),
+                ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+            ], order='sequence')  # для сортировки так делаем + берем сначала только верхние элементы
 
         formulaItogo = '=sum(0'
 
-        row, formulaItogo = self.printrow(sheet, workbook, companies, project_offices, budget, row, formulaItogo, 1, multipliers)
+        row, formulaItogo = self.printrow(sheet, workbook, companies, responsibility_centers, budget, row, formulaItogo, 1, multipliers)
 
-        if set(self.env['project_budget.project_office'].search([]).ids) == set(project_office_ids):
+        if set(self.env['account.analytic.account'].search([
+            ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+        ]).ids) == set(responsibility_center_ids):
             row += 1
             column = 0
             sheet.merge_range(row, column, row, column + 11, 'ИТОГО по отчету', row_format_number_itogo)
@@ -1305,16 +1321,22 @@ class report_pds_weekly_excel(models.AbstractModel):
         global YEARint
         YEARint = int(strYEAR)
         global dict_formula, max_level
-        dict_formula = {'company_ids': {}, 'office_ids': {}, 'office_ids_not_empty': {}}
+        dict_formula = {'company_ids': {}, 'center_ids': {}, 'center_ids_not_empty': {}}
 
-        global project_office_ids
-        project_office_ids = data['project_office_ids']
+        global responsibility_center_ids
+        responsibility_center_ids = data['responsibility_center_ids']
 
-        ids = [office.id for office in self.env['project_budget.project_office'].search([('parent_id', '=', False), ('id', 'in', project_office_ids)])]
+        ids = [center.id for center in self.env['account.analytic.account'].search([
+            ('parent_id', '=', False), 
+            ('id', 'in', responsibility_center_ids),
+            ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+        ])]
 
-        max_level = self.offices_with_parents(ids, 0)
+        max_level = self.centers_with_parents(ids, 0)
 
-        if set(self.env['project_budget.project_office'].search([]).ids) != set(project_office_ids):
+        if set(self.env['account.analytic.account'].search([
+            ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+        ]).ids) != set(responsibility_center_ids):
             max_level -= 1
 
         print('YEARint=', YEARint)

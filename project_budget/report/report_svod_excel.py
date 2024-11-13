@@ -27,11 +27,11 @@ class report_svod_excel(models.AbstractModel):
     YEARint = 2023
     year_end = 2023
 
-    array_itogi_merge_office = [6, 7, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19, 23, 24, 25, 26, 28, 29, 30, 31, 33, 34, 35, 36, 60, 61, 62, 63,
+    array_itogi_merge_center = [6, 7, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19, 23, 24, 25, 26, 28, 29, 30, 31, 33, 34, 35, 36, 60, 61, 62, 63,
                    65, 66, 67, 68, 70, 71, 72, 73, 97, 98, 99, 100, 102, 103, 104, 105, 107, 108, 109, 110, 134, 135,
                    136, 137, 139, 140, 141, 142, 144, 145, 146, 147] # колонки где надо объединять и формулы итоговые по офису
 
-    array_itogi_last_plan_office = [5, 10, 15, 22, 27, 32, 59,64,69,96,101,106,133,138,143] # колонки где надо  формулы итоговые по офису - послледний эталонный план
+    array_itogi_last_plan_center = [5, 10, 15, 22, 27, 32, 59,64,69,96,101,106,133,138,143] # колонки где надо  формулы итоговые по офису - послледний эталонный план
 
     def get_currency_rate_by_project(self,project):
         project_currency_rates = self.env['project_budget.project_currency_rates']
@@ -903,13 +903,13 @@ class report_svod_excel(models.AbstractModel):
         sheet.write_formula(row, colFormula, formula, row_format_number)
         # end валовая выручка остаток
 
-    def get_sum_contract_pds_act_budget(self, budget, project_office):
+    def get_sum_contract_pds_act_budget(self, budget, responsibility_center):
         global YEARint
         global year_end
 
-        if project_office:
+        if responsibility_center:
             projects = self.env['project_budget.projects'].search([
-                ('project_office_id', '=', project_office.id),
+                ('responsibility_center_id', '=', responsibility_center.id),
                 ('commercial_budget_id', '=', budget.id),
                 '|', '&', ('step_status', '=', 'step'),
                 ('step_project_parent_id.project_have_steps', '=', True),
@@ -989,7 +989,7 @@ class report_svod_excel(models.AbstractModel):
         return sum_contract_year, sum_pds_year, sum_act_year, sum_contract_q1, sum_pds_q1, sum_act_q1, sum_contract_q2, \
             sum_pds_q2, sum_act_q2, sum_contract_q3, sum_pds_q3, sum_act_q3, sum_contract_q4, sum_pds_q4, sum_act_q4
 
-    def print_etalon_budgets_name(self, budget, project_office, sheet, row, cur_format):
+    def print_etalon_budgets_name(self, budget, responsibility_center, sheet, row, cur_format):
         global YEARint
         global year_end
 
@@ -1002,10 +1002,10 @@ class report_svod_excel(models.AbstractModel):
         isFirstIteration = True
         rowBeg = row
         for commercial_budget in commercial_budgets:
-            if (project_office) and (isFirstIteration):
+            if (responsibility_center) and (isFirstIteration):
                 isFirstIteration = False
                 sheet.merge_range(row, 0, row, 4,
-                                  project_office.name + '| План от ' + commercial_budget.date_actual.strftime(
+                                  responsibility_center.name + '| План от ' + commercial_budget.date_actual.strftime(
                                       '%Y-%m-%d'), cur_format)
             else:
                 sheet.merge_range(row, 0, row, 4, 'План от ' + commercial_budget.date_actual.strftime('%Y-%m-%d'),
@@ -1014,7 +1014,7 @@ class report_svod_excel(models.AbstractModel):
                 column = 5
                 sum_contract_year, sum_pds_year, sum_act_year, sum_contract_q1, sum_pds_q1, sum_act_q1, sum_contract_q2, \
                     sum_pds_q2, sum_act_q2, sum_contract_q3, sum_pds_q3, sum_act_q3, sum_contract_q4, sum_pds_q4, sum_act_q4 \
-                    = self.get_sum_contract_pds_act_budget(commercial_budget, project_office)
+                    = self.get_sum_contract_pds_act_budget(commercial_budget, responsibility_center)
                 sheet.write_number(row, column + 0, sum_contract_year, cur_format)
                 sheet.write_number(row, column + 5, sum_pds_year, cur_format)
                 sheet.write_number(row, column + 10, sum_act_year, cur_format)
@@ -1035,7 +1035,7 @@ class report_svod_excel(models.AbstractModel):
                 sheet.write_number(row, column + 138, sum_act_q4, cur_format)
 
             row += 1
-        if project_office:
+        if responsibility_center:
             sheet.merge_range(row, 0, row, 4,
                               'Прогноз c учетом отмен и переносов на ' + datetime.datetime.now().strftime('%Y-%m-%d'),
                               cur_format)
@@ -1131,7 +1131,7 @@ class report_svod_excel(models.AbstractModel):
         })
         row_format_manager.set_num_format('#,##0;[red]-#,##0')
 
-        row_format_office = workbook.add_format({
+        row_format_center = workbook.add_format({
             'border': 1,
             'font_size': 9,
             "bold": True,
@@ -1139,7 +1139,7 @@ class report_svod_excel(models.AbstractModel):
             'align': 'center',
             'valign': 'vcenter'
         })
-        row_format_office.set_num_format('#,##0;[red]-#,##0')
+        row_format_center.set_num_format('#,##0;[red]-#,##0')
 
         row_format_number_itogo = workbook.add_format({
             'border': 1,
@@ -1171,11 +1171,12 @@ class report_svod_excel(models.AbstractModel):
         sheet.set_row(row, 50, None, None)
         row += 2
         row = self.print_etalon_budgets_name(budget, False, sheet, row, row_format_manager)
-        for i in self.array_itogi_merge_office:
+        for i in self.array_itogi_merge_center:
             sheet.merge_range(2, i, row - 1, i, '', row_format_manager)
 
-        project_offices = self.env['project_budget.project_office'].search([],
-                                                                           order='name')  # для сортировки так делаем
+        responsibility_centers = self.env['account.analytic.account'].search([
+            ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+        ], order='name')  # для сортировки так делаем
         key_account_managers = self.env['project_budget.projects'].search([]).key_account_manager_id.sorted('name')
         # key_account_managers = self.env.ref('project_budget.group_project_budget_key_account_manager').users.employee_ids.sorted('name')
         # project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
@@ -1186,13 +1187,13 @@ class report_svod_excel(models.AbstractModel):
         formulaItogo = '=sum(0'
         formula_itogo_last_plan = '=sum(0'
         formula_itogo_last_plan_Row_end = row-1
-        isFoundProjectsByOffice = False
-        formulaProjectOfficeRow = 0
+        isFoundProjectsByCenter = False
+        formulaProjectCenterRow = 0
 
-        for project_office in project_offices:
-            isFoundProjectsByOffice = False
-            formulaProjectOffice = '=sum(0,'
-            formulaProjectOffice_plan = ""
+        for responsibility_center in responsibility_centers:
+            isFoundProjectsByCenter = False
+            formulaProjectCenter = '=sum(0,'
+            formulaProjectCenter_plan = ""
             for key_account_manager in key_account_managers:
                 begRowProjectsByManager = 0
                 column = -1
@@ -1200,7 +1201,7 @@ class report_svod_excel(models.AbstractModel):
 
                 for stage in stages:
                     cur_budget_projects = self.env['project_budget.projects'].search([
-                        ('project_office_id', '=', project_office.id),
+                        ('responsibility_center_id', '=', responsibility_center.id),
                         ('commercial_budget_id', '=', budget.id),
                         ('key_account_manager_id', '=', key_account_manager.id),
                         # ('project_manager_id', '=', project_manager.id),
@@ -1211,26 +1212,26 @@ class report_svod_excel(models.AbstractModel):
                         ('project_have_steps', '=', False),
                     ], order='project_id')
                     for spec in cur_budget_projects:
-                        if spec.project_office_id == project_office:
+                        if spec.responsibility_center_id == responsibility_center:
                             if self.isProjectinYear(spec) == False : continue
                             if (spec.vgo == '-'):
-                                if isFoundProjectsByOffice == False:  # первый вход
+                                if isFoundProjectsByCenter == False:  # первый вход
                                     row += 1
-                                    formulaProjectOfficeRow = row
-                                    row = self.print_etalon_budgets_name(budget, project_office, sheet, row, row_format_office)
+                                    formulaProjectCenterRow = row
+                                    row = self.print_etalon_budgets_name(budget, responsibility_center, sheet, row, row_format_center)
                                     row = row - 1
-                                    formulaProjectOfficeRow_end = row
-                                    formulaProjectOffice_plan = "= {0}" + str(row) + " - {1}"+str(formulaProjectOfficeRow + 1)+" + {2}"+str(formulaProjectOfficeRow + 1)
-                                    for i in self.array_itogi_merge_office:
-                                        sheet.merge_range(formulaProjectOfficeRow, i, row, i , '', row_format_office)
+                                    formulaProjectCenterRow_end = row
+                                    formulaProjectCenter_plan = "= {0}" + str(row) + " - {1}"+str(formulaProjectCenterRow + 1)+" + {2}"+str(formulaProjectCenterRow + 1)
+                                    for i in self.array_itogi_merge_center:
+                                        sheet.merge_range(formulaProjectCenterRow, i, row, i , '', row_format_center)
 
                                 isFoundProjects = True
-                                isFoundProjectsByOffice = True
+                                isFoundProjectsByCenter = True
                                 row += 1
                                 if begRowProjectsByManager == 0:
                                     begRowProjectsByManager = row
 
-                            if spec.project_office_id == project_office:
+                            if spec.responsibility_center_id == responsibility_center:
                                 sheet.set_row(row, None, None, {'hidden': 1, 'level': 2})
                                 # print('setrow level2 row = ', row)
                                 cur_row_format = row_format
@@ -1254,7 +1255,7 @@ class report_svod_excel(models.AbstractModel):
                                     cur_row_format_number = row_format_number_canceled_project
 
                                 column = 0
-                                sheet.write_string(row, column, spec.project_office_id.name, cur_row_format)
+                                sheet.write_string(row, column, spec.responsibility_center_id.name, cur_row_format)
                                 column += 1
                                 sheet.write_string(row, column, spec.partner_id.name, cur_row_format)
                                 column += 1
@@ -1275,7 +1276,7 @@ class report_svod_excel(models.AbstractModel):
                     column = 1
                     sheet.write_string(row, column, 'ИТОГО ' + key_account_manager.name, row_format_manager)
                     sheet.set_row(row, None, None, {'hidden': 1, 'level': 1})
-                    formulaProjectOffice = formulaProjectOffice + ',{0}' + str(row + 1)
+                    formulaProjectCenter = formulaProjectCenter + ',{0}' + str(row + 1)
                     for colFormula in range(2, 5):
                         sheet.write_string(row, colFormula, '', row_format_manager)
                     for colFormula in range(5, 168):
@@ -1283,26 +1284,26 @@ class report_svod_excel(models.AbstractModel):
                                                                xl_col_to_name(colFormula))
                         sheet.write_formula(row, colFormula, formula, row_format_manager)
 
-            if isFoundProjectsByOffice:
+            if isFoundProjectsByCenter:
                 sheet.set_row(row, None, None, {'hidden': 1, 'level': 1})
                 column = 0
                 # sheet.set_row(row, None, None, {'hidden': 1, 'level': 1})
                 # print('setrow level1 row = ', row)
-                formulaProjectOffice = formulaProjectOffice + ')'
-                formulaItogo = formulaItogo + ',{0}' + str(formulaProjectOfficeRow + 1)
-                formula_itogo_last_plan += ",{0}" + str(formulaProjectOfficeRow_end)
-                # print('formulaProjectOffice = ',formulaProjectOffice)
-                for colFormula in self.array_itogi_merge_office:
-                    formula = formulaProjectOffice.format(xl_col_to_name(colFormula))
+                formulaProjectCenter = formulaProjectCenter + ')'
+                formulaItogo = formulaItogo + ',{0}' + str(formulaProjectCenterRow + 1)
+                formula_itogo_last_plan += ",{0}" + str(formulaProjectCenterRow_end)
+                # print('formulaProjectCenter = ',formulaProjectCenter)
+                for colFormula in self.array_itogi_merge_center:
+                    formula = formulaProjectCenter.format(xl_col_to_name(colFormula))
                     # print('formula = ', formula)
-                    sheet.write_formula(formulaProjectOfficeRow, colFormula, formula, row_format_office)
-                for colFormula in self.array_itogi_last_plan_office:
-                    formula = formulaProjectOffice.format(xl_col_to_name(colFormula))
+                    sheet.write_formula(formulaProjectCenterRow, colFormula, formula, row_format_center)
+                for colFormula in self.array_itogi_last_plan_center:
+                    formula = formulaProjectCenter.format(xl_col_to_name(colFormula))
                     # print('formula = ', formula)
-                    sheet.write_formula(formulaProjectOfficeRow_end-1, colFormula, formula, row_format_office)
-                    formula = formulaProjectOffice_plan.format(xl_col_to_name(colFormula),xl_col_to_name(colFormula+1),xl_col_to_name(colFormula+2))
+                    sheet.write_formula(formulaProjectCenterRow_end-1, colFormula, formula, row_format_center)
+                    formula = formulaProjectCenter_plan.format(xl_col_to_name(colFormula),xl_col_to_name(colFormula+1),xl_col_to_name(colFormula+2))
                     # print('formula = ', formula)
-                    sheet.write_formula(formulaProjectOfficeRow_end, colFormula, formula, row_format_office)
+                    sheet.write_formula(formulaProjectCenterRow_end, colFormula, formula, row_format_center)
 
 
 
@@ -1311,11 +1312,11 @@ class report_svod_excel(models.AbstractModel):
         # sheet.write_string(row, column, 'ИТОГО по отчету' , row_format_number_itogo)
         formulaItogo = formulaItogo + ')'
         formula_itogo_last_plan = formula_itogo_last_plan + ')'
-        for colFormula in self.array_itogi_merge_office:
+        for colFormula in self.array_itogi_merge_center:
             formula = formulaItogo.format(xl_col_to_name(colFormula))
             # print('formula = ', formula)
             sheet.write_formula(2, colFormula, formula, row_format_manager)
-        for colFormula in self.array_itogi_last_plan_office:
+        for colFormula in self.array_itogi_last_plan_center:
             formula = formula_itogo_last_plan.format(xl_col_to_name(colFormula))
             # print('formula = ', formula)
             sheet.write_formula(formula_itogo_last_plan_Row_end - 1, colFormula, formula, row_format_manager)

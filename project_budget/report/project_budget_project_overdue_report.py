@@ -17,7 +17,7 @@ class ProjectOverdueReport(models.Model):
     # project_supervisor_id = fields.Many2one('project_budget.project_supervisor', string='Project Supervisor',
     #                                         readonly=True)
     project_curator_id = fields.Many2one('hr.employee', string='Project Curator', readonly=True)
-    project_office_id = fields.Many2one('project_budget.project_office', string='Project Office', readonly=True)
+    responsibility_center_id = fields.Many2one('account.analytic.account', string='Project Office', readonly=True)
     step_id = fields.Many2one('project_budget.projects', string='Step', readonly=True)
     customer_id = fields.Many2one('res.partner', string='Customer', readonly=True)
     name = fields.Text(string='Name', readonly=True)
@@ -30,7 +30,7 @@ SELECT
     company_id,
     project_id,
     stage_id,
-    project_office_id,
+    responsibility_center_id,
     key_account_manager_id,
     project_manager_id,
     project_curator_id,
@@ -45,7 +45,7 @@ FROM
         p.company_id,
         p.id AS project_id,        
         p.stage_id,
-        p.project_office_id,        
+        p.responsibility_center_id,        
         p.key_account_manager_id,
         p.project_manager_id,
         p.project_curator_id,
@@ -60,7 +60,7 @@ FROM
     FROM project_budget_projects p
     INNER JOIN project_budget_project_stage st ON st.id = p.stage_id AND COALESCE(st.fold, false) = false
     AND st.code <> '100'
-    INNER JOIN project_budget_project_office po ON po.id = p.project_office_id
+    INNER JOIN account_analytic_account po ON po.id = p.responsibility_center_id
     WHERE p.budget_state = 'work' AND p.active = true AND step_status = 'project'
     AND (p.end_presale_project_month < CURRENT_DATE OR p.end_sale_project_month < CURRENT_DATE)
     UNION
@@ -68,7 +68,7 @@ FROM
         p.company_id,
         p.id AS project_id,        
         p.stage_id,
-        p.project_office_id,        
+        p.responsibility_center_id,        
         p.key_account_manager_id,
         p.project_manager_id,
         p.project_curator_id,
@@ -92,7 +92,7 @@ FROM
         p.company_id,
         p.id AS project_id,        
         p.stage_id,
-        p.project_office_id,        
+        p.responsibility_center_id,        
         p.key_account_manager_id,
         p.project_manager_id,
         p.project_curator_id,
@@ -118,7 +118,7 @@ FROM
         p.company_id,
         p.id AS project_id,        
         p.stage_id,
-        p.project_office_id,        
+        p.responsibility_center_id,        
         p.key_account_manager_id,
         p.project_manager_id,
         p.project_curator_id,
@@ -144,7 +144,7 @@ GROUP BY
     company_id,
     project_id,
     stage_id,
-    project_office_id,
+    responsibility_center_id,
     key_account_manager_id,
     project_manager_id,
     project_curator_id,

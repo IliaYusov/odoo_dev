@@ -185,29 +185,29 @@ class ReportWeekToWeekExcel(models.AbstractModel):
             if difference:
                 if old_data:
                     company = old_data[0]['company_id'][1]
-                    office = old_data[0]['project_office_id'][1]
+                    center = old_data[0]['responsibility_center_id'][1]
                 elif new_data:
                     company = new_data[0]['company_id'][1]
-                    office = new_data[0]['project_office_id'][1]
+                    center = new_data[0]['responsibility_center_id'][1]
                 else:
                     company = ''
-                    office = ''
+                    center = ''
 
                 if new_data and not old_data and new_data[0]['stage_id'][0] not in (stage_ids['0'], stage_ids['10']):
                     sheet.write_string(row, 0, company, line_format_left)
-                    sheet.write_string(row, 1, office, line_format_left)
+                    sheet.write_string(row, 1, center, line_format_left)
                     sheet.write_string(row, 2, 'NEW', line_format)
                     for quarter_n in range(5):
                         sheet.merge_range(row, col + quarter_n * len(probability_names), row, col + (1 + quarter_n) * len(probability_names) - 1, prj_id + ('|' + stp_id if stp_id else ''), line_format)
                 elif old_data and not new_data:
                     sheet.write_string(row, 0, company, line_format_left)
-                    sheet.write_string(row, 1, office, line_format_left)
+                    sheet.write_string(row, 1, center, line_format_left)
                     sheet.write_string(row, 2, 'REMOVED', line_format)
                     for quarter_n in range(5):
                         sheet.merge_range(row, col + quarter_n * len(probability_names), row, col + (1 + quarter_n) * len(probability_names) - 1, prj_id + ('|' + stp_id if stp_id else ''), line_format)
                 elif new_data and old_data and not (new_data[0]['stage_id'][0] in (stage_ids['0'], stage_ids['10']) and old_data[0]['stage_id'][0] in (stage_ids['0'], stage_ids['10'])):
                     sheet.write_string(row, 0, company, line_format_left)
-                    sheet.write_string(row, 1, office, line_format_left)
+                    sheet.write_string(row, 1, center, line_format_left)
                     sheet.write_string(row, 2, 'CHANGED', line_format)
                     for quarter_n in range(5):
                         sheet.merge_range(row, col + quarter_n * len(probability_names), row, col + (1 + quarter_n) * len(probability_names) - 1, prj_id + ('|' + stp_id if stp_id else ''), line_format)
@@ -218,7 +218,7 @@ class ReportWeekToWeekExcel(models.AbstractModel):
 
                 for section in self.section_names:
                     sheet.write_string(row + self.section_names.index(section), 0, company, line_format_left)
-                    sheet.write_string(row + self.section_names.index(section), 1, office, line_format_left)
+                    sheet.write_string(row + self.section_names.index(section), 1, center, line_format_left)
                     sheet.write_string(row + self.section_names.index(section), 2, self.section_titles[section], line_format)
 
                 for quarter_n in range(4):

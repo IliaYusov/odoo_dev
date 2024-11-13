@@ -5,6 +5,10 @@ class ProjectOffice(models.Model):
     _name = 'project_budget.project_office'
     _description = 'Project Office'
 
+    def _get_responsibility_center_id_domain(self):
+        return "[('plan_id', 'child_of', %s), '|', ('company_id', '=', False), ('company_id', '=', company_id)]" \
+            % self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id
+
     active = fields.Boolean('Active', copy=False, default=True)
     name = fields.Char(string='Name', required=True, translate=True)
     code = fields.Char(string='Code', required=True)
@@ -32,6 +36,9 @@ class ProjectOffice(models.Model):
     is_prohibit_selection = fields.Boolean(string="is prohibit selection in projects", default=False)
     report_name = fields.Char(string="name for report")
     report_sort = fields.Integer(string="sorting for report", default=0, required=True)
+
+    responsibility_center_id = fields.Many2one('account.analytic.account', string='Responsibility Center', copy=False,
+                                               domain=_get_responsibility_center_id_domain)
 
     def _compute_project_ids(self):
         for rec in self:

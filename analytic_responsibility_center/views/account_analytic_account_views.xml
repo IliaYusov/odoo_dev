@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="account_analytic_account_view_tree_inherit_analytic_responsibility_center" model="ir.ui.view">
+        <field name="name">account.analytic.account.tree.inherit.analytic.responsibility.center</field>
+        <field name="model">account.analytic.account</field>
+        <field name="inherit_id" ref="analytic.view_account_analytic_account_list"/>
+        <field name="arch" type="xml">
+            <xpath expr="//tree//field[@name='name']" position="before">
+                <field name="sequence"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="account_analytic_account_view_form_inherit_analytic_responsibility_center" model="ir.ui.view">
+        <field name="name">account.analytic.account.form.inherit.analytic.responsibility.center</field>
+        <field name="model">account.analytic.account</field>
+        <field name="inherit_id" ref="analytic.view_account_analytic_account_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('oe_title')]" position="after">
+                <group name="print_names">
+                    <group>
+                        <field name="print_name"/>
+                    </group>
+                </group>
+            </xpath>
+            <xpath expr="//sheet//group[@name='main']/group" position="inside">
+                <field name="head_id" widget="many2one_avatar_user"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
