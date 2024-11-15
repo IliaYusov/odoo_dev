@@ -19,13 +19,13 @@
                         <group>
                         </group>
                         <group>
-                            <field name="use_koeff_reserve" attrs="{'invisible': [('type_report', 'not in', ('forecast', 'forecast_v2', 'forecast_v3', 'management_committee', 'pds_weekly'))]}"/>
+                            <field name="use_koeff_reserve" attrs="{'invisible': [('type_report', 'not in', ('forecast', 'forecast_v2', 'management_committee', 'pds_weekly'))]}"/>
                             <field name="pds_accept" attrs="{'invisible': [('type_report', 'not in', ('pds_acceptance_by_date'))]}"/>
 <!--                            <field name="print_managers" attrs="{'invisible': [('type_report', 'not in', ('plan_fact'))]}"/>-->
                         </group>
                         <group>
-                            <field name="koeff_reserve" attrs="{'invisible': ['|',('type_report', 'not in', ('forecast', 'forecast_v2', 'forecast_v3', 'management_committee', 'pds_weekly')),('use_koeff_reserve','=',False)]}"/>
-                            <field name="koeff_potential" attrs="{'invisible': ['|',('type_report', 'not in', ('forecast', 'forecast_v2', 'forecast_v3', 'management_committee', 'pds_weekly')),('use_koeff_reserve','=',False)]}"/>
+                            <field name="koeff_reserve" attrs="{'invisible': ['|',('type_report', 'not in', ('forecast', 'forecast_v2', 'management_committee', 'pds_weekly')),('use_koeff_reserve','=',False)]}"/>
+                            <field name="koeff_potential" attrs="{'invisible': ['|',('type_report', 'not in', ('forecast', 'forecast_v2', 'management_committee', 'pds_weekly')),('use_koeff_reserve','=',False)]}"/>
                         </group>
                     </group>
                     <group col ="2">
@@ -50,7 +50,7 @@
                             <field string="from date" name="date_start" attrs="{'invisible': [('type_report', 'not in', ('pds_acceptance_by_date'))]}"/>
                         </group>
                         <group>
-                            <field string="year to" name="year_end" attrs="{'invisible': [('type_report', 'in', ('week_to_week', 'raw_data','overdue','management_committee','pds_acceptance_by_date', 'pds_weekly', 'pds_weekly_plan_fact', 'forecast_v2', 'plan_fact'))]}"/>
+                            <field string="year to" name="year_end" attrs="{'invisible': [('type_report', 'in', ('week_to_week', 'raw_data','overdue','management_committee','pds_acceptance_by_date', 'pds_weekly', 'pds_weekly_plan_fact', 'forecast_v2', 'forecast_v3', 'plan_fact'))]}"/>
                             <field string="to date" name="date_end" attrs="{'invisible': [('type_report', 'not in', ('pds_acceptance_by_date'))]}"/>
                         </group>
                         <group></group>

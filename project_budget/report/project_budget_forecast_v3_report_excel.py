@@ -1147,9 +1147,21 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                         col['total_estimate_format'] = total_estimate_format[col['type']]
         return data
 
-    def print_worksheet(self, workbook, budget, worksheet_name, responsibility_center_ids, year):
+    def get_child_centers_ids(self, center_ids, res: list):
+        if center_ids:
+            res.extend(center_ids)
+            child_centers_ids = self.env['account.analytic.account'].search([
+                ('parent_id', 'in', center_ids),
+                ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+            ]).ids
+            if child_centers_ids:
+                res = self.get_child_centers_ids(child_centers_ids, res)
+            return res
+        else:
+            return []
 
-        report_name = budget.name
+    def print_worksheet(self, workbook, budget, worksheet_name, responsibility_center_ids, systematica_forecast, oblako_row, diff_name, year):
+
         sheet = workbook.add_worksheet(worksheet_name)
         sheet.set_zoom(85)
         sheet.hide_zero()
@@ -1183,11 +1195,13 @@ class ReportBudgetForecastExcel(models.AbstractModel):
         row_format_left_part = workbook.add_format({
             'border': 1,
             'font_size': 10,
+            "num_format": '#,##0',
         })
         row_format_left_part_red = workbook.add_format({
             'border': 1,
             'font_size': 10,
             'font_color': 'red',
+            "num_format": '#,##0',
         })
         stage_summary_default_format = workbook.add_format({
             'border': 1,
@@ -1237,6 +1251,70 @@ class ReportBudgetForecastExcel(models.AbstractModel):
             "bold": True,
             "fg_color": '#FFFF00',
             "num_format": '#,##0',
+        })
+        summary_format_border_top = workbook.add_format({
+            'bold': True,
+            'font_size': 12,
+            'text_wrap': True,
+            'valign': 'vcenter',
+            "num_format": '#,##0',
+            'top': 2,
+            'left': 2,
+            'right': 2,
+        })
+        summary_format_border_top_center = workbook.add_format({
+            'bold': True,
+            'font_size': 12,
+            'text_wrap': True,
+            'valign': 'vcenter',
+            'align': 'center',
+            "num_format": '#,##0',
+            'top': 2,
+            'left': 2,
+            'right': 2,
+        })
+        summary_format_border_bottom = workbook.add_format({
+            'bold': True,
+            'font_size': 12,
+            'text_wrap': True,
+            'valign': 'vjustify',
+            "num_format": '#,##0',
+            'top': 1,
+            'bottom': 2,
+            'left': 2,
+            'right': 2,
+        })
+        row_format_number_itogo = workbook.add_format({
+            'border': 1,
+            'font_size': 10,
+            "bold": True,
+            "fg_color": '#A9D08E',
+            "num_format": '#,##0',
+        })
+        row_format_itogo_estimated_plan_left = workbook.add_format({
+            'border': 1,
+            'font_size': 10,
+            "bold": True,
+            "fg_color": '#FFFF00',
+            "num_format": '#,##0',
+        })
+        row_format_itogo_estimated_plan = workbook.add_format({
+            'border': 1,
+            'font_size': 10,
+            "bold": True,
+            "fg_color": '#FFFF00',
+            "num_format": '#,##0',
+            'align': 'center',
+        })
+        row_format_diff = workbook.add_format({
+            'border': 1,
+            'font_size': 12,
+            'text_wrap': True,
+            'align': 'center',
+            'valign': 'vcenter',
+            "bold": True,
+            "fg_color": '#DDD9C4',
+            "num_format": '#,##0;[red]-#,##0',
         })
 
         row = 0
@@ -1302,6 +1380,8 @@ class ReportBudgetForecastExcel(models.AbstractModel):
 
         start_col = self.START_COLUMN
 
+        year_columns = {}
+
         for section in data:  # печатаем шапку
             if section['type'] != 'blank':
                 for period in section['periods']:
@@ -1351,6 +1431,12 @@ class ReportBudgetForecastExcel(models.AbstractModel):
             year + 2: self.env['project_budget.budget_plan_kam_spec'].search([
                 ('budget_plan_kam_id.year', '=', year + 2)]),
         }
+
+        use_6_6_plan = False
+        for plan in center_plans[year]:
+            if plan.q3_plan_6_6 != 0 or plan.q4_plan_6_6 != 0:
+                use_6_6_plan = True
+                continue
 
         row += 3
 
@@ -1411,16 +1497,32 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                 for kam in financial_indicators.key_account_manager_id.filtered(lambda k: k.company_id == company):
                     stage_rows = list()
                     kam_is_present = False
-                    for stage in financial_indicators.stage_id.sorted(lambda s: s.sequence, reverse=True):
+                    for stage in financial_indicators.stage_id.filtered(lambda s: s.project_status != 'lead').sorted(lambda s: s.sequence, reverse=True):
                         stage_start_row = row + 1
                         stage_is_present = False
-                        for project in financial_indicators.project_id.filtered(
-                            lambda p: p.company_id == company
-                                      and p.responsibility_center_id == center
-                                      and p.key_account_manager_id == kam
-                                      and p.stage_id == stage
-                        ):
-                            current_indicators = financial_indicators.filtered(lambda ci: ci.project_id == project)
+
+                        filtered_indicators = financial_indicators.filtered(
+                            lambda fi: fi.project_id.company_id == company and
+                                       fi.project_id.responsibility_center_id == center and
+                                       fi.project_id.key_account_manager_id == kam and
+                                       fi.project_id.stage_id == stage
+                        )
+
+                        projects = filtered_indicators.project_id
+                        steps = filtered_indicators.step_id
+
+                        project_list = list()
+
+                        for prj in projects:
+                            if prj.project_have_steps:
+                                for stp in prj.step_project_child_ids:
+                                    if stp in steps:
+                                        project_list.append((prj, stp))
+                            else:
+                                project_list.append((prj, False))
+
+                        for project, step in project_list:
+                            current_indicators = financial_indicators.filtered(lambda ci: ci.project_id == project and (not ci.step_id or ci.step_id == step))
                             if current_indicators:
                                 stage_is_present = True
                                 kam_is_present = True
@@ -1433,7 +1535,18 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                                 sheet.set_row(row, False, False, level)
                                 sheet.write_string(row, 0, center.name, format)
                                 sheet.write_string(row, 1, kam.name, format)
-                                sheet.write_string(row, 2, project.project_id, format)
+                                sheet.write_string(row, 2, project.partner_id.name, format)
+                                sheet.write_string(row, 3, project.essence_project, format)
+                                sheet.write_string(row, 4, project.project_id + ('|' + step.project_id if step else ''), format)
+                                sheet.write_string(row, 5, (step.step_project_number or '') if step else (project.step_project_number or ''),
+                                                   format)
+                                sheet.write_number(row, 6, project.total_amount_of_revenue_with_vat ,format)
+                                if project.stage_id.project_state == 'won':
+                                    sheet.write_datetime(row, 7, project.end_presale_project_month, format)
+                                else:
+                                    sheet.write(row, 7, None, format)
+                                sheet.write_number(row, 8, project.profitability, format)
+
                                 for section in data:
                                     if section['type'] != 'blank':
                                         for period in section['periods']:
@@ -1580,6 +1693,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
 
             # суммируем по компании
             sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
+            sheet.set_row(row + 2, False, False, {'hidden': 1, 'level': 1})
             sheet.merge_range(row, 0, row, self.START_COLUMN - 1, 'ИТОГО: ' + company.name, company_summary_default_format)
             sheet.merge_range(row + 1, 0, row + 1, self.START_COLUMN - 1, 'ИТОГО: Расчетный План по ' + company.name,
                               company_summary_estimate_format)
@@ -1616,27 +1730,69 @@ class ReportBudgetForecastExcel(models.AbstractModel):
             row += 2
             company_rows.append(row - 1)
 
+        total_row = row + 1
+        if systematica_forecast:
+            sheet.activate()
+            total_row += 2
+
+        # суммируем по отчету
         sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
         sheet.merge_range(row, 0, row, self.START_COLUMN - 1, 'ИТОГО по отчету', company_summary_default_format)
         sheet.merge_range(row + 1, 0, row + 1, self.START_COLUMN - 1, 'ИТОГО: Расчетный План по отчету',
                           company_summary_estimate_format)
+        if systematica_forecast:
+            sheet.set_row(row + 2, False, False, {'hidden': 1, 'level': 1})
+            sheet.merge_range(row + 2, 0, row + 2, self.START_COLUMN - 1, 'ИТОГО: СА+Облако.ру по отчету',
+                              row_format_number_itogo)
+            sheet.merge_range(row + 3, 0, row + 3, self.START_COLUMN - 1, 'ИТОГО: СА+Облако.ру Расчетный План по отчету',
+                              row_format_itogo_estimated_plan_left)
+        if diff_name:  # разница
+            sheet.set_row(total_row + 1, 32)
+            sheet.merge_range(
+                total_row + 1, 1, total_row + 1, 3,
+                f'Разница Итого; План ' + (
+                    '6+6' if use_6_6_plan else f'{year}') + f' ({diff_name})/ Расчетный план до конца периода (на дату отчета)',
+                row_format_diff
+            )
         column = self.START_COLUMN
         for section in data:
             if section['type'] != 'blank':
                 for period in section['periods']:
                     for col in period['cols']:
                         if col['type'] in ('plan', 'plan66'):
-                            formula = '=sum(' + ','.join(
-                                xl_col_to_name(column) + str(r + 1) for r in company_rows) + ')'
                             sheet.write_number(row, column, 0, col['total_summary_format'])
-                            sheet.write_formula(row + 1, column, formula, col['total_estimate_format'])
+                            if company_rows:
+                                formula = '=sum(' + ','.join(
+                                    xl_col_to_name(column) + str(r + 1) for r in company_rows) + ')'
+                                sheet.write_formula(row + 1, column, formula, col['total_estimate_format'])
+                            else:
+                                sheet.write_number(row + 1, column, 0, col['total_estimate_format'])
+                            if systematica_forecast:
+                                formula = '=sum({2}{0},{3}{2}{1})'.format(
+                                    row + 2, oblako_row + 1, xl_col_to_name(column), "'Прогноз (Облако.ру)'!"
+                                )
+                                sheet.write_number(row + 2, column, 0, col['total_summary_format'])
+                                sheet.write_formula(row + 3, column, formula, col['total_estimate_format'])
                         else:
-                            formula = '=sum(' + ','.join(
-                                xl_col_to_name(column) + str(r) for r in company_rows) + ')'
-                            sheet.write_formula(row, column, formula, col['total_summary_format'])
+                            if company_rows:
+                                formula = '=sum(' + ','.join(
+                                    xl_col_to_name(column) + str(r) for r in company_rows) + ')'
+                                sheet.write_formula(row, column, formula, col['total_summary_format'])
+                            else:
+                                sheet.write_number(row, column, 0, col['total_summary_format'])
+                            if systematica_forecast:
+                                formula = '=sum({2}{0},{3}{2}{1})'.format(
+                                    row + 1, oblako_row, xl_col_to_name(column), "'Прогноз (Облако.ру)'!"
+                                )
+                                sheet.write_formula(row + 2, column, formula, col['total_summary_format'])
                             if col['type'] == 'fact':
                                 formula = f'={xl_col_to_name(column)}{row + 1}'
                                 sheet.write_formula(row + 1, column, formula, col['total_estimate_format'])
+                                if systematica_forecast:
+                                    formula = '=sum({2}{0},{3}{2}{1})'.format(
+                                        row + 2, oblako_row + 1, xl_col_to_name(column), "'Прогноз (Облако.ру)'!"
+                                    )
+                                    sheet.write_formula(row + 3, column, formula, col['total_estimate_format'])
                             elif col['type'] == 'commitment':
                                 formula = '={1}{0}*$D$1+{2}{0}*$D$2'.format(
                                     row + 1,
@@ -1645,20 +1801,376 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                                 )
                                 sheet.merge_range(row + 1, column, row + 1, column + 1, formula,
                                                   col['total_estimate_format'])
+                                if systematica_forecast:
+                                    formula = '=sum({2}{0},{3}{2}{1})'.format(
+                                        row + 2, oblako_row + 1, xl_col_to_name(column), "'Прогноз (Облако.ру)'!"
+                                    )
+                                    sheet.merge_range(row + 3, column, row + 3, column + 1, formula,
+                                                      col['total_estimate_format'])
                             elif col['type'] == 'potential':
                                 sheet.write_number(row + 1, column, 0, col['total_estimate_format'])
+                                if systematica_forecast:
+                                    sheet.write_number(row + 3, column, 0, col['total_estimate_format'])
+
+                            if diff_name and col['type'] == 'fact' and not period.get('start', False):  # считаем разницы
+                                if period['type'] in ('HY2', 'Q3', 'Q4', 'Y'):
+                                    if use_6_6_plan:
+                                        formula_diff = '=({1}{0}+{2}{0})-{3}{0}'.format(
+                                            total_row + 1,
+                                            xl_col_to_name(column),
+                                            xl_col_to_name(column + 1),
+                                            xl_col_to_name(column - 1),
+                                        )
+                                    else:
+                                        formula_diff = '=({1}{0}+{2}{0})-{3}{0}'.format(
+                                            total_row + 1,
+                                            xl_col_to_name(column),
+                                            xl_col_to_name(column + 1),
+                                            xl_col_to_name(column - 2),
+                                        )
+                                else:
+                                    formula_diff = '=({1}{0}+{2}{0})-{3}{0}'.format(
+                                        total_row + 1,
+                                        xl_col_to_name(column),
+                                        xl_col_to_name(column + 1),
+                                        xl_col_to_name(column - 1),
+                                    )
+                                sheet.merge_range(total_row + 1, column, total_row + 1, column + 2, formula_diff,
+                                                  row_format_diff)
+
+                            if period['type'] == 'Y':  # добавляем номера столбцов общих сумм в каждой секции для нижней таблички
+                                year_columns[str(section['year']) + '_' + section['indicator'] + '_' + col['type']] = column
+
                         column += 1
             else:
                 column += 1
+
+        if systematica_forecast:
+            row += 2
+        if diff_name:
+            row += 1
+
+        # печатаем нижнюю сводную таблицу
+        row += 3
+        sheet.merge_range(row, 1, row, 2, 'Контрактование, с НДС', summary_format_border_top_center)
+        sheet.write_string(row, 3, '', summary_format_border_top)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'По Компании {str(year)}:', summary_format_border_top)
+        formula = '={1}{0}+{2}{0}+{3}{0}'.format(
+            total_row,
+            xl_col_to_name(year_columns[f'{year}_contraction_fact']),
+            xl_col_to_name(year_columns[f'{year}_contraction_commitment']),
+            xl_col_to_name(year_columns[f'{year}_contraction_reserve']),
+        )
+        sheet.write_formula(row, 3, formula, summary_format_border_top)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(year)}:', summary_format_border_bottom)
+        formula = '={1}{0}+{2}{0}'.format(
+            total_row + 1,
+            xl_col_to_name(year_columns[f'{year}_contraction_fact']),
+            xl_col_to_name(year_columns[f'{year}_contraction_commitment']),
+        )
+        sheet.write_formula(row, 3, formula, summary_format_border_bottom)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'По Компании {str(year + 1)}:', summary_format_border_top)
+        formula = '={1}{0}+{2}{0}'.format(
+            total_row,
+            xl_col_to_name(year_columns[f'{year + 1}_contraction_commitment']),
+            xl_col_to_name(year_columns[f'{year + 1}_contraction_reserve']),
+        )
+        sheet.write_formula(row, 3, formula, summary_format_border_top)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(year + 1)}:',
+                          summary_format_border_bottom)
+        formula = '={1}{0}'.format(
+            total_row + 1,
+            xl_col_to_name(year_columns[f'{year + 1}_contraction_commitment']),
+        )
+        sheet.write_formula(row, 3, formula, summary_format_border_bottom)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'По Компании {str(year + 2)}:', summary_format_border_top)
+        formula = '={1}{0}+{2}{0}'.format(
+            total_row,
+            xl_col_to_name(year_columns[f'{year + 2}_contraction_commitment']),
+            xl_col_to_name(year_columns[f'{year + 2}_contraction_reserve']),
+        )
+        sheet.write_formula(row, 3, formula, summary_format_border_top)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(year + 2)}:',
+                          summary_format_border_bottom)
+        formula = '={1}{0}'.format(
+            total_row + 1,
+            xl_col_to_name(year_columns[f'{year + 2}_contraction_commitment']),
+        )
+        sheet.write_formula(row, 3, formula, summary_format_border_bottom)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Итого по Компании {str(year)}-{str(year + 2)}:',
+                          summary_format_border_top)
+        formula = '={3}{0}+{3}{1}+{3}{2}'.format(row - 1, row - 3, row - 5, xl_col_to_name(3))
+        sheet.write_formula(row, 3, formula, summary_format_border_top)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Итого Расчетный План по Компании {str(year)}-{str(year + 2)}:',
+                          summary_format_border_bottom)
+        formula = '={3}{0}+{3}{1}+{3}{2}'.format(row - 1, row - 3, row - 5, xl_col_to_name(3))
+        sheet.write_formula(row, 3, formula, summary_format_border_bottom)
+
         row += 2
+        sheet.merge_range(row, 1, row, 2, 'Валовая выручка, без НДС', summary_format_border_top_center)
+        sheet.write_string(row, 3, '', summary_format_border_top)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'По Компании {str(year)}:', summary_format_border_top)
+        formula = '={1}{0}+{2}{0}+{3}{0}'.format(
+            total_row,
+            xl_col_to_name(year_columns[f'{year}_gross_revenue_fact']),
+            xl_col_to_name(year_columns[f'{year}_gross_revenue_commitment']),
+            xl_col_to_name(year_columns[f'{year}_gross_revenue_reserve']),
+        )
+        sheet.write_formula(row, 3, formula, summary_format_border_top)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(year)}:', summary_format_border_bottom)
+        formula = '={1}{0}+{2}{0}'.format(
+            total_row + 1,
+            xl_col_to_name(year_columns[f'{year}_gross_revenue_fact']),
+            xl_col_to_name(year_columns[f'{year}_gross_revenue_commitment']),
+        )
+        sheet.write_formula(row, 3, formula, summary_format_border_bottom)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'По Компании {str(year + 1)}:', summary_format_border_top)
+        formula = '={1}{0}+{2}{0}'.format(
+            total_row,
+            xl_col_to_name(year_columns[f'{year + 1}_gross_revenue_commitment']),
+            xl_col_to_name(year_columns[f'{year + 1}_gross_revenue_reserve']),
+        )
+        sheet.write_formula(row, 3, formula, summary_format_border_top)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(year + 1)}:',
+                          summary_format_border_bottom)
+        formula = '={1}{0}'.format(
+            total_row + 1,
+            xl_col_to_name(year_columns[f'{year + 1}_gross_revenue_commitment']),
+        )
+        sheet.write_formula(row, 3, formula, summary_format_border_bottom)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'По Компании {str(year + 2)}:', summary_format_border_top)
+        formula = '={1}{0}+{2}{0}'.format(
+            total_row,
+            xl_col_to_name(year_columns[f'{year + 2}_gross_revenue_commitment']),
+            xl_col_to_name(year_columns[f'{year + 2}_gross_revenue_reserve']),
+        )
+        sheet.write_formula(row, 3, formula, summary_format_border_top)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(year + 2)}:',
+                          summary_format_border_bottom)
+        formula = '={1}{0}'.format(
+            total_row + 1,
+            xl_col_to_name(year_columns[f'{year + 2}_gross_revenue_commitment']),
+        )
+        sheet.write_formula(row, 3, formula, summary_format_border_bottom)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Итого по Компании {str(year)}-{str(year + 2)}:',
+                          summary_format_border_top)
+        formula = '={3}{0}+{3}{1}+{3}{2}'.format(row - 1, row - 3, row - 5, xl_col_to_name(3))
+        sheet.write_formula(row, 3, formula, summary_format_border_top)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Итого Расчетный План по Компании {str(year)}-{str(year + 2)}:',
+                          summary_format_border_bottom)
+        formula = '={3}{0}+{3}{1}+{3}{2}'.format(row - 1, row - 3, row - 5, xl_col_to_name(3))
+        sheet.write_formula(row, 3, formula, summary_format_border_bottom)
+
+        row += 2
+        sheet.merge_range(row, 1, row, 2, 'ПДС, с НДС', summary_format_border_top_center)
+        sheet.write_string(row, 3, '', summary_format_border_top)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'По Компании {str(year)}:', summary_format_border_top)
+        formula = '={1}{0}+{2}{0}+{3}{0}'.format(
+            total_row,
+            xl_col_to_name(year_columns[f'{year}_cash_flow_fact']),
+            xl_col_to_name(year_columns[f'{year}_cash_flow_commitment']),
+            xl_col_to_name(year_columns[f'{year}_cash_flow_reserve']),
+        )
+        sheet.write_formula(row, 3, formula, summary_format_border_top)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(year)}:', summary_format_border_bottom)
+        formula = '={1}{0}+{2}{0}'.format(
+            total_row + 1,
+            xl_col_to_name(year_columns[f'{year}_cash_flow_fact']),
+            xl_col_to_name(year_columns[f'{year}_cash_flow_commitment']),
+        )
+        sheet.write_formula(row, 3, formula, summary_format_border_bottom)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'По Компании {str(year + 1)}:', summary_format_border_top)
+        formula = '={1}{0}+{2}{0}'.format(
+            total_row,
+            xl_col_to_name(year_columns[f'{year + 1}_cash_flow_commitment']),
+            xl_col_to_name(year_columns[f'{year + 1}_cash_flow_reserve']),
+        )
+        sheet.write_formula(row, 3, formula, summary_format_border_top)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(year + 1)}:',
+                          summary_format_border_bottom)
+        formula = '={1}{0}'.format(
+            total_row + 1,
+            xl_col_to_name(year_columns[f'{year + 1}_cash_flow_commitment']),
+        )
+        sheet.write_formula(row, 3, formula, summary_format_border_bottom)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'По Компании {str(year + 2)}:', summary_format_border_top)
+        formula = '={1}{0}+{2}{0}'.format(
+            total_row,
+            xl_col_to_name(year_columns[f'{year + 2}_cash_flow_commitment']),
+            xl_col_to_name(year_columns[f'{year + 2}_cash_flow_reserve']),
+        )
+        sheet.write_formula(row, 3, formula, summary_format_border_top)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(year + 2)}:',
+                          summary_format_border_bottom)
+        formula = '={1}{0}'.format(
+            total_row + 1,
+            xl_col_to_name(year_columns[f'{year + 2}_cash_flow_commitment']),
+        )
+        sheet.write_formula(row, 3, formula, summary_format_border_bottom)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Итого по Компании {str(year)}-{str(year + 2)}:',
+                          summary_format_border_top)
+        formula = '={3}{0}+{3}{1}+{3}{2}'.format(row - 1, row - 3, row - 5, xl_col_to_name(3))
+        sheet.write_formula(row, 3, formula, summary_format_border_top)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Итого Расчетный План по Компании {str(year)}-{str(year + 2)}:',
+                          summary_format_border_bottom)
+        formula = '={3}{0}+{3}{1}+{3}{2}'.format(row - 1, row - 3, row - 5, xl_col_to_name(3))
+        sheet.write_formula(row, 3, formula, summary_format_border_bottom)
+
+        row += 2
+        sheet.merge_range(row, 1, row, 2, 'Валовая прибыль (М1), без НДС', summary_format_border_top_center)
+        sheet.write_string(row, 3, '', summary_format_border_top)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'По Компании {str(year)}:', summary_format_border_top)
+        formula = '={1}{0}+{2}{0}+{3}{0}'.format(
+            total_row,
+            xl_col_to_name(year_columns[f'{year}_margin_fact']),
+            xl_col_to_name(year_columns[f'{year}_margin_commitment']),
+            xl_col_to_name(year_columns[f'{year}_margin_reserve']),
+        )
+        sheet.write_formula(row, 3, formula, summary_format_border_top)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(year)}:', summary_format_border_bottom)
+        formula = '={1}{0}+{2}{0}'.format(
+            total_row + 1,
+            xl_col_to_name(year_columns[f'{year}_margin_fact']),
+            xl_col_to_name(year_columns[f'{year}_margin_commitment']),
+        )
+        sheet.write_formula(row, 3, formula, summary_format_border_bottom)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'По Компании {str(year + 1)}:', summary_format_border_top)
+        formula = '={1}{0}+{2}{0}'.format(
+            total_row,
+            xl_col_to_name(year_columns[f'{year + 1}_margin_commitment']),
+            xl_col_to_name(year_columns[f'{year + 1}_margin_reserve']),
+        )
+        sheet.write_formula(row, 3, formula, summary_format_border_top)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(year + 1)}:',
+                          summary_format_border_bottom)
+        formula = '={1}{0}'.format(
+            total_row + 1,
+            xl_col_to_name(year_columns[f'{year + 1}_margin_commitment']),
+        )
+        sheet.write_formula(row, 3, formula, summary_format_border_bottom)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'По Компании {str(year + 2)}:', summary_format_border_top)
+        formula = '={1}{0}+{2}{0}'.format(
+            total_row,
+            xl_col_to_name(year_columns[f'{year + 2}_margin_commitment']),
+            xl_col_to_name(year_columns[f'{year + 2}_margin_reserve']),
+        )
+        sheet.write_formula(row, 3, formula, summary_format_border_top)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Расчетный План по Компании {str(year + 2)}:',
+                          summary_format_border_bottom)
+        formula = '={1}{0}'.format(
+            total_row + 1,
+            xl_col_to_name(year_columns[f'{year + 2}_margin_commitment']),
+        )
+        sheet.write_formula(row, 3, formula, summary_format_border_bottom)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Итого по Компании {str(year)}-{str(year + 2)}:',
+                          summary_format_border_top)
+        formula = '={3}{0}+{3}{1}+{3}{2}'.format(row - 1, row - 3, row - 5, xl_col_to_name(3))
+        sheet.write_formula(row, 3, formula, summary_format_border_top)
+
+        row += 1
+        sheet.merge_range(row, 1, row, 2, f'Итого Расчетный План по Компании {str(year)}-{str(year + 2)}:',
+                          summary_format_border_bottom)
+        formula = '={3}{0}+{3}{1}+{3}{2}'.format(row - 1, row - 3, row - 5, xl_col_to_name(3))
+        sheet.write_formula(row, 3, formula, summary_format_border_bottom)
+        return total_row
 
     def generate_xlsx_report(self, workbook, data, budgets):
 
         year = data['year']
         commercial_budget_id = data['commercial_budget_id']
         responsibility_center_ids = data['responsibility_center_ids']
+        systematica_forecast = data['systematica_forecast']
 
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
 
-        stages = self.env['project_budget.project.stage'].search([('code', '!=', '10')], order='sequence desc')  # для сортировки так делаем
-        self.print_worksheet(workbook, budget, 'Прогноз', responsibility_center_ids, year)
+        if systematica_forecast:
+            litr_codes = ('ПО_ЛИТР',)
+
+            oblako_codes = ('05', 'ПО_Облако.ру (облачный сервис)', 'ПО_Облако.ру (облачный сервис новые)',
+                            'ПО_Облако.ру (облачный сервис база)', 'ПО_Облако.ру (интеграторский сервис)')
+
+            oblako_ids = self.get_child_centers_ids(self.env['account.analytic.account'].search([
+                ('code', 'in', oblako_codes),
+                ('plan_id', '=',
+                 self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+            ]).ids, [])
+            litr_ids = self.get_child_centers_ids(self.env['account.analytic.account'].search([
+                ('code', 'in', litr_codes),
+                ('plan_id', '=',
+                 self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+            ]).ids, [])
+            systmatica_ids = self.env['account.analytic.account'].search([
+                ('id', 'in', responsibility_center_ids),
+                ('id', 'not in', oblako_ids),
+                ('id', 'not in', litr_ids),
+                ('plan_id', '=',
+                 self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+            ]).ids  # систематика без литр и облака
+
+            self.print_worksheet(workbook, budget, 'Прогноз (ЛИТР)', litr_ids, False, 0, 'ЛИТР', year)
+            oblako_row = self.print_worksheet(workbook, budget, 'Прогноз (Облако.ру)', oblako_ids, False, 0, False, year)
+            self.print_worksheet(workbook, budget, 'Прогноз', systmatica_ids, True, oblako_row, 'СА+Облако.ру', year)
+        else:
+            self.print_worksheet(workbook, budget, 'Прогноз', responsibility_center_ids, systematica_forecast, 0, False, year)
