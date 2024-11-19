@@ -11,6 +11,7 @@ class FinancialDataIndicator(models.Model):
 
     company_id = fields.Many2one('res.company', string='Company', readonly=True)
     project_id = fields.Many2one('project_budget.projects', string='Project', readonly=True)
+    prj_id = fields.Many2one('project_budget.projects', string='ProjectID', readonly=True)
     stage_id = fields.Many2one('project_budget.project.stage', string='Stage', readonly=True)
     key_account_manager_id = fields.Many2one('hr.employee', string='Key Account Manager', readonly=True)
     responsibility_center_id = fields.Many2one('account.analytic.account', string='Project Office', readonly=True)
@@ -37,6 +38,7 @@ SELECT
     row_number() OVER () as id,
     company_id,
     project_id,
+    prj_id,
     stage_id,
     responsibility_center_id,
     key_account_manager_id,
@@ -57,7 +59,8 @@ FROM
 (
     SELECT
         p.company_id,
-        p.id AS project_id,        
+        p.id AS project_id,
+        p.id AS prj_id,         
         p.stage_id,
         p.responsibility_center_id,        
         p.key_account_manager_id,
@@ -86,7 +89,8 @@ FROM
     UNION
     SELECT
         ps.company_id,
-        p.id AS project_id,        
+        p.id AS project_id,     
+        ps.id AS prj_id,        
         ps.stage_id,
         ps.responsibility_center_id,        
         ps.key_account_manager_id,
@@ -115,7 +119,8 @@ FROM
     UNION
     SELECT
         p.company_id,
-        p.id AS project_id,        
+        p.id AS project_id,   
+        p.id AS prj_id,       
         p.stage_id,
         p.responsibility_center_id,        
         p.key_account_manager_id,
@@ -148,7 +153,8 @@ FROM
     UNION
     SELECT
         ps.company_id,
-        p.id AS project_id,        
+        p.id AS project_id,    
+        ps.id AS prj_id,      
         ps.stage_id,
         ps.responsibility_center_id,        
         ps.key_account_manager_id,
@@ -182,7 +188,8 @@ FROM
     UNION
     SELECT
         p.company_id,
-        p.id AS project_id,        
+        p.id AS project_id,       
+        p.id AS prj_id,      
         p.stage_id,
         p.responsibility_center_id,        
         p.key_account_manager_id,
@@ -224,6 +231,7 @@ FROM
     SELECT
         ps.company_id,
         p.id AS project_id,        
+        ps.id AS prj_id,     
         ps.stage_id,
         ps.responsibility_center_id,        
         ps.key_account_manager_id,
@@ -266,6 +274,7 @@ FROM
     SELECT
         p.company_id,
         p.id AS project_id,        
+        p.id AS prj_id,     
         p.stage_id,
         p.responsibility_center_id,        
         p.key_account_manager_id,
@@ -298,7 +307,8 @@ FROM
     UNION
     SELECT
         ps.company_id,
-        p.id AS project_id,        
+        p.id AS project_id,   
+        ps.id AS prj_id,     
         ps.stage_id,
         ps.responsibility_center_id,        
         ps.key_account_manager_id,
@@ -332,7 +342,8 @@ FROM
     UNION
     SELECT
         p.company_id,
-        p.id AS project_id,        
+        p.id AS project_id,    
+        p.id AS prj_id,    
         p.stage_id,
         p.responsibility_center_id,        
         p.key_account_manager_id,
@@ -374,6 +385,7 @@ FROM
     SELECT
         ps.company_id,
         p.id AS project_id,        
+        ps.id AS prj_id,
         ps.stage_id,
         ps.responsibility_center_id,        
         ps.key_account_manager_id,
@@ -416,6 +428,7 @@ FROM
     SELECT
         p.company_id,
         p.id AS project_id,        
+        p.id AS prj_id,
         p.stage_id,
         p.responsibility_center_id,        
         p.key_account_manager_id,
@@ -447,6 +460,7 @@ FROM
     SELECT
         ps.company_id,
         p.id AS project_id,        
+        ps.id AS prj_id,
         ps.stage_id,
         ps.responsibility_center_id,        
         ps.key_account_manager_id,
