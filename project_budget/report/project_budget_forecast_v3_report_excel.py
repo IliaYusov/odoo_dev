@@ -10,8 +10,6 @@ class ReportBudgetForecastExcel(models.AbstractModel):
     _description = 'project_budget.report_budget_forecast_v3_excel'
     _inherit = 'report.report_xlsx.abstract'
 
-    START_COLUMN = 10
-
     indicators = ['contraction', 'cash_flow', 'gross_revenue', 'margin']
 
     month_rus_name = [
@@ -38,6 +36,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                 'type': 'monthly',
                 'year': year,
                 'name': 'Контрактование, с НДС',
+                'function': self.env['project.budget.report.sales.forecast']._get_contraction_data,
             },
             {
                 'indicator': 'cash_flow',
@@ -46,6 +45,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                 'type': 'monthly',
                 'year': year,
                 'name': 'Поступление денежных средств, с НДС',
+                'function': self.env['project.budget.report.sales.forecast']._get_cash_flow_data,
             },
             {
                 'indicator': 'gross_revenue',
@@ -54,6 +54,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                 'type': 'quarterly',
                 'year': year,
                 'name': 'Валовая Выручка, без НДС',
+                'function': self.env['project.budget.report.sales.forecast']._get_gross_revenue_data,
             },
             {
                 'indicator': 'margin',
@@ -62,6 +63,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                 'type': 'quarterly',
                 'year': year,
                 'name': 'Валовая прибыль (Маржа 1), без НДС',
+                'function': self.env['project.budget.report.sales.forecast']._get_margin_data,
             },
             {
                 'type': 'blank',
@@ -73,6 +75,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                 'type': 'yearly',
                 'year': year + 1,
                 'name': 'Контрактование, с НДС',
+                'function': self.env['project.budget.report.sales.forecast']._get_contraction_data,
             },
             {
                 'indicator': 'cash_flow',
@@ -81,6 +84,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                 'type': 'yearly',
                 'year': year + 1,
                 'name': 'Поступление денежных средств, с НДС',
+                'function': self.env['project.budget.report.sales.forecast']._get_cash_flow_data,
             },
             {
                 'indicator': 'gross_revenue',
@@ -89,6 +93,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                 'type': 'yearly',
                 'year': year + 1,
                 'name': 'Валовая Выручка, без НДС',
+                'function': self.env['project.budget.report.sales.forecast']._get_gross_revenue_data,
             },
             {
                 'indicator': 'margin',
@@ -97,6 +102,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                 'type': 'yearly',
                 'year': year + 1,
                 'name': 'Валовая прибыль (Маржа 1), без НДС',
+                'function': self.env['project.budget.report.sales.forecast']._get_margin_data,
             },
             {
                 'type': 'blank',
@@ -108,6 +114,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                 'type': 'yearly',
                 'year': year + 2,
                 'name': 'Контрактование, с НДС',
+                'function': self.env['project.budget.report.sales.forecast']._get_contraction_data,
             },
             {
                 'indicator': 'cash_flow',
@@ -116,6 +123,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                 'type': 'yearly',
                 'year': year + 2,
                 'name': 'Поступление денежных средств, с НДС',
+                'function': self.env['project.budget.report.sales.forecast']._get_cash_flow_data,
             },
             {
                 'indicator': 'gross_revenue',
@@ -124,6 +132,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                 'type': 'yearly',
                 'year': year + 2,
                 'name': 'Валовая Выручка, без НДС',
+                'function': self.env['project.budget.report.sales.forecast']._get_gross_revenue_data,
             },
             {
                 'indicator': 'margin',
@@ -132,6 +141,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                 'type': 'yearly',
                 'year': year + 2,
                 'name': 'Валовая прибыль (Маржа 1), без НДС',
+                'function': self.env['project.budget.report.sales.forecast']._get_margin_data,
             },
         ]
         return data
@@ -140,289 +150,538 @@ class ReportBudgetForecastExcel(models.AbstractModel):
         for section in data:
             if section['type'] == 'monthly':
                 for month in range(1, 13):
-                    section['periods'].append({
-                        'name': self.month_rus_name[month - 1],
-                        'type': 'M' + str(month),
-                        'start': datetime.datetime(day=1, month=month, year=section['year']),
-                        'end': datetime.datetime(day=calendar.monthrange(section['year'], month)[1], month=month, year=section['year']),
-                        'level':  {'hidden': 1, 'level': 3},
-                        'cols': [
-                            {
-                                'type': 'fact',
-                                'amount': 0,
-                                'name': 'Факт',
-                            },
-                            {
-                                'type': 'commitment',
-                                'amount': 0,
-                                'name': 'Обязательство',
-                            },
-                            {
-                                'type': 'reserve',
-                                'amount': 0,
-                                'name': 'Резерв',
-                            },
-                            {
-                                'type': 'potential',
-                                'amount': 0,
-                                'name': 'Потенциал',
-                            },
-                        ],
-                    })
+                    if section['indicator'] == 'contraction':
+                        section['periods'].append({
+                            'name': self.month_rus_name[month - 1],
+                            'type': 'M' + str(month),
+                            'start': datetime.datetime(day=1, month=month, year=section['year']),
+                            'end': datetime.datetime(day=calendar.monthrange(section['year'], month)[1], month=month, year=section['year']),
+                            'level': {'hidden': 1, 'level': 3},
+                            'cols': [
+                                {
+                                    'type': 'fact',
+                                    'amount': 0,
+                                    'name': 'Факт',
+                                },
+                                {
+                                    'type': 'commitment',
+                                    'amount': 0,
+                                    'name': 'Обязательство',
+                                },
+                                {
+                                    'type': 'reserve',
+                                    'amount': 0,
+                                    'name': 'Резерв',
+                                },
+                                {
+                                    'type': 'potential',
+                                    'amount': 0,
+                                    'name': 'Потенциал',
+                                },
+                            ],
+                        })
+                    else:
+                        section['periods'].append({
+                            'name': self.month_rus_name[month - 1],
+                            'type': 'M' + str(month),
+                            'start': datetime.datetime(day=1, month=month, year=section['year']),
+                            'end': datetime.datetime(day=calendar.monthrange(section['year'], month)[1], month=month, year=section['year']),
+                            'level': {'hidden': 1, 'level': 3},
+                            'cols': [
+                                {
+                                    'type': 'fact',
+                                    'amount': 0,
+                                    'name': 'Факт',
+                                },
+                                {
+                                    'type': 'commitment',
+                                    'amount': 0,
+                                    'name': 'Обязательство',
+                                },
+                                {
+                                    'type': 'reserve',
+                                    'amount': 0,
+                                    'name': 'Резерв',
+                                },
+                            ],
+                        })
                     if month == 3:
-                        section['periods'].append({
-                            'name': 'Q1 итого',
-                            'type': 'Q1',
-                            'level': {'hidden': 1, 'level': 2},
-                            'cols': [
-                                {
-                                    'type': 'plan',
-                                    'plan_period': ('q1_plan',),
-                                    'amount': 0,
-                                    'name': 'План Q1',
-                                },
-                                {
-                                    'type': 'fact',
-                                    'amount': 0,
-                                    'name': 'Факт',
-                                },
-                                {
-                                    'type': 'commitment',
-                                    'amount': 0,
-                                    'name': 'Обязательство',
-                                },
-                                {
-                                    'type': 'reserve',
-                                    'amount': 0,
-                                    'name': 'Резерв',
-                                },
-                                {
-                                    'type': 'potential',
-                                    'amount': 0,
-                                    'name': 'Потенциал',
-                                },
-                            ],
-                        })
+                        if section['indicator'] == 'contraction':
+                            section['periods'].append({
+                                'name': 'Q1 итого',
+                                'type': 'Q1',
+                                'level': {'hidden': 1, 'level': 2},
+                                'cols': [
+                                    {
+                                        'type': 'plan',
+                                        'plan_period': ('q1_plan',),
+                                        'amount': 0,
+                                        'name': 'План Q1',
+                                    },
+                                    {
+                                        'type': 'fact',
+                                        'amount': 0,
+                                        'name': 'Факт',
+                                    },
+                                    {
+                                        'type': 'commitment',
+                                        'amount': 0,
+                                        'name': 'Обязательство',
+                                    },
+                                    {
+                                        'type': 'reserve',
+                                        'amount': 0,
+                                        'name': 'Резерв',
+                                    },
+                                    {
+                                        'type': 'potential',
+                                        'amount': 0,
+                                        'name': 'Потенциал',
+                                    },
+                                ],
+                            })
+                        else:
+                            section['periods'].append({
+                                'name': 'Q1 итого',
+                                'type': 'Q1',
+                                'level': {'hidden': 1, 'level': 2},
+                                'cols': [
+                                    {
+                                        'type': 'plan',
+                                        'plan_period': ('q1_plan',),
+                                        'amount': 0,
+                                        'name': 'План Q1',
+                                    },
+                                    {
+                                        'type': 'fact',
+                                        'amount': 0,
+                                        'name': 'Факт',
+                                    },
+                                    {
+                                        'type': 'commitment',
+                                        'amount': 0,
+                                        'name': 'Обязательство',
+                                    },
+                                    {
+                                        'type': 'reserve',
+                                        'amount': 0,
+                                        'name': 'Резерв',
+                                    },
+                                ],
+                            })
                     elif month == 6:
-                        section['periods'].append({
-                            'name': 'Q2 итого',
-                            'type': 'Q2',
-                            'level': {'hidden': 1, 'level': 2},
-                            'cols': [
-                                {
-                                    'type': 'plan',
-                                    'plan_period': ('q2_plan',),
-                                    'amount': 0,
-                                    'name': 'План Q2',
-                                },
-                                {
-                                    'type': 'fact',
-                                    'amount': 0,
-                                    'name': 'Факт',
-                                },
-                                {
-                                    'type': 'commitment',
-                                    'amount': 0,
-                                    'name': 'Обязательство',
-                                },
-                                {
-                                    'type': 'reserve',
-                                    'amount': 0,
-                                    'name': 'Резерв',
-                                },
-                                {
-                                    'type': 'potential',
-                                    'amount': 0,
-                                    'name': 'Потенциал',
-                                },
-                            ],
-                        })
-                        section['periods'].append({
-                            'name': f'HY1 {section["year"]} итого',
-                            'type': 'HY1',
-                            'level': {'hidden': 1, 'level': 1},
-                            'cols': [
-                                {
-                                    'type': 'plan',
-                                    'amount': 0,
-                                    'name': 'План HY1',
-                                },
-                                {
-                                    'type': 'fact',
-                                    'amount': 0,
-                                    'name': 'Факт',
-                                },
-                                {
-                                    'type': 'commitment',
-                                    'amount': 0,
-                                    'name': 'Обязательство',
-                                },
-                                {
-                                    'type': 'reserve',
-                                    'amount': 0,
-                                    'name': 'Резерв',
-                                },
-                                {
-                                    'type': 'potential',
-                                    'amount': 0,
-                                    'name': 'Потенциал',
-                                },
-                            ],
-                        })
+                        if section['indicator'] == 'contraction':
+                            section['periods'].append({
+                                'name': 'Q2 итого',
+                                'type': 'Q2',
+                                'level': {'hidden': 1, 'level': 2},
+                                'cols': [
+                                    {
+                                        'type': 'plan',
+                                        'plan_period': ('q2_plan',),
+                                        'amount': 0,
+                                        'name': 'План Q2',
+                                    },
+                                    {
+                                        'type': 'fact',
+                                        'amount': 0,
+                                        'name': 'Факт',
+                                    },
+                                    {
+                                        'type': 'commitment',
+                                        'amount': 0,
+                                        'name': 'Обязательство',
+                                    },
+                                    {
+                                        'type': 'reserve',
+                                        'amount': 0,
+                                        'name': 'Резерв',
+                                    },
+                                    {
+                                        'type': 'potential',
+                                        'amount': 0,
+                                        'name': 'Потенциал',
+                                    },
+                                ],
+                            })
+                            section['periods'].append({
+                                'name': f'HY1 {section["year"]} итого',
+                                'type': 'HY1',
+                                'level': {'hidden': 1, 'level': 1},
+                                'cols': [
+                                    {
+                                        'type': 'plan',
+                                        'amount': 0,
+                                        'name': 'План HY1',
+                                    },
+                                    {
+                                        'type': 'fact',
+                                        'amount': 0,
+                                        'name': 'Факт',
+                                    },
+                                    {
+                                        'type': 'commitment',
+                                        'amount': 0,
+                                        'name': 'Обязательство',
+                                    },
+                                    {
+                                        'type': 'reserve',
+                                        'amount': 0,
+                                        'name': 'Резерв',
+                                    },
+                                    {
+                                        'type': 'potential',
+                                        'amount': 0,
+                                        'name': 'Потенциал',
+                                    },
+                                ],
+                            })
+                        else:
+                            section['periods'].append({
+                                'name': 'Q2 итого',
+                                'type': 'Q2',
+                                'level': {'hidden': 1, 'level': 2},
+                                'cols': [
+                                    {
+                                        'type': 'plan',
+                                        'plan_period': ('q2_plan',),
+                                        'amount': 0,
+                                        'name': 'План Q2',
+                                    },
+                                    {
+                                        'type': 'fact',
+                                        'amount': 0,
+                                        'name': 'Факт',
+                                    },
+                                    {
+                                        'type': 'commitment',
+                                        'amount': 0,
+                                        'name': 'Обязательство',
+                                    },
+                                    {
+                                        'type': 'reserve',
+                                        'amount': 0,
+                                        'name': 'Резерв',
+                                    },
+                                ],
+                            })
+                            section['periods'].append({
+                                'name': f'HY1 {section["year"]} итого',
+                                'type': 'HY1',
+                                'level': {'hidden': 1, 'level': 1},
+                                'cols': [
+                                    {
+                                        'type': 'plan',
+                                        'amount': 0,
+                                        'name': 'План HY1',
+                                    },
+                                    {
+                                        'type': 'fact',
+                                        'amount': 0,
+                                        'name': 'Факт',
+                                    },
+                                    {
+                                        'type': 'commitment',
+                                        'amount': 0,
+                                        'name': 'Обязательство',
+                                    },
+                                    {
+                                        'type': 'reserve',
+                                        'amount': 0,
+                                        'name': 'Резерв',
+                                    },
+                                ],
+                            })
                     elif month == 9:
-                        section['periods'].append({
-                            'name': 'Q3 итого',
-                            'type': 'Q3',
-                            'level': {'hidden': 1, 'level': 2},
-                            'cols': [
-                                {
-                                    'type': 'plan',
-                                    'plan_period': ('q3_plan',),
-                                    'amount': 0,
-                                    'name': 'План Q3',
-                                },
-                                {
-                                    'type': 'plan66',
-                                    'plan_period': ('q3_plan_6_6',),
-                                    'amount': 0,
-                                    'name': 'План Q3 6+6',
-                                },
-                                {
-                                    'type': 'fact',
-                                    'amount': 0,
-                                    'name': 'Факт',
-                                },
-                                {
-                                    'type': 'commitment',
-                                    'amount': 0,
-                                    'name': 'Обязательство',
-                                },
-                                {
-                                    'type': 'reserve',
-                                    'amount': 0,
-                                    'name': 'Резерв',
-                                },
-                                {
-                                    'type': 'potential',
-                                    'amount': 0,
-                                    'name': 'Потенциал',
-                                },
-                            ],
-                        })
+                        if section['indicator'] == 'contraction':
+                            section['periods'].append({
+                                'name': 'Q3 итого',
+                                'type': 'Q3',
+                                'level': {'hidden': 1, 'level': 2},
+                                'cols': [
+                                    {
+                                        'type': 'plan',
+                                        'plan_period': ('q3_plan',),
+                                        'amount': 0,
+                                        'name': 'План Q3',
+                                    },
+                                    {
+                                        'type': 'plan66',
+                                        'plan_period': ('q3_plan_6_6',),
+                                        'amount': 0,
+                                        'name': 'План Q3 6+6',
+                                    },
+                                    {
+                                        'type': 'fact',
+                                        'amount': 0,
+                                        'name': 'Факт',
+                                    },
+                                    {
+                                        'type': 'commitment',
+                                        'amount': 0,
+                                        'name': 'Обязательство',
+                                    },
+                                    {
+                                        'type': 'reserve',
+                                        'amount': 0,
+                                        'name': 'Резерв',
+                                    },
+                                    {
+                                        'type': 'potential',
+                                        'amount': 0,
+                                        'name': 'Потенциал',
+                                    },
+                                ],
+                            })
+                        else:
+                            section['periods'].append({
+                                'name': 'Q3 итого',
+                                'type': 'Q3',
+                                'level': {'hidden': 1, 'level': 2},
+                                'cols': [
+                                    {
+                                        'type': 'plan',
+                                        'plan_period': ('q3_plan',),
+                                        'amount': 0,
+                                        'name': 'План Q3',
+                                    },
+                                    {
+                                        'type': 'plan66',
+                                        'plan_period': ('q3_plan_6_6',),
+                                        'amount': 0,
+                                        'name': 'План Q3 6+6',
+                                    },
+                                    {
+                                        'type': 'fact',
+                                        'amount': 0,
+                                        'name': 'Факт',
+                                    },
+                                    {
+                                        'type': 'commitment',
+                                        'amount': 0,
+                                        'name': 'Обязательство',
+                                    },
+                                    {
+                                        'type': 'reserve',
+                                        'amount': 0,
+                                        'name': 'Резерв',
+                                    },
+                                ],
+                            })
                     elif month == 12:
-                        section['periods'].append({
-                            'name': 'Q4 итого',
-                            'type': 'Q4',
-                            'level': {'hidden': 1, 'level': 2},
-                            'cols': [
-                                {
-                                    'type': 'plan',
-                                    'plan_period': ('q4_plan',),
-                                    'amount': 0,
-                                    'name': 'План Q4',
-                                },
-                                {
-                                    'type': 'plan66',
-                                    'plan_period': ('q4_plan_6_6',),
-                                    'amount': 0,
-                                    'name': 'План Q4 6+6',
-                                },
-                                {
-                                    'type': 'fact',
-                                    'amount': 0,
-                                    'name': 'Факт',
-                                },
-                                {
-                                    'type': 'commitment',
-                                    'amount': 0,
-                                    'name': 'Обязательство',
-                                },
-                                {
-                                    'type': 'reserve',
-                                    'amount': 0,
-                                    'name': 'Резерв',
-                                },
-                                {
-                                    'type': 'potential',
-                                    'amount': 0,
-                                    'name': 'Потенциал',
-                                },
-                            ],
-                        })
-                        section['periods'].append({
-                            'name': f'HY2 {section["year"]} итого',
-                            'type': 'HY2',
-                            'level': {'hidden': 1, 'level': 1},
-                            'cols': [
-                                {
-                                    'type': 'plan',
-                                    'amount': 0,
-                                    'name': 'План HY2',
-                                },
-                                {
-                                    'type': 'plan66',
-                                    'amount': 0,
-                                    'name': 'План HY2 6+6',
-                                },
-                                {
-                                    'type': 'fact',
-                                    'amount': 0,
-                                    'name': 'Факт',
-                                },
-                                {
-                                    'type': 'commitment',
-                                    'amount': 0,
-                                    'name': 'Обязательство',
-                                },
-                                {
-                                    'type': 'reserve',
-                                    'amount': 0,
-                                    'name': 'Резерв',
-                                },
-                                {
-                                    'type': 'potential',
-                                    'amount': 0,
-                                    'name': 'Потенциал',
-                                },
-                            ],
-                        })
-                        section['periods'].append({
-                            'name': f'{section["year"]} итого',
-                            'type': 'Y',
-                            'cols': [
-                                {
-                                    'type': 'plan',
-                                    'amount': 0,
-                                    'name': f'План {section["year"]}',
-                                },
-                                {
-                                    'type': 'plan66',
-                                    'amount': 0,
-                                    'name': f'План {section["year"]} 6+6',
-                                    'plan_period': ('q1_fact', 'q2_fact', 'q3_plan_6_6', 'q4_plan_6_6'),
-                                },
-                                {
-                                    'type': 'fact',
-                                    'amount': 0,
-                                    'name': 'Факт',
-                                },
-                                {
-                                    'type': 'commitment',
-                                    'amount': 0,
-                                    'name': 'Обязательство',
-                                },
-                                {
-                                    'type': 'reserve',
-                                    'amount': 0,
-                                    'name': 'Резерв',
-                                },
-                                {
-                                    'type': 'potential',
-                                    'amount': 0,
-                                    'name': 'Потенциал',
-                                },
-                            ],
-                        })
+                        if section['indicator'] == 'contraction':
+                            section['periods'].append({
+                                'name': 'Q4 итого',
+                                'type': 'Q4',
+                                'level': {'hidden': 1, 'level': 2},
+                                'cols': [
+                                    {
+                                        'type': 'plan',
+                                        'plan_period': ('q4_plan',),
+                                        'amount': 0,
+                                        'name': 'План Q4',
+                                    },
+                                    {
+                                        'type': 'plan66',
+                                        'plan_period': ('q4_plan_6_6',),
+                                        'amount': 0,
+                                        'name': 'План Q4 6+6',
+                                    },
+                                    {
+                                        'type': 'fact',
+                                        'amount': 0,
+                                        'name': 'Факт',
+                                    },
+                                    {
+                                        'type': 'commitment',
+                                        'amount': 0,
+                                        'name': 'Обязательство',
+                                    },
+                                    {
+                                        'type': 'reserve',
+                                        'amount': 0,
+                                        'name': 'Резерв',
+                                    },
+                                    {
+                                        'type': 'potential',
+                                        'amount': 0,
+                                        'name': 'Потенциал',
+                                    },
+                                ],
+                            })
+                            section['periods'].append({
+                                'name': f'HY2 {section["year"]} итого',
+                                'type': 'HY2',
+                                'level': {'hidden': 1, 'level': 1},
+                                'cols': [
+                                    {
+                                        'type': 'plan',
+                                        'amount': 0,
+                                        'name': 'План HY2',
+                                    },
+                                    {
+                                        'type': 'plan66',
+                                        'amount': 0,
+                                        'name': 'План HY2 6+6',
+                                    },
+                                    {
+                                        'type': 'fact',
+                                        'amount': 0,
+                                        'name': 'Факт',
+                                    },
+                                    {
+                                        'type': 'commitment',
+                                        'amount': 0,
+                                        'name': 'Обязательство',
+                                    },
+                                    {
+                                        'type': 'reserve',
+                                        'amount': 0,
+                                        'name': 'Резерв',
+                                    },
+                                    {
+                                        'type': 'potential',
+                                        'amount': 0,
+                                        'name': 'Потенциал',
+                                    },
+                                ],
+                            })
+                            section['periods'].append({
+                                'name': f'{section["year"]} итого',
+                                'type': 'Y',
+                                'cols': [
+                                    {
+                                        'type': 'plan',
+                                        'amount': 0,
+                                        'name': f'План {section["year"]}',
+                                    },
+                                    {
+                                        'type': 'plan66',
+                                        'amount': 0,
+                                        'name': f'План {section["year"]} 6+6',
+                                        'plan_period': ('q1_fact', 'q2_fact', 'q3_plan_6_6', 'q4_plan_6_6'),
+                                    },
+                                    {
+                                        'type': 'fact',
+                                        'amount': 0,
+                                        'name': 'Факт',
+                                    },
+                                    {
+                                        'type': 'commitment',
+                                        'amount': 0,
+                                        'name': 'Обязательство',
+                                    },
+                                    {
+                                        'type': 'reserve',
+                                        'amount': 0,
+                                        'name': 'Резерв',
+                                    },
+                                    {
+                                        'type': 'potential',
+                                        'amount': 0,
+                                        'name': 'Потенциал',
+                                    },
+                                ],
+                            })
+                        else:
+                            section['periods'].append({
+                                'name': 'Q4 итого',
+                                'type': 'Q4',
+                                'level': {'hidden': 1, 'level': 2},
+                                'cols': [
+                                    {
+                                        'type': 'plan',
+                                        'plan_period': ('q4_plan',),
+                                        'amount': 0,
+                                        'name': 'План Q4',
+                                    },
+                                    {
+                                        'type': 'plan66',
+                                        'plan_period': ('q4_plan_6_6',),
+                                        'amount': 0,
+                                        'name': 'План Q4 6+6',
+                                    },
+                                    {
+                                        'type': 'fact',
+                                        'amount': 0,
+                                        'name': 'Факт',
+                                    },
+                                    {
+                                        'type': 'commitment',
+                                        'amount': 0,
+                                        'name': 'Обязательство',
+                                    },
+                                    {
+                                        'type': 'reserve',
+                                        'amount': 0,
+                                        'name': 'Резерв',
+                                    },
+                                ],
+                            })
+                            section['periods'].append({
+                                'name': f'HY2 {section["year"]} итого',
+                                'type': 'HY2',
+                                'level': {'hidden': 1, 'level': 1},
+                                'cols': [
+                                    {
+                                        'type': 'plan',
+                                        'amount': 0,
+                                        'name': 'План HY2',
+                                    },
+                                    {
+                                        'type': 'plan66',
+                                        'amount': 0,
+                                        'name': 'План HY2 6+6',
+                                    },
+                                    {
+                                        'type': 'fact',
+                                        'amount': 0,
+                                        'name': 'Факт',
+                                    },
+                                    {
+                                        'type': 'commitment',
+                                        'amount': 0,
+                                        'name': 'Обязательство',
+                                    },
+                                    {
+                                        'type': 'reserve',
+                                        'amount': 0,
+                                        'name': 'Резерв',
+                                    },
+                                ],
+                            })
+                            section['periods'].append({
+                                'name': f'{section["year"]} итого',
+                                'type': 'Y',
+                                'cols': [
+                                    {
+                                        'type': 'plan',
+                                        'amount': 0,
+                                        'name': f'План {section["year"]}',
+                                    },
+                                    {
+                                        'type': 'plan66',
+                                        'amount': 0,
+                                        'name': f'План {section["year"]} 6+6',
+                                        'plan_period': ('q1_fact', 'q2_fact', 'q3_plan_6_6', 'q4_plan_6_6'),
+                                    },
+                                    {
+                                        'type': 'fact',
+                                        'amount': 0,
+                                        'name': 'Факт',
+                                    },
+                                    {
+                                        'type': 'commitment',
+                                        'amount': 0,
+                                        'name': 'Обязательство',
+                                    },
+                                    {
+                                        'type': 'reserve',
+                                        'amount': 0,
+                                        'name': 'Резерв',
+                                    },
+                                ],
+                            })
             elif section['type'] == 'quarterly':
                 section['periods'].append({
                     'name': 'Q1',
@@ -451,11 +710,6 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                             'type': 'reserve',
                             'amount': 0,
                             'name': 'Резерв',
-                        },
-                        {
-                            'type': 'potential',
-                            'amount': 0,
-                            'name': 'Потенциал',
                         },
                     ],
                 })
@@ -487,11 +741,6 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                             'amount': 0,
                             'name': 'Резерв',
                         },
-                        {
-                            'type': 'potential',
-                            'amount': 0,
-                            'name': 'Потенциал',
-                        },
                     ],
                 })
                 section['periods'].append({
@@ -518,11 +767,6 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                             'type': 'reserve',
                             'amount': 0,
                             'name': 'Резерв',
-                        },
-                        {
-                            'type': 'potential',
-                            'amount': 0,
-                            'name': 'Потенциал',
                         },
                     ],
                 })
@@ -560,11 +804,6 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                             'amount': 0,
                             'name': 'Резерв',
                         },
-                        {
-                            'type': 'potential',
-                            'amount': 0,
-                            'name': 'Потенциал',
-                        },
                     ],
                 })
                 section['periods'].append({
@@ -601,11 +840,6 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                             'amount': 0,
                             'name': 'Резерв',
                         },
-                        {
-                            'type': 'potential',
-                            'amount': 0,
-                            'name': 'Потенциал',
-                        },
                     ],
                 })
                 section['periods'].append({
@@ -638,95 +872,157 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                             'amount': 0,
                             'name': 'Резерв',
                         },
-                        {
-                            'type': 'potential',
-                            'amount': 0,
-                            'name': 'Потенциал',
-                        },
                     ],
                 })
-                section['periods'].append({
-                    'name': f'{section["year"]} итого',
-                    'type': 'Y',
-                    'cols': [
-                        {
-                            'type': 'plan',
-                            'amount': 0,
-                            'name': f'План {section["year"]}',
-                        },
-                        {
-                            'type': 'plan66',
-                            'amount': 0,
-                            'name': f'План {section["year"]} 6+6',
-                            'plan_period': ('q1_fact', 'q2_fact', 'q3_plan_6_6', 'q4_plan_6_6'),
-                        },
-                        {
-                            'type': 'fact',
-                            'amount': 0,
-                            'name': 'Факт',
-                        },
-                        {
-                            'type': 'commitment',
-                            'amount': 0,
-                            'name': 'Обязательство',
-                        },
-                        {
-                            'type': 'reserve',
-                            'amount': 0,
-                            'name': 'Резерв',
-                        },
-                        {
-                            'type': 'potential',
-                            'amount': 0,
-                            'name': 'Потенциал',
-                        },
-                    ],
-                })
+                if section['indicator'] == 'gross_revenue':
+                    section['periods'].append({
+                        'name': f'{section["year"]} итого',
+                        'type': 'Y',
+                        'cols': [
+                            {
+                                'type': 'plan',
+                                'amount': 0,
+                                'name': f'План {section["year"]}',
+                            },
+                            {
+                                'type': 'plan66',
+                                'amount': 0,
+                                'name': f'План {section["year"]} 6+6',
+                                'plan_period': ('q1_fact', 'q2_fact', 'q3_plan_6_6', 'q4_plan_6_6'),
+                            },
+                            {
+                                'type': 'fact',
+                                'amount': 0,
+                                'name': 'Факт',
+                            },
+                            {
+                                'type': 'commitment',
+                                'amount': 0,
+                                'name': 'Обязательство',
+                            },
+                            {
+                                'type': 'reserve',
+                                'amount': 0,
+                                'name': 'Резерв',
+                            },
+                            {
+                                'type': 'potential',
+                                'amount': 0,
+                                'name': 'Потенциал',
+                                'start': datetime.datetime(day=1, month=1, year=section['year']),
+                                'end': datetime.datetime(day=31, month=12, year=section['year']),
+                            },
+                        ],
+                    })
+                else:
+                    section['periods'].append({
+                        'name': f'{section["year"]} итого',
+                        'type': 'Y',
+                        'cols': [
+                            {
+                                'type': 'plan',
+                                'amount': 0,
+                                'name': f'План {section["year"]}',
+                            },
+                            {
+                                'type': 'plan66',
+                                'amount': 0,
+                                'name': f'План {section["year"]} 6+6',
+                                'plan_period': ('q1_fact', 'q2_fact', 'q3_plan_6_6', 'q4_plan_6_6'),
+                            },
+                            {
+                                'type': 'fact',
+                                'amount': 0,
+                                'name': 'Факт',
+                            },
+                            {
+                                'type': 'commitment',
+                                'amount': 0,
+                                'name': 'Обязательство',
+                            },
+                            {
+                                'type': 'reserve',
+                                'amount': 0,
+                                'name': 'Резерв',
+                            },
+                        ],
+                    })
             elif section['type'] == 'yearly':
-                section['periods'].append({
-                    'name': f'{section["year"]} итого',
-                    'type': 'Y',
-                    'start': datetime.datetime(day=1, month=1, year=section['year']),
-                    'end': datetime.datetime(day=31, month=12, year=section['year']),
-                    'cols': [
-                        {
-                            'type': 'plan',
-                            'plan_period': ('year_plan',),
-                            'amount': 0,
-                            'name': f'План {section["year"]}',
-                        },
-                        {
-                            'type': 'fact',
-                            'amount': 0,
-                            'name': 'Факт',
-                        },
-                        {
-                            'type': 'commitment',
-                            'amount': 0,
-                            'name': 'Обязательство',
-                        },
-                        {
-                            'type': 'reserve',
-                            'amount': 0,
-                            'name': 'Резерв',
-                        },
-                        {
-                            'type': 'potential',
-                            'amount': 0,
-                            'name': 'Потенциал',
-                        },
-                    ],
-                })
+                if section['indicator'] in ('contraction', 'gross_revenue'):
+                    section['periods'].append({
+                        'name': f'{section["year"]} итого',
+                        'type': 'Y',
+                        'start': datetime.datetime(day=1, month=1, year=section['year']),
+                        'end': datetime.datetime(day=31, month=12, year=section['year']),
+                        'cols': [
+                            {
+                                'type': 'plan',
+                                'plan_period': ('year_plan',),
+                                'amount': 0,
+                                'name': f'План {section["year"]}',
+                            },
+                            {
+                                'type': 'fact',
+                                'amount': 0,
+                                'name': 'Факт',
+                            },
+                            {
+                                'type': 'commitment',
+                                'amount': 0,
+                                'name': 'Обязательство',
+                            },
+                            {
+                                'type': 'reserve',
+                                'amount': 0,
+                                'name': 'Резерв',
+                            },
+                            {
+                                'type': 'potential',
+                                'amount': 0,
+                                'name': 'Потенциал',
+                            },
+                        ],
+                    })
+                else:
+                    section['periods'].append({
+                        'name': f'{section["year"]} итого',
+                        'type': 'Y',
+                        'start': datetime.datetime(day=1, month=1, year=section['year']),
+                        'end': datetime.datetime(day=31, month=12, year=section['year']),
+                        'cols': [
+                            {
+                                'type': 'plan',
+                                'plan_period': ('year_plan',),
+                                'amount': 0,
+                                'name': f'План {section["year"]}',
+                            },
+                            {
+                                'type': 'fact',
+                                'amount': 0,
+                                'name': 'Факт',
+                            },
+                            {
+                                'type': 'commitment',
+                                'amount': 0,
+                                'name': 'Обязательство',
+                            },
+                            {
+                                'type': 'reserve',
+                                'amount': 0,
+                                'name': 'Резерв',
+                            },
+                        ],
+                    })
         return data
 
-    def add_start_columns_to_sections(self, data):
-        start_column = self.START_COLUMN
+    def add_start_columns_to_sections(self, data, start_column):
+        start = start_column
         for section in data:
-            section['start_column'] = start_column
+            section['start_column'] = start
             if section['type'] == 'blank':
-                start_column += 1
+                start += 1
             else:
-                start_column += sum(len(period['cols']) for period in section['periods'])
+                start += sum(len(period['cols']) for period in section['periods'])
         return data
 
     def add_total_columns_to_cols(self, data):  # добавляем номера колонок для суммирования по Q HY Y
@@ -805,21 +1101,21 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                 for period in section['periods']:
                     if period['type'] == 'HY1':
                         for col in period['cols']:
-                            if col['type'] in ('plan', 'fact', 'commitment', 'reserve', 'potential'):
+                            if col['type'] in ('plan', 'fact', 'commitment', 'reserve',):
                                 col['total_columns'] = (
                                     code_columns['Q1'][col['type']],
                                     code_columns['Q2'][col['type']],
                                 )
                     elif period['type'] == 'HY2':
                         for col in period['cols']:
-                            if col['type'] in ('plan', 'plan66', 'fact', 'commitment', 'reserve', 'potential'):
+                            if col['type'] in ('plan', 'plan66', 'fact', 'commitment', 'reserve',):
                                 col['total_columns'] = (
                                     code_columns['Q3'][col['type']],
                                     code_columns['Q4'][col['type']],
                                 )
                     elif period['type'] == 'Y':
                         for col in period['cols']:
-                            if col['type'] in ('plan', 'fact', 'commitment', 'reserve', 'potential'):
+                            if col['type'] in ('plan', 'fact', 'commitment', 'reserve',):
                                 col['total_columns'] = (
                                     code_columns['HY1'][col['type']],
                                     code_columns['HY2'][col['type']],
@@ -1160,7 +1456,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
         else:
             return []
 
-    def print_worksheet(self, workbook, budget, worksheet_name, responsibility_center_ids, systematica_forecast, oblako_row, diff_name, year):
+    def print_worksheet(self, workbook, budget, worksheet_name, responsibility_center_ids, systematica_forecast, oblako_row, diff_name, year, start_column):
 
         sheet = workbook.add_worksheet(worksheet_name)
         sheet.set_zoom(85)
@@ -1197,11 +1493,22 @@ class ReportBudgetForecastExcel(models.AbstractModel):
             'font_size': 10,
             "num_format": '#,##0',
         })
+        row_format_left_part_date = workbook.add_format({
+            'border': 1,
+            'font_size': 10,
+            "num_format": 'dd.mm.yyyy',
+        })
         row_format_left_part_red = workbook.add_format({
             'border': 1,
             'font_size': 10,
             'font_color': 'red',
             "num_format": '#,##0',
+        })
+        row_format_left_part_red_date = workbook.add_format({
+            'border': 1,
+            'font_size': 10,
+            'font_color': 'red',
+            "num_format": 'dd.mm.yyyy',
         })
         stage_summary_default_format = workbook.add_format({
             'border': 1,
@@ -1317,6 +1624,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
             "num_format": '#,##0;[red]-#,##0',
         })
 
+        # левая часть шапки
         row = 0
         sheet.write_string(row, 0, budget.name, bold)
         row = 2
@@ -1332,12 +1640,19 @@ class ReportBudgetForecastExcel(models.AbstractModel):
         column += 1
         sheet.write_string(row - 2, column, "Обязательство", summary_format)
         sheet.write_string(row - 1, column, "Резерв", summary_format)
+        if self.env.company.name == 'Ландата':
+            sheet.write_string(row + 1, column, "Партнер", head_format_left_part)
+            sheet.write_string(row + 2, column, "", head_format_left_part)
+            sheet.set_column(column, column, 21.5)
+            column += 1
         sheet.write_string(row + 1, column, "Заказчик", head_format_left_part)
         sheet.write_string(row + 2, column, "", head_format_left_part)
         sheet.set_column(column, column, 25)
         column += 1
-        sheet.write_number(row - 2, column, 1, summary_format_percent)
-        sheet.write_number(row - 1, column, 0.6, summary_format_percent)
+        sheet.write_number(row - 2, column - 1 if self.env.company.name == 'Ландата' else column, 1,
+                           summary_format_percent)
+        sheet.write_number(row - 1, column - 1 if self.env.company.name == 'Ландата' else column, 0.6,
+                           summary_format_percent)
         sheet.write_string(row + 1, column, "Наименование Проекта", head_format_left_part)
         sheet.write_string(row + 2, column, "", head_format_left_part)
         sheet.set_column(column, column, 12.25)
@@ -1356,14 +1671,15 @@ class ReportBudgetForecastExcel(models.AbstractModel):
         column += 1
         sheet.write_string(row + 1, column, "Прибыльность, экспертно, %", head_format_left_part)
         sheet.write_string(row + 2, column, "", head_format_left_part)
-        sheet.set_column(4, 9, False, False, {'hidden': 1, 'level': 1})
+        sheet.set_column(5 if self.env.company.name == 'Ландата' else 4,
+                         start_column - 1, False, False, {'hidden': 1, 'level': 3})
         column += 1
         sheet.write_string(row + 1, column, "", head_format_left_part)
         sheet.write_string(row + 2, column, "", head_format_left_part)
         sheet.set_column(column, column, 2)
         column += 1
 
-        sheet.freeze_panes(5, self.START_COLUMN)
+        sheet.freeze_panes(5, start_column)
 
         forecast_ids = {
             'commitment': self.env.ref('project_budget_nkk.project_budget_forecast_probability_commitment').id,
@@ -1373,16 +1689,17 @@ class ReportBudgetForecastExcel(models.AbstractModel):
 
         data = self.get_sections_dict(year)
         data = self.add_periods_to_sections(data)
-        data = self.add_start_columns_to_sections(data)
+        data = self.add_start_columns_to_sections(data, start_column)
         data = self.add_total_columns_to_cols(data)
         data = self.add_head_format_to_sections(data, workbook)
         data = self.add_format_to_cols(data, workbook)
 
-        start_col = self.START_COLUMN
+        section_column = start_column
+        column = start_column
 
         year_columns = {}
 
-        for section in data:  # печатаем шапку
+        for section in data:  # печатаем шапку основной части таблицы
             if section['type'] != 'blank':
                 for period in section['periods']:
                     sheet.merge_range(row, column, row, column + len(period['cols']) - 1, period['name'], section['head_format'])
@@ -1400,10 +1717,10 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                             sheet.merge_range(row + 1, column, row + 1, column + (len(period['cols']) - i - 1), 'Прогноз до конца периода (на дату отчета)', col['head_format'])
 
                         column += 1
-                sheet.merge_range(row - 1, start_col, row - 1, column - 1, section['name'], section['head_format'])
+                sheet.merge_range(row - 1, section_column, row - 1, column - 1, section['name'], section['head_format'])
             else:
                 column += 1
-            start_col = column
+            section_column = column
 
         financial_indicators = self.env['project.budget.financial.indicator'].search([
             ('commercial_budget_id', '=', budget.id),
@@ -1442,59 +1759,56 @@ class ReportBudgetForecastExcel(models.AbstractModel):
 
         center_parent_rows = {}
 
+        all_responsibility_centers = self.env['account.analytic.account'].search([
+            ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+        ])
+
         active_responsibility_centers = self.env['account.analytic.account'].search([
             '|', ('id', 'in', financial_indicators.responsibility_center_id.ids),
             ('id', 'in', center_plans[year].budget_plan_supervisor_id.responsibility_center_id.ids),
         ])
 
-        selected_responsibility_centers = active_responsibility_centers.filtered(lambda o: o.id in responsibility_center_ids)
+        selected_responsibility_centers = self.env['account.analytic.account'].search([
+            ('id', 'in', responsibility_center_ids),
+        ])
 
-        # добавляем активных потомков в список выбранных офисов
-        child_responsibility_centers = self.env['account.analytic.account'].search([
-            ('parent_id', 'in', selected_responsibility_centers.ids),
-            ('id', 'in', active_responsibility_centers.ids),
-            ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
-        ])
-        while child_responsibility_centers:
-            new_child_responsibility_centers = self.env['account.analytic.account'].search([
-                ('parent_id', 'in', child_responsibility_centers.ids),
-                ('id', 'in', active_responsibility_centers.ids),
-                ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
-        ])
-            selected_responsibility_centers += child_responsibility_centers
-            child_responsibility_centers = new_child_responsibility_centers
+        selected_centers_w_children_ids = set()
+        for active_center in active_responsibility_centers:  # отбираем из выбранных офисов те, которые активные или чьи потомки активные и добавляем этих потомков
+            if active_center not in selected_responsibility_centers:
+                active_center_parent = active_center.parent_id
+                active_center_w_parents = active_center
+                while active_center_parent:
+                    active_center_w_parents += active_center.parent_id
+                    if active_center_parent in selected_responsibility_centers:
+                        selected_centers_w_children_ids.update(active_center_w_parents.ids)
+                        break
+                    active_center_parent = active_center_parent.parent_id
+            else:
+                selected_centers_w_children_ids.add(active_center.id)
 
         company_rows = list()
         for company in financial_indicators.company_id.filtered(lambda c: c.id in selected_responsibility_centers.company_id.ids):
             center_rows = list()
 
-            current_centers = selected_responsibility_centers.filtered(lambda o: o.company_id == company)
-            current_centers_wo_parents = current_centers.filtered(lambda o: not o.parent_id)
-            all_centers = list()
-            all_centers_sorted = list()
+            current_centers_wo_parents = all_responsibility_centers.filtered(lambda o: not o.parent_id and o.company_id == company)
 
-            for center in current_centers:  # добавляем все промежуточные родители в список офисов
-                center_parent = center.parent_id
-                while center_parent:
-                    if center_parent not in all_centers:
-                        all_centers.append(center_parent)
-                    center_parent = center_parent.parent_id
-                all_centers.append(center)
-
-            def get_center_ids(o_wo_parents, all_o, all_o_sorted):  # сортируем офисы так, чтобы потомки шли перед родителями
+            def get_center_ids(o_wo_parents, all_o_sorted):  # сортируем офисы так, чтобы потомки шли перед родителями
                 for o in o_wo_parents:
                     child_centers = o.child_ids
                     if child_centers:
-                        all_o_sorted = get_center_ids(child_centers, all_o, all_o_sorted)
-                    if o not in all_o_sorted and o in all_o:
+                        all_o_sorted = get_center_ids(child_centers, all_o_sorted)
+                    if o not in all_o_sorted:
                         all_o_sorted.append(o)
                 return all_o_sorted
 
-            all_centers_sorted = get_center_ids(current_centers_wo_parents, all_centers, all_centers_sorted)
+            all_centers_sorted = list()
+            all_centers_sorted = get_center_ids(current_centers_wo_parents, all_centers_sorted)
 
             for center in all_centers_sorted:
+                if center.id not in selected_centers_w_children_ids:
+                    continue
                 kam_rows = list()
-                for kam in financial_indicators.key_account_manager_id.filtered(lambda k: k.company_id == company):
+                for kam in financial_indicators.key_account_manager_id.filtered(lambda k: k.company_id == company).sorted(lambda k: k.name):
                     stage_rows = list()
                     kam_is_present = False
                     for stage in financial_indicators.stage_id.filtered(lambda s: s.project_status != 'lead').sorted(lambda s: s.sequence, reverse=True):
@@ -1502,68 +1816,67 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                         stage_is_present = False
 
                         filtered_indicators = financial_indicators.filtered(
-                            lambda fi: fi.project_id.company_id == company and
-                                       fi.project_id.responsibility_center_id == center and
-                                       fi.project_id.key_account_manager_id == kam and
-                                       fi.project_id.stage_id == stage
+                            lambda fi: fi.prj_id.company_id == company and
+                                       fi.prj_id.responsibility_center_id == center and
+                                       fi.prj_id.key_account_manager_id == kam and
+                                       fi.prj_id.stage_id == stage
                         )
 
-                        projects = filtered_indicators.project_id
-                        steps = filtered_indicators.step_id
-
-                        project_list = list()
-
-                        for prj in projects:
-                            if prj.project_have_steps:
-                                for stp in prj.step_project_child_ids:
-                                    if stp in steps:
-                                        project_list.append((prj, stp))
-                            else:
-                                project_list.append((prj, False))
-
-                        for project, step in project_list:
-                            current_indicators = financial_indicators.filtered(lambda ci: ci.project_id == project and (not ci.step_id or ci.step_id == step))
+                        for project in filtered_indicators.prj_id.sorted(lambda p: p.project_id):
+                            current_indicators = financial_indicators.filtered(lambda ci: ci.prj_id == project)
                             if current_indicators:
                                 stage_is_present = True
                                 kam_is_present = True
                                 format = row_format_left_part
+                                format_date = row_format_left_part_date
                                 level = {'hidden': 1, 'level': 3}
                                 if project.stage_id.project_state == 'cancel':
                                     format = row_format_left_part_red
+                                    format_date = row_format_left_part_red_date
                                     level = {'hidden': 1, 'level': 4}
-                                column = self.START_COLUMN
-                                sheet.set_row(row, False, False, level)
-                                sheet.write_string(row, 0, center.name, format)
-                                sheet.write_string(row, 1, kam.name, format)
-                                sheet.write_string(row, 2, project.partner_id.name, format)
-                                sheet.write_string(row, 3, project.essence_project, format)
-                                sheet.write_string(row, 4, project.project_id + ('|' + step.project_id if step else ''), format)
-                                sheet.write_string(row, 5, (step.step_project_number or '') if step else (project.step_project_number or ''),
-                                                   format)
-                                sheet.write_number(row, 6, project.total_amount_of_revenue_with_vat ,format)
-                                if project.stage_id.project_state == 'won':
-                                    sheet.write_datetime(row, 7, project.end_presale_project_month, format)
-                                else:
-                                    sheet.write(row, 7, None, format)
-                                sheet.write_number(row, 8, project.profitability, format)
 
+                                sheet.set_row(row, False, False, level)
+                                column = 0
+                                sheet.write_string(row, column, center.name, format)
+                                column += 1
+                                sheet.write_string(row, column, kam.name, format)
+                                column += 1
+                                if self.env.company.name == 'Ландата':
+                                    sheet.write_string(row, column, project.company_partner_id.partner_id.name or '', format)
+                                    column += 1
+                                sheet.write_string(row, column, project.partner_id.name, format)
+                                column += 1
+                                sheet.write_string(row, column, project.essence_project, format)
+                                column += 1
+                                if project.step_status == 'step':
+                                    sheet.write_string(row, column, (project.step_project_parent_id.project_id or '') + ' | ' + project.project_id, format)
+                                else:
+                                    sheet.write_string(row, column, project.project_id, format)
+                                column += 1
+                                sheet.write_string(row, column, (project.step_project_number or ''), format)
+                                column += 1
+                                sheet.write_number(row, column, project.total_amount_of_revenue_with_vat ,format)
+                                column += 1
+                                if project.stage_id.code == '100':
+                                    sheet.write_datetime(row, column, project.end_presale_project_month, format_date)
+                                else:
+                                    sheet.write(row, column, None, format)
+                                column += 1
+                                sheet.write_number(row, column, project.profitability, format)
+
+                                column = start_column
                                 for section in data:
                                     if section['type'] != 'blank':
                                         for period in section['periods']:
                                             if period.get('start', False):
-                                                res = {
-                                                    'contraction': self.env['project.budget.report.sales.forecast']._get_contraction_data(period['start'].date(), period['end'].date(), current_indicators),
-                                                    'cash_flow': self.env['project.budget.report.sales.forecast']._get_cash_flow_data(period['start'].date(), period['end'].date(), current_indicators),
-                                                    'gross_revenue': self.env['project.budget.report.sales.forecast']._get_gross_revenue_data(period['start'].date(), period['end'].date(), current_indicators),
-                                                    'margin': self.env['project.budget.report.sales.forecast']._get_margin_data(period['start'].date(), period['end'].date(), current_indicators),
-                                                }
+                                                res = section['function'](period['start'].date(), period['end'].date(), current_indicators)
                                                 for col in period['cols']:
                                                     format = col['column_format']
                                                     if project.stage_id.project_state == 'won':
                                                         format = col['column_format_won']
                                                     elif project.stage_id.project_state == 'cancel':
                                                         format = col['column_format_cancel']
-                                                    sheet.write_number(row, column, res[section['indicator']].get(forecast_ids.get(col['type'], col['type']), 0), format)
+                                                    sheet.write_number(row, column, res.get(forecast_ids.get(col['type'], col['type']), 0), format)
                                                     column += 1
                                             else:
                                                 for col in period['cols']:
@@ -1572,19 +1885,27 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                                                         format = col['column_format_won']
                                                     elif project.stage_id.project_state == 'cancel':
                                                         format = col['column_format_cancel']
-                                                    if col.get('total_columns', False):  # суммируем кварталы, полугодия и года
-                                                        formula = '=sum(' + ','.join(xl_col_to_name(c) + str(row + 1) for c in col['total_columns']) + ')'
-                                                        sheet.write_formula(row, column, formula, format)
+
+                                                    if col.get('start', False):
+                                                        res = section['function'](col['start'].date(),
+                                                                                  col['end'].date(), current_indicators)
+
+                                                        sheet.write_number(row, column, res.get(
+                                                            forecast_ids.get(col['type'], col['type']), 0), format)
                                                     else:
-                                                        sheet.write_number(row, column, 0, format)
+                                                        if col.get('total_columns', False):  # суммируем кварталы, полугодия и года
+                                                            formula = '=sum(' + ','.join(xl_col_to_name(c) + str(row + 1) for c in col['total_columns']) + ')'
+                                                            sheet.write_formula(row, column, formula, format)
+                                                        else:
+                                                            sheet.write_number(row, column, 0, format)
                                                     column += 1
                                     else:
                                         column += 1
                                 row += 1
                         if stage_is_present:  # суммируем по вероятностям
                             sheet.set_row(row, False, False, {'hidden': 1, 'level': 3})
-                            sheet.merge_range(row, 0, row, self.START_COLUMN - 1, kam.name + ' ' + stage.name, stage_summary_default_format)
-                            column = self.START_COLUMN
+                            sheet.merge_range(row, 0, row, start_column - 1, kam.name + ' ' + stage.name, stage_summary_default_format)
+                            column = start_column
                             for section in data:
                                 if section['type'] != 'blank':
                                     for period in section['periods']:
@@ -1599,10 +1920,10 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                     if kam_is_present:  #суммируем по КАМам
                         sheet.set_row(row, False, False, {'hidden': 1, 'level': 2})
                         sheet.set_row(row + 1, False, False, {'hidden': 1, 'level': 2})
-                        sheet.merge_range(row, 0, row, self.START_COLUMN - 1, 'ИТОГО: ' + kam.name, kam_summary_default_format)
-                        sheet.merge_range(row + 1, 0, row + 1, self.START_COLUMN - 1, 'ИТОГО: Расчетный План по ' + kam.name,
+                        sheet.merge_range(row, 0, row, start_column - 1, 'ИТОГО: ' + kam.name, kam_summary_default_format)
+                        sheet.merge_range(row + 1, 0, row + 1, start_column - 1, 'ИТОГО: Расчетный План по ' + kam.name,
                                           kam_summary_estimate_format)
-                        column = self.START_COLUMN
+                        column = start_column
                         for section in data:
                             if section['type'] != 'blank':
                                 for period in section['periods']:
@@ -1641,10 +1962,10 @@ class ReportBudgetForecastExcel(models.AbstractModel):
 
                 # суммируем по ПО
                 sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
-                sheet.merge_range(row, 0, row, self.START_COLUMN - 1, 'ИТОГО: ' + center.name, center_summary_default_format)
-                sheet.merge_range(row + 1, 0, row + 1, self.START_COLUMN - 1, 'ИТОГО: Расчетный План по ' + center.name,
+                sheet.merge_range(row, 0, row, start_column - 1, 'ИТОГО: ' + center.name, center_summary_default_format)
+                sheet.merge_range(row + 1, 0, row + 1, start_column - 1, 'ИТОГО: Расчетный План по ' + center.name,
                                   center_summary_estimate_format)
-                column = self.START_COLUMN
+                column = start_column
                 for section in data:
                     if section['type'] != 'blank':
                         for period in section['periods']:
@@ -1685,7 +2006,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                     else:
                         column += 1
                 row += 2
-                if center.parent_id:
+                if center.parent_id and center.parent_id.id in selected_centers_w_children_ids:
                     center_parent_rows.setdefault(center.parent_id.id, [])
                     center_parent_rows[center.parent_id.id].append(row - 1)
                 else:
@@ -1694,23 +2015,29 @@ class ReportBudgetForecastExcel(models.AbstractModel):
             # суммируем по компании
             sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
             sheet.set_row(row + 2, False, False, {'hidden': 1, 'level': 1})
-            sheet.merge_range(row, 0, row, self.START_COLUMN - 1, 'ИТОГО: ' + company.name, company_summary_default_format)
-            sheet.merge_range(row + 1, 0, row + 1, self.START_COLUMN - 1, 'ИТОГО: Расчетный План по ' + company.name,
+            sheet.merge_range(row, 0, row, start_column - 1, 'ИТОГО: ' + company.name, company_summary_default_format)
+            sheet.merge_range(row + 1, 0, row + 1, start_column - 1, 'ИТОГО: Расчетный План по ' + company.name,
                               company_summary_estimate_format)
-            column = self.START_COLUMN
+            column = start_column
             for section in data:
                 if section['type'] != 'blank':
                     for period in section['periods']:
                         for col in period['cols']:
                             if col['type'] in ('plan', 'plan66'):
-                                formula = '=sum(' + ','.join(
-                                    xl_col_to_name(column) + str(r + 1) for r in center_rows) + ')'
                                 sheet.write_number(row, column, 0, col['company_summary_format'])
-                                sheet.write_formula(row + 1, column, formula, col['company_estimate_format'])
+                                if center_rows:
+                                    formula = '=sum(' + ','.join(
+                                        xl_col_to_name(column) + str(r + 1) for r in center_rows) + ')'
+                                    sheet.write_formula(row + 1, column, formula, col['company_estimate_format'])
+                                else:
+                                    sheet.write_number(row + 1, column, 0, col['company_estimate_format'])
                             else:
-                                formula = '=sum(' + ','.join(
-                                    xl_col_to_name(column) + str(r) for r in center_rows) + ')'
-                                sheet.write_formula(row, column, formula, col['company_summary_format'])
+                                if center_rows:
+                                    formula = '=sum(' + ','.join(
+                                        xl_col_to_name(column) + str(r) for r in center_rows) + ')'
+                                    sheet.write_formula(row, column, formula, col['company_summary_format'])
+                                else:
+                                    sheet.write_number(row, column, 0, col['company_summary_format'])
                                 if col['type'] == 'fact':
                                     formula = f'={xl_col_to_name(column)}{row + 1}'
                                     sheet.write_formula(row + 1, column, formula, col['company_estimate_format'])
@@ -1737,14 +2064,14 @@ class ReportBudgetForecastExcel(models.AbstractModel):
 
         # суммируем по отчету
         sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
-        sheet.merge_range(row, 0, row, self.START_COLUMN - 1, 'ИТОГО по отчету', company_summary_default_format)
-        sheet.merge_range(row + 1, 0, row + 1, self.START_COLUMN - 1, 'ИТОГО: Расчетный План по отчету',
+        sheet.merge_range(row, 0, row, start_column - 1, 'ИТОГО по отчету', company_summary_default_format)
+        sheet.merge_range(row + 1, 0, row + 1, start_column - 1, 'ИТОГО: Расчетный План по отчету',
                           company_summary_estimate_format)
         if systematica_forecast:
             sheet.set_row(row + 2, False, False, {'hidden': 1, 'level': 1})
-            sheet.merge_range(row + 2, 0, row + 2, self.START_COLUMN - 1, 'ИТОГО: СА+Облако.ру по отчету',
+            sheet.merge_range(row + 2, 0, row + 2, start_column - 1, 'ИТОГО: СА+Облако.ру по отчету',
                               row_format_number_itogo)
-            sheet.merge_range(row + 3, 0, row + 3, self.START_COLUMN - 1, 'ИТОГО: СА+Облако.ру Расчетный План по отчету',
+            sheet.merge_range(row + 3, 0, row + 3, start_column - 1, 'ИТОГО: СА+Облако.ру Расчетный План по отчету',
                               row_format_itogo_estimated_plan_left)
         if diff_name:  # разница
             sheet.set_row(total_row + 1, 32)
@@ -1754,7 +2081,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                     '6+6' if use_6_6_plan else f'{year}') + f' ({diff_name})/ Расчетный план до конца периода (на дату отчета)',
                 row_format_diff
             )
-        column = self.START_COLUMN
+        column = start_column
         for section in data:
             if section['type'] != 'blank':
                 for period in section['periods']:
@@ -2145,6 +2472,8 @@ class ReportBudgetForecastExcel(models.AbstractModel):
 
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
 
+        START_COLUMN = 11 if self.env.company.name == 'Ландата' else 10
+
         if systematica_forecast:
             litr_codes = ('ПО_ЛИТР',)
 
@@ -2169,8 +2498,8 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                  self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
             ]).ids  # систематика без литр и облака
 
-            self.print_worksheet(workbook, budget, 'Прогноз (ЛИТР)', litr_ids, False, 0, 'ЛИТР', year)
-            oblako_row = self.print_worksheet(workbook, budget, 'Прогноз (Облако.ру)', oblako_ids, False, 0, False, year)
-            self.print_worksheet(workbook, budget, 'Прогноз', systmatica_ids, True, oblako_row, 'СА+Облако.ру', year)
+            self.print_worksheet(workbook, budget, 'Прогноз (ЛИТР)', litr_ids, False, 0, 'ЛИТР', year, START_COLUMN)
+            oblako_row = self.print_worksheet(workbook, budget, 'Прогноз (Облако.ру)', oblako_ids, False, 0, False, year, START_COLUMN)
+            self.print_worksheet(workbook, budget, 'Прогноз', systmatica_ids, True, oblako_row, 'СА+Облако.ру', year, START_COLUMN)
         else:
-            self.print_worksheet(workbook, budget, 'Прогноз', responsibility_center_ids, systematica_forecast, 0, False, year)
+            self.print_worksheet(workbook, budget, 'Прогноз', responsibility_center_ids, systematica_forecast, 0, False, year, START_COLUMN)
