@@ -538,16 +538,17 @@ class report_budget_forecast_excel(models.AbstractModel):
                     sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
                     stage_id_code = project.stage_id.code
 
-                    if planned_cash_flow.forecast == 'from_project':
-                        if stage_id_code in ('75', '100', '100(done)'):
-                            sum_ostatok_pds['commitment'] = sum_ostatok_pds.get('commitment', 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
-                        elif stage_id_code == '50':
-                            sum_ostatok_pds['reserve'] = sum_ostatok_pds.get('reserve', 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
-                    else:
-                        if stage_id_code != '0':
-                            sum_ostatok_pds[planned_cash_flow.forecast] = sum_ostatok_pds.get(planned_cash_flow.forecast, 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
+                    if planned_cash_flow.distribution_sum_with_vat_ostatok > 0:
+                        if planned_cash_flow.forecast == 'from_project':
+                            if stage_id_code in ('75', '100', '100(done)'):
+                                sum_ostatok_pds['commitment'] = sum_ostatok_pds.get('commitment', 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
+                            elif stage_id_code == '50':
+                                sum_ostatok_pds['reserve'] = sum_ostatok_pds.get('reserve', 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
+                        else:
+                            if stage_id_code != '0':
+                                sum_ostatok_pds[planned_cash_flow.forecast] = sum_ostatok_pds.get(planned_cash_flow.forecast, 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
 
-            if sum_distribution_pds != 0 : # если есть распределение, то остаток = остатку распределения
+            if sum_distribution_pds: # если есть распределение, то остаток = остатку распределения
                 sum = sum_ostatok_pds
                 for key in sum:
                     if sum[key] < 0 and not project.is_correction_project:
@@ -598,16 +599,17 @@ class report_budget_forecast_excel(models.AbstractModel):
                     sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
                     stage_id_code = project.stage_id.code
 
-                    if planned_cash_flow.forecast == 'from_project':
-                        if stage_id_code in ('75', '100', '100(done)'):
-                            sum_ostatok_pds['commitment'] = sum_ostatok_pds.get('commitment', 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
-                        elif stage_id_code == '50':
-                            sum_ostatok_pds['reserve'] = sum_ostatok_pds.get('reserve', 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
-                    else:
-                        if stage_id_code != '0':
-                            sum_ostatok_pds[planned_cash_flow.forecast] = sum_ostatok_pds.get(planned_cash_flow.forecast, 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
+                    if planned_cash_flow.distribution_sum_with_vat_ostatok > 0:
+                        if planned_cash_flow.forecast == 'from_project':
+                            if stage_id_code in ('75', '100', '100(done)'):
+                                sum_ostatok_pds['commitment'] = sum_ostatok_pds.get('commitment', 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
+                            elif stage_id_code == '50':
+                                sum_ostatok_pds['reserve'] = sum_ostatok_pds.get('reserve', 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
+                        else:
+                            if stage_id_code != '0':
+                                sum_ostatok_pds[planned_cash_flow.forecast] = sum_ostatok_pds.get(planned_cash_flow.forecast, 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
 
-            if sum_distribution_pds != 0 : # если есть распределение, то остаток = остатку распределения
+            if sum_distribution_pds: # если есть распределение, то остаток = остатку распределения
                 sum = sum_ostatok_pds
                 for key in sum:
                     if sum[key] < 0 and not project.is_correction_project:
@@ -792,18 +794,19 @@ class report_budget_forecast_excel(models.AbstractModel):
 
                 sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
 
-                if planned_acceptance_flow.forecast == 'from_project':
-                    if stage_id_code in ('75', '100', '100(done)'):
-                        sum_ostatok_acceptance['commitment'] = sum_ostatok_acceptance.get('commitment',
-                                                                                          0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                    elif stage_id_code == '50':
-                        sum_ostatok_acceptance['reserve'] = sum_ostatok_acceptance.get('reserve',
-                                                                                       0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
-                else:
-                    if stage_id_code != '0':
-                        sum_ostatok_acceptance[planned_acceptance_flow.forecast] = sum_ostatok_acceptance.get(
-                            planned_acceptance_flow.forecast,
-                            0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                if planned_acceptance_flow.distribution_sum_without_vat_ostatok > 0:
+                    if planned_acceptance_flow.forecast == 'from_project':
+                        if stage_id_code in ('75', '100', '100(done)'):
+                            sum_ostatok_acceptance['commitment'] = sum_ostatok_acceptance.get('commitment',
+                                                                                              0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                        elif stage_id_code == '50':
+                            sum_ostatok_acceptance['reserve'] = sum_ostatok_acceptance.get('reserve',
+                                                                                           0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
+                    else:
+                        if stage_id_code != '0':
+                            sum_ostatok_acceptance[planned_acceptance_flow.forecast] = sum_ostatok_acceptance.get(
+                                planned_acceptance_flow.forecast,
+                                0) + planned_acceptance_flow.distribution_sum_without_vat_ostatok
 
         if sum_distribution_acceptance:  # если есть распределение, то остаток = остатку распределения
             return sum_ostatok_acceptance
@@ -1368,7 +1371,8 @@ class report_budget_forecast_excel(models.AbstractModel):
                                          ]))
         if potential_acceptances:
             for acceptance in potential_acceptances:
-                year_acceptance_30 += acceptance.distribution_sum_without_vat_ostatok
+                if acceptance.distribution_sum_without_vat_ostatok > 0:
+                    year_acceptance_30 += acceptance.distribution_sum_without_vat_ostatok
         elif project.stage_id.code == '30' and project.end_sale_project_month.year == year:
             year_acceptance_30 = project.total_amount_of_revenue
 

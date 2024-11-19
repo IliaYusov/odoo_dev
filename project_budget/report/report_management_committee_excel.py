@@ -465,16 +465,17 @@ class report_management_committee_excel(models.AbstractModel):
 
                 stage_id_code = project.stage_id.code
 
-                if planned_cash.forecast == 'from_project':
-                    if stage_id_code in ('75', '100', '100(done)'):
-                        sum_ostatok_pds['commitment'] += planned_cash.distribution_sum_with_vat_ostatok
-                    elif stage_id_code == '50':
-                        sum_ostatok_pds['reserve'] += planned_cash.distribution_sum_with_vat_ostatok
-                    elif stage_id_code == '30':
-                        sum_ostatok_pds['potential'] += planned_cash.distribution_sum_with_vat_ostatok
-                else:
-                    if stage_id_code != '0':
-                        sum_ostatok_pds[planned_cash.forecast] += planned_cash.distribution_sum_with_vat_ostatok
+                if planned_cash.distribution_sum_with_vat_ostatok > 0:
+                    if planned_cash.forecast == 'from_project':
+                        if stage_id_code in ('75', '100', '100(done)'):
+                            sum_ostatok_pds['commitment'] += planned_cash.distribution_sum_with_vat_ostatok
+                        elif stage_id_code == '50':
+                            sum_ostatok_pds['reserve'] += planned_cash.distribution_sum_with_vat_ostatok
+                        elif stage_id_code == '30':
+                            sum_ostatok_pds['potential'] += planned_cash.distribution_sum_with_vat_ostatok
+                    else:
+                        if stage_id_code != '0':
+                            sum_ostatok_pds[planned_cash.forecast] += planned_cash.distribution_sum_with_vat_ostatok
         if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
             for key in sum:
                 if not project.is_correction_project:
@@ -824,17 +825,18 @@ class report_management_committee_excel(models.AbstractModel):
                 sum_distribution_acceptance += planned_acceptance.distribution_sum_without_vat
                 stage_id_code = project.stage_id.code
 
-                if planned_acceptance.forecast == 'from_project':
-                    if stage_id_code in ('75', '100', '100(done)'):
-                        sum_ostatok_acceptance['commitment'] += planned_acceptance.distribution_sum_without_vat_ostatok
-                    elif stage_id_code == '50':
-                        sum_ostatok_acceptance['reserve'] += planned_acceptance.distribution_sum_without_vat_ostatok
-                    elif stage_id_code == '30':
-                        sum_ostatok_acceptance['potential'] += planned_acceptance.distribution_sum_without_vat_ostatok
-                else:
-                    if stage_id_code != '0':
-                        sum_ostatok_acceptance[
-                            planned_acceptance.forecast] += planned_acceptance.distribution_sum_without_vat_ostatok
+                if planned_acceptance.distribution_sum_without_vat_ostatok > 0:
+                    if planned_acceptance.forecast == 'from_project':
+                        if stage_id_code in ('75', '100', '100(done)'):
+                            sum_ostatok_acceptance['commitment'] += planned_acceptance.distribution_sum_without_vat_ostatok
+                        elif stage_id_code == '50':
+                            sum_ostatok_acceptance['reserve'] += planned_acceptance.distribution_sum_without_vat_ostatok
+                        elif stage_id_code == '30':
+                            sum_ostatok_acceptance['potential'] += planned_acceptance.distribution_sum_without_vat_ostatok
+                    else:
+                        if stage_id_code != '0':
+                            sum_ostatok_acceptance[
+                                planned_acceptance.forecast] += planned_acceptance.distribution_sum_without_vat_ostatok
 
         if sum_distribution_acceptance:  # если есть распределение, то остаток = остатку распределения
             sum = sum_ostatok_acceptance

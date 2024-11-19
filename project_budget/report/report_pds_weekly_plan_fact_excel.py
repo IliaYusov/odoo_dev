@@ -491,8 +491,9 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                                     and (pds_plan.forecast == 'commitment'
                                          or (pds_plan.forecast == 'from_project'
                                              and project.stage_id.code in ('100(done)', '100', '75')))):
-                                pds_is_present = True
-                                project_data[period]['commitment'] += pds_plan.distribution_sum_with_vat_ostatok
+                                if pds_plan.distribution_sum_with_vat_ostatok > 0:
+                                    pds_is_present = True
+                                    project_data[period]['commitment'] += pds_plan.distribution_sum_with_vat_ostatok
 
             if pds_is_present:
                 current_project = projects.filtered(lambda pr: pr.project_id == project_project_id and pr.commercial_budget_id.id == budget.id)
