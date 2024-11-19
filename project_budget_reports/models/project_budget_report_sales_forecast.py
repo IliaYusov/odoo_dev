@@ -716,7 +716,8 @@ class ProjectBudgetReportSalesForecast(models.AbstractModel):
                     key=_keys_groupby):
                 fact_amount_by_project = sum(i.amount for i in fact_indicators.filtered(_filter_fact_indicators))
                 redistribution_amount_by_project = sum(
-                    i.distribution - i.amount for i in forecast_indicators.filtered(_filter_redistribution_indicators))
+                    i.distribution - i.amount for i in forecast_indicators.filtered(_filter_redistribution_indicators)
+                    if i.distribution - i.amount <= 0)
                 undistributed_amount_by_project = fact_amount_by_project + redistribution_amount_by_project
                 if undistributed_amount_by_project > 0:
                     remaining_amount = undistributed_amount_by_project
