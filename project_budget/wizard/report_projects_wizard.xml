@@ -35,7 +35,7 @@
                             <field name="commercial_budget_id"/>
                             <field name="responsibility_center_ids" widget="many2many_tags"
                                    options="{'no_create_edit': True}"
-                                   attrs="{'invisible': [('type_report', 'not in', ('forecast_v2', 'forecast_v3', 'kb', 'overdue', 'pds_acceptance_by_date', 'pds_weekly', 'pds_weekly_plan_fact'))]}"
+                                   attrs="{'invisible': [('type_report', 'not in', ('forecast_v2', 'forecast_v3', 'kb', 'overdue', 'pds_acceptance_by_date', 'pds_weekly', 'pds_weekly_plan_fact', 'pds_weekly_plan_fact_sa'))]}"
                                    placeholder="All POs if none selected"
                             />
                         </group>
@@ -44,13 +44,13 @@
                             <field name="systematica_forecast" attrs="{'invisible': [('type_report', 'not in', ('forecast_v2', 'forecast_v3',))]}"/>
                         </group>
                     </group>
-                    <group col = "4" string="report period" attrs="{'invisible': [('type_report', 'in', ('raw_data','overdue','pds_acceptance_by_date', 'pds_weekly_plan_fact'))]}">
+                    <group col = "4" string="report period" attrs="{'invisible': [('type_report', 'in', ('raw_data','overdue','pds_acceptance_by_date', 'pds_weekly_plan_fact', 'pds_weekly_plan_fact_sa'))]}">
                         <group>
-                            <field string="year from" name="year" attrs="{'invisible': [('type_report', 'in', ('raw_data','overdue','pds_acceptance_by_date', 'pds_weekly_plan_fact'))]}"/>
+                            <field string="year from" name="year" attrs="{'invisible': [('type_report', 'in', ('raw_data','overdue','pds_acceptance_by_date', 'pds_weekly_plan_fact', 'pds_weekly_plan_fact_sa'))]}"/>
                             <field string="from date" name="date_start" attrs="{'invisible': [('type_report', 'not in', ('pds_acceptance_by_date'))]}"/>
                         </group>
                         <group>
-                            <field string="year to" name="year_end" attrs="{'invisible': [('type_report', 'in', ('week_to_week', 'raw_data','overdue','management_committee','pds_acceptance_by_date', 'pds_weekly', 'pds_weekly_plan_fact', 'forecast_v2', 'forecast_v3', 'plan_fact'))]}"/>
+                            <field string="year to" name="year_end" attrs="{'invisible': [('type_report', 'in', ('week_to_week', 'raw_data','overdue','management_committee','pds_acceptance_by_date', 'pds_weekly', 'pds_weekly_plan_fact', 'pds_weekly_plan_fact_sa', 'forecast_v2', 'forecast_v3', 'plan_fact'))]}"/>
                             <field string="to date" name="date_end" attrs="{'invisible': [('type_report', 'not in', ('pds_acceptance_by_date'))]}"/>
                         </group>
                         <group></group>
@@ -186,6 +186,14 @@
             name="project_budget.report_pds_weekly_plan_fact_excel"
             menu="False"
             file="project_budget.report_pds_weekly_plan_fact_excel"
+    />
+    <report id="action_projects_list_report_xlsx_pds_weekly_plan_fact_sa"
+            string="Projects Report PDS by week plan fact SA"
+            model="project_budget.projects.report.wizard"
+            report_type="xlsx"
+            name="project_budget.report_pds_weekly_plan_fact_sa_excel"
+            menu="False"
+            file="project_budget.report_pds_weekly_plan_fact_sa_excel"
     />
     <report id="action_projects_list_report_xlsx_week_to_week"
             string="Projects Report week to week"

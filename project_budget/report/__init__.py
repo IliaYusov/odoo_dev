@@ -11,6 +11,7 @@ from . import report_pds_acceptance_by_date_excel
 from . import project_budget_fin_report_excel
 from . import report_pds_weekly_excel
 from . import report_pds_weekly_plan_fact_excel
+from . import report_pds_weekly_plan_fact_sa_excel
 from . import project_budget_project_overdue_report
 from . import project_budget_report_external_data
 from . import report_week_to_week_excel

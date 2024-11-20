@@ -34,6 +34,7 @@ class report_projects_wizard(models.TransientModel):
         ('pds_acceptance_by_date', 'PDS, Acceptance'),
         ('pds_weekly', 'PDS weekly'),
         ('pds_weekly_plan_fact', 'PDS weekly plan fact'),
+        ('pds_weekly_plan_fact_sa', 'PDS weekly plan fact SA'),
         ('week_to_week', 'Week to Week'),
     ],
         required=True, default='kb')
@@ -122,6 +123,9 @@ class report_projects_wizard(models.TransientModel):
 
         if self.type_report == 'pds_weekly_plan_fact':
             return self.env.ref('project_budget.action_projects_list_report_xlsx_pds_weekly_plan_fact').report_action(self, data=datas)
+
+        if self.type_report == 'pds_weekly_plan_fact_sa':
+            return self.env.ref('project_budget.action_projects_list_report_xlsx_pds_weekly_plan_fact_sa').report_action(self, data=datas)
 
         if self.type_report == 'week_to_week':
             return self.env.ref('project_budget.action_projects_list_report_xlsx_week_to_week').report_action(self, data=datas)
