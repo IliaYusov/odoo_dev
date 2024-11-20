@@ -5065,6 +5065,11 @@ msgid "sum_cash_without_vat_plan"
 msgstr "Сумма планового поступления без НДС"
 
 #. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_distribution_cash__factoring
+msgid "Factoring"
+msgstr "Факторинг"
+
+#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects_report_wizard__systematica_forecast
 msgid "systematica forecast"
 msgstr "Отчет для Систематики"

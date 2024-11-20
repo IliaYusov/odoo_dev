@@ -46,6 +46,7 @@ class distribution_cash(models.Model):
 
     sum_cash_without_vat = fields.Monetary(string="fact sum_cash_without_vat", required=True, copy=True, compute='_compute_sum')
     sum_cash = fields.Monetary(string="fact sum_cash", required=True, copy=True, default=_compute_default_sum)
+    factoring = fields.Boolean(string='Factoring', default=False)
     # compute = '_compute_default_sum', inverse = '_inverse_compute_default_sum',
 
     @api.depends("sum_cash")

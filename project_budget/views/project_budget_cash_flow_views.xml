@@ -107,6 +107,7 @@
                     <field name="distribution_cash_ids" widget="section_and_note_one2many" mode="tree"
                            attrs="{'readonly': [('can_edit', '=', False)]}">
                         <tree editable="bottom">
+                            <field name="factoring"/>
                             <field name="planned_cash_flow_id" placeholder="select planned cash flow" force_save="1"/>
                             <field name="fact_cash_flow_id" placeholder="select planned cash flow" invisible="True"/>
                             <field name="sum_cash_without_vat_plan" optional="hide"/>
