@@ -563,7 +563,8 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
                         for budget_id in sorted(budget_ids, reverse=True):
                             if budget_id != budget.id:
                                 current_project = indicators.prj_id.filtered(lambda
-                                                                        pr: pr.project_id == project_project_id and pr.commercial_budget_id.id == budget_id)
+                                                                        pr: pr.project_id == project_project_id and
+                                                                            pr.commercial_budget_id.id == budget_id)
                                 if current_project:
                                     break
 
@@ -702,7 +703,7 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
                         sheet.write_string(row, column, period, row_format_number)
                     column += 1
 
-    def print_row(self, sheet, workbook, companies, responsibility_centers, actual_center_ids, row, data, periods_dict, level, max_level, dict_formula, start_column):
+    def print_rows(self, sheet, workbook, company, responsibility_centers, actual_center_ids, row, data, periods_dict, level, max_level, dict_formula, start_column):
         row_format = workbook.add_format({
             'border': 1,
             'font_size': 8,
@@ -751,74 +752,121 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
             'valign': 'center',
         })
 
-        for company in companies:
-            center_lines = list()
-
-            for center in responsibility_centers.filtered(lambda r: r.company_id == company):
-                if center.id in actual_center_ids:
-                    if center.id not in dict_formula['center_ids']:
+        center_lines = list()
+        for center in responsibility_centers.filtered(lambda r: r.company_id == company):
+            if center.id in actual_center_ids:
+                if center.id not in dict_formula['center_ids']:
+                    row += 1
+                    dict_formula['center_ids'][center.id] = row
+                    sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
+                    sheet.merge_range(row, 0, row, start_column - 1, center.name, center_format)
+                project_lines = list()
+                center_lines.append(row)
+                if center.name in data[company.name]:
+                    for project, content in data[company.name][center.name].items():
+                        # печатаем строки проектов
                         row += 1
-                        dict_formula['center_ids'][center.id] = row
-                        sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
-                        sheet.merge_range(row, 0, row, start_column - 1, center.name, center_format)
-                    project_lines = list()
-                    center_lines.append(row)
-                    if center.name in data[company.name]:
-                        for project, content in data[company.name][center.name].items():
-                            # печатаем строки проектов
-                            row += 1
-                            sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level + 1})
-                            cur_row_format = row_format
-                            cur_row_format_number = row_format_number
-                            column = 0
-                            if content['info']['factoring']:
-                                sheet.write_string(row, column, 'да', factoring_row_format)
-                            else:
-                                sheet.write_string(row, column, 'нет', cur_row_format)
-                            column += 1
-                            sheet.write_string(row, column, content['info']['key_account_manager_id'], cur_row_format)
-                            column += 1
-                            sheet.write_string(row, column, content['info']['partner_id'], cur_row_format)
-                            column += 1
-                            sheet.write_string(row, column, content['info']['essence_project'], cur_row_format)
-                            column += 1
-                            sheet.write_string(row, column, content['info']['project_id'], cur_row_format)
-                            column += 1
-                            sheet.write_string(row, column, '', cur_row_format)
-                            column += 1
-                            self.print_row_values(workbook, sheet, row, column, content['periods'], periods_dict, start_column)
-                            project_lines.append(row)
+                        sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level + 1})
+                        cur_row_format = row_format
+                        cur_row_format_number = row_format_number
+                        column = 0
+                        if content['info']['factoring']:
+                            sheet.write_string(row, column, 'да', factoring_row_format)
+                        else:
+                            sheet.write_string(row, column, 'нет', cur_row_format)
+                        column += 1
+                        sheet.write_string(row, column, content['info']['key_account_manager_id'], cur_row_format)
+                        column += 1
+                        sheet.write_string(row, column, content['info']['partner_id'], cur_row_format)
+                        column += 1
+                        sheet.write_string(row, column, content['info']['essence_project'], cur_row_format)
+                        column += 1
+                        sheet.write_string(row, column, content['info']['project_id'], cur_row_format)
+                        column += 1
+                        sheet.write_string(row, column, '', cur_row_format)
+                        column += 1
+                        self.print_row_values(workbook, sheet, row, column, content['periods'], periods_dict, start_column)
+                        project_lines.append(row)
 
-                    child_centers = self.env['account.analytic.account'].search([
-                        ('parent_id', '=', center.id),
-                        ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
-                    ], order='sequence')
+                child_centers = self.env['account.analytic.account'].search([
+                    ('parent_id', '=', center.id),
+                    ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+                ], order='sequence')
 
-                    if child_centers:
-                        row, formula_itogo = self.print_row(sheet, workbook, company, child_centers,
-                                                            actual_center_ids, row, data, periods_dict,
-                                                            level + 1, max_level, dict_formula, start_column)
-                        for child_center in child_centers:
-                            if child_center.id in actual_center_ids:
-                                project_lines.append(dict_formula['center_ids'][child_center.id])
+                if child_centers:
+                    row, formula_itogo = self.print_rows(sheet, workbook, company, child_centers,
+                                                        actual_center_ids, row, data, periods_dict,
+                                                        level + 1, max_level, dict_formula, start_column)
+                    for child_center in child_centers:
+                        if child_center.id in actual_center_ids:
+                            project_lines.append(dict_formula['center_ids'][child_center.id])
 
-                    self.print_vertical_sum_formula(sheet, dict_formula['center_ids'][center.id], project_lines, periods_dict, start_column, 'format_center')
+                self.print_vertical_sum_formula(sheet, dict_formula['center_ids'][center.id], project_lines, periods_dict, start_column, 'format_center')
 
-            if level == 1:
-                row += 1
-                sheet.merge_range(row, 0, row, start_column - 1, 'ИТОГО ' + company.name, company_format)
-                self.print_vertical_sum_formula(sheet, row, center_lines, periods_dict, start_column, 'format_company')
-                row += 1
-                sheet.merge_range(row, 0, row, 2, 'Разница Факт/Прогноз (неделя)', difference_format)
-                column = start_column
-                for period, options in periods_dict.items():
-                    period_len = len(options['cols'])
-                    if options['difference']:
-                        formula = f'={xl_col_to_name(column + 1)}{row}-{xl_col_to_name(column)}{row}'
-                        sheet.merge_range(row, column, row, column + 1, formula, difference_format_number)
-                    column += period_len
-                row += 2
+        if level == 1:
+            row += 1
+            sheet.merge_range(row, 0, row, start_column - 1, 'ИТОГО ' + company.name, company_format)
+            self.print_vertical_sum_formula(sheet, row, center_lines, periods_dict, start_column, 'format_company')
+            row += 1
+            sheet.merge_range(row, 0, row, 2, 'Разница Факт/Прогноз (неделя)', difference_format)
+            column = start_column
+            for period, options in periods_dict.items():
+                period_len = len(options['cols'])
+                if options['difference']:
+                    formula = f'={xl_col_to_name(column + 1)}{row}-{xl_col_to_name(column)}{row}'
+                    sheet.merge_range(row, column, row, column + 1, formula, difference_format_number)
+                column += period_len
+            row += 1
         return row, dict_formula
+
+    def print_rows_signer(self, sheet, workbook, signer, row, data, periods_dict, max_level, start_column):
+        row_format = workbook.add_format({
+            'border': 1,
+            'font_size': 8,
+        })
+        row_format_number = workbook.add_format({
+            'border': 1,
+            'font_size': 9,
+            'num_format': '#,##0',
+        })
+        factoring_row_format = workbook.add_format({
+            'border': 1,
+            'font_size': 8,
+            'fg_color': '#92D050',
+        })
+        row_format_signer = workbook.add_format({
+            'font_size': 11,
+            'num_format': '#,##0',
+        })
+        row += 1
+        sheet.write_string(row, 0, 'Бюджет ' + signer + ':', row_format_signer)
+        for company in data:
+            for center in data[company]:
+                for project, content in data[company][center].items():
+                    # печатаем строки проектов
+                    row += 1
+                    sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level + 1})
+                    cur_row_format = row_format
+                    cur_row_format_number = row_format_number
+                    column = 0
+                    if content['info']['factoring']:
+                        sheet.write_string(row, column, 'да', factoring_row_format)
+                    else:
+                        sheet.write_string(row, column, 'нет', cur_row_format)
+                    column += 1
+                    sheet.write_string(row, column, content['info']['key_account_manager_id'], cur_row_format)
+                    column += 1
+                    sheet.write_string(row, column, content['info']['partner_id'], cur_row_format)
+                    column += 1
+                    sheet.write_string(row, column, content['info']['essence_project'], cur_row_format)
+                    column += 1
+                    sheet.write_string(row, column, content['info']['project_id'], cur_row_format)
+                    column += 1
+                    sheet.write_string(row, column, '', cur_row_format)
+                    column += 1
+                    self.print_row_values(workbook, sheet, row, column, content['periods'], periods_dict, start_column)
+        row += 1
+        return row
 
     def print_vertical_sum_formula(self, sheet, row, sum_lines, periods_dict, start_col, format):
         formula = '=sum('
@@ -836,7 +884,7 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
                     sheet.write(row, col_counter, '', col[format])
                     col_counter += 1
 
-    def printworksheet(self, workbook, budget, namesheet, responsibility_center_ids, max_level, dict_formula, start_column):
+    def print_worksheet(self, workbook, budget, namesheet, responsibility_center_ids, max_level, dict_formula, start_column):
         sheet = workbook.add_worksheet(namesheet)
         sheet.set_zoom(85)
 
@@ -890,6 +938,9 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
         periods_dict, period_limits = self.calculate_periods_dict(workbook, actual_budget_date)
         periods_dict, budget_ids = self.calculate_budget_ids(budget, periods_dict)
 
+        column = self.print_head(workbook, sheet, row, column, periods_dict, actual_budget_date)
+        row += 2
+
         financial_indicators = self.env['project.budget.financial.indicator'].search([
             ('commercial_budget_id', 'in', budget_ids),
             ('type', '=', 'cash_flow'),
@@ -899,49 +950,59 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
             ('forecast_probability_id.id', '=', self.env.ref('project_budget_nkk.project_budget_forecast_probability_commitment').id),
         ], order='project_id')
 
-        data = self.get_data_from_indicators(financial_indicators, periods_dict, budget, budget_ids)
-
-        actual_center_ids_set = set()
-        for company in data:
-            for center_name in data[company]:
-                center = self.env['account.analytic.account'].search([
-                    ('name', '=', center_name),
-                    ('company_id.name', '=', company),
-                    ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
-                ])
-                actual_center_ids_set.add(center.id)
-                while center.parent_id:
-                    center = center.parent_id
+        for company in financial_indicators.company_id:
+            data = self.get_data_from_indicators(
+                financial_indicators.filtered(lambda fi: fi.prj_id.signer_id == fi.company_id.partner_id and fi.company_id == company),
+                periods_dict,
+                budget,
+                budget_ids
+            )
+            if data:
+                actual_center_ids_set = set()
+                for center_name in data[company.name]:
+                    center = self.env['account.analytic.account'].search([
+                        ('name', '=', center_name),
+                        ('company_id', '=', company.id),
+                        ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+                    ])
                     actual_center_ids_set.add(center.id)
+                    while center.parent_id:
+                        center = center.parent_id
+                        actual_center_ids_set.add(center.id)
 
-        actual_center_ids = list(actual_center_ids_set)
+                actual_center_ids = list(actual_center_ids_set)
 
-        column = self.print_head(workbook, sheet, row, column, periods_dict, actual_budget_date)
-        row += 2
+                if responsibility_center_ids:
+                    responsibility_centers = self.env['account.analytic.account'].search([
+                        ('id','in',responsibility_center_ids),
+                        ('parent_id', 'not in', responsibility_center_ids),
+                        ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+                    ], order='sequence')  # для сортировки так делаем + не берем дочерние оффисы, если выбраны их материнские
+                else:
+                    responsibility_centers = self.env['account.analytic.account'].search([
+                        ('parent_id', '=', False),
+                        ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+                    ], order='sequence')  # для сортировки так делаем + берем сначала только верхние элементы
 
-        companies = self.env['res.company'].search([('name', 'in', list(data.keys()))], order='name')
+                row, dict_formula = self.print_rows(sheet, workbook, company, responsibility_centers, actual_center_ids, row, data, periods_dict, 1, max_level, dict_formula, start_column)
 
-        if responsibility_center_ids:
-            responsibility_centers = self.env['account.analytic.account'].search([
-                ('id','in',responsibility_center_ids),
-                ('parent_id', 'not in', responsibility_center_ids),
-                ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
-            ], order='sequence')  # для сортировки так делаем + не берем дочерние оффисы, если выбраны их материнские
-        else:
-            responsibility_centers = self.env['account.analytic.account'].search([
-                ('parent_id', '=', False),
-                ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
-            ], order='sequence')  # для сортировки так делаем + берем сначала только верхние элементы
+            signer_indicators = financial_indicators.filtered(
+                    lambda fi: fi.prj_id.signer_id != fi.company_id.partner_id and fi.company_id == company)
 
-        row, dict_formula = self.print_row(sheet, workbook, companies, responsibility_centers, actual_center_ids, row, data, periods_dict, 1, max_level, dict_formula, start_column)
+            for signer in signer_indicators.prj_id.signer_id:
+
+                data_signer = self.get_data_from_indicators(
+                    signer_indicators.filtered(lambda fi: fi.prj_id.signer_id == signer),
+                    periods_dict,
+                    budget,
+                    budget_ids
+                )
+                if data_signer:
+                    row = self.print_rows_signer(sheet, workbook, signer.name, row, data_signer, periods_dict, max_level, start_column)
 
     def generate_xlsx_report(self, workbook, data, budgets):
 
-        SETTINGS = {
-            'start_column': 6,
-        }
-
-        print('companies_ids',companies_ids,'signer_ids',signer_ids)
+        START_COLUMN = 6
 
         dict_formula = {'center_ids': {}, 'center_ids_not_empty': {},}
 
@@ -961,4 +1022,6 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
 
         commercial_budget_id = data['commercial_budget_id']
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
-        self.printworksheet(workbook, budget, 'ПДС', responsibility_center_ids, max_level, dict_formula, SETTINGS['start_column'])
+        actual_budget_date = budget.date_actual or datetime.now()
+        self.print_worksheet(workbook, budget, 'ПДС ' + actual_budget_date.strftime('%d.%m'), responsibility_center_ids, max_level, dict_formula, START_COLUMN)
+        # self.print_summary_worksheet(workbook, budget, 'Свод ' + actual_budget_date.strftime('%d.%m'), responsibility_center_ids, max_level, dict_formula, START_COLUMN)

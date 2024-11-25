@@ -2031,6 +2031,11 @@ msgid "PDS weekly plan fact"
 msgstr "ПДС план-прогноз"
 
 #. module: project_budget
+#: model:ir.model.fields.selection,name:project_budget.selection__project_budget_projects_report_wizard__type_report__pds_weekly_plan_fact_sa
+msgid "PDS weekly plan fact SA"
+msgstr "ПДС план-прогноз СА"
+
+#. module: project_budget
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_projects_report_wizard__type_report__pds_acceptance_by_date
 msgid "PDS, Acceptance"
 msgstr "Прогноз ПДС/валовая выручка"
