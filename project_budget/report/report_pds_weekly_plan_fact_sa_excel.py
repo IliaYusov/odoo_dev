@@ -538,14 +538,15 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
         data = {}
         commitment_id = self.env.ref('project_budget_nkk.project_budget_forecast_probability_commitment').id
         for project_project_id in project_project_ids:
+            project_indicators = indicators.filtered(lambda i: i.prj_id.project_id == project_project_id)
             pds_is_present = False
             factoring_is_present = False
             project_data = {}
             for period, options in periods_dict.items():
                 if 'sum' not in period:
                     fact = commitment = 0
-                    for i in indicators:
-                        if i.prj_id.project_id == project_project_id and period[0] <= i.date <= period[1]:
+                    for i in project_indicators:
+                        if period[0] <= i.date <= period[1]:
                             if i.commercial_budget_id.id == budget.id and not i.forecast_probability_id:
                                 fact += i.amount
                                 factoring_is_present = any(d.factoring for d in i.fact_cash_flow_id.distribution_cash_ids)
@@ -603,6 +604,15 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
         delta = timedelta(days=(week_number - 1) * 7)
         return first_week_begin + delta, first_week_end + delta
 
+    def get_previous_budget(self, actual_budget_date):
+        previous_week_number = (actual_budget_date - timedelta(weeks=1)).isocalendar()[1]
+        previous_week_year = (actual_budget_date - timedelta(weeks=1)).isocalendar()[0]
+        previous_week_start, previous_week_end = self.get_dates_from_week(previous_week_number, previous_week_year)
+        previous_budget = self.env['project_budget.commercial_budget'].search([
+            ('date_actual', '<=', previous_week_end),
+        ], limit=1, order='date_actual desc')
+        return previous_budget
+
     def print_head(self, workbook, sheet, row, column, periods_dict, actual_budget_date):
         sheet.set_row(row, 16)
         sheet.set_row(row + 1, 65)
@@ -639,6 +649,55 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
                     sheet.merge_range(row + 1, column, row + 2, column, string, col['format_head'])
                 column += 1
         return column
+
+    def print_summary_head(self, workbook, sheet, row, column, period):
+        head_format = workbook.add_format({
+            'border': 2,
+            'text_wrap': True,
+            'align': 'center',
+            'valign': 'vcenter',
+            "bold": False,
+            "font_size": 12,
+        })
+        head_format_grey = workbook.add_format({
+            'border': 1,
+            'text_wrap': True,
+            'align': 'center',
+            'valign': 'vcenter',
+            "bold": False,
+            "fg_color": '#f2f2f2',
+            "font_size": 8,
+        })
+        left_border_1 = workbook.add_format({
+            'left': 1,
+        })
+        left_border_2 = workbook.add_format({
+            'left': 2,
+        })
+        sheet.merge_range(row, column, row, column + 5, period[0].strftime('%d.%m') + '-' + period[1].strftime('%d.%m'), head_format)
+        sheet.write(row, column + 6, "", left_border_2)
+        row += 1
+        sheet.set_row(row, False, False, {'level': 1})
+        sheet.write(row, column, "Факторинг", head_format_grey)
+        sheet.set_column(column, column, 16)
+        column += 1
+        sheet.write(row, column, "Сумма", head_format_grey)
+        sheet.set_column(column, column, 16)
+        column += 1
+        sheet.write(row, column, "Продавец", head_format_grey)
+        sheet.set_column(column, column, 16)
+        column += 1
+        sheet.write(row, column, "Заказчик", head_format_grey)
+        sheet.set_column(column, column, 25, False, {'hidden': 1, 'level': 1})
+        column += 1
+        sheet.write(row, column, "Проект", head_format_grey)
+        sheet.set_column(column, column, 25, False, {'hidden': 1, 'level': 1})
+        column += 1
+        sheet.write(row, column, "Комментарий", head_format_grey)
+        sheet.set_column(column, column, 25, False, {'hidden': 1, 'level': 1})
+        sheet.write(row, column + 1, "", left_border_1)
+        row += 1
+        return row
 
     def print_row_values(self, workbook, sheet, row, column, periods_data, periods_dict, start_column):
 
@@ -868,6 +927,234 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
         row += 1
         return row
 
+    def print_rows_summary(self, sheet, workbook, row, start_column, period, data, budgets, types):
+
+        type_rus_name = {
+            'fact': 'Факт',
+            'commitment': 'Прогноз',
+        }
+
+        row_format = workbook.add_format({
+            'border': 1,
+            'font_size': 8,
+            'text_wrap': True,
+        })
+        row_format_number = workbook.add_format({
+            'border': 1,
+            'font_size': 9,
+            'align': 'center',
+            'num_format': '#,##0;[red]-#,##0',
+        })
+        factoring_row_format = workbook.add_format({
+            'border': 1,
+            'font_size': 8,
+            'fg_color': '#92D050',
+        })
+        forecast_format = workbook.add_format({
+            'border': 2,
+            'font_size': 12,
+            'fg_color': '#d9d9d9',
+        })
+        forecast_format_number = workbook.add_format({
+            'border': 2,
+            'font_size': 12,
+            'align': 'center',
+            'bold': True,
+            'fg_color': '#d9d9d9',
+            'num_format': '#,##0;[red]-#,##0',
+        })
+        factoring_format = workbook.add_format({
+            'border': 1,
+            'font_size': 8,
+            'fg_color': '#EBF1DE',
+        })
+        factoring_format_number = workbook.add_format({
+            'border': 1,
+            'font_size': 11,
+            'align': 'center',
+            'fg_color': '#EBF1DE',
+            'num_format': '#,##0;[red]-#,##0',
+        })
+        fact_format = workbook.add_format({
+            'border': 2,
+            'font_size': 12,
+            'fg_color': '#EBF1DE',
+        })
+        fact_format_number = workbook.add_format({
+            'border': 2,
+            'font_size': 12,
+            'align': 'center',
+            'bold': True,
+            'fg_color': '#EBF1DE',
+            'num_format': '#,##0;[red]-#,##0',
+        })
+        difference_format = workbook.add_format({
+            'border': 2,
+            'font_size': 12,
+            'fg_color': '#ffff00',
+        })
+        difference_format_number = workbook.add_format({
+            'border': 2,
+            'font_size': 12,
+            'align': 'center',
+            'bold': True,
+            'fg_color': '#ffff00',
+            'num_format': '#,##0;[red]-#,##0',
+        })
+        left_border_1 = workbook.add_format({
+            'left': 1,
+        })
+        left_border_2 = workbook.add_format({
+            'left': 2,
+        })
+        difference = {}
+        total = 0
+        for company in data[0]:
+            for center in data[0][company]:
+                for project, content in data[0][company][center].items():
+                    column = start_column
+                    amount = content['periods'][period][types[0]]
+                    if amount:
+                        sheet.set_row(row, False, False, {'level': 1})
+                        difference.setdefault(project, {})
+                        difference[project]['info'] = content['info']
+                        difference[project]['amount'] = -amount
+                        cur_row_format = row_format
+                        cur_row_format_number = row_format_number
+                        if content['info']['factoring']:
+                            sheet.write_string(row, column, 'да', factoring_row_format)
+                        else:
+                            sheet.write_string(row, column, 'нет', cur_row_format)
+                        column += 1
+                        total += amount
+                        sheet.write_number(row, column, amount, row_format_number)
+                        column += 1
+                        sheet.write_string(row, column, content['info']['key_account_manager_id'], cur_row_format)
+                        column += 1
+                        sheet.write_string(row, column, content['info']['partner_id'], cur_row_format)
+                        column += 1
+                        sheet.write_string(row, column, content['info']['essence_project'], cur_row_format)
+                        column += 1
+                        sheet.write_string(row, column, '', cur_row_format)
+                        sheet.write(row, column + 1, '', left_border_1)
+                        row += 1
+        actual_date = budgets[0].date_actual if budgets[0].date_actual else datetime.now()
+        sheet.write(row, start_column, type_rus_name[types[0]] + ' за ' + actual_date.strftime('%d.%m'), forecast_format)
+        sheet.merge_range(row, start_column + 1, row, start_column + 5, total, forecast_format_number)
+        sheet.write(row, start_column + 6, '', left_border_2)
+        row += 1
+        total = 0
+        total_w_factoring = 0
+        for company in data[1]:
+            for center in data[1][company]:
+                for project, content in data[1][company][center].items():
+                    column = start_column
+                    amount = content['periods'][period][types[1]]
+                    if amount:
+                        sheet.set_row(row, False, False, {'level': 1})
+                        if project in difference.keys():
+                            difference[project]['amount'] += amount
+                        else:
+                            difference.setdefault(project, {})
+                            difference[project]['info'] = content['info']
+                            difference[project]['amount'] = amount
+                        cur_row_format = row_format
+                        cur_row_format_number = row_format_number
+                        if content['info']['factoring']:
+                            sheet.write_string(row, column, 'да', factoring_row_format)
+                        else:
+                            sheet.write_string(row, column, 'нет', cur_row_format)
+                        column += 1
+                        if content['info']['factoring']:
+                            total_w_factoring += amount
+                        else:
+                            total += amount
+                        sheet.write_number(row, column, amount, row_format_number)
+                        column += 1
+                        sheet.write_string(row, column, content['info']['key_account_manager_id'], cur_row_format)
+                        column += 1
+                        sheet.write_string(row, column, content['info']['partner_id'], cur_row_format)
+                        column += 1
+                        sheet.write_string(row, column, content['info']['essence_project'], cur_row_format)
+                        column += 1
+                        sheet.write_string(row, column, '', cur_row_format)
+                        sheet.write(row, column + 1, '', left_border_1)
+                        row += 1
+        actual_date = budgets[1].date_actual if budgets[1].date_actual else datetime.now()
+        if types[1] == 'fact':
+            sheet.set_row(row, False, False, {'level': 1})
+            sheet.write(row, start_column, 'Факторинг', factoring_format)
+            sheet.merge_range(row, start_column + 1, row, start_column + 5, total_w_factoring, factoring_format_number)
+            sheet.write(row, start_column + 6, '', left_border_1)
+            row += 1
+            sheet.set_row(row, False, False, {'level': 1})
+            sheet.write(row, start_column, 'Без факторинга', factoring_format)
+            sheet.merge_range(row, start_column + 1, row, start_column + 5, total, factoring_format_number)
+            sheet.write(row, start_column + 6, '', left_border_1)
+            row += 1
+            sheet.write(row, start_column, type_rus_name[types[1]] + ' за ' + actual_date.strftime('%d.%m'), fact_format)
+            sheet.merge_range(
+                row,
+                start_column + 1,
+                row,
+                start_column + 5,
+                f'=({xl_col_to_name(start_column + 1)}{row}+{xl_col_to_name(start_column + 1)}{row - 1})',
+                fact_format_number,)
+            sheet.write(row, start_column + 6, '', left_border_2)
+            row += 1
+        else:
+            sheet.write(row, start_column, type_rus_name[types[1]] + ' за ' + actual_date.strftime('%d.%m'), forecast_format)
+            sheet.merge_range(row, start_column + 1, row, start_column + 5, total, forecast_format_number)
+            sheet.write(row, start_column + 6, '', left_border_2)
+            row += 1
+        total = 0
+        for project, content in difference.items():
+            column = start_column
+            amount = content['amount']
+            if abs(amount) > 0.1:
+                sheet.set_row(row, False, False, {'level': 1})
+                cur_row_format = row_format
+                cur_row_format_number = row_format_number
+                if content['info']['factoring']:
+                    sheet.write_string(row, column, 'да', factoring_row_format)
+                else:
+                    sheet.write_string(row, column, 'нет', cur_row_format)
+                column += 1
+                sheet.write_number(row, column, amount, row_format_number)
+                total += amount
+                column += 1
+                sheet.write_string(row, column, content['info']['key_account_manager_id'], cur_row_format)
+                column += 1
+                sheet.write_string(row, column, content['info']['partner_id'], cur_row_format)
+                column += 1
+                sheet.write_string(row, column, content['info']['essence_project'], cur_row_format)
+                column += 1
+                sheet.write_string(row, column, '', cur_row_format)
+                sheet.write(row, column + 1, '', left_border_1)
+                row += 1
+        sheet.write(row, start_column, 'Разница', difference_format)
+        sheet.merge_range(row, start_column + 1, row, start_column + 5, total, difference_format_number)
+        sheet.write(row, start_column + 6, '', left_border_2)
+        row += 1
+        return row
+
+    def print_month_summary(self, workbook, sheet, row, start_column, budget):
+        row += 1
+        actual_budget_date = budget.date_actual or datetime.now()
+        sheet.merge_range(row, start_column, row, start_column + 2, self.month_rus_name[actual_budget_date.month - 1])
+        row += 1
+        sheet.write(row, start_column, 'План')
+        sheet.write(row, start_column + 1, 'Факт')
+        sheet.write(row, start_column + 2, 'Прогноз')
+        row += 1
+        sheet.write(row, start_column, 30)
+        sheet.write(row, start_column + 1, 20)
+        sheet.write(row, start_column + 2, 25)
+        row += 1
+        sheet.write_formula(row, start_column + 1, f'={xl_col_to_name(start_column + 1)}{row}/{xl_col_to_name(start_column)}{row}')
+        sheet.write_formula(row, start_column + 2,  f'={xl_col_to_name(start_column + 2)}{row}/{xl_col_to_name(start_column)}{row}')
+        return row
+
     def print_vertical_sum_formula(self, sheet, row, sum_lines, periods_dict, start_col, format):
         formula = '=sum('
         for n in range(len(sum_lines)):
@@ -1000,9 +1287,173 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
                 if data_signer:
                     row = self.print_rows_signer(sheet, workbook, signer.name, row, data_signer, periods_dict, max_level, start_column)
 
+    def print_summary_worksheet(self, workbook, budget, namesheet, company, max_level, dict_formula, start_column):
+        commitment_format = workbook.add_format({
+            'border': 1,
+            'font_size': 8,
+            'num_format': '#,##0',
+            'fg_color': '#d9d9d9',
+        })
+        sheet = workbook.add_worksheet(namesheet)
+        sheet.set_zoom(85)
+
+        actual_budget_date = budget.date_actual or datetime.now()
+
+        current_week_start, current_week_end = self.get_dates_from_week(
+            actual_budget_date.isocalendar()[1],
+            actual_budget_date.isocalendar()[0],
+        )
+        next_week_start, next_week_end = self.get_dates_from_week(
+            (actual_budget_date + timedelta(weeks=1)).isocalendar()[1],
+            (actual_budget_date + timedelta(weeks=1)).isocalendar()[0],
+        )
+        after_next_week_start, after_next_week_end = self.get_dates_from_week(
+            (actual_budget_date + timedelta(weeks=2)).isocalendar()[1],
+            (actual_budget_date + timedelta(weeks=2)).isocalendar()[0],
+        )
+
+        previous_budget = self.get_previous_budget(actual_budget_date)
+
+        previous_periods_dict = OrderedDict()
+        previous_periods_dict[(current_week_start, current_week_end)] = {
+            'type': 'week',
+            'budget_id': previous_budget.id,
+            'cols': [
+                {
+                    'print': 'commitment',
+                    'format': commitment_format,
+                },
+            ],
+        }
+        previous_periods_dict[(next_week_start, next_week_end)] = {
+            'type': 'week',
+            'budget_id': previous_budget.id,
+            'cols': [
+                {
+                    'print': 'commitment',
+                    'format': commitment_format,
+                },
+            ],
+        }
+        previous_periods_dict[(after_next_week_start, after_next_week_end)] = {
+            'type': 'week',
+            'budget_id': previous_budget.id,
+            'cols': [
+                {
+                    'print': 'commitment',
+                    'format': commitment_format,
+                },
+            ],
+        }
+
+        current_periods_dict = OrderedDict()
+        current_periods_dict[(current_week_start, current_week_end)] = {
+            'type': 'week',
+            'budget_id': budget.id,
+            'cols': [
+                {
+                    'print': 'fact',
+                    'format': commitment_format,
+                }
+            ],
+        }
+        current_periods_dict[(next_week_start, next_week_end)] = {
+            'type': 'week',
+            'budget_id': budget.id,
+            'cols': [
+                {
+                    'print': 'commitment',
+                    'format': commitment_format,
+                },
+            ],
+        }
+        current_periods_dict[(after_next_week_start, after_next_week_end)] = {
+            'type': 'week',
+            'budget_id': budget.id,
+            'cols': [
+                {
+                    'print': 'commitment',
+                    'format': commitment_format,
+                },
+            ],
+        }
+
+        previous_financial_indicators = self.env['project.budget.financial.indicator'].search([
+            ('company_id', '=', company.id),
+            ('commercial_budget_id', '=', previous_budget.id),
+            # ('prj_id.signer_id', '=', company.partner_id.id),
+            ('type', '=', 'cash_flow'),
+            ('date', '>=', current_week_start),
+            ('date', '<=', after_next_week_end),
+            ('forecast_probability_id.id', '=', self.env.ref('project_budget_nkk.project_budget_forecast_probability_commitment').id),
+        ], order='project_id')
+
+        current_financial_indicators = self.env['project.budget.financial.indicator'].search([
+            ('company_id', '=', company.id),
+            ('commercial_budget_id', '=', budget.id),
+            # ('prj_id.signer_id', '=', company.partner_id.id),
+            ('type', '=', 'cash_flow'),
+            ('date', '>=', current_week_start),
+            ('date', '<=', after_next_week_end),
+            '|', ('forecast_probability_id', '=', False),
+            ('forecast_probability_id.id', '=', self.env.ref('project_budget_nkk.project_budget_forecast_probability_commitment').id),
+        ], order='project_id')
+
+        previous_data = self.get_data_from_indicators(
+            previous_financial_indicators,
+            previous_periods_dict,
+            previous_budget,
+            previous_budget,
+        )
+
+        current_data = self.get_data_from_indicators(
+            current_financial_indicators,
+            current_periods_dict,
+            budget,
+            budget,
+        )
+        row = 1
+        row = self.print_summary_head(workbook, sheet, row, 1,(current_week_start, current_week_end))
+        row = self.print_rows_summary(
+            sheet,
+            workbook,
+            row,
+            1,
+            (current_week_start, current_week_end),
+            (previous_data, current_data),
+            (previous_budget, budget),
+            ('commitment', 'fact'),
+        )
+        row = self.print_summary_head(workbook, sheet, row, 1, (next_week_start, next_week_end))
+        row = self.print_rows_summary(
+            sheet,
+            workbook,
+            row,
+            1,
+            (next_week_start, next_week_end),
+            (previous_data, current_data),
+            (previous_budget, budget),
+            ('commitment', 'commitment'),
+        )
+        row = self.print_summary_head(workbook, sheet, row, 1, (after_next_week_start, after_next_week_end))
+        row = self.print_rows_summary(
+            sheet,
+            workbook,
+            row,
+            1,
+            (after_next_week_start, after_next_week_end),
+            (previous_data, current_data),
+            (previous_budget, budget),
+            ('commitment', 'commitment'),
+        )
+
+        row = self.print_month_summary(workbook, sheet, row, 1, budget)
+
     def generate_xlsx_report(self, workbook, data, budgets):
 
         START_COLUMN = 6
+
+        company = self.env['res.company'].search([('name', '=', 'НКК')])
 
         dict_formula = {'center_ids': {}, 'center_ids_not_empty': {},}
 
@@ -1024,4 +1475,4 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
         actual_budget_date = budget.date_actual or datetime.now()
         self.print_worksheet(workbook, budget, 'ПДС ' + actual_budget_date.strftime('%d.%m'), responsibility_center_ids, max_level, dict_formula, START_COLUMN)
-        # self.print_summary_worksheet(workbook, budget, 'Свод ' + actual_budget_date.strftime('%d.%m'), responsibility_center_ids, max_level, dict_formula, START_COLUMN)
+        self.print_summary_worksheet(workbook, budget, 'Свод ' + actual_budget_date.strftime('%d.%m'), company, max_level, dict_formula, START_COLUMN)
