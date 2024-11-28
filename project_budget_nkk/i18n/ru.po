@@ -34,3 +34,10 @@ msgstr "Резерв"
 #: model:ir.actions.server,name:project_budget_nkk.project_budget_project_step_project_number_required_ir_actions_server
 msgid "Step project number required"
 msgstr "Обязательность номера этапа проекта"
+
+#. module: project_budget_nkk
+#. odoo-python
+#: code:addons/project_budget_nkk/models/project_budget_project.py:0
+#, python-format
+msgid "User should have admin rights"
+msgstr "Для перемещения сделки в архив необходимы права Администратора"
