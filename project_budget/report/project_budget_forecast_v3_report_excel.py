@@ -1774,16 +1774,14 @@ class ReportBudgetForecastExcel(models.AbstractModel):
 
         selected_centers_w_children_ids = set()
         for active_center in active_responsibility_centers:  # отбираем из выбранных офисов те, которые активные или чьи потомки активные и добавляем этих потомков
-            if active_center not in selected_responsibility_centers:
-                active_center_parent = active_center.parent_id
-                active_center_w_parents = active_center
-                while active_center_parent:
-                    active_center_w_parents += active_center.parent_id
-                    if active_center_parent in selected_responsibility_centers:
-                        selected_centers_w_children_ids.update(active_center_w_parents.ids)
-                        break
-                    active_center_parent = active_center_parent.parent_id
-            else:
+ашч ащк             active_center_parent = active_center.parent_id
+            active_center_w_parents = active_center
+            while active_center_parent:
+                active_center_w_parents += active_center.parent_id
+                if active_center_parent in selected_responsibility_centers:
+                    selected_centers_w_children_ids.update(active_center_w_parents.ids)
+                active_center_parent = active_center_parent.parent_id
+            if active_center in selected_responsibility_centers:
                 selected_centers_w_children_ids.add(active_center.id)
 
         company_rows = list()
