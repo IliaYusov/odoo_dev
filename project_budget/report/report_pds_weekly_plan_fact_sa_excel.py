@@ -360,7 +360,7 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
                                         'format_center': quarter_center_format,
                                         'format_company': quarter_company_format,
                                         'col_format': quarter_col_format,
-                                        'link': 'quarter_forecast'
+                                        'link': 'year_forecast'
                                     },
                                     {
                                         'print': 'blank',
@@ -654,8 +654,18 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
             'year_plan': {'name': 'План' + (' 6+6' if use_6_6_plan else ''), 'amount': year_plan},
             'hy1_fact': {'name': '', 'amount': hy1_fact}
         }
-        return plans
+        return plans, use_6_6_plan
 
+    def get_year_forecast(self, budget, year):
+        financial_indicators = self.env['project.budget.financial.indicator'].search_read([
+            ('commercial_budget_id', '=', budget.id),
+            ('type', '=', 'cash_flow'),
+            ('date', '>=', datetime(day=1, month=1, year=year)),
+            ('date', '<=', datetime(day=31, month=12, year=year)),
+            ('forecast_probability_id.id', '=', self.env.ref('project_budget_nkk.project_budget_forecast_probability_commitment').id),
+        ],['amount'])
+        year_forecast = sum(fi['amount'] for fi in financial_indicators)
+        return year_forecast
 
     def print_head(self, workbook, sheet, row, column, periods_dict, actual_budget_date):
         sheet.set_row(row, 16)
@@ -1183,7 +1193,7 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
         row += 1
         return row
 
-    def print_month_summary(self, workbook, sheet, row, start_column, company, centers_to_exclude, actual_date, link):
+    def print_month_summary(self, workbook, sheet, row, start_column, company, centers_to_exclude, actual_date, budget, link):
         head_format = workbook.add_format({
             'border': 2,
             'bottom': 1,
@@ -1274,7 +1284,7 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
             'num_format': '0%',
         })
 
-        plans = self.get_company_plans(actual_date, company, centers_to_exclude)
+        plans, use_6_6_plan = self.get_company_plans(actual_date, company, centers_to_exclude)
 
         # print(plans)
 
@@ -1347,10 +1357,11 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
         formula = '=sum(' + ','.join(
             "'{0}'!{1}".format('ПДС ' + f"{actual_date.strftime('%d.%m')}", l) for l in link['quarter_fact'][3:]) + ',' + f'{xl_col_to_name(start_column + 1)}{row - 4}' + ')'
         sheet.write_formula(row, start_column + 1, formula, fact_format_number)
+        print('link', link)
         sheet.write(
             row,
             start_column + 2,
-            "='{0}'!{1}".format('ПДС ' + f"{actual_date.strftime('%d.%m')}", link['quarter_forecast'][0]),
+            "='{0}'!{1}".format('ПДС ' + f"{actual_date.strftime('%d.%m')}", link['year_forecast'][1]),
             forecast_format_number,
         )
         row += 1
@@ -1389,19 +1400,72 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
             plans['year_plan']['amount'],
             quarter_plan_format_number,
         )
-
         if actual_quarter_number == 1:
             fact_formula = '=sum(' + f'{xl_col_to_name(start_column + 1)}{row - 4}' + ')'
-            forecast_formula = '=sum(' + f'{xl_col_to_name(start_column + 2)}{row - 4}' + ')'
+            forecast_formula = self.get_year_forecast(budget, actual_date.year)
+            # forecast_formula = (
+            #         '=sum('
+            #         + f'{xl_col_to_name(start_column + 2)}{row - 4}'
+            #         + ','
+            #         + "'{0}'!{1}".format('ПДС ' + f"{actual_date.strftime('%d.%m')}", link['year_forecast'][2])
+            #         + ')'
+            # )
         elif actual_quarter_number == 2:
-            fact_formula = "='{0}'!{1}".format('ПДС ' + f"{actual_date.strftime('%d.%m')}", link['year_forecast'][0], ) + '+' + f'{xl_col_to_name(start_column + 1)}{row - 4}'
-            forecast_formula = "='{0}'!{1}".format('ПДС ' + f"{actual_date.strftime('%d.%m')}", link['year_forecast'][0], ) + '+' + f'{xl_col_to_name(start_column + 2)}{row - 4}'
+            fact_formula = (
+                    "=sum("
+                    + "'{0}'!{1}".format('ПДС ' + f"{actual_date.strftime('%d.%m')}", link['year_forecast'][0])
+                    + ','
+                    + f'{xl_col_to_name(start_column + 1)}{row - 4}'
+                    + ')'
+            )
+            forecast_formula = self.get_year_forecast(budget, actual_date.year)
+            # forecast_formula = (
+            #         '=sum('
+            #         + f'{xl_col_to_name(start_column + 2)}{row - 4}'
+            #         + ','
+            #         + "'{0}'!{1}".format('ПДС ' + f"{actual_date.strftime('%d.%m')}", link['year_forecast'][0])
+            #         + ','
+            #         + "'{0}'!{1}".format('ПДС ' + f"{actual_date.strftime('%d.%m')}", link['year_forecast'][2])
+            #         + ')'
+            # )
         elif actual_quarter_number == 3:
-            fact_formula = '=sum(' + f'{xl_col_to_name(start_column + 1)}{row - 4}' + ',' + str(plans['hy1_fact']['amount']) + ')'
-            forecast_formula = '=sum(' + f'{xl_col_to_name(start_column + 2)}{row - 4}' + ',' + str(plans['hy1_fact']['amount']) + ')'
+            fact_formula = ('=sum(' + f'{xl_col_to_name(start_column + 1)}{row - 4}' + ',' + str(plans['hy1_fact']['amount']) + ')')
+            if use_6_6_plan:
+                forecast_formula = (
+                        '=sum('
+                        + f'{xl_col_to_name(start_column + 2)}{row - 4}'
+                        + ','
+                        + str(plans['hy1_fact']['amount'])
+                        + ','
+                        + "'{0}'!{1}".format('ПДС ' + f"{actual_date.strftime('%d.%m')}", link['year_forecast'][2])
+                        + ')'
+                )
+            else:
+                forecast_formula = self.get_year_forecast(budget, actual_date.year)
         else:
-            fact_formula = "='{0}'!{1}".format('ПДС ' + f"{actual_date.strftime('%d.%m')}", link['year_forecast'][0], ) + '+' + f'{xl_col_to_name(start_column + 1)}{row - 4}' + '+' + str(plans['hy1_fact']['amount'])
-            forecast_formula = "='{0}'!{1}".format('ПДС ' + f"{actual_date.strftime('%d.%m')}", link['year_forecast'][0], ) + '+' + f'{xl_col_to_name(start_column + 2)}{row - 4}' + '+' + str(plans['hy1_fact']['amount'])
+            fact_formula = (
+                    "=sum("
+                    + "'{0}'!{1}".format('ПДС ' + f"{actual_date.strftime('%d.%m')}", link['year_forecast'][0])
+                    + ','
+                    + f'{xl_col_to_name(start_column + 1)}{row - 4}'
+                    + ','
+                    + str(plans['hy1_fact']['amount'])
+                    + ')'
+            )
+            if use_6_6_plan:
+                forecast_formula = (
+                        '=sum('
+                        + f'{xl_col_to_name(start_column + 2)}{row - 4}'
+                        + ','
+                        + str(plans['hy1_fact']['amount'])
+                        + ','
+                        + "'{0}'!{1}".format('ПДС ' + f"{actual_date.strftime('%d.%m')}", link['year_forecast'][0])
+                        + ','
+                        + "'{0}'!{1}".format('ПДС ' + f"{actual_date.strftime('%d.%m')}", link['year_forecast'][2])
+                        + ')'
+                )
+            else:
+                forecast_formula = self.get_year_forecast(budget, actual_date.year)
         # print(forecast_formula)
         sheet.write_formula(row, start_column + 1, fact_formula, fact_format_number)
         sheet.write(row, start_column + 2, forecast_formula, forecast_format_number)
@@ -1532,7 +1596,6 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
                         ('parent_id', '=', False),
                         ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
                     ], order='sequence')  # для сортировки так делаем + берем сначала только верхние элементы
-
                 row, dict_formula, link = self.print_rows(sheet, workbook, company, responsibility_centers, actual_center_ids, row, data, periods_dict, 1, max_level, dict_formula, start_column)
 
             signer_indicators = financial_indicators.filtered(
@@ -1548,7 +1611,6 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
                 )
                 if data_signer:
                     row = self.print_rows_signer(sheet, workbook, signer.name, row, data_signer, periods_dict, max_level, start_column)
-        # print(link)
         return link
 
     def print_summary_worksheet(self, workbook, budget, name_sheet, company, centers_to_exclude, start_column, actual_date, link):
@@ -1708,7 +1770,7 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
             (previous_budget, budget),
             ('commitment', 'commitment'),
         )
-        row = self.print_month_summary(workbook, sheet, row, start_column, company, centers_to_exclude, actual_date, link)
+        row = self.print_month_summary(workbook, sheet, row, start_column, company, centers_to_exclude, actual_date, budget, link)
 
     def generate_xlsx_report(self, workbook, data, budgets):
 
@@ -1739,5 +1801,6 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
         commercial_budget_id = data['commercial_budget_id']
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
         actual_budget_date = budget.date_actual or datetime.now()
+        # actual_budget_date = datetime(year=2025, month=3, day=15)
         link = self.print_worksheet(workbook, budget, 'ПДС ' + actual_budget_date.strftime('%d.%m'), responsibility_center_ids, max_level, dict_formula, start_column, actual_budget_date)
         self.print_summary_worksheet(workbook, budget, 'Свод ' + actual_budget_date.strftime('%d.%m'), company, centers_to_exclude, 1, actual_budget_date, link)
