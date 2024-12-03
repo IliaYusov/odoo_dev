@@ -1,3 +1,5 @@
+from audioop import reverse
+
 from odoo import models
 import datetime
 import calendar
@@ -1726,7 +1728,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
             ('commercial_budget_id', '=', budget.id),
             ('date', '>=', datetime.datetime(day=1, month=1, year=year)),
             ('date', '<=', datetime.datetime(day=31, month=12, year=year + 2))
-        ], order='company_id, responsibility_center_id, key_account_manager_id, stage_id, project_id')
+        ])
 
         center_plans = {
             year: self.env['project_budget.budget_plan_supervisor_spec'].search([
@@ -1787,7 +1789,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                 selected_centers_w_children_ids.add(active_center.id)
 
         company_rows = list()
-        for company in financial_indicators.company_id.filtered(lambda c: c.id in selected_responsibility_centers.company_id.ids):
+        for company in selected_responsibility_centers.company_id:
             center_rows = list()
 
             current_centers_wo_parents = all_responsibility_centers.filtered(lambda o: not o.parent_id and o.company_id == company)
@@ -1822,86 +1824,85 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                                        fi.prj_id.stage_id == stage
                         )
 
-                        for project in filtered_indicators.prj_id.sorted(lambda p: p.project_id):
-                            current_indicators = financial_indicators.filtered(lambda ci: ci.prj_id == project)
-                            if current_indicators:
-                                stage_is_present = True
-                                kam_is_present = True
-                                format = row_format_left_part
-                                format_date = row_format_left_part_date
-                                level = {'hidden': 1, 'level': 3}
-                                if project.stage_id.project_state == 'cancel':
-                                    format = row_format_left_part_red
-                                    format_date = row_format_left_part_red_date
-                                    level = {'hidden': 1, 'level': 4}
+                        for project in filtered_indicators.prj_id.sorted():
+                            current_indicators = filtered_indicators.filtered(lambda ci: ci.prj_id == project)
+                            stage_is_present = True
+                            kam_is_present = True
+                            format = row_format_left_part
+                            format_date = row_format_left_part_date
+                            level = {'hidden': 1, 'level': 3}
+                            if project.stage_id.project_state == 'cancel':
+                                format = row_format_left_part_red
+                                format_date = row_format_left_part_red_date
+                                level = {'hidden': 1, 'level': 4}
 
-                                sheet.set_row(row, False, False, level)
-                                column = 0
-                                sheet.write_string(row, column, center.name, format)
+                            sheet.set_row(row, False, False, level)
+                            column = 0
+                            sheet.write_string(row, column, center.name, format)
+                            column += 1
+                            sheet.write_string(row, column, kam.name, format)
+                            column += 1
+                            if self.env.company.name == 'Ландата':
+                                sheet.write_string(row, column, project.company_partner_id.partner_id.name or '', format)
                                 column += 1
-                                sheet.write_string(row, column, kam.name, format)
-                                column += 1
-                                if self.env.company.name == 'Ландата':
-                                    sheet.write_string(row, column, project.company_partner_id.partner_id.name or '', format)
-                                    column += 1
-                                sheet.write_string(row, column, project.partner_id.name, format)
-                                column += 1
-                                sheet.write_string(row, column, project.essence_project, format)
-                                column += 1
-                                if project.step_status == 'step':
-                                    sheet.write_string(row, column, (project.step_project_parent_id.project_id or '') + ' | ' + project.project_id, format)
-                                else:
-                                    sheet.write_string(row, column, project.project_id, format)
-                                column += 1
-                                sheet.write_string(row, column, (project.step_project_number or ''), format)
-                                column += 1
-                                sheet.write_number(row, column, project.total_amount_of_revenue_with_vat ,format)
-                                column += 1
-                                if project.stage_id.code == '100':
-                                    sheet.write_datetime(row, column, project.end_presale_project_month, format_date)
-                                else:
-                                    sheet.write(row, column, None, format)
-                                column += 1
-                                sheet.write_number(row, column, project.profitability, format)
+                            sheet.write_string(row, column, project.partner_id.name, format)
+                            column += 1
+                            sheet.write_string(row, column, project.essence_project, format)
+                            column += 1
+                            if project.step_status == 'step':
+                                sheet.write_string(row, column, (project.step_project_parent_id.project_id or '') + ' | ' + project.project_id, format)
+                            else:
+                                sheet.write_string(row, column, project.project_id, format)
+                            column += 1
+                            sheet.write_string(row, column, (project.step_project_number or ''), format)
+                            column += 1
+                            sheet.write_number(row, column, project.total_amount_of_revenue_with_vat ,format)
+                            column += 1
+                            if project.stage_id.code == '100':
+                                sheet.write_datetime(row, column, project.end_presale_project_month, format_date)
+                            else:
+                                sheet.write(row, column, None, format)
+                            column += 1
+                            sheet.write_number(row, column, project.profitability, format)
 
-                                column = start_column
-                                for section in data:
-                                    if section['type'] != 'blank':
-                                        for period in section['periods']:
-                                            if period.get('start', False):
-                                                res = section['function'](period['start'].date(), period['end'].date(), current_indicators)
-                                                for col in period['cols']:
-                                                    format = col['column_format']
-                                                    if project.stage_id.project_state == 'won':
-                                                        format = col['column_format_won']
-                                                    elif project.stage_id.project_state == 'cancel':
-                                                        format = col['column_format_cancel']
-                                                    sheet.write_number(row, column, res.get(forecast_ids.get(col['type'], col['type']), 0), format)
-                                                    column += 1
-                                            else:
-                                                for col in period['cols']:
-                                                    format = col['column_format']
-                                                    if project.stage_id.project_state == 'won':
-                                                        format = col['column_format_won']
-                                                    elif project.stage_id.project_state == 'cancel':
-                                                        format = col['column_format_cancel']
+                            column = start_column
+                            for section in data:
+                                if section['type'] != 'blank':
+                                    for period in section['periods']:
+                                        if period.get('start', False):
+                                            res = section['function'](period['start'].date(), period['end'].date(), current_indicators)
+                                            for col in period['cols']:
+                                                format = col['column_format']
+                                                if project.stage_id.project_state == 'won':
+                                                    format = col['column_format_won']
+                                                elif project.stage_id.project_state == 'cancel':
+                                                    format = col['column_format_cancel']
+                                                sheet.write_number(row, column, res.get(forecast_ids.get(col['type'], col['type']), 0), format)
+                                                column += 1
+                                        else:
+                                            for col in period['cols']:
+                                                format = col['column_format']
+                                                if project.stage_id.project_state == 'won':
+                                                    format = col['column_format_won']
+                                                elif project.stage_id.project_state == 'cancel':
+                                                    format = col['column_format_cancel']
 
-                                                    if col.get('start', False):
-                                                        res = section['function'](col['start'].date(),
-                                                                                  col['end'].date(), current_indicators)
+                                                if col.get('start', False):
+                                                    res = section['function'](col['start'].date(),
+                                                                              col['end'].date(), current_indicators)
 
-                                                        sheet.write_number(row, column, res.get(
-                                                            forecast_ids.get(col['type'], col['type']), 0), format)
+                                                    sheet.write_number(row, column, res.get(
+                                                        forecast_ids.get(col['type'], col['type']), 0), format)
+                                                else:
+                                                    if col.get('total_columns', False):  # суммируем кварталы, полугодия и года
+                                                        formula = '=sum(' + ','.join(xl_col_to_name(c) + str(row + 1) for c in col['total_columns']) + ')'
+                                                        sheet.write_formula(row, column, formula, format)
                                                     else:
-                                                        if col.get('total_columns', False):  # суммируем кварталы, полугодия и года
-                                                            formula = '=sum(' + ','.join(xl_col_to_name(c) + str(row + 1) for c in col['total_columns']) + ')'
-                                                            sheet.write_formula(row, column, formula, format)
-                                                        else:
-                                                            sheet.write_number(row, column, 0, format)
-                                                    column += 1
-                                    else:
-                                        column += 1
-                                row += 1
+                                                        sheet.write_number(row, column, 0, format)
+                                                column += 1
+                                else:
+                                    column += 1
+                            row += 1
                         if stage_is_present:  # суммируем по вероятностям
                             sheet.set_row(row, False, False, {'hidden': 1, 'level': 3})
                             sheet.merge_range(row, 0, row, start_column - 1, kam.name + ' ' + stage.name, stage_summary_default_format)
@@ -2073,7 +2074,8 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                               row_format_number_itogo)
             sheet.merge_range(row + 3, 0, row + 3, start_column - 1, 'ИТОГО: СА+Облако.ру Расчетный План по отчету',
                               row_format_itogo_estimated_plan_left)
-        if diff_name:  # разница
+        # разница
+        if diff_name:
             sheet.set_row(total_row + 1, 32)
             sheet.merge_range(
                 total_row + 1, 1, total_row + 1, 3,
