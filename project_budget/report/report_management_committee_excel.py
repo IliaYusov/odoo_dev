@@ -3497,145 +3497,125 @@ class report_management_committee_excel(models.AbstractModel):
                         row_format_company_percent, row_format_company_forecast, row_format_company_next,
                     )
 
-                # планы компаний
-                # company_plan_contracting = self.env['project_budget.budget_plan_supervisor_spec'].search([
-                #     ('budget_plan_supervisor_id.year', '=', YEARint),
-                #     ('budget_plan_supervisor_id.company_id', '=', company.id),
-                #     ('budget_plan_supervisor_id.is_company_plan', '=', True),
-                #     ('type_row', '=', 'contracting'),
-                # ])
-                #
-                # company_plan_cash = self.env['project_budget.budget_plan_supervisor_spec'].search([
-                #     ('budget_plan_supervisor_id.year', '=', YEARint),
-                #     ('budget_plan_supervisor_id.company_id', '=', company.id),
-                #     ('budget_plan_supervisor_id.is_company_plan', '=', True),
-                #     ('type_row', '=', 'cash'),
-                # ])
-                #
-                # company_plan_acceptance = self.env['project_budget.budget_plan_supervisor_spec'].search([
-                #     ('budget_plan_supervisor_id.year', '=', YEARint),
-                #     ('budget_plan_supervisor_id.company_id', '=', company.id),
-                #     ('budget_plan_supervisor_id.is_company_plan', '=', True),
-                #     ('type_row', '=', 'acceptance'),
-                # ])
-                #
-                # company_plan_margin_income = self.env['project_budget.budget_plan_supervisor_spec'].search([
-                #     ('budget_plan_supervisor_id.year', '=', YEARint),
-                #     ('budget_plan_supervisor_id.company_id', '=', company.id),
-                #     ('budget_plan_supervisor_id.is_company_plan', '=', True),
-                #     ('type_row', '=', 'margin_income'),
-                # ])
-                #
-                # company_plan = {
-                #     'contracting': {
-                #         'Q1': str(company_plan_contracting.q1_plan),
-                #         'Q2': str(company_plan_contracting.q2_plan),
-                #         'Q3': str(company_plan_contracting.q3_plan),
-                #         'Q4': str(company_plan_contracting.q4_plan),
-                #         'Q1_66': str(company_plan_contracting.q1_plan_6_6),
-                #         'Q2_66': str(company_plan_contracting.q2_plan_6_6),
-                #         'Q3_66': str(company_plan_contracting.q3_plan_6_6),
-                #         'Q4_66': str(company_plan_contracting.q4_plan_6_6),
-                #         'HY1': '=SUM(' + xl_col_to_name(plan_shift['contracting']['Q1']) + '{0} + ' + xl_col_to_name(
-                #             plan_shift['contracting']['Q2']) + '{0})',
-                #         'HY1_66': '=SUM(' + xl_col_to_name(plan_shift['contracting']['Q1_66']) + '{0} + ' + xl_col_to_name(
-                #             plan_shift['contracting']['Q2_66']) + '{0})',
-                #         'HY2': '=SUM(' + xl_col_to_name(plan_shift['contracting']['Q3']) + '{0} + ' + xl_col_to_name(
-                #             plan_shift['contracting']['Q4']) + '{0})',
-                #         'HY2_66': '=SUM(' + xl_col_to_name(plan_shift['contracting']['Q3_66']) + '{0} + ' + xl_col_to_name(
-                #             plan_shift['contracting']['Q4_66']) + '{0})',
-                #         'Y': '=SUM(' + xl_col_to_name(plan_shift['contracting']['HY1']) + '{0} + ' + xl_col_to_name(
-                #             plan_shift['contracting']['HY2']) + '{0})',
-                #         'Y_66': '=SUM(' + xl_col_to_name(plan_shift['contracting']['HY1_66']) + '{0} + '
-                #                 + xl_col_to_name(plan_shift['contracting']['HY2_66']) + '{0} + '
-                #                 + str(company_plan_contracting.q1_fact) + ' + '
-                #                 + str(company_plan_contracting.q2_fact) + ')',
-                #     },
-                #     'cash': {
-                #         'Q1': str(company_plan_cash.q1_plan),
-                #         'Q2': str(company_plan_cash.q2_plan),
-                #         'Q3': str(company_plan_cash.q3_plan),
-                #         'Q4': str(company_plan_cash.q4_plan),
-                #         'Q1_66': str(company_plan_cash.q1_plan_6_6),
-                #         'Q2_66': str(company_plan_cash.q2_plan_6_6),
-                #         'Q3_66': str(company_plan_cash.q3_plan_6_6),
-                #         'Q4_66': str(company_plan_cash.q4_plan_6_6),
-                #         'HY1': '=SUM(' + xl_col_to_name(plan_shift['cash']['Q1']) + '{0} + ' + xl_col_to_name(
-                #             plan_shift['cash']['Q2']) + '{0})',
-                #         'HY1_66': '=SUM(' + xl_col_to_name(
-                #             plan_shift['cash']['Q1_66']) + '{0} + ' + xl_col_to_name(
-                #             plan_shift['cash']['Q2_66']) + '{0})',
-                #         'HY2': '=SUM(' + xl_col_to_name(plan_shift['cash']['Q3']) + '{0} + ' + xl_col_to_name(
-                #             plan_shift['cash']['Q4']) + '{0})',
-                #         'HY2_66': '=SUM(' + xl_col_to_name(
-                #             plan_shift['cash']['Q3_66']) + '{0} + ' + xl_col_to_name(
-                #             plan_shift['cash']['Q4_66']) + '{0})',
-                #         'Y': '=SUM(' + xl_col_to_name(plan_shift['cash']['HY1']) + '{0} + ' + xl_col_to_name(
-                #             plan_shift['cash']['HY2']) + '{0})',
-                #         'Y_66': '=SUM(' + xl_col_to_name(plan_shift['cash']['HY1_66']) + '{0} + '
-                #                 + xl_col_to_name(plan_shift['cash']['HY2_66']) + '{0} + '
-                #                 + str(company_plan_cash.q1_fact) + ' + '
-                #                 + str(company_plan_cash.q2_fact) + ')',
-                #     },
-                #     'acceptance': {
-                #         'Q1': str(company_plan_acceptance.q1_plan),
-                #         'Q2': str(company_plan_acceptance.q2_plan),
-                #         'Q3': str(company_plan_acceptance.q3_plan),
-                #         'Q4': str(company_plan_acceptance.q4_plan),
-                #         'Q1_66': str(company_plan_acceptance.q1_plan_6_6),
-                #         'Q2_66': str(company_plan_acceptance.q2_plan_6_6),
-                #         'Q3_66': str(company_plan_acceptance.q3_plan_6_6),
-                #         'Q4_66': str(company_plan_acceptance.q4_plan_6_6),
-                #         'HY1': '=SUM(' + xl_col_to_name(plan_shift['acceptance']['Q1']) + '{0} + ' + xl_col_to_name(
-                #             plan_shift['acceptance']['Q2']) + '{0})',
-                #         'HY1_66': '=SUM(' + xl_col_to_name(
-                #             plan_shift['acceptance']['Q1_66']) + '{0} + ' + xl_col_to_name(
-                #             plan_shift['acceptance']['Q2_66']) + '{0})',
-                #         'HY2': '=SUM(' + xl_col_to_name(plan_shift['acceptance']['Q3']) + '{0} + ' + xl_col_to_name(
-                #             plan_shift['acceptance']['Q4']) + '{0})',
-                #         'HY2_66': '=SUM(' + xl_col_to_name(
-                #             plan_shift['acceptance']['Q3_66']) + '{0} + ' + xl_col_to_name(
-                #             plan_shift['acceptance']['Q4_66']) + '{0})',
-                #         'Y': '=SUM(' + xl_col_to_name(plan_shift['acceptance']['HY1']) + '{0} + ' + xl_col_to_name(
-                #             plan_shift['acceptance']['HY2']) + '{0})',
-                #         'Y_66': '=SUM(' + xl_col_to_name(plan_shift['acceptance']['HY1_66']) + '{0} + '
-                #                 + xl_col_to_name(plan_shift['acceptance']['HY2_66']) + '{0} + '
-                #                 + str(company_plan_acceptance.q1_fact) + ' + '
-                #                 + str(company_plan_acceptance.q2_fact) + ')',
-                #     },
-                #     'margin_income': {
-                #         'Q1': str(company_plan_margin_income.q1_plan),
-                #         'Q2': str(company_plan_margin_income.q2_plan),
-                #         'Q3': str(company_plan_margin_income.q3_plan),
-                #         'Q4': str(company_plan_margin_income.q4_plan),
-                #         'Q1_66': str(company_plan_margin_income.q1_plan_6_6),
-                #         'Q2_66': str(company_plan_margin_income.q2_plan_6_6),
-                #         'Q3_66': str(company_plan_margin_income.q3_plan_6_6),
-                #         'Q4_66': str(company_plan_margin_income.q4_plan_6_6),
-                #         'HY1': '=SUM(' + xl_col_to_name(plan_shift['margin_income']['Q1']) + '{0} + ' + xl_col_to_name(
-                #             plan_shift['margin_income']['Q2']) + '{0})',
-                #         'HY1_66': '=SUM(' + xl_col_to_name(
-                #             plan_shift['margin_income']['Q1_66']) + '{0} + ' + xl_col_to_name(
-                #             plan_shift['margin_income']['Q2_66']) + '{0})',
-                #         'HY2': '=SUM(' + xl_col_to_name(plan_shift['margin_income']['Q3']) + '{0} + ' + xl_col_to_name(
-                #             plan_shift['margin_income']['Q4']) + '{0})',
-                #         'HY2_66': '=SUM(' + xl_col_to_name(
-                #             plan_shift['margin_income']['Q3_66']) + '{0} + ' + xl_col_to_name(
-                #             plan_shift['margin_income']['Q4_66']) + '{0})',
-                #         'Y': '=SUM(' + xl_col_to_name(plan_shift['margin_income']['HY1']) + '{0} + ' + xl_col_to_name(
-                #             plan_shift['margin_income']['HY2']) + '{0})',
-                #         'Y_66': '=SUM(' + xl_col_to_name(plan_shift['margin_income']['HY1_66']) + '{0} + '
-                #                 + xl_col_to_name(plan_shift['margin_income']['HY2_66']) + '{0} + '
-                #                 + str(company_plan_margin_income.q1_fact) + ' + '
-                #                 + str(company_plan_margin_income.q2_fact) + ')',
-                #     },
-                # }
-                #
-                # for plan_type in company_plan.keys():
-                #     for plan_period in company_plan[plan_type].keys():
-                #         sheet.write_formula(company_row, plan_shift[plan_type][plan_period],
-                #                             company_plan[plan_type][plan_period].format(company_row + 1),
-                #                             row_format_company_plan)
+                # план виртуальной компаний
+                if virtual_company:
+                    responsibility_center_id = self.env['account.analytic.account'].search([
+                        ('code', '=', params['company_separate_center_code']),
+                        ('plan_id', '=', self.env.ref(
+                            'analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+                    ]).id
+
+                    company_plan_contracting = self.env['project_budget.budget_plan_supervisor_spec'].search([
+                        ('budget_plan_supervisor_id.year', '=', YEARint),
+                        ('budget_plan_supervisor_id.responsibility_center_id', '=', responsibility_center_id),
+                        ('type_row', '=', 'contracting'),
+                    ])
+
+                    company_plan_cash = self.env['project_budget.budget_plan_supervisor_spec'].search([
+                        ('budget_plan_supervisor_id.year', '=', YEARint),
+                        ('budget_plan_supervisor_id.responsibility_center_id', '=', responsibility_center_id),
+                        ('type_row', '=', 'cash'),
+                    ])
+
+                    company_plan_acceptance = self.env['project_budget.budget_plan_supervisor_spec'].search([
+                        ('budget_plan_supervisor_id.year', '=', YEARint),
+                        ('budget_plan_supervisor_id.responsibility_center_id', '=', responsibility_center_id),
+                        ('type_row', '=', 'acceptance'),
+                    ])
+
+                    company_plan_margin_income = self.env['project_budget.budget_plan_supervisor_spec'].search([
+                        ('budget_plan_supervisor_id.year', '=', YEARint),
+                        ('budget_plan_supervisor_id.responsibility_center_id', '=', responsibility_center_id),
+                        ('type_row', '=', 'margin_income'),
+                    ])
+
+                    company_plan = {
+                        'contracting': {
+                            'Q1': str(company_plan_contracting.q1_plan),
+                            'Q2': str(company_plan_contracting.q2_plan),
+                            'Q3': str(company_plan_contracting.q3_plan),
+                            'Q4': str(company_plan_contracting.q4_plan),
+                            'Q3_66': str(company_plan_contracting.q3_plan_6_6),
+                            'Q4_66': str(company_plan_contracting.q4_plan_6_6),
+                            'HY1': '=SUM(' + xl_col_to_name(plan_shift['contracting']['Q1']) + '{0} + ' + xl_col_to_name(
+                                plan_shift['contracting']['Q2']) + '{0})',
+                            'HY2': '=SUM(' + xl_col_to_name(plan_shift['contracting']['Q3']) + '{0} + ' + xl_col_to_name(
+                                plan_shift['contracting']['Q4']) + '{0})',
+                            'HY2_66': '=SUM(' + xl_col_to_name(plan_shift['contracting']['Q3_66']) + '{0} + ' + xl_col_to_name(
+                                plan_shift['contracting']['Q4_66']) + '{0})',
+                            'Y': '=SUM(' + xl_col_to_name(plan_shift['contracting']['HY1']) + '{0} + ' + xl_col_to_name(
+                                plan_shift['contracting']['HY2']) + '{0})',
+                            'Y_66': '=SUM(' + xl_col_to_name(plan_shift['contracting']['HY2_66']) + '{0} + '
+                                    + str(company_plan_contracting.q1_fact) + ' + '
+                                    + str(company_plan_contracting.q2_fact) + ')',
+                        },
+                        'cash': {
+                            'Q1': str(company_plan_cash.q1_plan),
+                            'Q2': str(company_plan_cash.q2_plan),
+                            'Q3': str(company_plan_cash.q3_plan),
+                            'Q4': str(company_plan_cash.q4_plan),
+                            'Q3_66': str(company_plan_cash.q3_plan_6_6),
+                            'Q4_66': str(company_plan_cash.q4_plan_6_6),
+                            'HY1': '=SUM(' + xl_col_to_name(plan_shift['cash']['Q1']) + '{0} + ' + xl_col_to_name(
+                                plan_shift['cash']['Q2']) + '{0})',
+                            'HY2': '=SUM(' + xl_col_to_name(plan_shift['cash']['Q3']) + '{0} + ' + xl_col_to_name(
+                                plan_shift['cash']['Q4']) + '{0})',
+                            'HY2_66': '=SUM(' + xl_col_to_name(
+                                plan_shift['cash']['Q3_66']) + '{0} + ' + xl_col_to_name(
+                                plan_shift['cash']['Q4_66']) + '{0})',
+                            'Y': '=SUM(' + xl_col_to_name(plan_shift['cash']['HY1']) + '{0} + ' + xl_col_to_name(
+                                plan_shift['cash']['HY2']) + '{0})',
+                            'Y_66': '=SUM(' + xl_col_to_name(plan_shift['cash']['HY2_66']) + '{0} + '
+                                    + str(company_plan_cash.q1_fact) + ' + '
+                                    + str(company_plan_cash.q2_fact) + ')',
+                        },
+                        'acceptance': {
+                            'Q1': str(company_plan_acceptance.q1_plan),
+                            'Q2': str(company_plan_acceptance.q2_plan),
+                            'Q3': str(company_plan_acceptance.q3_plan),
+                            'Q4': str(company_plan_acceptance.q4_plan),
+                            'Q3_66': str(company_plan_acceptance.q3_plan_6_6),
+                            'Q4_66': str(company_plan_acceptance.q4_plan_6_6),
+                            'HY1': '=SUM(' + xl_col_to_name(plan_shift['acceptance']['Q1']) + '{0} + ' + xl_col_to_name(
+                                plan_shift['acceptance']['Q2']) + '{0})',
+                            'HY2': '=SUM(' + xl_col_to_name(plan_shift['acceptance']['Q3']) + '{0} + ' + xl_col_to_name(
+                                plan_shift['acceptance']['Q4']) + '{0})',
+                            'HY2_66': '=SUM(' + xl_col_to_name(
+                                plan_shift['acceptance']['Q3_66']) + '{0} + ' + xl_col_to_name(
+                                plan_shift['acceptance']['Q4_66']) + '{0})',
+                            'Y': '=SUM(' + xl_col_to_name(plan_shift['acceptance']['HY1']) + '{0} + ' + xl_col_to_name(
+                                plan_shift['acceptance']['HY2']) + '{0})',
+                            'Y_66': '=SUM(' + xl_col_to_name(plan_shift['acceptance']['HY2_66']) + '{0} + '
+                                    + str(company_plan_acceptance.q1_fact) + ' + '
+                                    + str(company_plan_acceptance.q2_fact) + ')',
+                        },
+                        'margin_income': {
+                            'Q1': str(company_plan_margin_income.q1_plan),
+                            'Q2': str(company_plan_margin_income.q2_plan),
+                            'Q3': str(company_plan_margin_income.q3_plan),
+                            'Q4': str(company_plan_margin_income.q4_plan),
+                            'Q3_66': str(company_plan_margin_income.q3_plan_6_6),
+                            'Q4_66': str(company_plan_margin_income.q4_plan_6_6),
+                            'HY1': '=SUM(' + xl_col_to_name(plan_shift['margin_income']['Q1']) + '{0} + ' + xl_col_to_name(
+                                plan_shift['margin_income']['Q2']) + '{0})',
+                            'HY2': '=SUM(' + xl_col_to_name(plan_shift['margin_income']['Q3']) + '{0} + ' + xl_col_to_name(
+                                plan_shift['margin_income']['Q4']) + '{0})',
+                            'HY2_66': '=SUM(' + xl_col_to_name(
+                                plan_shift['margin_income']['Q3_66']) + '{0} + ' + xl_col_to_name(
+                                plan_shift['margin_income']['Q4_66']) + '{0})',
+                            'Y': '=SUM(' + xl_col_to_name(plan_shift['margin_income']['HY1']) + '{0} + ' + xl_col_to_name(
+                                plan_shift['margin_income']['HY2']) + '{0})',
+                            'Y_66': '=SUM(' + xl_col_to_name(plan_shift['margin_income']['HY2_66']) + '{0} + '
+                                    + str(company_plan_margin_income.q1_fact) + ' + '
+                                    + str(company_plan_margin_income.q2_fact) + ')',
+                        },
+                    }
+
+                    for plan_type in company_plan.keys():
+                        for plan_period in company_plan[plan_type].keys():
+                            sheet.write_formula(company_row, plan_shift[plan_type][plan_period],
+                                                company_plan[plan_type][plan_period].format(company_row + 1),
+                                                row_format_company_plan)
 
         return row, formulaItogo
 
@@ -3766,7 +3746,7 @@ class report_management_committee_excel(models.AbstractModel):
             ])
         depth = 1
         for project in budget_projects:
-            depth = max(depth, depth_dict[project.responsibility_center_id])
+            depth = max(depth, depth_dict.get(project.responsibility_center_id, 0))
             if depth == max_depth:
                 break
         return depth + 1
@@ -4077,14 +4057,27 @@ class report_management_committee_excel(models.AbstractModel):
                 '05', 'ПО_Облако.ру (интеграторский сервис)', 'ПО_Облако.ру (облачный сервис)',
                 'ПО_Облако.ру (облачный сервис новые)', 'ПО_Облако.ру (облачный сервис база)',
             ],
-            'parent_separate_centers_codes': [
-                'ПО_Облако.ру (интеграторский сервис)', 'ПО_Облако.ру (облачный сервис)',
-                'ПО_Облако.ру (облачный сервис новые)', 'ПО_Облако.ру (облачный сервис база)',
-            ],
+            'parent_separate_centers_codes': ['05',],
             'company_separate_center_code': '05',
             'systematica_name': 'Систематика',
             'virtual_company_id': 9999,
         }
+
+        # START Отладочные данные
+        # params = {
+        #     '50': data['koeff_reserve'],
+        #     '30': data['koeff_potential'],
+        #     'report_with_projects': data['report_with_projects'],
+        #     'shift': 0,
+        #     'margin_shift': 38,
+        #     'all_separate_centers_codes': ['05', '12', '13', '14', '16', '17', '18', '19'],
+        #     'parent_separate_centers_codes': ['05',],
+        #     'company_separate_center_code': '05',
+        #     'systematica_name': 'НКК',
+        #     'virtual_company_id': 9999,
+        # }
+        # END Отладочные данные
+
         params['virtual_company_name'] = self.env['account.analytic.account'].search([
             ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
             ('code', '=', params['company_separate_center_code']),
