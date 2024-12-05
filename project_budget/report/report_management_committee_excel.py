@@ -8,6 +8,13 @@ isdebug = False
 logger = logging.getLogger("*___forecast_report___*")
 
 
+class VirtualCompany:
+
+    def __init__(self, id, name):
+        self.id = id
+        self.name = name
+
+
 class report_management_committee_excel(models.AbstractModel):
     _name = 'report.project_budget.report_management_committee_excel'
     _description = 'project_budget.report_management_committee_excel'
@@ -3019,7 +3026,86 @@ class report_management_committee_excel(models.AbstractModel):
 
         # end Валовая Выручка, без НДС
 
-    def printrow(self, sheet, workbook, companies, responsibility_centers, budget, row, formulaItogo, level, params):
+    def print_company_row(
+            self, sheet, company_formula, row, col, row_format_company_plan, row_format_company_fact,
+            row_format_company_percent, row_format_company_forecast, row_format_company_next
+    ):
+        for period in ('contraction', 'cash_flow', 'gross_revenue', 'margin'):
+            for colFormula in ('Q1', 'Q2', 'HY1', 'Q3', 'Q4', 'HY2', 'YEAR', 'NEXT'):
+                if colFormula in ('Q1', 'Q2'):
+                    formula = company_formula.format(xl_col_to_name(col))
+                    sheet.write_formula(row, col, formula, row_format_company_plan)
+                    formula = company_formula.format(xl_col_to_name(col + 1))
+                    sheet.write_formula(row, col + 1, formula, row_format_company_fact)
+                    formula = company_formula.format(xl_col_to_name(col + 2))
+                    sheet.write_formula(row, col + 2, formula, row_format_company_forecast)
+                    formula = company_formula.format(xl_col_to_name(col + 3))
+                    sheet.write_formula(row, col + 3, formula, row_format_company_forecast)
+                    col += 4
+                elif colFormula == 'HY1':
+                    formula = company_formula.format(xl_col_to_name(col))
+                    sheet.write_formula(row, col, formula, row_format_company_plan)
+                    formula = company_formula.format(xl_col_to_name(col + 1))
+                    sheet.write_formula(row, col + 1, formula, row_format_company_fact)
+                    formula = f'=IFERROR({xl_col_to_name(col + 1)}{row + 1}/{xl_col_to_name(col)}{row + 1}," ")'
+                    sheet.write_formula(row, col + 2, formula, row_format_company_percent)
+                    formula = company_formula.format(xl_col_to_name(col + 3))
+                    sheet.write_formula(row, col + 3, formula, row_format_company_forecast)
+                    formula = company_formula.format(xl_col_to_name(col + 4))
+                    sheet.write_formula(row, col + 4, formula, row_format_company_forecast)
+                    col += 5
+                elif colFormula in ('Q3', 'Q4'):
+                    formula = company_formula.format(xl_col_to_name(col))
+                    sheet.write_formula(row, col, formula, row_format_company_plan)
+                    formula = company_formula.format(xl_col_to_name(col + 1))
+                    sheet.write_formula(row, col + 1, formula, row_format_company_plan)
+                    formula = company_formula.format(xl_col_to_name(col + 2))
+                    sheet.write_formula(row, col + 2, formula, row_format_company_fact)
+                    formula = company_formula.format(xl_col_to_name(col + 3))
+                    sheet.write_formula(row, col + 3, formula, row_format_company_forecast)
+                    formula = company_formula.format(xl_col_to_name(col + 4))
+                    sheet.write_formula(row, col + 4, formula, row_format_company_forecast)
+                    col += 5
+                elif colFormula == 'HY2':
+                    formula = company_formula.format(xl_col_to_name(col))
+                    sheet.write_formula(row, col, formula, row_format_company_plan)
+                    formula = company_formula.format(xl_col_to_name(col + 1))
+                    sheet.write_formula(row, col + 1, formula, row_format_company_plan)
+                    formula = company_formula.format(xl_col_to_name(col + 2))
+                    sheet.write_formula(row, col + 2, formula, row_format_company_fact)
+                    formula = company_formula.format(xl_col_to_name(col + 3))
+                    sheet.write_formula(row, col + 3, formula, row_format_company_forecast)
+                    formula = company_formula.format(xl_col_to_name(col + 4))
+                    sheet.write_formula(row, col + 4, formula, row_format_company_forecast)
+                    col += 5
+                elif colFormula == 'YEAR':
+                    formula = company_formula.format(xl_col_to_name(col))
+                    sheet.write_formula(row, col, formula, row_format_company_plan)
+                    formula = company_formula.format(xl_col_to_name(col + 1))
+                    sheet.write_formula(row, col + 1, formula, row_format_company_plan)
+                    formula = company_formula.format(xl_col_to_name(col + 2))
+                    sheet.write_formula(row, col + 2, formula, row_format_company_fact)
+                    formula = f'=IFERROR({xl_col_to_name(col + 2)}{row + 1}/{xl_col_to_name(col + 1)}{row + 1}," ")'
+                    sheet.write_formula(row, col + 3, formula, row_format_company_percent)
+                    formula = company_formula.format(xl_col_to_name(col + 4))
+                    sheet.write_formula(row, col + 4, formula, row_format_company_forecast)
+                    formula = company_formula.format(xl_col_to_name(col + 5))
+                    sheet.write_formula(row, col + 5, formula, row_format_company_forecast)
+                    col += 6
+                elif colFormula == 'NEXT':
+                    formula = company_formula.format(xl_col_to_name(col))
+                    sheet.write_formula(row, col, formula, row_format_company_next)
+                    formula = company_formula.format(xl_col_to_name(col + 1))
+                    sheet.write_formula(row, col + 1, formula, row_format_company_next)
+                    formula = company_formula.format(xl_col_to_name(col + 2))
+                    sheet.write_formula(row, col + 2, formula, row_format_company_next)
+                    col += 3
+                    if period != 'cash_flow':  # нет потенциала в следующем году в ПДС
+                        formula = company_formula.format(xl_col_to_name(col))
+                        sheet.write_formula(row, col, formula, row_format_company_next)
+                        col += 1
+
+    def printrow(self, sheet, workbook, companies, responsibility_centers, budget, row, formulaItogo, level, params, virtual_company):
         global strYEAR
         global YEARint
         global dict_formula
@@ -3178,20 +3264,10 @@ class report_management_committee_excel(models.AbstractModel):
         cur_responsibility_centers = responsibility_centers
         # cur_project_managers = project_managers.filtered(lambda r: r in cur_budget_projects.project_manager_id)
 
-        # TODO перевести сортировку в параметры компаний
-        companies_sort = {
-            7 : 1, # Систематика
-            8 : 2, # Систематика Консалтинг
-            3 : 3, # Ландата
-            4 : 4, # Энсис Технологии
-            5 : 5, # Топс Бизнес Интегратор
-            2 : 6, # Доверенная среда
-            14: 7, # Триафлай
-            6 : 8, # Хэд Пойнт
-            9 : 9, # Облако.ру
-        }
-
-        cur_companies = companies.filtered(lambda r: r in cur_responsibility_centers.company_id).sorted(key=lambda r: companies_sort.get(r.id, 99))
+        if virtual_company:
+            cur_companies = companies
+        else:
+            cur_companies = companies.filtered(lambda r: r in cur_responsibility_centers.company_id)
 
         for company in cur_companies:
             print('company = ', company.name)
@@ -3201,14 +3277,21 @@ class report_management_committee_excel(models.AbstractModel):
             dict_formula['center_ids_not_empty'] = {}
 
             if company.id not in dict_formula['company_ids']:
+                if company.name == params['systematica_name']:
+                    row += 1
                 row += 1
                 dict_formula['company_ids'][company.id] = row
 
-            for responsibility_center in cur_responsibility_centers.filtered(lambda r: r in (center for center in self.env[
-                'account.analytic.account'].search([
-                ('company_id', '=', company.id),
-                ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
-            ]))):
+            if virtual_company:
+                filtered_centers = cur_responsibility_centers
+            else:
+                filtered_centers = cur_responsibility_centers.filtered(lambda r: r in (center for center in self.env[
+                    'account.analytic.account'].search([
+                    ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+                    ('company_id', '=', company.id),
+            ])))
+
+            for responsibility_center in filtered_centers:
 
                 print('responsibility_center.name = ', responsibility_center.name)
 
@@ -3224,8 +3307,10 @@ class report_management_committee_excel(models.AbstractModel):
                 if responsibility_center.child_ids:
                     row += 1
                     dict_formula['center_ids'][responsibility_center.id] = row
-                    row0, formulaItogo = self.printrow(sheet, workbook, company, child_responsibility_centers, budget, row,
-                                                       formulaItogo, level + 1, params)
+                    row0, formulaItogo = self.printrow(
+                        sheet, workbook, companies, child_responsibility_centers, budget, row, formulaItogo, level + 1,
+                        params, virtual_company
+                    )
 
                 isFoundProjectsByCenter = False
                 if row0 != row:
@@ -3241,7 +3326,7 @@ class report_management_committee_excel(models.AbstractModel):
                         if begRowProjectsByCenter == 0:
                             begRowProjectsByCenter = row
 
-                        if spec.responsibility_center_id == responsibility_center and spec.company_id == company:
+                        if spec.responsibility_center_id == responsibility_center:
                             if self.isProjectinYear(spec) is False or spec.stage_id.code in ('0', '10'):
                                 continue
 
@@ -3252,7 +3337,7 @@ class report_management_committee_excel(models.AbstractModel):
                     isFoundProjectsByCenter = True
                     isFoundProjectsByCompany = True
 
-                if responsibility_center.parent_id:
+                if level > 1:
                     isFoundProjectsByCompany = False
 
                 if isFoundProjectsByCenter:
@@ -3315,7 +3400,7 @@ class report_management_committee_excel(models.AbstractModel):
                     if params['report_with_projects']:
                         for spec in cur_budget_projects:
                             if spec.vgo == '-':
-                                if spec.responsibility_center_id == responsibility_center and spec.company_id == company:
+                                if spec.responsibility_center_id == responsibility_center:
                                     if self.isProjectinYear(spec) is False or spec.stage_id.code in ('0', '10'):
                                         continue
 
@@ -3362,7 +3447,7 @@ class report_management_committee_excel(models.AbstractModel):
                                     sheet.write_string(row, column, '', cur_row_format)
                                     self.print_row_Values(workbook, sheet, row, column, strYEAR, spec, responsibility_center, params)
 
-                    if not responsibility_center.parent_id:
+                    if level == 1:
                         formulaProjectCompany += ',{0}' + f'{center_row + 1}'
                     if params['report_with_projects']:
                         row += 1
@@ -3384,83 +3469,33 @@ class report_management_committee_excel(models.AbstractModel):
                     sheet.merge_range(company_row, column + 1, company_row, column + params["shift"] , '', row_format_company)
 
                 formulaProjectCompany += ')'
-
+                print('formulaProjectCompany',formulaProjectCompany)
                 # оформление строки Компания
                 col = params["shift"] + 1
-                for period in ('contraction', 'cash_flow', 'gross_revenue', 'margin'):
-                    for colFormula in ('Q1', 'Q2', 'HY1', 'Q3', 'Q4', 'HY2', 'YEAR', 'NEXT'):
-                        if colFormula in ('Q1', 'Q2'):
-                            formula = formulaProjectCompany.format(xl_col_to_name(col))
-                            sheet.write_formula(company_row, col, formula, row_format_company_plan)
-                            formula = formulaProjectCompany.format(xl_col_to_name(col + 1))
-                            sheet.write_formula(company_row, col + 1, formula, row_format_company_fact)
-                            formula = formulaProjectCompany.format(xl_col_to_name(col + 2))
-                            sheet.write_formula(company_row, col + 2, formula, row_format_company_forecast)
-                            formula = formulaProjectCompany.format(xl_col_to_name(col + 3))
-                            sheet.write_formula(company_row, col + 3, formula, row_format_company_forecast)
-                            col += 4
-                        elif colFormula == 'HY1':
-                            formula = formulaProjectCompany.format(xl_col_to_name(col))
-                            sheet.write_formula(company_row, col, formula, row_format_company_plan)
-                            formula = formulaProjectCompany.format(xl_col_to_name(col + 1))
-                            sheet.write_formula(company_row, col + 1, formula, row_format_company_fact)
-                            formula = f'=IFERROR({xl_col_to_name(col + 1)}{company_row + 1}/{xl_col_to_name(col)}{company_row + 1}," ")'
-                            sheet.write_formula(company_row, col + 2, formula, row_format_company_percent)
-                            formula = formulaProjectCompany.format(xl_col_to_name(col + 3))
-                            sheet.write_formula(company_row, col + 3, formula, row_format_company_forecast)
-                            formula = formulaProjectCompany.format(xl_col_to_name(col + 4))
-                            sheet.write_formula(company_row, col + 4, formula, row_format_company_forecast)
-                            col += 5
-                        elif colFormula in ('Q3', 'Q4'):
-                            formula = formulaProjectCompany.format(xl_col_to_name(col))
-                            sheet.write_formula(company_row, col, formula, row_format_company_plan)
-                            formula = formulaProjectCompany.format(xl_col_to_name(col + 1))
-                            sheet.write_formula(company_row, col + 1, formula, row_format_company_plan)
-                            formula = formulaProjectCompany.format(xl_col_to_name(col + 2))
-                            sheet.write_formula(company_row, col + 2, formula, row_format_company_fact)
-                            formula = formulaProjectCompany.format(xl_col_to_name(col + 3))
-                            sheet.write_formula(company_row, col + 3, formula, row_format_company_forecast)
-                            formula = formulaProjectCompany.format(xl_col_to_name(col + 4))
-                            sheet.write_formula(company_row, col + 4, formula, row_format_company_forecast)
-                            col += 5
-                        elif colFormula == 'HY2':
-                            formula = formulaProjectCompany.format(xl_col_to_name(col))
-                            sheet.write_formula(company_row, col, formula, row_format_company_plan)
-                            formula = formulaProjectCompany.format(xl_col_to_name(col + 1))
-                            sheet.write_formula(company_row, col + 1, formula, row_format_company_plan)
-                            formula = formulaProjectCompany.format(xl_col_to_name(col + 2))
-                            sheet.write_formula(company_row, col + 2, formula, row_format_company_fact)
-                            formula = formulaProjectCompany.format(xl_col_to_name(col + 3))
-                            sheet.write_formula(company_row, col + 3, formula, row_format_company_forecast)
-                            formula = formulaProjectCompany.format(xl_col_to_name(col + 4))
-                            sheet.write_formula(company_row, col + 4, formula, row_format_company_forecast)
-                            col += 5
-                        elif colFormula == 'YEAR':
-                            formula = formulaProjectCompany.format(xl_col_to_name(col))
-                            sheet.write_formula(company_row, col, formula, row_format_company_plan)
-                            formula = formulaProjectCompany.format(xl_col_to_name(col + 1))
-                            sheet.write_formula(company_row, col + 1, formula, row_format_company_plan)
-                            formula = formulaProjectCompany.format(xl_col_to_name(col + 2))
-                            sheet.write_formula(company_row, col + 2, formula, row_format_company_fact)
-                            formula = f'=IFERROR({xl_col_to_name(col + 2)}{company_row + 1}/{xl_col_to_name(col + 1)}{company_row + 1}," ")'
-                            sheet.write_formula(company_row, col + 3, formula, row_format_company_percent)
-                            formula = formulaProjectCompany.format(xl_col_to_name(col + 4))
-                            sheet.write_formula(company_row, col + 4, formula, row_format_company_forecast)
-                            formula = formulaProjectCompany.format(xl_col_to_name(col + 5))
-                            sheet.write_formula(company_row, col + 5, formula, row_format_company_forecast)
-                            col += 6
-                        elif colFormula == 'NEXT':
-                            formula = formulaProjectCompany.format(xl_col_to_name(col))
-                            sheet.write_formula(company_row, col, formula, row_format_company_next)
-                            formula = formulaProjectCompany.format(xl_col_to_name(col + 1))
-                            sheet.write_formula(company_row, col + 1, formula, row_format_company_next)
-                            formula = formulaProjectCompany.format(xl_col_to_name(col + 2))
-                            sheet.write_formula(company_row, col + 2, formula, row_format_company_next)
-                            col += 3
-                            if period != 'cash_flow':  # нет потенциала в следующем году в ПДС
-                                formula = formulaProjectCompany.format(xl_col_to_name(col))
-                                sheet.write_formula(company_row, col, formula, row_format_company_next)
-                                col += 1
+                self.print_company_row(
+                    sheet, formulaProjectCompany, company_row, col, row_format_company_plan, row_format_company_fact,
+                    row_format_company_percent, row_format_company_forecast, row_format_company_next
+                )
+                if virtual_company:  # строка суммирования Систематики и Облака
+                    systematica = self.env['res.company'].search([('name', '=', params['systematica_name'])])
+                    sum_row = dict_formula['company_ids'][systematica.id] - 1
+                    virtual_row = dict_formula['company_ids'][params['virtual_company_id']]
+                    formula = '=sum({0}' + f'{sum_row + 2}' + ',{0}' + f'{virtual_row + 1})'
+
+                    sheet.write_string(
+                        sum_row, column, params['systematica_name'] + ' + ' + params['virtual_company_name'],
+                        row_format_company
+                    )
+                    if params['report_with_projects']:
+                        sheet.merge_range(
+                            sum_row, column + 1, sum_row, column + params["shift"], '',
+                            row_format_company
+                        )
+
+                    self.print_company_row(
+                        sheet, formula, sum_row, col, row_format_company_plan, row_format_company_fact,
+                        row_format_company_percent, row_format_company_forecast, row_format_company_next,
+                    )
 
                 # планы компаний
                 # company_plan_contracting = self.env['project_budget.budget_plan_supervisor_spec'].search([
@@ -3711,6 +3746,31 @@ class report_management_committee_excel(models.AbstractModel):
             sheet.set_row(row, 14, row_format_company_empty, {'hidden': 1, 'level': 1})
         return row
 
+
+    def calculate_max_level(self, start_parent_centers, budget_projects):  # считаем max_level
+        depth_dict = {}
+        max_depth = 1
+        parents = [False,]
+        new_parents = []
+        parent_centers = start_parent_centers
+        while parent_centers:
+            for center in parent_centers:
+                depth_dict[center] = max_depth
+                new_parents.append(center.id)
+            max_depth += 1
+            parents = new_parents
+            new_parents = []
+            parent_centers = self.env['account.analytic.account'].search([
+                ('parent_id', 'in', parents),
+                ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+            ])
+        depth = 1
+        for project in budget_projects:
+            depth = max(depth, depth_dict[project.responsibility_center_id])
+            if depth == max_depth:
+                break
+        return depth + 1
+
     def printworksheet(self, workbook, budget, namesheet, params):
         global strYEAR
         global YEARint
@@ -3877,6 +3937,7 @@ class report_management_committee_excel(models.AbstractModel):
         row += 2
 
         cur_budget_projects = self.env['project_budget.projects'].search([
+            ('responsibility_center_id.code', 'not in', params['all_separate_centers_codes']),
             ('commercial_budget_id', '=', budget.id),
             ('stage_id.code', '!=', '0'),
             ('is_not_for_mc_report', '=', False),
@@ -3885,70 +3946,98 @@ class report_management_committee_excel(models.AbstractModel):
             '&', ('step_status', '=', 'project'),
             ('project_have_steps', '=', False),
         ])
-
-        #  считаем max_level
-        depth_dict = {}
-        max_depth = 1
-        parents = [False,]
-        new_parents = []
-
         parent_centers = self.env['account.analytic.account'].search([
-            ('parent_id', 'in', parents),
+            ('code', 'not in', params['all_separate_centers_codes']),
+            ('parent_id', 'in', [False,]),
+            ('plan_id', '=',
+             self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+        ])
+        max_level = self.calculate_max_level(parent_centers, cur_budget_projects)
+
+        separate_budget_projects = self.env['project_budget.projects'].search([
+            ('responsibility_center_id.code', 'in', params['all_separate_centers_codes']),
+            ('commercial_budget_id', '=', budget.id),
+            ('stage_id.code', '!=', '0'),
+            ('is_not_for_mc_report', '=', False),
+            '|', '&', ('step_status', '=', 'step'),
+            ('step_project_parent_id.project_have_steps', '=', True),
+            '&', ('step_status', '=', 'project'),
+            ('project_have_steps', '=', False),
+        ])
+        separate_parent_centers = self.env['account.analytic.account'].search([
+            ('code', 'in', params['all_separate_centers_codes']),
             ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
         ])
-        while parent_centers:
-            for center in parent_centers:
-                depth_dict[center] = max_depth
-                new_parents.append(center.id)
-            max_depth += 1
-            parents = new_parents
-            new_parents = []
-            parent_centers = self.env['account.analytic.account'].search([
-                ('parent_id', 'in', parents),
-                ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
-            ])
+        separate_level = self.calculate_max_level(separate_parent_centers, separate_budget_projects) - 1
+        max_level = max(max_level, separate_level)
 
-        depth = 1
+        companies_sort = {
+            7: 1,  # Систематика
+            8: 2,  # Систематика Консалтинг
+            3: 3,  # Ландата
+            4: 4,  # Энсис Технологии
+            5: 5,  # Топс Бизнес Интегратор
+            2: 6,  # Доверенная среда
+            14: 7,  # Триафлай
+            6: 8,  # Хэд Пойнт
+            9: 9,  # Облако.ру
+        }
 
-        for project in cur_budget_projects:
-            depth = max(depth, depth_dict[project.responsibility_center_id])
-            if depth == max_depth:
-                break
+        systematica_companies = self.env['res.company'].search([('name', '=', params['systematica_name'])])
+        not_systematica_companies = self.env['res.company'].search([('name', '!=', params['systematica_name'])]).sorted(
+                key=lambda r: companies_sort.get(r.id, 99))
 
-        max_level = depth + 1
+        oblako_company = VirtualCompany(params['virtual_company_id'], params['virtual_company_name'])
 
-        companies = self.env['res.company'].search([], order='name')
         responsibility_centers = self.env['account.analytic.account'].search([
+            ('code', 'not in', params['all_separate_centers_codes']),
             ('parent_id', '=', False),
             ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
         ], order='sequence')  # для сортировки так делаем + берем сначала только верхние элементы
-        # project_managers = self.env['project_budget.project_manager'].search([], order='name')  # для сортировки так делаем
-        # estimated_probabilitys = self.env['project_budget.estimated_probability'].search([('name','!=','10')],order='code desc')  # для сортировки так делаем
+
+        separate_responsibility_centers = self.env['account.analytic.account'].search([
+            ('code', 'in', params['parent_separate_centers_codes']),
+            ('plan_id', '=',
+             self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+        ], order='sequence')  # для сортировки так делаем + берем сначала только верхние элементы
 
         formulaItogo = '=sum(0'
 
-        row, formulaItogo = self.printrow(sheet, workbook, companies, responsibility_centers, budget, row, formulaItogo, 1,
-                                          params)
+        if systematica_companies:
+            row, formulaItogo = self.printrow(
+                sheet, workbook, systematica_companies, responsibility_centers, budget, row, formulaItogo,
+                1, params,False
+            )
+
+            row, formulaItogo = self.printrow(
+                sheet, workbook, (oblako_company,), separate_responsibility_centers, budget, row, formulaItogo,
+                1, params, True
+            )
+        if not_systematica_companies:
+            row, formulaItogo = self.printrow(
+                sheet, workbook, not_systematica_companies, responsibility_centers, budget, row, formulaItogo,
+                1, params,False
+            )
 
         # печатаем данные из внешних источников
-        if budget.date_actual:
-            current_date = budget.date_actual.date()
-        else:
-            current_date = date.today()
-
-        current_week_start = current_date - timedelta(days=current_date.isocalendar()[2] - 1)
-        current_week_end = current_date + timedelta(days=(7 - current_date.isocalendar()[2]))
-        previous_week_start = current_date - timedelta(days=current_date.isocalendar()[2] + 6)
-
-        print('current_date', current_date, current_week_start, current_week_end)
-
-        for company in companies:
-            external_data = self.env['project_budget.report_external_data'].search([
-                ('report_date', '<=', current_week_end),
-                ('company_id', '=', company.id),
-            ], order='report_date desc', limit=1)
-            if external_data:
-                row = self.print_external_data(workbook, sheet, row, external_data, params)
+        # if budget.date_actual:
+        #     current_date = budget.date_actual.date()
+        # else:
+        #     current_date = date.today()
+        #
+        # current_week_start = current_date - timedelta(days=current_date.isocalendar()[2] - 1)
+        # current_week_end = current_date + timedelta(days=(7 - current_date.isocalendar()[2]))
+        # previous_week_start = current_date - timedelta(days=current_date.isocalendar()[2] + 6)
+        #
+        # print('current_date', current_date, current_week_start, current_week_end)
+        #
+        # for company in systematica_companies + not_systematica_companies:
+        #     external_data = self.env['project_budget.report_external_data'].search([
+        #         ('report_date', '<=', current_week_end),
+        #         ('company_id', '=', company.id),
+        #     ], order='report_date desc', limit=1)
+        #     if external_data:
+        #         row = self.print_external_data(workbook, sheet, row, external_data, params)
         # end печатаем данные из внешних источников
 
         row += 1
@@ -3959,90 +4048,11 @@ class report_management_committee_excel(models.AbstractModel):
         for company_row in dict_formula['company_ids'].values():
             formulaItogo += ',{0}' + str(company_row + 1)
         formulaItogo = formulaItogo + ')'
-        # for colFormula in range(1 + params["shift"] , 164 + params["shift"] ):
-        #     formula = formulaItogo.format(xl_col_to_name(colFormula))
-        #     sheet.write_formula(row, colFormula, formula, row_format_number_itogo)
-        # for i in range(4):  # формулы для процентов выполнения
-        #     if i == 2:  # сдвиг после удаления потенциала ПДС
-        #         params["shift"] -= 1
-        #     for j in (14, (params["margin_shift"] - 6)):
-        #         formula = f'=IFERROR({xl_col_to_name(i * params["margin_shift"] + j + params["shift"] - 1)}{row + 1}/{xl_col_to_name(i * params["margin_shift"] + j + params["shift"] - 2)}{row + 1}, " ")'
-        #         sheet.write_formula(row, i * params['margin_shift'] + j + params['shift'], formula, row_format_number_itogo_percent)
         col = params["shift"] + 1
-        for period in ('contraction', 'cash_flow', 'gross_revenue', 'margin'):
-            for colFormula in ('Q1', 'Q2', 'HY1', 'Q3', 'Q4', 'HY2', 'YEAR', 'NEXT'):
-                if colFormula in ('Q1', 'Q2'):
-                    formula = formulaItogo.format(xl_col_to_name(col))
-                    sheet.write_formula(row, col, formula, row_format_number_itogo)
-                    formula = formulaItogo.format(xl_col_to_name(col + 1))
-                    sheet.write_formula(row, col + 1, formula, row_format_number_itogo)
-                    formula = formulaItogo.format(xl_col_to_name(col + 2))
-                    sheet.write_formula(row, col + 2, formula, row_format_number_itogo)
-                    formula = formulaItogo.format(xl_col_to_name(col + 3))
-                    sheet.write_formula(row, col + 3, formula, row_format_number_itogo)
-                    col += 4
-                elif colFormula == 'HY1':
-                    formula = formulaItogo.format(xl_col_to_name(col))
-                    sheet.write_formula(row, col, formula, row_format_number_itogo)
-                    formula = formulaItogo.format(xl_col_to_name(col + 1))
-                    sheet.write_formula(row, col + 1, formula, row_format_number_itogo)
-                    percent_formula = f'=IFERROR({xl_col_to_name(col + 1)}{row + 1}/{xl_col_to_name(col)}{row + 1}," ")'
-                    sheet.write_formula(row, col + 2, percent_formula, row_format_number_itogo_percent)
-                    formula = formulaItogo.format(xl_col_to_name(col + 3))
-                    sheet.write_formula(row, col + 3, formula, row_format_number_itogo)
-                    formula = formulaItogo.format(xl_col_to_name(col + 4))
-                    sheet.write_formula(row, col + 4, formula, row_format_number_itogo)
-                    col += 5
-                elif colFormula in ('Q3', 'Q4'):
-                    formula = formulaItogo.format(xl_col_to_name(col))
-                    sheet.write_formula(row, col, formula, row_format_number_itogo)
-                    formula = formulaItogo.format(xl_col_to_name(col + 1))
-                    sheet.write_formula(row, col + 1, formula, row_format_number_itogo)
-                    formula = formulaItogo.format(xl_col_to_name(col + 2))
-                    sheet.write_formula(row, col + 2, formula, row_format_number_itogo)
-                    formula = formulaItogo.format(xl_col_to_name(col + 3))
-                    sheet.write_formula(row, col + 3, formula, row_format_number_itogo)
-                    formula = formulaItogo.format(xl_col_to_name(col + 4))
-                    sheet.write_formula(row, col + 4, formula, row_format_number_itogo)
-                    col += 5
-                elif colFormula == 'HY2':
-                    formula = formulaItogo.format(xl_col_to_name(col))
-                    sheet.write_formula(row, col, formula, row_format_number_itogo)
-                    formula = formulaItogo.format(xl_col_to_name(col + 1))
-                    sheet.write_formula(row, col + 1, formula, row_format_number_itogo)
-                    formula = formulaItogo.format(xl_col_to_name(col + 2))
-                    sheet.write_formula(row, col + 2, formula, row_format_number_itogo)
-                    formula = formulaItogo.format(xl_col_to_name(col + 3))
-                    sheet.write_formula(row, col + 3, formula, row_format_number_itogo)
-                    formula = formulaItogo.format(xl_col_to_name(col + 4))
-                    sheet.write_formula(row, col + 4, formula, row_format_number_itogo)
-                    col += 5
-                elif colFormula == 'YEAR':
-                    formula = formulaItogo.format(xl_col_to_name(col))
-                    sheet.write_formula(row, col, formula, row_format_number_itogo)
-                    formula = formulaItogo.format(xl_col_to_name(col + 1))
-                    sheet.write_formula(row, col + 1, formula, row_format_number_itogo)
-                    formula = formulaItogo.format(xl_col_to_name(col + 2))
-                    sheet.write_formula(row, col + 2, formula, row_format_number_itogo)
-                    percent_formula = f'=IFERROR({xl_col_to_name(col + 2)}{row + 1}/{xl_col_to_name(col + 1)}{row + 1}," ")'
-                    sheet.write_formula(row, col + 3, percent_formula, row_format_number_itogo_percent)
-                    formula = formulaItogo.format(xl_col_to_name(col + 4))
-                    sheet.write_formula(row, col + 4, formula, row_format_number_itogo)
-                    formula = formulaItogo.format(xl_col_to_name(col + 5))
-                    sheet.write_formula(row, col + 5, formula, row_format_number_itogo)
-                    col += 6
-                elif colFormula == 'NEXT':
-                    formula = formulaItogo.format(xl_col_to_name(col))
-                    sheet.write_formula(row, col, formula, row_format_number_itogo)
-                    formula = formulaItogo.format(xl_col_to_name(col + 1))
-                    sheet.write_formula(row, col + 1, formula, row_format_number_itogo)
-                    formula = formulaItogo.format(xl_col_to_name(col + 2))
-                    sheet.write_formula(row, col + 2, formula, row_format_number_itogo)
-                    col += 3
-                    if period != 'cash_flow':  # нет потенциала в следующем году в ПДС
-                        formula = formulaItogo.format(xl_col_to_name(col))
-                        sheet.write_formula(row, col, formula, row_format_number_itogo)
-                        col += 1
+        self.print_company_row(
+            sheet, formulaItogo, row, col, row_format_number_itogo, row_format_number_itogo,
+            row_format_number_itogo_percent, row_format_number_itogo, row_format_number_itogo
+        )
 
     def generate_xlsx_report(self, workbook, data, budgets):
         global plan_shift
@@ -4057,12 +4067,31 @@ class report_management_committee_excel(models.AbstractModel):
         print('YEARint=', YEARint)
         print('strYEAR =', strYEAR)
 
-        params = {'50': data['koeff_reserve'], '30': data['koeff_potential'],
-                       'report_with_projects': data['report_with_projects'], 'shift': 0}
+        params = {
+            '50': data['koeff_reserve'],
+            '30': data['koeff_potential'],
+            'report_with_projects': data['report_with_projects'],
+            'shift': 0,
+            'margin_shift': 38,
+            'all_separate_centers_codes': [
+                '05', 'ПО_Облако.ру (интеграторский сервис)', 'ПО_Облако.ру (облачный сервис)',
+                'ПО_Облако.ру (облачный сервис новые)', 'ПО_Облако.ру (облачный сервис база)',
+            ],
+            'parent_separate_centers_codes': [
+                'ПО_Облако.ру (интеграторский сервис)', 'ПО_Облако.ру (облачный сервис)',
+                'ПО_Облако.ру (облачный сервис новые)', 'ПО_Облако.ру (облачный сервис база)',
+            ],
+            'company_separate_center_code': '05',
+            'systematica_name': 'Систематика',
+            'virtual_company_id': 9999,
+        }
+        params['virtual_company_name'] = self.env['account.analytic.account'].search([
+            ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+            ('code', '=', params['company_separate_center_code']),
+        ]).name
 
         if data['report_with_projects']:
             params['shift'] = 10
-        params['margin_shift'] = 38
 
         cash_shift = 38
         acceptance_shift = 75
