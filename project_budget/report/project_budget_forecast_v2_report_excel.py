@@ -65,12 +65,6 @@ class report_budget_forecast_excel(models.AbstractModel):
                                    'HY2 YEAR итого','YEAR итого']
     month_rus_name_revenue_margin = ['Q1','Q2','HY1 YEAR','Q3','Q4','HY2 YEAR','YEAR итого']
 
-    # array_col_itogi = [28, 49, 55, 76, 97, 103, 109, 130, 151, 157, 178, 199, 205, 211, 217, 223, 229, 235, 241, 254, 260, 266, 272, 278, 284, 297,]
-    #
-    # array_col_itogi75 = [247, 291,]
-    #
-    # array_col_itogi75NoFormula = [248, 292,]
-
     dict_formula = {}
     # dict_contract_pds = {
     #     1: {'name': 'Контрактование, с НДС', 'color': '#FFD966'},
@@ -92,7 +86,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         if name == '100(done)': result = 'Исполнен/закрыт'
         return result
 
-    def get_quater_from_month(self,month):
+    def get_quater_from_month(self, month):
         if month in (1,2,3):
             return 'Q1'
         if month in (4,5,6):
@@ -104,7 +98,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         return False
 
 
-    def get_months_from_quater(self,quater_name):
+    def get_months_from_quater(self, quater_name):
         months = False;
         if quater_name == 'Q1':
             months=(1,2,3)
@@ -116,7 +110,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             months=(10,11,12)
         return months
 
-    def get_sum_fact_pds_project_month(self, project, year, month):
+    def get_sum_fact_pds_project_month(self, project, year, month, without_distributions):
         sum_cash = 0
 
         if project.step_status == 'project':
@@ -125,10 +119,10 @@ class report_budget_forecast_excel(models.AbstractModel):
             pds_list = project.fact_step_cash_flow_ids
 
         for pds in pds_list:
-
             if (pds.date_cash.month == month or not month) and pds.date_cash.year == year:
+                if without_distributions and pds.distribution_cash_ids:
+                    continue
                 sum_cash += pds.sum_cash
-
         return sum_cash
 
     def get_sum_plan_pds_project_month(self, project, year, month):
@@ -508,7 +502,8 @@ class report_budget_forecast_excel(models.AbstractModel):
         if year:
             sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
-            sum100tmp = self.get_sum_fact_pds_project_month(project, year, False)
+            sum100tmp = self.get_sum_fact_pds_project_month(project, year, False, False)
+            pds_fact_wo_distributions = self.get_sum_fact_pds_project_month(project, year, False, True)
 
             if sum100tmp:
                 if not next:
@@ -517,12 +512,12 @@ class report_budget_forecast_excel(models.AbstractModel):
             sum = self.get_sum_plan_pds_project_month(project, year, False)
 
             if not project.is_correction_project:
-                if sum100tmp >= sum.get('commitment', 0):
-                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                if pds_fact_wo_distributions >= sum.get('commitment', 0):
+                    sum100tmp_ostatok = pds_fact_wo_distributions - sum['commitment']
                     sum['commitment'] = 0
                     sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                 else:
-                    sum['commitment'] = sum['commitment'] - sum100tmp
+                    sum['commitment'] = sum['commitment'] - pds_fact_wo_distributions
 
             # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
             sum_ostatok_pds = {'commitment': 0, 'reserve':0, 'potential': 0}
@@ -569,7 +564,8 @@ class report_budget_forecast_excel(models.AbstractModel):
         if month:
             sum = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
-            sum100tmp = self.get_sum_fact_pds_project_month(project, year, month)
+            sum100tmp = self.get_sum_fact_pds_project_month(project, year, month, False)
+            pds_fact_wo_distributions = self.get_sum_fact_pds_project_month(project, year, month, True)
 
             if sum100tmp:
                 if not next:
@@ -578,12 +574,12 @@ class report_budget_forecast_excel(models.AbstractModel):
             sum = self.get_sum_plan_pds_project_month(project, year, month)
 
             if not project.is_correction_project:
-                if sum100tmp >= sum.get('commitment', 0):
-                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                if pds_fact_wo_distributions >= sum.get('commitment', 0):
+                    sum100tmp_ostatok = pds_fact_wo_distributions - sum['commitment']
                     sum['commitment'] = 0
                     sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                 else:
-                    sum['commitment'] = sum['commitment'] - sum100tmp
+                    sum['commitment'] = sum['commitment'] - pds_fact_wo_distributions
 
             # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
             sum_ostatok_pds = {'commitment': 0, 'reserve':0, 'potential': 0}
@@ -629,7 +625,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
-    def get_sum_fact_acceptance_project_quater(self, project, year, element_name):
+    def get_sum_fact_acceptance_project_quater(self, project, year, element_name, without_distributions):
         sum_cash = 0
 
         months = self.get_months_from_quater(element_name)
@@ -642,10 +638,12 @@ class report_budget_forecast_excel(models.AbstractModel):
         if acceptance_list:
             for acceptance in acceptance_list:
                 if (not months or acceptance.date_cash.month in months) and acceptance.date_cash.year == year:
+                    if without_distributions and acceptance.distribution_acceptance_ids:
+                        continue
                     sum_cash += acceptance.sum_cash_without_vat
         return sum_cash
 
-    def get_sum_fact_margin_project_quarter(self, project, year, element_name):
+    def get_sum_fact_margin_project_quarter(self, project, year, element_name, without_distributions):
         sum_cash = 0
 
         months = self.get_months_from_quater(element_name)
@@ -659,9 +657,9 @@ class report_budget_forecast_excel(models.AbstractModel):
             for child_project in project.child_project_ids:
                 if child_project.project_have_steps:
                     for child_step in child_project.step_project_child_ids:
-                        sum_cash += self.get_sum_fact_margin_project_quarter(child_step, year, element_name) * child_project.margin_rate_for_parent
+                        sum_cash += self.get_sum_fact_margin_project_quarter(child_step, year, element_name, without_distributions) * child_project.margin_rate_for_parent
                 else:
-                    sum_cash += self.get_sum_fact_margin_project_quarter(child_project, year, element_name) * child_project.margin_rate_for_parent
+                    sum_cash += self.get_sum_fact_margin_project_quarter(child_project, year, element_name, without_distributions) * child_project.margin_rate_for_parent
             return sum_cash
 
         if project.step_status == 'project':
@@ -672,6 +670,8 @@ class report_budget_forecast_excel(models.AbstractModel):
         if acceptance_list:
             for acceptance in acceptance_list:
                 if (not months or acceptance.date_cash.month in months) and acceptance.date_cash.year == year:
+                    if without_distributions and acceptance.distribution_acceptance_ids:
+                        continue
                     if project.is_child_project:
                         sum_cash += acceptance.margin * child_rate
                     else:
@@ -735,10 +735,10 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         if acceptance_list:
             for acceptance in acceptance_list:
-                if any(distribution.fact_acceptance_flow_id.margin_manual_input for distribution in
-                       acceptance.distribution_acceptance_ids):  # если есть ручная маржа - пропускаем
-                    continue
                 if (not months or acceptance.date_cash.month in months) and acceptance.date_cash.year == year:
+                    if any(distribution.fact_acceptance_flow_id.margin_manual_input for distribution in
+                           acceptance.distribution_acceptance_ids):  # если есть ручная маржа - пропускаем
+                        continue
                     if acceptance.forecast == 'from_project':
                         if stage_id_code in ('75', '100', '100(done)'):
                             sum_margin['commitment'] += acceptance.sum_cash_without_vat * profitability * child_rate / 100
@@ -842,12 +842,11 @@ class report_budget_forecast_excel(models.AbstractModel):
             acceptance_list = project.planned_step_acceptance_flow_ids
 
         for planned_acceptance_flow in acceptance_list:
-            if any(distribution.fact_acceptance_flow_id.margin_manual_input for distribution in
-                   planned_acceptance_flow.distribution_acceptance_ids):  # если есть ручная маржа - отдаем нулевой прогноз
-                sum_distribution_acceptance += 1
-                continue
-
             if (not months or planned_acceptance_flow.date_cash.month in months) and planned_acceptance_flow.date_cash.year == year:
+                if any(distribution.fact_acceptance_flow_id.margin_manual_input for distribution in
+                       planned_acceptance_flow.distribution_acceptance_ids):  # если есть ручная маржа - отдаем нулевой прогноз
+                    sum_distribution_acceptance += 1
+                    continue
 
                 sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
 
@@ -873,8 +872,11 @@ class report_budget_forecast_excel(models.AbstractModel):
             elif project.step_project_parent_id.parent_project_id:
                 margin_rate_for_child = (1 - project.step_project_parent_id.margin_rate_for_parent)
 
-            sum100tmp = self.get_sum_fact_acceptance_project_quater(project, year, False)
-            margin100tmp = self.get_sum_fact_margin_project_quarter(project, year, False)
+            sum100tmp = self.get_sum_fact_acceptance_project_quater(project, year, False, False)
+            margin100tmp = self.get_sum_fact_margin_project_quarter(project, year, False, False)
+
+            acc_fact_wo_distributions = self.get_sum_fact_acceptance_project_quater(project, year, False, True)
+            mrg_fact_wo_distributions = self.get_sum_fact_margin_project_quarter(project, year, False, True)
 
             if not next:
                 if sum100tmp:
@@ -892,19 +894,19 @@ class report_budget_forecast_excel(models.AbstractModel):
 
             if not project.is_correction_project and not project.is_parent_project:
 
-                if sum100tmp >= sum.get('commitment', 0):
-                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                if acc_fact_wo_distributions >= sum.get('commitment', 0):
+                    sum100tmp_ostatok = acc_fact_wo_distributions - sum['commitment']
                     sum['commitment'] = 0
                     sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                 else:
-                    sum['commitment'] = sum['commitment'] - sum100tmp
+                    sum['commitment'] = sum['commitment'] - acc_fact_wo_distributions
 
-                if margin100tmp >= margin_plan['commitment']:  # маржа если нет распределения
-                    margin100tmp_ostatok = margin100tmp - margin_plan['commitment']
+                if mrg_fact_wo_distributions >= margin_plan['commitment']:  # маржа если нет распределения
+                    margin100tmp_ostatok = mrg_fact_wo_distributions - margin_plan['commitment']
                     margin_sum['commitment'] = 0
                     margin_sum['reserve'] = max(margin_plan['reserve'] - margin100tmp_ostatok, 0)
                 else:
-                    margin_sum['commitment'] = margin_plan['commitment'] - margin100tmp
+                    margin_sum['commitment'] = margin_plan['commitment'] - mrg_fact_wo_distributions
 
             sum_ostatok_acceptance = self.get_sum_planned_acceptance_project_from_distribution(project, year, False)
             new_margin_plan = self.get_sum_planned_margin_project_from_distribution(project, year, False, margin_plan, 1)
@@ -943,8 +945,11 @@ class report_budget_forecast_excel(models.AbstractModel):
             elif project.step_project_parent_id.parent_project_id:
                 margin_rate_for_child = (1 - project.step_project_parent_id.margin_rate_for_parent)
 
-            sum100tmp = self.get_sum_fact_acceptance_project_quater(project, year, element_name)
-            margin100tmp = self.get_sum_fact_margin_project_quarter(project, year, element_name)
+            sum100tmp = self.get_sum_fact_acceptance_project_quater(project, year, element_name, False)
+            margin100tmp = self.get_sum_fact_margin_project_quarter(project, year, element_name, False)
+
+            acc_fact_wo_distributions = self.get_sum_fact_acceptance_project_quater(project, year, element_name, True)
+            mrg_fact_wo_distributions = self.get_sum_fact_margin_project_quarter(project, year, element_name, True)
 
             if not next:
                 if sum100tmp:
@@ -962,20 +967,20 @@ class report_budget_forecast_excel(models.AbstractModel):
 
             if not project.is_correction_project and not project.is_parent_project:
 
-                if sum100tmp >= sum.get('commitment', 0):
-                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                if acc_fact_wo_distributions >= sum.get('commitment', 0):
+                    sum100tmp_ostatok = acc_fact_wo_distributions - sum['commitment']
                     sum['commitment'] = 0
                     sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                 else:
-                    sum['commitment'] = sum['commitment'] - sum100tmp
+                    sum['commitment'] = sum['commitment'] - acc_fact_wo_distributions
 
-                if margin100tmp > 0:
-                    if margin100tmp >= margin_plan['commitment']:  # маржа если нет распределения
-                        margin100tmp_ostatok = margin100tmp - margin_plan['commitment']
+                if mrg_fact_wo_distributions > 0:
+                    if mrg_fact_wo_distributions >= margin_plan['commitment']:  # маржа если нет распределения
+                        margin100tmp_ostatok = mrg_fact_wo_distributions - margin_plan['commitment']
                         margin_sum['commitment'] = 0
                         margin_sum['reserve'] = max(margin_plan['reserve'] - margin100tmp_ostatok, 0)
                     else:
-                        margin_sum['commitment'] = margin_plan['commitment'] - margin100tmp
+                        margin_sum['commitment'] = margin_plan['commitment'] - mrg_fact_wo_distributions
 
             sum_ostatok_acceptance = self.get_sum_planned_acceptance_project_from_distribution(project, year, element_name)
             new_margin_plan = self.get_sum_planned_margin_project_from_distribution(project, year, element_name, margin_plan, 1)

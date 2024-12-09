@@ -117,7 +117,7 @@ class report_management_committee_excel(models.AbstractModel):
             months = (10, 11, 12)
         return months
 
-    def get_sum_fact_pds_project_year_quarter(self, project, year, quarter):
+    def get_sum_fact_pds_project_year_quarter(self, project, year, quarter, without_distributions):
 
         sum_cash = 0
 
@@ -131,6 +131,8 @@ class report_management_committee_excel(models.AbstractModel):
 
         for pds in pds_list:
             if (not quarter or pds.date_cash.month in months) and pds.date_cash.year == year:
+                if without_distributions and pds.distribution_cash_ids:
+                    continue
                 sum_cash += pds.sum_cash
 
         return sum_cash
@@ -576,18 +578,19 @@ class report_management_committee_excel(models.AbstractModel):
         if 'Q1' in element or 'Q2' in element :
             months = self.get_months_from_quarter(element)
 
-            sum100tmp = self.get_sum_fact_pds_project_year_quarter(project, YEARint, element)
+            sum100tmp = self.get_sum_fact_pds_project_year_quarter(project, YEARint, element, False)
+            pds_fact_wo_distributions = self.get_sum_fact_pds_project_year_quarter(project, YEARint, element, True)
             sheet.write_number(row, column + 1, sum100tmp, row_format_number_color_fact)
 
             sum = self.get_sum_plan_pds_project_year_quarter(project, YEARint, element)
 
             if not project.is_correction_project:
-                if sum100tmp >= sum['commitment']:
-                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                if pds_fact_wo_distributions >= sum['commitment']:
+                    sum100tmp_ostatok = pds_fact_wo_distributions - sum['commitment']
                     sum['commitment'] = 0
                     sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                 else:
-                    sum['commitment'] = sum['commitment'] - sum100tmp
+                    sum['commitment'] = sum['commitment'] - pds_fact_wo_distributions
 
             # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
             sum = self.get_pds_forecast_from_distributions(sum, project, YEARint, months)
@@ -600,18 +603,20 @@ class report_management_committee_excel(models.AbstractModel):
         if 'Q3' in element or 'Q4' in element :
             months = self.get_months_from_quarter(element)
 
-            sum100tmp = self.get_sum_fact_pds_project_year_quarter(project, YEARint, element)
+            sum100tmp = self.get_sum_fact_pds_project_year_quarter(project, YEARint, element, False)
+            pds_fact_wo_distributions = self.get_sum_fact_pds_project_year_quarter(project, YEARint, element, True)
+
             sheet.write_number(row, column + 2, sum100tmp, row_format_number_color_fact)
 
             sum = self.get_sum_plan_pds_project_year_quarter(project, YEARint, element)
 
             if not project.is_correction_project:
-                if sum100tmp >= sum['commitment']:
-                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                if pds_fact_wo_distributions >= sum['commitment']:
+                    sum100tmp_ostatok = pds_fact_wo_distributions - sum['commitment']
                     sum['commitment'] = 0
                     sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                 else:
-                    sum['commitment'] = sum['commitment'] - sum100tmp
+                    sum['commitment'] = sum['commitment'] - pds_fact_wo_distributions
 
             # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
             sum = self.get_pds_forecast_from_distributions(sum, project, YEARint, months)
@@ -623,25 +628,27 @@ class report_management_committee_excel(models.AbstractModel):
 
         elif element == 'NEXT':
 
-            sum100tmp_q1 = self.get_sum_fact_pds_project_year_quarter(project, YEARint + 1, 'Q1')
-            sum100tmp = self.get_sum_fact_pds_project_year_quarter(project, YEARint + 1, False)
+            sum100tmp_q1 = self.get_sum_fact_pds_project_year_quarter(project, YEARint + 1, 'Q1', False)
+            sum100tmp = self.get_sum_fact_pds_project_year_quarter(project, YEARint + 1, False, False)
+            pds_fact_wo_distributions_q1 = self.get_sum_fact_pds_project_year_quarter(project, YEARint + 1, 'Q1', True)
+            pds_fact_wo_distributions = self.get_sum_fact_pds_project_year_quarter(project, YEARint + 1, False, True)
             sum_q1 = self.get_sum_plan_pds_project_year_quarter(project, YEARint + 1, 'Q1')
             sum = self.get_sum_plan_pds_project_year_quarter(project, YEARint + 1, False)
 
             if not project.is_correction_project:
-                if sum100tmp_q1 >= sum_q1['commitment']:
-                    sum100tmp_q1_ostatok = sum100tmp_q1 - sum_q1['commitment']
+                if pds_fact_wo_distributions_q1 >= sum_q1['commitment']:
+                    sum100tmp_q1_ostatok = pds_fact_wo_distributions_q1 - sum_q1['commitment']
                     sum_q1['commitment'] = 0
                     sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_ostatok, 0)
                 else:
-                    sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1
+                    sum_q1['commitment'] = sum_q1['commitment'] - pds_fact_wo_distributions_q1
 
-                if sum100tmp >= sum['commitment']:
-                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                if pds_fact_wo_distributions >= sum['commitment']:
+                    sum100tmp_ostatok = pds_fact_wo_distributions - sum['commitment']
                     sum['commitment'] = 0
                     sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                 else:
-                    sum['commitment'] = sum['commitment'] - sum100tmp
+                    sum['commitment'] = sum['commitment'] - pds_fact_wo_distributions
 
             # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
             sum_q1 = self.get_pds_forecast_from_distributions(sum_q1, project, YEARint + 1, self.get_months_from_quarter('Q1'))
@@ -656,16 +663,17 @@ class report_management_committee_excel(models.AbstractModel):
 
         elif element == 'AFTER NEXT':
 
-            sum100tmp = self.get_sum_fact_pds_project_year_quarter(project, YEARint + 2, False)
+            sum100tmp = self.get_sum_fact_pds_project_year_quarter(project, YEARint + 2, False, False)
+            pds_fact_wo_distributions = self.get_sum_fact_pds_project_year_quarter(project, YEARint + 2, False, True)
             sum = self.get_sum_plan_pds_project_year_quarter(project, YEARint + 2, False)
 
             if not project.is_correction_project:
-                if sum100tmp >= sum['commitment']:
-                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                if pds_fact_wo_distributions >= sum['commitment']:
+                    sum100tmp_ostatok = pds_fact_wo_distributions - sum['commitment']
                     sum['commitment'] = 0
                     sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                 else:
-                    sum['commitment'] = sum['commitment'] - sum100tmp
+                    sum['commitment'] = sum['commitment'] - pds_fact_wo_distributions
 
             # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
             sum = self.get_pds_forecast_from_distributions(sum , project, YEARint + 2, False)
@@ -700,16 +708,17 @@ class report_management_committee_excel(models.AbstractModel):
 
             if project.stage_id.code not in ('0', '10'):
 
-                sum100tmp = self.get_sum_fact_pds_project_year_quarter(project, YEARint, element)
+                sum100tmp = self.get_sum_fact_pds_project_year_quarter(project, YEARint, element, False)
+                pds_fact_wo_distributions = self.get_sum_fact_pds_project_year_quarter(project, YEARint, element, True)
                 sum = self.get_sum_plan_pds_project_year_quarter(project, YEARint, element)
 
                 if not project.is_correction_project:
-                    if sum100tmp >= sum['commitment']:
-                        sum100tmp_ostatok = sum100tmp - sum['commitment']
+                    if pds_fact_wo_distributions >= sum['commitment']:
+                        sum100tmp_ostatok = pds_fact_wo_distributions - sum['commitment']
                         sum['commitment'] = 0
                         sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                     else:
-                        sum['commitment'] = sum['commitment'] - sum100tmp
+                        sum['commitment'] = sum['commitment'] - pds_fact_wo_distributions
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                 sum = self.get_pds_forecast_from_distributions(sum, project, YEARint, months)
@@ -720,25 +729,27 @@ class report_management_committee_excel(models.AbstractModel):
         elif element == 'NEXT':
             if project.stage_id.code not in ('0', '10'):
 
-                sum100tmp_q1 = self.get_sum_fact_pds_project_year_quarter(project, YEARint + 1, 'Q1')
-                sum100tmp = self.get_sum_fact_pds_project_year_quarter(project, YEARint + 1, False)
+                sum100tmp_q1 = self.get_sum_fact_pds_project_year_quarter(project, YEARint + 1, 'Q1', False)
+                sum100tmp = self.get_sum_fact_pds_project_year_quarter(project, YEARint + 1, False, False)
+                pds_fact_wo_distributions_q1 = self.get_sum_fact_pds_project_year_quarter(project, YEARint + 1, 'Q1', True)
+                pds_fact_wo_distributions = self.get_sum_fact_pds_project_year_quarter(project, YEARint + 1, False, True)
                 sum_q1 = self.get_sum_plan_pds_project_year_quarter(project, YEARint + 1, 'Q1')
                 sum = self.get_sum_plan_pds_project_year_quarter(project, YEARint + 1, False)
 
                 if not project.is_correction_project:
-                    if sum100tmp_q1 >= sum_q1['commitment']:
-                        sum100tmp_q1_ostatok = sum100tmp_q1 - sum_q1['commitment']
+                    if pds_fact_wo_distributions_q1 >= sum_q1['commitment']:
+                        sum100tmp_q1_ostatok = pds_fact_wo_distributions_q1 - sum_q1['commitment']
                         sum_q1['commitment'] = 0
                         sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_ostatok, 0)
                     else:
-                        sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1
+                        sum_q1['commitment'] = sum_q1['commitment'] - pds_fact_wo_distributions_q1
 
-                    if sum100tmp >= sum['commitment']:
-                        sum100tmp_ostatok = sum100tmp - sum['commitment']
+                    if pds_fact_wo_distributions >= sum['commitment']:
+                        sum100tmp_ostatok = pds_fact_wo_distributions - sum['commitment']
                         sum['commitment'] = 0
                         sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                     else:
-                        sum['commitment'] = sum['commitment'] - sum100tmp
+                        sum['commitment'] = sum['commitment'] - pds_fact_wo_distributions
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                 sum_q1 = self.get_pds_forecast_from_distributions(sum_q1, project, YEARint + 1, self.get_months_from_quarter('Q1'))
@@ -756,16 +767,17 @@ class report_management_committee_excel(models.AbstractModel):
 
             if project.stage_id.code not in ('0', '10'):
 
-                sum100tmp = self.get_sum_fact_pds_project_year_quarter(project, YEARint + 2, False)
+                sum100tmp = self.get_sum_fact_pds_project_year_quarter(project, YEARint + 2, False, False)
+                pds_fact_wo_distributions = self.get_sum_fact_pds_project_year_quarter(project, YEARint + 2, False, True)
                 sum = self.get_sum_plan_pds_project_year_quarter(project, YEARint + 2, False)
 
                 if not project.is_correction_project:
-                    if sum100tmp >= sum['commitment']:
-                        sum100tmp_ostatok = sum100tmp - sum['commitment']
+                    if pds_fact_wo_distributions >= sum['commitment']:
+                        sum100tmp_ostatok = pds_fact_wo_distributions - sum['commitment']
                         sum['commitment'] = 0
                         sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                     else:
-                        sum['commitment'] = sum['commitment'] - sum100tmp
+                        sum['commitment'] = sum['commitment'] - pds_fact_wo_distributions
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                 sum = self.get_pds_forecast_from_distributions(sum, project, YEARint + 2, False)
@@ -780,7 +792,7 @@ class report_management_committee_excel(models.AbstractModel):
                 sum_next_75_tmp, sum_next_50_tmp, sum_next_30_tmp,
                 sum_after_next_tmp)
 
-    def get_sum_fact_acceptance_project_year_quarter(self, project, year, quarter):
+    def get_sum_fact_acceptance_project_year_quarter(self, project, year, quarter, without_distributions):
         sum_cash = 0
 
         if quarter:
@@ -794,10 +806,12 @@ class report_management_committee_excel(models.AbstractModel):
         if acceptance_list:
             for acceptance in acceptance_list:
                 if (not quarter or acceptance.date_cash.month in months) and acceptance.date_cash.year == year:
+                    if without_distributions and acceptance.distribution_acceptance_ids:
+                        continue
                     sum_cash += acceptance.sum_cash_without_vat
         return sum_cash
 
-    def get_sum_fact_margin_project_year_quarter(self, project, year, quarter):
+    def get_sum_fact_margin_project_year_quarter(self, project, year, quarter, without_distributions):
         sum_cash = 0
         sum_cash_without_manual = 0
 
@@ -810,11 +824,11 @@ class report_management_committee_excel(models.AbstractModel):
             for child_project in project.child_project_ids:
                 if child_project.project_have_steps:
                     for child_step in child_project.step_project_child_ids:
-                        sum_cash, sum_cash_without_manual = self.get_sum_fact_margin_project_year_quarter(child_step, year, quarter)
+                        sum_cash, sum_cash_without_manual = self.get_sum_fact_margin_project_year_quarter(child_step, year, quarter, False)
                         parent_sum_cash += sum_cash * (1 / (1 - child_project.margin_rate_for_parent)) * child_project.margin_rate_for_parent
                         parent_sum_cash_without_manual += sum_cash_without_manual * (1 / (1 - child_project.margin_rate_for_parent)) * child_project.margin_rate_for_parent
                 else:
-                    sum_cash, sum_cash_without_manual = self.get_sum_fact_margin_project_year_quarter(child_project, year, quarter)
+                    sum_cash, sum_cash_without_manual = self.get_sum_fact_margin_project_year_quarter(child_project, year, quarter, False)
                     parent_sum_cash += sum_cash * (1 / (1 - child_project.margin_rate_for_parent)) * child_project.margin_rate_for_parent
                     parent_sum_cash_without_manual += sum_cash_without_manual * (1 / (1 - child_project.margin_rate_for_parent)) * child_project.margin_rate_for_parent
             return parent_sum_cash, parent_sum_cash_without_manual
@@ -827,6 +841,8 @@ class report_management_committee_excel(models.AbstractModel):
         if acceptance_list:
             for acceptance in acceptance_list:
                 if (not quarter or acceptance.date_cash.month in months) and acceptance.date_cash.year == year:
+                    if without_distributions and acceptance.distribution_acceptance_ids:
+                        continue
                     sum_cash += acceptance.margin
                     if not any(distribution.fact_acceptance_flow_id.margin_manual_input for distribution in
                         acceptance.distribution_acceptance_ids):
@@ -997,7 +1013,7 @@ class report_management_committee_excel(models.AbstractModel):
         global strYEAR
         global YEARint
 
-        sum75tmpetalon = sum50tmpetalon = sum100tmp = sum100tmp_q1 = sum75tmp = sum50tmp = 0
+        sum75tmpetalon = sum50tmpetalon = sum100tmp = sum100tmp_q1 = sum100tmp_wo_distributions = sum100tmp_wo_distributions_q1 = sum75tmp = sum50tmp = 0
         prof75tmpetalon = prof50tmpetalon = prof100tmp = prof100tmp_q1 = prof75tmp = prof50tmp = 0
         sum_next_75_q1_tmp = 0
         sum_next_50_q1_tmp = 0
@@ -1019,12 +1035,15 @@ class report_management_committee_excel(models.AbstractModel):
 
             profitability = project.profitability
 
-            sum100tmp_proj = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint, element)
-            prof100tmp_proj, prof100tmp_proj_wo_manual = self.get_sum_fact_margin_project_year_quarter(project, YEARint, element)
+            sum100tmp_proj = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint, element, False)
+            acc_fact_wo_distributions = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint, element, True)
+            prof100tmp_proj, prof100tmp_proj_wo_manual = self.get_sum_fact_margin_project_year_quarter(project, YEARint, element, False)
+            _, mrg_fact_wo_distribution = self.get_sum_fact_margin_project_year_quarter(project, YEARint, element, True)
             sheet.write_number(row, column + 1, sum100tmp_proj, row_format_number_color_fact)
             sheet.write_number(row, column + 1 + params['margin_shift'], prof100tmp_proj, row_format_number_color_fact)
 
             sum100tmp += sum100tmp_proj
+            sum100tmp_wo_distributions += acc_fact_wo_distributions
             prof100tmp += prof100tmp_proj
 
             sum = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint, element)
@@ -1036,20 +1055,20 @@ class report_management_committee_excel(models.AbstractModel):
                 margin_plan = margin_sum.copy()
 
             if not project.is_correction_project:
-                if sum100tmp >= sum['commitment']:
-                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                if sum100tmp_wo_distributions >= sum['commitment']:
+                    sum100tmp_ostatok = sum100tmp_wo_distributions - sum['commitment']
                     sum['commitment'] = 0
                     sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                 else:
-                    sum['commitment'] = sum['commitment'] - sum100tmp
+                    sum['commitment'] = sum['commitment'] - sum100tmp_wo_distributions
 
-                if prof100tmp_proj_wo_manual > 0:
-                    if prof100tmp_proj_wo_manual >= margin_plan['commitment']:  # маржа если нет распределения
-                        prof100tmp_ostatok = prof100tmp_proj_wo_manual - margin_plan['commitment']
+                if mrg_fact_wo_distribution > 0:
+                    if mrg_fact_wo_distribution >= margin_plan['commitment']:  # маржа если нет распределения
+                        prof100tmp_ostatok = mrg_fact_wo_distribution - margin_plan['commitment']
                         margin_sum['commitment'] = 0
                         margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
                     else:
-                        margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_proj_wo_manual
+                        margin_sum['commitment'] = margin_plan['commitment'] - mrg_fact_wo_distribution
 
             # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
             sum = self.get_act_forecast_from_distributions(sum, project, YEARint, months)
@@ -1074,12 +1093,15 @@ class report_management_committee_excel(models.AbstractModel):
 
             profitability = project.profitability
 
-            sum100tmp_proj = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint, element)
-            prof100tmp_proj, prof100tmp_proj_wo_manual = self.get_sum_fact_margin_project_year_quarter(project, YEARint, element)
+            sum100tmp_proj = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint, element, False)
+            acc_fact_wo_distributions = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint, element, True)
+            prof100tmp_proj, prof100tmp_proj_wo_manual = self.get_sum_fact_margin_project_year_quarter(project, YEARint, element, False)
+            _, mrg_fact_wo_distribution = self.get_sum_fact_margin_project_year_quarter(project, YEARint, element, True)
             sheet.write_number(row, column + 2, sum100tmp_proj, row_format_number_color_fact)
             sheet.write_number(row, column + 2 + params['margin_shift'], prof100tmp_proj, row_format_number_color_fact)
 
             sum100tmp += sum100tmp_proj
+            sum100tmp_wo_distributions += acc_fact_wo_distributions
             prof100tmp += prof100tmp_proj
 
             sum = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint, element)
@@ -1091,20 +1113,20 @@ class report_management_committee_excel(models.AbstractModel):
                 margin_plan = margin_sum.copy()
 
             if not project.is_correction_project:
-                if sum100tmp >= sum['commitment']:
-                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                if sum100tmp_wo_distributions >= sum['commitment']:
+                    sum100tmp_ostatok = sum100tmp_wo_distributions - sum['commitment']
                     sum['commitment'] = 0
                     sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                 else:
-                    sum['commitment'] = sum['commitment'] - sum100tmp
+                    sum['commitment'] = sum['commitment'] - sum100tmp_wo_distributions
 
-                if prof100tmp_proj_wo_manual > 0:
-                    if prof100tmp_proj_wo_manual >= margin_plan['commitment']:  # маржа если нет распределения
-                        prof100tmp_ostatok = prof100tmp_proj_wo_manual - margin_plan['commitment']
+                if mrg_fact_wo_distribution > 0:
+                    if mrg_fact_wo_distribution >= margin_plan['commitment']:  # маржа если нет распределения
+                        prof100tmp_ostatok = mrg_fact_wo_distribution - margin_plan['commitment']
                         margin_sum['commitment'] = 0
                         margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
                     else:
-                        margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_proj_wo_manual
+                        margin_sum['commitment'] = margin_plan['commitment'] - mrg_fact_wo_distribution
 
             # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
             sum = self.get_act_forecast_from_distributions(sum, project, YEARint, months)
@@ -1127,15 +1149,21 @@ class report_management_committee_excel(models.AbstractModel):
         elif element == 'NEXT':
             profitability = project.profitability
 
-            sum100tmp_q1_proj = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint + 1, 'Q1')
-            prof100tmp_q1_proj, prof100tmp_q1_proj_wo_manual = self.get_sum_fact_margin_project_year_quarter(project, YEARint + 1, 'Q1')
+            sum100tmp_q1_proj = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint + 1, 'Q1', False)
+            acc_fact_wo_distributions_q1 = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint + 1, 'Q1', False)
+            prof100tmp_q1_proj, prof100tmp_q1_proj_wo_manual = self.get_sum_fact_margin_project_year_quarter(project, YEARint + 1, 'Q1', False)
+            _, mrg_fact_wo_distribution_q1 = self.get_sum_fact_margin_project_year_quarter(project, YEARint + 1, 'Q1', True)
+            sum100tmp_proj = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint + 1, False, False)
+            acc_fact_wo_distributions = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint + 1, False, True)
+            prof100tmp_proj, prof100tmp_proj_wo_manual = self.get_sum_fact_margin_project_year_quarter(project, YEARint + 1, False, False)
+            _, mrg_fact_wo_distribution = self.get_sum_fact_margin_project_year_quarter(project, YEARint + 1, False, True)
 
-            sum100tmp_proj = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint + 1, False)
-            prof100tmp_proj, prof100tmp_proj_wo_manual = self.get_sum_fact_margin_project_year_quarter(project, YEARint + 1, False)
 
             sum100tmp_q1 += sum100tmp_q1_proj
+            sum100tmp_wo_distributions_q1 += acc_fact_wo_distributions_q1
             prof100tmp_q1 += prof100tmp_q1_proj
             sum100tmp += sum100tmp_proj
+            sum100tmp_wo_distributions += acc_fact_wo_distributions
             prof100tmp += prof100tmp_proj
 
             sum_q1 = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint + 1, 'Q1')
@@ -1153,35 +1181,35 @@ class report_management_committee_excel(models.AbstractModel):
                 margin_plan_q1 = margin_sum_q1.copy()
 
             if not project.is_correction_project:
-                if sum100tmp_q1 >= sum_q1['commitment']:
-                    sum100tmp_q1_ostatok = sum100tmp_q1 - sum_q1['commitment']
+                if sum100tmp_wo_distributions_q1 >= sum_q1['commitment']:
+                    sum100tmp_q1_ostatok = sum100tmp_wo_distributions_q1 - sum_q1['commitment']
                     sum_q1['commitment'] = 0
                     sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_ostatok, 0)
                 else:
-                    sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1
+                    sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_wo_distributions_q1
 
-                if sum100tmp >= sum['commitment']:
-                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                if sum100tmp_wo_distributions >= sum['commitment']:
+                    sum100tmp_ostatok = sum100tmp_wo_distributions - sum['commitment']
                     sum['commitment'] = 0
                     sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                 else:
-                    sum['commitment'] = sum['commitment'] - sum100tmp
+                    sum['commitment'] = sum['commitment'] - sum100tmp_wo_distributions
 
-                if prof100tmp_q1_proj_wo_manual > 0:
-                    if prof100tmp_q1_proj_wo_manual >= margin_plan_q1['commitment']:  # маржа если нет распределения
-                        prof100tmp_q1_ostatok = prof100tmp_q1_proj_wo_manual - margin_plan_q1['commitment']
+                if mrg_fact_wo_distribution_q1 > 0:
+                    if mrg_fact_wo_distribution_q1 >= margin_plan_q1['commitment']:  # маржа если нет распределения
+                        prof100tmp_q1_ostatok = mrg_fact_wo_distribution_q1 - margin_plan_q1['commitment']
                         margin_sum_q1['commitment'] = 0
                         margin_sum_q1['reserve'] = max(margin_plan_q1['reserve'] - prof100tmp_q1_ostatok, 0)
                     else:
-                        margin_sum_q1['commitment'] = margin_plan_q1['commitment'] - prof100tmp_q1_proj_wo_manual
+                        margin_sum_q1['commitment'] = margin_plan_q1['commitment'] - mrg_fact_wo_distribution_q1
 
-                if prof100tmp_proj_wo_manual > 0:
-                    if prof100tmp_proj_wo_manual >= margin_plan['commitment']:  # маржа если нет распределения
-                        prof100tmp_ostatok = prof100tmp_proj_wo_manual - margin_plan['commitment']
+                if mrg_fact_wo_distribution > 0:
+                    if mrg_fact_wo_distribution >= margin_plan['commitment']:  # маржа если нет распределения
+                        prof100tmp_ostatok = mrg_fact_wo_distribution - margin_plan['commitment']
                         margin_sum['commitment'] = 0
                         margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
                     else:
-                        margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_proj_wo_manual
+                        margin_sum['commitment'] = margin_plan['commitment'] - mrg_fact_wo_distribution
 
             if all(value == 0 for value in sum_q1.values()) and project.end_sale_project_month.year == YEARint + 1 and project.end_sale_project_month.month in self.get_months_from_quarter('Q1'):  # если актирование 0, а месяц в нужном году, берем выручку
                 if project.stage_id.code == '30':
@@ -1224,10 +1252,13 @@ class report_management_committee_excel(models.AbstractModel):
         elif element == 'AFTER NEXT':
             profitability = project.profitability
 
-            sum100tmp_proj = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint + 2, False)
-            prof100tmp_proj, prof100tmp_proj_wo_manual = self.get_sum_fact_margin_project_year_quarter(project, YEARint + 2, False)
+            sum100tmp_proj = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint + 2, False, False)
+            acc_fact_wo_distributions = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint + 2, False, True)
+            prof100tmp_proj, prof100tmp_proj_wo_manual = self.get_sum_fact_margin_project_year_quarter(project, YEARint + 2, False, False)
+            _, mgr_fact_wo_distributions = self.get_sum_fact_margin_project_year_quarter(project, YEARint + 2, False, True)
 
             sum100tmp += sum100tmp_proj
+            sum100tmp_wo_distributions += acc_fact_wo_distributions
             prof100tmp += prof100tmp_proj
 
             sum = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint + 2, False)
@@ -1239,20 +1270,20 @@ class report_management_committee_excel(models.AbstractModel):
                 margin_plan = margin_sum.copy()
 
             if not project.is_correction_project:
-                if sum100tmp >= sum['commitment']:
-                    sum100tmp_ostatok = sum100tmp - sum['commitment']
+                if sum100tmp_wo_distributions >= sum['commitment']:
+                    sum100tmp_ostatok = sum100tmp_wo_distributions - sum['commitment']
                     sum['commitment'] = 0
                     sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                 else:
-                    sum['commitment'] = sum['commitment'] - sum100tmp
+                    sum['commitment'] = sum['commitment'] - sum100tmp_wo_distributions
 
-                if prof100tmp_proj_wo_manual > 0:
-                    if prof100tmp_proj_wo_manual >= margin_plan['commitment']:  # маржа если нет распределения
-                        prof100tmp_ostatok = prof100tmp_proj_wo_manual - margin_plan['commitment']
+                if mgr_fact_wo_distributions > 0:
+                    if mgr_fact_wo_distributions >= margin_plan['commitment']:  # маржа если нет распределения
+                        prof100tmp_ostatok = mgr_fact_wo_distributions - margin_plan['commitment']
                         margin_sum['commitment'] = 0
                         margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
                     else:
-                        margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_proj_wo_manual
+                        margin_sum['commitment'] = margin_plan['commitment'] - mgr_fact_wo_distributions
 
             if all(value == 0 for value in sum.values()) and project.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
                 if project.stage_id.code == '30':
@@ -1283,7 +1314,7 @@ class report_management_committee_excel(models.AbstractModel):
         global strYEAR
         global YEARint
 
-        sum75tmpetalon = sum50tmpetalon = sum100tmp = sum100tmp_q1 = sum75tmp = sum50tmp = 0
+        sum75tmpetalon = sum50tmpetalon = sum100tmp = sum100tmp_q1 = sum100tmp_wo_distributions = sum100tmp_wo_distributions_q1 = sum75tmp = sum50tmp = 0
         prof75tmpetalon = prof50tmpetalon = prof100tmp = prof100tmp_q1 = prof75tmp = prof50tmp = 0
         sum_next_75_q1_tmp = 0
         sum_next_50_q1_tmp = 0
@@ -1306,10 +1337,13 @@ class report_management_committee_excel(models.AbstractModel):
 
                 profitability = project.profitability
 
-                sum100tmp_proj = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint, element)
-                prof100tmp_proj, prof100tmp_proj_wo_manual = self.get_sum_fact_margin_project_year_quarter(project, YEARint, element)
+                sum100tmp_proj = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint, element, False)
+                acc_fact_wo_distributions = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint, element, True)
+                prof100tmp_proj, prof100tmp_proj_wo_manual = self.get_sum_fact_margin_project_year_quarter(project, YEARint, element, False)
+                _, mrg_fact_wo_distributions = self.get_sum_fact_margin_project_year_quarter(project, YEARint, element, True)
 
                 sum100tmp += sum100tmp_proj
+                sum100tmp_wo_distributions += acc_fact_wo_distributions
                 prof100tmp += prof100tmp_proj
 
                 sum = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint, element)
@@ -1321,20 +1355,20 @@ class report_management_committee_excel(models.AbstractModel):
                     margin_plan = margin_sum.copy()
 
                 if not project.is_correction_project:
-                    if sum100tmp >= sum['commitment']:
-                        sum100tmp_ostatok = sum100tmp - sum['commitment']
+                    if sum100tmp_wo_distributions >= sum['commitment']:
+                        sum100tmp_ostatok = sum100tmp_wo_distributions - sum['commitment']
                         sum['commitment'] = 0
                         sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                     else:
-                        sum['commitment'] = sum['commitment'] - sum100tmp
+                        sum['commitment'] = sum['commitment'] - sum100tmp_wo_distributions
 
-                    if prof100tmp_proj_wo_manual > 0:
-                        if prof100tmp_proj_wo_manual >= margin_plan['commitment']:  # маржа если нет распределения
-                            prof100tmp_ostatok = prof100tmp_proj_wo_manual - margin_plan['commitment']
+                    if mrg_fact_wo_distributions > 0:
+                        if mrg_fact_wo_distributions >= margin_plan['commitment']:  # маржа если нет распределения
+                            prof100tmp_ostatok = mrg_fact_wo_distributions - margin_plan['commitment']
                             margin_sum['commitment'] = 0
                             margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
                         else:
-                            margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_proj_wo_manual
+                            margin_sum['commitment'] = margin_plan['commitment'] - mrg_fact_wo_distributions
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                 sum = self.get_act_forecast_from_distributions(sum, project, YEARint, months)
@@ -1355,14 +1389,24 @@ class report_management_committee_excel(models.AbstractModel):
 
                 profitability = project.profitability
 
-                sum100tmp_q1_proj = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint + 1, 'Q1')
-                prof100tmp_q1_proj, prof100tmp_q1_proj_wo_manual = self.get_sum_fact_margin_project_year_quarter(project, YEARint + 1, 'Q1')
-                sum100tmp_proj = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint + 1, False)
-                prof100tmp_proj, prof100tmp_proj_wo_manual = self.get_sum_fact_margin_project_year_quarter(project, YEARint + 1, False)
+                sum100tmp_q1_proj = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint + 1, 'Q1', False)
+                acc_fact_wo_distributions_q1 = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint + 1, 'Q1', True)
+                prof100tmp_q1_proj, prof100tmp_q1_proj_wo_manual = self.get_sum_fact_margin_project_year_quarter(project, YEARint + 1, 'Q1', False)
+                _, mrg_fact_wo_distributions_q1 = self.get_sum_fact_margin_project_year_quarter(project, YEARint + 1, 'Q1', True)
+                sum100tmp_proj = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint + 1, False, False)
+                acc_fact_wo_distributions = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint + 1, False, True)
+                prof100tmp_proj, prof100tmp_proj_wo_manual = self.get_sum_fact_margin_project_year_quarter(project, YEARint + 1, False, False)
+                _, mrg_fact_wo_distributions = self.get_sum_fact_margin_project_year_quarter(project, YEARint + 1, False, True)
+
 
                 sum100tmp_q1 += sum100tmp_q1_proj
+                sum100tmp_wo_distributions_q1 += acc_fact_wo_distributions_q1
+
                 prof100tmp_q1 += prof100tmp_q1_proj
+
                 sum100tmp += sum100tmp_proj
+                sum100tmp_wo_distributions += acc_fact_wo_distributions
+
                 prof100tmp += prof100tmp_proj
 
                 sum_q1 = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint + 1, 'Q1')
@@ -1380,35 +1424,35 @@ class report_management_committee_excel(models.AbstractModel):
                     margin_plan_q1 = margin_sum_q1.copy()
 
                 if not project.is_correction_project:
-                    if sum100tmp_q1 >= sum_q1['commitment']:
-                        sum100tmp_q1_ostatok = sum100tmp_q1 - sum_q1['commitment']
+                    if sum100tmp_wo_distributions_q1 >= sum_q1['commitment']:
+                        sum100tmp_q1_ostatok = sum100tmp_wo_distributions_q1 - sum_q1['commitment']
                         sum_q1['commitment'] = 0
                         sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_ostatok, 0)
                     else:
-                        sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_q1
+                        sum_q1['commitment'] = sum_q1['commitment'] - sum100tmp_wo_distributions_q1
 
-                    if sum100tmp >= sum['commitment']:
-                        sum100tmp_ostatok = sum100tmp - sum['commitment']
+                    if sum100tmp_wo_distributions >= sum['commitment']:
+                        sum100tmp_ostatok = sum100tmp_wo_distributions - sum['commitment']
                         sum['commitment'] = 0
                         sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                     else:
-                        sum['commitment'] = sum['commitment'] - sum100tmp
+                        sum['commitment'] = sum['commitment'] - sum100tmp_wo_distributions
 
-                    if prof100tmp_q1_proj_wo_manual > 0:
-                        if prof100tmp_q1_proj_wo_manual >= margin_plan_q1['commitment']:  # маржа если нет распределения
-                            prof100tmp_q1_ostatok = prof100tmp_q1_proj_wo_manual - margin_plan_q1['commitment']
+                    if mrg_fact_wo_distributions_q1 > 0:
+                        if mrg_fact_wo_distributions_q1 >= margin_plan_q1['commitment']:  # маржа если нет распределения
+                            prof100tmp_q1_ostatok = mrg_fact_wo_distributions_q1 - margin_plan_q1['commitment']
                             margin_sum_q1['commitment'] = 0
                             margin_sum_q1['reserve'] = max(margin_plan_q1['reserve'] - prof100tmp_q1_ostatok, 0)
                         else:
-                            margin_sum_q1['commitment'] = margin_plan_q1['commitment'] - prof100tmp_q1_proj_wo_manual
+                            margin_sum_q1['commitment'] = margin_plan_q1['commitment'] - mrg_fact_wo_distributions_q1
 
-                    if prof100tmp_proj_wo_manual > 0:
-                        if prof100tmp_proj_wo_manual >= margin_plan['commitment']:  # маржа если нет распределения
-                            prof100tmp_ostatok = prof100tmp_proj_wo_manual - margin_plan['commitment']
+                    if mrg_fact_wo_distributions > 0:
+                        if mrg_fact_wo_distributions >= margin_plan['commitment']:  # маржа если нет распределения
+                            prof100tmp_ostatok = mrg_fact_wo_distributions - margin_plan['commitment']
                             margin_sum['commitment'] = 0
                             margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
                         else:
-                            margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_proj_wo_manual
+                            margin_sum['commitment'] = margin_plan['commitment'] - mrg_fact_wo_distributions
 
                 if (all(value == 0 for value in sum_q1.values()) and project.end_sale_project_month.year == YEARint + 1
                         and project.end_sale_project_month.month in self.get_months_from_quarter('Q1')):  # если актирование 0, а месяц в нужном году, берем выручку
@@ -1454,10 +1498,13 @@ class report_management_committee_excel(models.AbstractModel):
 
                 profitability = project.profitability
 
-                sum100tmp_proj = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint + 2, False)
-                prof100tmp_proj, prof100tmp_proj_wo_manual = self.get_sum_fact_margin_project_year_quarter(project, YEARint + 2, False)
+                sum100tmp_proj = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint + 2, False, False)
+                acc_fact_wo_distribution = self.get_sum_fact_acceptance_project_year_quarter(project, YEARint + 2, False, True)
+                prof100tmp_proj, prof100tmp_proj_wo_manual = self.get_sum_fact_margin_project_year_quarter(project, YEARint + 2, False, False)
+                _, mrg_fact_wo_distributions = self.get_sum_fact_margin_project_year_quarter(project, YEARint + 2, False, True)
 
                 sum100tmp += sum100tmp_proj
+                sum100tmp_wo_distributions += acc_fact_wo_distribution
                 prof100tmp += prof100tmp_proj
 
                 sum = self.get_sum_planned_acceptance_project_year_quarter(project, YEARint + 2, False)
@@ -1469,20 +1516,20 @@ class report_management_committee_excel(models.AbstractModel):
                     margin_plan = margin_sum.copy()
 
                 if not project.is_correction_project:
-                    if sum100tmp >= sum['commitment']:
-                        sum100tmp_ostatok = sum100tmp - sum['commitment']
+                    if sum100tmp_wo_distributions >= sum['commitment']:
+                        sum100tmp_ostatok = sum100tmp_wo_distributions - sum['commitment']
                         sum['commitment'] = 0
                         sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
                     else:
-                        sum['commitment'] = sum['commitment'] - sum100tmp
+                        sum['commitment'] = sum['commitment'] - sum100tmp_wo_distributions
 
-                    if prof100tmp_proj_wo_manual > 0:
-                        if prof100tmp_proj_wo_manual >= margin_plan['commitment']:  # маржа если нет распределения
-                            prof100tmp_ostatok = prof100tmp_proj_wo_manual - margin_plan['commitment']
+                    if mrg_fact_wo_distributions > 0:
+                        if mrg_fact_wo_distributions >= margin_plan['commitment']:  # маржа если нет распределения
+                            prof100tmp_ostatok = mrg_fact_wo_distributions - margin_plan['commitment']
                             margin_sum['commitment'] = 0
                             margin_sum['reserve'] = max(margin_plan['reserve'] - prof100tmp_ostatok, 0)
                         else:
-                            margin_sum['commitment'] = margin_plan['commitment'] - prof100tmp_proj_wo_manual
+                            margin_sum['commitment'] = margin_plan['commitment'] - mrg_fact_wo_distributions
 
                 if all(value == 0 for value in sum.values()) and project.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
                     if project.stage_id.code == '30':
@@ -1534,7 +1581,7 @@ class report_management_committee_excel(models.AbstractModel):
                     ('budget_plan_supervisor_id.responsibility_center_id', '=', responsibility_center.id),
                 ])
 
-    def print_row_Values(self, workbook, sheet, row, column, YEAR, project, responsibility_center, params):
+    def print_row_values(self, workbook, sheet, row, column, YEAR, project, responsibility_center, params):
         global strYEAR
         global YEARint
 
@@ -3445,7 +3492,7 @@ class report_management_committee_excel(models.AbstractModel):
                                     sheet.write_string(row, column, spec.vat_attribute_id.name or '', cur_row_format)
                                     column += 1
                                     sheet.write_string(row, column, '', cur_row_format)
-                                    self.print_row_Values(workbook, sheet, row, column, strYEAR, spec, responsibility_center, params)
+                                    self.print_row_values(workbook, sheet, row, column, strYEAR, spec, responsibility_center, params)
 
                     if level == 1:
                         formulaProjectCompany += ',{0}' + f'{center_row + 1}'
