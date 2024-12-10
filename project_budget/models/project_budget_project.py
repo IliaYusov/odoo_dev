@@ -325,19 +325,20 @@ class Project(models.Model):
     planned_cash_flow_ids = fields.One2many(
         comodel_name='project_budget.planned_cash_flow',
         inverse_name='projects_id',
-        string="planned cash flow", auto_join=True, copy=True
+        string="planned cash flow", auto_join=True, copy=False
     )
 
     planned_acceptance_flow_sum = fields.Monetary(string='planned_acceptance_flow_sum',
-                                                  compute='_compute_planned_acceptance_flow_sum',store=False, tracking=True)
+                                                  compute='_compute_planned_acceptance_flow_sum', store=False,
+                                                  tracking=True)
     planned_acceptance_flow_sum_without_vat = fields.Monetary(
         string='planned_acceptance_flow_sum_without_vat',
-        compute='_compute_planned_acceptance_flow_sum',store=False, tracking=True
+        compute='_compute_planned_acceptance_flow_sum', store=False, tracking=True
     )
     planned_acceptance_flow_ids = fields.One2many(
         comodel_name='project_budget.planned_acceptance_flow',
         inverse_name='projects_id',
-        string="planned acceptance flow", auto_join=True, copy=True
+        string="planned acceptance flow", auto_join=True, copy=False
     )
 
     fact_cash_flow_sum = fields.Monetary(string='fact_cash_flow_sum', compute='_compute_fact_cash_flow_sum', store=False
@@ -345,10 +346,11 @@ class Project(models.Model):
     fact_cash_flow_ids = fields.One2many(
         comodel_name='project_budget.fact_cash_flow',
         inverse_name='projects_id',
-        string="fact cash flow", auto_join=True, copy=True
+        string="fact cash flow", auto_join=True, copy=False
     )
 
-    fact_acceptance_flow_sum = fields.Monetary(string='fact_acceptance_flow_sum', compute='_compute_fact_acceptance_flow_sum',
+    fact_acceptance_flow_sum = fields.Monetary(string='fact_acceptance_flow_sum',
+                                               compute='_compute_fact_acceptance_flow_sum',
                                                store=False, tracking=True)
     fact_acceptance_flow_sum_without_vat = fields.Monetary(
         string='fact_acceptance_flow_sum_without_vat',
@@ -357,7 +359,7 @@ class Project(models.Model):
     fact_acceptance_flow_ids = fields.One2many(
         comodel_name='project_budget.fact_acceptance_flow',
         inverse_name='projects_id',
-        string="fact acceptance flow", auto_join=True,copy=True
+        string="fact acceptance flow", auto_join=True, copy=False
     )
 
     step_status = fields.Selection(selection=STEP_STATUS, string="project is step-project", default='project',
@@ -365,8 +367,10 @@ class Project(models.Model):
 
     step_project_parent_id = fields.Many2one('project_budget.projects', default=False, string='step-project parent id',
                                              ondelete='cascade', copy=True, index=True)
-    step_project_child_ids = fields.One2many(comodel_name='project_budget.projects', inverse_name='step_project_parent_id',
-        string="step-project child ids", compute='_compute_step_project_details', store=True, auto_join=True)
+    step_project_child_ids = fields.One2many(comodel_name='project_budget.projects',
+                                             inverse_name='step_project_parent_id',
+                                             string="step-project child ids", compute='_compute_step_project_details',
+                                             copy=False, store=True, auto_join=True)
 
     planned_step_cash_flow_ids = fields.One2many(
         comodel_name='project_budget.planned_cash_flow',
@@ -396,7 +400,7 @@ class Project(models.Model):
     project_currency_rates_ids = fields.One2many(
         comodel_name='project_budget.project_currency_rates',
         inverse_name='projects_id',
-        string="project currency rates", auto_join=True,copy=True,)
+        string="project currency rates", auto_join=True, copy=True, )
 
     name_to_show = fields.Char(string='name_to_show', compute='_get_name_to_show')
 
@@ -404,7 +408,7 @@ class Project(models.Model):
 
     tenders_count = fields.Integer(compute='_compute_tenders_count', string='Tenders')
 
-    is_parent_project = fields.Boolean(string="project is parent", default=False, copy=True,tracking=True)
+    is_parent_project = fields.Boolean(string="project is parent", default=False, copy=True, tracking=True)
     is_child_project = fields.Boolean(string="project is child", compute='_check_project_is_child')
     # TODO: необходимо отказаться от текущего "функционала" материнских сделок и мигрировать на общую архитектуру с партнерскими сделками
     parent_project_id = fields.Many2one(
@@ -416,8 +420,10 @@ class Project(models.Model):
         inverse_name='parent_project_id',
         string="child projects", auto_join=True)
     margin_rate_for_parent = fields.Float(string="margin rate for parent project", default=0, copy=True, tracking=True)
-    total_margin_of_child_projects = fields.Monetary(string="total margin of child projects", compute='_compute_total_margin')
-    margin_for_parent_project = fields.Monetary(string="margin for parent project", compute='_compute_margin_for_parent_project')
+    total_margin_of_child_projects = fields.Monetary(string="total margin of child projects",
+                                                     compute='_compute_total_margin')
+    margin_for_parent_project = fields.Monetary(string="margin for parent project",
+                                                compute='_compute_margin_for_parent_project')
     parent_id = fields.Many2one('project_budget.projects', string='Parent Project', copy=False, index=True,
                                 ondelete='cascade', tracking=True)
     child_ids = fields.One2many('project_budget.projects', 'parent_id', string='Child Projects', copy=False)
@@ -1787,16 +1793,14 @@ class Project(models.Model):
         if not self.env.context.get('form_fix_budget', False):
             default['project_id'] = 'ID'
             default['essence_project'] = _('__COPY__ ') + self.project_id + '__' + self.essence_project
-            default['planned_acceptance_flow_ids'] = []
-            default['planned_cash_flow_ids'] = []
-            default['fact_cash_flow_ids'] = []
-            default['fact_acceptance_flow_ids'] = []
-            default['planned_step_acceptance_flow_ids'] = []
-            default['planned_step_cash_flow_ids'] = []
-            default['fact_step_cash_flow_ids'] = []
-            default['fact_step_acceptance_flow_ids'] = []
-            print('2 default = ', default)
-        return super(Project, self).copy(default=default)
+
+        result = super(Project, self).copy(default=default)
+        mapping_old_to_new_steps = self._copy_steps(result)
+        if self.env.context.get('form_fix_budget', False):
+            self._copy_flows_and_distributions(result, mapping_old_to_new_steps, 'acceptance')
+            self._copy_flows_and_distributions(result, mapping_old_to_new_steps, 'cash')
+
+        return result
 
     def unlink(self):
         """
@@ -1862,6 +1866,43 @@ class Project(models.Model):
             ('responsibility_center_id', '=', employee.department_id.responsibility_center_id.id or 0)
         ], limit=1)
         return project_office
+
+    def _copy_steps(self, copied_project):
+        self.ensure_one()
+
+        mapping_old_to_new_steps = dict()
+        if self.project_have_steps and self.step_project_child_ids:
+            for step in self.step_project_child_ids:
+                copied_step = step.copy({
+                    'commercial_budget_id': copied_project.commercial_budget_id.id,
+                    'step_project_parent_id': copied_project.id
+                })
+                mapping_old_to_new_steps[step.id] = copied_step.id
+
+        return mapping_old_to_new_steps
+
+    def _copy_flows_and_distributions(self, copied_project, mapping_old_to_new_steps, flow_type):
+        self.ensure_one()
+
+        mapping_old_to_new_flows = dict()
+        for flow in self['planned_' + flow_type + '_flow_ids']:
+            copied_flow = flow.copy({
+                'projects_id': copied_project.id,
+                'step_project_child_id': mapping_old_to_new_steps.get(flow.step_project_child_id.id, False)
+            })
+            mapping_old_to_new_flows[flow.id] = copied_flow.id
+
+        for flow in self['fact_' + flow_type + '_flow_ids']:
+            copied_flow = flow.copy({
+                'projects_id': copied_project.id,
+                'step_project_child_id': mapping_old_to_new_steps.get(flow.step_project_child_id.id, False)
+            })
+            for distribution in flow['distribution_' + flow_type + '_ids']:
+                distribution.copy({
+                    'fact_' + flow_type + '_flow_id': copied_flow.id,
+                    'planned_' + flow_type + '_flow_id': mapping_old_to_new_flows.get(
+                        distribution['planned_' + flow_type + '_flow_id'].id)
+                })
 
     def toggle_active(self):
         for project in self:

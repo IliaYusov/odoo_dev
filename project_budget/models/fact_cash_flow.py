@@ -26,7 +26,7 @@ class fact_cash_flow(models.Model):
     distribution_cash_ids = fields.One2many(
         comodel_name='project_budget.distribution_cash',
         inverse_name='fact_cash_flow_id',
-        string="distribution cash fact by plan", auto_join=True,copy=True)
+        string="distribution cash fact by plan", auto_join=True, copy=False)
 
     distribution_sum_with_vat = fields.Monetary(string="distribution sum with vat", compute='_compute_distribution_sum')
     distribution_sum_without_vat = fields.Monetary(string="distribution sum without vat", compute='_compute_distribution_sum')

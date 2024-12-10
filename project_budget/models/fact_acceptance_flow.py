@@ -28,7 +28,7 @@ class fact_acceptance_flow(models.Model):
     distribution_acceptance_ids = fields.One2many(
         comodel_name='project_budget.distribution_acceptance',
         inverse_name='fact_acceptance_flow_id',
-        string="distribution acceptance fact by plan", auto_join=True,copy=True)
+        string="distribution acceptance fact by plan", auto_join=True, copy=False)
 
     distribution_sum_with_vat = fields.Monetary(string="distribution sum with vat", compute='_compute_distribution_sum')
     distribution_sum_without_vat = fields.Monetary(string="distribution sum without vat", compute='_compute_distribution_sum')
