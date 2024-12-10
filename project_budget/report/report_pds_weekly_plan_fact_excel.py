@@ -242,14 +242,14 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                     else:
                         week_cols.append(col)
                     fact_week_cols.append(col)
-                    actual_week = actual_week + timedelta(weeks=1)
-                    actual_week_number = actual_week.isocalendar()[1]
-                    actual_week_year = actual_week.isocalendar()[0]
-                    week_start, week_end = self.get_dates_from_week(actual_week_number, actual_week_year)
-                    if week_start.month != week_end.month:  # учитываем разбиение недель по месяцам
-                        week_month_end = week_end.replace(day=1) - timedelta(days=1)
-                        week_month_start = week_end.replace(day=1)
-                        periods_dict[(week_start, week_month_end)] = {
+                    next_week = actual_week + timedelta(weeks=1)
+                    next_week_number = next_week.isocalendar()[1]
+                    next_week_year = next_week.isocalendar()[0]
+                    next_week_start, next_week_end = self.get_dates_from_week(next_week_number, next_week_year)
+                    if next_week_start.month != next_week_end.month:  # учитываем разбиение недель по месяцам
+                        week_month_end = next_week_end.replace(day=1) - timedelta(days=1)
+                        week_month_start = next_week_end.replace(day=1)
+                        periods_dict[(next_week_start, week_month_end)] = {
                             'type': 'week',
                             'cols': [
                                 {
@@ -278,12 +278,16 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                         else:
                             week_cols.append(col)
                         fact_week_cols.append(col)
+                        week_start = week_month_start
+                    else:
+                        week_start = next_week_start
+                    if week_end.month != week_start.month:
                         formula = week_cols
                         fact_formula = fact_week_cols
                         week_cols = []
                         fact_week_cols = []
 
-                        if week_start < actual_date.date():
+                        if week_end < actual_date.date():
                             month_format = fact_format
                             month_head_format = fact_head_format
                             month_center_format = fact_center_format
@@ -294,10 +298,10 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                             month_center_format = commitment_center_format
                             month_company_format = commitment_company_format
 
-                        if actual_date.month == week_start.month:
-                            periods_dict['sum_month_' + str(week_start.month)] = {
+                        if actual_date.month == week_end.month:
+                            periods_dict['sum_month_' + str(week_end.month)] = {
                                 'type': 'sum_month',
-                                'date': week_start,
+                                'date': week_end,
                                 'formula': formula,
                                 'cols': [
                                     {
@@ -324,9 +328,9 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                             }
                             col += 2
                         else:
-                            periods_dict['sum_month_' + str(week_start.month)] = {
+                            periods_dict['sum_month_' + str(week_end.month)] = {
                                 'type': 'sum_month',
-                                'date': week_start,
+                                'date': week_end,
                                 'formula': formula,
                                 'cols': [
                                     {
@@ -343,7 +347,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                             }
                             col += 1
                         month_cols.append(col)
-                        if week_start.month % 3 == 0:
+                        if week_end.month % 3 == 0:
                             formula = month_cols
                             month_cols = []
 
@@ -375,7 +379,8 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                                 ],
                             }
                             col += 1
-                        week_start = week_month_start
+                    week_end = next_week_end
+                    actual_week = next_week
             elif date_utils.start_of(month_start, 'month') == date_utils.start_of(actual_date + relativedelta(months=1), 'month').date():  # пропускаем следующий за текущим месяц
                 pass
             else:
@@ -932,6 +937,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
         })
 
         actual_budget_date = budget.date_actual or datetime.now()
+        # actual_budget_date = datetime(year=2024, month=6, day=6)  # для отладки
 
         date_format = workbook.add_format({'num_format': 'd mmmm yyyy'})
         row = 0
