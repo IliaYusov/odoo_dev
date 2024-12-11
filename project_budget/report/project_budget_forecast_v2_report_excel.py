@@ -1807,6 +1807,8 @@ class report_budget_forecast_excel(models.AbstractModel):
                                 column += 1
                                 sheet.write_string(row, column, (spec.essence_project or ''), cur_row_format)
                                 column += 1
+                                sheet.write_string(row, column, (spec.signer_id.name or ''), cur_row_format)
+                                column += 1
                                 if spec.step_status == 'step':
                                     sheet.write_string(row, column, (spec.step_project_parent_id.project_id or '') + ' | ' + spec.project_id, cur_row_format)
                                 else:
@@ -2774,6 +2776,10 @@ class report_budget_forecast_excel(models.AbstractModel):
         sheet.write_string(row + 2, column, "", head_format_1)
         sheet.set_column(column, column, 12.25)
         column += 1
+        sheet.write_string(row + 1, column, "Юрлицо, подписывающее договор", head_format_1)
+        sheet.write_string(row + 2, column, "", head_format_1)
+        sheet.set_column(column, column, 12.25)
+        column += 1
         # sheet.write_string(row, column, "", head_format)
         sheet.write_string(row + 1, column, "Номер этапа проекта CRM", head_format_1)
         sheet.write_string(row + 2, column, "", head_format_1)
@@ -3225,7 +3231,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         systematica_forecast = data['systematica_forecast']
 
-        start_column = 11 if self.env.company.name == 'Ландата' else 10
+        start_column = 12 if self.env.company.name == 'Ландата' else 11
 
         plan_shift = {
             'revenue': {
