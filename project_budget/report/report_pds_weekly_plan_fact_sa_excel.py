@@ -529,7 +529,7 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
             if 'sum' not in period:
                 if options['type'] == 'month' and date_utils.start_of(period[1], 'month') <= date_utils.start_of(actual_budget_date, 'month'):
                     budget_id = self.env['project_budget.commercial_budget'].search([
-                        ('date_actual', '<=', period[0]),
+                        ('date_actual', '<', period[0]),
                         ('date_actual', '>=', period[0] - relativedelta(months=1)),
                     ], limit=1, order='date_actual desc').id
                     options['budget_id'] = budget_id
@@ -1204,6 +1204,188 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
         row += 1
         return row
 
+    def print_week_summary(self, workbook, sheet, row, col, company, centers_to_exclude, actual_date, budget, link, period):
+        name_format = workbook.add_format({
+            'font_size': 12,
+            'align': 'center',
+            'italic': True,
+        })
+        bold_format = workbook.add_format({
+            'font_size': 12,
+            'align': 'left',
+            'bold': True,
+        })
+        head_format = workbook.add_format({
+            'border': 1,
+            'font_size': 12,
+            'align': 'center',
+            'bold': True,
+        })
+        plan_format = workbook.add_format({
+            'border': 1,
+            'font_size': 12,
+            'align': 'center',
+            'valign': 'vcenter',
+            'fg_color': '#fff2cc',
+        })
+        plan_format_number = workbook.add_format({
+            'border': 1,
+            'font_size': 12,
+            'align': 'center',
+            'bold': True,
+            'fg_color': '#fff2cc',
+            'num_format': '#,##0;[red]-#,##0',
+        })
+        fact_format = workbook.add_format({
+            'border': 1,
+            'font_size': 12,
+            'align': 'center',
+            'valign': 'vcenter',
+            'fg_color': '#EBF1DE',
+        })
+        fact_format_number = workbook.add_format({
+            'border': 1,
+            'font_size': 12,
+            'align': 'center',
+            'bold': True,
+            'fg_color': '#EBF1DE',
+            'num_format': '#,##0;[red]-#,##0',
+        })
+        forecast_format = workbook.add_format({
+            'border': 1,
+            'font_size': 12,
+            'align': 'center',
+            'fg_color': '#d9d9d9',
+        })
+        forecast_format_number = workbook.add_format({
+            'border': 1,
+            'font_size': 12,
+            'align': 'center',
+            'bold': True,
+            'fg_color': '#d9d9d9',
+            'num_format': '#,##0;[red]-#,##0',
+        })
+        commitment_format = workbook.add_format({
+            'border': 1,
+            'font_size': 12,
+            'align': 'center',
+            'fg_color': '#B8CCE4',
+        })
+        commitment_format_number = workbook.add_format({
+            'border': 1,
+            'font_size': 12,
+            'align': 'center',
+            'bold': True,
+            'fg_color': '#B8CCE4',
+        })
+        percent_format = workbook.add_format({
+            'border': 1,
+            'font_size': 12,
+            'bold': True,
+            'color': '#ff0000',
+            'num_format': '0%',
+        })
+        difference_format = workbook.add_format({
+            'border': 1,
+            'font_size': 12,
+            'align': 'left',
+            'bold': True,
+        })
+        difference_format_number = workbook.add_format({
+            'border': 1,
+            'font_size': 12,
+            'bold': True,
+            'fg_color': '#ffff00',
+            'num_format': '#,##0;[red]-#,##0',
+        })
+
+        previous_week_number = (period[0] - timedelta(weeks=1)).isocalendar()[1]
+        previous_week_year = (period[0] - timedelta(weeks=1)).isocalendar()[0]
+        previous_week_start, previous_week_end = self.get_dates_from_week(previous_week_number, previous_week_year)
+        previous_budget_id = self.env['project_budget.commercial_budget'].search([
+            ('date_actual', '<=', previous_week_end),
+        ], limit=1, order='date_actual desc').id
+
+        financial_indicators = self.env['project.budget.financial.indicator'].search([
+            ('commercial_budget_id', 'in', (previous_budget_id, budget.id)),
+            ('type', '=', 'cash_flow'),
+            ('date', '>=', period[0]),
+            ('date', '<=', period[1]),
+            '|', ('forecast_probability_id', '=', False),
+            ('forecast_probability_id.id', '=', self.env.ref('project_budget_nkk.project_budget_forecast_probability_commitment').id),
+        ])
+
+        fact = commitment = 0
+        for i in financial_indicators:
+            if i.forecast_probability_id and i.commercial_budget_id == previous_budget_id:
+                commitment += i.amount - i.distribution
+                factoring_is_present = any(d.factoring for d in i.fact_cash_flow_id.distribution_cash_ids)
+            elif not i.forecast_probability_id and i.commercial_budget_id == budget.id:
+                fact += i.amount
+
+        sheet.set_column(col, col, 1)
+        col += 1
+        sheet.set_column(col, col + 3, 18)
+
+        sheet.merge_range(
+            row,
+            col,
+            row,
+            col + 3,
+            '*Неделя',
+            name_format
+        )
+        row += 1
+        # period_str = self.month_rus_name[actual_date.month - 1] + ' ' + str(actual_date.year)
+        period_str = period[0].strftime('%d.%m') + '-' + period[1].strftime('%d.%m') + ' (на ' + actual_date.strftime('%d.%m.%Y') + ')'
+        sheet.merge_range(row, col, row, col + 3, period_str, head_format)
+        row += 1
+        sheet.merge_range(row, col, row + 1, col, 'План', plan_format)
+        sheet.merge_range(row, col + 1, row + 1, col + 1, 'Факт', fact_format)
+        sheet.merge_range(row, col + 2, row, col + 3, 'Прогноз', forecast_format)
+        sheet.write(row + 1, col + 2, 'Обяз-во', commitment_format)
+        sheet.write(row + 1, col + 3, 'Факт+Обяз-во', forecast_format)
+        row += 2
+
+        sheet.write(row, col, commitment, plan_format_number)
+        sheet.write(row, col + 1, fact, fact_format_number)
+        sheet.write(row, col + 2, commitment, commitment_format_number)
+        sheet.write_formula(
+            row,
+            col + 3,
+            f'=({xl_col_to_name(col + 1)}{row + 1}+{xl_col_to_name(col + 2)}{row + 1})',
+            forecast_format_number
+        )
+        row += 1
+
+        sheet.write_formula(
+            row,
+            col + 1,
+            f'=IFERROR({xl_col_to_name(col + 1)}{row}/{xl_col_to_name(col)}{row}," ")',
+            percent_format,
+        )
+        sheet.write_formula(
+            row,
+            col + 3,
+            f'=IFERROR({xl_col_to_name(col + 3)}{row}/{xl_col_to_name(col)}{row}," ")',
+            percent_format,
+        )
+        row += 1
+
+        sheet.merge_range(row, col, row, col + 2, 'Разница с Планом', difference_format)
+        sheet.write_formula(
+            row,
+            col + 3,
+            f'=({xl_col_to_name(col + 1)}{row - 1}-{xl_col_to_name(col)}{row - 1})',
+            difference_format_number,
+        )
+        row += 1
+
+        sheet.merge_range(row, col, row, col + 3, 'Об-во состоит из:', bold_format)
+        row += 1
+        sheet.merge_range(row, col, row, col + 2, 'Прогноз (неделя 02.12-08.12) (без факта)', head_format)
+        return row
+
     def print_month_summary(self, workbook, sheet, row, start_column, company, centers_to_exclude, actual_date, budget, link):
         head_format = workbook.add_format({
             'border': 2,
@@ -1624,164 +1806,171 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
                     row = self.print_rows_signer(sheet, workbook, signer.name, row, data_signer, periods_dict, max_level, start_column)
         return link
 
-    def print_summary_worksheet(self, workbook, budget, name_sheet, company, centers_to_exclude, start_column, actual_date, link):
-        commitment_format = workbook.add_format({
-            'border': 1,
-            'font_size': 8,
-            'num_format': '#,##0',
-            'fg_color': '#d9d9d9',
-        })
+    def print_summary_worksheet(self, workbook, budget, name_sheet, company, centers_to_exclude, actual_date, link):
         sheet = workbook.add_worksheet(name_sheet)
-        sheet.set_zoom(85)
+        sheet.set_zoom(80)
+        # commitment_format = workbook.add_format({
+        #     'border': 1,
+        #     'font_size': 8,
+        #     'num_format': '#,##0',
+        #     'fg_color': '#d9d9d9',
+        # })
+        #
+        # current_week_start, current_week_end = self.get_dates_from_week(
+        #     actual_date.isocalendar()[1],
+        #     actual_date.isocalendar()[0],
+        # )
+        # next_week_start, next_week_end = self.get_dates_from_week(
+        #     (actual_date + timedelta(weeks=1)).isocalendar()[1],
+        #     (actual_date + timedelta(weeks=1)).isocalendar()[0],
+        # )
+        # after_next_week_start, after_next_week_end = self.get_dates_from_week(
+        #     (actual_date + timedelta(weeks=2)).isocalendar()[1],
+        #     (actual_date + timedelta(weeks=2)).isocalendar()[0],
+        # )
+        #
+        # previous_budget = self.get_previous_budget(actual_date)
+        #
+        # previous_periods_dict = OrderedDict()
+        # previous_periods_dict[(current_week_start, current_week_end)] = {
+        #     'type': 'week',
+        #     'budget_id': previous_budget.id,
+        #     'cols': [
+        #         {
+        #             'print': 'commitment',
+        #             'format': commitment_format,
+        #         },
+        #     ],
+        # }
+        # previous_periods_dict[(next_week_start, next_week_end)] = {
+        #     'type': 'week',
+        #     'budget_id': previous_budget.id,
+        #     'cols': [
+        #         {
+        #             'print': 'commitment',
+        #             'format': commitment_format,
+        #         },
+        #     ],
+        # }
+        # previous_periods_dict[(after_next_week_start, after_next_week_end)] = {
+        #     'type': 'week',
+        #     'budget_id': previous_budget.id,
+        #     'cols': [
+        #         {
+        #             'print': 'commitment',
+        #             'format': commitment_format,
+        #         },
+        #     ],
+        # }
+        #
+        # current_periods_dict = OrderedDict()
+        # current_periods_dict[(current_week_start, current_week_end)] = {
+        #     'type': 'week',
+        #     'budget_id': budget.id,
+        #     'cols': [
+        #         {
+        #             'print': 'fact',
+        #             'format': commitment_format,
+        #         }
+        #     ],
+        # }
+        # current_periods_dict[(next_week_start, next_week_end)] = {
+        #     'type': 'week',
+        #     'budget_id': budget.id,
+        #     'cols': [
+        #         {
+        #             'print': 'commitment',
+        #             'format': commitment_format,
+        #         },
+        #     ],
+        # }
+        # current_periods_dict[(after_next_week_start, after_next_week_end)] = {
+        #     'type': 'week',
+        #     'budget_id': budget.id,
+        #     'cols': [
+        #         {
+        #             'print': 'commitment',
+        #             'format': commitment_format,
+        #         },
+        #     ],
+        # }
+        #
+        # previous_financial_indicators = self.env['project.budget.financial.indicator'].search([
+        #     ('company_id', '=', company.id),
+        #     ('commercial_budget_id', '=', previous_budget.id),
+        #     ('prj_id.signer_id', '=', company.partner_id.id),
+        #     ('type', '=', 'cash_flow'),
+        #     ('date', '>=', current_week_start),
+        #     ('date', '<=', after_next_week_end),
+        #     ('forecast_probability_id.id', '=', self.env.ref('project_budget_nkk.project_budget_forecast_probability_commitment').id),
+        # ], order='project_id')
+        #
+        # current_financial_indicators = self.env['project.budget.financial.indicator'].search([
+        #     ('company_id', '=', company.id),
+        #     ('commercial_budget_id', '=', budget.id),
+        #     ('prj_id.signer_id', '=', company.partner_id.id),
+        #     ('type', '=', 'cash_flow'),
+        #     ('date', '>=', current_week_start),
+        #     ('date', '<=', after_next_week_end),
+        #     '|', ('forecast_probability_id', '=', False),
+        #     ('forecast_probability_id.id', '=', self.env.ref('project_budget_nkk.project_budget_forecast_probability_commitment').id),
+        # ], order='project_id')
+        #
+        # previous_data = self.get_data_from_indicators(
+        #     previous_financial_indicators,
+        #     previous_periods_dict,
+        #     previous_budget,
+        #     previous_budget,
+        # )
+        #
+        # current_data = self.get_data_from_indicators(
+        #     current_financial_indicators,
+        #     current_periods_dict,
+        #     budget,
+        #     budget,
+        # )
+        # row = 1
+        # row = self.print_summary_head(workbook, sheet, row, 1,(current_week_start, current_week_end))
+        # row = self.print_rows_summary(
+        #     sheet,
+        #     workbook,
+        #     row,
+        #     start_column,
+        #     (current_week_start, current_week_end),
+        #     (previous_data, current_data),
+        #     (previous_budget, budget),
+        #     ('commitment', 'fact'),
+        # )
+        # row = self.print_summary_head(workbook, sheet, row, 1, (next_week_start, next_week_end))
+        # row = self.print_rows_summary(
+        #     sheet,
+        #     workbook,
+        #     row,
+        #     start_column,
+        #     (next_week_start, next_week_end),
+        #     (previous_data, current_data),
+        #     (previous_budget, budget),
+        #     ('commitment', 'commitment'),
+        # )
+        # row = self.print_summary_head(workbook, sheet, row, 1, (after_next_week_start, after_next_week_end))
+        # row = self.print_rows_summary(
+        #     sheet,
+        #     workbook,
+        #     row,
+        #     start_column,
+        #     (after_next_week_start, after_next_week_end),
+        #     (previous_data, current_data),
+        #     (previous_budget, budget),
+        #     ('commitment', 'commitment'),
+        # )
 
         current_week_start, current_week_end = self.get_dates_from_week(
             actual_date.isocalendar()[1],
             actual_date.isocalendar()[0],
         )
-        next_week_start, next_week_end = self.get_dates_from_week(
-            (actual_date + timedelta(weeks=1)).isocalendar()[1],
-            (actual_date + timedelta(weeks=1)).isocalendar()[0],
-        )
-        after_next_week_start, after_next_week_end = self.get_dates_from_week(
-            (actual_date + timedelta(weeks=2)).isocalendar()[1],
-            (actual_date + timedelta(weeks=2)).isocalendar()[0],
-        )
-
-        previous_budget = self.get_previous_budget(actual_date)
-
-        previous_periods_dict = OrderedDict()
-        previous_periods_dict[(current_week_start, current_week_end)] = {
-            'type': 'week',
-            'budget_id': previous_budget.id,
-            'cols': [
-                {
-                    'print': 'commitment',
-                    'format': commitment_format,
-                },
-            ],
-        }
-        previous_periods_dict[(next_week_start, next_week_end)] = {
-            'type': 'week',
-            'budget_id': previous_budget.id,
-            'cols': [
-                {
-                    'print': 'commitment',
-                    'format': commitment_format,
-                },
-            ],
-        }
-        previous_periods_dict[(after_next_week_start, after_next_week_end)] = {
-            'type': 'week',
-            'budget_id': previous_budget.id,
-            'cols': [
-                {
-                    'print': 'commitment',
-                    'format': commitment_format,
-                },
-            ],
-        }
-
-        current_periods_dict = OrderedDict()
-        current_periods_dict[(current_week_start, current_week_end)] = {
-            'type': 'week',
-            'budget_id': budget.id,
-            'cols': [
-                {
-                    'print': 'fact',
-                    'format': commitment_format,
-                }
-            ],
-        }
-        current_periods_dict[(next_week_start, next_week_end)] = {
-            'type': 'week',
-            'budget_id': budget.id,
-            'cols': [
-                {
-                    'print': 'commitment',
-                    'format': commitment_format,
-                },
-            ],
-        }
-        current_periods_dict[(after_next_week_start, after_next_week_end)] = {
-            'type': 'week',
-            'budget_id': budget.id,
-            'cols': [
-                {
-                    'print': 'commitment',
-                    'format': commitment_format,
-                },
-            ],
-        }
-
-        previous_financial_indicators = self.env['project.budget.financial.indicator'].search([
-            ('company_id', '=', company.id),
-            ('commercial_budget_id', '=', previous_budget.id),
-            ('prj_id.signer_id', '=', company.partner_id.id),
-            ('type', '=', 'cash_flow'),
-            ('date', '>=', current_week_start),
-            ('date', '<=', after_next_week_end),
-            ('forecast_probability_id.id', '=', self.env.ref('project_budget_nkk.project_budget_forecast_probability_commitment').id),
-        ], order='project_id')
-
-        current_financial_indicators = self.env['project.budget.financial.indicator'].search([
-            ('company_id', '=', company.id),
-            ('commercial_budget_id', '=', budget.id),
-            ('prj_id.signer_id', '=', company.partner_id.id),
-            ('type', '=', 'cash_flow'),
-            ('date', '>=', current_week_start),
-            ('date', '<=', after_next_week_end),
-            '|', ('forecast_probability_id', '=', False),
-            ('forecast_probability_id.id', '=', self.env.ref('project_budget_nkk.project_budget_forecast_probability_commitment').id),
-        ], order='project_id')
-
-        previous_data = self.get_data_from_indicators(
-            previous_financial_indicators,
-            previous_periods_dict,
-            previous_budget,
-            previous_budget,
-        )
-
-        current_data = self.get_data_from_indicators(
-            current_financial_indicators,
-            current_periods_dict,
-            budget,
-            budget,
-        )
-        row = 1
-        row = self.print_summary_head(workbook, sheet, row, 1,(current_week_start, current_week_end))
-        row = self.print_rows_summary(
-            sheet,
-            workbook,
-            row,
-            start_column,
-            (current_week_start, current_week_end),
-            (previous_data, current_data),
-            (previous_budget, budget),
-            ('commitment', 'fact'),
-        )
-        row = self.print_summary_head(workbook, sheet, row, 1, (next_week_start, next_week_end))
-        row = self.print_rows_summary(
-            sheet,
-            workbook,
-            row,
-            start_column,
-            (next_week_start, next_week_end),
-            (previous_data, current_data),
-            (previous_budget, budget),
-            ('commitment', 'commitment'),
-        )
-        row = self.print_summary_head(workbook, sheet, row, 1, (after_next_week_start, after_next_week_end))
-        row = self.print_rows_summary(
-            sheet,
-            workbook,
-            row,
-            start_column,
-            (after_next_week_start, after_next_week_end),
-            (previous_data, current_data),
-            (previous_budget, budget),
-            ('commitment', 'commitment'),
-        )
-        row = self.print_month_summary(workbook, sheet, row, start_column, company, centers_to_exclude, actual_date, budget, link)
+        col = 0
+        row = 0
+        row = self.print_week_summary(workbook, sheet, row, col, company, centers_to_exclude, actual_date, budget, link, (current_week_start, current_week_end))
 
     def generate_xlsx_report(self, workbook, data, budgets):
 
@@ -1814,4 +2003,4 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
         actual_budget_date = budget.date_actual or datetime.now()
         # actual_budget_date = datetime(year=2025, month=3, day=15)
         link = self.print_worksheet(workbook, budget, 'ПДС ' + actual_budget_date.strftime('%d.%m'), responsibility_center_ids, max_level, dict_formula, start_column, actual_budget_date)
-        self.print_summary_worksheet(workbook, budget, 'Свод ' + actual_budget_date.strftime('%d.%m'), company, centers_to_exclude, 1, actual_budget_date, link)
+        self.print_summary_worksheet(workbook, budget, 'Свод ' + actual_budget_date.strftime('%d.%m'), company, centers_to_exclude, actual_budget_date, link)
