@@ -964,8 +964,9 @@ class report_management_committee_excel(models.AbstractModel):
                     sum[key] = max(sum[key], 0)
         return  sum
 
-    def get_margin_forecast_from_distributions(self, margin_sum, margin_plan, project, year, months, margin_rate_for_parent):
+    def get_margin_forecast_from_distributions(self, margin_sum, plan, project, year, months, margin_rate_for_parent):
 
+        margin_plan = plan.copy()
         sum_distribution_acceptance = 0
 
         if project.is_parent_project:
