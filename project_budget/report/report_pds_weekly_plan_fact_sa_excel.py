@@ -1373,7 +1373,7 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
 
         plan = fact = commitment = reserve = vgo_fact = vgo_commitment = vgo_reserve = 0
         for i in financial_indicators:
-            if i.company_id == i.project_id.signer_id:
+            if i.company_id.id == i.prj_id.signer_id.id:
                 if (i.forecast_probability_id.id == self.env.ref('project_budget_nkk.project_budget_forecast_probability_commitment').id
                         and i.commercial_budget_id.id == budget.id) and i.date > current_week[1].date():
                     commitment += i.amount - i.distribution
@@ -1387,7 +1387,7 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
                       and i.commercial_budget_id.id == previous_week_budget.id) and current_week[0].date() <= i.date <= current_week[1].date():
                     reserve += i.amount - i.distribution
                 elif i.forecast_probability_id.id == self.env.ref(
-                        'project_budget_nkk.project_budget_forecast_probability_commitment').id and i.commercial_budget_id.id == plan_budget.id:
+                        'project_budget_nkk.project_budget_forecast_probability_commitment').id and plan_budget and i.commercial_budget_id.id == plan_budget.id:
                     plan += i.amount - i.distribution
                 elif not i.forecast_probability_id and i.commercial_budget_id.id == budget.id:
                     fact += i.amount
@@ -1416,7 +1416,7 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
                     # factoring_is_present = any(d.factoring for d in i.fact_cash_flow_id.distribution_cash_ids)
 
         if type in ('quarter', 'year'):
-            plan, use_6_6_plan = self.get_company_plans(actual_date, company, centers_to_exclude)
+            plan, use_6_6_plan = self.get_company_plans(actual_date + timedelta(weeks=1), company, centers_to_exclude)
 
         sheet.set_column(col, col, 1)
         col += 1
@@ -1533,8 +1533,10 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
 
         return row
 
-    def print_week_fact_structure(self, workbook, sheet, row, col, company, actual_date, budget, period,
-                            financial_indicators):
+    def print_fact_structure(
+            self, workbook, sheet, row, col, company, centers_to_exclude, actual_date, budget, plan_budget,
+            previous_week_budget, period, current_week, financial_indicators, names, type
+    ):
         plan_format = workbook.add_format({
             'border': 1,
             'font_size': 12,
@@ -1548,6 +1550,21 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
             'align': 'center',
             'bold': True,
             'fg_color': '#fff2cc',
+            'num_format': '#,##0;[red]-#,##0',
+        })
+        plan_format_quarter = workbook.add_format({
+            'border': 1,
+            'font_size': 12,
+            'align': 'center',
+            'valign': 'vcenter',
+            'fg_color': '#C5D9F1',
+        })
+        plan_format_quarter_number = workbook.add_format({
+            'border': 1,
+            'font_size': 12,
+            'align': 'center',
+            'bold': True,
+            'fg_color': '#C5D9F1',
             'num_format': '#,##0;[red]-#,##0',
         })
         fact_format = workbook.add_format({
@@ -1582,6 +1599,21 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
             'bold': True,
             'fg_color': '#ffff00',
         })
+        commitment_format = workbook.add_format({
+            'border': 1,
+            'font_size': 12,
+            'align': 'center',
+            'fg_color': '#B8CCE4',
+            'text_wrap': True,
+        })
+        commitment_format_number = workbook.add_format({
+            'border': 1,
+            'font_size': 12,
+            'align': 'center',
+            'bold': True,
+            'fg_color': '#B8CCE4',
+            'num_format': '#,##0',
+        })
         difference_format = workbook.add_format({
             'border': 1,
             'font_size': 12,
@@ -1602,37 +1634,77 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
             ('date_actual', '<=', previous_week_end),
         ], limit=1, order='date_actual desc').id
 
-        fact = commitment = 0
+        fact = commitment = plan = 0
         for i in financial_indicators:
-            if i.forecast_probability_id and i.commercial_budget_id.id == previous_week_budget_id:
-                commitment += i.amount - i.distribution
-            elif not i.forecast_probability_id and i.commercial_budget_id.id == budget.id:
-                fact += i.amount
+            if i.company_id.id == i.prj_id.signer_id.id:
+                if (i.forecast_probability_id.id == self.env.ref('project_budget_nkk.project_budget_forecast_probability_commitment').id
+                        and i.commercial_budget_id.id == budget.id) and i.date > current_week[1].date():
+                    commitment += i.amount - i.distribution
+                elif (i.forecast_probability_id.id == self.env.ref('project_budget_nkk.project_budget_forecast_probability_commitment').id
+                      and i.commercial_budget_id.id == previous_week_budget.id) and current_week[0].date() <= i.date <= current_week[1].date():
+                    commitment += i.amount - i.distribution
+                elif plan_budget and i.forecast_probability_id.id == self.env.ref(
+                        'project_budget_nkk.project_budget_forecast_probability_commitment').id and i.commercial_budget_id.id == plan_budget.id:
+                    plan += i.amount - i.distribution
+                elif not i.forecast_probability_id and i.commercial_budget_id.id == budget.id:
+                    fact += i.amount
 
+        if type in ('quarter',):
+            plan, use_6_6_plan = self.get_company_plans(actual_date, company, centers_to_exclude)
 
         sheet.merge_range(row, col, row, col + 3,
-                          'Структура ФАКТА (' + previous_week_start.strftime('%d.%m') + '-'
-                          + previous_week_end.strftime('%d.%m') + ')', fact_structure_head_format)
+                          'Структура ФАКТА (' + names[1] + ')', fact_structure_head_format)
         row += 1
-        sheet.merge_range(row, col, row + 1, col + 1, 'План', plan_format)
-        sheet.merge_range(row, col + 2, row + 1, col + 2, 'Факт', fact_format)
-        sheet.merge_range(row, col + 3, row + 1, col + 3, '%', fact_format)
-        sheet.merge_range(row + 2, col, row + 2, col + 1, commitment, plan_format_number)
-        sheet.write(row + 2, col + 2, fact, fact_format_number)
-        sheet.write_formula(
-            row + 2,
-            col + 3,
-            f'=IFERROR({xl_col_to_name(col + 2)}{row + 3}/{xl_col_to_name(col)}{row + 3}," ")',
-            fact_format_percent
-        )
-        row += 3
-        sheet.merge_range(row, col, row, col + 2, 'Разница с Планом', difference_format)
-        sheet.write_formula(
-            row,
-            col + 3,
-            f'=({xl_col_to_name(col)}{row}-{xl_col_to_name(col + 2)}{row})',
-            difference_format_number,
-        )
+        if type == 'week':
+            sheet.merge_range(row, col, row + 1, col + 1, 'План', plan_format)
+            sheet.merge_range(row, col + 2, row + 1, col + 2, 'Факт', fact_format)
+            sheet.merge_range(row, col + 3, row + 1, col + 3, '%', fact_format)
+
+            sheet.merge_range(row + 2, col, row + 2, col + 1, plan, plan_format_number)
+            sheet.write(row + 2, col + 2, fact, fact_format_number)
+            sheet.write_formula(
+                row + 2,
+                col + 3,
+                f'=IFERROR({xl_col_to_name(col + 2)}{row + 3}/{xl_col_to_name(col)}{row + 3}," ")',
+                fact_format_percent
+            )
+            row += 3
+            sheet.merge_range(row, col, row, col + 2, 'Разница с Планом', difference_format)
+            sheet.write_formula(
+                row,
+                col + 3,
+                f'=({xl_col_to_name(col + 2)}{row}-{xl_col_to_name(col)}{row})',
+                difference_format_number,
+            )
+        else:
+            if type == 'quarter':
+                sheet.merge_range(row, col, row + 1, col, plan['quarter_plan']['name'], plan_format_quarter)
+            else:
+                sheet.merge_range(row, col, row + 1, col, 'План', plan_format)
+            sheet.merge_range(row, col + 1, row + 1, col + 1, 'Факт', fact_format)
+            sheet.merge_range(row, col + 2, row + 1, col + 2, 'Обяз-во (100% вер-ть)', commitment_format)
+            sheet.merge_range(row, col + 3, row + 1, col + 3, '%', fact_format)
+
+            if type == 'quarter':
+                sheet.write(row + 2, col, plan['quarter_plan']['amount'], plan_format_quarter_number)
+            else:
+                sheet.write(row + 2, col, plan, plan_format_number)
+            sheet.write(row + 2, col + 1, fact, fact_format_number)
+            sheet.write(row + 2, col + 2, commitment, commitment_format_number)
+            sheet.write_formula(
+                row + 2,
+                col + 3,
+                f'=IFERROR(({xl_col_to_name(col + 2)}{row + 3} + {xl_col_to_name(col + 1)}{row + 3})/{xl_col_to_name(col)}{row + 3}," ")',
+                fact_format_percent
+            )
+            row += 3
+            sheet.merge_range(row, col, row, col + 2, 'Разница с Планом', difference_format)
+            sheet.write_formula(
+                row,
+                col + 3,
+                f'=({xl_col_to_name(col + 2)}{row}+{xl_col_to_name(col + 1)}{row})-{xl_col_to_name(col)}{row}',
+                difference_format_number,
+            )
         row += 1
         return row
 
@@ -2419,8 +2491,11 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
 
         col += 1
         row += 2
-        row = self.print_week_fact_structure(workbook, sheet, row, col, company, actual_date, budget,
-                                             (current_week_start, current_week_end), financial_indicators)
+        row = self.print_fact_structure(
+            workbook, sheet, row, col, company, centers_to_exclude, actual_date, budget, previous_week_budget, previous_week_budget,
+            (current_week_start, current_week_end),(current_week_start, current_week_end), financial_indicators,
+            ('Неделя', next_week_start.strftime('%d.%m') + '-' + next_week_end.strftime('%d.%m')),'week',
+        )
         row += 1
         row = self.print_week_fact(workbook, sheet, row, col, company, actual_date, budget,
                                         (current_week_start, current_week_end), financial_indicators)
@@ -2430,6 +2505,8 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
                                            (current_week_start, current_week_end), financial_indicators)
         # END WEEK
         # START MONTH
+        current_month_start = date_utils.start_of(actual_date, 'month')
+        current_month_end = date_utils.end_of(actual_date, 'month')
         month_start = date_utils.start_of(actual_date + timedelta(weeks=1), 'month')
         month_end = date_utils.end_of(actual_date + timedelta(weeks=1), 'month')
         previous_month_budget = self.env['project_budget.commercial_budget'].search([
@@ -2449,14 +2526,31 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
         row = self.print_summary(
             workbook, sheet, row, col, company, centers_to_exclude, actual_date, budget, previous_month_budget,
             previous_week_budget, (month_start, month_end), (current_week_start, current_week_end),
-            financial_indicators,('Месяц', self.month_rus_name[actual_date.month - 1] + ' ' + str(actual_date.year)),
+            financial_indicators,('Месяц', self.month_rus_name[(actual_date + timedelta(weeks=1)).month - 1] + ' ' + str((actual_date + timedelta(weeks=1)).year)),
             'month',
         )
+        financial_indicators = self.env['project.budget.financial.indicator'].search([
+            ('commercial_budget_id', 'in', (previous_month_budget.id, budget.id)),
+            ('type', '=', 'cash_flow'),
+            ('date', '>=', current_month_start),
+            ('date', '<=', current_month_end),
+            '|', ('forecast_probability_id', '=', False),
+            ('forecast_probability_id.id', '=', self.env.ref('project_budget_nkk.project_budget_forecast_probability_commitment').id),
+        ])
+
         col += 1
+        row += 2
+        row = self.print_fact_structure(
+            workbook, sheet, row, col, company, centers_to_exclude, actual_date, budget, previous_month_budget, previous_week_budget,
+            (current_month_start, current_month_end), (current_week_start, current_week_end), financial_indicators,
+            ('Месяц', self.month_rus_name[actual_date.month - 1] + ' ' + str(actual_date.year)), 'month',
+        )
         row += 6
         month_row = self.print_month_fact(workbook, sheet, row, col, company, actual_date, budget, (month_start, month_end), financial_indicators)
         # END MONTH
         # START QUARTER
+        current_quarter_start = date_utils.start_of(actual_date, 'quarter')
+        current_quarter_end = date_utils.end_of(actual_date, 'quarter')
         quarter_start = date_utils.start_of(actual_date + timedelta(weeks=1), 'quarter')
         quarter_end = date_utils.end_of(actual_date + timedelta(weeks=1), 'quarter')
         financial_indicators = self.env['project.budget.financial.indicator'].search([
@@ -2474,6 +2568,23 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
             workbook, sheet, row, col, company, centers_to_exclude, actual_date, budget, False,
             previous_week_budget, (quarter_start, quarter_end), (current_week_start, current_week_end),
             financial_indicators,('Квартал', 'Q' + str(((actual_date + timedelta(weeks=1)).month - 1) // 3 + 1)), 'quarter',
+        )
+        financial_indicators = self.env['project.budget.financial.indicator'].search([
+            ('commercial_budget_id', 'in', (previous_week_budget.id, budget.id)),
+            ('type', '=', 'cash_flow'),
+            ('date', '>=', current_quarter_start),
+            ('date', '<=', current_quarter_end),
+            '|', ('forecast_probability_id', '=', False),
+            ('forecast_probability_id.id', '=',
+             self.env.ref('project_budget_nkk.project_budget_forecast_probability_commitment').id),
+        ])
+
+        col += 1
+        row += 2
+        row = self.print_fact_structure(
+            workbook, sheet, row, col, company, centers_to_exclude, actual_date, budget, False, previous_week_budget,
+            (current_quarter_start, current_quarter_end), (current_week_start, current_week_end),
+            financial_indicators,('Квартал', 'Q' + str((actual_date.month - 1) // 3 + 1)), 'quarter',
         )
         col += 1
         row += 6
@@ -2535,6 +2646,6 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
         commercial_budget_id = data['commercial_budget_id']
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
         actual_budget_date = budget.date_actual or datetime.now()
-        actual_budget_date = datetime(year=2024, month=11, day=22)  # ОТЛАДОЧНАЯ
+        # actual_budget_date = datetime(year=2024, month=11, day=22)  # ОТЛАДОЧНАЯ
         link = self.print_worksheet(workbook, budget, 'ПДС ' + actual_budget_date.strftime('%d.%m'), responsibility_center_ids, max_level, dict_formula, start_column, actual_budget_date)
         self.print_summary_worksheet(workbook, budget, 'Свод ' + actual_budget_date.strftime('%d.%m'), company, centers_to_exclude, actual_budget_date, link)
