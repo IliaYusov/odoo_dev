@@ -1708,7 +1708,7 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
         row += 1
         return row
 
-    def print_week_fact(self, workbook, sheet, row, col, company, actual_date, budget, period, financial_indicators):
+    def print_fact(self, workbook, sheet, row, col, company, actual_date, budget, period, financial_indicators):
         border_format = workbook.add_format({
             'font_size': 12,
             'border': 1,
@@ -1761,7 +1761,7 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
                 sheet.write(row, col + 2, i.amount, border_format)
                 for d in i.fact_cash_flow_id.distribution_cash_ids:
                     factoring_is_present = d.factoring or factoring_is_present
-                    if d.planned_cash_flow_id.sum_cash == i.amount:
+                    if d.planned_cash_flow_id.sum_cash == i.amount == d.sum_cash:
                         sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
                         if d.planned_cash_flow_id.date_cash == i.date:
                             sheet.write(row, col + 3, 'по плану', border_format)
@@ -2497,7 +2497,7 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
             ('Неделя', next_week_start.strftime('%d.%m') + '-' + next_week_end.strftime('%d.%m')),'week',
         )
         row += 1
-        row = self.print_week_fact(workbook, sheet, row, col, company, actual_date, budget,
+        row = self.print_fact(workbook, sheet, row, col, company, actual_date, budget,
                                         (current_week_start, current_week_end), financial_indicators)
 
         row += 2
@@ -2545,8 +2545,10 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
             (current_month_start, current_month_end), (current_week_start, current_week_end), financial_indicators,
             ('Месяц', self.month_rus_name[actual_date.month - 1] + ' ' + str(actual_date.year)), 'month',
         )
-        row += 6
-        month_row = self.print_month_fact(workbook, sheet, row, col, company, actual_date, budget, (month_start, month_end), financial_indicators)
+        row += 1
+        month_row = self.print_fact(workbook, sheet, row, col, company, actual_date, budget,
+                                        (current_month_start, current_month_end), financial_indicators)
+
         # END MONTH
         # START QUARTER
         current_quarter_start = date_utils.start_of(actual_date, 'quarter')
@@ -2586,9 +2588,10 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
             (current_quarter_start, current_quarter_end), (current_week_start, current_week_end),
             financial_indicators,('Квартал', 'Q' + str((actual_date.month - 1) // 3 + 1)), 'quarter',
         )
-        col += 1
-        row += 6
-        quarter_row = self.print_quarter_fact(workbook, sheet, row, col, company, actual_date, budget, (quarter_start, quarter_end), financial_indicators)
+        row += 1
+        quarter_row = self.print_fact(workbook, sheet, row, col, company, actual_date, budget,
+                                        (current_quarter_start, current_quarter_end), financial_indicators)
+
         # END QUARTER
         # START YEAR
         col = 18
