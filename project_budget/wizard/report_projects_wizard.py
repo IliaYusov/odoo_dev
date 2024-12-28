@@ -38,11 +38,16 @@ class report_projects_wizard(models.TransientModel):
         ('week_to_week', 'Week to Week'),
     ],
         required=True, default='kb')
-    commercial_budget_id = fields.Many2one('project_budget.commercial_budget', string='commercial_budget-',required=True
-                                           ,default=lambda self: self.env['project_budget.commercial_budget'].search([('budget_state', '=', 'work')], limit=1)
-                                          )
+    commercial_budget_id = fields.Many2one(
+        'project_budget.commercial_budget', string='commercial_budget-',required=True,
+        default=lambda self: self.env['project_budget.commercial_budget'].search([('budget_state', '=', 'work')], limit=1)
+    )
     past_commercial_budget_id = fields.Many2one(
         'project_budget.commercial_budget', string='past budget', required=True, default=_get_last_fixed_budget
+    )
+    etalon_budget_id = fields.Many2one(
+        'project_budget.commercial_budget', string='etalon budget',
+        default=lambda self: self.env['project_budget.commercial_budget'].search([('budget_state', '=', 'work')], limit=1)
     )
     use_koeff_reserve = fields.Boolean(string='use koefficient for reserve', default = False)
     koeff_reserve = fields.Float(string='koefficient for reserve', default=0.6)
@@ -69,6 +74,7 @@ class report_projects_wizard(models.TransientModel):
         datas['date_end']= self.date_end
         datas['commercial_budget_id'] = self.commercial_budget_id.id
         datas['past_commercial_budget_id'] = self.past_commercial_budget_id.id
+        datas['etalon_budget_id'] = self.etalon_budget_id.id
         datas['koeff_reserve'] = 1 if not self.use_koeff_reserve else self.koeff_reserve
         datas['koeff_potential'] = 1 if not self.use_koeff_reserve else self.koeff_potential
         datas['pds_accept'] = self.pds_accept

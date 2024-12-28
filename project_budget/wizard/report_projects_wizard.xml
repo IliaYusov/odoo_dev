@@ -33,6 +33,8 @@
                             <field name="past_commercial_budget_id"
                                    attrs="{'invisible': [('type_report', 'not in', ('week_to_week',))]}"/>
                             <field name="commercial_budget_id"/>
+                            <field name="etalon_budget_id"
+                                   attrs="{'invisible': [('type_report', 'not in', ('pds_weekly_plan_fact_sa',))]}"/>
                             <field name="responsibility_center_ids" widget="many2many_tags"
                                    options="{'no_create_edit': True}"
                                    attrs="{'invisible': [('type_report', 'not in', ('forecast_v2', 'forecast_v3', 'kb', 'overdue', 'pds_acceptance_by_date', 'pds_weekly', 'pds_weekly_plan_fact', 'pds_weekly_plan_fact_sa'))]}"

@@ -3365,6 +3365,11 @@ msgid "commercial_budget-"
 msgstr "Коммерческий бюджет"
 
 #. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects_report_wizard__etalon_budget_id
+msgid "etalon budget"
+msgstr "Эталонный бюджет"
+
+#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__contact_information
 msgid "contact_information"
 msgstr "Контактная информация"

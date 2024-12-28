@@ -1799,7 +1799,10 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
         sheet.write(sum_row + 1, col + 3, '', fact_structure_format)
         return row
 
-    def print_week_changes(self, workbook, sheet, row, col, company, actual_date, budget, period, financial_indicators):
+    def print_changes(
+            self, workbook, sheet, row, col, company, actual_date, budget, commitment_budget, period, financial_indicators,
+            names, type
+    ):
         border_format = workbook.add_format({
             'font_size': 12,
             'border': 1,
@@ -1827,11 +1830,7 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
             'fg_color': '#ffff00',
         })
 
-        previous_week_start = date_utils.start_of(actual_date - timedelta(weeks=1), 'week')
-        previous_week_end = date_utils.end_of(actual_date - timedelta(weeks=1), 'week')
-        sheet.merge_range(row, col, row, col + 3,
-                          'Изменения ' + previous_week_start.strftime('%d.%m') + '-'
-                          + previous_week_end.strftime('%d.%m'), fact_changes_head_format)
+        sheet.merge_range(row, col, row, col + 3, 'Изменения ' + names[1] , fact_changes_head_format)
         row += 1
         sheet.merge_range(row, col, row, col + 2, 'ИТОГО:', difference_format)
         sheet.write_formula(
@@ -1845,20 +1844,21 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
 
         changes_present = False
         changes = {}
+
         for i in financial_indicators:
-            if i.forecast_probability_id.id == self.env.ref('project_budget_nkk.project_budget_forecast_probability_commitment').id and i.commercial_budget_id.id != budget.id:
+            if i.forecast_probability_id.id == self.env.ref('project_budget_nkk.project_budget_forecast_probability_commitment').id and i.commercial_budget_id.id == commitment_budget.id:
                 changes.setdefault(i.prj_id.project_id, {'key_account_manager': '', 'customer_id': '', 'amount': 0})
                 changes[i.prj_id.project_id] = {
                     'key_account_manager': i.key_account_manager_id.name,
                     'customer_id': i.customer_id.name,
-                    'amount': changes[i.prj_id.project_id]['amount'] + i.amount
+                    'amount': changes[i.prj_id.project_id]['amount'] - i.amount
                 }
             elif not i.forecast_probability_id and i.commercial_budget_id.id == budget.id:
                 changes.setdefault(i.prj_id.project_id, {'key_account_manager': '', 'customer_id': '', 'amount': 0})
                 changes[i.prj_id.project_id] = {
                     'key_account_manager': i.key_account_manager_id.name,
                     'customer_id': i.customer_id.name,
-                    'amount': changes[i.prj_id.project_id]['amount'] - i.amount
+                    'amount': changes[i.prj_id.project_id]['amount'] + i.amount
                 }
 
         for prj, change in changes.items():
@@ -2294,163 +2294,9 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
                     row = self.print_rows_signer(sheet, workbook, signer.name, row, data_signer, periods_dict, max_level, start_column)
         return link
 
-    def print_summary_worksheet(self, workbook, budget, name_sheet, company, centers_to_exclude, actual_date, link):
+    def print_summary_worksheet(self, workbook, budget, etalon_budget, name_sheet, company, centers_to_exclude, actual_date, link):
         sheet = workbook.add_worksheet(name_sheet)
         sheet.set_zoom(70)
-        # commitment_format = workbook.add_format({
-        #     'border': 1,
-        #     'font_size': 8,
-        #     'num_format': '#,##0',
-        #     'fg_color': '#d9d9d9',
-        # })
-        #
-        # current_week_start, current_week_end = self.get_dates_from_week(
-        #     actual_date.isocalendar()[1],
-        #     actual_date.isocalendar()[0],
-        # )
-        # next_week_start, next_week_end = self.get_dates_from_week(
-        #     (actual_date + timedelta(weeks=1)).isocalendar()[1],
-        #     (actual_date + timedelta(weeks=1)).isocalendar()[0],
-        # )
-        # after_next_week_start, after_next_week_end = self.get_dates_from_week(
-        #     (actual_date + timedelta(weeks=2)).isocalendar()[1],
-        #     (actual_date + timedelta(weeks=2)).isocalendar()[0],
-        # )
-        #
-        # previous_budget = self.get_previous_budget(actual_date)
-        #
-        # previous_periods_dict = OrderedDict()
-        # previous_periods_dict[(current_week_start, current_week_end)] = {
-        #     'type': 'week',
-        #     'budget_id': previous_budget.id,
-        #     'cols': [
-        #         {
-        #             'print': 'commitment',
-        #             'format': commitment_format,
-        #         },
-        #     ],
-        # }
-        # previous_periods_dict[(next_week_start, next_week_end)] = {
-        #     'type': 'week',
-        #     'budget_id': previous_budget.id,
-        #     'cols': [
-        #         {
-        #             'print': 'commitment',
-        #             'format': commitment_format,
-        #         },
-        #     ],
-        # }
-        # previous_periods_dict[(after_next_week_start, after_next_week_end)] = {
-        #     'type': 'week',
-        #     'budget_id': previous_budget.id,
-        #     'cols': [
-        #         {
-        #             'print': 'commitment',
-        #             'format': commitment_format,
-        #         },
-        #     ],
-        # }
-        #
-        # current_periods_dict = OrderedDict()
-        # current_periods_dict[(current_week_start, current_week_end)] = {
-        #     'type': 'week',
-        #     'budget_id': budget.id,
-        #     'cols': [
-        #         {
-        #             'print': 'fact',
-        #             'format': commitment_format,
-        #         }
-        #     ],
-        # }
-        # current_periods_dict[(next_week_start, next_week_end)] = {
-        #     'type': 'week',
-        #     'budget_id': budget.id,
-        #     'cols': [
-        #         {
-        #             'print': 'commitment',
-        #             'format': commitment_format,
-        #         },
-        #     ],
-        # }
-        # current_periods_dict[(after_next_week_start, after_next_week_end)] = {
-        #     'type': 'week',
-        #     'budget_id': budget.id,
-        #     'cols': [
-        #         {
-        #             'print': 'commitment',
-        #             'format': commitment_format,
-        #         },
-        #     ],
-        # }
-        #
-        # previous_financial_indicators = self.env['project.budget.financial.indicator'].search([
-        #     ('company_id', '=', company.id),
-        #     ('commercial_budget_id', '=', previous_budget.id),
-        #     ('prj_id.signer_id', '=', company.partner_id.id),
-        #     ('type', '=', 'cash_flow'),
-        #     ('date', '>=', current_week_start),
-        #     ('date', '<=', after_next_week_end),
-        #     ('forecast_probability_id.id', '=', self.env.ref('project_budget_nkk.project_budget_forecast_probability_commitment').id),
-        # ], order='project_id')
-        #
-        # current_financial_indicators = self.env['project.budget.financial.indicator'].search([
-        #     ('company_id', '=', company.id),
-        #     ('commercial_budget_id', '=', budget.id),
-        #     ('prj_id.signer_id', '=', company.partner_id.id),
-        #     ('type', '=', 'cash_flow'),
-        #     ('date', '>=', current_week_start),
-        #     ('date', '<=', after_next_week_end),
-        #     '|', ('forecast_probability_id', '=', False),
-        #     ('forecast_probability_id.id', '=', self.env.ref('project_budget_nkk.project_budget_forecast_probability_commitment').id),
-        # ], order='project_id')
-        #
-        # previous_data = self.get_data_from_indicators(
-        #     previous_financial_indicators,
-        #     previous_periods_dict,
-        #     previous_budget,
-        #     previous_budget,
-        # )
-        #
-        # current_data = self.get_data_from_indicators(
-        #     current_financial_indicators,
-        #     current_periods_dict,
-        #     budget,
-        #     budget,
-        # )
-        # row = 1
-        # row = self.print_summary_head(workbook, sheet, row, 1,(current_week_start, current_week_end))
-        # row = self.print_rows_summary(
-        #     sheet,
-        #     workbook,
-        #     row,
-        #     start_column,
-        #     (current_week_start, current_week_end),
-        #     (previous_data, current_data),
-        #     (previous_budget, budget),
-        #     ('commitment', 'fact'),
-        # )
-        # row = self.print_summary_head(workbook, sheet, row, 1, (next_week_start, next_week_end))
-        # row = self.print_rows_summary(
-        #     sheet,
-        #     workbook,
-        #     row,
-        #     start_column,
-        #     (next_week_start, next_week_end),
-        #     (previous_data, current_data),
-        #     (previous_budget, budget),
-        #     ('commitment', 'commitment'),
-        # )
-        # row = self.print_summary_head(workbook, sheet, row, 1, (after_next_week_start, after_next_week_end))
-        # row = self.print_rows_summary(
-        #     sheet,
-        #     workbook,
-        #     row,
-        #     start_column,
-        #     (after_next_week_start, after_next_week_end),
-        #     (previous_data, current_data),
-        #     (previous_budget, budget),
-        #     ('commitment', 'commitment'),
-        # )
 
         # START WEEK
         current_week_start = date_utils.start_of(actual_date, 'week')
@@ -2480,8 +2326,8 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
             'week',
         )
 
-        financial_indicators = self.env['project.budget.financial.indicator'].search([
-            ('commercial_budget_id', 'in', (previous_week_budget.id, budget.id)),
+        week_financial_indicators = self.env['project.budget.financial.indicator'].search([
+            ('commercial_budget_id', 'in', (previous_week_budget.id, budget.id, etalon_budget.id)),
             ('type', '=', 'cash_flow'),
             ('date', '>=', current_week_start),
             ('date', '<=', current_week_end),
@@ -2493,16 +2339,13 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
         row += 2
         row = self.print_fact_structure(
             workbook, sheet, row, col, company, centers_to_exclude, actual_date, budget, previous_week_budget, previous_week_budget,
-            (current_week_start, current_week_end),(current_week_start, current_week_end), financial_indicators,
+            (current_week_start, current_week_end),(current_week_start, current_week_end), week_financial_indicators,
             ('Неделя', next_week_start.strftime('%d.%m') + '-' + next_week_end.strftime('%d.%m')),'week',
         )
         row += 1
-        row = self.print_fact(workbook, sheet, row, col, company, actual_date, budget,
-                                        (current_week_start, current_week_end), financial_indicators)
+        week_row = self.print_fact(workbook, sheet, row, col, company, actual_date, budget,
+                                        (current_week_start, current_week_end), week_financial_indicators)
 
-        row += 2
-        week_row = self.print_week_changes(workbook, sheet, row, col, company, actual_date, budget,
-                                           (current_week_start, current_week_end), financial_indicators)
         # END WEEK
         # START MONTH
         current_month_start = date_utils.start_of(actual_date, 'month')
@@ -2529,8 +2372,8 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
             financial_indicators,('Месяц', self.month_rus_name[(actual_date + timedelta(weeks=1)).month - 1] + ' ' + str((actual_date + timedelta(weeks=1)).year)),
             'month',
         )
-        financial_indicators = self.env['project.budget.financial.indicator'].search([
-            ('commercial_budget_id', 'in', (previous_month_budget.id, budget.id)),
+        month_financial_indicators = self.env['project.budget.financial.indicator'].search([
+            ('commercial_budget_id', 'in', (previous_month_budget.id, budget.id, etalon_budget.id)),
             ('type', '=', 'cash_flow'),
             ('date', '>=', current_month_start),
             ('date', '<=', current_month_end),
@@ -2542,12 +2385,12 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
         row += 2
         row = self.print_fact_structure(
             workbook, sheet, row, col, company, centers_to_exclude, actual_date, budget, previous_month_budget, previous_week_budget,
-            (current_month_start, current_month_end), (current_week_start, current_week_end), financial_indicators,
+            (current_month_start, current_month_end), (current_week_start, current_week_end), month_financial_indicators,
             ('Месяц', self.month_rus_name[actual_date.month - 1] + ' ' + str(actual_date.year)), 'month',
         )
         row += 1
         month_row = self.print_fact(workbook, sheet, row, col, company, actual_date, budget,
-                                        (current_month_start, current_month_end), financial_indicators)
+                                        (current_month_start, current_month_end), month_financial_indicators)
 
         # END MONTH
         # START QUARTER
@@ -2571,8 +2414,8 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
             previous_week_budget, (quarter_start, quarter_end), (current_week_start, current_week_end),
             financial_indicators,('Квартал', 'Q' + str(((actual_date + timedelta(weeks=1)).month - 1) // 3 + 1)), 'quarter',
         )
-        financial_indicators = self.env['project.budget.financial.indicator'].search([
-            ('commercial_budget_id', 'in', (previous_week_budget.id, budget.id)),
+        quarter_financial_indicators = self.env['project.budget.financial.indicator'].search([
+            ('commercial_budget_id', 'in', (previous_week_budget.id, budget.id, etalon_budget.id)),
             ('type', '=', 'cash_flow'),
             ('date', '>=', current_quarter_start),
             ('date', '<=', current_quarter_end),
@@ -2586,11 +2429,11 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
         row = self.print_fact_structure(
             workbook, sheet, row, col, company, centers_to_exclude, actual_date, budget, False, previous_week_budget,
             (current_quarter_start, current_quarter_end), (current_week_start, current_week_end),
-            financial_indicators,('Квартал', 'Q' + str((actual_date.month - 1) // 3 + 1)), 'quarter',
+            quarter_financial_indicators,('Квартал', 'Q' + str((actual_date.month - 1) // 3 + 1)), 'quarter',
         )
         row += 1
         quarter_row = self.print_fact(workbook, sheet, row, col, company, actual_date, budget,
-                                        (current_quarter_start, current_quarter_end), financial_indicators)
+                                        (current_quarter_start, current_quarter_end), quarter_financial_indicators)
 
         # END QUARTER
         # START YEAR
@@ -2607,18 +2450,33 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
             ('forecast_probability_id.id', '=', self.env.ref('project_budget_nkk.project_budget_forecast_probability_commitment').id),
             ('forecast_probability_id.id', '=', self.env.ref('project_budget_nkk.project_budget_forecast_probability_reserve').id),
         ])
-        # row = self.print_year_summary(workbook, sheet, row, col, company, centers_to_exclude, actual_date, budget,
-        #                                  (year_start, year_end))
         row = self.print_summary(
             workbook, sheet, row, col, company, centers_to_exclude, actual_date, budget, False,
             previous_week_budget, (year_start, year_end), (current_week_start, current_week_end),
             financial_indicators,('Год', str(actual_date.year)), 'year',
         )
-        row = max(week_row, month_row, quarter_row)
 
-        # row = self.print_week_changes(workbook, sheet, row, col, company, actual_date, budget,
-        #                                       (actual_quarter_start, actual_quarter_end), financial_indicators)
         # END YEAR
+        # START CHANGES
+        row = max(week_row, month_row, quarter_row) + 2
+        col = 1
+        _ = self.print_changes(
+            workbook, sheet, row, col, company, actual_date, budget, previous_week_budget, (current_week_start, current_week_end),
+            week_financial_indicators, ('Неделя', next_week_start.strftime('%d.%m') + '-' + next_week_end.strftime('%d.%m')),
+            'week'
+        )
+        col = 7
+        _ = self.print_changes(
+            workbook, sheet, row, col, company, actual_date, budget, previous_month_budget, (current_month_start, current_month_end),
+            month_financial_indicators, ('Месяц', self.month_rus_name[actual_date.month - 1] + ' ' + str(actual_date.year)),
+            'month'
+        )
+        col = 13
+        _ = self.print_changes(
+            workbook, sheet, row, col, company, actual_date, budget, etalon_budget, (current_quarter_start, current_quarter_end),
+            quarter_financial_indicators, ('Квартал', 'Q' + str((actual_date.month - 1) // 3 + 1)),
+            'quarter'
+        )
 
     def generate_xlsx_report(self, workbook, data, budgets):
 
@@ -2647,8 +2505,10 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
             max_level -= 1
 
         commercial_budget_id = data['commercial_budget_id']
+        etalon_budget_id = data['etalon_budget_id']
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
+        etalon_budget = self.env['project_budget.commercial_budget'].search([('id', '=', etalon_budget_id)])
         actual_budget_date = budget.date_actual or datetime.now()
         # actual_budget_date = datetime(year=2024, month=11, day=22)  # ОТЛАДОЧНАЯ
         link = self.print_worksheet(workbook, budget, 'ПДС ' + actual_budget_date.strftime('%d.%m'), responsibility_center_ids, max_level, dict_formula, start_column, actual_budget_date)
-        self.print_summary_worksheet(workbook, budget, 'Свод ' + actual_budget_date.strftime('%d.%m'), company, centers_to_exclude, actual_budget_date, link)
+        self.print_summary_worksheet(workbook, budget, etalon_budget, 'Свод ' + actual_budget_date.strftime('%d.%m'), company, centers_to_exclude, actual_budget_date, link)
