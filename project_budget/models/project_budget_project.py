@@ -104,8 +104,8 @@ class Project(models.Model):
 
     def _compute_sums_from_amount_spec(self):
         for row in self:
-            print('row=',row)
-            print('row.revenue_from_the_sale_of_works_amount_spec_exist = ', row.revenue_from_the_sale_of_works_amount_spec_exist)
+            # print('row=',row)
+            # print('row.revenue_from_the_sale_of_works_amount_spec_exist = ', row.revenue_from_the_sale_of_works_amount_spec_exist)
             if row.revenue_from_the_sale_of_works_amount_spec_exist == True:
                 row.revenue_from_the_sale_of_works = self._get_sums_from_amount_spec_type(row, 'revenue_from_the_sale_of_works')
             if row.revenue_from_the_sale_of_goods_amount_spec_exist == True:
@@ -1771,7 +1771,7 @@ class Project(models.Model):
             # TODO не проверять проекты при добавлении их в качестве дочерних
                 # or self.env.context.get('form_view_projects'): ##из коммерческих бюджетов фиксация идет или  дублируем сделку из формы
                 f = 1
-                print('form_fix_budget or cancel_approve')
+                # print('form_fix_budget or cancel_approve')
             else:
                 if row.approve_state == 'need_approve_manager':
                     isok, raisetext,emptydict = row.check_overdue_date(vals)
