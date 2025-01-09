@@ -27,12 +27,12 @@ class report_projects_wizard(models.TransientModel):
         ('forecast_v2', 'Forecast_v2'),
         ('forecast_v3', 'Forecast_v3'),
         ('plan_fact', 'Plan-Fact'),
-        ('svod', 'Svod'),
+        # ('svod', 'Svod'),
         ('raw_data', 'Raw Data'),
-        ('overdue', 'Overdue'),
+        # ('overdue', 'Overdue'),
         ('management_committee', 'Management Committee'),
         ('pds_acceptance_by_date', 'PDS, Acceptance'),
-        ('pds_weekly', 'PDS weekly'),
+        # ('pds_weekly', 'PDS weekly'),
         ('pds_weekly_plan_fact', 'PDS weekly plan fact'),
         ('week_to_week', 'Week to Week'),
     ],
@@ -85,8 +85,8 @@ class report_projects_wizard(models.TransientModel):
         if self.type_report == 'kb_fin':
             return self.env.ref('project_budget.action_projects_list_report_xlsx_kb_fin').report_action(self, data=datas)
 
-        if self.type_report == 'forecast':
-            return self.env.ref('project_budget.action_projects_list_report_xlsx_forecast').report_action(self, data=datas)
+        # if self.type_report == 'forecast':
+        #     return self.env.ref('project_budget.action_projects_list_report_xlsx_forecast').report_action(self, data=datas)
 
         if self.type_report == 'forecast_v2':
             return self.env.ref('project_budget.action_projects_list_report_xlsx_forecast_v2').report_action(self, data=datas)
@@ -97,16 +97,16 @@ class report_projects_wizard(models.TransientModel):
         if self.type_report == 'plan_fact':
             return self.env.ref('project_budget.action_projects_list_report_xlsx_plan_fact').report_action(self, data=datas)
 
-        if self.type_report == 'svod':
-            return self.env.ref('project_budget.action_projects_list_report_xlsx_svod').report_action(self, data=datas)
+        # if self.type_report == 'svod':
+        #     return self.env.ref('project_budget.action_projects_list_report_xlsx_svod').report_action(self, data=datas)
 
         if self.type_report == 'raw_data':
             # self.env.ref('project_budget.action_projects_list_report_xlsx_svod').report_file = report_name
             return self.env.ref('project_budget.action_projects_list_report_xlsx_raw_data').report_action(self, data=datas)
 
-        if self.type_report == 'overdue':
-            # self.env.ref('project_budget.action_projects_list_report_xlsx_svod').report_file = report_name
-            return self.env.ref('project_budget.action_projects_list_report_xlsx_overdue').report_action(self, data=datas)
+        # if self.type_report == 'overdue':
+        #     # self.env.ref('project_budget.action_projects_list_report_xlsx_svod').report_file = report_name
+        #     return self.env.ref('project_budget.action_projects_list_report_xlsx_overdue').report_action(self, data=datas)
 
         if self.type_report == 'management_committee':
             c_ids = self.env['res.company'].browse(self.env.context.get('allowed_company_ids', []))
@@ -117,8 +117,8 @@ class report_projects_wizard(models.TransientModel):
         if self.type_report == 'pds_acceptance_by_date':
             return self.env.ref('project_budget.action_projects_list_report_xlsx_pds_acceptance_by_date').report_action(self, data=datas)
 
-        if self.type_report == 'pds_weekly':
-            return self.env.ref('project_budget.action_projects_list_report_xlsx_pds_weekly').report_action(self, data=datas)
+        # if self.type_report == 'pds_weekly':
+        #     return self.env.ref('project_budget.action_projects_list_report_xlsx_pds_weekly').report_action(self, data=datas)
 
         if self.type_report == 'pds_weekly_plan_fact':
             return self.env.ref('project_budget.action_projects_list_report_xlsx_pds_weekly_plan_fact').report_action(self, data=datas)
