@@ -483,7 +483,6 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                 if options['type'] == 'month' and date_utils.start_of(period[1], 'month') <= date_utils.start_of(actual_budget_date, 'month'):
                     budget_id = self.env['project_budget.commercial_budget'].search([
                         ('date_actual', '<=', period[0]),
-                        ('date_actual', '>=', period[0] - relativedelta(months=1)),
                     ], limit=1, order='date_actual desc').id
                     options['budget_id'] = budget_id
                     if budget_id:
@@ -494,7 +493,6 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                     previous_week_start, previous_week_end = self.get_dates_from_week(previous_week_number, previous_week_year)
                     budget_id = self.env['project_budget.commercial_budget'].search([
                         ('date_actual', '<=', previous_week_end),
-                        ('date_actual', '>=', previous_week_start),
                     ], limit=1, order='date_actual desc').id
                     options['budget_id'] = budget_id
                     if budget_id:
