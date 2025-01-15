@@ -2031,6 +2031,11 @@ msgid "PDS weekly plan fact"
 msgstr "ПДС план-прогноз"
 
 #. module: project_budget
+#: model:ir.model.fields.selection,name:project_budget.selection__project_budget_projects_report_wizard__type_report__pds_weekly_plan_fact_sa
+msgid "PDS weekly plan fact SA"
+msgstr "ПДС план-прогноз СА"
+
+#. module: project_budget
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_projects_report_wizard__type_report__pds_acceptance_by_date
 msgid "PDS, Acceptance"
 msgstr "Прогноз ПДС/валовая выручка"
@@ -3358,6 +3363,11 @@ msgstr "Перечень проектов"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects_report_wizard__commercial_budget_id
 msgid "commercial_budget-"
 msgstr "Коммерческий бюджет"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects_report_wizard__etalon_budget_id
+msgid "etalon budget"
+msgstr "Эталонный бюджет"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__contact_information

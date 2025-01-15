@@ -10,6 +10,7 @@ from collections import OrderedDict
 isdebug = False
 logger = logging.getLogger("*___forecast_report___*")
 
+
 class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
     _name = 'report.project_budget.report_pds_weekly_plan_fact_excel'
     _description = 'project_budget.report_pds_weekly_plan_fact_excel'
@@ -30,7 +31,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
         'Декабрь',
     ]
 
-    def get_currency_rate_by_project(self,project):
+    def get_currency_rate_by_project(self, project):
         project_currency_rates = self.env['project_budget.project_currency_rates']
         return project_currency_rates._get_currency_rate_for_project_in_company_currency(project)
 
@@ -40,7 +41,8 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
         max_level += 1
         new_ids = [center.id for center in self.env['account.analytic.account'].search([
             ('parent_id', 'in', ids),
-            ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+            ('plan_id', '=',
+             self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
         ])]
         return self.centers_with_parents(new_ids, max_level)
 
@@ -202,14 +204,16 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                     ]
                 }
                 col += 1
-                
+
                 actual_week = month_start
                 actual_week_number = actual_week.isocalendar()[1]
                 actual_week_year = actual_week.isocalendar()[0]
                 week_start = month_start
                 week_end = self.get_dates_from_week(actual_week_number, actual_week_year)[1]
-                while week_start < date_utils.start_of(actual_date + relativedelta(months=2), 'month').date():  # недели в течение двух месяцев
-                    if date_utils.start_of(week_start, 'month') >= date_utils.start_of(actual_date + relativedelta(months=1), 'month').date():
+                while week_start < date_utils.start_of(actual_date + relativedelta(months=2),
+                                                       'month').date():  # недели в течение двух месяцев
+                    if date_utils.start_of(week_start, 'month') >= date_utils.start_of(
+                            actual_date + relativedelta(months=1), 'month').date():
                         week_col_format = (10, None, {'hidden': 1, 'level': 1})
                     else:
                         week_col_format = (10, None)
@@ -381,7 +385,8 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                             col += 1
                     week_end = next_week_end
                     actual_week = next_week
-            elif date_utils.start_of(month_start, 'month') == date_utils.start_of(actual_date + relativedelta(months=1), 'month').date():  # пропускаем следующий за текущим месяц
+            elif date_utils.start_of(month_start, 'month') == date_utils.start_of(actual_date + relativedelta(months=1),
+                                                                                  'month').date():  # пропускаем следующий за текущим месяц
                 pass
             else:
                 if month_end < actual_date.date():  # в прошлом печатаем прогноз и факт, в будущем - только прогноз
@@ -480,19 +485,24 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
         actual_budget_date = date.today() if not budget.date_actual else budget.date_actual.date()
         for period, options in periods_dict.items():
             if 'sum' not in period:
-                if options['type'] == 'month' and date_utils.start_of(period[1], 'month') <= date_utils.start_of(actual_budget_date, 'month'):
+                if options['type'] == 'month' and date_utils.start_of(period[1], 'month') <= date_utils.start_of(
+                        actual_budget_date, 'month'):
                     budget_id = self.env['project_budget.commercial_budget'].search([
                         ('date_actual', '<=', period[0]),
+                        ('date_actual', '>=', period[0] - relativedelta(months=1)),
                     ], limit=1, order='date_actual desc').id
                     options['budget_id'] = budget_id
                     if budget_id:
                         budget_ids.add(budget_id)
-                elif options['type'] == 'week' and date_utils.start_of(period[1], 'week') <= date_utils.start_of(actual_budget_date, 'week'):
+                elif options['type'] == 'week' and date_utils.start_of(period[1], 'week') <= date_utils.start_of(
+                        actual_budget_date, 'week'):
                     previous_week_number = (period[0] - timedelta(weeks=1)).isocalendar()[1]
-                    previous_week_year= (period[0] - timedelta(weeks=1)).isocalendar()[0]
-                    previous_week_start, previous_week_end = self.get_dates_from_week(previous_week_number, previous_week_year)
+                    previous_week_year = (period[0] - timedelta(weeks=1)).isocalendar()[0]
+                    previous_week_start, previous_week_end = self.get_dates_from_week(previous_week_number,
+                                                                                      previous_week_year)
                     budget_id = self.env['project_budget.commercial_budget'].search([
                         ('date_actual', '<=', previous_week_end),
+                        ('date_actual', '>=', previous_week_start),
                     ], limit=1, order='date_actual desc').id
                     options['budget_id'] = budget_id
                     if budget_id:
@@ -520,7 +530,8 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                         project_data.setdefault(period, {'commitment': 0, 'fact': 0})
 
                         for pds_fact in pds_fact_list:
-                            if period[0] <= pds_fact.date_cash <= period[1] and project.commercial_budget_id.id == budget.id:
+                            if period[0] <= pds_fact.date_cash <= period[
+                                1] and project.commercial_budget_id.id == budget.id:
                                 pds_is_present = True
                                 project_data[period]['fact'] += pds_fact.sum_cash
 
@@ -535,27 +546,33 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                                     project_data[period]['commitment'] += pds_plan.distribution_sum_with_vat_ostatok
 
             if pds_is_present:
-                current_project = projects.filtered(lambda pr: pr.project_id == project_project_id and pr.commercial_budget_id.id == budget.id)
+                current_project = projects.filtered(
+                    lambda pr: pr.project_id == project_project_id and pr.commercial_budget_id.id == budget.id)
 
                 if not current_project:  # если в текущем бюджете проекта нет, ищем самый последний и берем info из него
                     for budget_id in sorted(budget_ids, reverse=True):
                         if budget_id != budget.id:
-                            current_project = projects.filtered(lambda pr: pr.project_id == project_project_id and pr.commercial_budget_id.id == budget_id)
+                            current_project = projects.filtered(lambda
+                                                                    pr: pr.project_id == project_project_id and pr.commercial_budget_id.id == budget_id)
                             if current_project:
                                 break
 
-                data.setdefault(current_project.company_id.name, {}).setdefault(current_project.responsibility_center_id.name, {}).setdefault(
+                data.setdefault(current_project.company_id.name, {}).setdefault(
+                    current_project.responsibility_center_id.name, {}).setdefault(
                     current_project.project_id, {})
 
                 project_step_id = ''
 
                 currency_rate = self.get_currency_rate_by_project(current_project)
                 if current_project.step_status == 'project':
-                    project_step_id = (current_project.step_project_number or '') + ' | ' + (current_project.project_id or '')
+                    project_step_id = (current_project.step_project_number or '') + ' | ' + (
+                                current_project.project_id or '')
                 elif current_project.step_status == 'step':
-                    project_step_id = (current_project.step_project_number or '') + ' | ' + current_project.step_project_parent_id.project_id + " | " + current_project.project_id
+                    project_step_id = (
+                                                  current_project.step_project_number or '') + ' | ' + current_project.step_project_parent_id.project_id + " | " + current_project.project_id
 
-                data[current_project.company_id.name][current_project.responsibility_center_id.name][current_project.project_id]['info'] = {
+                data[current_project.company_id.name][current_project.responsibility_center_id.name][
+                    current_project.project_id]['info'] = {
                     'key_account_manager_id': current_project.key_account_manager_id.name,
                     'partner_id': current_project.partner_id.name,
                     'essence_project': current_project.essence_project,
@@ -568,7 +585,8 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                     'vat_attribute_id': current_project.vat_attribute_id.name,
                 }
 
-                data[current_project.company_id.name][current_project.responsibility_center_id.name][current_project.project_id]['periods'] = project_data
+                data[current_project.company_id.name][current_project.responsibility_center_id.name][
+                    current_project.project_id]['periods'] = project_data
         return data
 
     def get_estimated_probability_name_forecast(self, name):
@@ -616,7 +634,8 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                     column += 1
             elif options['type'] == 'week':
                 for col in options['cols']:
-                    string = self.month_rus_name[period[0].month - 1] + ' ' + period[0].strftime("%d") + '-' + period[1].strftime("%d") + '\n' + col['print_head']
+                    string = self.month_rus_name[period[0].month - 1] + ' ' + period[0].strftime("%d") + '-' + period[
+                        1].strftime("%d") + '\n' + col['print_head']
                     sheet.set_column(column, column, *(col['col_format']))
                     sheet.merge_range(row + 1, column, row + 2, column, string, col['format_head'])
                     column += 1
@@ -642,7 +661,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
             else:
                 string = period
                 sheet.set_column(column, column, *(options['cols'][0]['col_format']))
-                sheet.merge_range(row + 1, column, row + 2, column, string,  options['cols'][0]['format_head'])
+                sheet.merge_range(row + 1, column, row + 2, column, string, options['cols'][0]['format_head'])
                 column += 1
         return column
 
@@ -671,11 +690,11 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                 for col in periods_dict[period]['cols']:
                     if 'sum_quarter' in period:
                         formula = 'sum({1}{0},{2}{0},{3}{0})'.format(
-                                row + 1,
-                                xl_col_to_name(11 + col['formula'][0]),
-                                xl_col_to_name(11 + col['formula'][1]),
-                                xl_col_to_name(11 + col['formula'][2]),
-                            )
+                            row + 1,
+                            xl_col_to_name(11 + col['formula'][0]),
+                            xl_col_to_name(11 + col['formula'][1]),
+                            xl_col_to_name(11 + col['formula'][2]),
+                        )
                         sheet.write_formula(row, column, formula, col['format'])
                         column += 1
                     elif 'sum_month' in period:
@@ -714,7 +733,8 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                         sheet.write_string(row, column, period, row_format_number)
                         column += 1
 
-    def print_row(self, sheet, workbook, companies, responsibility_centers, actual_center_ids, row, data, periods_dict, level, max_level, dict_formula):
+    def print_row(self, sheet, workbook, companies, responsibility_centers, actual_center_ids, row, data, periods_dict,
+                  level, max_level, dict_formula):
         row_format = workbook.add_format({
             'border': 1,
             'font_size': 8
@@ -785,7 +805,8 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                             column += 1
                             sheet.write_string(row, column, content['info']['probability'], cur_row_format)
                             column += 1
-                            sheet.write_number(row, column, content['info']['total_amount_of_revenue_with_vat'], cur_row_format_number)
+                            sheet.write_number(row, column, content['info']['total_amount_of_revenue_with_vat'],
+                                               cur_row_format_number)
                             column += 1
                             sheet.write_number(row, column, content['info']['margin_income'], cur_row_format_number)
                             column += 1
@@ -802,7 +823,8 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
 
                     child_centers = self.env['account.analytic.account'].search([
                         ('parent_id', '=', center.id),
-                        ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+                        ('plan_id', '=', self.env.ref(
+                            'analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
                     ], order='sequence')
 
                     if child_centers:
@@ -813,10 +835,12 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                             if child_center.id in actual_center_ids:
                                 project_lines.append(dict_formula['center_ids'][child_center.id])
 
-                    self.print_vertical_sum_formula(sheet, dict_formula['center_ids'][center.id], project_lines, periods_dict, 12, 'format_center')
+                    self.print_vertical_sum_formula(sheet, dict_formula['center_ids'][center.id], project_lines,
+                                                    periods_dict, 12, 'format_center')
 
                 if level == 1:
-                    self.print_vertical_sum_formula(sheet, dict_formula['company_ids'][company.id], center_lines, periods_dict, 12, 'format_company')
+                    self.print_vertical_sum_formula(sheet, dict_formula['company_ids'][company.id], center_lines,
+                                                    periods_dict, 12, 'format_company')
 
         return row, dict_formula
 
@@ -832,7 +856,8 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                 sheet.write_formula(row, col_counter, result_formula, col[format])
                 col_counter += 1
 
-    def printworksheet(self, workbook, budget, namesheet, responsibility_center_ids, max_level, multipliers, dict_formula):
+    def printworksheet(self, workbook, budget, namesheet, responsibility_center_ids, max_level, multipliers,
+                       dict_formula):
         report_name = budget.name
         sheet = workbook.add_worksheet(namesheet)
         sheet.set_zoom(85)
@@ -984,17 +1009,23 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
         periods_dict, budget_ids = self.calculate_budget_ids(budget, periods_dict)
 
         projects = self.env['project_budget.projects'].search([
-            '&','&',
+            '&', '&',
             ('commercial_budget_id', 'in', budget_ids),
             '|', '&', ('step_status', '=', 'step'),
             ('step_project_parent_id.project_have_steps', '=', True),
             '&', ('step_status', '=', 'project'),
             ('project_have_steps', '=', False),
-            '|','|','|',
-            ('id', 'in', [fact.projects_id.id for fact in self.env['project_budget.fact_cash_flow'].search([]) if fact.date_cash >= period_limits[0] and fact.date_cash <= period_limits[1]]),
-            ('id', 'in', [plan.projects_id.id for plan in self.env['project_budget.planned_cash_flow'].search([]) if plan.date_cash >= period_limits[0] and plan.date_cash <= period_limits[1]]),
-            ('id', 'in', [fact.step_project_child_id.id for fact in self.env['project_budget.fact_cash_flow'].search([]) if fact.date_cash >= period_limits[0] and fact.date_cash <= period_limits[1]]),
-            ('id', 'in', [plan.step_project_child_id.id for plan in self.env['project_budget.planned_cash_flow'].search([]) if plan.date_cash >= period_limits[0] and plan.date_cash <= period_limits[1]]),
+            '|', '|', '|',
+            ('id', 'in', [fact.projects_id.id for fact in self.env['project_budget.fact_cash_flow'].search([]) if
+                          fact.date_cash >= period_limits[0] and fact.date_cash <= period_limits[1]]),
+            ('id', 'in', [plan.projects_id.id for plan in self.env['project_budget.planned_cash_flow'].search([]) if
+                          plan.date_cash >= period_limits[0] and plan.date_cash <= period_limits[1]]),
+            ('id', 'in',
+             [fact.step_project_child_id.id for fact in self.env['project_budget.fact_cash_flow'].search([]) if
+              fact.date_cash >= period_limits[0] and fact.date_cash <= period_limits[1]]),
+            ('id', 'in',
+             [plan.step_project_child_id.id for plan in self.env['project_budget.planned_cash_flow'].search([]) if
+              plan.date_cash >= period_limits[0] and plan.date_cash <= period_limits[1]]),
         ], order='project_id')
 
         data = self.get_data_from_projects(projects, periods_dict, budget, budget_ids)
@@ -1005,7 +1036,8 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                 center = self.env['account.analytic.account'].search([
                     ('name', '=', center_name),
                     ('company_id.name', '=', company),
-                    ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+                    ('plan_id', '=',
+                     self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
                 ])
                 actual_center_ids_set.add(center.id)
                 while center.parent_id:
@@ -1021,26 +1053,31 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
 
         if responsibility_center_ids:
             responsibility_centers = self.env['account.analytic.account'].search([
-                ('id','in',responsibility_center_ids),
+                ('id', 'in', responsibility_center_ids),
                 ('parent_id', 'not in', responsibility_center_ids),
-                ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+                ('plan_id', '=',
+                 self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
             ], order='sequence')  # для сортировки так делаем + не берем дочерние оффисы, если выбраны их материнские
         else:
             responsibility_centers = self.env['account.analytic.account'].search([
                 ('parent_id', '=', False),
-                ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+                ('plan_id', '=',
+                 self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
             ], order='sequence')  # для сортировки так делаем + берем сначала только верхние элементы
 
-        row, dict_formula = self.print_row(sheet, workbook, companies, responsibility_centers, actual_center_ids, row, data, periods_dict, 1, max_level, dict_formula)
+        row, dict_formula = self.print_row(sheet, workbook, companies, responsibility_centers, actual_center_ids, row,
+                                           data, periods_dict, 1, max_level, dict_formula)
 
         if set(self.env['account.analytic.account'].search([
-            ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+            ('plan_id', '=',
+             self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
         ]).ids) == set(responsibility_center_ids):
             row += 1
 
             sheet.merge_range(row, 0, row, 11, 'ИТОГО по отчету', row_format_number_itogo)
 
-            self.print_vertical_sum_formula(sheet, row, dict_formula['company_ids'].values(), periods_dict, 12, 'format_company')
+            self.print_vertical_sum_formula(sheet, row, dict_formula['company_ids'].values(), periods_dict, 12,
+                                            'format_company')
 
     def generate_xlsx_report(self, workbook, data, budgets):
 
@@ -1051,12 +1088,14 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
         ids = [center.id for center in self.env['account.analytic.account'].search([
             ('parent_id', '=', False),
             ('id', 'in', responsibility_center_ids),
-            ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+            ('plan_id', '=',
+             self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
         ])]
         max_level = self.centers_with_parents(ids, 0)
 
         if set(self.env['account.analytic.account'].search([
-            ('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
+            ('plan_id', '=',
+             self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id),
         ]).ids) != set(responsibility_center_ids):
             max_level -= 1
 
