@@ -2652,10 +2652,16 @@ msgid "Raw Data"
 msgstr ""
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_overdue_report__reason
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_overdue_report__overdue
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_overdue_report_view_form
-msgid "Reason"
-msgstr "Причина"
+msgid "Overdue Reason"
+msgstr "Причина просрочки"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_overdue_report__overdue_in_7_days
+#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_overdue_report_view_form
+msgid "Overdue in 7 Days Reason"
+msgstr "Активности в ближайшие 7 дней"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_office__receive_tasks_for_approve_project

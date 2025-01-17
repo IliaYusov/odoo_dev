@@ -29,7 +29,8 @@
                 <field name="step_id"/>
                 <field name="customer_id" widget="many2one_avatar"/>
                 <field name="name"/>
-                <field name="reason"/>
+                <field name="overdue"/>
+                <field name="overdue_in_7_days"/>
                 <field name="company_id" groups="base.group_multi_company"/>
             </tree>
         </field>
@@ -54,8 +55,10 @@
                                    }"/>
                         </group>
                     </group>
-                    <separator string="Reason" style="background-color:#FF6971;"/>
-                    <field name="reason"/>
+                    <separator string="Overdue Reason" style="background-color:#FF6971;"/>
+                    <field name="overdue"/>
+                    <separator string="Overdue in 7 Days Reason" style="background-color:#FFE5B4;"/>
+                    <field name="overdue_in_7_days"/>
                     <group>
                         <field name="company_id" groups="base.group_multi_company"/>
                     </group>

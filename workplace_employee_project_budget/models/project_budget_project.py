@@ -21,12 +21,26 @@ class Project(models.Model):
                 'name': project.name,
                 'customer': project.customer_id.name,
                 'key_account_manager': project.key_account_manager_id.name,
-                'reason': project.reason
-            } for project in self.env['project.budget.project.overdue.report'].search([], limit=3)
+                'overdue': project.overdue,
+            } for project in self.env['project.budget.project.overdue.report'].search([('overdue', '!=', False)], limit=3)
+        ]
+
+        overdue_in_7_day_projects = [
+            {
+                'id': project.id,
+                'project_id': project.project_id.id,
+                'step_id': project.step_id.id,
+                'step_name': project.step_id.essence_project,
+                'name': project.name,
+                'customer': project.customer_id.name,
+                'key_account_manager': project.key_account_manager_id.name,
+                'overdue': project.overdue_in_7_days
+            } for project in self.env['project.budget.project.overdue.report'].search([('overdue_in_7_days', '!=', False)], limit=3)
         ]
 
         result = {
             'overdue_projects': overdue_projects,
+            'overdue_in_7_days_projects': overdue_in_7_day_projects,
         }
 
         return result

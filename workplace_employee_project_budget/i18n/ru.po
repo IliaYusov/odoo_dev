@@ -54,6 +54,14 @@ msgstr "Сделки с просроченными датами"
 
 #. module: workplace_employee_project_budget
 #. odoo-javascript
+#: code:addons/workplace_employee_project_budget/static/src/components/workplace_employee_project_budget_dashboard/workplace_employee_project_budget_dashboard.js:0
+#: code:addons/workplace_employee_project_budget/static/src/components/workplace_employee_project_budget_dashboard/workplace_employee_project_budget_dashboard.xml:0
+#, python-format
+msgid "Overdue in 7 Days Projects"
+msgstr "Сделки с активностями в ближайшие 7 дней"
+
+#. module: workplace_employee_project_budget
+#. odoo-javascript
 #: code:addons/workplace_employee_project_budget/static/src/components/workplace_employee_project_budget_dashboard/workplace_employee_project_budget_dashboard.xml:0
 #, python-format
 msgid "Project"
@@ -70,8 +78,15 @@ msgstr "Сделки"
 #. odoo-javascript
 #: code:addons/workplace_employee_project_budget/static/src/components/workplace_employee_project_budget_dashboard/workplace_employee_project_budget_dashboard.xml:0
 #, python-format
-msgid "Reason"
-msgstr "Причина"
+msgid "Overdue Reason"
+msgstr "Причина просрочки"
+
+#. module: workplace_employee_project_budget
+#. odoo-javascript
+#: code:addons/workplace_employee_project_budget/static/src/components/workplace_employee_project_budget_dashboard/workplace_employee_project_budget_dashboard.xml:0
+#, python-format
+msgid "Overdue in 7 Days Reason"
+msgstr "Активности в ближайшие 7 дней"
 
 #. module: workplace_employee_project_budget
 #. odoo-javascript

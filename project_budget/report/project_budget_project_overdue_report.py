@@ -21,7 +21,8 @@ class ProjectOverdueReport(models.Model):
     step_id = fields.Many2one('project_budget.projects', string='Step', readonly=True)
     customer_id = fields.Many2one('res.partner', string='Customer', readonly=True)
     name = fields.Text(string='Name', readonly=True)
-    reason = fields.Char(string='Reason', readonly=True)
+    overdue = fields.Char(string='Overdue Reason', readonly=True)
+    overdue_in_7_days = fields.Char(string='Overdue in 7 Days Reason', readonly=True)
 
     def init(self):
         query = """
@@ -38,7 +39,8 @@ SELECT
     step_id,
     partner_id AS customer_id,
     name,
-    STRING_AGG(reason, ', ') AS reason
+    STRING_AGG(overdue, ', ') AS overdue,
+    STRING_AGG(overdue_in_7_days, ', ') AS overdue_in_7_days
 FROM
 (
     SELECT
@@ -56,13 +58,17 @@ FROM
         CASE
             WHEN end_presale_project_month < CURRENT_DATE THEN 'Дата контрактования'
             WHEN end_sale_project_month < CURRENT_DATE THEN 'Дата последней отгрузки'
-        END AS reason
+        END AS overdue,
+        CASE
+            WHEN end_presale_project_month >= CURRENT_DATE AND end_presale_project_month < CURRENT_DATE + INTERVAL '7' DAY THEN 'Дата контрактования'
+            WHEN end_sale_project_month >= CURRENT_DATE AND end_sale_project_month < CURRENT_DATE + INTERVAL '7' DAY THEN 'Дата последней отгрузки'
+        END AS overdue_in_7_days
     FROM project_budget_projects p
     INNER JOIN project_budget_project_stage st ON st.id = p.stage_id AND COALESCE(st.fold, false) = false
     AND st.code <> '100'
     INNER JOIN account_analytic_account po ON po.id = p.responsibility_center_id
     WHERE p.budget_state = 'work' AND p.active = true AND step_status = 'project'
-    AND (p.end_presale_project_month < CURRENT_DATE OR p.end_sale_project_month < CURRENT_DATE)
+    AND (p.end_presale_project_month < CURRENT_DATE + INTERVAL '7' DAY OR p.end_sale_project_month < CURRENT_DATE + INTERVAL '7' DAY)
     UNION
     SELECT
         p.company_id,
@@ -79,14 +85,18 @@ FROM
         CASE
             WHEN ps.end_presale_project_month < CURRENT_DATE THEN 'Дата контрактования'
             WHEN ps.end_sale_project_month < CURRENT_DATE THEN 'Дата последней отгрузки'
-        END AS reason
+        END AS overdue,
+        CASE
+            WHEN ps.end_presale_project_month >= CURRENT_DATE AND ps.end_presale_project_month < CURRENT_DATE + INTERVAL '7' DAY THEN 'Дата контрактования'
+            WHEN ps.end_sale_project_month >= CURRENT_DATE AND ps.end_sale_project_month < CURRENT_DATE + INTERVAL '7' DAY THEN 'Дата последней отгрузки'
+        END AS overdue_in_7_days
     FROM project_budget_projects ps
     INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id AND p.budget_state = 'work' AND p.active = true
     AND p.end_presale_project_month > CURRENT_DATE AND p.end_sale_project_month > CURRENT_DATE
     AND p.project_have_steps = true
     INNER JOIN project_budget_project_stage st ON st.id = ps.stage_id AND COALESCE(st.fold, false) = false
     AND st.code <> '100'
-    WHERE ps.end_presale_project_month < CURRENT_DATE OR ps.end_sale_project_month < CURRENT_DATE
+    WHERE ps.end_presale_project_month < CURRENT_DATE + INTERVAL '7' DAY OR ps.end_sale_project_month < CURRENT_DATE + INTERVAL '7' DAY
     UNION
     SELECT
         p.company_id,
@@ -100,7 +110,12 @@ FROM
         pa.step_project_child_id AS step_id,
         p.partner_id,
         p.essence_project AS name,
-        'Плановое актирование' AS reason
+        CASE
+            WHEN pa.date_cash < CURRENT_DATE THEN 'Плановое актирование'
+        END AS overdue,
+        CASE
+            WHEN pa.date_cash >= CURRENT_DATE AND pa.date_cash < CURRENT_DATE + INTERVAL '7' DAY THEN 'Плановое актирование'
+        END AS overdue_in_7_days
     FROM project_budget_planned_acceptance_flow pa
     INNER JOIN project_budget_projects p ON p.id = pa.projects_id AND p.budget_state = 'work' AND p.active = true
     INNER JOIN project_budget_project_stage st ON st.id = p.stage_id AND COALESCE(st.fold, false) = false
@@ -111,7 +126,7 @@ FROM
         FROM project_budget_distribution_acceptance
         GROUP BY planned_acceptance_flow_id
     ) da ON da.planned_acceptance_flow_id = pa.id
-    WHERE pa.date_cash < CURRENT_DATE
+    WHERE pa.date_cash < CURRENT_DATE + INTERVAL '7' DAY
     AND ROUND(pa.sum_cash_without_vat, c.decimal_places) - ROUND(COALESCE(da.sum_distr_cash, 0), c.decimal_places) > 0
     UNION
     SELECT
@@ -126,7 +141,12 @@ FROM
         pc.step_project_child_id AS step_id,
         p.partner_id,
         p.essence_project AS name,
-        'ПДС' AS reason		
+        CASE
+            WHEN pc.date_cash < CURRENT_DATE THEN 'ПДС'
+        END AS overdue,
+        CASE
+            WHEN pc.date_cash >= CURRENT_DATE AND pc.date_cash < CURRENT_DATE + INTERVAL '7' DAY THEN 'ПДС'
+        END AS overdue_in_7_days
     FROM project_budget_planned_cash_flow pc
     INNER JOIN project_budget_projects p ON p.id = pc.projects_id AND p.budget_state = 'work' AND p.active = true
     INNER JOIN project_budget_project_stage st ON st.id = p.stage_id AND COALESCE(st.fold, false) = false
@@ -137,7 +157,7 @@ FROM
         FROM project_budget_distribution_cash
         GROUP BY planned_cash_flow_id
     ) dc ON dc.planned_cash_flow_id = pc.id
-    WHERE pc.date_cash < CURRENT_DATE
+    WHERE pc.date_cash < CURRENT_DATE + INTERVAL '7' DAY
     AND ROUND(pc.sum_cash, c.decimal_places) - ROUND(COALESCE(dc.sum_distr_cash, 0), c.decimal_places) > 0
 ) p
 GROUP BY
