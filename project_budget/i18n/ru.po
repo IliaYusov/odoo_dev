@@ -2297,7 +2297,7 @@ msgstr "Участник проекта"
 
 #. module: project_budget
 #: model:ir.model,name:project_budget.model_project_budget_project_office
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_overdue_report__project_office_id
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_project_overdue_report__responsibility_center_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__project_office_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__project_office_id
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_office_view_from

@@ -43,6 +43,9 @@
             <form>
                 <sheet string="Overdue Project">
                     <group>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                    </group>
+                    <group>
                         <field name="responsibility_center_id"/>
                     </group>
                     <group>
@@ -55,13 +58,14 @@
                                    }"/>
                         </group>
                     </group>
-                    <separator string="Overdue Reason" style="background-color:#FF6971;"/>
-                    <field name="overdue"/>
-                    <separator string="Overdue in 7 Days Reason" style="background-color:#FFE5B4;"/>
-                    <field name="overdue_in_7_days"/>
-                    <group>
-                        <field name="company_id" groups="base.group_multi_company"/>
-                    </group>
+                    <div>
+                        <separator string="Overdue in 7 Days Reason" style="background-color:#FFE5B4;"/>
+                        <field name="overdue_in_7_days"/>
+                    </div>
+                    <div>
+                        <separator string="Overdue Reason" style="background-color:#FF6971;"/>
+                        <field name="overdue"/>
+                    </div>
                 </sheet>
             </form>
         </field>
