@@ -68,7 +68,7 @@
                                 </tbody>
                             </table>
                             <a href="#" class="link-underline-primary float-end"
-                               t-on-click="() => this.openOverdueProjectReport()">
+                               t-on-click="() => this.openOverdueProjectReport('overdue')">
                                 View More
                             </a>
                         </div>
@@ -111,7 +111,7 @@
                                 </tbody>
                             </table>
                             <a href="#" class="link-underline-primary float-end"
-                               t-on-click="() => this.openOverdueIn7DaysProjectReport()">
+                               t-on-click="() => this.openOverdueProjectReport('overdue_in_7_days')">
                                 View More
                             </a>
                         </div>
