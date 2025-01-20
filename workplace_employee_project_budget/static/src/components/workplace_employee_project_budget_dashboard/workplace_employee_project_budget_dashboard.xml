@@ -5,6 +5,7 @@
         <xpath expr="//div[hasclass('wp-dashboard-container')]" position="inside">
             <t t-set="is_project_budget_user" t-value="is_project_budget_user"/>
             <t t-set="overdue_count" t-value="state.projectInfo['overdue_projects'].length"/>
+            <t t-set="overdue_in_7_days_count" t-value="state.projectInfo['overdue_in_7_days_projects'].length"/>
             <div t-if="is_project_budget_user" class="card mt-1 text-bg-light">
                 <nav class="navbar nav_projects navbar-expand-lg navbar-light bg-light">
                     <div class="container-fluid justify-content-between">
@@ -12,14 +13,14 @@
                             <a class="navbar-brand" href="#">Projects</a>
                         </div>
                         <ul class="navbar-nav flex-row d-none d-md-flex">
-                            <li class="nav-item active" href="#overdue">
-                                <a class="nav-link" href="#overdue">
-                                    Overdue Projects
+                            <li class="nav-item active">
+                                <a class="nav-link" href="#" t-on-click="() => this.changeOverdue('overdue_in_7_days')">
+                                    Overdue in 7 Days Projects
                                 </a>
                             </li>
-                            <li class="nav-item active" href="#overdue_in_7_days">
-                                <a class="nav-link" href="#overdue_in_7_days">
-                                    Overdue in 7 Days Projects
+                            <li class="nav-item active">
+                                <a class="nav-link" href="#" t-on-click="() => this.changeOverdue('overdue')">
+                                    Overdue Projects
                                 </a>
                             </li>
                         </ul>
@@ -33,7 +34,7 @@
                         </div>
                     </div>
                 </nav>
-                <div class="card-body">
+                <div t-if="state.show_overdue == 'overdue'" class="card-body">
                     <div class="tab-pane active" id="overdue">
                         <div t-if="overdue_count > 0">
                             <table class="table table-bordered border-dark table-hover table-sm"
@@ -76,9 +77,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="card-body">
+                <div t-if="state.show_overdue == 'overdue_in_7_days'" class="card-body">
                     <div class="tab-pane active" id="overdue_in_7_days">
-                        <div t-if="overdue_count > 0">
+                        <div t-if="overdue_in_7_days_count > 0">
                             <table class="table table-bordered border-dark table-hover table-sm"
                                    style="table-layout: fixed;">
                                 <thead>
@@ -110,7 +111,7 @@
                                 </tbody>
                             </table>
                             <a href="#" class="link-underline-primary float-end"
-                               t-on-click="() => this.openOverdueProjectReport()">
+                               t-on-click="() => this.openOverdueIn7DaysProjectReport()">
                                 View More
                             </a>
                         </div>

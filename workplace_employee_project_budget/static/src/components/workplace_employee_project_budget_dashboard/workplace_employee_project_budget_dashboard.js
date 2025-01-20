@@ -13,6 +13,12 @@ patch(WorkplaceEmployeeDashboard.prototype, "workplace_employee_project_budget.W
     setup() {
         this._super(...arguments);
         this.state.projectInfo = null;
+        if (this.session.user_context.show_overdue != null) {
+            this.state.show_overdue = this.session.user_context.show_overdue
+        } else {
+            this.state.show_overdue = 'overdue';
+            this.session.user_context.show_overdue = 'overdue';
+        };
     },
 
     async _fetchData() {
@@ -35,6 +41,23 @@ patch(WorkplaceEmployeeDashboard.prototype, "workplace_employee_project_budget.W
     },
 
     openOverdueProjectReport() {
+        this.session.user_context.show_overdue = 'overdue'
+        this.action.doAction({
+            name: _t("Overdue Projects"),
+            type: "ir.actions.act_window",
+            res_model: "project.budget.project.overdue.report",
+            view_mode: "tree,form,graph",
+            views: [[false, "tree"], [false, "form"], [false, "graph"]],
+            context: {
+                ...session.context,
+            },
+            domain: [['overdue', '!=', '']],
+            target: "current"
+        });
+    },
+
+    openOverdueIn7DaysProjectReport() {
+        this.session.user_context.show_overdue = 'overdue_in_7_days'
         this.action.doAction({
             name: _t("Overdue Projects"),
             type: "ir.actions.act_window",
@@ -44,6 +67,7 @@ patch(WorkplaceEmployeeDashboard.prototype, "workplace_employee_project_budget.W
             context: {
                 ...session.context
             },
+            domain: [['overdue_in_7_days', '!=', '']],
             target: "current"
         });
     },
@@ -113,5 +137,10 @@ patch(WorkplaceEmployeeDashboard.prototype, "workplace_employee_project_budget.W
                 target: "current"
             })
         });
+    },
+
+    changeOverdue(overdue_type) {
+        this.state.show_overdue = overdue_type
+        this.session.user_context.show_overdue = overdue_type
     }
 })
