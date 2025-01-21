@@ -1736,7 +1736,7 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
         not_factoring_rows = []
         for i in financial_indicators:
             factoring_is_present = False
-            if not i.forecast_probability_id and i.commercial_budget_id.id == budget.id and i.prj_id.signer_id.id != i.company_id.partner_id.id:
+            if not i.forecast_probability_id and i.commercial_budget_id.id == budget.id and i.prj_id.signer_id.id == i.company_id.partner_id.id:
                 sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
                 sheet.write(row, col, i.key_account_manager_id.name, border_format)
                 sheet.write(row, col + 1, i.customer_id.name, border_format)
@@ -1838,7 +1838,7 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
                         'customer_id': i.customer_id.name,
                         'plan_date': i.date,
                         'fact_date': changes[i.prj_id.project_id]['fact_date'],
-                        'amount': changes[i.prj_id.project_id]['amount'] - i.amount
+                        'amount': changes[i.prj_id.project_id]['amount'] - max(i.amount - i.distribution, 0)
                     }
                 elif not i.forecast_probability_id and i.commercial_budget_id.id == budget.id:
                     changes.setdefault(i.prj_id.project_id, {'key_account_manager': '', 'customer_id': '', 'plan_date': '', 'fact_date': '', 'amount': 0})
@@ -2373,7 +2373,7 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
         )
         month_financial_indicators = self.env['project.budget.financial.indicator'].search([
             ('responsibility_center_id.id', 'not in', centers_to_exclude.ids),
-            ('commercial_budget_id', 'in', (previous_month_budget.id, budget.id, previous_week_budget.id, etalon_budget.id)),
+            ('commercial_budget_id', 'in', (previous_month_budget.id, budget.id, previous_week_budget.id)),
             ('type', '=', 'cash_flow'),
             ('date', '>=', current_month_start),
             ('date', '<=', current_month_end),
@@ -2400,7 +2400,7 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
         quarter_end = date_utils.end_of(actual_date + timedelta(weeks=1), 'quarter')
         financial_indicators = self.env['project.budget.financial.indicator'].search([
             ('responsibility_center_id.id', 'not in', centers_to_exclude.ids),
-            ('commercial_budget_id', 'in', (previous_week_budget.id, budget.id)),
+            ('commercial_budget_id', 'in', (previous_week_budget.id, budget.id, etalon_budget.id)),
             ('type', '=', 'cash_flow'),
             ('date', '>=', quarter_start),
             ('date', '<=', quarter_end),
@@ -2485,7 +2485,7 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
 
         start_column = 6
 
-        company = self.env['res.company'].search([('name', '=', 'Систематика')])
+        company = self.env['res.company'].search([('name', '=', 'НКК')])
 
         centers_to_exclude = self.env['account.analytic.account'].search([
             ('name', 'in', ('ПО_Облако.ру', 'ПО_Облако.ру (облачный сервис)', 'ПО_Облако.ру (интеграторский сервис)',
