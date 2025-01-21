@@ -1009,7 +1009,8 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
         periods_dict, budget_ids = self.calculate_budget_ids(budget, periods_dict)
 
         projects = self.env['project_budget.projects'].search([
-            '&', '&',
+            '&','&','&',
+            ('stage_id.project_state', '!=', 'cancel'),
             ('commercial_budget_id', 'in', budget_ids),
             '|', '&', ('step_status', '=', 'step'),
             ('step_project_parent_id.project_have_steps', '=', True),
@@ -1102,6 +1103,5 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
         multipliers = {'50': data['koeff_reserve'], '30': data['koeff_potential']}
 
         commercial_budget_id = data['commercial_budget_id']
-        print('commercial_budget_id', commercial_budget_id)
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
         self.printworksheet(workbook, budget, 'ПДС', responsibility_center_ids, max_level, multipliers, dict_formula)

@@ -2851,7 +2851,10 @@ class report_budget_forecast_excel(models.AbstractModel):
             sheet.merge_range(row, column, row, column + 3, 'ИТОГО ВГО', row_format_number_vgo)
             sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
 
-            formula_vgo = '=sum(' + ','.join('{0}' + str(r) for r in dict_formula['vgo_lines'][dict_formula['systematica_id']]) + ')'
+            if dict_formula['vgo_lines'].get(dict_formula['systematica_id']):
+                formula_vgo = '=sum(' + ','.join('{0}' + str(r) for r in dict_formula['vgo_lines'][dict_formula['systematica_id']]) + ')'
+            else:
+                formula_vgo = 'sum(0)'
 
             for colFormula in range(2, start_column):
                 sheet.write_string(row, colFormula, '', row_format_number_vgo)
