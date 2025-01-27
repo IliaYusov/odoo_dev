@@ -277,7 +277,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                             ],
                         }
                         col += 2
-                        if date_utils.start_of(week_start, 'week') > date_utils.start_of(actual_date, 'week').date():
+                        if date_utils.start_of(week_start, 'week') >= date_utils.start_of(actual_date, 'week').date():
                             week_cols.append(col - 1)
                         else:
                             week_cols.append(col)
