@@ -1,6 +1,6 @@
 {
     'name': 'Project Budget NKK',
-    'version': '1.0.2',
+    'version': '1.0.3',
     'category': 'Project',
     'depends': ['project_budget', 'base_automation'],
     'description': """
