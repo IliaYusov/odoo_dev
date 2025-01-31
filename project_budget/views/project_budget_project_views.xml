@@ -21,9 +21,6 @@
                 <field name="company_partner_id" filter_domain="[('company_partner_id.name', 'ilike', self)]"
                        string="Company Partner"/>
                 <field name="industry_id" filter_domain="[('industry_id.name', 'ilike', self)]" string="industry"/>
-                <field name="technological_direction_id"
-                       filter_domain="[('technological_direction_id.name', 'ilike', self)]"
-                       string="technological_direction"/>
                 <field name="comments" filter_domain="[('comments.name', 'ilike', self)]" string="comments"/>
                 <separator/>
                 <filter name="in_the_pipe" string="In The Pipe" domain="[('stage_id.fold', '=', False)]"/>
@@ -90,8 +87,6 @@
                 <field name="date_actual" optional="hide"/>
                 <field name="step_project_number" optional="show"/>
                 <field name="project_have_steps" optional="show"/>
-                <field name="is_parent_project" optional="hide"/>
-                <field name="is_child_project" optional="hide"/>
                 <field name="etalon_budget" optional="hide"/>
                 <field name="budget_state" optional="hide"/>
                 <field name="commercial_budget_id" optional="hide"/>
@@ -120,7 +115,6 @@
                 <field name="signer_id" optional="hide"/>
                 <field name="project_type_id" optional="hide"/>
                 <field name="comments" optional="hide"/>
-                <field name="technological_direction_id" optional="hide"/>
             </tree>
         </field>
     </record>
@@ -141,8 +135,6 @@
                 <field name="can_edit" invisible="1"/>
                 <field name="was_changes" invisible="1"/>
                 <field name="currency_id" invisible="1"/>
-                <field name="margin_rate_for_parent" widget="percentage"
-                       attrs="{'readonly': [('can_edit', '=', False)]}"/>
                 <field name="company_id" invisible="True"/>
                 <field name="company_id" groups="base.group_multi_company"
                        options="{'no_create': True}" readonly="1"/>
@@ -186,7 +178,6 @@
                        readonly="1"/>
                 <field name="project_type_id" optional="hide" readonly="1" options="{'no_open': True}"/>
                 <field name="comments" optional="hide" readonly="1"/>
-                <field name="technological_direction_id" optional="hide" readonly="1" options="{'no_open': True}"/>
             </tree>
         </field>
     </record>
@@ -204,7 +195,6 @@
                     <field name="different_project_offices_in_steps" invisible="1"/>
                     <field name="project_curator_id" invisible="1"/>
                     <field name="industry_id" invisible="1"/>
-                    <field name="technological_direction_id" invisible="1"/>
                     <field name="partner_id" invisible="1"/>
                     <field name="step_status" invisible="1"/>
                     <field name="company_id" invisible="1"/>
@@ -562,7 +552,7 @@
                         <button string="Reopen" type="object" name="reopen_curator" class="oe_highlight" groups="project_budget.project_budget_admin" attrs="{'invisible': ['|',('approve_state', '!=', '-'),('budget_state', '=', 'fixed')]}"/>
                         <field name="approve_state" widget="statusbar" statusbar_visible="need_approve_manager, need_approve_supervisor, approved"/>
                     </header>
-                    <sheet string="Project">
+                    <sheet name="project" string="Project">
 						<div class="oe_button_box" name="button_box">
                             <button class="oe_stat_button" type="object" name="action_open_attachments"
                                     icon="fa-files-o">
@@ -594,7 +584,6 @@
                         <field name="responsibility_center_id_domain" invisible="1"/>
                         <field name="company_id" groups="base.group_multi_company" options="{'no_create_edit': True}"/>
                         <field name="budget_state" invisible="1"/>
-                        <field name="parent_project_id" invisible='1'/>
                         <field name="can_edit" invisible='1'/>
                         <field name="active" invisible="1"/>
                         <field name="is_correction_project" invisible="1"/>
@@ -613,21 +602,10 @@
                                        options="{'always_reload': True, 'no_create_edit': True, 'no_open': True}"
                                        attrs="{'readonly': [('can_edit', '=', False)]}"/>
                             </group>
-                            <group>
+                            <group name="project_have_steps">
                                 <field name="project_have_steps" widget="boolean_toggle"
-                                       attrs="{'readonly': ['|', ('is_parent_project', '=', True), ('can_edit', '=', False)]}"
+                                       attrs="{'readonly': [('can_edit', '=', False)]}"
                                        options="{'autosave': False}"/>
-                            </group>
-                            <group>
-                                <field name="is_parent_project" widget="boolean_toggle"
-                                       attrs="
-                                       {
-                                            'readonly': ['|', '|', ('project_have_steps', '=', True), ('parent_project_id', '!=', False), ('can_edit', '=', False)],
-                                            'invisible': [('is_child_project', '=', True)]
-                                       }"
-                                       options="{'autosave': False}"/>
-                                <field name="is_child_project" decoration-bf="1" readonly="1"
-                                       attrs="{'invisible': [('is_child_project', '!=', True)]}"/>
                             </group>
 <!--                            <group>-->
 <!--                                <field name="is_framework" widget="boolean_toggle"-->
@@ -665,10 +643,6 @@
                                 <field name="margin_income" class="h5"
                                        decoration-success="margin_income &gt; 0"
                                        decoration-danger="margin_income &lt; 0"/>
-                                <field name="margin_for_parent_project"
-                                       attrs="{'invisible': [('is_child_project', '!=', True)]}"/>
-                                <field name="total_margin_of_child_projects"
-                                       attrs="{'invisible': [('is_parent_project', '!=', True)]}"/>
                             </group>
                         </group>
                         <group col="4">
@@ -692,14 +666,14 @@
                                        attrs="
                                        {
                                             'readonly': [('can_edit', '=', False)],
-                                            'invisible': ['|', ('project_have_steps', '=', True), ('is_parent_project', '=', True)],
-                                            'required': ['&amp;', ('is_parent_project', '=', False), ('project_have_steps', '=', False)]
+                                            'invisible': [('project_have_steps', '=', True)],
+                                            'required': [('project_have_steps', '=', False)]
                                        }"/>
                             </group>
                         </group>
 
                         <notebook>
-                            <page string="General">
+                            <page name="general" string="General">
                                 <group col="1">
                                     <field name="commercial_budget_id" required="1" invisible="1"
                                           options="{'no_open': True}" attrs="{'readonly': [('can_edit', '=', False)]}"/>
@@ -739,9 +713,6 @@
                                             <field name="project_curator_id" widget="many2one_avatar"
                                                    placeholder="Project Supervisor"
                                                    options="{'no_create_edit': True, 'no_open': True, 'relation': 'hr.employee.public'}"
-                                                   attrs="{'readonly': [('can_edit', '=', False)]}"/>
-                                            <field name="technological_direction_id" options="{'no_open': True}"
-                                                   placeholder="Technological Direction"
                                                    attrs="{'readonly': [('can_edit', '=', False)]}"/>
                                         </group>
                                     </group>
@@ -792,22 +763,18 @@
                                 <field name="warranty_service_costs_amount_spec_exist" invisible="1"/>
                                 <field name="other_expenses_amount_spec_exist" invisible="1"/>
                                 <h4>
-                                    <group col="1" attrs="{'invisible': [('is_parent_project', '=', True)]}">
+                                    <group col="1">
                                         <group string="Revenue">
                                         </group>
                                     </group>
-                                    <group col="1" attrs="{'invisible': [('is_parent_project', '=', False)]}">
-                                        <group string="Direct revenue is not provided in the parent project">
-                                        </group>
-                                    </group>
                                 </h4>
-                                <group col="6" attrs="{'invisible': [('is_parent_project', '=', True)]}">
+                                <group col="6">
                                     <group colspan="2">
                                         <field name="revenue_from_the_sale_of_works" widget="monetary" class='oe_right' style="text-align:right"
                                                attrs="
                                                {
                                                     'invisible': [('is_revenue_from_the_sale_of_works', '=', False), ('project_have_steps', '=', False)],
-                                                    'readonly': ['|', '|', '|', ('is_parent_project','=',True), ('project_have_steps','=',True), ('can_edit', '=', False), ('revenue_from_the_sale_of_works_amount_spec_exist', '=', True)]
+                                                    'readonly': ['|', '|', ('project_have_steps','=',True), ('can_edit', '=', False), ('revenue_from_the_sale_of_works_amount_spec_exist', '=', True)]
                                                }"/>
                                     </group>
                                     <group col="1" colspan="1">
@@ -824,7 +791,7 @@
                                                attrs="
                                                {
                                                     'invisible': [('is_revenue_from_the_sale_of_goods', '=', False),('project_have_steps', '=', False)],
-                                                    'readonly': ['|', '|', '|', ('is_parent_project','=',True), ('project_have_steps','=',True), ('can_edit', '=', False), ('revenue_from_the_sale_of_goods_amount_spec_exist', '=', True)]
+                                                    'readonly': ['|', '|', ('project_have_steps','=',True), ('can_edit', '=', False), ('revenue_from_the_sale_of_goods_amount_spec_exist', '=', True)]
                                                }"/>
                                     </group>
                                     <group col="1" colspan="1">
@@ -1017,7 +984,7 @@
                                        mode="tree" attrs="{'readonly': [('can_edit', '=', False)]}">
                                 </field>
                             </page>
-                            <page string="step-projects" attrs="{'invisible': [('project_have_steps', '=', False)]}">
+                            <page name="step_projects" string="step-projects" attrs="{'invisible': [('project_have_steps', '=', False)]}">
                                 <field name="step_project_child_ids" mode="tree" widget="section_and_note_one2many"
                                    context="{
                                    'form_view_ref': 'project_budget.project_budget_step_project_view_form',
@@ -1030,7 +997,6 @@
                                    'default_project_manager_id': project_manager_id,
                                    'default_industry_id': industry_id,
                                    'default_signer_id': signer_id,
-                                   'default_technological_direction_id': technological_direction_id,
                                    'default_partner_id': partner_id,
                                    'default_project_office_id': project_office_id,
                                    'default_is_correction_project': is_correction_project,
@@ -1059,18 +1025,7 @@
                                     </tree>
                                 </field>
                             </page>
-                            <page string="child projects" attrs="{'invisible': [('is_parent_project', '=', False)]}">
-                                <field name="child_project_ids" mode="tree" widget="many2many"
-                                       context="{'tree_view_ref': 'project_budget.project_budget_project_child_view_tree'}"
-                                       groups="project_budget.project_budget_admin"
-                                       attrs="{'readonly': [('can_edit', '=', False)]}"
-                                       domain="['&amp;','&amp;', '&amp;', ('is_parent_project', '=', False), ('parent_project_id', '=', False), ('budget_state', '!=', 'fixed'), ('step_status', '=', 'project')]"/>
-                                <field name="child_project_ids" mode="tree" widget="many2many" readonly="1"
-                                       context="{'tree_view_ref': 'project_budget.project_budget_project_child_view_tree'}"
-                                       groups="!project_budget.project_budget_admin"
-                                       domain="['&amp;','&amp;', '&amp;', ('is_parent_project', '=', False), ('parent_project_id', '=', False), ('budget_state', '!=', 'fixed'), ('step_status', '=', 'project')]"/>
-                            </page>
-                            <page string="Forecast" attrs="{'invisible': [('is_parent_project', '=', True)]}"
+                            <page string="Forecast"
                                   groups="project_budget.project_budget_users,project_budget.project_budget_admin">
                                 <h4>
                                     <group col="6">
@@ -1103,7 +1058,7 @@
                                 <field name="planned_cash_flow_ids" widget="section_and_note_one2many"
                                        mode="tree" attrs="{'readonly': [('can_edit', '=', False)]}"/>
                             </page>
-                            <page string="Fact" attrs="{'invisible': [('is_parent_project', '=', True)]}"
+                            <page string="Fact"
                                   groups="project_budget.project_budget_users,project_budget.project_budget_admin">
                                 <h4>
                                     <group col="6">
@@ -1247,7 +1202,6 @@
                 <field name="project_curator_id"/>
                 <field name="project_manager_id"/>
                 <field name="project_office_id"/>
-                <field name="technological_direction_id"/>
                 <field name="project_type_id"/>
                 <field name="industry_id"/>
                 <field name="company_partner_id"/>
@@ -1387,7 +1341,6 @@
                 <field name="signer_id"/>
                 <field name="project_type_id"/>
                 <field name="comments"/>
-                <field name="technological_direction_id"/>
             </pivot>
         </field>
     </record>

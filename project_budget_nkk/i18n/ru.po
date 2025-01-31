@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-26 15:36+0000\n"
-"PO-Revision-Date: 2024-09-26 15:36+0000\n"
+"POT-Creation-Date: 2025-01-21 11:21+0000\n"
+"PO-Revision-Date: 2025-01-21 11:21+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,9 +16,79 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_technological_direction__active
+msgid "Active"
+msgstr ""
+
+#. module: project_budget_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.crm_lead_technological_direction_view_search
+msgid "Archived"
+msgstr "В архиве"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_technological_direction__code
+msgid "Code"
+msgstr "Код"
+
+#. module: project_budget_nkk
 #: model:project_budget.forecast.probability,name:project_budget_nkk.project_budget_forecast_probability_commitment
 msgid "Commitment"
 msgstr "Обязательство"
+
+#. module: project_budget_nkk
+#: model:ir.actions.server,name:project_budget_nkk.project_budget_project_contract_number_required_ir_actions_server
+msgid "Contract number required"
+msgstr "Обязательность номера договора"
+
+#. module: project_budget_nkk
+#: model_terms:ir.actions.act_window,help:project_budget_nkk.crm_lead_technological_direction_action
+msgid "Create a new technological direction"
+msgstr "Создайте новое технологическое направление"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_technological_direction__create_uid
+msgid "Created by"
+msgstr "Автор"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_technological_direction__create_date
+msgid "Created on"
+msgstr "Дата создания"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_technological_direction__descr
+msgid "Description"
+msgstr "Описание"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_technological_direction__display_name
+msgid "Display Name"
+msgstr "Отображаемое имя"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_technological_direction__id
+msgid "ID"
+msgstr ""
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_technological_direction____last_update
+msgid "Last Modified on"
+msgstr "Дата последней модификации"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_technological_direction__write_uid
+msgid "Last Updated by"
+msgstr "Автор последнего изменения"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_technological_direction__write_date
+msgid "Last Updated on"
+msgstr "Дата последнего обновления"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_technological_direction__name
+msgid "Name"
+msgstr "Наименование"
 
 #. module: project_budget_nkk
 #: model:project_budget.forecast.probability,name:project_budget_nkk.project_budget_forecast_probability_potential
@@ -26,9 +96,24 @@ msgid "Potential"
 msgstr "Потенциал"
 
 #. module: project_budget_nkk
+#: model:ir.model,name:project_budget_nkk.model_project_budget_projects
+msgid "Project"
+msgstr "Проекты"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_technological_direction__recurring_payments
+msgid "Recurring Payments"
+msgstr "Оплата по факту использования"
+
+#. module: project_budget_nkk
 #: model:project_budget.forecast.probability,name:project_budget_nkk.project_budget_forecast_probability_reserve
 msgid "Reserve"
 msgstr "Резерв"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_technological_direction__sequence
+msgid "Sequence"
+msgstr "Последовательность"
 
 #. module: project_budget_nkk
 #: model:ir.actions.server,name:project_budget_nkk.project_budget_project_step_project_number_required_ir_actions_server
@@ -36,8 +121,52 @@ msgid "Step project number required"
 msgstr "Обязательность номера этапа проекта"
 
 #. module: project_budget_nkk
-#. odoo-python
-#: code:addons/project_budget_nkk/models/project_budget_project.py:0
-#, python-format
-msgid "User should have admin rights"
-msgstr "Для перемещения сделки в архив необходимы права Администратора"
+#: model:ir.model,name:project_budget_nkk.model_project_budget_technological_direction
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__technological_direction_id
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.crm_lead_technological_direction_view_tree
+msgid "Technological Direction"
+msgstr "Технологическое направление"
+
+#. module: project_budget_nkk
+#: model:ir.actions.act_window,name:project_budget_nkk.crm_lead_technological_direction_action
+#: model:ir.ui.menu,name:project_budget_nkk.crm_menu_technological_directions
+msgid "Technological Directions"
+msgstr "Технологические направления"
+
+#. module: project_budget_nkk
+#: model:ir.model,name:project_budget_nkk.model_project_budget_additional_margin
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__additional_margin
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.additional_margin_view_form_inherit_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.additional_margin_child_tree_form_inherit_nkk
+msgid "Margin from Related Projects"
+msgstr "Маржа связанных проектов"
+
+#. module: project_budget_nkk
+#: model:ir.model,name:project_budget_nkk.model_project_budget_total_margin
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__total_margin
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.additional_margin_view_form_inherit_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.additional_margin_child_tree_form_inherit_nkk
+msgid "Total Margin"
+msgstr "Маржа итого"
+
+#. module: project_budget_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.additional_margin_view_form_inherit_nkk
+msgid "from children to parent"
+msgstr "Маржа: от дочерних проектов к материнскому"
+
+#. module: project_budget_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.additional_margin_view_form_inherit_nkk
+msgid "from parent to children"
+msgstr "Маржа: от материнского проекта к дочерним"
+
+#. module: project_budget_nkk
+#: model:ir.model,name:project_budget_nkk.model_project_budget_margin_from_children_to_parent
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__margin_from_children_to_parent
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.additional_margin_view_form_inherit_nkk
+msgid "margin from children to parent"
+msgstr "Переключить направление"
+
+#. module: project_budget_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.additional_margin_view_form_inherit_nkk
+msgid "Child Projects"
+msgstr "Дочерние проекты"

@@ -1,19 +1,18 @@
 <odoo>
-    <record id="project_budget_technological_direction_view_search" model="ir.ui.view">
-        <field name="name">project.budget.technological.direction.search</field>
+    <record id="crm_lead_technological_direction_view_search" model="ir.ui.view">
+        <field name="name">crm.lead.technological.direction.search</field>
         <field name="model">project_budget.technological_direction</field>
         <field name="arch" type="xml">
             <search>
-                <field name="name" filter_domain="[('name', 'ilike', self)]"
-                       string="project_office"/>
+                <field name="name" filter_domain="[('name', 'ilike', self)]"/>
                 <separator/>
                 <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
             </search>
         </field>
     </record>
 
-    <record id="project_budget_technological_direction_view_tree" model="ir.ui.view">
-        <field name="name">project.budget.technological.direction.tree</field>
+    <record id="crm_lead_technological_direction_view_tree" model="ir.ui.view">
+        <field name="name">crm.lead.technological.direction.tree</field>
         <field name="model">project_budget.technological_direction</field>
         <field name="arch" type="xml">
             <tree string="Technological Direction" editable="top">
@@ -27,7 +26,7 @@
         </field>
     </record>
 
-    <record id="project_budget_technological_direction_action" model="ir.actions.act_window">
+    <record id="crm_lead_technological_direction_action" model="ir.actions.act_window">
         <field name="name">Technological Directions</field>
         <field name="res_model">project_budget.technological_direction</field>
         <field name="view_mode">tree,form</field>

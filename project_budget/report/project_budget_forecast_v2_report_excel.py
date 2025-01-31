@@ -624,7 +624,7 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
 
-    def get_sum_fact_acceptance_project_quater(self, project, year, element_name, without_distributions):
+    def get_sum_fact_acceptance_project_quarter(self, project, year, element_name, without_distributions):
         sum_cash = 0
 
         months = self.get_months_from_quater(element_name)
@@ -643,23 +643,48 @@ class report_budget_forecast_excel(models.AbstractModel):
         return sum_cash
 
     def get_sum_fact_margin_project_quarter(self, project, year, element_name, without_distributions):
+        if project.is_parent_project:
+            if project.margin_from_children_to_parent:
+                sum_cash = self.get_margin_fact(project, year, element_name, without_distributions, (1 - project.margin_rate_for_parent))
+                if project.child_project_ids:
+                    for child_project in project.child_project_ids:
+                        if child_project.project_have_steps:
+                            for child_step in child_project.step_project_child_ids:
+                                additional_margin = self.get_margin_fact(child_step, year, element_name,
+                                                                         without_distributions,
+                                                                         child_project.margin_rate_for_parent)
+                                sum_cash += additional_margin
+                        else:
+                            additional_margin = self.get_margin_fact(child_project, year, element_name, without_distributions, child_project.margin_rate_for_parent)
+                            sum_cash += additional_margin
+            else:
+                total_percent = 0
+                for child_project in project.child_project_ids:
+                    total_percent += child_project.margin_rate_for_parent
+                sum_cash = self.get_margin_fact(project, year, element_name, without_distributions, (1 - total_percent))
+        elif project.is_child_project:
+            if project.parent_project_id.margin_from_children_to_parent:
+                sum_cash = self.get_margin_fact(project, year, element_name, without_distributions, (1 - project.margin_rate_for_parent))
+            else:
+                sum_cash = self.get_margin_fact(project, year, element_name, without_distributions, 1)
+                if project.parent_project_id.project_have_steps:
+                    for parent_step in project.parent_project_id.step_project_child_ids:
+                        additional_margin = self.get_margin_fact(parent_step, year, element_name, without_distributions,
+                                                                 project.margin_rate_for_parent)
+                        sum_cash += additional_margin
+                else:
+                    additional_margin = self.get_margin_fact(project.parent_project_id, year, element_name, without_distributions, project.margin_rate_for_parent)
+                    sum_cash += additional_margin
+        else:
+            sum_cash = self.get_margin_fact(project, year, element_name, without_distributions, 1)
+
+        return sum_cash
+
+    def get_margin_fact(self, project, year, element_name, without_distributions, multiplier):
+
         sum_cash = 0
 
         months = self.get_months_from_quater(element_name)
-
-        if project.is_child_project:
-            child_rate = (1 / (1 - project.margin_rate_for_parent))
-        else:
-            child_rate = 1
-
-        if project.is_parent_project:
-            for child_project in project.child_project_ids:
-                if child_project.project_have_steps:
-                    for child_step in child_project.step_project_child_ids:
-                        sum_cash += self.get_sum_fact_margin_project_quarter(child_step, year, element_name, without_distributions) * child_project.margin_rate_for_parent
-                else:
-                    sum_cash += self.get_sum_fact_margin_project_quarter(child_project, year, element_name, without_distributions) * child_project.margin_rate_for_parent
-            return sum_cash
 
         if project.step_status == 'project':
             acceptance_list = project.fact_acceptance_flow_ids
@@ -671,11 +696,9 @@ class report_budget_forecast_excel(models.AbstractModel):
                 if (not months or acceptance.date_cash.month in months) and acceptance.date_cash.year == year:
                     if without_distributions and acceptance.distribution_acceptance_ids:
                         continue
-                    if project.is_child_project:
-                        sum_cash += acceptance.margin * child_rate
-                    else:
-                        sum_cash += acceptance.margin
+                    sum_cash += acceptance.margin * multiplier
         return sum_cash
+
 
     def get_sum_planned_acceptance_project_quater(self, project, year, element_name):
 
@@ -704,25 +727,51 @@ class report_budget_forecast_excel(models.AbstractModel):
         return sum_acceptance
 
     def get_sum_planned_margin_project_quater(self, project, year, element_name):
+        if project.is_parent_project:
+            if project.margin_from_children_to_parent:
+                sum_margin = self.get_margin_plan(project, year, element_name, 1)
+                if project.child_project_ids:
+                    for child_project in project.child_project_ids:
+                        if child_project.project_have_steps:
+                            for child_step in child_project.step_project_child_ids:
+                                additional_margin = self.get_margin_plan(child_step, year, element_name,
+                                                                         child_project.margin_rate_for_parent)
+                                for key in sum_margin:
+                                    sum_margin[key] += additional_margin[key]
+                        else:
+                            additional_margin = self.get_margin_plan(child_project, year, element_name, child_project.margin_rate_for_parent)
+                            for key in sum_margin:
+                                sum_margin[key] += additional_margin[key]
+            else:
+                total_percent = 0
+                for child_project in project.child_project_ids:
+                    total_percent += child_project.margin_rate_for_parent
+                sum_margin = self.get_margin_plan(project, year, element_name, (1 - total_percent))
+        elif project.is_child_project:
+            if project.parent_project_id.margin_from_children_to_parent:
+                sum_margin = self.get_margin_plan(project, year, element_name, (1 - project.margin_rate_for_parent))
+            else:
+                sum_margin = self.get_margin_plan(project, year, element_name, 1)
+                if project.parent_project_id.project_have_steps:
+                    for parent_step in project.parent_project_id.step_project_child_ids:
+                        additional_margin = self.get_margin_plan(parent_step, year, element_name,
+                                                                 project.margin_rate_for_parent)
+                        for key in sum_margin:
+                            sum_margin[key] += additional_margin[key]
+                else:
+                    additional_margin = self.get_margin_plan(project.parent_project_id, year, element_name, project.margin_rate_for_parent)
+                    for key in sum_margin:
+                        sum_margin[key] += additional_margin[key]
+        else:
+            sum_margin = self.get_margin_plan(project, year, element_name, 1)
+
+        return sum_margin
+
+    def get_margin_plan(self, project, year, element_name, multiplier):
 
         sum_margin = {'commitment': 0, 'reserve': 0, 'potential': 0}
 
-        if project.is_child_project:
-            child_rate = (1 / (1 - project.margin_rate_for_parent))
-        else:
-            child_rate = 1
-
         months = self.get_months_from_quater(element_name)
-        if project.is_parent_project:
-            for child_project in project.child_project_ids:
-                if child_project.project_have_steps:
-                    for child_step in child_project.step_project_child_ids:
-                        for key in sum_margin:
-                            sum_margin[key] += self.get_sum_planned_margin_project_quater(child_step, year, element_name)[key] * child_project.margin_rate_for_parent
-                else:
-                    for key in sum_margin:
-                        sum_margin[key] += self.get_sum_planned_margin_project_quater(child_project, year, element_name)[key] * child_project.margin_rate_for_parent
-            return sum_margin
 
         if project.step_status == 'project':
             acceptance_list = project.planned_acceptance_flow_ids
@@ -740,22 +789,17 @@ class report_budget_forecast_excel(models.AbstractModel):
                         continue
                     if acceptance.forecast == 'from_project':
                         if stage_id_code in ('75', '100', '100(done)'):
-                            sum_margin['commitment'] += acceptance.sum_cash_without_vat * profitability * child_rate / 100
+                            sum_margin['commitment'] += acceptance.sum_cash_without_vat * profitability * multiplier / 100
                         elif stage_id_code == '50':
-                            sum_margin['reserve'] += acceptance.sum_cash_without_vat * profitability * child_rate / 100
+                            sum_margin['reserve'] += acceptance.sum_cash_without_vat * profitability * multiplier / 100
                     else:
                         if stage_id_code != '0':
-                            sum_margin[acceptance.forecast] += acceptance.sum_cash_without_vat * profitability * child_rate / 100
+                            sum_margin[acceptance.forecast] += acceptance.sum_cash_without_vat * multiplier * profitability / 100
         return sum_margin
 
-    def get_margin_forecast_from_distributions(self, planned_acceptance, margin_plan, project, margin_rate_for_parent):
+    def get_margin_forecast_from_distributions(self, planned_acceptance, margin_plan, project, multiplier):
         # суммируем доли маржи фактов в соотношении (сумма распределения/суммы факта)
         margin_distribution = 0
-
-        if project.is_child_project:
-            child_rate = (1 / (1 - project.margin_rate_for_parent))
-        else:
-            child_rate = 1
 
         for distribution in planned_acceptance.distribution_acceptance_ids:
             if distribution.fact_acceptance_flow_id.sum_cash_without_vat != 0:
@@ -765,12 +809,12 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         if planned_acceptance.forecast == 'from_project':
             if stage_id_code in ('75', '100', '100(done)'):
-                margin_plan['commitment'] -= margin_distribution * margin_rate_for_parent * child_rate
+                margin_plan['commitment'] -= margin_distribution * multiplier
             elif stage_id_code == '50':
-                margin_plan['reserve'] -= margin_distribution * margin_rate_for_parent * child_rate
+                margin_plan['reserve'] -= margin_distribution * multiplier
         else:
             if stage_id_code != '0':
-                margin_plan[planned_acceptance.forecast] -= margin_distribution * margin_rate_for_parent * child_rate
+                margin_plan[planned_acceptance.forecast] -= margin_distribution * multiplier
         return  margin_plan
 
     def get_sum_planned_acceptance_project_from_distribution(self, project, year, element_name):
@@ -813,27 +857,65 @@ class report_budget_forecast_excel(models.AbstractModel):
             return False
 
     def get_sum_planned_margin_project_from_distribution(self, project, year, element_name, margin_plan, margin_rate_for_parent):
+        if project.is_parent_project:
+            if project.margin_from_children_to_parent:
+                new_margin_plan = self.get_margin_plan_from_distribution(project, year, element_name, margin_plan, 1)
+                if new_margin_plan:
+                    margin_plan = new_margin_plan
+                for child_project in project.child_project_ids:
+                    if child_project.project_have_steps:
+                        for child_step in child_project.step_project_child_ids:
+                            new_margin_plan = self.get_margin_plan_from_distribution(
+                                child_step, year, element_name, margin_plan, child_project.margin_rate_for_parent
+                            )
+                            if new_margin_plan:
+                                margin_plan = new_margin_plan
+                    else:
+                        new_margin_plan = self.get_margin_plan_from_distribution(
+                            child_project, year, element_name, margin_plan, child_project.margin_rate_for_parent
+                        )
+                        if new_margin_plan:
+                            margin_plan = new_margin_plan
+            else:
+                total_percent = 0
+                for child_project in project.child_project_ids:
+                    total_percent += child_project.margin_rate_for_parent
+                new_margin_plan = self.get_margin_plan_from_distribution(
+                    project, year, element_name, margin_plan, (1 - total_percent)
+                )
+                if new_margin_plan:
+                    margin_plan = new_margin_plan
+        elif project.is_child_project:
+            if project.parent_project_id.margin_from_children_to_parent:
+                new_margin_plan = self.get_margin_plan_from_distribution(project, year, element_name, margin_plan, (1 - project.margin_rate_for_parent))
+                if new_margin_plan:
+                    margin_plan = new_margin_plan
+            else:
+                new_margin_plan = self.get_margin_plan_from_distribution(project, year, element_name, margin_plan, 1)
+                if new_margin_plan:
+                    margin_plan = new_margin_plan
+                if project.parent_project_id.project_have_steps:
+                    for parent_step in project.parent_project_id.step_project_child_ids:
+                        new_margin_plan = self.get_margin_plan_from_distribution(parent_step, year,
+                                                                                 element_name, margin_plan,
+                                                                                 project.margin_rate_for_parent)
+                        if new_margin_plan:
+                            margin_plan = new_margin_plan
+                else:
+                    new_margin_plan = self.get_margin_plan_from_distribution(project.parent_project_id, year, element_name, margin_plan, project.margin_rate_for_parent)
+                    if new_margin_plan:
+                        margin_plan = new_margin_plan
+        else:
+            new_margin_plan = self.get_margin_plan_from_distribution(project, year, element_name, margin_plan, 1)
+            if new_margin_plan:
+                margin_plan = new_margin_plan
+        return margin_plan
+
+    def get_margin_plan_from_distribution(self, project, year, element_name, margin_plan, multiplier):
         # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
         sum_distribution_acceptance = 0
         new_margin_plan = margin_plan.copy()
         months = self.get_months_from_quater(element_name)
-
-        if project.is_parent_project:
-            for child_project in project.child_project_ids:
-                if child_project.project_have_steps:
-                    for child_step in child_project.step_project_child_ids:
-                        new_margin_plan = self.get_sum_planned_margin_project_from_distribution(
-                            child_step, year, element_name, margin_plan, child_project.margin_rate_for_parent
-                        )
-                        if new_margin_plan:
-                            margin_plan = new_margin_plan
-                else:
-                    new_margin_plan = self.get_sum_planned_margin_project_from_distribution(
-                        child_project, year, element_name, margin_plan, child_project.margin_rate_for_parent
-                    )
-                    if new_margin_plan:
-                        margin_plan = new_margin_plan
-            return margin_plan
 
         if project.step_status == 'project':
             acceptance_list = project.planned_acceptance_flow_ids
@@ -841,7 +923,8 @@ class report_budget_forecast_excel(models.AbstractModel):
             acceptance_list = project.planned_step_acceptance_flow_ids
 
         for planned_acceptance_flow in acceptance_list:
-            if (not months or planned_acceptance_flow.date_cash.month in months) and planned_acceptance_flow.date_cash.year == year:
+            if (
+                    not months or planned_acceptance_flow.date_cash.month in months) and planned_acceptance_flow.date_cash.year == year:
                 if any(distribution.fact_acceptance_flow_id.margin_manual_input for distribution in
                        planned_acceptance_flow.distribution_acceptance_ids):  # если есть ручная маржа - отдаем нулевой прогноз
                     sum_distribution_acceptance += 1
@@ -850,7 +933,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 sum_distribution_acceptance += planned_acceptance_flow.distribution_sum_without_vat
 
                 new_margin_plan = self.get_margin_forecast_from_distributions(planned_acceptance_flow, new_margin_plan,
-                                                                              project, margin_rate_for_parent)
+                                                                              project, multiplier)
 
         if sum_distribution_acceptance:  # если есть распределение, то остаток = остатку распределения
             return new_margin_plan
@@ -865,23 +948,17 @@ class report_budget_forecast_excel(models.AbstractModel):
 
             profitability = project.profitability
 
-            margin_rate_for_child = 1
-            if project.parent_project_id:
-                margin_rate_for_child = (1 - project.margin_rate_for_parent)
-            elif project.step_project_parent_id.parent_project_id:
-                margin_rate_for_child = (1 - project.step_project_parent_id.margin_rate_for_parent)
-
-            sum100tmp = self.get_sum_fact_acceptance_project_quater(project, year, False, False)
+            sum100tmp = self.get_sum_fact_acceptance_project_quarter(project, year, False, False)
             margin100tmp = self.get_sum_fact_margin_project_quarter(project, year, False, False)
 
-            acc_fact_wo_distributions = self.get_sum_fact_acceptance_project_quater(project, year, False, True)
+            acc_fact_wo_distributions = self.get_sum_fact_acceptance_project_quarter(project, year, False, True)
             mrg_fact_wo_distributions = self.get_sum_fact_margin_project_quarter(project, year, False, True)
 
             if not next:
                 if sum100tmp:
                     sheet.write_number(row, column + 0, sum100tmp, row_format_number_color_fact)
                 if margin100tmp:
-                    sheet.write_number(row, column + 0 + margin_shift, margin100tmp * margin_rate_for_child, row_format_number_color_fact)
+                    sheet.write_number(row, column + 0 + margin_shift, margin100tmp, row_format_number_color_fact)
 
             sum = self.get_sum_planned_acceptance_project_quater(project, year, False)
             margin_sum = self.get_sum_planned_margin_project_quater(project, year, False)
@@ -891,7 +968,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             if margin_sum:
                 margin_plan = margin_sum.copy()
 
-            if not project.is_correction_project and not project.is_parent_project:
+            if not project.is_correction_project:
 
                 if acc_fact_wo_distributions >= sum.get('commitment', 0):
                     sum100tmp_ostatok = acc_fact_wo_distributions - sum['commitment']
@@ -908,7 +985,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                     margin_sum['commitment'] = margin_plan['commitment'] - mrg_fact_wo_distributions
 
             sum_ostatok_acceptance = self.get_sum_planned_acceptance_project_from_distribution(project, year, False)
-            new_margin_plan = self.get_sum_planned_margin_project_from_distribution(project, year, False, margin_plan, 1)
+            new_margin_plan = self.get_sum_planned_margin_project_from_distribution(project, year, False, margin_sum, 1)
 
             if sum_ostatok_acceptance:
                 sum = sum_ostatok_acceptance
@@ -922,10 +999,10 @@ class report_budget_forecast_excel(models.AbstractModel):
 
             if sum:
                 sheet.write_number(row, column + 0, sum.get('commitment', 0), row_format_number)
-                sheet.write_number(row, column + 0 + margin_shift, margin_sum.get('commitment', 0) * margin_rate_for_child, row_format_number)
+                sheet.write_number(row, column + 0 + margin_shift, margin_sum.get('commitment', 0), row_format_number)
                 sum75tmp += sum.get('commitment', 0)
                 sheet.write_number(row, column + 1, sum.get('reserve', 0) * koeff_reserve, row_format_number)
-                sheet.write_number(row, column + 1 + margin_shift, margin_sum.get('reserve', 0) * koeff_reserve * margin_rate_for_child, row_format_number)
+                sheet.write_number(row, column + 1 + margin_shift, margin_sum.get('reserve', 0) * koeff_reserve, row_format_number)
                 sum50tmp += sum.get('reserve', 0) * koeff_reserve
 
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp
@@ -938,23 +1015,17 @@ class report_budget_forecast_excel(models.AbstractModel):
 
             profitability = project.profitability
 
-            margin_rate_for_child = 1
-            if project.parent_project_id:
-                margin_rate_for_child = (1 - project.margin_rate_for_parent)
-            elif project.step_project_parent_id.parent_project_id:
-                margin_rate_for_child = (1 - project.step_project_parent_id.margin_rate_for_parent)
-
-            sum100tmp = self.get_sum_fact_acceptance_project_quater(project, year, element_name, False)
+            sum100tmp = self.get_sum_fact_acceptance_project_quarter(project, year, element_name, False)
             margin100tmp = self.get_sum_fact_margin_project_quarter(project, year, element_name, False)
 
-            acc_fact_wo_distributions = self.get_sum_fact_acceptance_project_quater(project, year, element_name, True)
+            acc_fact_wo_distributions = self.get_sum_fact_acceptance_project_quarter(project, year, element_name, True)
             mrg_fact_wo_distributions = self.get_sum_fact_margin_project_quarter(project, year, element_name, True)
 
             if not next:
                 if sum100tmp:
                     sheet.write_number(row, column + 0, sum100tmp, row_format_number_color_fact)
                 if margin100tmp:
-                    sheet.write_number(row, column + 0 + margin_shift, margin100tmp * margin_rate_for_child, row_format_number_color_fact)
+                    sheet.write_number(row, column + 0 + margin_shift, margin100tmp, row_format_number_color_fact)
 
             sum = self.get_sum_planned_acceptance_project_quater(project, year, element_name)
             margin_sum = self.get_sum_planned_margin_project_quater(project, year, element_name)
@@ -964,7 +1035,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             if margin_sum:
                 margin_plan = margin_sum.copy()
 
-            if not project.is_correction_project and not project.is_parent_project:
+            if not project.is_correction_project:
 
                 if acc_fact_wo_distributions >= sum.get('commitment', 0):
                     sum100tmp_ostatok = acc_fact_wo_distributions - sum['commitment']
@@ -982,7 +1053,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                         margin_sum['commitment'] = margin_plan['commitment'] - mrg_fact_wo_distributions
 
             sum_ostatok_acceptance = self.get_sum_planned_acceptance_project_from_distribution(project, year, element_name)
-            new_margin_plan = self.get_sum_planned_margin_project_from_distribution(project, year, element_name, margin_plan, 1)
+            new_margin_plan = self.get_sum_planned_margin_project_from_distribution(project, year, element_name, margin_sum, 1)
 
             if sum_ostatok_acceptance:
                 sum = sum_ostatok_acceptance
@@ -997,17 +1068,17 @@ class report_budget_forecast_excel(models.AbstractModel):
             if sum:
                 if not next:
                     sheet.write_number(row, column + 1, sum.get('commitment', 0), row_format_number)
-                    sheet.write_number(row, column + 1 + margin_shift, margin_sum.get('commitment', 0) * margin_rate_for_child, row_format_number)
+                    sheet.write_number(row, column + 1 + margin_shift, margin_sum.get('commitment', 0), row_format_number)
                     sum75tmp += sum.get('commitment', 0)
                     sheet.write_number(row, column + 2, sum.get('reserve', 0) * koeff_reserve, row_format_number)
-                    sheet.write_number(row, column + 2 + margin_shift, margin_sum.get('reserve', 0) * koeff_reserve * margin_rate_for_child, row_format_number)
+                    sheet.write_number(row, column + 2 + margin_shift, margin_sum.get('reserve', 0) * koeff_reserve, row_format_number)
                     sum50tmp += sum.get('reserve', 0) * koeff_reserve
                 else:
                     sheet.write_number(row, column + 0, sum.get('commitment', 0), row_format_number)
-                    sheet.write_number(row, column + 0 + margin_shift, margin_sum.get('commitment', 0) * margin_rate_for_child, row_format_number)
+                    sheet.write_number(row, column + 0 + margin_shift, margin_sum.get('commitment', 0), row_format_number)
                     sum75tmp += sum.get('commitment', 0)
                     sheet.write_number(row, column + 1, sum.get('reserve', 0) * koeff_reserve, row_format_number)
-                    sheet.write_number(row, column + 1 + margin_shift, margin_sum.get('reserve', 0) * koeff_reserve * margin_rate_for_child, row_format_number)
+                    sheet.write_number(row, column + 1 + margin_shift, margin_sum.get('reserve', 0) * koeff_reserve, row_format_number)
                     sum50tmp += sum.get('reserve', 0) * koeff_reserve
 
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp

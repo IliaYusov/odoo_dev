@@ -1,0 +1,4 @@
+<odoo>
+    <menuitem id="crm_menu_technological_directions" parent="project_budget.menu_project_budget_configuration"
+              name="Technological Directions" sequence="1000" action="crm_lead_technological_direction_action"/>
+</odoo>

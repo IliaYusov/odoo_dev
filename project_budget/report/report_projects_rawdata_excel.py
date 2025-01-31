@@ -258,7 +258,7 @@ class report_projects_rawdata_excel(models.AbstractModel):
                 column += 1
                 sheet.write_string(row, column, (spec.comments or spec.step_project_parent_id.comments or ""), row_format)
                 column += 1
-                sheet.write_string(row, column, spec.technological_direction_id.name, row_format)
+                sheet.write_string(row, column, spec.technological_direction_id.name or '', row_format)
                 column += 1
                 if spec.step_status == 'project':
                     sheet.write_string(row, column, spec.project_type_id.name or '', row_format)

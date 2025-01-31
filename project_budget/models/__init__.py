@@ -6,10 +6,10 @@ from . import planned_cash_flow
 from . import project_budget_project_role
 from . import project_budget_project_member
 from . import project_budget_project_stage
+from . import crm_lost_reason
 from . import project_budget_project
 from . import project_budget_project_office
 from . import project_budget_catalogs
-from . import project_budget_technological_direction
 from . import project_budget_scheduled_report
 from . import res_users
 from . import distribution_acceptance

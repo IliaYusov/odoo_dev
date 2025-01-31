@@ -315,34 +315,5 @@
             </field>
         </record>
 <!-- end project_type-->
-<!-- technological_direction -->
-        <record id="show_technological_direction_tree" model="ir.ui.view">
-            <field name="name">project_budget.technological_direction.tree</field>
-            <field name="model">project_budget.technological_direction</field>
-            <field name="arch" type="xml">
-                <tree string="technological_direction" editable="top">
-                    <field name="name"/>
-                    <field name="code"/>
-                    <field name="recurring_payments" widget="boolean_toggle"/>
-                    <field name="descr"  class="text-wrap"/>
-                </tree>
-            </field>
-        </record>
-
-        <record id="show_technological_direction" model="ir.actions.act_window">
-            <field name="name">technological_direction</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">project_budget.technological_direction</field>
-            <field name="view_mode">tree,form</field>
-            <field name="context">{'search_default_group_by_provider': True}</field>
-            <field name="help" type="html">
-              <p class="o_view_nocontent_smiling_face">
-                Create a new technological_direction
-              </p><p>
-                each project budget have technological_direction
-              </p>
-            </field>
-        </record>
-<!-- end technological_direction-->
     </data>
 </odoo>

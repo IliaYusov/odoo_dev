@@ -32,8 +32,6 @@
               action="show_vat_attribute"/>
     <menuitem id="project_budget_catalogs_project_type" parent="project_budget_catalogs" name="project_type"
               action="show_project_type"/>
-    <menuitem id="project_budget_catalogs_technological_direction" parent="project_budget_catalogs"
-              name="Technological Directions" action="project_budget_technological_direction_action"/>
     <menuitem id="project_budget_catalogs_tender_current_status" parent="project_budget_catalogs" name="tender status"
               action="show_project_tender_current_status"/>
     <menuitem id="project_budget_catalogs_tender_comments_type" parent="project_budget_catalogs"

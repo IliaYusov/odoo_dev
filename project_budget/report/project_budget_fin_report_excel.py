@@ -13,6 +13,7 @@ class report_budget_excel(models.AbstractModel):
     probabitily_list_PB = ['100','100(done)']
     probabitily_list_Otmena = ['0']
     array_col_itogi = [12, 13,14,15,16,17,18,19,20,21,22,23,24,252,6,27,28]
+
     def printworksheet(self,workbook,budget,namesheet,stateproject):
         global YEARint
         global year_end
@@ -419,7 +420,7 @@ class report_budget_excel(models.AbstractModel):
                     column += 1
                     sheet.write_string(row, column, spec.comments or "", row_format)
                     column += 1
-                    sheet.write_string(row, column, spec.technological_direction_id.name, row_format)
+                    sheet.write_string(row, column, spec.technological_direction_id.name or '', row_format)
             if isFoundProjectsByCenter:
 
                 end_row_of_responsibility_center = row  # считаем строки для промежуточных итогов

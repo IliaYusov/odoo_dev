@@ -314,9 +314,6 @@ class Project(models.Model):
     percent_fot = fields.Float(compute='_get_signer_settings', readonly=True)
 
     comments = fields.Text(string='comments project', default="")
-    technological_direction_id = fields.Many2one('project_budget.technological_direction',
-                                                 string='Technological Direction', copy=True, required=True,
-                                                 tracking=True)
     step_project_number = fields.Char(string='step project number', store=True, tracking=True)  # номер из AXAPTA
     dogovor_number = fields.Char(string='Dogovor number', store=True, tracking=True)
 
@@ -408,29 +405,15 @@ class Project(models.Model):
 
     tenders_count = fields.Integer(compute='_compute_tenders_count', string='Tenders')
 
-    is_parent_project = fields.Boolean(string="project is parent", default=False, copy=True, tracking=True)
-    is_child_project = fields.Boolean(string="project is child", compute='_check_project_is_child')
-    # TODO: необходимо отказаться от текущего "функционала" материнских сделок и мигрировать на общую архитектуру с партнерскими сделками
-    parent_project_id = fields.Many2one(
-        'project_budget.projects',
-        string='parent project id',
-        ondelete='set null', copy=True)
-    child_project_ids = fields.One2many(
-        comodel_name='project_budget.projects',
-        inverse_name='parent_project_id',
-        string="child projects", auto_join=True)
-    margin_rate_for_parent = fields.Float(string="margin rate for parent project", default=0, copy=True, tracking=True)
-    total_margin_of_child_projects = fields.Monetary(string="total margin of child projects",
-                                                     compute='_compute_total_margin')
-    margin_for_parent_project = fields.Monetary(string="margin for parent project",
-                                                compute='_compute_margin_for_parent_project')
     parent_id = fields.Many2one('project_budget.projects', string='Parent Project', copy=False, index=True,
                                 ondelete='cascade', tracking=True)
     child_ids = fields.One2many('project_budget.projects', 'parent_id', string='Child Projects', copy=False)
     child_count = fields.Integer(compute='_compute_child_count', string='Child Count')
+
     company_partner_id = fields.Many2one('res.company.partner', string='Company Partner', copy=True, check_company=True,
                                          domain="[('company_id', '=', company_id)]", ondelete='restrict')
-
+    lost_reason_id = fields.Many2one('crm.lost.reason', string='Lost Reason', index=True, ondelete='restrict',
+                                     tracking=True)
     can_edit = fields.Boolean(compute='_compute_can_edit', default=True)
 
     # ------------------------------------------------------
@@ -513,12 +496,6 @@ class Project(models.Model):
                 ]
             rec.project_office_id_domain = domain
 
-    def _check_project_is_child(self):
-        for record in self:
-            record.is_child_project = False
-            if record.parent_project_id:
-                record.is_child_project = True
-
     def _compute_attachment_count(self):
         for rec in self:
             rec.attachment_count = self.env['ir.attachment'].search_count([
@@ -531,22 +508,6 @@ class Project(models.Model):
             project.tenders_count = self.env['project_budget.tenders'].search_count([
                 ('projects_id', '=', project.id)
             ])
-
-    @api.depends('child_project_ids.total_amount_of_revenue', 'child_project_ids.cost_price', 'child_project_ids')
-    def _compute_total_margin(self):
-        for project in self:
-            if project.is_parent_project:
-                project.total_margin_of_child_projects = sum(child_id.total_amount_of_revenue - child_id.cost_price for child_id in project.child_project_ids)
-            else:
-                project.total_margin_of_child_projects = 0
-
-    @api.depends('total_amount_of_revenue', 'margin_rate_for_parent', 'cost_price')
-    def _compute_margin_for_parent_project(self):
-        for project in self:
-            if project.is_child_project:
-                project.margin_for_parent_project = project.margin_rate_for_parent * (project.total_amount_of_revenue - project.cost_price)
-            else:
-                project.margin_for_parent_project = 0
 
     @api.depends('project_id', 'step_project_number')
     def _get_name_to_show(self):
@@ -575,7 +536,7 @@ class Project(models.Model):
                   'industry_id','essence_project','end_presale_project_month','end_sale_project_month','vat_attribute_id','total_amount_of_revenue',
                   'total_amount_of_revenue_with_vat','revenue_from_the_sale_of_works','revenue_from_the_sale_of_goods','cost_price','cost_of_goods','own_works_fot',
                   'third_party_works','awards_on_results_project','transportation_expenses','travel_expenses','representation_expenses','taxes_fot_premiums','warranty_service_costs',
-                  'rko_other','other_expenses','margin_income','profitability','stage_id','signer_id','project_type_id','comments','technological_direction_id',
+                  'rko_other','other_expenses','margin_income','profitability','stage_id','signer_id','project_type_id','comments',
                   'planned_cash_flow_sum','planned_cash_flow_ids','step_project_number','dogovor_number','planned_acceptance_flow_sum','planned_acceptance_flow_ids','fact_cash_flow_sum',
                   'fact_cash_flow_ids','fact_acceptance_flow_sum','fact_acceptance_flow_ids','project_have_steps','step_project_child_ids'
                 )
@@ -664,7 +625,7 @@ class Project(models.Model):
                     row.fact_acceptance_flow_sum_without_vat += row_flow.sum_cash_without_vat
     @api.depends('company_id', 'currency_id', 'commercial_budget_id', 'key_account_manager_id', 'project_curator_id',
                  'project_manager_id', 'industry_id', 'signer_id',
-                 'technological_direction_id', 'partner_id', 'project_office_id', 'is_correction_project', 'is_not_for_mc_report',
+                 'partner_id', 'project_office_id', 'is_correction_project', 'is_not_for_mc_report',
                  'approve_state')
     def _compute_step_project_details(self):
         for row in self:
@@ -678,7 +639,6 @@ class Project(models.Model):
                     step_project_child_id.project_manager_id = row.project_manager_id
                     step_project_child_id.industry_id = row.industry_id
                     step_project_child_id.signer_id = row.signer_id
-                    step_project_child_id.technological_direction_id = row.technological_direction_id
                     step_project_child_id.partner_id = row.partner_id
                     step_project_child_id.approve_state = row.approve_state
                     if row.different_project_offices_in_steps:  # проверям меняли ли ПО в проекте-этапе
@@ -698,9 +658,6 @@ class Project(models.Model):
         if not project.project_have_steps:
             self._compute_sums_from_amount_spec()
 
-            if project.is_parent_project == True:
-                project.revenue_from_the_sale_of_works = 0
-                project.revenue_from_the_sale_of_goods = 0
             project.total_amount_of_revenue = project.revenue_from_the_sale_of_works + project.revenue_from_the_sale_of_goods
 
             project.cost_price = project.cost_of_goods + project.own_works_fot + project.third_party_works + project.awards_on_results_project
@@ -711,21 +668,12 @@ class Project(models.Model):
 
             project.cost_price = project.cost_price + project.taxes_fot_premiums
 
-            if project.is_child_project:
-                project.margin_income = (project.total_amount_of_revenue - project.cost_price) * (1 - project.margin_rate_for_parent)
-            elif project.is_parent_project:
-                margin_income = 0
-                for child_project in project.child_project_ids:
-                    margin_income += child_project.margin_rate_for_parent * (child_project.total_amount_of_revenue - child_project.cost_price)
-                project.margin_income = margin_income
-            else:
-                project.margin_income = project.total_amount_of_revenue - project.cost_price
+            project.margin_income = project.total_amount_of_revenue - project.cost_price
 
             project.total_amount_of_revenue_with_vat = (project.revenue_from_the_sale_of_works + project.revenue_from_the_sale_of_goods) * (
                                                                        1 + project.vat_attribute_id.percent / 100)
 
         elif project.project_have_steps and project.step_status == 'project':
-
             # self._compute_sums_from_amount_spec()
             print('elif project.project_have_steps == True: row.amount_spec_ids =', project.amount_spec_ids)
 
@@ -758,10 +706,7 @@ class Project(models.Model):
                 if step.stage_id.code != '0':
                     project.total_amount_of_revenue += step.total_amount_of_revenue
                     project.cost_price += step.cost_price
-                    if project.is_child_project:
-                        project.margin_income += step.margin_income * (1 - project.margin_rate_for_parent)
-                    else:
-                        project.margin_income += step.margin_income
+                    project.margin_income += step.margin_income
                     project.total_amount_of_revenue_with_vat += step.total_amount_of_revenue_with_vat
                     project.taxes_fot_premiums += step.taxes_fot_premiums
                     project.revenue_from_the_sale_of_works += step.revenue_from_the_sale_of_works
@@ -782,12 +727,11 @@ class Project(models.Model):
         else:
             project.profitability = project.margin_income / project.total_amount_of_revenue * 100
 
-    @api.depends('taxes_fot_premiums', "revenue_from_the_sale_of_works", 'revenue_from_the_sale_of_goods', 'cost_of_goods', 'own_works_fot',
-                 'third_party_works', "awards_on_results_project", 'transportation_expenses', 'travel_expenses', 'representation_expenses',
-                 "warranty_service_costs", 'rko_other', 'other_expenses','vat_attribute_id','signer_id','project_have_steps',
-                 'parent_project_id','child_project_ids','margin_rate_for_parent','amount_spec_ids', 'total_margin_of_child_projects',
-                 'child_project_ids.margin_rate_for_parent', 'child_project_ids.margin_for_parent_project', 'child_project_ids.total_amount_of_revenue',
-                 'child_project_ids.cost_price','child_project_ids.margin_rate_for_parent', "step_project_child_ids",)
+    @api.depends('taxes_fot_premiums', "revenue_from_the_sale_of_works", 'revenue_from_the_sale_of_goods',
+                 'cost_of_goods', 'own_works_fot', 'third_party_works', "awards_on_results_project",
+                 'transportation_expenses', 'travel_expenses', 'representation_expenses', "warranty_service_costs",
+                 'rko_other', 'other_expenses', 'vat_attribute_id', 'signer_id','project_have_steps', 'amount_spec_ids',
+                 "step_project_child_ids",)
     def _compute_spec_totals(self):
         for budget_spec in self:
             self._culculate_all_sums(budget_spec)
@@ -1088,63 +1032,6 @@ class Project(models.Model):
             return True
         else:
             return False
-
-    @api.constrains('stage_id', 'total_amount_of_revenue', 'cost_price', 'planned_acceptance_flow_ids',
-                    'planned_cash_flow_ids', 'planned_step_acceptance_flow_ids', 'planned_step_cash_flow_ids')
-    def _check_financial_data_is_present(self):
-        for project in self.filtered(lambda pr: pr.budget_state == 'work'):
-            if project.env.context.get('form_fix_budget'):
-                continue
-            if (project.stage_id.code in ('30', '50', '75', '100')
-                    and project.total_amount_of_revenue == 0
-                    and project.cost_price == 0
-                    and not project.project_have_steps
-                    and not project.is_parent_project
-                    and project.budget_state == 'work'
-                    and not project.is_correction_project):
-                if project.step_status == 'project':
-                    raisetext = _("Please enter financial data to project {0}")
-                elif project.step_status == 'step':
-                    raisetext = _("Please enter financial data to step {0}")
-                raisetext = raisetext.format(project.project_id)
-                raise ValidationError(raisetext)
-            # elif (
-            #     project.estimated_probability_id.name in ('50', '75', '100')
-            #     and not
-            #     (
-            #             abs(project.planned_acceptance_flow_sum_without_vat - project.total_amount_of_revenue) < 1  # учитываем различия в рассчете НДС
-            #             and abs(project.planned_cash_flow_sum - project.total_amount_of_revenue_with_vat) < 1
-            #     )
-            #     and not project.technological_direction_id.recurring_payments
-            #     and not project.is_parent_project
-            #     and project.budget_state == 'work'
-            #     and not project.is_correction_project
-            # ):
-            #     raisetext = _("Acting and/or cash forecast sum is not equal total amout of revenue")
-            #     raisetext = raisetext.format(project.project_id)
-            #     raise ValidationError(raisetext)
-
-            if project.project_have_steps:
-                for step in project.step_project_child_ids:
-                    if (step.stage_id.code in ('50', '75', '100')
-                            and not step.planned_step_acceptance_flow_ids
-                            and not step.planned_step_cash_flow_ids
-                            and step.budget_state == 'work'
-                            and not step.is_correction_project):
-                        raisetext = _("Please enter forecast for cash or acceptance to project {0} step {1}")
-                        raisetext = raisetext.format(step.step_project_parent_id.project_id, step.project_id)
-                        raise ValidationError(raisetext)
-            else:
-                if (project.stage_id.code in ('50', '75', '100')
-                        and not project.planned_acceptance_flow_ids
-                        and not project.planned_cash_flow_ids
-                        and not project.is_parent_project
-                        and project.budget_state == 'work'
-                        and not project.is_correction_project
-                        and project.step_status == 'project'):
-                    raisetext = _("Please enter forecast for cash or acceptance to project {0}")
-                    raisetext = raisetext.format(project.project_id)
-                    raise ValidationError(raisetext)
 
     @api.constrains(
         'stage_id', 'planned_acceptance_flow_ids', 'planned_cash_flow_ids', 'planned_step_cash_flow_ids',

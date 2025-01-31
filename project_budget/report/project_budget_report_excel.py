@@ -444,7 +444,7 @@ class report_budget_excel(models.AbstractModel):
                             column += 1
                             sheet.write_string(row, column, spec.comments or "", row_format)
                             column += 1
-                            sheet.write_string(row, column, spec.technological_direction_id.name, row_format)
+                            sheet.write_string(row, column, spec.technological_direction_id.name or '', row_format)
             if isFoundProjectsByCenter:
 
                 end_row_of_responsibility_center = row  # считаем строки для промежуточных итогов

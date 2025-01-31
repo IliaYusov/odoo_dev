@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="crm_lead_view_search_inherit_nkk" model="ir.ui.view">
+        <field name="name">crm.lead.search.inherit.nkk</field>
+        <field name="model">project_budget.projects</field>
+        <field name="inherit_id" ref="project_budget.project_budget_project_view_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='industry_id']" position="after">
+                <field name="technological_direction_id" string="Technological Direction"
+                       filter_domain="[('technological_direction_id.name', 'ilike', self)]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="crm_lead_view_tree_inherit_nkk" model="ir.ui.view">
+        <field name="name">crm.lead.tree.inherit.nkk</field>
+        <field name="model">project_budget.projects</field>
+        <field name="inherit_id" ref="project_budget.project_budget_project_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='comments']" position="after">
+                <field name="technological_direction_id" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="crm_lead_view_form_inherit_nkk" model="ir.ui.view">
+        <field name="name">crm.lead.form.inherit.nkk</field>
+        <field name="model">project_budget.projects</field>
+        <field name="inherit_id" ref="project_budget.show_comercial_budget_spec_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='general']//group//group//field[@name='project_curator_id']" position="after">
+                <field name="technological_direction_id" options="{'no_open': True}"
+                       attrs="{
+                            'invisible': [('company_id', '=', 3)],
+                            'required': [('company_id', '!=', 3)],
+                            'readonly': [('can_edit', '=', False)]
+                       }"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="additional_margin_view_form_inherit_nkk" model="ir.ui.view">
+        <field name="name">additional.margin.form.inherit.nkk</field>
+        <field name="model">project_budget.projects</field>
+        <field name="inherit_id" ref="project_budget.show_comercial_budget_spec_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet[@name='project']//group//group//field[@name='margin_income']" position="after">
+                <field name="parent_project_id" invisible='1'/>
+                <field name="additional_margin" string="Margin from Related Projects"
+                       attrs="{'readonly': True, 'invisible': [('is_parent_project', '=', False),('is_child_project', '=', False)]}"
+                       class="h5" decoration-success="additional_margin &gt; 0" decoration-danger="additional_margin &lt; 0"/>
+                <field name="total_margin" string="Total Margin"
+                       attrs="{'readonly': True, 'invisible': [('is_parent_project', '=', False),('is_child_project', '=', False)]}"
+                       class="h5" decoration-success="total_margin &gt; 0" decoration-danger="total_margin &lt; 0"/>
+            </xpath>
+            <xpath expr="//sheet[@name='project']//group//group//field[@name='cost_price']" position="after">
+                <field name="total_margin_of_child_projects"
+                       attrs="{'invisible': ['|',('is_parent_project', '!=', True),('margin_from_children_to_parent', '!=', True)]}"/>
+            </xpath>
+            <xpath expr="//sheet[@name='project']//group[@name='project_have_steps']" position="before">
+                <group>
+                    <field name="is_parent_project" widget="boolean_toggle"
+                           attrs="
+                           {
+                                'readonly': ['|', '|', ('project_have_steps', '=', True), ('parent_project_id', '!=', False), ('can_edit', '=', False)],
+                                'invisible': [('is_child_project', '=', True)]
+                           }"
+                           options="{'autosave': False}"/>
+                    <field name="is_child_project" decoration-bf="1" readonly="1"
+                           attrs="{'invisible': [('is_child_project', '!=', True)]}"/>
+                </group>
+            </xpath>
+            <xpath expr="//page[@name='step_projects']" position="after">
+                <page name="child_projects" string="Child Projects" attrs="{'invisible': [('is_parent_project', '=', False)]}">
+                    <group>
+                        <group attrs="{'invisible': [('margin_from_children_to_parent', '=', False)]}"
+                               string="from children to parent"/>
+                        <group attrs="{'invisible': [('margin_from_children_to_parent', '=', True)]}"
+                               string="from parent to children"/>
+                        <group>
+                            <field name="margin_from_children_to_parent" widget="boolean_toggle"
+                                   string="margin from children to parent"
+                                   attrs="{'readonly': [('can_edit', '=', False)],}"
+                                   options="{'autosave': False}"/>
+                        </group>
+                    </group>
+                    <field name="child_project_ids" mode="tree" widget="many2many"
+                           context="{
+                               'tree_view_ref': 'project_budget.project_budget_project_child_view_tree',
+                               'default_is_child_project': True,
+                               'default_parent_project_id': id,
+                               'default_margin_from_children_to_parent': margin_from_children_to_parent
+                           }"
+                           groups="project_budget.project_budget_admin"
+                           attrs="{'readonly': [('can_edit', '=', False)]}"
+                           domain="['&amp;','&amp;', '&amp;', ('is_parent_project', '=', False), ('parent_project_id', '=', False), ('budget_state', '!=', 'fixed'), ('step_status', '=', 'project')]"/>
+                    <field name="child_project_ids" mode="tree" widget="many2many" readonly="1"
+                           context="{'tree_view_ref': 'project_budget.project_budget_project_child_view_tree'}"
+                           groups="!project_budget.project_budget_admin"
+                           domain="['&amp;','&amp;', '&amp;', ('is_parent_project', '=', False), ('parent_project_id', '=', False), ('budget_state', '!=', 'fixed'), ('step_status', '=', 'project')]"/>
+                </page>
+            </xpath>
+            <xpath expr="//sheet[@name='project']//group//group[@name='project_have_steps']" position="replace">
+                <group>
+                    <field name="margin_from_children_to_parent_related" invisible="True"/>
+                    <field name="project_have_steps" widget="boolean_toggle"
+                           attrs="{
+                           'readonly': [('can_edit', '=', False)],
+                           'invisible': [
+                                    '|', '&amp;',
+                                    ('is_parent_project', '=', True), ('margin_from_children_to_parent', '=', True),
+                                    '&amp;',
+                                    ('is_child_project', '=', True), ('margin_from_children_to_parent_related', '=', False),
+                                ]
+                           }"
+                           options="{'autosave': False}"/>
+                </group>
+            </xpath>
+            <xpath expr="//sheet[@name='project']//group//group//field[@name='vat_attribute_id']" position="replace">
+                 <field name="vat_attribute_id" placeholder="select vat attribute"
+                        options="{'no_open': True}"
+                        attrs="{
+                            'readonly': [('can_edit', '=', False)],
+                            'invisible': [('project_have_steps', '=', True)],
+                            'required': [
+                            '&amp;', '&amp;', '|',
+                            ('is_parent_project', '=', False),
+                            ('margin_from_children_to_parent', '=', False),
+                            '|',
+                            ('is_child_project', '=', False),
+                            ('margin_from_children_to_parent_related', '=', True),
+                            ('project_have_steps', '=', False)
+                            ]
+                        }"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="additional_margin_tree_form_inherit_nkk" model="ir.ui.view">
+        <field name="name">additional.margin.tree.inherit.nkk</field>
+        <field name="model">project_budget.projects</field>
+        <field name="inherit_id" ref="project_budget.project_budget_project_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='project_have_steps']" position="after">
+                <field name="is_parent_project" optional="hide"/>
+                <field name="is_child_project" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="additional_margin_child_tree_form_inherit_nkk" model="ir.ui.view">
+        <field name="name">additional.margin.child.tree.inherit.nkk</field>
+        <field name="model">project_budget.projects</field>
+        <field name="inherit_id" ref="project_budget.project_budget_project_child_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//tree//field[@name='margin_income']" position="after">
+                <field name="additional_margin" string="Margin from Related Projects" readonly="1"/>
+                <field name="total_margin" string="Total Margin" readonly="1"/>
+            </xpath>
+            <xpath expr="//tree//field[@name='currency_id']" position="after">
+                <field name="margin_rate_for_parent" widget="percentage"
+                       attrs="{'readonly': [('can_edit', '=', False)]}"/>
+            </xpath>
+        </field>
+    </record>
+
+<!--    <record id="crm_lead_step_view_form_inherit_nkk" model="ir.ui.view">-->
+<!--        <field name="name">crm.lead.step.form.inherit.nkk</field>-->
+<!--        <field name="model">project_budget.projects</field>-->
+<!--        <field name="inherit_id" ref="project_budget.project_budget_step_project_view_form"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <xpath expr="//form/sheet" position="inside">-->
+<!--                <field name="technological_direction_id" invisible="1"/>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+</odoo>

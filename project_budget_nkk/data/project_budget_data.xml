@@ -35,8 +35,32 @@
             <field name="code">
                 <![CDATA[
 for record in records:
-    if (record.stage_id.code in ('75', '100') and not record.step_project_number):
+    if record.stage_id.code in ('75', '100') and not record.step_project_number:
         raise UserError('Пожалуйста укажите код проекта из AXAPTA для %s %s' % ('проекта' if record.step_status == 'project' else 'этапа', record.project_id))
+    # проверка только для СА
+    if record.stage_id.project_state == 'won' and record.company_id.name == 'Систематика' and record.company_id.partner_id == record.signer_id and not record._check_ax_case_step_project_number():
+        raise UserError('Некорректное наименование "Номер этапа проекта". Заполните данные на вкладке "%s" в формате AX, пример: "%s"' % ('Общие' if record.step_status == 'project' else 'Этапы проекта', 'Наименование-001-001-001' if (record.step_status == 'project' and not record.project_have_steps) or record.step_status == 'step' else 'Наименование-001-001'))
+        ]]></field>
+        </record>
+
+        <record id="project_budget_project_contract_number_required" model="base.automation">
+            <field name="name">Contract number required</field>
+            <field name="state">code</field>
+            <field name="model_id" ref="project_budget.model_project_budget_projects"/>
+            <field name="trigger">on_create_or_write</field>
+            <field name="trigger_field_ids"
+                   eval="[(6, 0, [ref('project_budget.field_project_budget_projects__stage_id'), ref('project_budget.field_project_budget_projects__dogovor_number')])]"/>
+            <field name="filter_domain">
+                [
+                    ['budget_state', '=', 'work'],
+                    ['is_correction_project', '=', False]
+                ]
+            </field>
+            <field name="code">
+                <![CDATA[
+for record in records:
+    if (record.stage_id.project_state == 'won' and not record.dogovor_number):
+        raise UserError('Пожалуйста укажите номер договора для %s %s' % ('проекта' if record.step_status == 'project' else 'этапа', record.project_id))
         ]]></field>
         </record>
     </data>
