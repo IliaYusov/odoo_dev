@@ -984,7 +984,7 @@
                                        mode="tree" attrs="{'readonly': [('can_edit', '=', False)]}">
                                 </field>
                             </page>
-                            <page name="step_projects" string="step-projects" attrs="{'invisible': [('project_have_steps', '=', False)]}">
+                            <page name="steps" string="step-projects" attrs="{'invisible': [('project_have_steps', '=', False)]}">
                                 <field name="step_project_child_ids" mode="tree" widget="section_and_note_one2many"
                                    context="{
                                    'form_view_ref': 'project_budget.project_budget_step_project_view_form',

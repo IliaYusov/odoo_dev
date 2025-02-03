@@ -70,7 +70,7 @@
                            attrs="{'invisible': [('is_child_project', '!=', True)]}"/>
                 </group>
             </xpath>
-            <xpath expr="//page[@name='step_projects']" position="after">
+            <xpath expr="//page[@name='steps']" position="after">
                 <page name="child_projects" string="Child Projects" attrs="{'invisible': [('is_parent_project', '=', False)]}">
                     <group>
                         <group attrs="{'invisible': [('margin_from_children_to_parent', '=', False)]}"
