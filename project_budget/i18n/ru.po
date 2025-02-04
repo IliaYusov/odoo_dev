@@ -5091,6 +5091,11 @@ msgid "systematica forecast"
 msgstr "Отчет для Систематики"
 
 #. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects_report_wizard__three_quarters_report
+msgid "report for three quarters"
+msgstr "Отчет включает предыдущий и последующий кварталы"
+
+#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__taxes_fot_premiums
 msgid "taxes_FOT and premiums"
 msgstr "Налоги на ФОТ и премии"

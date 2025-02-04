@@ -46,7 +46,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
         ])]
         return self.centers_with_parents(new_ids, max_level)
 
-    def calculate_periods_dict(self, workbook, actual_date):
+    def calculate_periods_dict(self, workbook, actual_date, months_tuple):
         commitment_format = workbook.add_format({
             'border': 1,
             'font_size': 8,
@@ -178,7 +178,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
         week_cols = []
         fact_week_cols = []
         actual_quarter_start = date(actual_date.year, (actual_date.month - 1) // 3 * 3 + 1, 1)
-        for month_delta in (-3, -2, -1, 0, 1, 2, 3, 4, 5):  # месяцы от начала текущего квартала
+        for month_delta in months_tuple:  # месяцы от начала текущего квартала
             month_start = actual_quarter_start + relativedelta(months=month_delta)
             month_end = actual_quarter_start + relativedelta(months=month_delta + 1) - timedelta(days=1)
 
@@ -473,11 +473,10 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                         ],
                     }
                     col += 1
-                if month_delta == -3:  # начало и конец всего переода
-                    period_limits.append(month_start)
-                elif month_delta == 5:
-                    period_limits.append(month_end)
-
+            if month_delta == months_tuple[0]:  # начало и конец всего периода
+                period_limits.append(month_start)
+            elif month_delta == months_tuple[-1]:
+                period_limits.append(month_end + timedelta(days=31)) # добавляем месяц если следующий месяц в новом квартале
         return periods_dict, period_limits
 
     def calculate_budget_ids(self, budget, periods_dict):
@@ -488,8 +487,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                 if options['type'] == 'month' and date_utils.start_of(period[1], 'month') <= date_utils.start_of(
                         actual_budget_date, 'month'):
                     budget_id = self.env['project_budget.commercial_budget'].search([
-                        ('date_actual', '<=', period[0]),
-                        ('date_actual', '>=', period[0] - relativedelta(months=1)),
+                        ('date_actual', '<', period[0]),
                     ], limit=1, order='date_actual desc').id
                     options['budget_id'] = budget_id
                     if budget_id:
@@ -502,7 +500,6 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                                                                                       previous_week_year)
                     budget_id = self.env['project_budget.commercial_budget'].search([
                         ('date_actual', '<=', previous_week_end),
-                        ('date_actual', '>=', previous_week_start),
                     ], limit=1, order='date_actual desc').id
                     options['budget_id'] = budget_id
                     if budget_id:
@@ -857,7 +854,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                 col_counter += 1
 
     def printworksheet(self, workbook, budget, namesheet, responsibility_center_ids, max_level, multipliers,
-                       dict_formula):
+                       dict_formula, months_tuple):
         report_name = budget.name
         sheet = workbook.add_worksheet(namesheet)
         sheet.set_zoom(85)
@@ -1005,7 +1002,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
         sheet.freeze_panes(3, 12)
         column += 1
 
-        periods_dict, period_limits = self.calculate_periods_dict(workbook, actual_budget_date)
+        periods_dict, period_limits = self.calculate_periods_dict(workbook, actual_budget_date, months_tuple)
         periods_dict, budget_ids = self.calculate_budget_ids(budget, periods_dict)
 
         projects = self.env['project_budget.projects'].search([
@@ -1102,6 +1099,11 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
 
         multipliers = {'50': data['koeff_reserve'], '30': data['koeff_potential']}
 
+        if data['three_quarters_report']:
+            months_tuple = (-3, -2, -1, 0, 1, 2, 3, 4, 5)
+        else:
+            months_tuple = (0, 1, 2)
+
         commercial_budget_id = data['commercial_budget_id']
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
-        self.printworksheet(workbook, budget, 'ПДС', responsibility_center_ids, max_level, multipliers, dict_formula)
+        self.printworksheet(workbook, budget, 'ПДС', responsibility_center_ids, max_level, multipliers, dict_formula, months_tuple)

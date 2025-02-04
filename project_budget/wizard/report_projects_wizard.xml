@@ -44,6 +44,7 @@
                         <group>
                             <field name="report_with_projects" attrs="{'invisible': [('type_report', 'not in', ('management_committee'))]}"/>
                             <field name="systematica_forecast" attrs="{'invisible': [('type_report', 'not in', ('forecast_v2', 'forecast_v3',))]}"/>
+                            <field name="three_quarters_report" attrs="{'invisible': [('type_report', 'not in', ('pds_weekly_plan_fact',))]}"/>
                         </group>
                     </group>
                     <group col = "4" string="report period" attrs="{'invisible': [('type_report', 'in', ('raw_data','overdue','pds_acceptance_by_date', 'pds_weekly_plan_fact', 'pds_weekly_plan_fact_sa'))]}">

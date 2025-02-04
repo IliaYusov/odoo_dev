@@ -61,6 +61,7 @@ class report_projects_wizard(models.TransientModel):
                                           column1='id', column2='responsibility_center_id', string='Project offices')
     print_managers = fields.Boolean(string='print managers', default=False)
     systematica_forecast = fields.Boolean(string='systematica forecast', default=False)
+    three_quarters_report = fields.Boolean(string='report for three quarters', default=True)
 
     def action_print_report(self):
         self.ensure_one()
@@ -82,6 +83,7 @@ class report_projects_wizard(models.TransientModel):
         datas['responsibility_center_ids'] = self.env['account.analytic.account'].search([('plan_id', '=', self.env.ref('analytic_responsibility_center.account_analytic_plan_responsibility_centers').id)]).ids if not self.responsibility_center_ids.ids else self.responsibility_center_ids.ids
         datas['print_managers'] = self.print_managers
         datas['systematica_forecast'] = self.systematica_forecast
+        datas['three_quarters_report'] = self.three_quarters_report
 
         print('data=', datas)
         report_name = 'Project_list_' + str(self.year) + '_' + self.type_report + '.xlsx'
