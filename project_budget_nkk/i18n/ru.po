@@ -170,3 +170,21 @@ msgstr "Переключить направление"
 #: model_terms:ir.ui.view,arch_db:project_budget_nkk.additional_margin_view_form_inherit_nkk
 msgid "Child Projects"
 msgstr "Дочерние проекты"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget_nkk/models/project_budget_project.py:0
+#, python-format
+msgid "Please enter forecast for cash and acceptance to project {0}"
+msgstr ""
+"Пожалуйста добавьте Прогноз актирования и ПДС в проект {0}, его "
+"вероятность больше 30%"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget_nkk/models/project_budget_project.py:0
+#, python-format
+msgid "Please enter forecast for cash and acceptance to project {0} step {1}"
+msgstr ""
+"Пожалуйста добавьте Прогноз актирования и ПДС в этап {1} проекта {0}, его "
+"вероятность больше 30%"

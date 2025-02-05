@@ -2158,24 +2158,6 @@ msgstr ""
 " 10%"
 
 #. module: project_budget
-#. odoo-python
-#: code:addons/project_budget/models/project_budget_project.py:0
-#, python-format
-msgid "Please enter forecast for cash or acceptance to project {0}"
-msgstr ""
-"Пожалуйста добавьте Прогноз актирования или ПДС в проект {0}, его "
-"вероятность больше 30%"
-
-#. module: project_budget
-#. odoo-python
-#: code:addons/project_budget/models/project_budget_project.py:0
-#, python-format
-msgid "Please enter forecast for cash or acceptance to project {0} step {1}"
-msgstr ""
-"Пожалуйста добавьте Прогноз актирования или ПДС в этап {1} проекта {0}, его "
-"вероятность больше 30%"
-
-#. module: project_budget
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_planned_acceptance_flow__forecast__potential
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_planned_cash_flow__forecast__potential
 msgid "Potential"

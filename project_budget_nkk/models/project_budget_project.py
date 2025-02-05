@@ -134,25 +134,23 @@ class Project(models.Model):
             if project.project_have_steps:
                 for step in project.step_project_child_ids:
                     if (step.stage_id.code in ('50', '75', '100')
-                            and not step.planned_step_acceptance_flow_ids
-                            and not step.planned_step_cash_flow_ids
+                            and not (step.planned_step_acceptance_flow_ids and step.planned_step_cash_flow_ids)
                             and not (project.is_parent_project and project.margin_from_children_to_parent)
                             and not (project.is_child_project and not project.margin_from_children_to_parent)
                             and step.budget_state == 'work'
                             and not step.is_correction_project):
-                        raisetext = _("Please enter forecast for cash or acceptance to project {0} step {1}")
+                        raisetext = _("Please enter forecast for cash and acceptance to project {0} step {1}")
                         raisetext = raisetext.format(step.step_project_parent_id.project_id, step.project_id)
                         raise ValidationError(raisetext)
             else:
                 if (project.stage_id.code in ('50', '75', '100')
-                        and not project.planned_acceptance_flow_ids
-                        and not project.planned_cash_flow_ids
+                        and not (project.planned_acceptance_flow_ids and project.planned_cash_flow_ids)
                         and not (project.is_parent_project and project.margin_from_children_to_parent)
                         and not (project.is_child_project and not project.margin_from_children_to_parent)
                         and project.budget_state == 'work'
                         and not project.is_correction_project
                         and project.step_status == 'project'):
-                    raisetext = _("Please enter forecast for cash or acceptance to project {0}")
+                    raisetext = _("Please enter forecast for cash and acceptance to project {0}")
                     raisetext = raisetext.format(project.project_id)
                     raise ValidationError(raisetext)
 
