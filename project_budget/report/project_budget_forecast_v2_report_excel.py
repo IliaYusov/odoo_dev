@@ -2914,7 +2914,7 @@ class report_budget_forecast_excel(models.AbstractModel):
         if systematica_forecast: #  Суммируем Систематику и Облако
             column = 0
             row += 1
-            sheet.merge_range(row, column, row, column + 4, 'ИТОГО ВГО', row_format_number_vgo)
+            sheet.merge_range(row, column, row, column + 4, 'Проекты других ЮЛ Холдинга', row_format_number_vgo)
             sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
 
             if dict_formula['vgo_lines'].get(dict_formula['systematica_id']):
