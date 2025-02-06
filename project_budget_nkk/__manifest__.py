@@ -6,6 +6,7 @@
     'description': """
     """,
     'data': [
+        'security/project_budget_users_rules.xml',
         'security/ir.model.access.csv',
         'data/project_budget_data.xml',
         'views/project_budget_technological_direction_views.xml',
