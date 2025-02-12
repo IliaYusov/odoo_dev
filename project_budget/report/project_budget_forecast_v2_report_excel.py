@@ -1455,11 +1455,11 @@ class report_budget_forecast_excel(models.AbstractModel):
 
     def print_estimated_rows(self, sheet, row, format, format_cross):
 
-        for colFormula in range(2, start_column):
-            sheet.write_string(row, colFormula, '', format)
+        for col in start_range:
+            sheet.write_string(row, col, '', format)
 
-        for colFormula in list(range(start_column, 220 + start_column)) + list(range(221 + start_column, 235 + start_column)) + list(range(236 + start_column, 250 + start_column)):
-            sheet.write_string(row, colFormula, '', format)
+        for col in full_range:
+            sheet.write_string(row, col, '', format)
 
         for type in plan_shift:  # формулы расчетных планов
             column = start_column
@@ -1767,6 +1767,13 @@ class report_budget_forecast_excel(models.AbstractModel):
             'align': 'center',
             'diag_type': 3,
         })
+        row_format_number_vgo = workbook.add_format({
+            'border': 1,
+            'font_size': 10,
+            "bold": True,
+            "fg_color": '#bfbfbf',
+            'num_format': '#,##0',
+        })
 
         # if isdebug:
         #     logger.info(f' def print_row | center_parent_id = { center_parent_id }')
@@ -1902,12 +1909,14 @@ class report_budget_forecast_excel(models.AbstractModel):
                                         and company.partner_id.id != spec.signer_id.id
                                         and not spec.is_parent_project
                                 ):
-                                    dict_formula['other_legal_entities_lines'].setdefault(company.id, []).append(row + 1)
+                                    dict_formula['other_legal_entities_lines'].setdefault(company.id, {}).setdefault('company', {}).setdefault(spec.signer_id.name, []).append(row + 1)
+                                    dict_formula['other_legal_entities_lines'].setdefault(company.id, {}).setdefault(responsibility_center.id, {}).setdefault(spec.signer_id.name, []).append(row + 1)
                                 elif (
                                         spec.company_partner_id.partner_id.id != spec.signer_id.id
                                         and company.partner_id.id != spec.signer_id.id
                                 ):
-                                    dict_formula['vgo_lines'].setdefault(company.id, []).append(row + 1)
+                                    dict_formula['vgo_lines'].setdefault(company.id, {}).setdefault('company', {}).setdefault(spec.signer_id.name, []).append(row + 1)
+                                    dict_formula['vgo_lines'].setdefault(company.id, {}).setdefault(responsibility_center.id, {}).setdefault(spec.signer_id.name, []).append(row + 1)
 
                         if isFoundProjectsByProbability:
                             row += 1
@@ -1917,15 +1926,15 @@ class report_budget_forecast_excel(models.AbstractModel):
                             sheet.set_row(row, False, False, {'hidden': 1, 'level': level + 2})
 
                             formulaProjectManager = formulaProjectManager + ',{0}' + str(row + 1)
-                            for colFormula in range(2, start_column):
-                                sheet.write_string(row, colFormula, '', row_format_probability)
-                            for colFormula in list(range(start_column, 220 + start_column)) + list(range(221 + start_column, 235 + start_column)) + list(range(236 + start_column, 250 + start_column)):
+                            for col in start_range:
+                                sheet.write_string(row, col, '', row_format_probability)
+                            for col in full_range:
                                 formula = '=sum({2}{0}:{2}{1})'.format(begRowProjectsByProbability + 2, row,
-                                                                       xl_col_to_name(colFormula))
-                                if colFormula in fact_columns and stage.code not in ('100', '100(done)'):
-                                    sheet.write_formula(row, colFormula, formula, row_format_fact_cross)  # кресты в фактах где вероятности < 100
+                                                                       xl_col_to_name(col))
+                                if col in fact_columns and stage.code not in ('100', '100(done)'):
+                                    sheet.write_formula(row, col, formula, row_format_fact_cross)  # кресты в фактах где вероятности < 100
                                 else:
-                                    sheet.write_formula(row, colFormula, formula, row_format_probability)
+                                    sheet.write_formula(row, col, formula, row_format_probability)
 
                             for type in plan_shift: # кресты в планах
                                 for c in plan_shift[type].values():
@@ -1939,14 +1948,14 @@ class report_budget_forecast_excel(models.AbstractModel):
                         # print('setrow manager  row = ', row)
                         # print('setrow manager level = ', level)
 
-                        formulaProjectCenter = formulaProjectCenter + ',{0}'+str(row + 1)
+                        formulaProjectCenter = formulaProjectCenter + ',{0}' + str(row + 1)
 
-                        for colFormula in range(2, start_column):
-                            sheet.write_string(row, colFormula, '', row_format_manager)
+                        for col in start_range:
+                            sheet.write_string(row, col, '', row_format_manager)
 
-                        for colFormula in list(range(start_column, 220 + start_column)) + list(range(221 + start_column, 235 + start_column)) + list(range(236 + start_column, 250 + start_column)):
-                            formula = formulaProjectManager.format(xl_col_to_name(colFormula)) + ')'
-                            sheet.write_formula(row, colFormula, formula, row_format_manager)
+                        for col in full_range:
+                            formula = formulaProjectManager.format(xl_col_to_name(col)) + ')'
+                            sheet.write_formula(row, col, formula, row_format_manager)
 
                         # расчетный план КАМа
                         row += 1
@@ -2137,6 +2146,87 @@ class report_budget_forecast_excel(models.AbstractModel):
                     isFoundProjectsByCompany = True
 
                 if isFoundProjectsByCenter:
+
+                    if systematica_forecast:  # Суммируем Систематику и Облако
+                        column = 0
+                        # другие ЮЛ Холдинга
+                        if dict_formula['other_legal_entities_lines'].get(dict_formula['systematica_id'], {}).get(responsibility_center.id):
+                            start_row = row + 2
+                            for signer, lines in \
+                            dict_formula['other_legal_entities_lines'][dict_formula['systematica_id']][
+                                responsibility_center.id].items():
+                                row += 1
+                                sheet.merge_range(row, column, row, column + 4, signer, row_format_number_vgo)
+                                sheet.set_row(row, False, False, {'hidden': 1, 'level': 2})
+
+                                formula_ole = '=sum(' + ','.join('{0}' + str(r) for r in lines) + ')'
+
+                                for col in start_range:
+                                    sheet.write(row, col, '', row_format_number_vgo)
+
+                                for col in full_range:
+                                    formula = formula_ole.format(xl_col_to_name(col))
+                                    sheet.write_formula(row, col, formula, row_format_number_vgo)
+
+                                for type in plan_shift:  # кресты в планах
+                                    for c in plan_shift[type].values():
+                                        sheet.write(row, c, '', row_format_plan_cross)
+                            row += 1
+                            sheet.merge_range(row, column, row, column + 4, 'Проекты других ЮЛ Холдинга',
+                                              row_format_number_vgo)
+                            sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
+                            dict_formula['other_legal_entities_lines'][dict_formula['systematica_id']][responsibility_center.id][
+                                'line'] = row + 1
+                            formula_sum = '=sum(' + ':'.join('{0}' + str(r) for r in (start_row, row)) + ')'
+
+                            for col in start_range:
+                                sheet.write(row, col, '', row_format_number_vgo)
+
+                            for col in full_range:
+                                formula = formula_sum.format(xl_col_to_name(col))
+                                sheet.write_formula(row, col, formula, row_format_number_vgo)
+
+                            for type in plan_shift:  # кресты в планах
+                                for c in plan_shift[type].values():
+                                    sheet.write(row, c, '', row_format_plan_cross)
+                        # ВГО
+                        if dict_formula['vgo_lines'].get(dict_formula['systematica_id'], {}).get(responsibility_center.id):
+                            start_row = row + 2
+                            for signer, lines in dict_formula['vgo_lines'][dict_formula['systematica_id']][
+                                responsibility_center.id].items():
+                                row += 1
+                                sheet.merge_range(row, column, row, column + 4, signer, row_format_number_vgo)
+                                sheet.set_row(row, False, False, {'hidden': 1, 'level': 2})
+
+                                formula_vgo = '=sum(' + ','.join('{0}' + str(r) for r in lines) + ')'
+
+                                for col in start_range:
+                                    sheet.write(row, col, '', row_format_number_vgo)
+
+                                for col in full_range:
+                                    formula = formula_vgo.format(xl_col_to_name(col))
+                                    sheet.write_formula(row, col, formula, row_format_number_vgo)
+
+                                for type in plan_shift:  # кресты в планах
+                                    for c in plan_shift[type].values():
+                                        sheet.write(row, c, '', row_format_plan_cross)
+                            row += 1
+                            sheet.merge_range(row, column, row, column + 4, 'ВГО', row_format_number_vgo)
+                            sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
+                            dict_formula['vgo_lines'][dict_formula['systematica_id']][responsibility_center.id]['line'] = row + 1
+                            formula_sum = '=sum(' + ':'.join('{0}' + str(r) for r in (start_row, row)) + ')'
+
+                            for col in start_range:
+                                sheet.write(row, col, '', row_format_number_vgo)
+
+                            for col in full_range:
+                                formula = formula_sum.format(xl_col_to_name(col))
+                                sheet.write_formula(row, col, formula, row_format_number_vgo)
+
+                            for type in plan_shift:  # кресты в планах
+                                for c in plan_shift[type].values():
+                                    sheet.write(row, c, '', row_format_plan_cross)
+
                     row += 1
                     column = 0
                     sheet.merge_range(row, column, row, column + 4, 'ИТОГО ' + responsibility_center.name, row_format_center)
@@ -2170,13 +2260,12 @@ class report_budget_forecast_excel(models.AbstractModel):
                     else:
                         formulaProjectCenter = formulaProjectCenter + ')'
 
-                    for colFormula in range(2, start_column):
-                        sheet.write_string(row, colFormula, '', row_format_center)
+                    for col in start_range:
+                        sheet.write_string(row, col, '', row_format_center)
 
-                    for colFormula in list(range(start_column, 220 + start_column)) + list(range(221 + start_column, 235 + start_column)) + list(range(236 + start_column, 250 + start_column)):
-                        formula = formulaProjectCenter.format(xl_col_to_name(colFormula))
-                        # print('formula = ', formula)
-                        sheet.write_formula(row, colFormula, formula, row_format_center)
+                    for col in full_range:
+                        formula = formulaProjectCenter.format(xl_col_to_name(col))
+                        sheet.write_formula(row, col, formula, row_format_center)
 
                     for type in plan_shift:  # кресты в планах
                         for c in plan_shift[type].values():
@@ -2397,12 +2486,12 @@ class report_budget_forecast_excel(models.AbstractModel):
 
                 formulaCompany = formulaCompany + ')'
 
-                for colFormula in range(2, start_column):
-                    sheet.write_string(row, colFormula, '', row_format_number_itogo)
+                for col in start_range:
+                    sheet.write_string(row, col, '', row_format_number_itogo)
 
-                for colFormula in list(range(start_column, 220 + start_column)) + list(range(221 + start_column, 235 + start_column)) + list(range(236 + start_column, 250 + start_column)):
-                    formula = formulaCompany.format(xl_col_to_name(colFormula))
-                    sheet.write_formula(row, colFormula, formula, row_format_number_itogo)
+                for col in full_range:
+                    formula = formulaCompany.format(xl_col_to_name(col))
+                    sheet.write_formula(row, col, formula, row_format_number_itogo)
 
                 for type in plan_shift:  # кресты в планах
                     for c in plan_shift[type].values():
@@ -2922,53 +3011,121 @@ class report_budget_forecast_excel(models.AbstractModel):
         # ИТОГО
         if systematica_forecast: #  Суммируем Систематику и Облако
             column = 0
-            row += 1
-            sheet.merge_range(row, column, row, column + 4, 'Проекты других ЮЛ Холдинга', row_format_number_vgo)
-            sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
-
+            # другие ЮЛ Холдинга
             if dict_formula['other_legal_entities_lines'].get(dict_formula['systematica_id']):
-                formula_ole = '=sum(' + ','.join('{0}' + str(r) for r in dict_formula['other_legal_entities_lines'][dict_formula['systematica_id']]) + ')'
-            else:
-                formula_ole = 'sum(0)'
+                start_row = row + 2
+                for signer, lines in dict_formula['other_legal_entities_lines'][dict_formula['systematica_id']]['company'].items():
+                    row += 1
+                    sheet.merge_range(row, column, row, column + 4, signer, row_format_number_vgo)
+                    sheet.set_row(row, False, False, {'hidden': 1, 'level': 2})
 
-            for colFormula in range(2, start_column):
-                sheet.write_string(row, colFormula, '', row_format_number_vgo)
+                    formula_ole = '=sum(' + ','.join('{0}' + str(r) for r in lines) + ')'
 
-            for colFormula in list(range(start_column, 220 + start_column)) + list(
-                    range(221 + start_column, 235 + start_column)) + list(
-                    range(236 + start_column, 250 + start_column)):
-                formula = formula_ole.format(xl_col_to_name(colFormula))
-                sheet.write_formula(row, colFormula, formula, row_format_number_vgo)
+                    for col in start_range:
+                        sheet.write(row, col, '', row_format_number_vgo)
 
-            for type in plan_shift:  # кресты в планах
-                for c in plan_shift[type].values():
-                    sheet.write_string(row, c, '', row_format_plan_cross)
+                    for col in full_range:
+                        formula = formula_ole.format(xl_col_to_name(col))
+                        sheet.write_formula(row, col, formula, row_format_number_vgo)
 
-            column = 0
-            row += 1
-            sheet.merge_range(row, column, row, column + 4, 'ВГО', row_format_number_vgo)
-            sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
+                    for type in plan_shift:  # кресты в планах
+                        for c in plan_shift[type].values():
+                            sheet.write(row, c, '', row_format_plan_cross)
+                row += 1
+                sheet.merge_range(row, column, row, column + 4, 'Проекты других ЮЛ Холдинга',
+                                  row_format_number_vgo)
+                sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
+                dict_formula['other_legal_entities_lines'][dict_formula['systematica_id']]['company']['line'] = row + 1
+                formula_sum = '=sum(' + ':'.join('{0}' + str(r) for r in (start_row, row)) + ')'
+
+                for col in start_range:
+                    sheet.write(row, col, '', row_format_number_vgo)
+
+                for col in full_range:
+                    formula = formula_sum.format(xl_col_to_name(col))
+                    sheet.write_formula(row, col, formula, row_format_number_vgo)
+
+                for type in plan_shift:  # кресты в планах
+                    for c in plan_shift[type].values():
+                        sheet.write(row, c, '', row_format_plan_cross)
+            # ВГО
             if dict_formula['vgo_lines'].get(dict_formula['systematica_id']):
-                formula_vgo = '=sum(' + ','.join('{0}' + str(r) for r in dict_formula['vgo_lines'][dict_formula['systematica_id']]) + ')'
-            else:
-                formula_vgo = 'sum(0)'
+                start_row = row + 2
+                for signer, lines in dict_formula['vgo_lines'][dict_formula['systematica_id']]['company'].items():
+                    row += 1
+                    sheet.merge_range(row, column, row, column + 4, signer, row_format_number_vgo)
+                    sheet.set_row(row, False, False, {'hidden': 1, 'level': 2})
 
-            for colFormula in range(2, start_column):
-                sheet.write_string(row, colFormula, '', row_format_number_vgo)
+                    formula_vgo = '=sum(' + ','.join('{0}' + str(r) for r in lines) + ')'
 
-            for colFormula in list(range(start_column, 220 + start_column)) + list(
-                    range(221 + start_column, 235 + start_column)) + list(
-                    range(236 + start_column, 250 + start_column)):
-                formula = formula_vgo.format(xl_col_to_name(colFormula))
-                sheet.write_formula(row, colFormula, formula, row_format_number_vgo)
+                    for col in start_range:
+                        sheet.write(row, col, '', row_format_number_vgo)
 
-            for type in plan_shift:  # кресты в планах
-                for c in plan_shift[type].values():
-                    sheet.write_string(row, c, '', row_format_plan_cross)
+                    for col in full_range:
+                        formula = formula_vgo.format(xl_col_to_name(col))
+                        sheet.write_formula(row, col, formula, row_format_number_vgo)
+
+                    for type in plan_shift:  # кресты в планах
+                        for c in plan_shift[type].values():
+                            sheet.write(row, c, '', row_format_plan_cross)
+                row += 1
+                sheet.merge_range(row, column, row, column + 4, 'ВГО', row_format_number_vgo)
+                sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
+                dict_formula['vgo_lines'][dict_formula['systematica_id']]['company']['line'] = row + 1
+                formula_sum = '=sum(' + ':'.join('{0}' + str(r) for r in (start_row, row)) + ')'
+
+                for col in start_range:
+                    sheet.write(row, col, '', row_format_number_vgo)
+
+                for col in full_range:
+                    formula = formula_sum.format(xl_col_to_name(col))
+                    sheet.write_formula(row, col, formula, row_format_number_vgo)
+
+                for type in plan_shift:  # кресты в планах
+                    for c in plan_shift[type].values():
+                        sheet.write(row, c, '', row_format_plan_cross)
+
+            # ИТОГО без ВГО и других ЮЛ Холдинга
+            if (dict_formula['vgo_lines'].get(dict_formula['systematica_id'])
+                    or dict_formula['other_legal_entities_lines'].get(dict_formula['systematica_id'])):
+                row += 1
+                column = 0
+                sheet.merge_range(row, column, row, column + 4, 'ИТОГО СА (коммерческие)', row_format_number_itogo)
+                sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
+
+                formula_itogo = '=' + '-'.join('{0}' + str(r) for r in (
+                    row + 3,
+                    dict_formula['vgo_lines'].get(dict_formula['systematica_id'], {}).get('company', {}).get('line'),
+                    dict_formula['other_legal_entities_lines'].get(dict_formula['systematica_id'], {}).get('company', {}).get('line')
+                    ) if r)
+
+                for col in start_range:
+                    sheet.write_string(row, col, '', row_format_number_itogo)
+                for col in full_range:
+                    formula = formula_itogo.format(xl_col_to_name(col))
+                    sheet.write_formula(row, col, formula, row_format_number_itogo)
+
+                # расчетный план по отчету
+                row += 1
+                column = 0
+                sheet.merge_range(row, column, row, column + 4, 'ИТОГО: СА Расчетный План (коммерческие)',
+                                  row_format_itogo_estimated_plan_left)
+                self.print_estimated_rows(sheet, row, row_format_itogo_estimated_plan,
+                                          row_format_itogo_estimated_plan_cross)
+
+                formula_plan = '=sum(,' + ','.join(('{0}' + str(c + 1)) for c in dict_formula[
+                    'companies_lines']) + ')'  # увеличиваем все номера строк на 1
+                for type in plan_shift:  # кресты в планах
+                    for c in plan_shift[type].values():
+                        if formula_plan:
+                            formula = formula_plan.format(xl_col_to_name(c))
+                            sheet.write_string(row - 1, c, '', row_format_plan_cross)
+                            sheet.write_formula(row, c, formula, row_format_plan)
 
         row += 1
         column = 0
         sheet.merge_range(row, column, row, column + 4, 'ИТОГО по отчету', row_format_number_itogo)
+        report_row = row + 1
         formula_itogo = False
         formula_plan = False
         if dict_formula['companies_lines']:
@@ -2981,11 +3138,11 @@ class report_budget_forecast_excel(models.AbstractModel):
             sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
 
         if formula_itogo:
-            for colFormula in range(2, start_column):
-                sheet.write_string(row, colFormula, '', row_format_number_itogo)
-            for colFormula in list(range(start_column, 220 + start_column)) + list(range(221 + start_column, 235 + start_column)) + list(range(236 + start_column, 250 + start_column)):
-                formula = formula_itogo.format(xl_col_to_name(colFormula))
-                sheet.write_formula(row, colFormula, formula, row_format_number_itogo)
+            for col in start_range:
+                sheet.write_string(row, col, '', row_format_number_itogo)
+            for col in full_range:
+                formula = formula_itogo.format(xl_col_to_name(col))
+                sheet.write_formula(row, col, formula, row_format_number_itogo)
 
         # расчетный план по отчету
         row += 1
@@ -3003,53 +3160,78 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         total_row = row
 
-        if systematica_forecast: #  Суммируем Систематику и Облако
+        #  Суммируем Систематику и Облако
+        if systematica_forecast:
+            # ИТОГО без ВГО и других ЮЛ Холдинга
+            if (dict_formula['vgo_lines'].get(dict_formula['systematica_id'])
+                 or dict_formula['other_legal_entities_lines'].get(dict_formula['systematica_id'])):
+                row += 2
+                column = 0
+                sheet.merge_range(row, column, row, column + 4, 'ИТОГО: СА+Облако.ру (коммерческие)', row_format_number_itogo)
+                sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
+
+                formula_itogo = '=' + '-'.join('{0}' + str(r) for r in (
+                    row + 3,
+                    dict_formula['vgo_lines'].get(dict_formula['systematica_id'], {}).get('company', {}).get('line'),
+                    dict_formula['other_legal_entities_lines'].get(dict_formula['systematica_id'], {}).
+                        get('company',{}).get('line')
+                ) if r)
+
+                for col in start_range:
+                    sheet.write_string(row, col, '', row_format_number_itogo)
+                for col in full_range:
+                    formula = formula_itogo.format(xl_col_to_name(col))
+                    sheet.write_formula(row, col, formula, row_format_number_itogo)
+
+                # расчетный план по отчету
+                row += 1
+                column = 0
+                sheet.merge_range(row, column, row, column + 4, 'ИТОГО: СА+Облако.ру Расчетный План (коммерческие)',
+                                  row_format_itogo_estimated_plan_left)
+                self.print_estimated_rows(sheet, row, row_format_itogo_estimated_plan,
+                                          row_format_itogo_estimated_plan_cross)
+
+                formula_plan = '=sum(,' + ','.join(('{0}' + str(c + 1)) for c in dict_formula[
+                    'companies_lines']) + ')'  # увеличиваем все номера строк на 1
+                for type in plan_shift:  # кресты в планах
+                    for c in plan_shift[type].values():
+                        if formula_plan:
+                            formula = formula_plan.format(xl_col_to_name(c))
+                            sheet.write_string(row - 1, c, '', row_format_plan_cross)
+                            sheet.write_formula(row, c, formula, row_format_plan)
+                total_row += 3
+
             # ИТОГО
             column = 0
-            sheet.merge_range(row + 1, column, row + 1, column + 4, 'ИТОГО: СА+Облако.ру по отчету', row_format_number_itogo)
+            sheet.merge_range(row + 1, column, row + 1, column + 4, 'ИТОГО: СА+Облако.ру по отчету (с учетом ВГО и проектов др. ЮЛ Холдинга)', row_format_number_itogo)
             sheet.set_row(row + 1, False, False, {'hidden': 1, 'level': 1})
-            for colFormula in range(2, start_column):
-                sheet.write_string(row + 1, colFormula, '', row_format_number_itogo)
-            for colFormula in list(range(start_column, 220 + start_column)) + list(range(221 + start_column, 235 + start_column)) + list(range(236 + start_column, 250 + start_column)):
-                formula = '=sum({2}{0},{3}{2}{1})'.format(row, oblako_row, xl_col_to_name(colFormula), "'Прогноз (Облако.ру)'!")
-                formula_vgo = '=({0}{1}-{0}{2}-{0}{3})'.format(xl_col_to_name(colFormula), row + 2, row - 1, row - 2)
-                sheet.write_formula(row + 1, colFormula, formula, row_format_number_itogo)
-                sheet.write_formula(row + 5, colFormula, formula_vgo, row_format_number_itogo)
+            for col in start_range:
+                sheet.write_string(row + 1, col, '', row_format_number_itogo)
+            for col in full_range:
+                formula = '=sum({2}{0},{3}{2}{1})'.format(report_row, oblako_row, xl_col_to_name(col), "'Прогноз (Облако.ру)'!")
+                sheet.write_formula(row + 1, col, formula, row_format_number_itogo)
             # расчетный план по отчету
-            sheet.merge_range(row + 2, column, row + 2, column + 4, 'ИТОГО: СА+Облако.ру Расчетный План по отчету',
+            sheet.merge_range(row + 2, column, row + 2, column + 4, 'ИТОГО: СА+Облако.ру Расчетный План по отчету (с учетом ВГО и проектов др. ЮЛ Холдинга)',
                               row_format_itogo_estimated_plan_left)
             self.print_estimated_rows(sheet, row + 2, row_format_itogo_estimated_plan,
-                                      row_format_itogo_estimated_plan_cross)
-            self.print_estimated_rows(sheet, row + 6, row_format_itogo_estimated_plan,
                                       row_format_itogo_estimated_plan_cross)
 
             for type in plan_shift:  # кресты в планах
                 for period, shift in plan_shift[type].items():
-                    formula = '=sum({2}{0},{3}{2}{1})'.format(row + 1, oblako_row + 1, xl_col_to_name(shift),"'Прогноз (Облако.ру)'!")
+                    formula = '=sum({2}{0},{3}{2}{1})'.format(report_row + 1, oblako_row + 1, xl_col_to_name(shift),"'Прогноз (Облако.ру)'!")
                     sheet.write_string(row + 1, shift, '', row_format_plan_cross)
                     sheet.write_formula(row + 2, shift, formula, row_format_plan)
-            for type in plan_shift:  # пробелы в ВГО
-                for period, shift in plan_shift[type].items():
-                    sheet.write_string(row + 5, shift, '')
-                    sheet.write_string(row + 6, shift, '')
-            for col in range(4, start_column):
-                sheet.write_string(row + 6, col, '')
             row += 2
             sheet.activate()
             total_row += 2
 
-        if diff_name:  # разница
+        # Разница с планом
+        if diff_name:
             sheet.merge_range(
                 row + 1, 1, row + 1, 3,
                 f'Разница Итого; План ' + ('6+6' if use_6_6 else f'{YEARint}') + f' ({diff_name})/ Расчетный план до конца периода (на дату отчета)',
                 row_format_diff
             )
-            if systematica_forecast:
-                sheet.merge_range(
-                    row + 3, 1, row + 5, 3,
-                    '*без учета ВГО и проектов других ЮЛ Холдинга',
-                    row_format_diff
-                )
             for type in plan_shift:
                 for period, shift in plan_shift[type].items():
                     if 'NEXT' not in period and '6+6' not in period:
@@ -3061,13 +3243,6 @@ class report_budget_forecast_excel(models.AbstractModel):
                                     xl_col_to_name(shift + 3),
                                     xl_col_to_name(shift + 1),
                                 )
-                                formula_vgo = '=({1}{4}+{2}{4})-{3}{0}'.format(
-                                    row + 1,
-                                    xl_col_to_name(shift + 2),
-                                    xl_col_to_name(shift + 3),
-                                    xl_col_to_name(shift + 1),
-                                    row + 5,
-                                )
                             else:
                                 formula_diff = '=({1}{0}+{2}{0})-{3}{0}'.format(
                                     row + 1,
@@ -3075,16 +3250,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                     xl_col_to_name(shift + 3),
                                     xl_col_to_name(shift),
                                 )
-                                formula_vgo = '=({1}{4}+{2}{4})-{3}{0}'.format(
-                                    row + 1,
-                                    xl_col_to_name(shift + 2),
-                                    xl_col_to_name(shift + 3),
-                                    xl_col_to_name(shift),
-                                    row + 5,
-                                )
                             sheet.merge_range(row + 1, shift + 2, row + 1, shift + 4, formula_diff, row_format_diff)
-                            if systematica_forecast:
-                                sheet.merge_range(row + 5, shift + 2, row + 5, shift + 4, formula_vgo, row_format_diff)
                         else:
                             formula_diff = '=({1}{0}+{2}{0})-{3}{0}'.format(
                                 row + 1,
@@ -3092,20 +3258,9 @@ class report_budget_forecast_excel(models.AbstractModel):
                                 xl_col_to_name(shift + 2),
                                 xl_col_to_name(shift),
                             )
-                            formula_vgo = '=({1}{4}+{2}{4})-{3}{0}'.format(
-                                row + 1,
-                                xl_col_to_name(shift + 1),
-                                xl_col_to_name(shift + 2),
-                                xl_col_to_name(shift),
-                                row + 5,
-                            )
                             sheet.merge_range(row + 1, shift + 1, row + 1, shift + 3, formula_diff, row_format_diff)
-                            if systematica_forecast:
-                                sheet.merge_range(row + 5, shift + 1, row + 5, shift + 3, formula_vgo, row_format_diff)
             sheet.set_row(row + 1, 32)
             row += 1
-            if systematica_forecast:
-                row += 4
 
         row += 2
         sheet.merge_range(row, 1, row, 2, 'Контрактование, с НДС', summary_format_border_top_center)
@@ -3387,11 +3542,12 @@ class report_budget_forecast_excel(models.AbstractModel):
         global dict_formula
         global koeff_reserve
         global koeff_potential
-        global margin_shift
         global plan_shift
         global fact_columns
         global use_6_6
         global start_column
+        global start_range
+        global full_range
         use_6_6 = False
         koeff_reserve = data['koeff_reserve']
         koeff_potential = data['koeff_potential']
@@ -3401,6 +3557,10 @@ class report_budget_forecast_excel(models.AbstractModel):
         systematica_forecast = data['systematica_forecast']
 
         start_column = 12
+        start_range = range(5, start_column)
+        full_range = (list(range(start_column, 220 + start_column))
+                      + list(range(221 + start_column, 235 + start_column))
+                      + list(range(236 + start_column, 250 + start_column)))
 
         plan_shift = {
             'revenue': {
@@ -3505,9 +3665,9 @@ class report_budget_forecast_excel(models.AbstractModel):
             stages = self.env['project_budget.project.stage'].search([('code', '!=', '10')], order='sequence desc')
             self.printworksheet(workbook, budget, 'Прогноз', stages, systmatica_ids, True, oblako_row, 'СА+Облако.ру')
 
-            dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'centers_lines': set(), 'other_legal_entities_lines': dict(), 'vgo_lines': dict(), 'systematica_id': systematica_id}
-            stages = self.env['project_budget.project.stage'].search([('code', '=', '10')], order='sequence desc')
-            self.printworksheet(workbook, budget, '10%', stages, responsibility_center_ids, False, 0, False)
+            # dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'centers_lines': set(), 'other_legal_entities_lines': dict(), 'vgo_lines': dict(), 'systematica_id': systematica_id}
+            # stages = self.env['project_budget.project.stage'].search([('code', '=', '10')], order='sequence desc')
+            # self.printworksheet(workbook, budget, '10%', stages, responsibility_center_ids, False, 0, False)
         else:
             dict_formula = {'printed_projects': set(), 'companies_lines': set(), 'centers_lines': set(), 'other_legal_entities_lines': dict(), 'vgo_lines': dict(), 'systematica_id': False}
             stages = self.env['project_budget.project.stage'].search([('code', '!=', '10')], order='sequence desc')  # для сортировки так делаем
