@@ -1908,15 +1908,35 @@ class report_budget_forecast_excel(models.AbstractModel):
                                         spec.company_partner_id.partner_id.id == spec.signer_id.id
                                         and company.partner_id.id != spec.signer_id.id
                                         and not spec.is_parent_project
+                                        and spec.company_partner_id.partner_id.id in group_companies
                                 ):
-                                    dict_formula['other_legal_entities_lines'].setdefault(company.id, {}).setdefault('company', {}).setdefault(spec.signer_id.name, []).append(row + 1)
-                                    dict_formula['other_legal_entities_lines'].setdefault(company.id, {}).setdefault(responsibility_center.id, {}).setdefault(spec.signer_id.name, []).append(row + 1)
+                                    dict_formula['other_legal_entities_lines'].setdefault(company.id, {}).setdefault('company', {}).setdefault(spec.company_partner_id.partner_id.name, []).append(row + 1)
+                                    dict_formula['other_legal_entities_lines'].setdefault(company.id, {}).setdefault(responsibility_center.id, {}).setdefault(spec.company_partner_id.partner_id.name, []).append(row + 1)
+                                    if responsibility_center.parent_id:
+                                        parent_center = responsibility_center.parent_id
+                                        while parent_center:
+                                            dict_formula['other_legal_entities_lines'].setdefault(company.id,
+                                                                                                  {}).setdefault(
+                                                parent_center.id, {}).setdefault(
+                                                spec.company_partner_id.partner_id.name, []).append(row + 1)
+                                            parent_center = parent_center.parent_id
                                 elif (
-                                        spec.company_partner_id.partner_id.id != spec.signer_id.id
-                                        and company.partner_id.id != spec.signer_id.id
+                                        company.partner_id.id == spec.signer_id.id
+                                        and spec.company_partner_id
+                                        and company.partner_id.id != spec.company_partner_id.partner_id.id
+                                        and not spec.is_parent_project
+                                        and spec.company_partner_id.partner_id.id in group_companies
                                 ):
-                                    dict_formula['vgo_lines'].setdefault(company.id, {}).setdefault('company', {}).setdefault(spec.signer_id.name, []).append(row + 1)
-                                    dict_formula['vgo_lines'].setdefault(company.id, {}).setdefault(responsibility_center.id, {}).setdefault(spec.signer_id.name, []).append(row + 1)
+                                    dict_formula['vgo_lines'].setdefault(company.id, {}).setdefault('company', {}).setdefault(spec.company_partner_id.partner_id.name, []).append(row + 1)
+                                    dict_formula['vgo_lines'].setdefault(company.id, {}).setdefault(responsibility_center.id, {}).setdefault(spec.company_partner_id.partner_id.name, []).append(row + 1)
+                                    if responsibility_center.parent_id:
+                                        parent_center = responsibility_center.parent_id
+                                        while parent_center:
+                                            dict_formula['vgo_lines'].setdefault(company.id,
+                                                                                                  {}).setdefault(
+                                                parent_center.id, {}).setdefault(
+                                                spec.company_partner_id.partner_id.name, []).append(row + 1)
+                                            parent_center = parent_center.parent_id
 
                         if isFoundProjectsByProbability:
                             row += 1
@@ -2172,7 +2192,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                     for c in plan_shift[type].values():
                                         sheet.write(row, c, '', row_format_plan_cross)
                             row += 1
-                            sheet.merge_range(row, column, row, column + 4, 'Проекты других ЮЛ Холдинга',
+                            sheet.merge_range(row, column, row, column + 4, 'Проекты других ЮЛ Холдинга ' + responsibility_center.name,
                                               row_format_number_vgo)
                             sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
                             dict_formula['other_legal_entities_lines'][dict_formula['systematica_id']][responsibility_center.id][
@@ -2211,7 +2231,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                     for c in plan_shift[type].values():
                                         sheet.write(row, c, '', row_format_plan_cross)
                             row += 1
-                            sheet.merge_range(row, column, row, column + 4, 'ВГО', row_format_number_vgo)
+                            sheet.merge_range(row, column, row, column + 4, 'ВГО ' + responsibility_center.name, row_format_number_vgo)
                             sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
                             dict_formula['vgo_lines'][dict_formula['systematica_id']][responsibility_center.id]['line'] = row + 1
                             formula_sum = '=sum(' + ':'.join('{0}' + str(r) for r in (start_row, row)) + ')'
@@ -3032,7 +3052,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                         for c in plan_shift[type].values():
                             sheet.write(row, c, '', row_format_plan_cross)
                 row += 1
-                sheet.merge_range(row, column, row, column + 4, 'Проекты других ЮЛ Холдинга',
+                sheet.merge_range(row, column, row, column + 4, 'Проекты других ЮЛ Холдинга СА',
                                   row_format_number_vgo)
                 sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
                 dict_formula['other_legal_entities_lines'][dict_formula['systematica_id']]['company']['line'] = row + 1
@@ -3069,7 +3089,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                         for c in plan_shift[type].values():
                             sheet.write(row, c, '', row_format_plan_cross)
                 row += 1
-                sheet.merge_range(row, column, row, column + 4, 'ВГО', row_format_number_vgo)
+                sheet.merge_range(row, column, row, column + 4, 'ВГО СА', row_format_number_vgo)
                 sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
                 dict_formula['vgo_lines'][dict_formula['systematica_id']]['company']['line'] = row + 1
                 formula_sum = '=sum(' + ':'.join('{0}' + str(r) for r in (start_row, row)) + ')'
@@ -3548,11 +3568,13 @@ class report_budget_forecast_excel(models.AbstractModel):
         global start_column
         global start_range
         global full_range
+        global group_companies
         use_6_6 = False
         koeff_reserve = data['koeff_reserve']
         koeff_potential = data['koeff_potential']
         fact_columns = set()
         responsibility_center_ids = data['responsibility_center_ids']
+        group_companies = self.env['res.company'].sudo().search([]).partner_id.ids
 
         systematica_forecast = data['systematica_forecast']
 
