@@ -934,9 +934,9 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
                             bluegrey_custom_percent_format = bluegrey_percent_format
                         for quarter in self.quarter_names:
                             if self.quarter_names.index(quarter) in (2, 3):  # III и IV кварталы
-                                sheet.write_number(row, column + 1, manager_data[section][year][quarter]['plan'],
+                                sheet.write_number(row, column + 1, manager_data[section][year][quarter].get('plan', 0),
                                                    custom_line_format)
-                                sheet.write_number(row, column + 2, manager_data[section][year][quarter]['plan_6_6'],
+                                sheet.write_number(row, column + 2, manager_data[section][year][quarter].get('plan_6_6', 0),
                                                    custom_line_format)
                                 sheet.write_number(row, column + 3, manager_data[section][year][quarter]['100'],
                                                    custom_line_format)
@@ -947,7 +947,7 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
                                 sheet.write_formula(row, column + 5, formula, bluegrey_custom_percent_format)
                                 column += 5
                             else:
-                                sheet.write_number(row, column + 1, manager_data[section][year][quarter]['plan'],
+                                sheet.write_number(row, column + 1, manager_data[section][year][quarter].get('plan', 0),
                                                    custom_line_format)
                                 sheet.write_number(row, column + 2, manager_data[section][year][quarter]['100'],
                                                    custom_line_format)
