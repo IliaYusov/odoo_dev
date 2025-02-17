@@ -2199,50 +2199,9 @@ class report_management_committee_excel(models.AbstractModel):
         # end Валовая Выручка, без НДС
 
     def print_row_values_center(self, workbook, sheet, row, column, YEAR, projects, responsibility_center, formula_centers,
-                                params):
+                                params, formats):
         global strYEAR
         global YEARint
-
-        row_format_number = workbook.add_format({
-            'border': 1,
-            'font_size': 10,
-            'num_format': '#,##0',
-        })
-        row_format_number_color_plan = workbook.add_format({
-            "fg_color": '#D9E1F2',
-            'border': 1,
-            'font_size': 10,
-            'num_format': '#,##0',
-        })
-        row_format_number_color_fact = workbook.add_format({
-            "fg_color": '#C6E0B4',
-            'border': 1,
-            'font_size': 10,
-            'num_format': '#,##0',
-        })
-        row_format_number_color_percent = workbook.add_format({
-            "fg_color": '#ffff99',
-            'border': 1,
-            'font_size': 10,
-            'num_format': '0.00%',
-        })
-        row_format_number_color_forecast = workbook.add_format({
-            "fg_color": '#E2EFDA',
-            'border': 1,
-            'font_size': 10,
-            'num_format': '#,##0',
-        })
-        row_format_number_color_next = workbook.add_format({
-            "fg_color": '#F3F8F0',
-            'border': 1,
-            'font_size': 10,
-            'num_format': '#,##0',
-        })
-        head_format_month_itogo = workbook.add_format({
-            'border': 1,
-            "fg_color": '#D9E1F2',
-            'diag_type': 3
-        })
 
         # печать Контрактование, с НДС
 
@@ -2264,40 +2223,40 @@ class report_management_committee_excel(models.AbstractModel):
             sum_after_next = 0
 
             if 'Q1' in element or 'Q2' in element:
-                sheet.write_number(row, column + 0, 0, row_format_number)
-                sheet.write_number(row, column + 1, 0, row_format_number_color_fact)
-                sheet.write_number(row, column + 2, 0, row_format_number)
-                sheet.write_number(row, column + 3, 0, row_format_number)
+                sheet.write_number(row, column + 0, 0, formats['number'])
+                sheet.write_number(row, column + 1, 0, formats['fact'])
+                sheet.write_number(row, column + 2, 0, formats['number'])
+                sheet.write_number(row, column + 3, 0, formats['number'])
             elif 'Q3' in element or 'Q4' in element:
-                sheet.write_number(row, column + 0, 0, row_format_number)
-                sheet.write_number(row, column + 1, 0, row_format_number)
-                sheet.write_number(row, column + 2, 0, row_format_number_color_fact)
-                sheet.write_number(row, column + 3, 0, row_format_number)
-                sheet.write_number(row, column + 4, 0, row_format_number)
+                sheet.write_number(row, column + 0, 0, formats['number'])
+                sheet.write_number(row, column + 1, 0, formats['number'])
+                sheet.write_number(row, column + 2, 0, formats['fact'])
+                sheet.write_number(row, column + 3, 0, formats['number'])
+                sheet.write_number(row, column + 4, 0, formats['number'])
             elif 'HY1' in element:
-                sheet.write_number(row, column + 0, 0, row_format_number)
-                sheet.write_number(row, column + 1, 0, row_format_number_color_fact)
-                sheet.write_number(row, column + 2, 0, row_format_number_color_percent)
-                sheet.write_number(row, column + 3, 0, row_format_number)
-                sheet.write_number(row, column + 4, 0, row_format_number)
+                sheet.write_number(row, column + 0, 0, formats['number'])
+                sheet.write_number(row, column + 1, 0, formats['fact'])
+                sheet.write_number(row, column + 2, 0, formats['percent'])
+                sheet.write_number(row, column + 3, 0, formats['number'])
+                sheet.write_number(row, column + 4, 0, formats['number'])
             elif 'HY2' in element:
-                sheet.write_number(row, column + 0, 0, row_format_number)
-                sheet.write_number(row, column + 1, 0, row_format_number)
-                sheet.write_number(row, column + 2, 0, row_format_number_color_fact)
-                sheet.write_number(row, column + 3, 0, row_format_number)
-                sheet.write_number(row, column + 4, 0, row_format_number)
+                sheet.write_number(row, column + 0, 0, formats['number'])
+                sheet.write_number(row, column + 1, 0, formats['number'])
+                sheet.write_number(row, column + 2, 0, formats['fact'])
+                sheet.write_number(row, column + 3, 0, formats['number'])
+                sheet.write_number(row, column + 4, 0, formats['number'])
             elif element == 'YEAR':
-                sheet.write_number(row, column + 0, 0, row_format_number)
-                sheet.write_number(row, column + 1, 0, row_format_number)
-                sheet.write_number(row, column + 2, 0, row_format_number_color_fact)
-                sheet.write_number(row, column + 3, 0, row_format_number_color_percent)
-                sheet.write_number(row, column + 4, 0, row_format_number)
-                sheet.write_number(row, column + 5, 0, row_format_number)
+                sheet.write_number(row, column + 0, 0, formats['number'])
+                sheet.write_number(row, column + 1, 0, formats['number'])
+                sheet.write_number(row, column + 2, 0, formats['fact'])
+                sheet.write_number(row, column + 3, 0, formats['percent'])
+                sheet.write_number(row, column + 4, 0, formats['number'])
+                sheet.write_number(row, column + 5, 0, formats['number'])
             elif element == 'NEXT':
-                sheet.write_number(row, column + 0, 0, row_format_number)
-                sheet.write_number(row, column + 1, 0, row_format_number)
-                sheet.write_number(row, column + 2, 0, row_format_number)
-                sheet.write_number(row, column + 3, 0, row_format_number)
+                sheet.write_number(row, column + 0, 0, formats['number'])
+                sheet.write_number(row, column + 1, 0, formats['number'])
+                sheet.write_number(row, column + 2, 0, formats['number'])
+                sheet.write_number(row, column + 3, 0, formats['number'])
 
             for project in projects:
                 (sumM75tmpetalon, sumM50tmpetalon,
@@ -2319,7 +2278,7 @@ class report_management_committee_excel(models.AbstractModel):
                 sum_next_30 += sum_next_30_tmp
                 sum_after_next += sum_after_next_tmp
 
-            child_centers_rows = formula_centers.get('responsibility_center_' + str(responsibility_center.id)) or ''
+            child_centers_rows = formula_centers.get('responsibility_center_' + str(responsibility_center.id if responsibility_center else '')) or ''
 
             if 'Q' in element:
                 if 'Q1' in element or 'Q2' in element:
@@ -2327,9 +2286,9 @@ class report_management_committee_excel(models.AbstractModel):
                     f_Q75 = 'sum(' + str(sumM75) + child_centers_rows.format(xl_col_to_name(column + 2)) + ')'
                     f_Q50 = 'sum(' + str(sumM50) + child_centers_rows.format(xl_col_to_name(column + 3)) + ')'
 
-                    sheet.write_formula(row, column + 1, f_Q100, row_format_number_color_fact)
-                    sheet.write_formula(row, column + 2, f_Q75, row_format_number_color_forecast)
-                    sheet.write_formula(row, column + 3, f_Q50, row_format_number_color_forecast)
+                    sheet.write_formula(row, column + 1, f_Q100, formats['fact'])
+                    sheet.write_formula(row, column + 2, f_Q75, formats['forecast'])
+                    sheet.write_formula(row, column + 3, f_Q50, formats['forecast'])
                     column += 3
 
                 elif 'Q3' in element or 'Q4' in element:
@@ -2337,20 +2296,20 @@ class report_management_committee_excel(models.AbstractModel):
                     f_Q75 = 'sum(' + str(sumM75) + child_centers_rows.format(xl_col_to_name(column + 3)) + ')'
                     f_Q50 = 'sum(' + str(sumM50) + child_centers_rows.format(xl_col_to_name(column + 4)) + ')'
 
-                    sheet.write_formula(row, column + 2, f_Q100, row_format_number_color_fact)
-                    sheet.write_formula(row, column + 3, f_Q75, row_format_number_color_forecast)
-                    sheet.write_formula(row, column + 4, f_Q50, row_format_number_color_forecast)
+                    sheet.write_formula(row, column + 2, f_Q100, formats['fact'])
+                    sheet.write_formula(row, column + 3, f_Q75, formats['forecast'])
+                    sheet.write_formula(row, column + 4, f_Q50, formats['forecast'])
                     column += 4
 
             elif 'HY1' in element:  # 'HY1/YEAR' 'HY2/YEAR'
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 7), xl_col_to_name(column - 3))
-                sheet.write_formula(row, column + 1, formula, row_format_number_color_fact)
+                sheet.write_formula(row, column + 1, formula, formats['fact'])
 
                 sheet.write_formula(
                     row,
                     column + 2,
                     f'=IFERROR({xl_col_to_name(column + 1)}{row + 1}/{xl_col_to_name(column)}{row + 1}," ")',
-                    row_format_number_color_percent
+                    formats['percent']
                 )
 
                 formula = '=sum({1}{0},{2}{0})'.format(
@@ -2358,48 +2317,48 @@ class report_management_committee_excel(models.AbstractModel):
                     xl_col_to_name(column - 6),
                     xl_col_to_name(column - 2)
                 )
-                sheet.write_formula(row, column + 3, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 3, formula, formats['forecast'])
                 formula = '=sum({1}{0},{2}{0})'.format(
                     row + 1,
                     xl_col_to_name(column - 5),
                     xl_col_to_name(column - 1)
                 )
-                sheet.write_formula(row, column + 4, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 4, formula, formats['forecast'])
                 column += 4
 
             elif 'HY2' in element:  # 'HY1/YEAR' 'HY2/YEAR'
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8), xl_col_to_name(column - 3))
-                sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
+                sheet.write_formula(row, column + 2, formula, formats['fact'])
 
                 formula = '=sum({1}{0},{2}{0})'.format(
                     row + 1,
                     xl_col_to_name(column - 7),
                     xl_col_to_name(column - 2)
                 )
-                sheet.write_formula(row, column + 3, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 3, formula, formats['forecast'])
                 formula = '=sum({1}{0},{2}{0})'.format(
                     row + 1,
                     xl_col_to_name(column - 6),
                     xl_col_to_name(column - 1)
                 )
-                sheet.write_formula(row, column + 4, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 4, formula, formats['forecast'])
                 column += 4
 
             elif element == 'YEAR':  # 'YEAR'
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 19), xl_col_to_name(column - 3))
-                sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
+                sheet.write_formula(row, column + 2, formula, formats['fact'])
 
                 sheet.write_formula(
                     row,
                     column + 3,
                     f'=IFERROR({xl_col_to_name(column + 2)}{row + 1}/{xl_col_to_name(column + 1)}{row + 1}," ")',
-                    row_format_number_color_percent
+                    formats['percent']
                 )
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 17), xl_col_to_name(column - 2))
-                sheet.write_formula(row, column + 4, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 4, formula, formats['forecast'])
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 16), xl_col_to_name(column - 1))
-                sheet.write_formula(row, column + 5, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 5, formula, formats['forecast'])
                 column += 5
 
             elif element == 'NEXT':
@@ -2407,15 +2366,15 @@ class report_management_committee_excel(models.AbstractModel):
                 f_sum_next_75 = 'sum(' + str(sum_next_75) + child_centers_rows.format(xl_col_to_name(column)) + ')'
                 f_sum_next_50 = 'sum(' + str(sum_next_50) + child_centers_rows.format(xl_col_to_name(column + 1)) + ')'
                 f_sum_next_30 = 'sum(' + str(sum_next_30) + child_centers_rows.format(xl_col_to_name(column + 2)) + ')'
-                sheet.write_formula(row, column, f_sum_next_75, row_format_number_color_next)
-                sheet.write_formula(row, column + 1, f_sum_next_50, row_format_number_color_next)
-                sheet.write_formula(row, column + 2, f_sum_next_30, row_format_number_color_next)
+                sheet.write_formula(row, column, f_sum_next_75, formats['next'])
+                sheet.write_formula(row, column + 1, f_sum_next_50, formats['next'])
+                sheet.write_formula(row, column + 2, f_sum_next_30, formats['next'])
                 column += 2
 
             elif element == 'AFTER NEXT':
                 f_sum_after_next = 'sum(' + str(sum_after_next) + child_centers_rows.format(
                     xl_col_to_name(column)) + ')'
-                sheet.write_formula(row, column, f_sum_after_next, row_format_number_color_next)
+                sheet.write_formula(row, column, f_sum_after_next, formats['next'])
         # end печать Контрактование, с НДС
 
         # Поступление денежных средств, с НДС
@@ -2436,39 +2395,39 @@ class report_management_committee_excel(models.AbstractModel):
             sum_after_next = 0
 
             if 'Q1' in element or 'Q2' in element:
-                sheet.write_number(row, column + 0, 0, row_format_number)
-                sheet.write_number(row, column + 1, 0, row_format_number_color_fact)
-                sheet.write_number(row, column + 2, 0, row_format_number)
-                sheet.write_number(row, column + 3, 0, row_format_number)
+                sheet.write_number(row, column + 0, 0, formats['number'])
+                sheet.write_number(row, column + 1, 0, formats['fact'])
+                sheet.write_number(row, column + 2, 0, formats['number'])
+                sheet.write_number(row, column + 3, 0, formats['number'])
             elif 'Q3' in element or 'Q4' in element:
-                sheet.write_number(row, column + 0, 0, row_format_number)
-                sheet.write_number(row, column + 1, 0, row_format_number)
-                sheet.write_number(row, column + 2, 0, row_format_number_color_fact)
-                sheet.write_number(row, column + 3, 0, row_format_number)
-                sheet.write_number(row, column + 4, 0, row_format_number)
+                sheet.write_number(row, column + 0, 0, formats['number'])
+                sheet.write_number(row, column + 1, 0, formats['number'])
+                sheet.write_number(row, column + 2, 0, formats['fact'])
+                sheet.write_number(row, column + 3, 0, formats['number'])
+                sheet.write_number(row, column + 4, 0, formats['number'])
             elif 'HY1' in element:
-                sheet.write_number(row, column + 0, 0, row_format_number)
-                sheet.write_number(row, column + 1, 0, row_format_number_color_fact)
-                sheet.write_number(row, column + 2, 0, row_format_number_color_percent)
-                sheet.write_number(row, column + 3, 0, row_format_number)
-                sheet.write_number(row, column + 4, 0, row_format_number)
+                sheet.write_number(row, column + 0, 0, formats['number'])
+                sheet.write_number(row, column + 1, 0, formats['fact'])
+                sheet.write_number(row, column + 2, 0, formats['percent'])
+                sheet.write_number(row, column + 3, 0, formats['number'])
+                sheet.write_number(row, column + 4, 0, formats['number'])
             elif 'HY2' in element:
-                sheet.write_number(row, column + 0, 0, row_format_number)
-                sheet.write_number(row, column + 1, 0, row_format_number)
-                sheet.write_number(row, column + 2, 0, row_format_number_color_fact)
-                sheet.write_number(row, column + 3, 0, row_format_number)
-                sheet.write_number(row, column + 4, 0, row_format_number)
+                sheet.write_number(row, column + 0, 0, formats['number'])
+                sheet.write_number(row, column + 1, 0, formats['number'])
+                sheet.write_number(row, column + 2, 0, formats['fact'])
+                sheet.write_number(row, column + 3, 0, formats['number'])
+                sheet.write_number(row, column + 4, 0, formats['number'])
             elif element == 'YEAR':
-                sheet.write_number(row, column + 0, 0, row_format_number)
-                sheet.write_number(row, column + 1, 0, row_format_number)
-                sheet.write_number(row, column + 2, 0, row_format_number_color_fact)
-                sheet.write_number(row, column + 3, 0, row_format_number_color_percent)
-                sheet.write_number(row, column + 4, 0, row_format_number)
-                sheet.write_number(row, column + 5, 0, row_format_number)
+                sheet.write_number(row, column + 0, 0, formats['number'])
+                sheet.write_number(row, column + 1, 0, formats['number'])
+                sheet.write_number(row, column + 2, 0, formats['fact'])
+                sheet.write_number(row, column + 3, 0, formats['percent'])
+                sheet.write_number(row, column + 4, 0, formats['number'])
+                sheet.write_number(row, column + 5, 0, formats['number'])
             elif element == 'NEXT':
-                sheet.write_number(row, column + 0, 0, row_format_number)
-                sheet.write_number(row, column + 1, 0, row_format_number)
-                sheet.write_number(row, column + 2, 0, row_format_number)
+                sheet.write_number(row, column + 0, 0, formats['number'])
+                sheet.write_number(row, column + 1, 0, formats['number'])
+                sheet.write_number(row, column + 2, 0, formats['number'])
 
             for project in projects:
                 (sumM75tmpetalon, sumM50tmpetalon,
@@ -2490,7 +2449,7 @@ class report_management_committee_excel(models.AbstractModel):
                 sum_next_30 += sum_next_30_tmp
                 sum_after_next += sum_after_next_tmp
 
-            child_centers_rows = formula_centers.get('responsibility_center_' + str(responsibility_center.id)) or ''
+            child_centers_rows = formula_centers.get('responsibility_center_' + str(responsibility_center.id if responsibility_center else '')) or ''
 
             if 'Q' in element:
                 if 'Q1' in element or 'Q2' in element:
@@ -2498,9 +2457,9 @@ class report_management_committee_excel(models.AbstractModel):
                     f_Q75 = 'sum(' + str(sumM75) + child_centers_rows.format(xl_col_to_name(column + 2)) + ')'
                     f_Q50 = 'sum(' + str(sumM50) + child_centers_rows.format(xl_col_to_name(column + 3)) + ')'
 
-                    sheet.write_formula(row, column + 1, f_Q100, row_format_number_color_fact)
-                    sheet.write_formula(row, column + 2, f_Q75, row_format_number_color_forecast)
-                    sheet.write_formula(row, column + 3, f_Q50, row_format_number_color_forecast)
+                    sheet.write_formula(row, column + 1, f_Q100, formats['fact'])
+                    sheet.write_formula(row, column + 2, f_Q75, formats['forecast'])
+                    sheet.write_formula(row, column + 3, f_Q50, formats['forecast'])
                     column += 3
 
                 elif 'Q3' in element or 'Q4' in element:
@@ -2508,20 +2467,20 @@ class report_management_committee_excel(models.AbstractModel):
                     f_Q75 = 'sum(' + str(sumM75) + child_centers_rows.format(xl_col_to_name(column + 3)) + ')'
                     f_Q50 = 'sum(' + str(sumM50) + child_centers_rows.format(xl_col_to_name(column + 4)) + ')'
 
-                    sheet.write_formula(row, column + 2, f_Q100, row_format_number_color_fact)
-                    sheet.write_formula(row, column + 3, f_Q75, row_format_number_color_forecast)
-                    sheet.write_formula(row, column + 4, f_Q50, row_format_number_color_forecast)
+                    sheet.write_formula(row, column + 2, f_Q100, formats['fact'])
+                    sheet.write_formula(row, column + 3, f_Q75, formats['forecast'])
+                    sheet.write_formula(row, column + 4, f_Q50, formats['forecast'])
                     column += 4
 
             elif 'HY1' in element:  # 'HY1/YEAR' 'HY2/YEAR'
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 7), xl_col_to_name(column - 3))
-                sheet.write_formula(row, column + 1, formula, row_format_number_color_fact)
+                sheet.write_formula(row, column + 1, formula, formats['fact'])
 
                 sheet.write_formula(
                     row,
                     column + 2,
                     f'=IFERROR({xl_col_to_name(column + 1)}{row + 1}/{xl_col_to_name(column)}{row + 1}," ")',
-                    row_format_number_color_percent
+                    formats['percent']
                 )
 
                 formula = '=sum({1}{0},{2}{0})'.format(
@@ -2529,61 +2488,61 @@ class report_management_committee_excel(models.AbstractModel):
                     xl_col_to_name(column - 6),
                     xl_col_to_name(column - 2)
                 )
-                sheet.write_formula(row, column + 3, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 3, formula, formats['forecast'])
                 formula = '=sum({1}{0},{2}{0})'.format(
                     row + 1,
                     xl_col_to_name(column - 5),
                     xl_col_to_name(column - 1)
                 )
-                sheet.write_formula(row, column + 4, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 4, formula, formats['forecast'])
                 column += 4
 
             elif 'HY2' in element:  # 'HY1/YEAR' 'HY2/YEAR'
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8), xl_col_to_name(column - 3))
-                sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
+                sheet.write_formula(row, column + 2, formula, formats['fact'])
 
                 formula = '=sum({1}{0},{2}{0})'.format(
                     row + 1,
                     xl_col_to_name(column - 7),
                     xl_col_to_name(column - 2)
                 )
-                sheet.write_formula(row, column + 3, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 3, formula, formats['forecast'])
                 formula = '=sum({1}{0},{2}{0})'.format(
                     row + 1,
                     xl_col_to_name(column - 6),
                     xl_col_to_name(column - 1)
                 )
-                sheet.write_formula(row, column + 4, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 4, formula, formats['forecast'])
                 column += 4
 
             elif element == 'YEAR':  # 'YEAR'
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 19), xl_col_to_name(column - 3))
-                sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
+                sheet.write_formula(row, column + 2, formula, formats['fact'])
 
                 sheet.write_formula(
                     row,
                     column + 3,
                     f'=IFERROR({xl_col_to_name(column + 2)}{row + 1}/{xl_col_to_name(column + 1)}{row + 1}," ")',
-                    row_format_number_color_percent
+                    formats['percent']
                 )
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 17), xl_col_to_name(column - 2))
-                sheet.write_formula(row, column + 4, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 4, formula, formats['forecast'])
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 16), xl_col_to_name(column - 1))
-                sheet.write_formula(row, column + 5, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 5, formula, formats['forecast'])
                 column += 5
 
             elif element == 'NEXT':
                 f_sum_next_75 = 'sum(' + str(sum_next_75) + child_centers_rows.format(xl_col_to_name(column)) + ')'
                 f_sum_next_50 = 'sum(' + str(sum_next_50) + child_centers_rows.format(xl_col_to_name(column + 1)) + ')'
-                sheet.write_formula(row, column, f_sum_next_75, row_format_number_color_next)
-                sheet.write_formula(row, column + 1, f_sum_next_50, row_format_number_color_next)
+                sheet.write_formula(row, column, f_sum_next_75, formats['next'])
+                sheet.write_formula(row, column + 1, f_sum_next_50, formats['next'])
                 column += 1
 
             elif element == 'AFTER NEXT':
                 f_sum_after_next = 'sum(' + str(sum_after_next) + child_centers_rows.format(
                     xl_col_to_name(column)) + ')'
-                sheet.write_formula(row, column, f_sum_after_next, row_format_number_color_next)
+                sheet.write_formula(row, column, f_sum_after_next, formats['next'])
         # end Поступление денежных средсв, с НДС
 
         # Валовая Выручка, без НДС
@@ -2602,69 +2561,69 @@ class report_management_committee_excel(models.AbstractModel):
             prof_next_75 = prof_next_50 = prof_next_30 = prof_after_next = 0
 
             if 'Q1' in element or 'Q2' in element:
-                sheet.write_number(row, column + 0, 0, row_format_number)
-                sheet.write_number(row, column + 1, 0, row_format_number_color_fact)
-                sheet.write_number(row, column + 2, 0, row_format_number)
-                sheet.write_number(row, column + 3, 0, row_format_number)
-                sheet.write_number(row, column + 0 + params['margin_shift'], 0, row_format_number)
-                sheet.write_number(row, column + 1 + params['margin_shift'], 0, row_format_number_color_fact)
-                sheet.write_number(row, column + 2 + params['margin_shift'], 0, row_format_number)
-                sheet.write_number(row, column + 3 + params['margin_shift'], 0, row_format_number)
+                sheet.write_number(row, column + 0, 0, formats['number'])
+                sheet.write_number(row, column + 1, 0, formats['fact'])
+                sheet.write_number(row, column + 2, 0, formats['number'])
+                sheet.write_number(row, column + 3, 0, formats['number'])
+                sheet.write_number(row, column + 0 + params['margin_shift'], 0, formats['number'])
+                sheet.write_number(row, column + 1 + params['margin_shift'], 0, formats['fact'])
+                sheet.write_number(row, column + 2 + params['margin_shift'], 0, formats['number'])
+                sheet.write_number(row, column + 3 + params['margin_shift'], 0, formats['number'])
             elif 'Q3' in element or 'Q4' in element:
-                sheet.write_number(row, column + 0, 0, row_format_number)
-                sheet.write_number(row, column + 1, 0, row_format_number)
-                sheet.write_number(row, column + 2, 0, row_format_number_color_fact)
-                sheet.write_number(row, column + 3, 0, row_format_number)
-                sheet.write_number(row, column + 4, 0, row_format_number)
-                sheet.write_number(row, column + 0 + params['margin_shift'], 0, row_format_number)
-                sheet.write_number(row, column + 1 + params['margin_shift'], 0, row_format_number)
-                sheet.write_number(row, column + 2 + params['margin_shift'], 0, row_format_number_color_fact)
-                sheet.write_number(row, column + 3 + params['margin_shift'], 0, row_format_number)
-                sheet.write_number(row, column + 4 + params['margin_shift'], 0, row_format_number)
+                sheet.write_number(row, column + 0, 0, formats['number'])
+                sheet.write_number(row, column + 1, 0, formats['number'])
+                sheet.write_number(row, column + 2, 0, formats['fact'])
+                sheet.write_number(row, column + 3, 0, formats['number'])
+                sheet.write_number(row, column + 4, 0, formats['number'])
+                sheet.write_number(row, column + 0 + params['margin_shift'], 0, formats['number'])
+                sheet.write_number(row, column + 1 + params['margin_shift'], 0, formats['number'])
+                sheet.write_number(row, column + 2 + params['margin_shift'], 0, formats['fact'])
+                sheet.write_number(row, column + 3 + params['margin_shift'], 0, formats['number'])
+                sheet.write_number(row, column + 4 + params['margin_shift'], 0, formats['number'])
             elif 'HY1' in element:
-                sheet.write_number(row, column + 0, 0, row_format_number)
-                sheet.write_number(row, column + 1, 0, row_format_number_color_fact)
-                sheet.write_number(row, column + 2, 0, row_format_number_color_percent)
-                sheet.write_number(row, column + 3, 0, row_format_number)
-                sheet.write_number(row, column + 4, 0, row_format_number)
-                sheet.write_number(row, column + 0 + params['margin_shift'], 0, row_format_number)
-                sheet.write_number(row, column + 1 + params['margin_shift'], 0, row_format_number_color_fact)
-                sheet.write_number(row, column + 2 + params['margin_shift'], 0, row_format_number_color_percent)
-                sheet.write_number(row, column + 3 + params['margin_shift'], 0, row_format_number)
-                sheet.write_number(row, column + 4 + params['margin_shift'], 0, row_format_number)
+                sheet.write_number(row, column + 0, 0, formats['number'])
+                sheet.write_number(row, column + 1, 0, formats['fact'])
+                sheet.write_number(row, column + 2, 0, formats['percent'])
+                sheet.write_number(row, column + 3, 0, formats['number'])
+                sheet.write_number(row, column + 4, 0, formats['number'])
+                sheet.write_number(row, column + 0 + params['margin_shift'], 0, formats['number'])
+                sheet.write_number(row, column + 1 + params['margin_shift'], 0, formats['fact'])
+                sheet.write_number(row, column + 2 + params['margin_shift'], 0, formats['percent'])
+                sheet.write_number(row, column + 3 + params['margin_shift'], 0, formats['number'])
+                sheet.write_number(row, column + 4 + params['margin_shift'], 0, formats['number'])
             elif 'HY2' in element:
-                sheet.write_number(row, column + 0, 0, row_format_number)
-                sheet.write_number(row, column + 1, 0, row_format_number)
-                sheet.write_number(row, column + 2, 0, row_format_number_color_fact)
-                sheet.write_number(row, column + 3, 0, row_format_number)
-                sheet.write_number(row, column + 4, 0, row_format_number)
-                sheet.write_number(row, column + 0 + params['margin_shift'], 0, row_format_number)
-                sheet.write_number(row, column + 1 + params['margin_shift'], 0, row_format_number)
-                sheet.write_number(row, column + 2 + params['margin_shift'], 0, row_format_number_color_fact)
-                sheet.write_number(row, column + 3 + params['margin_shift'], 0, row_format_number)
-                sheet.write_number(row, column + 4 + params['margin_shift'], 0, row_format_number)
+                sheet.write_number(row, column + 0, 0, formats['number'])
+                sheet.write_number(row, column + 1, 0, formats['number'])
+                sheet.write_number(row, column + 2, 0, formats['fact'])
+                sheet.write_number(row, column + 3, 0, formats['number'])
+                sheet.write_number(row, column + 4, 0, formats['number'])
+                sheet.write_number(row, column + 0 + params['margin_shift'], 0, formats['number'])
+                sheet.write_number(row, column + 1 + params['margin_shift'], 0, formats['number'])
+                sheet.write_number(row, column + 2 + params['margin_shift'], 0, formats['fact'])
+                sheet.write_number(row, column + 3 + params['margin_shift'], 0, formats['number'])
+                sheet.write_number(row, column + 4 + params['margin_shift'], 0, formats['number'])
             elif element == 'YEAR':
-                sheet.write_number(row, column + 0, 0, row_format_number)
-                sheet.write_number(row, column + 1, 0, row_format_number)
-                sheet.write_number(row, column + 2, 0, row_format_number_color_fact)
-                sheet.write_number(row, column + 3, 0, row_format_number_color_percent)
-                sheet.write_number(row, column + 4, 0, row_format_number)
-                sheet.write_number(row, column + 5, 0, row_format_number)
-                sheet.write_number(row, column + 0 + params['margin_shift'], 0, row_format_number)
-                sheet.write_number(row, column + 1 + params['margin_shift'], 0, row_format_number)
-                sheet.write_number(row, column + 2 + params['margin_shift'], 0, row_format_number_color_fact)
-                sheet.write_number(row, column + 3 + params['margin_shift'], 0, row_format_number_color_percent)
-                sheet.write_number(row, column + 4 + params['margin_shift'], 0, row_format_number)
-                sheet.write_number(row, column + 5 + params['margin_shift'], 0, row_format_number)
+                sheet.write_number(row, column + 0, 0, formats['number'])
+                sheet.write_number(row, column + 1, 0, formats['number'])
+                sheet.write_number(row, column + 2, 0, formats['fact'])
+                sheet.write_number(row, column + 3, 0, formats['percent'])
+                sheet.write_number(row, column + 4, 0, formats['number'])
+                sheet.write_number(row, column + 5, 0, formats['number'])
+                sheet.write_number(row, column + 0 + params['margin_shift'], 0, formats['number'])
+                sheet.write_number(row, column + 1 + params['margin_shift'], 0, formats['number'])
+                sheet.write_number(row, column + 2 + params['margin_shift'], 0, formats['fact'])
+                sheet.write_number(row, column + 3 + params['margin_shift'], 0, formats['percent'])
+                sheet.write_number(row, column + 4 + params['margin_shift'], 0, formats['number'])
+                sheet.write_number(row, column + 5 + params['margin_shift'], 0, formats['number'])
             elif element == 'NEXT':
-                sheet.write_number(row, column + 0, 0, row_format_number)
-                sheet.write_number(row, column + 1, 0, row_format_number)
-                sheet.write_number(row, column + 2, 0, row_format_number)
-                sheet.write_number(row, column + 3, 0, row_format_number)
-                sheet.write_number(row, column + 0 + params['margin_shift'], 0, row_format_number)
-                sheet.write_number(row, column + 1 + params['margin_shift'], 0, row_format_number)
-                sheet.write_number(row, column + 2 + params['margin_shift'], 0, row_format_number)
-                sheet.write_number(row, column + 3 + params['margin_shift'], 0, row_format_number)
+                sheet.write_number(row, column + 0, 0, formats['number'])
+                sheet.write_number(row, column + 1, 0, formats['number'])
+                sheet.write_number(row, column + 2, 0, formats['number'])
+                sheet.write_number(row, column + 3, 0, formats['number'])
+                sheet.write_number(row, column + 0 + params['margin_shift'], 0, formats['number'])
+                sheet.write_number(row, column + 1 + params['margin_shift'], 0, formats['number'])
+                sheet.write_number(row, column + 2 + params['margin_shift'], 0, formats['number'])
+                sheet.write_number(row, column + 3 + params['margin_shift'], 0, formats['number'])
 
             for project in projects:
                 (sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp,
@@ -2701,7 +2660,7 @@ class report_management_committee_excel(models.AbstractModel):
                 prof_next_30 += prof_next_30_tmp
                 prof_after_next += prof_after_next_tmp
 
-            child_centers_rows = formula_centers.get('responsibility_center_' + str(responsibility_center.id)) or ''
+            child_centers_rows = formula_centers.get('responsibility_center_' + str(responsibility_center.id if responsibility_center else '')) or ''
 
             if 'Q' in element:
                 if 'Q1' in element or 'Q2' in element:
@@ -2712,12 +2671,12 @@ class report_management_committee_excel(models.AbstractModel):
                     f_profQ75 = 'sum(' + str(profQ75) + child_centers_rows.format(xl_col_to_name(column + 2 + params['margin_shift'])) + ')'
                     f_profQ50 = 'sum(' + str(profQ50) + child_centers_rows.format(xl_col_to_name(column + 3 + params['margin_shift'])) + ')'
 
-                    sheet.write_formula(row, column + 1, f_sumQ100, row_format_number_color_fact)
-                    sheet.write_formula(row, column + 1 + params['margin_shift'], f_profQ100, row_format_number_color_fact)
-                    sheet.write_formula(row, column + 2, f_sumQ75, row_format_number_color_forecast)
-                    sheet.write_formula(row, column + 2 + params['margin_shift'], f_profQ75, row_format_number_color_forecast)
-                    sheet.write_formula(row, column + 3, f_sumQ50, row_format_number_color_forecast)
-                    sheet.write_formula(row, column + 3 + params['margin_shift'], f_profQ50, row_format_number_color_forecast)
+                    sheet.write_formula(row, column + 1, f_sumQ100, formats['fact'])
+                    sheet.write_formula(row, column + 1 + params['margin_shift'], f_profQ100, formats['fact'])
+                    sheet.write_formula(row, column + 2, f_sumQ75, formats['forecast'])
+                    sheet.write_formula(row, column + 2 + params['margin_shift'], f_profQ75, formats['forecast'])
+                    sheet.write_formula(row, column + 3, f_sumQ50, formats['forecast'])
+                    sheet.write_formula(row, column + 3 + params['margin_shift'], f_profQ50, formats['forecast'])
                     column += 3
 
                 elif 'Q3' in element or 'Q4' in element:
@@ -2731,220 +2690,219 @@ class report_management_committee_excel(models.AbstractModel):
                     f_profQ50 = 'sum(' + str(profQ50) + child_centers_rows.format(
                         xl_col_to_name(column + 4 + params['margin_shift'])) + ')'
 
-                    sheet.write_formula(row, column + 2, f_sumQ100, row_format_number_color_fact)
+                    sheet.write_formula(row, column + 2, f_sumQ100, formats['fact'])
                     sheet.write_formula(row, column + 2 + params['margin_shift'], f_profQ100,
-                                        row_format_number_color_fact)
-                    sheet.write_formula(row, column + 3, f_sumQ75, row_format_number_color_forecast)
+                                        formats['fact'])
+                    sheet.write_formula(row, column + 3, f_sumQ75, formats['forecast'])
                     sheet.write_formula(row, column + 3 + params['margin_shift'], f_profQ75,
-                                        row_format_number_color_forecast)
-                    sheet.write_formula(row, column + 4, f_sumQ50, row_format_number_color_forecast)
+                                        formats['forecast'])
+                    sheet.write_formula(row, column + 4, f_sumQ50, formats['forecast'])
                     sheet.write_formula(row, column + 4 + params['margin_shift'], f_profQ50,
-                                        row_format_number_color_forecast)
+                                        formats['forecast'])
                     column += 4
 
             elif 'HY1' in element:  # 'HY1/YEAR итого' 'HY2/YEAR итого'
                 sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 7), xl_col_to_name(column - 3))
-                sheet.write_formula(row, column + 1, formula, row_format_number_color_fact)
+                sheet.write_formula(row, column + 1, formula, formats['fact'])
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 7 + params['margin_shift']),
                                                        xl_col_to_name(column - 3 + params['margin_shift']))
-                sheet.write_formula(row, column + 1 + params['margin_shift'], formula, row_format_number_color_fact)
+                sheet.write_formula(row, column + 1 + params['margin_shift'], formula, formats['fact'])
 
                 sheet.write_formula(
                     row,
                     column + 2,
                     f'=IFERROR({xl_col_to_name(column + 1)}{row + 1}/{xl_col_to_name(column + 0)}{row + 1}," ")',
-                    row_format_number_color_percent
+                    formats['percent']
                 )
                 sheet.write_formula(
                     row,
                     column + 2 + params['margin_shift'],
                     f'=IFERROR({xl_col_to_name(column + 1 + params["margin_shift"])}{row + 1}/{xl_col_to_name(column + 0 + params["margin_shift"])}{row + 1}," ")',
-                    row_format_number_color_percent
+                    formats['percent']
                 )
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 6),
                                                        xl_col_to_name(column - 2))
-                sheet.write_formula(row, column + 3, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 3, formula, formats['forecast'])
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 5),
                                                        xl_col_to_name(column - 1))
-                sheet.write_formula(row, column + 4, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 4, formula, formats['forecast'])
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 6 + params['margin_shift']),
                                                        xl_col_to_name(column - 2 + params['margin_shift']))
-                sheet.write_formula(row, column + 3 + params['margin_shift'], formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 3 + params['margin_shift'], formula, formats['forecast'])
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 5 + params['margin_shift']),
                                                        xl_col_to_name(column - 1 + params['margin_shift']))
-                sheet.write_formula(row, column + 4 + params['margin_shift'], formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 4 + params['margin_shift'], formula, formats['forecast'])
                 column += 4
 
             elif 'HY2' in element:  # 'HY1/YEAR итого' 'HY2/YEAR итого'
                 sumHY100etalon = sumHY75etalon = sumHY50etalon = sumHY100 = sumHY75 = sumHY50 = 0
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8), xl_col_to_name(column - 3))
-                sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
+                sheet.write_formula(row, column + 2, formula, formats['fact'])
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 8 + params['margin_shift']),
                                                        xl_col_to_name(column - 3 + params['margin_shift']))
-                sheet.write_formula(row, column + 2 + params['margin_shift'], formula, row_format_number_color_fact)
+                sheet.write_formula(row, column + 2 + params['margin_shift'], formula, formats['fact'])
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 7),
                                                        xl_col_to_name(column - 2))
-                sheet.write_formula(row, column + 3, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 3, formula, formats['forecast'])
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 6),
                                                        xl_col_to_name(column - 1))
-                sheet.write_formula(row, column + 4, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 4, formula, formats['forecast'])
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 7 + params['margin_shift']),
                                                        xl_col_to_name(column - 2 + params['margin_shift']))
-                sheet.write_formula(row, column + 3 + params['margin_shift'], formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 3 + params['margin_shift'], formula, formats['forecast'])
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 6 + params['margin_shift']),
                                                        xl_col_to_name(column - 1 + params['margin_shift']))
-                sheet.write_formula(row, column + 4 + params['margin_shift'], formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 4 + params['margin_shift'], formula, formats['forecast'])
                 column += 4
 
             elif element == 'YEAR':  # 'YEAR'
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 19), xl_col_to_name(column - 3))
-                sheet.write_formula(row, column + 2, formula, row_format_number_color_fact)
+                sheet.write_formula(row, column + 2, formula, formats['fact'])
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 19 + params['margin_shift']),
                                                        xl_col_to_name(column - 3 + params['margin_shift']))
-                sheet.write_formula(row, column + 2 + params['margin_shift'], formula, row_format_number_color_fact)
+                sheet.write_formula(row, column + 2 + params['margin_shift'], formula, formats['fact'])
 
                 column += 1
                 sheet.write_formula(
                     row,
                     column + 2,
                     f'=IFERROR({xl_col_to_name(column + 1)}{row + 1}/{xl_col_to_name(column)}{row + 1}," ")',
-                    row_format_number_color_percent
+                    formats['percent']
                 )
                 sheet.write_formula(
                     row,
                     column + 2 + params['margin_shift'],
                     f'=IFERROR({xl_col_to_name(column + 1 + params["margin_shift"])}{row + 1}/{xl_col_to_name(column + params["margin_shift"])}{row + 1}," ")',
-                    row_format_number_color_percent
+                    formats['percent']
                 )
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 18), xl_col_to_name(column - 3))
-                sheet.write_formula(row, column + 3, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 3, formula, formats['forecast'])
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 17), xl_col_to_name(column - 2))
-                sheet.write_formula(row, column + 4, formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 4, formula, formats['forecast'])
 
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 18 + params['margin_shift']),
                                                        xl_col_to_name(column - 3 + params['margin_shift']))
-                sheet.write_formula(row, column + 3 + params['margin_shift'], formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 3 + params['margin_shift'], formula, formats['forecast'])
                 formula = '=sum({1}{0},{2}{0})'.format(row + 1, xl_col_to_name(column - 17 + params['margin_shift']),
                                                        xl_col_to_name(column - 2 + params['margin_shift']))
-                sheet.write_formula(row, column + 4 + params['margin_shift'], formula, row_format_number_color_forecast)
+                sheet.write_formula(row, column + 4 + params['margin_shift'], formula, formats['forecast'])
                 column += 4
 
             elif element == 'NEXT':
                 f_sum_next_75 = 'sum(' + str(sum_next_75) + child_centers_rows.format(xl_col_to_name(column)) + ')'
                 f_sum_next_50 = 'sum(' + str(sum_next_50) + child_centers_rows.format(xl_col_to_name(column + 1)) + ')'
                 f_sum_next_30 = 'sum(' + str(sum_next_30) + child_centers_rows.format(xl_col_to_name(column + 2)) + ')'
-                sheet.write_formula(row, column, f_sum_next_75, row_format_number_color_next)
-                sheet.write_formula(row, column + 1, f_sum_next_50, row_format_number_color_next)
-                sheet.write_formula(row, column + 2, f_sum_next_30, row_format_number_color_next)
+                sheet.write_formula(row, column, f_sum_next_75, formats['next'])
+                sheet.write_formula(row, column + 1, f_sum_next_50, formats['next'])
+                sheet.write_formula(row, column + 2, f_sum_next_30, formats['next'])
                 f_prof_next_75 = 'sum(' + str(prof_next_75) + child_centers_rows.format(
                     xl_col_to_name(column + params['margin_shift'])) + ')'
                 f_prof_next_50 = 'sum(' + str(prof_next_50) + child_centers_rows.format(
                     xl_col_to_name(column + 1 + params['margin_shift'])) + ')'
                 f_prof_next_30 = 'sum(' + str(prof_next_30) + child_centers_rows.format(
                     xl_col_to_name(column + 2 + params['margin_shift'])) + ')'
-                sheet.write_formula(row, column + params['margin_shift'], f_prof_next_75, row_format_number_color_next)
-                sheet.write_formula(row, column + 1 + params['margin_shift'], f_prof_next_50, row_format_number_color_next)
-                sheet.write_formula(row, column + 2 + params['margin_shift'], f_prof_next_30, row_format_number_color_next)
+                sheet.write_formula(row, column + params['margin_shift'], f_prof_next_75, formats['next'])
+                sheet.write_formula(row, column + 1 + params['margin_shift'], f_prof_next_50, formats['next'])
+                sheet.write_formula(row, column + 2 + params['margin_shift'], f_prof_next_30, formats['next'])
                 column += 2
 
             elif element == 'AFTER NEXT':
                 f_sum_after_next = 'sum(' + str(sum_after_next) + child_centers_rows.format(
                     xl_col_to_name(column)) + ')'
-                sheet.write_formula(row, column, f_sum_after_next, row_format_number_color_next)
+                sheet.write_formula(row, column, f_sum_after_next, formats['next'])
                 f_prof_after_next = 'sum(' + str(prof_after_next) + child_centers_rows.format(
                     xl_col_to_name(column + params['margin_shift'])) + ')'
-                sheet.write_formula(row, column + params['margin_shift'], f_prof_after_next, row_format_number_color_next)
+                sheet.write_formula(row, column + params['margin_shift'], f_prof_after_next, formats['next'])
 
         # end Валовая Выручка, без НДС
 
-    def print_summary_row(self, sheet, summary_formula, row, col, type, row_format_plan, row_format_fact,
-                          row_format_percent, row_format_forecast, row_format_next):
+    def print_summary_row(self, sheet, summary_formula, row, col, type, formats):
         for period in ('contraction', 'cash_flow', 'gross_revenue', 'margin'):
             for colFormula in ('Q1', 'Q2', 'HY1', 'Q3', 'Q4', 'HY2', 'YEAR', 'NEXT'):
                 if colFormula in ('Q1', 'Q2'):
                     if type != 'center':
                         formula = summary_formula.format(xl_col_to_name(col))
-                        sheet.write_formula(row, col, formula, row_format_plan)
+                        sheet.write_formula(row, col, formula, formats['plan'])
                     formula = summary_formula.format(xl_col_to_name(col + 1))
-                    sheet.write_formula(row, col + 1, formula, row_format_fact)
+                    sheet.write_formula(row, col + 1, formula, formats['fact'])
                     formula = summary_formula.format(xl_col_to_name(col + 2))
-                    sheet.write_formula(row, col + 2, formula, row_format_forecast)
+                    sheet.write_formula(row, col + 2, formula, formats['forecast'])
                     formula = summary_formula.format(xl_col_to_name(col + 3))
-                    sheet.write_formula(row, col + 3, formula, row_format_forecast)
+                    sheet.write_formula(row, col + 3, formula, formats['forecast'])
                     col += 4
                 elif colFormula == 'HY1':
                     if type != 'center':
                         formula = summary_formula.format(xl_col_to_name(col))
-                        sheet.write_formula(row, col, formula, row_format_plan)
+                        sheet.write_formula(row, col, formula, formats['plan'])
                     formula = summary_formula.format(xl_col_to_name(col + 1))
-                    sheet.write_formula(row, col + 1, formula, row_format_fact)
+                    sheet.write_formula(row, col + 1, formula, formats['fact'])
                     formula = f'=IFERROR({xl_col_to_name(col + 1)}{row + 1}/{xl_col_to_name(col)}{row + 1}," ")'
-                    sheet.write_formula(row, col + 2, formula, row_format_percent)
+                    sheet.write_formula(row, col + 2, formula, formats['percent'])
                     formula = summary_formula.format(xl_col_to_name(col + 3))
-                    sheet.write_formula(row, col + 3, formula, row_format_forecast)
+                    sheet.write_formula(row, col + 3, formula, formats['forecast'])
                     formula = summary_formula.format(xl_col_to_name(col + 4))
-                    sheet.write_formula(row, col + 4, formula, row_format_forecast)
+                    sheet.write_formula(row, col + 4, formula, formats['forecast'])
                     col += 5
                 elif colFormula in ('Q3', 'Q4'):
                     if type != 'center':
                         formula = summary_formula.format(xl_col_to_name(col))
-                        sheet.write_formula(row, col, formula, row_format_plan)
+                        sheet.write_formula(row, col, formula, formats['plan'])
                         formula = summary_formula.format(xl_col_to_name(col + 1))
-                        sheet.write_formula(row, col + 1, formula, row_format_plan)
+                        sheet.write_formula(row, col + 1, formula, formats['plan'])
                     formula = summary_formula.format(xl_col_to_name(col + 2))
-                    sheet.write_formula(row, col + 2, formula, row_format_fact)
+                    sheet.write_formula(row, col + 2, formula, formats['fact'])
                     formula = summary_formula.format(xl_col_to_name(col + 3))
-                    sheet.write_formula(row, col + 3, formula, row_format_forecast)
+                    sheet.write_formula(row, col + 3, formula, formats['forecast'])
                     formula = summary_formula.format(xl_col_to_name(col + 4))
-                    sheet.write_formula(row, col + 4, formula, row_format_forecast)
+                    sheet.write_formula(row, col + 4, formula, formats['forecast'])
                     col += 5
                 elif colFormula == 'HY2':
                     if type != 'center':
                         formula = summary_formula.format(xl_col_to_name(col))
-                        sheet.write_formula(row, col, formula, row_format_plan)
+                        sheet.write_formula(row, col, formula, formats['plan'])
                         formula = summary_formula.format(xl_col_to_name(col + 1))
-                        sheet.write_formula(row, col + 1, formula, row_format_plan)
+                        sheet.write_formula(row, col + 1, formula, formats['plan'])
                     formula = summary_formula.format(xl_col_to_name(col + 2))
-                    sheet.write_formula(row, col + 2, formula, row_format_fact)
+                    sheet.write_formula(row, col + 2, formula, formats['fact'])
                     formula = summary_formula.format(xl_col_to_name(col + 3))
-                    sheet.write_formula(row, col + 3, formula, row_format_forecast)
+                    sheet.write_formula(row, col + 3, formula, formats['forecast'])
                     formula = summary_formula.format(xl_col_to_name(col + 4))
-                    sheet.write_formula(row, col + 4, formula, row_format_forecast)
+                    sheet.write_formula(row, col + 4, formula, formats['forecast'])
                     col += 5
                 elif colFormula == 'YEAR':
                     if type != 'center':
                         formula = summary_formula.format(xl_col_to_name(col))
-                        sheet.write_formula(row, col, formula, row_format_plan)
+                        sheet.write_formula(row, col, formula, formats['plan'])
                         formula = summary_formula.format(xl_col_to_name(col + 1))
-                        sheet.write_formula(row, col + 1, formula, row_format_plan)
+                        sheet.write_formula(row, col + 1, formula, formats['plan'])
                     formula = summary_formula.format(xl_col_to_name(col + 2))
-                    sheet.write_formula(row, col + 2, formula, row_format_fact)
+                    sheet.write_formula(row, col + 2, formula, formats['fact'])
                     formula = f'=IFERROR({xl_col_to_name(col + 2)}{row + 1}/{xl_col_to_name(col + 1)}{row + 1}," ")'
-                    sheet.write_formula(row, col + 3, formula, row_format_percent)
+                    sheet.write_formula(row, col + 3, formula, formats['percent'])
                     formula = summary_formula.format(xl_col_to_name(col + 4))
-                    sheet.write_formula(row, col + 4, formula, row_format_forecast)
+                    sheet.write_formula(row, col + 4, formula, formats['forecast'])
                     formula = summary_formula.format(xl_col_to_name(col + 5))
-                    sheet.write_formula(row, col + 5, formula, row_format_forecast)
+                    sheet.write_formula(row, col + 5, formula, formats['forecast'])
                     col += 6
                 elif colFormula == 'NEXT':
                     formula = summary_formula.format(xl_col_to_name(col))
-                    sheet.write_formula(row, col, formula, row_format_next)
+                    sheet.write_formula(row, col, formula, formats['next'])
                     formula = summary_formula.format(xl_col_to_name(col + 1))
-                    sheet.write_formula(row, col + 1, formula, row_format_next)
+                    sheet.write_formula(row, col + 1, formula, formats['next'])
                     formula = summary_formula.format(xl_col_to_name(col + 2))
-                    sheet.write_formula(row, col + 2, formula, row_format_next)
+                    sheet.write_formula(row, col + 2, formula, formats['next'])
                     col += 3
                     if period != 'cash_flow':  # нет потенциала в следующем году в ПДС
                         formula = summary_formula.format(xl_col_to_name(col))
-                        sheet.write_formula(row, col, formula, row_format_next)
+                        sheet.write_formula(row, col, formula, formats['next'])
                         col += 1
 
     def print_center_plan_row(self, sheet, row, responsibility_center, formula_centers, row_format_plan):
@@ -3230,12 +3188,25 @@ class report_management_committee_excel(models.AbstractModel):
             "num_format": '#,##0',
             "top": 2,
         })
+        row_format_company_small = workbook.add_format({
+            'border': 1,
+            'font_size': 10,
+            "bold": True,
+            "num_format": '#,##0',
+        })
         row_format_company_plan = workbook.add_format({
             'border': 1,
             'font_size': 12,
             "bold": True,
             "num_format": '#,##0',
             "top": 2,
+            'fg_color': '#D9E1F2',
+        })
+        row_format_company_plan_small = workbook.add_format({
+            'border': 1,
+            'font_size': 10,
+            "bold": True,
+            "num_format": '#,##0',
             'fg_color': '#D9E1F2',
         })
         row_format_company_fact = workbook.add_format({
@@ -3246,12 +3217,26 @@ class report_management_committee_excel(models.AbstractModel):
             "top": 2,
             "fg_color": '#C6E0B4',
         })
+        row_format_company_fact_small = workbook.add_format({
+            'border': 1,
+            'font_size': 10,
+            "bold": True,
+            "num_format": '#,##0',
+            "fg_color": '#C6E0B4',
+        })
         row_format_company_percent = workbook.add_format({
             'border': 1,
             'font_size': 12,
             "bold": True,
             'num_format': '0.00%',
             "top": 2,
+            "fg_color": '#ffff99',
+        })
+        row_format_company_percent_small = workbook.add_format({
+            'border': 1,
+            'font_size': 10,
+            "bold": True,
+            'num_format': '0.00%',
             "fg_color": '#ffff99',
         })
         row_format_company_forecast = workbook.add_format({
@@ -3262,12 +3247,26 @@ class report_management_committee_excel(models.AbstractModel):
             "top": 2,
             "fg_color": '#E2EFDA',
         })
+        row_format_company_forecast_small = workbook.add_format({
+            'border': 1,
+            'font_size': 10,
+            "bold": True,
+            "num_format": '#,##0',
+            "fg_color": '#E2EFDA',
+        })
         row_format_company_next = workbook.add_format({
             'border': 1,
             'font_size': 12,
             "bold": True,
             "num_format": '#,##0',
             "top": 2,
+            "fg_color": '#F3F8F0',
+        })
+        row_format_company_next_small = workbook.add_format({
+            'border': 1,
+            'font_size': 10,
+            "bold": True,
+            "num_format": '#,##0',
             "fg_color": '#F3F8F0',
         })
         row_format_company_empty = workbook.add_format({
@@ -3318,6 +3317,66 @@ class report_management_committee_excel(models.AbstractModel):
             "font_size": 12,
             "num_format": '#,##0',
         })
+        center_format_number = workbook.add_format({
+            'border': 1,
+            'font_size': 10,
+            'num_format': '#,##0',
+        })
+        center_format_plan = workbook.add_format({
+            "fg_color": '#D9E1F2',
+            'border': 1,
+            'font_size': 10,
+            'num_format': '#,##0',
+        })
+        center_format_fact = workbook.add_format({
+            "fg_color": '#C6E0B4',
+            'border': 1,
+            'font_size': 10,
+            'num_format': '#,##0',
+        })
+        center_format_percent = workbook.add_format({
+            "fg_color": '#ffff99',
+            'border': 1,
+            'font_size': 10,
+            'num_format': '0.00%',
+        })
+        center_format_forecast = workbook.add_format({
+            "fg_color": '#E2EFDA',
+            'border': 1,
+            'font_size': 10,
+            'num_format': '#,##0',
+        })
+        center_format_next = workbook.add_format({
+            "fg_color": '#F3F8F0',
+            'border': 1,
+            'font_size': 10,
+            'num_format': '#,##0',
+        })
+
+        formats_center = {
+            'number': center_format_number,
+            'plan': center_format_plan,
+            'fact': center_format_fact,
+            'percent': center_format_percent,
+            'forecast': center_format_forecast,
+            'next': center_format_next,
+        }
+        formats_company = {
+            'number': row_format_company,
+            'plan': row_format_company_plan,
+            'fact': row_format_company_fact,
+            'percent': row_format_company_percent,
+            'forecast': row_format_company_forecast,
+            'next': row_format_company_next,
+        }
+        formats_company_small = {
+            'number': row_format_company_small,
+            'plan': row_format_company_plan_small,
+            'fact': row_format_company_fact_small,
+            'percent': row_format_company_percent_small,
+            'forecast': row_format_company_forecast_small,
+            'next': row_format_company_next_small,
+        }
 
         isFoundProjectsByCenter = False
         isFoundProjectsByManager = False
@@ -3350,11 +3409,47 @@ class report_management_committee_excel(models.AbstractModel):
 
             dict_formula['center_ids_not_empty'] = {}
 
-            if company.id not in dict_formula['company_ids']:
+            if company.id not in dict_formula['company_ids']:  # встречаем компанию первый раз
+
+                params['vgo_row'] = 0
+                params['ole_row'] = 0
+                params['vgo_lines'] = []
+                params['ole_lines'] = []
+                params['vgo_is_present'] = []
+                params['ole_is_present'] = []
+                if not virtual_company:
+                    params['vgo_is_present'] = cur_budget_projects.filtered(
+                        lambda p: company.partner_id.id == p.signer_id.id
+                        and p.company_partner_id
+                        and company.partner_id.id != p.company_partner_id.partner_id.id
+                        and not p.is_parent_project
+                        and p.company_partner_id.partner_id.id in group_companies
+                        and p.company_id.id == company.id
+                    ).ids
+
+                if company.name == params['systematica_name']:
+                    params['ole_is_present'] = cur_budget_projects.filtered(
+                        lambda p: p.company_partner_id.partner_id.id == p.signer_id.id
+                                  and company.partner_id.id != p.signer_id.id
+                                  and not p.is_parent_project
+                                  and p.company_partner_id.partner_id.id in group_companies
+                                  and p.company_id.id == company.id
+                    ).ids
+
                 if company.name == params['systematica_name']:
                     row += 1
                 row += 1
                 dict_formula['company_ids'][company.id] = row
+                if params['vgo_is_present'] and params['ole_is_present']:
+                    row += 3
+                    params['vgo_row'] = row - 1
+                    params['ole_row'] = row
+                elif params['vgo_is_present'] or params['ole_is_present']:
+                    row += 2
+                    if params['vgo_is_present']:
+                        params['vgo_row'] = row
+                    elif params['ole_is_present']:
+                        params['ole_row'] = row
 
             if virtual_company:
                 filtered_centers = cur_responsibility_centers
@@ -3511,6 +3606,10 @@ class report_management_committee_excel(models.AbstractModel):
                                     self.print_row_values(workbook, sheet, row, column, strYEAR, spec, responsibility_center, params)
                                     if projects_start_row == 0:
                                         projects_start_row = row
+                                    if spec.id in params['vgo_is_present']:
+                                        params['vgo_lines'].append(row + 1)
+                                    elif spec.id in params['ole_is_present']:
+                                        params['ole_lines'].append(row + 1)
                     else:
                         self.print_row_values_center(
                             workbook,
@@ -3522,6 +3621,7 @@ class report_management_committee_excel(models.AbstractModel):
                             responsibility_center,
                             dict_formula,
                             params,
+                            formats_center
                         )
                         self.print_center_plan_row(sheet, center_row, responsibility_center, dict_formula,
                                                    row_format_center_plan)
@@ -3546,11 +3646,7 @@ class report_management_committee_excel(models.AbstractModel):
                     else:
                         formula = False
                     if formula:
-                        self.print_summary_row(
-                            sheet, formula, center_row, params["shift"] + 1, 'center',
-                            row_format_center_plan, row_format_center_fact,
-                            row_format_center_percent, row_format_center_forecast, row_format_center_next
-                        )
+                        self.print_summary_row(sheet, formula, center_row, params["shift"] + 1, 'center', formats_center)
                     self.print_center_plan_row(sheet, center_row, responsibility_center, dict_formula, row_format_center_plan)
 
             if isFoundProjectsByCompany:
@@ -3558,19 +3654,98 @@ class report_management_committee_excel(models.AbstractModel):
 
                 company_row = dict_formula['company_ids'][company.id]
 
-                sheet.write_string(company_row, column, company.name, row_format_company)
+                if params['vgo_is_present'] or params['ole_is_present'] and not virtual_company:
+                    sheet.write_string(company_row, column, company.name + ' (c учетом ВГО и проектов др. ЮЛ Холдинга)', row_format_company)
+                    sheet.set_row(company_row + 1, False, False, {'hidden': 1, 'level': level})
+                    sheet.write_string(company_row + 1, column, company.name + ' (коммерческие)', row_format_company_small)
+                    vgo_company_row = company_row
+                else:
+                    sheet.write_string(company_row, column, company.name, row_format_company)
+
+                if params['vgo_is_present'] and not virtual_company:
+                    sheet.set_row(vgo_company_row + 2, False, False, {'hidden': 1, 'level': level})
+                    sheet.write_string(vgo_company_row + 2, column, company.name + ' (ВГО)', row_format_company_small)
+                    vgo_company_row += 1
+                if params['ole_is_present'] and not virtual_company:
+                    sheet.set_row(vgo_company_row + 2, False, False, {'hidden': 1, 'level': level})
+                    sheet.write_string(vgo_company_row + 2, column, company.name + ' (проекты др. ЮЛ Холдинга)', row_format_company_small)
+
                 if params['report_with_projects']:
                     sheet.merge_range(company_row, column + 1, company_row, column + params["shift"] , '', row_format_company)
+                    if params['vgo_is_present'] or params['ole_is_present'] and not virtual_company:
+                        sheet.merge_range(company_row + 1, column + 1, company_row + 1, column + params["shift"], '',
+                                          row_format_company_small)
+                        sheet.merge_range(company_row + 2, column + 1, company_row + 2, column + params["shift"], '',
+                                          row_format_company_small)
+                    if params['vgo_is_present'] and params['ole_is_present'] and not virtual_company:
+                        sheet.merge_range(company_row + 3, column + 1, company_row + 3, column + params["shift"], '',
+                                          row_format_company_small)
 
                 formulaProjectCompany += ')'
-                print('formulaProjectCompany',formulaProjectCompany)
+                # print('formulaProjectCompany',formulaProjectCompany)
                 # оформление строки Компания
                 col = params["shift"] + 1
-                self.print_summary_row(
-                    sheet, formulaProjectCompany, company_row, col, 'company',
-                    row_format_company_plan, row_format_company_fact, row_format_company_percent,
-                    row_format_company_forecast, row_format_company_next
-                )
+                self.print_summary_row(sheet, formulaProjectCompany, company_row, col, 'company', formats_company)
+
+                if params['vgo_is_present'] or params['ole_is_present'] and not virtual_company:
+                    if params['vgo_is_present'] and params['ole_is_present']:
+                        formula = '=' + '-'.join('{0}' + str(r) for r in (company_row + 1, company_row + 3, company_row + 4))
+                    else:
+                        formula = '=' + '-'.join('{0}' + str(r) for r in (company_row + 1, company_row + 3))
+                    self.print_summary_row(sheet, formula, company_row + 1, col, 'company', formats_company)
+                vgo_company_row = company_row
+                if params['report_with_projects']:
+                    if params['vgo_is_present'] and not virtual_company:
+                        formula = '=' + '+'.join('{0}' + str(r) for r in params['vgo_lines'])
+                        self.print_summary_row(sheet, formula, company_row + 2, col, 'company', formats_company)
+
+                        vgo_company_row += 1
+                    if params['ole_is_present'] and not virtual_company:
+                        formula = '=' + '+'.join('{0}' + str(r) for r in params['ole_lines'])
+                        self.print_summary_row(sheet, formula, vgo_company_row + 2, col, 'company', formats_company)
+                else:
+                    if params['vgo_is_present'] and not virtual_company:
+                        projects = self.env['project_budget.projects'].search([
+                            ('id', 'in', params['vgo_is_present']),
+                            ('company_id', '=', company.id),
+                        ])
+                        self.print_row_values_center(
+                            workbook,
+                            sheet,
+                            params['vgo_row'],
+                            column + params["shift"] ,
+                            strYEAR,
+                            projects,
+                            False,
+                            dict_formula,
+                            params,
+                            formats_company_small,
+                        )
+                        for type in plan_shift:  # нули в планах ВГО
+                            for c in plan_shift[type].values():
+                                sheet.write(params['vgo_row'], c, 0, row_format_center_plan)
+
+                    if params['ole_is_present'] and not virtual_company:
+                        projects = self.env['project_budget.projects'].search([
+                            ('id', 'in', params['ole_is_present']),
+                            ('company_id', '=', company.id),
+                        ])
+                        self.print_row_values_center(
+                            workbook,
+                            sheet,
+                            params['ole_row'],
+                            column + params["shift"] ,
+                            strYEAR,
+                            projects,
+                            False,
+                            dict_formula,
+                            params,
+                            formats_company_small,
+                        )
+                        for type in plan_shift:  # нули в планах ЮЛ
+                            for c in plan_shift[type].values():
+                                sheet.write(params['ole_row'], c, 0, row_format_center_plan)
+
                 if virtual_company:  # строка суммирования Систематики и Облака
                     systematica = self.env['res.company'].search([('name', '=', params['systematica_name'])])
                     sum_row = dict_formula['company_ids'][systematica.id] - 1
@@ -3578,7 +3753,8 @@ class report_management_committee_excel(models.AbstractModel):
                     formula = '=sum({0}' + f'{sum_row + 2}' + ',{0}' + f'{virtual_row + 1})'
 
                     sheet.write_string(
-                        sum_row, column, params['systematica_name'] + ' + ' + params['virtual_company_name'],
+                        sum_row, column,
+                        params['systematica_name'] + ' + ' + params['virtual_company_name'] + ' (c учетом ВГО и проектов др. ЮЛ Холдинга)',
                         row_format_company
                     )
                     if params['report_with_projects']:
@@ -3587,11 +3763,7 @@ class report_management_committee_excel(models.AbstractModel):
                             row_format_company
                         )
 
-                    self.print_summary_row(
-                        sheet, formula, sum_row, col, 'company', row_format_company_plan,
-                        row_format_company_fact, row_format_company_percent, row_format_company_forecast,
-                        row_format_company_next,
-                    )
+                    self.print_summary_row(sheet, formula, sum_row, col, 'company', formats_company)
 
                 # план виртуальной компаний
                 if virtual_company:
@@ -3851,8 +4023,6 @@ class report_management_committee_excel(models.AbstractModel):
         global strYEAR
         global YEARint
         global max_level
-        print('YEARint=', YEARint)
-        print('strYEAR =', strYEAR)
 
         report_name = budget.name
         sheet = workbook.add_worksheet(namesheet)
@@ -3954,6 +4124,15 @@ class report_management_committee_excel(models.AbstractModel):
             "font_size": 12,
             "num_format": '#,##0',
         })
+
+        formats_itogo = {
+            'number': row_format_number_itogo,
+            'plan': row_format_number_itogo,
+            'fact': row_format_number_itogo,
+            'percent': row_format_number_itogo_percent,
+            'forecast': row_format_number_itogo,
+            'next': row_format_number_itogo,
+        }
 
         date_format = workbook.add_format({'num_format': 'd mmmm yyyy'})
         row = 0
@@ -4125,11 +4304,7 @@ class report_management_committee_excel(models.AbstractModel):
             formulaItogo += ',{0}' + str(company_row + 1)
         formulaItogo = formulaItogo + ')'
         col = params["shift"] + 1
-        self.print_summary_row(
-            sheet, formulaItogo, row, col, 'total', row_format_number_itogo, row_format_number_itogo,
-            row_format_number_itogo_percent, row_format_number_itogo, row_format_number_itogo
-        )
-
+        self.print_summary_row(sheet, formulaItogo, row, col, 'total', formats_itogo)
     def generate_xlsx_report(self, workbook, data, budgets):
         global plan_shift
         global strYEAR
@@ -4139,9 +4314,9 @@ class report_management_committee_excel(models.AbstractModel):
         global dict_formula
         dict_formula = {'company_ids': {}, 'center_ids': {}, 'center_ids_not_empty': {}}
         global max_level
+        global group_companies
 
-        print('YEARint=', YEARint)
-        print('strYEAR =', strYEAR)
+        group_companies = self.env['res.company'].sudo().search([]).partner_id.ids
 
         params = {
             '50': data['koeff_reserve'],
@@ -4157,6 +4332,12 @@ class report_management_committee_excel(models.AbstractModel):
             'company_separate_center_code': '05',
             'systematica_name': 'Систематика',
             'virtual_company_id': 9999,
+            'vgo_is_present': [],
+            'ole_is_present': [],
+            'vgo_row': 0,
+            'ole_row': 0,
+            'vgo_lines': [],
+            'ole_lines': [],
         }
 
         # START Отладочные данные
@@ -4242,6 +4423,5 @@ class report_management_committee_excel(models.AbstractModel):
         }
 
         commercial_budget_id = data['commercial_budget_id']
-        print('commercial_budget_id', commercial_budget_id)
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
         self.printworksheet(workbook, budget, 'Прогноз', params)
