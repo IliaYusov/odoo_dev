@@ -2957,7 +2957,10 @@ class report_budget_forecast_excel(models.AbstractModel):
         sheet.write_string(row + 2, column, "", head_format_1)
         sheet.set_column(column, column, 25)
         column += 1
-        sheet.write_string(row + 1, column, "Партнер", head_format_1)
+        if systematica_forecast:
+            sheet.write_string(row + 1, column, "Внутренний Партнер Холдинга", head_format_1)
+        else:
+            sheet.write_string(row + 1, column, "Партнер", head_format_1)
         sheet.write_string(row + 2, column, "", head_format_1)
         sheet.set_column(column, column, 21.5)
         column += 1
