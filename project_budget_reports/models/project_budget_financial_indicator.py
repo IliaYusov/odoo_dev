@@ -20,6 +20,7 @@ class FinancialDataIndicator(models.Model):
     type = fields.Char(string='Type', readonly=True)
     planned_acceptance_flow_id = fields.Many2one('project_budget.planned_acceptance_flow',
                                                  string='Planned Acceptance Flow', readonly=True)
+    planned_cash_flow_id = fields.Many2one('project_budget.planned_cash_flow', string='Planned Cash Flow', readonly=True)
     fact_cash_flow_id = fields.Many2one('project_budget.fact_cash_flow', string='Fact Cash Flow', readonly=True)
     forecast_probability_id = fields.Many2one('project_budget.forecast.probability', string='Forecast Probability',
                                               readonly=True)
@@ -51,6 +52,7 @@ SELECT
     distribution,
     currency_id,
     planned_acceptance_flow_id,
+    planned_cash_flow_id,
     fact_cash_flow_id,            
     forecast_probability_id,
     profitability,
@@ -77,6 +79,7 @@ FROM
         0 AS distribution,
         'contracting' AS type,
         CAST(NULL AS integer) AS planned_acceptance_flow_id,
+        CAST(NULL AS integer) AS planned_cash_flow_id,
         CAST(NULL AS integer) AS fact_cash_flow_id,        
         psfp.forecast_probability_id AS forecast_probability_id,
         p.commercial_budget_id AS commercial_budget_id
@@ -107,6 +110,7 @@ FROM
         0 AS distribution,
         'contracting' AS type,
         CAST(NULL AS integer) AS planned_acceptance_flow_id,
+        CAST(NULL AS integer) AS planned_cash_flow_id,
         CAST(NULL AS integer) AS fact_cash_flow_id,
         psfp.forecast_probability_id AS forecast_probability_id,
         ps.commercial_budget_id AS commercial_budget_id
@@ -137,6 +141,7 @@ FROM
         ROUND(COALESCE(dc.sum_distr_cash, 0), c.decimal_places) AS distribution,        
         'cash_flow' AS type,
         CAST(NULL AS integer) AS planned_acceptance_flow_id,
+        CAST(NULL AS integer) AS planned_cash_flow_id,
         fc.id AS fact_cash_flow_id,        
         NULL AS forecast_probability_id,
         p.commercial_budget_id AS commercial_budget_id
@@ -171,6 +176,7 @@ FROM
         ROUND(COALESCE(dc.sum_distr_cash, 0), c.decimal_places) AS distribution,
         'cash_flow' AS type,
         CAST(NULL AS integer) AS planned_acceptance_flow_id,
+        CAST(NULL AS integer) AS planned_cash_flow_id,
         fc.id AS fact_cash_flow_id,        
         NULL AS forecast_probability_id,
         ps.commercial_budget_id AS commercial_budget_id
@@ -206,6 +212,7 @@ FROM
         ROUND(dc.sum_distr_cash, c.decimal_places) AS distribution,
         'cash_flow' AS type,
         CAST(NULL AS integer) AS planned_acceptance_flow_id,
+        pc.id AS planned_cash_flow_id,
         CAST(NULL AS integer) AS fact_cash_flow_id,
         CASE
             WHEN pc.forecast_probability_id = fp.res_id THEN psfp.forecast_probability_id
@@ -248,6 +255,7 @@ FROM
         ROUND(dc.sum_distr_cash, c.decimal_places) AS distribution,        
         'cash_flow' AS type,
         CAST(NULL AS integer) AS planned_acceptance_flow_id,
+        pc.id AS planned_cash_flow_id,
         CAST(NULL AS integer) AS fact_cash_flow_id,
         CASE
             WHEN pc.forecast_probability_id = fp.res_id THEN psfp.forecast_probability_id
@@ -291,6 +299,7 @@ FROM
         ROUND(COALESCE(da.sum_distr_cash, 0), c.decimal_places) AS distribution,
         'gross_revenue' AS type,
         CAST(NULL AS integer) AS planned_acceptance_flow_id,
+        CAST(NULL AS integer) AS planned_cash_flow_id,
         CAST(NULL AS integer) AS fact_cash_flow_id,
         NULL AS forecast_probability_id,
         p.commercial_budget_id AS commercial_budget_id
@@ -325,6 +334,7 @@ FROM
         ROUND(COALESCE(da.sum_distr_cash, 0), c.decimal_places) AS distribution,
         'gross_revenue' AS type,
         CAST(NULL AS integer) AS planned_acceptance_flow_id,
+        CAST(NULL AS integer) AS planned_cash_flow_id,
         CAST(NULL AS integer) AS fact_cash_flow_id,
         NULL AS forecast_probability_id,
         ps.commercial_budget_id AS commercial_budget_id
@@ -360,6 +370,7 @@ FROM
         ROUND(COALESCE(da.sum_distr_cash, 0), c.decimal_places) AS distribution,
         'gross_revenue' AS type,
         pa.id AS planned_acceptance_flow_id,
+        CAST(NULL AS integer) AS planned_cash_flow_id,
         CAST(NULL AS integer) AS fact_cash_flow_id,
         CASE
             WHEN pa.forecast_probability_id = fp.res_id THEN psfp.forecast_probability_id
@@ -402,6 +413,7 @@ FROM
         ROUND(COALESCE(da.sum_distr_cash, 0), c.decimal_places) AS distribution,        
         'gross_revenue' AS type,
         pa.id AS planned_acceptance_flow_id,
+        CAST(NULL AS integer) AS planned_cash_flow_id,
         CAST(NULL AS integer) AS fact_cash_flow_id,
         CASE
             WHEN pa.forecast_probability_id = fp.res_id THEN psfp.forecast_probability_id
@@ -449,6 +461,7 @@ FROM
         0 AS distribution,
         'margin' AS type,
         CAST(NULL AS integer) AS planned_acceptance_flow_id,
+        CAST(NULL AS integer) AS planned_cash_flow_id,
         CAST(NULL AS integer) AS fact_cash_flow_id,
         NULL AS forecast_probability_id,
         p.commercial_budget_id AS commercial_budget_id
@@ -481,6 +494,7 @@ FROM
         0 AS distribution,
         'margin' AS type,
         CAST(NULL AS integer) AS planned_acceptance_flow_id,
+        CAST(NULL AS integer) AS planned_cash_flow_id,
         CAST(NULL AS integer) AS fact_cash_flow_id,
         NULL AS forecast_probability_id,
         ps.commercial_budget_id AS commercial_budget_id
