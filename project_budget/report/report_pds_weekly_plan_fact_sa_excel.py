@@ -2120,49 +2120,57 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
         row += 1
 
         changes_present = False
-        changes = {}
+        old = {}
+        new = {}
 
         for i in financial_indicators:
             if i.responsibility_center_id.id not in centers_to_exclude.ids and i.prj_id.company_partner_id.partner_id.id == i.company_id.partner_id.id:
-                if (i.forecast_probability_id.id == self.env.ref(
-                        'project_budget_nkk.project_budget_forecast_probability_commitment').id
+                if (i.forecast_probability_id.id == self.env.ref('project_budget_nkk.project_budget_forecast_probability_commitment').id
                         and i.commercial_budget_id.id == commitment_budget.id):
-                    changes.setdefault(i.prj_id.project_id,
-                                       {'key_account_manager': '', 'customer_id': '', 'plan_date': '', 'fact_date': '',
-                                        'amount': 0})
-                    changes[i.prj_id.project_id] = {
+                    old.setdefault(i.planned_cash_flow_id.id, {'planned_cash_flow_id': '', 'key_account_manager': '', 'customer_id': '', 'date': '', 'amount': 0})
+                    old[i.planned_cash_flow_id.id] = {
                         'key_account_manager': i.key_account_manager_id.name,
                         'customer_id': i.customer_id.name,
-                        'plan_date': i.date,
-                        'fact_date': changes[i.prj_id.project_id]['fact_date'],
-                        'amount': changes[i.prj_id.project_id]['amount'] - max(i.amount - i.distribution, 0)
+                        'date': i.date,
+                        'amount': max(i.amount - i.distribution, 0)
                     }
-                elif not i.forecast_probability_id and i.commercial_budget_id.id == budget.id:
-                    changes.setdefault(i.prj_id.project_id,
-                                       {'key_account_manager': '', 'customer_id': '', 'plan_date': '', 'fact_date': '',
-                                        'amount': 0})
-                    changes[i.prj_id.project_id] = {
+                if (i.forecast_probability_id.id == self.env.ref('project_budget_nkk.project_budget_forecast_probability_commitment').id
+                        and i.commercial_budget_id.id == budget.id):
+                    new.setdefault(i.planned_cash_flow_id.id, {'planned_cash_flow_id': '', 'key_account_manager': '', 'customer_id': '', 'date': '', 'amount': 0})
+                    new[i.planned_cash_flow_id.id] = {
                         'key_account_manager': i.key_account_manager_id.name,
                         'customer_id': i.customer_id.name,
-                        'plan_date': changes[i.prj_id.project_id]['plan_date'],
-                        'fact_date': i.date,
-                        'amount': changes[i.prj_id.project_id]['amount'] + i.amount
+                        'date': i.date,
+                        'amount': max(i.amount - i.distribution, 0)
                     }
+        changes = {}
+        for plan_id, new_data in new.items():
+            if old.get(plan_id) and new_data['amount'] > 0:
+                if new_data['amount'] != old[plan_id]['amount']:
+                    changes[plan_id] = new_data
+                    changes[plan_id]['comment'] = str(old[plan_id]['amount']) + '/' + str(new_data['amount'])
+                if new_data['date'] != old[plan_id]['date'] and new_data['date'] > period[1]:
+                    if changes.get(plan_id):
+                        changes[plan_id]['comment'] = changes[plan_id]['comment'] + str(old[plan_id]['date']) + '/' + str(new_data['date'])
+                    else:
+                        changes[plan_id] = new_data
+                        changes[plan_id]['comment'] = str(old[plan_id]['date']) + '/' + str(new_data['date'])
+            else:
+                changes[plan_id] = new_data
+                changes[plan_id]['comment'] = 'новый'
 
-        for prj, change in changes.items():
-            if change['amount']:
+        for plan_id, old_data in old.items():
+            if not new.get(plan_id):
+                changes[plan_id] = new_data
+                changes[plan_id]['comment'] = 'нет в текущем бюджете'
+
+        for plan_id, data in changes.items():
+            if data['amount']:
                 sheet.set_row(row, False, False, {'hidden': 1, 'level': 2})
-                sheet.write(row, col, change['key_account_manager'], border_format)
-                sheet.write(row, col + 1, change['customer_id'], border_format)
-                sheet.write(
-                    row,
-                    col + 2,
-                    (change['plan_date'].strftime('%d.%m.%y') if change['plan_date'] else '-') +
-                    '/' +
-                    (change['fact_date'].strftime('%d.%m.%y') if change['fact_date'] else '-'),
-                    border_format
-                )
-                sheet.write(row, col + 3, change['amount'], border_format)
+                sheet.write(row, col, data['key_account_manager'], border_format)
+                sheet.write(row, col + 1, data['customer_id'], border_format)
+                sheet.write(row, col + 2, data['comment'], border_format)
+                sheet.write(row, col + 3, data['amount'], border_format)
                 row += 1
                 changes_present = True
 
