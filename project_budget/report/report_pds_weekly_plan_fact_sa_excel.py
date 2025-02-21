@@ -2036,12 +2036,12 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
                 sheet.write(row, col + 2, i.amount, border_format)
                 for d in i.fact_cash_flow_id.distribution_cash_ids:
                     factoring_is_present = d.factoring or factoring_is_present
-                    if d.planned_cash_flow_id.amount_in_company_currency == i.amount == d.amount_in_company_currency:
-                        if d.planned_cash_flow_id.date == i.date:
+                    if d.planned_cash_flow_id.sum_cash == i.amount == d.sum_cash:
+                        if d.planned_cash_flow_id.date_cash == i.date:
                             sheet.write(row, col + 3, 'по плану', border_format)
-                        elif d.planned_cash_flow_id.date > i.date:
+                        elif d.planned_cash_flow_id.date_cash > i.date:
                             sheet.write(row, col + 3, 'ранее плана', border_format)
-                        elif d.planned_cash_flow_id.date < i.date:
+                        elif d.planned_cash_flow_id.date_cash < i.date:
                             sheet.write(row, col + 3, 'позже плана', border_format)
                     else:
                         sheet.write(row, col + 3, '', border_format)
@@ -2077,8 +2077,7 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
 
     def print_changes(
             self, workbook, sheet, row, col, company, actual_date, budget, commitment_budget, period,
-            centers_to_exclude,
-            financial_indicators, names, type
+            centers_to_exclude, financial_indicators, future_financial_indicators, names, type
     ):
         border_format = workbook.add_format({
             'font_size': 12,
@@ -2124,45 +2123,52 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
         new = {}
 
         for i in financial_indicators:
-            if i.responsibility_center_id.id not in centers_to_exclude.ids and i.prj_id.company_partner_id.partner_id.id == i.company_id.partner_id.id:
+            if i.responsibility_center_id.id not in centers_to_exclude.ids and (i.prj_id.company_id.partner_id == i.prj_id.signer_id
+                and (not i.prj_id.company_partner_id.partner_id or i.company_id.partner_id == i.prj_id.company_partner_id.partner_id)
+                ):
                 if (i.forecast_probability_id.id == self.env.ref('project_budget_nkk.project_budget_forecast_probability_commitment').id
                         and i.commercial_budget_id.id == commitment_budget.id):
-                    old.setdefault(i.planned_cash_flow_id.id, {'planned_cash_flow_id': '', 'key_account_manager': '', 'customer_id': '', 'date': '', 'amount': 0})
-                    old[i.planned_cash_flow_id.id] = {
+                    old.setdefault(i.planned_cash_flow_id.cash_id, {'key_account_manager': '', 'customer_id': '', 'date': '', 'amount': 0})
+                    old[i.planned_cash_flow_id.cash_id] = {
                         'key_account_manager': i.key_account_manager_id.name,
                         'customer_id': i.customer_id.name,
                         'date': i.date,
                         'amount': max(i.amount - i.distribution, 0)
                     }
+        for i in future_financial_indicators:
+            if i.responsibility_center_id.id not in centers_to_exclude.ids and (i.prj_id.company_id.partner_id == i.prj_id.signer_id
+                and (not i.prj_id.company_partner_id.partner_id or i.company_id.partner_id == i.prj_id.company_partner_id.partner_id)
+                ):
                 if (i.forecast_probability_id.id == self.env.ref('project_budget_nkk.project_budget_forecast_probability_commitment').id
                         and i.commercial_budget_id.id == budget.id):
-                    new.setdefault(i.planned_cash_flow_id.id, {'planned_cash_flow_id': '', 'key_account_manager': '', 'customer_id': '', 'date': '', 'amount': 0})
-                    new[i.planned_cash_flow_id.id] = {
+                    new.setdefault(i.planned_cash_flow_id.cash_id, {'key_account_manager': '', 'customer_id': '', 'date': '', 'amount': 0})
+                    new[i.planned_cash_flow_id.cash_id] = {
                         'key_account_manager': i.key_account_manager_id.name,
                         'customer_id': i.customer_id.name,
                         'date': i.date,
                         'amount': max(i.amount - i.distribution, 0)
                     }
         changes = {}
+        for plan_id, old_data in old.items():
+            if new.get(plan_id) and new[plan_id]['amount'] > 0:
+                if old_data['amount'] != new[plan_id]['amount']:
+                    changes[plan_id] = old_data
+                    changes[plan_id]['comment'] = str(old_data['amount']) + '->' + str(new[plan_id]['amount'])
+                if old_data['date'] != new[plan_id]['date']:
+                    if new[plan_id]['date'] > period[1].date():
+                        if changes.get(plan_id):
+                            changes[plan_id]['comment'] = changes[plan_id]['comment'] + '\n' + old_data['date'].strftime('%d.%m.%y') + '->' + new[plan_id]['date'].strftime('%d.%m.%y')
+                        else:
+                            changes[plan_id] = old_data
+                            changes[plan_id]['comment'] = old_data['date'].strftime('%d.%m.%y') + '->' + new[plan_id]['date'].strftime('%d.%m.%y')
+            elif not new.get(plan_id):
+                changes[plan_id] = old_data
+                changes[plan_id]['comment'] = 'нет в текущем бюджете'
+
         for plan_id, new_data in new.items():
-            if old.get(plan_id) and new_data['amount'] > 0:
-                if new_data['amount'] != old[plan_id]['amount']:
-                    changes[plan_id] = new_data
-                    changes[plan_id]['comment'] = str(old[plan_id]['amount']) + '/' + str(new_data['amount'])
-                if new_data['date'] != old[plan_id]['date'] and new_data['date'] > period[1]:
-                    if changes.get(plan_id):
-                        changes[plan_id]['comment'] = changes[plan_id]['comment'] + str(old[plan_id]['date']) + '/' + str(new_data['date'])
-                    else:
-                        changes[plan_id] = new_data
-                        changes[plan_id]['comment'] = str(old[plan_id]['date']) + '/' + str(new_data['date'])
-            else:
+            if not old.get(plan_id) and period[0].date() <= new_data['date'] <= period[1].date():
                 changes[plan_id] = new_data
                 changes[plan_id]['comment'] = 'новый'
-
-        for plan_id, old_data in old.items():
-            if not new.get(plan_id):
-                changes[plan_id] = new_data
-                changes[plan_id]['comment'] = 'нет в текущем бюджете'
 
         for plan_id, data in changes.items():
             if data['amount']:
@@ -2184,290 +2190,6 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
         else:
             sheet.write(total_row, col + 3, 0, difference_format_number)
         return row
-
-    # def print_month_fact(self, workbook, sheet, row, col, company, actual_date, budget, period, financial_indicators):
-    #     border_format = workbook.add_format({
-    #         'font_size': 12,
-    #         'border': 1,
-    #         'text_wrap': True,
-    #     })
-    #     difference_format = workbook.add_format({
-    #         'border': 1,
-    #         'font_size': 12,
-    #         'align': 'left',
-    #         'bold': True,
-    #     })
-    #     difference_format_number = workbook.add_format({
-    #         'border': 1,
-    #         'font_size': 12,
-    #         'bold': True,
-    #         'fg_color': '#ffff00',
-    #         'num_format': '#,##0;[red]-#,##0',
-    #     })
-    #     fact_structure_format = workbook.add_format({
-    #         'border': 1,
-    #         'font_size': 12,
-    #         'align': 'center',
-    #         'bold': True,
-    #         'fg_color': '#EBF1DE',
-    #         'num_format': '#,##0',
-    #     })
-    #     sheet.merge_range(row, col, row, col + 2, 'Разница с Планом', difference_format)
-    #     sheet.write_formula(
-    #         row,
-    #         col + 3,
-    #         f'=({xl_col_to_name(col + 2)}{row}-{xl_col_to_name(col)}{row})',
-    #         difference_format_number,
-    #     )
-    #     row += 2
-    #     sheet.merge_range(row, col, row, col + 3, 'ФАКТ', fact_structure_format)
-    #     row += 1
-    #     sheet.merge_range(row, col, row, col + 1, 'СА', difference_format)
-    #     sum_row = row
-    #     row += 1
-    #     sheet.merge_range(row, col, row, col + 1, 'ВГО', difference_format)
-    #
-    #     vgo_fact = self.get_vgo_fact_sum(financial_indicators, company, budget, period)
-    #
-    #     sheet.merge_range(row, col + 2, row, col + 3, vgo_fact, fact_structure_format)
-    #     row += 1
-    #     sheet.merge_range(row, col, row, col + 1, 'Итого:', difference_format)
-    #     sheet.merge_range(
-    #         row,
-    #         col + 2,
-    #         row,
-    #         col + 3,
-    #         f'=({xl_col_to_name(col + 2)}{row}+{xl_col_to_name(col + 2)}{row - 1})',
-    #         fact_structure_format
-    #     )
-    #     row += 1
-    #
-    #     fact_rows = False
-    #     for i in financial_indicators:
-    #         if not i.forecast_probability_id and i.commercial_budget_id.id == budget.id:
-    #             sheet.write(row, col, i.key_account_manager_id.name, border_format)
-    #             sheet.write(row, col + 1, i.customer_id.name, border_format)
-    #             sheet.write(row, col + 2, i.amount, border_format)
-    #             for d in i.fact_cash_flow_id.distribution_cash_ids:
-    #                 if d.planned_cash_flow_id.sum_cash == i.amount:
-    #                     sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
-    #                     if d.planned_cash_flow_id.date_cash == i.date:
-    #                         sheet.write(row, col + 3, 'по плану', border_format)
-    #                     elif d.planned_cash_flow_id.date_cash > i.date:
-    #                         sheet.write(row, col + 3, 'ранее плана', border_format)
-    #                     elif d.planned_cash_flow_id.date_cash < i.date:
-    #                         sheet.write(row, col + 3, 'позже плана', border_format)
-    #             row += 1
-    #             fact_rows = True
-    #
-    #     if fact_rows:
-    #         sheet.merge_range(
-    #             sum_row,
-    #             col + 2,
-    #             sum_row,
-    #             col + 3,
-    #             f'=sum({xl_col_to_name(col + 2)}{sum_row + 4}:{xl_col_to_name(col + 2)}{row}' + ')',
-    #             fact_structure_format
-    #         )
-    #     else:
-    #         sheet.merge_range(sum_row, col + 2, sum_row, col + 3, 0, fact_structure_format)
-    #     return row
-    #
-    #
-    # def print_quarter_fact(self,workbook, sheet, row, col, company, actual_date, budget, period, financial_indicators):
-    #     border_format = workbook.add_format({
-    #         'font_size': 12,
-    #         'border': 1,
-    #         'text_wrap': True,
-    #     })
-    #     plan_format = workbook.add_format({
-    #         'border': 1,
-    #         'font_size': 12,
-    #         'align': 'center',
-    #         'valign': 'vcenter',
-    #         'fg_color': '#C5D9F1',
-    #     })
-    #     plan_format_number = workbook.add_format({
-    #         'border': 1,
-    #         'font_size': 12,
-    #         'align': 'center',
-    #         'bold': True,
-    #         'fg_color': '#C5D9F1',
-    #         'num_format': '#,##0;[red]-#,##0',
-    #     })
-    #     fact_format = workbook.add_format({
-    #         'border': 1,
-    #         'font_size': 12,
-    #         'align': 'center',
-    #         'valign': 'vcenter',
-    #         'fg_color': '#EBF1DE',
-    #     })
-    #     fact_format_number = workbook.add_format({
-    #         'border': 1,
-    #         'font_size': 12,
-    #         'align': 'center',
-    #         'bold': True,
-    #         'fg_color': '#EBF1DE',
-    #         'num_format': '#,##0;[red]-#,##0',
-    #     })
-    #     fact_format_percent = workbook.add_format({
-    #         'border': 1,
-    #         'font_size': 12,
-    #         'align': 'center',
-    #         'bold': True,
-    #         'fg_color': '#EBF1DE',
-    #         'color': '#ff0000',
-    #         'num_format': '0%',
-    #     })
-    #     commitment_format = workbook.add_format({
-    #         'border': 1,
-    #         'font_size': 12,
-    #         'align': 'center',
-    #         'valign': 'vcenter',
-    #         'fg_color': '#B8CCE4',
-    #     })
-    #     commitment_format_number = workbook.add_format({
-    #         'border': 1,
-    #         'font_size': 12,
-    #         'align': 'center',
-    #         'bold': True,
-    #         'fg_color': '#B8CCE4',
-    #         'num_format': '#,##0',
-    #     })
-    #     difference_format = workbook.add_format({
-    #         'border': 1,
-    #         'font_size': 12,
-    #         'align': 'left',
-    #         'bold': True,
-    #     })
-    #     difference_format_number = workbook.add_format({
-    #         'border': 1,
-    #         'font_size': 12,
-    #         'bold': True,
-    #         'fg_color': '#ffff00',
-    #         'num_format': '#,##0;[red]-#,##0',
-    #     })
-    #     fact_structure_head_format = workbook.add_format({
-    #         'border': 1,
-    #         'top': 2,
-    #         'font_size': 12,
-    #         'align': 'center',
-    #         'bold': True,
-    #         'fg_color': '#ffff00',
-    #     })
-    #     fact_structure_format = workbook.add_format({
-    #         'border': 1,
-    #         'font_size': 12,
-    #         'align': 'center',
-    #         'bold': True,
-    #         'fg_color': '#EBF1DE',
-    #         'num_format': '#,##0',
-    #     })
-    #     current_quarter_start = date_utils.start_of(actual_date, 'quarter')
-    #     current_quarter_end = date_utils.end_of(actual_date, 'quarter')
-    #
-    #     budget_before_id = self.env['project_budget.commercial_budget'].search([
-    #         ('date_actual', '<', current_quarter_start),
-    #     ], limit=1, order='date_actual desc').id
-    #
-    #     before_financial_indicators = self.env['project.budget.financial.indicator'].search([
-    #         ('commercial_budget_id', 'in', (budget_before_id, budget.id)),
-    #         ('type', '=', 'cash_flow'),
-    #         ('date', '>=', current_quarter_start),
-    #         ('date', '<=', current_quarter_end),
-    #         ('project_id.company_partner_id.partner_id', '=', company.id),
-    #         '|', ('forecast_probability_id', '=', False),
-    #         ('forecast_probability_id.id', '=',
-    #          self.env.ref('project_budget_nkk.project_budget_forecast_probability_commitment').id),
-    #     ])
-    #
-    #     fact_before = commitment_before = 0
-    #     for i in before_financial_indicators:
-    #         if i.forecast_probability_id and i.commercial_budget_id.id == budget_before_id:
-    #             commitment_before += i.amount - i.distribution
-    #             factoring_is_present = any(d.factoring for d in i.fact_cash_flow_id.distribution_cash_ids)
-    #         elif not i.forecast_probability_id and i.commercial_budget_id.id == budget.id:
-    #             fact_before += i.amount
-    #
-    #     sheet.merge_range(row, col, row, col + 3,
-    #                       'Структура ФАКТА (' + 'Q' + str((actual_date.month - 1) // 3 + 1) + ')',
-    #                       fact_structure_head_format)
-    #     row += 1
-    #     sheet.merge_range(row, col, row + 1, col, f'={xl_col_to_name(col)}{3}', plan_format)
-    #     sheet.merge_range(row, col + 1, row + 1, col + 1, 'Факт', fact_format)
-    #     sheet.merge_range(row, col + 2, row + 1, col + 2, 'Обязательство', commitment_format)
-    #     sheet.merge_range(row, col + 3, row + 1, col + 3, '%', fact_format)
-    #     sheet.write_formula(row + 2, col, f'={xl_col_to_name(col)}{5}', plan_format_number)
-    #     sheet.write_formula(row + 2, col + 1, f'={xl_col_to_name(col + 1)}{5}', fact_format_number)
-    #     sheet.write_formula(row + 2, col + 2, f'={xl_col_to_name(col + 2)}{5}', commitment_format_number)
-    #     sheet.write_formula(
-    #         row + 2,
-    #         col + 3,
-    #         f'=IFERROR(({xl_col_to_name(col + 2)}{row + 3}+{xl_col_to_name(col + 1)}{row + 3})/{xl_col_to_name(col)}{row + 3}," ")',
-    #         fact_format_percent
-    #     )
-    #     row += 3
-    #
-    #     sheet.merge_range(row, col, row, col + 2, 'Разница с Планом', difference_format)
-    #     sheet.write_formula(
-    #         row,
-    #         col + 3,
-    #         f'=({xl_col_to_name(col + 2)}{row}+{xl_col_to_name(col + 1)}{row}-{xl_col_to_name(col)}{row})',
-    #         difference_format_number,
-    #     )
-    #     row += 2
-    #     sheet.merge_range(row, col, row, col + 3, 'ФАКТ', fact_structure_format)
-    #     row += 1
-    #     sheet.merge_range(row, col, row, col + 1, 'СА', difference_format)
-    #     sum_row = row
-    #     row += 1
-    #     sheet.merge_range(row, col, row, col + 1, 'ВГО', difference_format)
-    #
-    #     vgo_fact = self.get_vgo_fact_sum(financial_indicators, company, budget, period)
-    #
-    #     sheet.merge_range(row, col + 2, row, col + 3, vgo_fact, fact_structure_format)
-    #     row += 1
-    #     sheet.merge_range(row, col, row, col + 1, 'Итого:', difference_format)
-    #     sheet.merge_range(
-    #         row,
-    #         col + 2,
-    #         row,
-    #         col + 3,
-    #         f'=({xl_col_to_name(col + 2)}{row}+{xl_col_to_name(col + 2)}{row - 1})',
-    #         fact_structure_format
-    #     )
-    #     row += 1
-    #
-    #     fact_rows = False
-    #     for i in financial_indicators:
-    #         if not i.forecast_probability_id and i.commercial_budget_id.id == budget.id:
-    #             sheet.write(row, col, i.key_account_manager_id.name, border_format)
-    #             sheet.write(row, col + 1, i.customer_id.name, border_format)
-    #             sheet.write(row, col + 2, i.amount, border_format)
-    #             for d in i.fact_cash_flow_id.distribution_cash_ids:
-    #                 if d.planned_cash_flow_id.sum_cash == i.amount:
-    #                     sheet.set_row(row, False, False, {'hidden': 1, 'level': 1})
-    #                     if d.planned_cash_flow_id.date_cash == i.date:
-    #                         sheet.write(row, col + 3, 'по плану', border_format)
-    #                     elif d.planned_cash_flow_id.date_cash > i.date:
-    #                         sheet.write(row, col + 3, 'ранее плана', border_format)
-    #                     elif d.planned_cash_flow_id.date_cash < i.date:
-    #                         sheet.write(row, col + 3, 'позже плана', border_format)
-    #             row += 1
-    #             fact_rows = True
-    #
-    #     if fact_rows:
-    #         sheet.merge_range(
-    #             sum_row,
-    #             col + 2,
-    #             sum_row,
-    #             col + 3,
-    #             f'=sum({xl_col_to_name(col + 2)}{sum_row + 4}:{xl_col_to_name(col + 2)}{row}' + ')',
-    #             fact_structure_format
-    #         )
-    #     else:
-    #         sheet.merge_range(sum_row, col + 2, sum_row, col + 3, 0, fact_structure_format)
-    #     return row
 
     def print_vertical_sum_formula(self, sheet, row, sum_lines, periods_dict, start_col, link, link_type, format):
         if any(sum_lines):
@@ -2863,24 +2585,35 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
 
         # END YEAR
         # START CHANGES
+        future_financial_indicators = self.env['project.budget.financial.indicator'].search([
+            ('company_id', '=', company.id),
+            ('responsibility_center_id.id', 'not in', centers_to_exclude.ids),
+            ('commercial_budget_id', '=', budget.id),
+            ('type', '=', 'cash_flow'),
+            ('date', '>=', actual_date),
+            ('forecast_probability_id.id', '=',
+             self.env.ref('project_budget_nkk.project_budget_forecast_probability_commitment').id),
+        ])
         row = max(week_row, month_row, quarter_row) + 2
         col = 1
         _ = self.print_changes(
             workbook, sheet, row, col, company, actual_date, budget, previous_week_budget,
             (current_week_start, current_week_end), centers_to_exclude, week_financial_indicators,
-            ('Неделя', current_week_start.strftime('%d.%m') + '-' + current_week_end.strftime('%d.%m')), 'week'
+            future_financial_indicators, ('Неделя', current_week_start.strftime('%d.%m') + '-' + current_week_end.strftime('%d.%m')),
+            'week'
         )
         col = 7
         _ = self.print_changes(
             workbook, sheet, row, col, company, actual_date, budget, previous_month_budget,
             (current_month_start, current_month_end), centers_to_exclude, month_financial_indicators,
-            ('Месяц', self.month_rus_name[actual_date.month - 1] + ' ' + str(actual_date.year)), 'month'
+            future_financial_indicators, ('Месяц', self.month_rus_name[actual_date.month - 1] + ' ' + str(actual_date.year)),
+            'month'
         )
         col = 13
         _ = self.print_changes(
             workbook, sheet, row, col, company, actual_date, budget, etalon_budget,
             (current_quarter_start, current_quarter_end), centers_to_exclude, quarter_financial_indicators,
-            ('Квартал', 'Q' + str((actual_date.month - 1) // 3 + 1)), 'quarter'
+            future_financial_indicators, ('Квартал', 'Q' + str((actual_date.month - 1) // 3 + 1)), 'quarter'
         )
 
     def generate_xlsx_report(self, workbook, data, budgets):
@@ -2919,7 +2652,7 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
         etalon_budget = self.env['project_budget.commercial_budget'].search([('id', '=', etalon_budget_id)])
         actual_budget_date = budget.date_actual or datetime.now()
-        # actual_budget_date = datetime(year=2024, month=11, day=22)  # ОТЛАДОЧНАЯ
+        actual_budget_date = datetime(year=2025, month=2, day=28)  # ОТЛАДОЧНАЯ
         link = self.print_worksheet(workbook, budget, 'ПДС ' + actual_budget_date.strftime('%d.%m'), company,
                                     responsibility_center_ids, max_level, dict_formula, start_column,
                                     actual_budget_date, group_company_ids)
