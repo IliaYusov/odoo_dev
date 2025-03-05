@@ -733,7 +733,8 @@ class Project(models.Model):
                  'rko_other', 'other_expenses', 'vat_attribute_id', 'signer_id','project_have_steps', 'amount_spec_ids',
                  "step_project_child_ids",)
     def _compute_spec_totals(self):
-        for budget_spec in self:
+        print('_compute_spec_totals', self)
+        for budget_spec in self.sorted(lambda p: p.step_status == 'project'):  # сначала этапы, потом проекты
             self._culculate_all_sums(budget_spec)
 
     @api.depends('end_presale_project_month','end_sale_project_month')

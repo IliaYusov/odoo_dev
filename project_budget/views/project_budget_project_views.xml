@@ -233,6 +233,9 @@
                             <field name="project_office_id" attrs="{'readonly': [('can_edit', '=', False)],
                             'invisible': [('different_project_offices_in_steps', '!=', True)],
                             'required': [('different_project_offices_in_steps', '=', True)]}"/>
+                            <field name="responsibility_center_id" attrs="{'readonly': [('can_edit', '=', False)],
+                            'invisible': [('different_project_offices_in_steps', '!=', True)],
+                            'required': [('different_project_offices_in_steps', '=', True)]}"/>
                         </group>
                         <group colspan="1">
                             <field name="end_presale_project_month"  attrs="{'readonly': [('can_edit', '=', False)]}" />
@@ -999,6 +1002,7 @@
                                    'default_signer_id': signer_id,
                                    'default_partner_id': partner_id,
                                    'default_project_office_id': project_office_id,
+                                   'default_responsibility_center_id': responsibility_center_id,
                                    'default_is_correction_project': is_correction_project,
                                    'default_is_not_for_mc_report': is_not_for_mc_report,
                                    'default_active': active,
