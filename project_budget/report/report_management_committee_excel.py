@@ -546,7 +546,8 @@ class report_management_committee_excel(models.AbstractModel):
 
                 stage_id_code = project.stage_id.code
 
-                if planned_cash.distribution_sum_with_vat_ostatok > 0:
+                if (planned_cash.distribution_sum_with_vat_ostatok > 0 and planned_cash.sum_cash > 0
+                        or planned_cash.distribution_sum_with_vat_ostatok < 0 and planned_cash.sum_cash < 0):  # учитываем отрицательный ПДС для Энсиса
                     if planned_cash.forecast == 'from_project':
                         if stage_id_code in ('75', '100', '100(done)'):
                             sum_ostatok_pds['commitment'] += planned_cash.distribution_sum_with_vat_ostatok
@@ -559,10 +560,11 @@ class report_management_committee_excel(models.AbstractModel):
                             sum_ostatok_pds[planned_cash.forecast] += planned_cash.distribution_sum_with_vat_ostatok
         if sum_distribution_pds != 0:  # если есть распределение, то остаток = остатку распределения
             for key in sum:
-                if not project.is_correction_project:
-                    sum[key] = max(sum_ostatok_pds[key], 0)
-                else:
-                    sum[key] = sum_ostatok_pds[key]
+                sum[key] = sum_ostatok_pds[key]
+                # if not project.is_correction_project:
+                #     sum[key] = max(sum_ostatok_pds[key], 0)
+                # else:
+                #     sum[key] = sum_ostatok_pds[key]
         return sum
 
     def print_quarter_pds_project(self, sheet, row, column, element, project, responsibility_center, params, row_format_number, row_format_number_color_fact):
@@ -592,7 +594,7 @@ class report_management_committee_excel(models.AbstractModel):
             sum = self.get_sum_plan_pds_project_year_quarter(project, YEARint, element)
 
             if not project.is_correction_project:
-                if pds_fact_wo_distributions >= sum['commitment']:
+                if abs(pds_fact_wo_distributions) >= abs(sum['commitment']):  # учитываем отрицательный ПДС для Энсиса
                     sum100tmp_ostatok = pds_fact_wo_distributions - sum['commitment']
                     sum['commitment'] = 0
                     sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
@@ -618,7 +620,7 @@ class report_management_committee_excel(models.AbstractModel):
             sum = self.get_sum_plan_pds_project_year_quarter(project, YEARint, element)
 
             if not project.is_correction_project:
-                if pds_fact_wo_distributions >= sum['commitment']:
+                if abs(pds_fact_wo_distributions) >= abs(sum['commitment']):
                     sum100tmp_ostatok = pds_fact_wo_distributions - sum['commitment']
                     sum['commitment'] = 0
                     sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
@@ -643,14 +645,14 @@ class report_management_committee_excel(models.AbstractModel):
             sum = self.get_sum_plan_pds_project_year_quarter(project, YEARint + 1, False)
 
             if not project.is_correction_project:
-                if pds_fact_wo_distributions_q1 >= sum_q1['commitment']:
+                if abs(pds_fact_wo_distributions_q1) >= abs(sum_q1['commitment']):
                     sum100tmp_q1_ostatok = pds_fact_wo_distributions_q1 - sum_q1['commitment']
                     sum_q1['commitment'] = 0
                     sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_ostatok, 0)
                 else:
                     sum_q1['commitment'] = sum_q1['commitment'] - pds_fact_wo_distributions_q1
 
-                if pds_fact_wo_distributions >= sum['commitment']:
+                if abs(pds_fact_wo_distributions) >= abs(sum['commitment']):
                     sum100tmp_ostatok = pds_fact_wo_distributions - sum['commitment']
                     sum['commitment'] = 0
                     sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
@@ -675,7 +677,7 @@ class report_management_committee_excel(models.AbstractModel):
             sum = self.get_sum_plan_pds_project_year_quarter(project, YEARint + 2, False)
 
             if not project.is_correction_project:
-                if pds_fact_wo_distributions >= sum['commitment']:
+                if abs(pds_fact_wo_distributions) >= abs(sum['commitment']):
                     sum100tmp_ostatok = pds_fact_wo_distributions - sum['commitment']
                     sum['commitment'] = 0
                     sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
@@ -720,7 +722,7 @@ class report_management_committee_excel(models.AbstractModel):
                 sum = self.get_sum_plan_pds_project_year_quarter(project, YEARint, element)
 
                 if not project.is_correction_project:
-                    if pds_fact_wo_distributions >= sum['commitment']:
+                    if abs(pds_fact_wo_distributions) >= abs(sum['commitment']):
                         sum100tmp_ostatok = pds_fact_wo_distributions - sum['commitment']
                         sum['commitment'] = 0
                         sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
@@ -744,14 +746,14 @@ class report_management_committee_excel(models.AbstractModel):
                 sum = self.get_sum_plan_pds_project_year_quarter(project, YEARint + 1, False)
 
                 if not project.is_correction_project:
-                    if pds_fact_wo_distributions_q1 >= sum_q1['commitment']:
+                    if abs(pds_fact_wo_distributions_q1) >= abs(sum_q1['commitment']):
                         sum100tmp_q1_ostatok = pds_fact_wo_distributions_q1 - sum_q1['commitment']
                         sum_q1['commitment'] = 0
                         sum_q1['reserve'] = max(sum_q1['reserve'] - sum100tmp_q1_ostatok, 0)
                     else:
                         sum_q1['commitment'] = sum_q1['commitment'] - pds_fact_wo_distributions_q1
 
-                    if pds_fact_wo_distributions >= sum['commitment']:
+                    if abs(pds_fact_wo_distributions) >= abs(sum['commitment']):
                         sum100tmp_ostatok = pds_fact_wo_distributions - sum['commitment']
                         sum['commitment'] = 0
                         sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
@@ -779,7 +781,7 @@ class report_management_committee_excel(models.AbstractModel):
                 sum = self.get_sum_plan_pds_project_year_quarter(project, YEARint + 2, False)
 
                 if not project.is_correction_project:
-                    if pds_fact_wo_distributions >= sum['commitment']:
+                    if abs(pds_fact_wo_distributions) >= abs(sum['commitment']):
                         sum100tmp_ostatok = pds_fact_wo_distributions - sum['commitment']
                         sum['commitment'] = 0
                         sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
@@ -4330,7 +4332,7 @@ class report_management_committee_excel(models.AbstractModel):
             ],
             'parent_separate_centers_codes': ['05',],
             'company_separate_center_code': '05',
-            'systematica_name': 'Систематика',
+            'systematica_name': 'НКК',
             'virtual_company_id': 9999,
             'vgo_is_present': [],
             'ole_is_present': [],

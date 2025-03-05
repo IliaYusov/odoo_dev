@@ -573,7 +573,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             sum = self.get_sum_plan_pds_project_month(project, year, month)
 
             if not project.is_correction_project:
-                if pds_fact_wo_distributions >= sum.get('commitment', 0):
+                if abs(pds_fact_wo_distributions) >= abs(sum.get('commitment', 0)):  # учитываем отрицательный ПДС для Энсиса
                     sum100tmp_ostatok = pds_fact_wo_distributions - sum['commitment']
                     sum['commitment'] = 0
                     sum['reserve'] = max(sum['reserve'] - sum100tmp_ostatok, 0)
@@ -594,7 +594,8 @@ class report_budget_forecast_excel(models.AbstractModel):
                     sum_distribution_pds += planned_cash_flow.distribution_sum_without_vat
                     stage_id_code = project.stage_id.code
 
-                    if planned_cash_flow.distribution_sum_with_vat_ostatok > 0:
+                    if (planned_cash_flow.distribution_sum_with_vat_ostatok > 0 and planned_cash_flow.sum_cash > 0
+                            or planned_cash_flow.distribution_sum_with_vat_ostatok < 0 and planned_cash_flow.sum_cash < 0):  # учитываем отрицательный ПДС для Энсиса
                         if planned_cash_flow.forecast == 'from_project':
                             if stage_id_code in ('75', '100', '100(done)'):
                                 sum_ostatok_pds['commitment'] = sum_ostatok_pds.get('commitment', 0) + planned_cash_flow.distribution_sum_with_vat_ostatok
@@ -606,9 +607,9 @@ class report_budget_forecast_excel(models.AbstractModel):
 
             if sum_distribution_pds: # если есть распределение, то остаток = остатку распределения
                 sum = sum_ostatok_pds
-                for key in sum:
-                    if sum[key] < 0 and not project.is_correction_project:
-                        sum[key] = 0
+                # for key in sum:
+                #     if sum[key] < 0 and not project.is_correction_project:
+                #         sum[key] = 0
 
             if sum:
                 if not next:

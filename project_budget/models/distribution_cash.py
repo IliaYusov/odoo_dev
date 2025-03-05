@@ -17,10 +17,16 @@ class distribution_cash(models.Model):
                 if distr.id.origin is None:
                     distribution[distr.planned_cash_flow_id] = distribution.get(distr.planned_cash_flow_id,
                                                                                 0) + distr.sum_cash
-            return {'value': {'sum_cash': min(
-                self.distribution_sum_with_vat_ostatok - distribution.get(self.planned_cash_flow_id, 0),
-                self.fact_cash_flow_id.sum_cash - distribution.get('total', 0)
-            )}}
+            if self.fact_cash_flow_id.sum_cash >= 0:
+                return {'value': {'sum_cash': min(
+                    max(self.distribution_sum_with_vat_ostatok - distribution.get(self.planned_cash_flow_id, 0), 0),
+                    max(self.fact_cash_flow_id.sum_cash - distribution.get('total', 0), 0)
+                )}}
+            else:  # если факт отрицательный, то берем большее из чисел, но не положительное
+                return {'value': {'sum_cash': max(
+                    min(self.distribution_sum_with_vat_ostatok - distribution.get(self.planned_cash_flow_id, 0), 0),
+                    min(self.fact_cash_flow_id.sum_cash - distribution.get('total', 0), 0)
+                )}}
 
     _name = 'project_budget.distribution_cash'
     _description = "distribution cash fact by plan"

@@ -571,7 +571,10 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
                                 pds_is_present = True
                             elif i.commercial_budget_id.id == options[
                                 'budget_id'] and i.forecast_probability_id.id == commitment_id:
-                                commitment += max(i.amount - i.distribution, 0)
+                                if i.amount > 0:
+                                    commitment += max(i.amount - i.distribution, 0)
+                                else:
+                                    commitment += min(i.amount - i.distribution, 0)
                                 pds_is_present = True
                     project_data.setdefault(period, {'commitment': commitment, 'fact': fact})
 

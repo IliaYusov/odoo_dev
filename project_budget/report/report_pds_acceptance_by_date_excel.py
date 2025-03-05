@@ -22,8 +22,10 @@ class report_pds_acceptance_by_date_excel(models.AbstractModel):
         if pds_list:
             for pds in pds_list:
                 if date_start <= pds.date_cash <= date_end and pds.forecast in ('commitment', 'reserve', 'from_project'):
-                    sum_cash += max(pds.distribution_sum_with_vat_ostatok, 0)
-
+                    if pds.sum_cash > 0:
+                        sum_cash += max(pds.distribution_sum_with_vat_ostatok, 0)
+                    elif pds.sum_cash < 0:
+                        sum_cash += min(pds.distribution_sum_with_vat_ostatok, 0)
         return sum_cash
 
     def get_sum_plan_acceptance_project(self, project, date_start, date_end):

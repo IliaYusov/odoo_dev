@@ -538,7 +538,8 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                                     and (pds_plan.forecast == 'commitment'
                                          or (pds_plan.forecast == 'from_project'
                                              and project.stage_id.code in ('100(done)', '100', '75')))):
-                                if pds_plan.distribution_sum_with_vat_ostatok > 0:
+                                if (pds_plan.distribution_sum_with_vat_ostatok > 0 and pds_plan.sum_cash > 0
+                                        or pds_plan.distribution_sum_with_vat_ostatok < 0 and pds_plan.sum_cash < 0):  # учитываем отрицательный ПДС для Энсиса
                                     pds_is_present = True
                                     project_data[period]['commitment'] += pds_plan.distribution_sum_with_vat_ostatok
 
