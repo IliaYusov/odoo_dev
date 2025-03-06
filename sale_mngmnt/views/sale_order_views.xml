@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sale_order_view_tree" model="ir.ui.view">
+        <field name="name">sale.order.tree</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <tree string="Sale Orders" decoration-muted="state == 'cancel'">
+                <field name="id" groups="base.group_no_one" optional="hide"/>
+                <field name="name"/>
+                <field name="date_order"/>
+                <field name="date_validity"/>
+                <field name="partner_id" widget="many2one_avatar"/>
+                <field name="salesperson_id"/>
+                <field name="comment" optional="hide"/>
+                <field name="state" decoration-success="state == 'sale'"
+                       decoration-info="state == 'draft'"
+                       widget="badge" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="sale_order_view_form" model="ir.ui.view">
+        <field name="name">sale.order.form</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <form string="Sale Order">
+                <header>
+                    <button name="action_quotation_sent" string="Sent" type="object"
+                            attrs="{'invisible': [('state', 'not in', ['draft'])]}"/>
+                    <button name="action_confirm" string="Confirm" type="object"
+                            attrs="{'invisible': [('state', 'not in', ['draft', 'sent'])]}"/>
+                    <button name="action_cancel" string="Cancel" type="object"
+                            attrs="{'invisible': ['|', ('state', '=', 'cancel'), ('id', '=', False)]}"/>
+                    <button name="action_draft" type="object" string="Set to Quotation"
+                            attrs="{'invisible': [('state', 'not in', ['cancel'])]}"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group invisible="1">
+                        <field name="can_edit"/>
+                        <field name="currency_rate"/>
+                        <field name="company_id"/>
+                    </group>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group name="sale_header">
+                        <group name="partner_details">
+                            <field name="partner_id" widget="res_partner_many2one"
+                                   context="{'res_partner_search_mode': 'customer', 'show_address': 1, 'show_vat': True}"
+                                   options="{'always_reload': True}"
+                                   attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                        </group>
+                        <group name="order_details">
+                            <field name="date_validity"
+                                   attrs="{'invisible': [('state', '=', 'sale')], 'readonly': [('can_edit', '=', False)]}"/>
+                            <field name="date_order" string="Quotation Date"
+                                   attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                            <field name="currency_id" groups="base.group_multi_currency"
+                                   options="{'no_create_edit': 1}"/>
+<!--                                   attrs="{'readonly': ['|', ('pricelist_id', '!=', False), ('can_edit', '=', False)]}"/>-->
+<!--                            <field name="pricelist_id" invisible="1" groups="!product.group_product_pricelist"/>-->
+<!--                            <label for="pricelist_id" groups="product.group_product_pricelist"/>-->
+<!--                            <div class="o_row" groups="product.group_product_pricelist">-->
+<!--                                <field name="pricelist_id" options="{'no_create': True, 'no_open': True}"-->
+<!--                                       attrs="{'readonly': [('can_edit', '=', False)]}"/>-->
+<!--                                <button name="action_update_prices" type="object"-->
+<!--                                        string="Update Prices"-->
+<!--                                        help="Recompute all prices based on this pricelist"-->
+<!--                                        class="btn-link mb-1 px-0" icon="fa-refresh"-->
+<!--                                        confirm="This will update the unit price of all products based on the new pricelist."/>-->
+<!--                            </div>-->
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="order_lines" string="Order Lines">
+                            <field name="line_ids" mode="tree" widget="section_and_note_one2many"
+                                   attrs="{'readonly': [('can_edit', '=', False)]}">
+                                <tree class="o_sale_order_lines" editable="bottom">
+                                    <field name="product_uom_category_id" invisible="1"/>
+                                    <field name="currency_id" invisible="1"/>
+                                    <field name="pricelist_item_id" invisible="1"/>
+                                    <field name="account_price_include" invisible="1"/>
+                                    <field name="id" optional="hide" groups="base.group_no_one"/>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="product_id"
+                                           context="
+                                           {
+                                                'partner_id': parent.partner_id,
+                                                'uom':product_uom_id,
+                                                'company_id': parent.company_id,
+                                                'default_description_sale': name
+                                            }"
+                                            options="{'no_open': True}"/>
+                                    <field name="product_template_id" string="Product" invisible="1"
+                                           context="
+                                           {
+                                                'partner_id': parent.partner_id,
+                                                'uom': product_uom_id,
+                                                'company_id': parent.company_id,
+                                                'default_description_sale': name
+                                            }"
+                                           options="{'no_open': True}"/>
+                                    <field name="name" optional="show"/>
+                                    <field name="supplier_id"/>
+                                    <field name="product_category_id"/>
+<!--                                    <field-->
+<!--                                            name="product_uom_qty"-->
+<!--                                            decoration-info="(not display_type and invoice_status == 'to invoice')"-->
+<!--                                            decoration-bf="(not display_type and invoice_status == 'to invoice')"-->
+<!--                                            context="{-->
+<!--                                        'partner_id': parent.partner_id,-->
+<!--                                        'quantity': product_uom_qty,-->
+<!--                                        'pricelist': parent.pricelist_id,-->
+<!--                                        'uom': product_uom,-->
+<!--                                        'company_id': parent.company_id-->
+<!--                                    }"-->
+<!--                                    />-->
+                                    <field name="product_uom_id" invisible="1" groups="!uom.group_uom"/>
+                                    <field name="product_uom_id" string="UoM"
+                                           context="{'company_id': parent.company_id}"
+                                           groups="uom.group_uom" options='{"no_open": True}' optional="show"/>
+                                    <field name="product_uom_qty"/>
+                                    <field name="price_unit" widget="monetary"/>
+                                    <field name="tax_ids" widget="many2many_tags" options="{'no_create_edit': True}"
+                                           optional="show"/>
+                                    <field name="price_tax" widget="monetary" optional="hide"/>
+                                    <field name="discount"/>
+                                    <field name="price_subtotal" widget="monetary"/>
+                                    <field name="price_total" widget="monetary"/>
+                                    <field name="company_id" invisible="1"/>
+                                </tree>
+                            </field>
+                            <group>
+                                <group class="oe_subtotal_footer oe_right" name="totals_amounts">
+                                    <span class="o_td_label float-start">
+                                        <label class="fw-bold" for="amount_untaxed" string="Untaxed Amount"
+                                               attrs="{'invisible' : [('amount_untaxed', '=', 0.0)]}"/>
+                                    </span>
+                                    <field name="amount_untaxed" widget="monetary" nolabel="1"
+                                           attrs="{'invisible' : [('amount_untaxed', '=', 0.0)]}"/>
+                                    <span class="o_td_label float-start">
+                                        <label class="fw-bold" for="amount_tax" string="Taxes"
+                                               attrs="{'invisible' : [('amount_tax', '=', 0.0)]}"/>
+                                    </span>
+                                    <field name="amount_tax" widget="monetary" nolabel="1"
+                                           attrs="{'invisible' : [('amount_tax', '=', 0.0)]}"/>
+                                    <span class="o_td_label float-start">
+                                        <label class="fw-bold" for="amount_total" string="Amount With Tax"/>
+                                    </span>
+                                    <field name="amount_total" widget="monetary" nolabel="1"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page name="additional_information" string="Additional Info">
+                            <group>
+                                <group name="sales_information" string="Sales">
+                                    <field name="salesperson_id" widget="many2one_avatar_employee"
+                                           options="{'no_create_edit': True, 'relation': 'hr.employee.public'}"
+                                           attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                                    <field name="company_id" options="{'no_create_edit': True}"
+                                           groups="base.group_multi_company"
+                                           attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                                </group>
+                                <group name="taxation" string="Taxation">
+                                    <field name="account_price_include"
+                                           attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+<!--                    <field name="activity_ids" widget="mail_activity"/>-->
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="sale_order_action_quotations" model="ir.actions.act_window">
+        <field name="name">Quotations</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

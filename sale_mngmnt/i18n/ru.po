@@ -1,0 +1,664 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* sale_mngmnt
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-12-11 08:36+0000\n"
+"PO-Revision-Date: 2024-12-11 08:36+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: sale_mngmnt
+#: model:ir.model.constraint,message:sale_mngmnt.constraint_sale_order_date_order_conditional_required
+msgid "A confirmed sales order requires a confirmation date."
+msgstr "Подверженный заказ на продажу должен содержать дату подтверждения."
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__message_needaction
+msgid "Action Needed"
+msgstr ""
+
+#. module: sale_mngmnt
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt.sale_order_view_form
+msgid "Additional Info"
+msgstr "Дополнительная информация"
+
+#. module: sale_mngmnt
+#: model:res.groups,name:sale_mngmnt.sale_group_manager
+msgid "Administrator"
+msgstr "Администратор"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__amount_total
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt.sale_order_view_form
+msgid "Amount With Tax"
+msgstr "Сумма с НДС"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__message_attachment_count
+msgid "Attachment Count"
+msgstr "Количество вложений"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__can_edit
+msgid "Can Edit"
+msgstr ""
+
+#. module: sale_mngmnt
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt.sale_order_view_form
+msgid "Cancel"
+msgstr "Отменить"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields.selection,name:sale_mngmnt.selection__sale_order__state__cancel
+msgid "Cancelled"
+msgstr "Отменен"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__product_category_id
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__product_uom_category_id
+msgid "Category"
+msgstr "Категория"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,help:sale_mngmnt.field_sale_order__account_price_include
+#: model:ir.model.fields,help:sale_mngmnt.field_sale_order_line__account_price_include
+msgid "Check this if the price you use on the product includes this tax."
+msgstr "Отметьте, если цена включает НДС."
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__comment
+msgid "Comment"
+msgstr "Комментарий"
+
+#. module: sale_mngmnt
+#: model:ir.model,name:sale_mngmnt.model_res_company
+msgid "Companies"
+msgstr "Компании"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__company_id
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__company_id
+msgid "Company"
+msgstr "Компания"
+
+#. module: sale_mngmnt
+#: model:ir.model,name:sale_mngmnt.model_res_config_settings
+msgid "Config Settings"
+msgstr "Настройки"
+
+#. module: sale_mngmnt
+#: model:ir.ui.menu,name:sale_mngmnt.sale_menu_configuration
+msgid "Configuration"
+msgstr "Настройки"
+
+#. module: sale_mngmnt
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt.sale_order_view_form
+msgid "Confirm"
+msgstr "Подтвердить"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,help:sale_mngmnt.field_sale_order_line__product_uom_category_id
+msgid ""
+"Conversion between Units of Measure can only occur if they belong to the "
+"same category. The conversion will be made based on the ratios."
+msgstr ""
+"Конвертация между единицами измерения возможна, если они принадлежат одной "
+"категории. Конвертация будет выполнена с учетом коэффициентов."
+
+#. module: sale_mngmnt
+#: model_terms:ir.actions.act_window,help:sale_mngmnt.product_template_action_sale_templates
+msgid "Create a new product"
+msgstr "Создайте новый продукт"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__create_uid
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__create_uid
+msgid "Created by"
+msgstr "Создал"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__create_date
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__create_date
+msgid "Created on"
+msgstr "Дата создания"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__currency_id
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__company_currency_id
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__currency_id
+msgid "Currency"
+msgstr "Валюта"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__currency_rate
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__currency_rate
+msgid "Currency Rate"
+msgstr "Курс валюты"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__partner_id
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__partner_id
+msgid "Customer"
+msgstr "Заказчик"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,help:sale_mngmnt.field_res_company__quotation_validity_days
+#: model:ir.model.fields,help:sale_mngmnt.field_res_config_settings__quotation_validity_days
+msgid ""
+"Days between quotation proposal and expiration.0 days means automatic "
+"expiration is disabled"
+msgstr ""
+"Количество дней между подачей коммерческого предложения и истечением срока "
+"действия. 0 дней означает, что автоматическое истечение срока действия "
+"отключено"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_res_company__quotation_validity_days
+#: model:ir.model.fields,field_description:sale_mngmnt.field_res_config_settings__quotation_validity_days
+msgid "Default Quotation Validity"
+msgstr "Срок действия коммерческого предложения по умолчанию"
+
+#. module: sale_mngmnt
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt.res_config_settings_view_form_inherit_sale
+msgid ""
+"Default period during which the quote is valid and can still be accepted by the\n"
+"                                    customer. The default can be changed per order or template."
+msgstr ""
+"Период, в течении которого действует коммерческое предложение и может быть принято\n"
+"                                    заказчиком. Значение по-умолчанию может быть изменено в коммерческом предложении."
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__name
+msgid "Description"
+msgstr "Описание"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__discount
+msgid "Discount (%)"
+msgstr "Скидка (%)"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__display_name
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__display_name
+msgid "Display Name"
+msgstr "Отображаемое имя"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__date_validity
+msgid "Expiration"
+msgstr "Срок действия"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__fiscal_position_id
+msgid "Fiscal Position"
+msgstr ""
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,help:sale_mngmnt.field_sale_order__fiscal_position_id
+msgid ""
+"Fiscal positions are used to adapt taxes and accounts for particular "
+"customers or sales orders/invoices.The default value comes from the "
+"customer."
+msgstr ""
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__message_follower_ids
+msgid "Followers"
+msgstr ""
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__message_partner_ids
+msgid "Followers (Partners)"
+msgstr ""
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__show_update_fpos
+msgid "Has Fiscal Position Changed"
+msgstr ""
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__has_message
+msgid "Has Message"
+msgstr ""
+
+#. module: sale_mngmnt
+#: model:ir.module.category,description:sale_mngmnt.category_module_sale
+msgid "Helps you handle your quotations, sale orders and invoicing."
+msgstr ""
+"Помогает вам управлять вашими коммерческими предложениями, ордерами на "
+"продажу."
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__id
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__id
+msgid "ID"
+msgstr ""
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,help:sale_mngmnt.field_sale_order__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr ""
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,help:sale_mngmnt.field_sale_order__message_has_error
+#: model:ir.model.fields,help:sale_mngmnt.field_sale_order__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr ""
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,help:sale_mngmnt.field_sale_order__pricelist_id
+msgid "If you change the pricelist, only newly added lines will be affected."
+msgstr "Изменение прайс-листа коснется только новых добавленных позиций."
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__message_is_follower
+msgid "Is Follower"
+msgstr ""
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order____last_update
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__write_uid
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__write_date
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__message_main_attachment_id
+msgid "Main Attachment"
+msgstr ""
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_res_config_settings__module_sale_mngmnt_margin
+msgid "Margins"
+msgstr "Маржа"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__message_has_error
+msgid "Message Delivery error"
+msgstr ""
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__message_ids
+msgid "Messages"
+msgstr ""
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__name
+msgid "Name"
+msgstr "Наименование"
+
+#. module: sale_mngmnt
+#. odoo-python
+#: code:addons/sale_mngmnt/models/sale_order.py:0
+#: code:addons/sale_mngmnt/models/sale_order.py:0
+#: code:addons/sale_mngmnt/models/sale_order.py:0
+#: code:addons/sale_mngmnt/models/sale_order.py:0
+#, python-format
+msgid "New"
+msgstr "Новое"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__message_needaction_counter
+msgid "Number of Actions"
+msgstr ""
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__message_has_error_counter
+msgid "Number of errors"
+msgstr ""
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,help:sale_mngmnt.field_sale_order__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr ""
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,help:sale_mngmnt.field_sale_order__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr ""
+
+#. module: sale_mngmnt
+#. odoo-python
+#: code:addons/sale_mngmnt/models/sale_order.py:0
+#, python-format
+msgid "Only draft orders can be marked as sent directly."
+msgstr ""
+"Только заказы на продажу в статусе 'Коммерческое предложение' могут быть "
+"переведены в статус 'Отправлен'."
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__date_order
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__date_order
+msgid "Order Date"
+msgstr "Дата заказа"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__line_ids
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt.sale_order_view_form
+msgid "Order Lines"
+msgstr "Позиции заказа"
+
+#. module: sale_mngmnt
+#: model:ir.ui.menu,name:sale_mngmnt.sale_menu_orders
+msgid "Orders"
+msgstr "Заказы"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__account_price_include
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__account_price_include
+msgid "Price Include"
+msgstr "Цена включает НДС"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__pricelist_id
+msgid "Pricelist"
+msgstr "Прайс-лист"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__pricelist_item_id
+msgid "Pricelist Item"
+msgstr "Позиция прайс-листа"
+
+#. module: sale_mngmnt
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt.res_config_settings_view_form_inherit_sale
+msgid "Pricing"
+msgstr "Стоимость"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__product_id
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt.sale_order_view_form
+msgid "Product"
+msgstr "Продукт"
+
+#. module: sale_mngmnt
+#: model:ir.ui.menu,name:sale_mngmnt.sale_menu_product_categories
+msgid "Product Categories"
+msgstr "Категории продукта"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__product_template_id
+msgid "Product Template"
+msgstr "Шаблон продукта"
+
+#. module: sale_mngmnt
+#: model:ir.actions.act_window,name:sale_mngmnt.product_template_action_sale_templates
+#: model:ir.ui.menu,name:sale_mngmnt.sale_menu_product_templates
+#: model:ir.ui.menu,name:sale_mngmnt.sale_menu_products
+msgid "Products"
+msgstr "Продукты"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__product_uom_qty
+msgid "Quantity"
+msgstr "Количество"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields.selection,name:sale_mngmnt.selection__sale_order__state__draft
+msgid "Quotation"
+msgstr "Коммерческое предложение"
+
+#. module: sale_mngmnt
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt.sale_order_view_form
+msgid "Quotation Date"
+msgstr "Дата предложения"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields.selection,name:sale_mngmnt.selection__sale_order__state__sent
+msgid "Quotation Sent"
+msgstr "Отправлено"
+
+#. module: sale_mngmnt
+#. odoo-python
+#: code:addons/sale_mngmnt/models/res_config_settings.py:0
+#, python-format
+msgid "Quotation Validity is required and must be greater or equal to 0."
+msgstr "Параметр 'Срок действия' обязателен и должен быть больше или равен 0."
+
+#. module: sale_mngmnt
+#: model:ir.actions.act_window,name:sale_mngmnt.sale_order_action_quotations
+#: model:ir.ui.menu,name:sale_mngmnt.sale_menu_quotations
+msgid "Quotations"
+msgstr "Коммерческие предложения"
+
+#. module: sale_mngmnt
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt.res_config_settings_view_form_inherit_sale
+msgid "Quotations &amp; Orders"
+msgstr "Коммерческие предложения &amp; заказы на продажу"
+
+#. module: sale_mngmnt
+#: model:ir.ui.menu,name:sale_mngmnt.sale_menu_reporting
+msgid "Reporting"
+msgstr "Отчетность"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr ""
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__order_id
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt.sale_order_view_form
+msgid "Sale Order"
+msgstr "Заказ на продажу"
+
+#. module: sale_mngmnt
+#: model:ir.actions.act_window,name:sale_mngmnt.sale_order_line_action
+msgid "Sale Order Line"
+msgstr "Позиция заказа на продажу"
+
+#. module: sale_mngmnt
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt.sale_order_line_view_graph
+msgid "Sale Order Lines"
+msgstr "Позиции заказа на продажу"
+
+#. module: sale_mngmnt
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt.sale_order_view_tree
+msgid "Sale Orders"
+msgstr "Заказы на продажу"
+
+#. module: sale_mngmnt
+#: model:ir.module.category,name:sale_mngmnt.category_module_sale
+#: model:ir.ui.menu,name:sale_mngmnt.sale_menu
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt.res_config_settings_view_form_inherit_sale
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt.sale_order_view_form
+msgid "Sales"
+msgstr "Продажи"
+
+#. module: sale_mngmnt
+#: model:ir.model,name:sale_mngmnt.model_sale_order
+#: model:ir.model.fields.selection,name:sale_mngmnt.selection__sale_order__state__sale
+msgid "Sales Order"
+msgstr "Заказ на продажу"
+
+#. module: sale_mngmnt
+#: model:ir.model,name:sale_mngmnt.model_sale_order_line
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt.sale_order_line_view_form_
+msgid "Sales Order Line"
+msgstr "Позиция заказа на продажу"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__salesperson_id
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__salesperson_id
+msgid "Salesperson"
+msgstr "Продавец"
+
+#. module: sale_mngmnt
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt.sale_order_view_form
+msgid "Sent"
+msgstr "Отправить"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__sequence
+msgid "Sequence"
+msgstr "Последовательность"
+
+#. module: sale_mngmnt
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt.sale_order_view_form
+msgid "Set to Quotation"
+msgstr "Перевести в коммерческие предложения"
+
+#. module: sale_mngmnt
+#: model:ir.actions.act_window,name:sale_mngmnt.res_config_settings_action_sale
+#: model:ir.ui.menu,name:sale_mngmnt.sale_menu_settings
+msgid "Settings"
+msgstr "Настройки"
+
+#. module: sale_mngmnt
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt.res_config_settings_view_form_inherit_sale
+msgid "Show margins on orders"
+msgstr "Отоброжать маржинальность заказов"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__state
+msgid "Status"
+msgstr "Статус"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__price_subtotal
+msgid "Subtotal"
+msgstr "Сумма"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__supplier_id
+msgid "Supplier"
+msgstr "Поставщик"
+
+#. module: sale_mngmnt
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt.sale_order_view_form
+msgid "Taxation"
+msgstr "Налогооблажение"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__amount_tax
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__tax_ids
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt.sale_order_view_form
+msgid "Taxes"
+msgstr "НДС"
+
+#. module: sale_mngmnt
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt.res_config_settings_view_form_inherit_sale
+msgid ""
+"The margin is computed as the sum of product sales prices minus the cost set"
+" in their detail form."
+msgstr ""
+"Маржа рассчитывается как разница между отпускной ценой продукта и ее "
+"стоимостью."
+
+#. module: sale_mngmnt
+#: model:res.groups,comment:sale_mngmnt.sale_group_user
+msgid "The user will have access to his own data in the sales application."
+msgstr "Пользователь будет иметь доступ к своим данным в модуле продаж."
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__price_total
+msgid "Total"
+msgstr "Итого"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__price_tax
+msgid "Total Tax"
+msgstr "Итого НДС"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__price_unit
+msgid "Unit Price"
+msgstr "Цена за ед."
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order_line__product_uom_id
+msgid "Unit of Measure"
+msgstr "Единица измерения"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__amount_untaxed
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt.sale_order_view_form
+msgid "Untaxed Amount"
+msgstr "Сумма без НДС"
+
+#. module: sale_mngmnt
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt.sale_order_view_form
+msgid "UoM"
+msgstr "ЕИ"
+
+#. module: sale_mngmnt
+#: model:res.groups,name:sale_mngmnt.sale_group_user
+msgid "User: Own Documents Only"
+msgstr "Пользователь: только свои документы"
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,help:sale_mngmnt.field_sale_order__date_validity
+msgid ""
+"Validity of the order, after that you will not able to sign & pay the "
+"quotation."
+msgstr ""
+
+#. module: sale_mngmnt
+#. odoo-python
+#: code:addons/sale_mngmnt/models/res_config_settings.py:0
+#, python-format
+msgid "Warning"
+msgstr ""
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,field_description:sale_mngmnt.field_sale_order__website_message_ids
+msgid "Website Messages"
+msgstr ""
+
+#. module: sale_mngmnt
+#: model:ir.model.fields,help:sale_mngmnt.field_sale_order__website_message_ids
+msgid "Website communication history"
+msgstr ""
+
+#. module: sale_mngmnt
+#: model:ir.model.constraint,message:sale_mngmnt.constraint_res_company_check_quotation_validity_days
+msgid ""
+"You cannot set a negative number for the default quotation validity. Leave "
+"empty (or 0) to disable the automatic expiration of quotations."
+msgstr ""
+"Вы не можете установить отрицательный срок действия коммерческого "
+"предложения. Оставьте пустым (или 0) для отключения автоматического "
+"истечения коммерческих предложений."
+
+#. module: sale_mngmnt
+#: model_terms:ir.actions.act_window,help:sale_mngmnt.product_template_action_sale_templates
+msgid ""
+"You must define a product for everything you sell or purchase,\n"
+"                whether it's a storable product, a consumable or a service."
+msgstr ""
+
+#. module: sale_mngmnt
+#. odoo-python
+#: code:addons/sale_mngmnt/models/sale_order.py:0
+#, python-format
+msgid ""
+"Your quotation contains products from company %(product_company)s whereas "
+"your quotation belongs to company %(quote_company)s.Please change the "
+"company of your quotation or remove the products from other companies "
+"(%(bad_products)s)."
+msgstr ""
+"Коммерческое предложение содержит продукты компании %(product_company)s, хотя само предложение относится к компании %(quote_company)s.\n"
+"Пожалуйста, измените компанию для предложения или уберите продукты, которые относятся к другим компаниям (%(bad_products)s)."
+
+#. module: sale_mngmnt
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt.res_config_settings_view_form_inherit_sale
+msgid "days"
+msgstr "дней"

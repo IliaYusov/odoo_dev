@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="sale_group_category_manager" model="res.groups">
+        <field name="name">Category Manager</field>
+        <field name="category_id" ref="sale_mngmnt.category_module_sale"/>
+        <field name="implied_ids" eval="[
+            (4, ref('sale_mngmnt.sale_group_user')),
+            (4, ref('project_budget.project_budget_users'))
+        ]"/>
+    </record>
+</odoo>

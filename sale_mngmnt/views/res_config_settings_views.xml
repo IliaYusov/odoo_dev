@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_inherit_sale" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.sale</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="10"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('settings')]" position="inside">
+                <div class="app_settings_block" string="Sales" data-string="Sales" data-key="sale_mngmnt"
+                    groups="sale_mngmnt.sale_group_manager">
+                    <h2>Pricing</h2>
+                    <div class="row mt16 o_settings_container" id="pricing_setting_container">
+                        <div class="col-12 col-lg-6 o_setting_box" id="show_margins"
+                            title="The margin is computed as the sum of product sales prices minus the cost set in their detail form.">
+                            <div class="o_setting_left_pane">
+                                <field name="module_sale_mngmnt_margin"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="module_sale_mngmnt_margin"/>
+                                <div class="text-muted">
+                                    Show margins on orders
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <h2>Quotations &amp; Orders</h2>
+                    <div class="row mt16 o_settings_container" name="quotation_order_setting_container">
+                        <div class="col-12 col-lg-6 o_setting_box" id="quotation_validity_days">
+                            <div class="o_setting_right_pane">
+                                <label for="quotation_validity_days"/>
+                                <field name="quotation_validity_days" class="text-center"/>
+                                <div class="d-inline-block">days</div>
+                                <div class="text-muted">
+                                    Default period during which the quote is valid and can still be accepted by the
+                                    customer. The default can be changed per order or template.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="res_config_settings_action_sale" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="context">{'module': 'sale_mngmnt'}</field>
+    </record>
+</odoo>

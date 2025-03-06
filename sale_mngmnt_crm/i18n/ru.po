@@ -1,0 +1,64 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* sale_mngmnt_crm
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-12-11 09:19+0000\n"
+"PO-Revision-Date: 2024-12-11 09:19+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: sale_mngmnt_crm
+#. odoo-python
+#: code:addons/sale_mngmnt_crm/models/project_budget_project.py:0
+#, python-format
+msgid "Create a new quotation, the first step of a new sale!"
+msgstr "Сделайте первый шаг к продаже — создайте коммерческое предложение!"
+
+#. module: sale_mngmnt_crm
+#. odoo-python
+#: code:addons/sale_mngmnt_crm/models/project_budget_project.py:0
+#, python-format
+msgid "Once the quotation is confirmed, it becomes a sales order."
+msgstr ""
+"Как только коммерческое предложение подтверждено, оно становится продажей."
+
+#. module: sale_mngmnt_crm
+#: model:ir.model.fields,field_description:sale_mngmnt_crm.field_sale_order__opportunity_id
+msgid "Opportunity"
+msgstr "Сделка"
+
+#. module: sale_mngmnt_crm
+#: model:ir.model.fields,field_description:sale_mngmnt_crm.field_project_budget_projects__order_ids
+msgid "Orders"
+msgstr "Заказы на продажу"
+
+#. module: sale_mngmnt_crm
+#: model:ir.model,name:sale_mngmnt_crm.model_project_budget_projects
+msgid "Project"
+msgstr "Проекты"
+
+#. module: sale_mngmnt_crm
+#: model:ir.model.fields,field_description:sale_mngmnt_crm.field_project_budget_projects__quotation_count
+msgid "Quotation Count"
+msgstr ""
+
+#. module: sale_mngmnt_crm
+#. odoo-python
+#: code:addons/sale_mngmnt_crm/models/project_budget_project.py:0
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt_crm.project_budget_project_view_form_inherit_sale
+#, python-format
+msgid "Quotations"
+msgstr "Коммерческие предложения"
+
+#. module: sale_mngmnt_crm
+#: model:ir.model,name:sale_mngmnt_crm.model_sale_order
+msgid "Sales Order"
+msgstr "Заказ на продажу"

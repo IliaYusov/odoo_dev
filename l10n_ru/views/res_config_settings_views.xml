@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_inherit_l10n_ru" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.l10n.ru</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="40"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('settings')]//div[hasclass('app_settings_block')]//div[@name='default_taxes_setting_container']//div[hasclass('content-group')]"
+                   position="inside">
+                <div class="row">
+                    <div class="col-lg-3">
+                        <label string="Prices" for="account_price_include" class="o_light_label"/>
+                        <div class="fa fa-question-circle"
+                             title="This setting cannot be changed after an invoice is created."/>
+                    </div>
+                    <field name="account_price_include"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

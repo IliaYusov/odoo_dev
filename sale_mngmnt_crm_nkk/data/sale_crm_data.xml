@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <function model="project_budget.projects" name="_init_data_sale_order" eval="[]"/>
+
+    <data>
+        <record id="project_budget_project_revenue_and_cost_consistency_sale_order" model="base.automation">
+            <field name="name">Revenue and cost consistency with sale order</field>
+            <field name="state">code</field>
+            <field name="model_id" ref="project_budget.model_project_budget_projects"/>
+            <field name="trigger">on_write</field>
+            <field name="trigger_field_ids"
+                   eval="[(6, 0, [
+                        ref('project_budget.field_project_budget_projects__stage_id'),
+                        ref('project_budget.field_project_budget_projects__total_amount_of_revenue_with_vat'),
+                        ref('project_budget.field_project_budget_projects__cost_of_goods'),
+                        ref('sale_mngmnt_crm_nkk.field_project_budget_projects__order_amount_total'),
+                        ref('sale_mngmnt_crm_nkk.field_project_budget_projects__order_amount_purchase_total')
+                   ])]"/>
+            <field name="filter_domain">
+                [
+                    ['budget_state', '=', 'work'],
+                    ['step_status', '=', 'project'],
+                    ['auto_create_sale_order', '=', True],
+                    ['is_correction_project', '=', False]
+                ]
+            </field>
+            <field name="code">
+                <![CDATA[
+for record in records:
+    if record.stage_id.project_state == 'won':
+        if abs(record.total_amount_of_revenue_with_vat - record.order_amount_total) > 0.01:
+            raise UserError('Сумма контрактования не совпадает с суммой с НДС по спецификации! Пожалуйста, проверьте данные на вкладке "Спецификация".')
+        if abs(record.cost_of_goods - record.order_amount_purchase_total) > 0.01:
+            raise UserError('Себестоимость товаров не совпадает с себестоимостью по спецификации! Пожалуйста, проверьте данные на вкладке "Спецификация".')
+        ]]></field>
+        </record>
+    </data>
+</odoo>

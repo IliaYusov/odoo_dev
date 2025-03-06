@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="project_budget_project_view_form_inherit_sale" model="ir.ui.view">
+        <field name="name">project.budget.project.form.inherit.sale</field>
+        <field name="model">project_budget.projects</field>
+        <field name="inherit_id" ref="project_budget.show_comercial_budget_spec_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']/button[@name='action_open_attachments']" position="after">
+                <button name="action_open_quotations" type="object" class="oe_stat_button"
+                        groups="sale_mngmnt.sale_group_user" icon="fa-pencil-square-o">
+                    <field name="quotation_count" string="Quotations" widget="statinfo"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>

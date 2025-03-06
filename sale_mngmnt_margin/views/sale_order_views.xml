@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sale_order_view_form_inherit_margin" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.margin</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale_mngmnt.sale_order_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='line_ids']//tree//field[@name='price_unit']" position="after">
+                <field name="purchase_price" widget="monetary"/>
+            </xpath>
+            <xpath expr="//field[@name='line_ids']//tree//field[@name='price_subtotal']" position="after">
+                <field name="purchase_price_subtotal" widget="monetary" optional="hide"/>
+            </xpath>
+            <xpath expr="//page[@name='order_lines']//group[@name='totals_amounts']" position="inside">
+                <span class="o_td_label float-start">
+                    <label class="fw-bold" for="margin" string="Margin"
+                           attrs="{'invisible' : [('amount_untaxed', '=', 0.0)]}"/>
+                </span>
+                <field name="margin" widget="monetary" nolabel="1"
+                       attrs="{'invisible' : [('amount_untaxed', '=', 0.0)]}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

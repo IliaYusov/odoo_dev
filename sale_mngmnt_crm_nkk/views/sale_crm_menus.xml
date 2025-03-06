@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <menuitem id="project_budget_menu_configuration_sales" parent="project_budget.menu_project_budget_configuration"
+              name="Sales" sequence="200" groups="sale_mngmnt.sale_group_manager">
+        <menuitem id="project_budget_menu_configuration_sales_product_templates" name="Products" sequence="1"
+                  action="sale_mngmnt.product_template_action_sale_templates"/>
+        <menuitem id="project_budget_menu_configuration_sales_product_categories" name="Product Categories"
+                  sequence="2" action="product.product_category_action_form"/>
+    </menuitem>
+
+    <record id="sale_mngmnt.sale_menu" model="ir.ui.menu">
+        <field name="groups_id" eval="[(6, 0, [ref('base.group_erp_manager')])]"/>
+    </record>
+</odoo>

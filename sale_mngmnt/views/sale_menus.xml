@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <menuitem id="sale_menu" name="Sales" sequence="30" groups="sale_mngmnt.sale_group_user">
+        <menuitem id="sale_menu_orders" name="Orders">
+            <menuitem id="sale_menu_quotations" name="Quotations" sequence="10" action="sale_order_action_quotations"/>
+        </menuitem>
+
+        <menuitem id="sale_menu_products" name="Products" sequence="30" groups="sale_mngmnt.sale_group_user">
+            <menuitem id="sale_menu_product_templates" name="Products" sequence="1"
+                      action="product_template_action_sale_templates"/>
+<!--            <menuitem id="sale_menu_product_pricelists" name="Pricelists" sequence="3"-->
+<!--                      action="product.product_pricelist_action2" groups="product.group_product_pricelist"/>-->
+        </menuitem>
+
+        <menuitem id="sale_menu_reporting" name="Reporting" sequence="90" groups="sale_mngmnt.sale_group_user"
+                  action="sale_order_line_action"/>
+
+        <menuitem id="sale_menu_configuration" name="Configuration" sequence="100"
+                  groups="sale_mngmnt.sale_group_manager">
+            <menuitem id="sale_menu_settings" name="Settings" sequence="10" action="res_config_settings_action_sale"
+                      groups="base.group_system"/>
+            <menuitem id="sale_menu_product_categories" name="Product Categories" sequence="20"
+                      action="product.product_category_action_form"/>
+        </menuitem>
+    </menuitem>
+</odoo>

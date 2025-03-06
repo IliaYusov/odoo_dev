@@ -1,0 +1,168 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* sale_mngmnt_crm_nkk
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-01-23 12:04+0000\n"
+"PO-Revision-Date: 2025-01-23 12:04+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: sale_mngmnt_crm_nkk
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt_crm_nkk.project_budget_project_view_form_inherit_sale_nkk
+msgid "Amount With Tax"
+msgstr "Сумма с НДС"
+
+#. module: sale_mngmnt_crm_nkk
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt_crm_nkk.res_config_settings_view_form_inherit_sale_nkk
+msgid "Automatically creation sale order by opportunity."
+msgstr "Автоматически создавать ордер на продажу по сделке."
+
+#. module: sale_mngmnt_crm_nkk
+#: model:res.groups,name:sale_mngmnt_crm_nkk.sale_group_category_manager
+msgid "Category Manager"
+msgstr "Менеджер продуктового направления"
+
+#. module: sale_mngmnt_crm_nkk
+#: model:ir.model,name:sale_mngmnt_crm_nkk.model_res_company
+msgid "Companies"
+msgstr "Компании"
+
+#. module: sale_mngmnt_crm_nkk
+#: model:ir.model,name:sale_mngmnt_crm_nkk.model_res_config_settings
+msgid "Config Settings"
+msgstr "Настройки"
+
+#. module: sale_mngmnt_crm_nkk
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt_crm_nkk.project_budget_project_view_form_inherit_sale_nkk
+msgid "Cost Amount"
+msgstr "Себестоимость"
+
+#. module: sale_mngmnt_crm_nkk
+#: model:ir.model.fields,field_description:sale_mngmnt_crm_nkk.field_project_budget_projects__auto_create_sale_order
+#: model:ir.model.fields,field_description:sale_mngmnt_crm_nkk.field_res_company__auto_create_sale_order
+#: model:ir.model.fields,field_description:sale_mngmnt_crm_nkk.field_res_config_settings__auto_create_sale_order
+msgid "Creation sale order"
+msgstr "Создание ордера на продажу"
+
+#. module: sale_mngmnt_crm_nkk
+#: model:ir.model.fields,field_description:sale_mngmnt_crm_nkk.field_product_category__manager_ids
+msgid "Managers"
+msgstr "Менеджеры"
+
+#. module: sale_mngmnt_crm_nkk
+#: model:ir.model.fields,field_description:sale_mngmnt_crm_nkk.field_sale_order_line__opportunity_id
+msgid "Opportunity"
+msgstr "Сделка"
+
+#. module: sale_mngmnt_crm_nkk
+#: model:ir.model.fields,field_description:sale_mngmnt_crm_nkk.field_project_budget_projects__order_id
+msgid "Order"
+msgstr "Заказ на продажу"
+
+#. module: sale_mngmnt_crm_nkk
+#: model:ir.model.fields,field_description:sale_mngmnt_crm_nkk.field_project_budget_projects__order_amount_purchase_total
+msgid "Order Amount Purchase Total"
+msgstr ""
+
+#. module: sale_mngmnt_crm_nkk
+#: model:ir.model.fields,field_description:sale_mngmnt_crm_nkk.field_project_budget_projects__order_amount_tax
+msgid "Order Amount Tax"
+msgstr "НДС"
+
+#. module: sale_mngmnt_crm_nkk
+#: model:ir.model.fields,field_description:sale_mngmnt_crm_nkk.field_project_budget_projects__order_amount_total
+msgid "Order Amount Total"
+msgstr "Сумма с НДС"
+
+#. module: sale_mngmnt_crm_nkk
+#: model:ir.model.fields,field_description:sale_mngmnt_crm_nkk.field_project_budget_projects__order_amount_untaxed
+msgid "Order Amount Untaxed"
+msgstr "Сумма без НДС"
+
+#. module: sale_mngmnt_crm_nkk
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt_crm_nkk.project_budget_project_view_form_inherit_sale_nkk
+msgid "Order Lines"
+msgstr "Спецификация"
+
+#. module: sale_mngmnt_crm_nkk
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt_crm_nkk.project_budget_project_view_form_inherit_sale_nkk
+msgid "Product"
+msgstr "Продукт"
+
+#. module: sale_mngmnt_crm_nkk
+#: model:ir.ui.menu,name:sale_mngmnt_crm_nkk.project_budget_menu_configuration_sales_product_categories
+msgid "Product Categories"
+msgstr "Категории продуктов"
+
+#. module: sale_mngmnt_crm_nkk
+#: model:ir.model,name:sale_mngmnt_crm_nkk.model_product_category
+msgid "Product Category"
+msgstr "Категория продукта"
+
+#. module: sale_mngmnt_crm_nkk
+#: model:ir.ui.menu,name:sale_mngmnt_crm_nkk.project_budget_menu_configuration_sales_product_templates
+msgid "Products"
+msgstr "Продукты"
+
+#. module: sale_mngmnt_crm_nkk
+#: model:ir.model,name:sale_mngmnt_crm_nkk.model_project_budget_projects
+msgid "Project"
+msgstr "Проекты"
+
+#. module: sale_mngmnt_crm_nkk
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt_crm_nkk.res_config_settings_view_form_inherit_sale_nkk
+msgid "Quotations &amp; Orders"
+msgstr "Коммерческие предложение &amp; Ордера на продажу"
+
+#. module: sale_mngmnt_crm_nkk
+#: model:ir.actions.server,name:sale_mngmnt_crm_nkk.project_budget_project_revenue_and_cost_consistency_sale_order_ir_actions_server
+msgid "Revenue and cost consistency with sale order"
+msgstr ""
+
+#. module: sale_mngmnt_crm_nkk
+#: model:ir.model.fields,field_description:sale_mngmnt_crm_nkk.field_product_category__root_category_id
+msgid "Root Category"
+msgstr "Корневая категория"
+
+#. module: sale_mngmnt_crm_nkk
+#: model:ir.model.fields,field_description:sale_mngmnt_crm_nkk.field_project_budget_projects__order_line_ids
+msgid "Sale Order Lines"
+msgstr "Позиции заказа на продажу"
+
+#. module: sale_mngmnt_crm_nkk
+#: model:ir.ui.menu,name:sale_mngmnt_crm_nkk.project_budget_menu_configuration_sales
+msgid "Sales"
+msgstr "Продажи"
+
+#. module: sale_mngmnt_crm_nkk
+#: model:ir.model,name:sale_mngmnt_crm_nkk.model_sale_order_line
+msgid "Sales Order Line"
+msgstr "Позиция заказа на продажу"
+
+#. module: sale_mngmnt_crm_nkk
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt_crm_nkk.project_budget_project_view_form_inherit_sale_nkk
+msgid "Taxes"
+msgstr "НДС"
+
+#. module: sale_mngmnt_crm_nkk
+#: model:ir.model.fields,field_description:sale_mngmnt_crm_nkk.field_product_category__head_id
+msgid "The Head"
+msgstr "Руководитель"
+
+#. module: sale_mngmnt_crm_nkk
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt_crm_nkk.project_budget_project_view_form_inherit_sale_nkk
+msgid "Untaxed Amount"
+msgstr "Сумма без НДС"
+
+#. module: sale_mngmnt_crm_nkk
+#: model_terms:ir.ui.view,arch_db:sale_mngmnt_crm_nkk.project_budget_project_view_form_inherit_sale_nkk
+msgid "UoM"
+msgstr "ЕИ"
