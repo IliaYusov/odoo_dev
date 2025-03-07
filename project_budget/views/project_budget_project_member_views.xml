@@ -14,10 +14,10 @@
                     </group>
                     <group>
                         <group>
-                            <field name="employee_id" widget="many2one_avatar_employee"/>
-                        </group>
-                        <group>
                             <field name="role_id" domain="role_id_domain"/>
+                        </group>
+                        <group name="employee_info">
+                            <field name="employee_id" widget="many2one_avatar_employee"/>
                         </group>
                     </group>
                 </sheet>

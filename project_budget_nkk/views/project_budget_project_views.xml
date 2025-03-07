@@ -28,13 +28,60 @@
         <field name="model">project_budget.projects</field>
         <field name="inherit_id" ref="project_budget.show_comercial_budget_spec_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//page[@name='general']//group//group//field[@name='project_curator_id']" position="after">
-                <field name="technological_direction_id" options="{'no_open': True}"
-                       attrs="{
-                            'invisible': [('company_id', '=', 3)],
-                            'required': [('company_id', '!=', 3)],
-                            'readonly': [('can_edit', '=', False)]
-                       }"/>
+            <xpath expr="//page[@name='general']//group[@name='internal_info']" position="attributes">
+                <attribute name="attrs">{'invisible': [('company_id', '=', 3)]}</attribute>
+            </xpath>
+            <xpath expr="//page[@name='general']//group[@name='internal_info']" position="after">
+                <group name="internal_info" col="3" attrs="{'invisible': [('company_id', '!=', 3)]}">
+                    <group>
+                        <field class="text-break" name="step_project_number"
+                               placeholder="enter project code from AXAPTA"
+                               attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                        <field name="responsibility_center_id" class="text-break"
+                               domain="responsibility_center_id_domain"
+                               options="{'no_create_edit': True, 'no_open': True}"
+                               attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                    </group>
+                    <group>
+                        <field name="isRukovoditel_required_in_project" invisible="True"/>
+                        <field name="key_account_manager_id" widget="many2one_avatar_employee"
+                               placeholder="Key Account Manager"
+                               options="{'no_create_edit': True, 'no_open': True, 'relation': 'hr.employee.public'}"
+                               attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                        <field name="project_manager_id" widget="many2one_avatar_employee"
+                               placeholder="Project Manager"
+                               options="{'no_create_edit': True, 'no_open': True, 'relation': 'hr.employee.public'}"
+                               attrs="{'readonly': [('can_edit', '=', False)], 'required': [('isRukovoditel_required_in_project', '=', True)]}"/>
+                        <field name="project_type_id" placeholder="Project Type"
+                               options="{'no_open': True}"
+                               attrs="{
+                                   'readonly': [('can_edit', '=', False)],
+                                   'required': [('project_have_steps', '=', False)],
+                                   'invisible': [('project_have_steps', '=', True)]
+                               }"/>
+                    </group>
+                    <group>
+                        <field name="project_supervisor_id" widget="many2one_avatar"
+                               options="{'no_open': True}"
+                               attrs="{
+                                   'required': True,
+                                   'readonly': [('can_edit', '=', False)]
+                               }"/>
+                        <field name="technological_direction_id" options="{'no_open': True}"
+                               attrs="{
+                                   'required': True,
+                                   'readonly': [('can_edit', '=', False)]
+                               }"/>
+                    </group>
+                </group>
+            </xpath>
+            <xpath expr="//page[@name='general']//group//group//field[@name='company_partner_id']" position="attributes">
+                <attribute name="attrs">
+                    {
+                        'required': [('company_id', '=', 7)],
+                        'readonly': [('can_edit', '=', False)]
+                    }
+                </attribute>
             </xpath>
         </field>
     </record>
@@ -96,18 +143,32 @@
                     </group>
                     <field name="child_project_ids" mode="tree" widget="many2many"
                            context="{
-                               'tree_view_ref': 'project_budget.project_budget_project_child_view_tree',
-                               'default_is_child_project': True,
-                               'default_parent_project_id': id,
-                               'default_margin_from_children_to_parent': margin_from_children_to_parent
+                                'form_view_ref': 'project_budget.project_budget_step_project_view_form',
+                                'default_step_status': 'step',
+                                'default_company_id': company_id,
+                                'default_currency_id': currency_id,
+                                'default_commercial_budget_id': commercial_budget_id,
+                                'default_key_account_manager_id': key_account_manager_id,
+                                'default_project_manager_id': project_manager_id,
+                                'default_industry_id': industry_id,
+                                'default_signer_id': signer_id,
+                                'default_partner_id': partner_id,
+                                'default_responsibility_center_id': responsibility_center_id,
+                                'default_is_correction_project': is_correction_project,
+                                'default_is_not_for_mc_report': is_not_for_mc_report,
+                                'default_active': active,
+                                'default_project_supervisor_id': project_supervisor_id,
+                                'default_is_child_project': True,
+                                'default_parent_project_id': id,
+                                'default_margin_from_children_to_parent': margin_from_children_to_parent
                            }"
                            groups="project_budget.project_budget_admin"
                            attrs="{'readonly': [('can_edit', '=', False)]}"
-                           domain="['&amp;','&amp;', '&amp;', ('is_parent_project', '=', False), ('parent_project_id', '=', False), ('budget_state', '!=', 'fixed'), ('step_status', '=', 'project')]"/>
+                           domain="[('is_parent_project', '=', False), ('parent_project_id', '=', False), ('budget_state', '!=', 'fixed'), ('step_status', '=', 'project')]"/>
                     <field name="child_project_ids" mode="tree" widget="many2many" readonly="1"
                            context="{'tree_view_ref': 'project_budget.project_budget_project_child_view_tree'}"
                            groups="!project_budget.project_budget_admin"
-                           domain="['&amp;','&amp;', '&amp;', ('is_parent_project', '=', False), ('parent_project_id', '=', False), ('budget_state', '!=', 'fixed'), ('step_status', '=', 'project')]"/>
+                           domain="[('is_parent_project', '=', False), ('parent_project_id', '=', False), ('budget_state', '!=', 'fixed'), ('step_status', '=', 'project')]"/>
                 </page>
             </xpath>
             <xpath expr="//sheet[@name='project']//group//group[@name='project_have_steps']" position="replace">
@@ -117,29 +178,28 @@
                            attrs="{
                            'readonly': [('can_edit', '=', False)],
                            'invisible': [
-                                    '|', '&amp;',
-                                    ('is_parent_project', '=', True), ('margin_from_children_to_parent', '=', True),
-                                    '&amp;',
-                                    ('is_child_project', '=', True), ('margin_from_children_to_parent_related', '=', False),
-                                ]
-                           }"
+                               '|', '&amp;',
+                               ('is_parent_project', '=', True), ('margin_from_children_to_parent', '=', True),
+                               '&amp;',
+                               ('is_child_project', '=', True), ('margin_from_children_to_parent_related', '=', False),
+                           ]}"
                            options="{'autosave': False}"/>
                 </group>
             </xpath>
             <xpath expr="//sheet[@name='project']//group//group//field[@name='vat_attribute_id']" position="replace">
-                 <field name="vat_attribute_id" placeholder="select vat attribute"
+                 <field name="vat_attribute_id"
                         options="{'no_open': True}"
                         attrs="{
                             'readonly': [('can_edit', '=', False)],
                             'invisible': [('project_have_steps', '=', True)],
                             'required': [
-                            '&amp;', '&amp;', '|',
-                            ('is_parent_project', '=', False),
-                            ('margin_from_children_to_parent', '=', False),
-                            '|',
-                            ('is_child_project', '=', False),
-                            ('margin_from_children_to_parent_related', '=', True),
-                            ('project_have_steps', '=', False)
+                                '&amp;', '&amp;', '|',
+                                ('is_parent_project', '=', False),
+                                ('margin_from_children_to_parent', '=', False),
+                                '|',
+                                ('is_child_project', '=', False),
+                                ('margin_from_children_to_parent_related', '=', True),
+                                ('project_have_steps', '=', False)
                             ]
                         }"/>
             </xpath>
@@ -173,15 +233,4 @@
             </xpath>
         </field>
     </record>
-
-<!--    <record id="crm_lead_step_view_form_inherit_nkk" model="ir.ui.view">-->
-<!--        <field name="name">crm.lead.step.form.inherit.nkk</field>-->
-<!--        <field name="model">project_budget.projects</field>-->
-<!--        <field name="inherit_id" ref="project_budget.project_budget_step_project_view_form"/>-->
-<!--        <field name="arch" type="xml">-->
-<!--            <xpath expr="//form/sheet" position="inside">-->
-<!--                <field name="technological_direction_id" invisible="1"/>-->
-<!--            </xpath>-->
-<!--        </field>-->
-<!--    </record>-->
 </odoo>

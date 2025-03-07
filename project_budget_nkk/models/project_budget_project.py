@@ -1,16 +1,20 @@
 import re
 
-from odoo import api, fields, models, _
+from odoo import api, Command, fields, models, _
 from odoo.exceptions import ValidationError
 
 
 class Project(models.Model):
     _inherit = 'project_budget.projects'
 
+    project_supervisor_id = fields.Many2one('project_budget.project_supervisor', string='Project Curator',
+                                            compute='_compute_project_curator_id',
+                                            inverse='_inverse_project_curator_id', check_company=True, copy=True,
+                                            domain="[('company_id', 'in', (False, company_id))]", store=True,
+                                            tracking=True)
     technological_direction_id = fields.Many2one('project_budget.technological_direction',
                                                  string='Technological Direction', compute='_compute_parent_data',
                                                  copy=True, readonly=False, store=True, tracking=True)
-    # TODO убрать этапы на принимающей стороне, проверить отчеты
     is_parent_project = fields.Boolean(string="project is parent", default=False, copy=True, tracking=True)
     is_child_project = fields.Boolean(string="project is child", compute='_check_project_is_child')
     margin_rate_for_parent = fields.Float(string="margin rate for parent project", default=0, copy=True, tracking=True)
@@ -31,13 +35,65 @@ class Project(models.Model):
     total_margin = fields.Monetary(string="Total Margin", compute='_compute_total_margin')
 
     # ------------------------------------------------------
+    # CONSTRAINS
+    # ------------------------------------------------------
+
+    @api.constrains('project_member_ids')
+    def _check_project_member_ids(self):
+        required_members = self.env['project_budget.project.role'].search([
+            ('is_required', '=', True)
+        ])
+        for record in self.filtered(lambda pr: pr.step_status == 'project'):
+            diff = set(required_members) - set(record.project_member_ids.mapped('role_id'))
+            if self.env.ref(
+                    'project_budget.project_role_key_account_manager') in diff and record.key_account_manager_id:
+                diff.remove(self.env.ref('project_budget.project_role_key_account_manager'))
+            if self.env.ref('project_budget.project_role_project_manager') in diff and record.project_manager_id:
+                diff.remove(self.env.ref('project_budget.project_role_project_manager'))
+            if self.env.ref('project_budget.project_role_project_curator') in diff and record.project_supervisor_id:
+                diff.remove(self.env.ref('project_budget.project_role_project_curator'))
+            if diff:
+                raise ValidationError(_("Roles '%s' are required for the project!") % ', '.join([r.name for r in diff]))
+
+    # ------------------------------------------------------
     # COMPUTE METHODS
     # ------------------------------------------------------
 
-    @api.depends('step_project_parent_id.technological_direction_id')
+    @api.depends('step_project_parent_id.technological_direction_id', 'step_project_parent_id.project_supervisor_id')
     def _compute_parent_data(self):
         for rec in self.filtered(lambda pr: pr.step_status == 'step'):
             rec.technological_direction_id = rec.step_project_parent_id.technological_direction_id
+            rec.project_supervisor_id = rec.step_project_parent_id.project_supervisor_id
+
+    @api.depends('project_member_ids.role_id')
+    def _compute_project_curator_id(self):
+        for project in self:
+            curator = project.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
+                'project_budget.project_role_project_curator'))[:1].employee_id
+            project.project_supervisor_id = self.env['project_budget.project_supervisor'].search([
+                ('user_id', '=', curator.user_id.id or 0),
+                ('company_id', '=', project.company_id.id)
+            ])[:1] or False
+
+    @api.onchange('project_supervisor_id')
+    def _inverse_project_curator_id(self):
+        for project in self.filtered(
+                lambda pr: pr.step_status == 'project' and pr.budget_state == 'work' and pr.project_supervisor_id):
+            member_team = self.project_member_ids.filtered(lambda t: t.role_id == self.env.ref(
+                'project_budget.project_role_project_curator'))[:1]
+            if member_team:
+                member_team.employee_id = self.env['hr.employee'].search([
+                    ('user_id', '=', project.project_supervisor_id.user_id.id),
+                    ('company_id', '=', project.company_id.id)
+                ])[:1]
+            else:
+                project.project_member_ids = [Command.create({
+                    'role_id': self.env.ref('project_budget.project_role_project_curator').id,
+                    'employee_id': self.env['hr.employee'].search([
+                        ('user_id', '=', project.project_supervisor_id.user_id.id),
+                        ('company_id', '=', project.company_id.id)
+                    ])[:1].id or 0
+                })]
 
     @api.depends('total_amount_of_revenue', 'margin_rate_for_parent', 'cost_price', 'margin_from_children_to_parent',
                  'child_project_ids')
@@ -76,7 +132,8 @@ class Project(models.Model):
     def _compute_total_margin_of_child_projects(self):
         for rec in self:
             if rec.is_parent_project:
-                rec.total_margin_of_child_projects = sum(child_id.total_amount_of_revenue - child_id.cost_price for child_id in rec.child_project_ids)
+                rec.total_margin_of_child_projects = sum(
+                    child_id.total_amount_of_revenue - child_id.cost_price for child_id in rec.child_project_ids)
             else:
                 rec.total_margin_of_child_projects = 0
 
@@ -116,20 +173,6 @@ class Project(models.Model):
                     raisetext = _("Please enter financial data to step {0}")
                 raisetext = raisetext.format(project.project_id)
                 raise ValidationError(raisetext)
-            # elif (
-            #     project.estimated_probability_id.name in ('50', '75', '100')
-            #     and not
-            #     (
-            #             abs(project.planned_acceptance_flow_sum_without_vat - project.total_amount_of_revenue) < 1  # учитываем различия в рассчете НДС
-            #             and abs(project.planned_cash_flow_sum - project.total_amount_of_revenue_with_vat) < 1
-            #     )
-            #     and not project.is_parent_project
-            #     and project.budget_state == 'work'
-            #     and not project.is_correction_project
-            # ):
-            #     raisetext = _("Acting and/or cash forecast sum is not equal total amout of revenue")
-            #     raisetext = raisetext.format(project.project_id)
-            #     raise ValidationError(raisetext)
 
             if project.project_have_steps:
                 for step in project.step_project_child_ids:
@@ -139,7 +182,7 @@ class Project(models.Model):
                             and not (project.is_child_project and not project.margin_from_children_to_parent)
                             and step.budget_state == 'work'
                             and not step.is_correction_project):
-                        raisetext = _("Please enter forecast for cash and acceptance to project {0} step {1}")
+                        raisetext = _("Please enter forecast for cash or acceptance to project {0} step {1}")
                         raisetext = raisetext.format(step.step_project_parent_id.project_id, step.project_id)
                         raise ValidationError(raisetext)
             else:
@@ -150,7 +193,7 @@ class Project(models.Model):
                         and project.budget_state == 'work'
                         and not project.is_correction_project
                         and project.step_status == 'project'):
-                    raisetext = _("Please enter forecast for cash and acceptance to project {0}")
+                    raisetext = _("Please enter forecast for cash or acceptance to project {0}")
                     raisetext = raisetext.format(project.project_id)
                     raise ValidationError(raisetext)
 

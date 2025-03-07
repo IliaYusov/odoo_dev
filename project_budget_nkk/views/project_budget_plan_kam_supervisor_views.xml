@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="project_budget_budget_plan_supervisor_view_tree_inherit_nkk" model="ir.ui.view">
+        <field name="name">project.budget.budget.plan.supervisor.tree.inherit.nkk</field>
+        <field name="model">project_budget.budget_plan_supervisor</field>
+        <field name="inherit_id" ref="project_budget.show_budget_plan_supervisor_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='responsibility_center_id']" position="after">
+                <field name="supervisor_id" widget="many2one_avatar"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="project_budget_budget_plan_supervisor_view_form_inherit_nkk" model="ir.ui.view">
+        <field name="name">project.budget.budget.plan.supervisor.form.inherit.nkk</field>
+        <field name="model">project_budget.budget_plan_supervisor</field>
+        <field name="inherit_id" ref="project_budget.show_budget_plan_supervisor_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='responsibility_center_id']" position="after">
+                <field name="supervisor_id" widget="many2one_avatar"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="project_budget_budget_plan_kam_view_tree_inherit_nkk" model="ir.ui.view">
+        <field name="name">project.budget.budget.plan.kam.tree.inherit.nkk</field>
+        <field name="model">project_budget.budget_plan_kam</field>
+        <field name="inherit_id" ref="project_budget.show_budget_plan_kam_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='responsibility_center_id']" position="after">
+                <field name="supervisor_id" widget="many2one_avatar"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

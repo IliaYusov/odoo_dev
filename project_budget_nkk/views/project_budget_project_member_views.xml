@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="project_budget_project_member_view_form_inherit_nkk" model="ir.ui.view">
+        <field name="name">project.budget.project.member.form.inherit.nkk</field>
+        <field name="model">project_budget.project.member</field>
+        <field name="inherit_id" ref="project_budget.project_budget_project_member_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='employee_info']" position="replace">
+                <group>
+                    <label for="employee_id"
+                           attrs="{'invisible': [('role_id', '=', %(project_budget_nkk.project_role_project_initiator)d), ('is_external', '=', True)]}"/>
+                    <label for="contact_id"
+                           attrs="{'invisible': ['|', ('role_id', '!=', %(project_budget_nkk.project_role_project_initiator)d), ('is_external', '=', False)]}"/>
+                    <div class="o_row">
+                        <field name="employee_id" widget="many2one_avatar_employee"
+                               attrs="{'invisible': [('role_id', '=', %(project_budget_nkk.project_role_project_initiator)d), ('is_external', '=', True)]}"/>
+                        <field name="contact_id" widget="res_partner_many2one"
+                               attrs="{'invisible': ['|', ('role_id', '!=', %(project_budget_nkk.project_role_project_initiator)d), ('is_external', '=', False)]}"
+                               context="{'default_type': 'contact', 'default_is_company': False}"/>
+                        <field name="is_external"
+                               attrs="{'invisible': [('role_id', '!=', %(project_budget_nkk.project_role_project_initiator)d)]}"/><span attrs="{'invisible': [('role_id', '!=', %(project_budget_nkk.project_role_project_initiator)d)]}">Is External</span>
+                    </div>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

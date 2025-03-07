@@ -20,7 +20,6 @@
                 <field name="name"/>
                 <field name="code"/>
                 <field name="recurring_payments" widget="boolean_toggle"/>
-                <field name="active" widget="boolean_toggle"/>
                 <field name="descr" class="text-wrap"/>
             </tree>
         </field>

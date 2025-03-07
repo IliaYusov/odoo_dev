@@ -682,7 +682,7 @@
                                           options="{'no_open': True}" attrs="{'readonly': [('can_edit', '=', False)]}"/>
                                 </group>
                                 <h5>
-                                    <group col="3">
+                                    <group name="internal_info" col="3">
                                         <group>
                                             <field class="text-break" name="step_project_number"
                                                    placeholder="enter project code from AXAPTA"

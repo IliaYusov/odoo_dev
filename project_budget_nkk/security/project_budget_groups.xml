@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="project_budget_group_print_report_sa" model="res.groups">
+        <field name="name">Print Report SA</field>
+        <field name="category_id" ref="base.module_category_hidden"/>
+    </record>
+
+    <record id="project_budget_group_director" model="res.groups">
+        <field name="name">Director</field>
+        <field name="category_id" ref="project_budget.module_category_services_budget_project"/>
+    </record>
+</odoo>

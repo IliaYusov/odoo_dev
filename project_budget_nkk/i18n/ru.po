@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-21 11:21+0000\n"
-"PO-Revision-Date: 2025-01-21 11:21+0000\n"
+"POT-Creation-Date: 2025-02-25 09:14+0000\n"
+"PO-Revision-Date: 2025-02-25 09:14+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,14 +16,39 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: project_budget_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.project_budget_project_member_view_form_inherit_nkk
+msgid "<span attrs=\"{'invisible': [('role_id', '!=', 7)]}\">Is External</span>"
+msgstr "<span attrs=\"{'invisible': [('role_id', '!=', 7)]}\">Внешний</span>"
+
+#. module: project_budget_nkk
 #: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_technological_direction__active
 msgid "Active"
+msgstr ""
+
+#. module: project_budget_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.show_comercial_budget_spec_supervisor_access_tree
+msgid "Add a line"
 msgstr ""
 
 #. module: project_budget_nkk
 #: model_terms:ir.ui.view,arch_db:project_budget_nkk.crm_lead_technological_direction_view_search
 msgid "Archived"
 msgstr "В архиве"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_project_supervisor__avatar_128
+msgid "Avatar 128"
+msgstr "Аватарка 128"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_project_supervisor_access__can_approve_project
+msgid "Can approve project as supervisor"
+msgstr "Может утверждать проект как куратор"
+
+#. module: project_budget_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.additional_margin_view_form_inherit_nkk
+msgid "Child Projects"
+msgstr "Дочерние проекты"
 
 #. module: project_budget_nkk
 #: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_technological_direction__code
@@ -36,9 +61,24 @@ msgid "Commitment"
 msgstr "Обязательство"
 
 #. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_project_supervisor__company_id
+msgid "Company"
+msgstr "Компания"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_project_member__contact_id
+msgid "Contact"
+msgstr "Инициатор"
+
+#. module: project_budget_nkk
 #: model:ir.actions.server,name:project_budget_nkk.project_budget_project_contract_number_required_ir_actions_server
 msgid "Contract number required"
 msgstr "Обязательность номера договора"
+
+#. module: project_budget_nkk
+#: model_terms:ir.actions.act_window,help:project_budget_nkk.show_project_supervisor
+msgid "Create a new project_supervisor"
+msgstr "Добавить куратора проекта"
 
 #. module: project_budget_nkk
 #: model_terms:ir.actions.act_window,help:project_budget_nkk.crm_lead_technological_direction_action
@@ -46,14 +86,18 @@ msgid "Create a new technological direction"
 msgstr "Создайте новое технологическое направление"
 
 #. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_project_supervisor__create_uid
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_project_supervisor_access__create_uid
 #: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_technological_direction__create_uid
 msgid "Created by"
-msgstr "Автор"
+msgstr "Создано кем"
 
 #. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_project_supervisor__create_date
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_project_supervisor_access__create_date
 #: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_technological_direction__create_date
 msgid "Created on"
-msgstr "Дата создания"
+msgstr "Создано дата"
 
 #. module: project_budget_nkk
 #: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_technological_direction__descr
@@ -61,29 +105,88 @@ msgid "Description"
 msgstr "Описание"
 
 #. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_project_supervisor__display_name
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_project_supervisor_access__display_name
 #: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_technological_direction__display_name
 msgid "Display Name"
 msgstr "Отображаемое имя"
 
 #. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_project_member__employee_id
+msgid "Employee"
+msgstr "Сотрудник"
+
+#. module: project_budget_nkk
+#: model:ir.model.constraint,message:project_budget_nkk.constraint_project_budget_project_member_check_employee_or_contact_not_null
+msgid "Field \"Employee\" or \"Contact\" must not be empty!"
+msgstr "Поле \"Сотрудник\" или \"Контакт\" не должно быть пустым!"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_project_supervisor__id
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_project_supervisor_access__id
 #: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_technological_direction__id
 msgid "ID"
 msgstr ""
 
 #. module: project_budget_nkk
+#: model:project_budget.project.role,name:project_budget_nkk.project_role_project_initiator
+msgid "Initiator"
+msgstr "Инициатор"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_project_member__is_external
+msgid "Is External"
+msgstr "Внешний"
+
+#. module: project_budget_nkk
+#: model:ir.model,name:project_budget_nkk.model_project_budget_budget_plan_kam
+msgid "KAM's budget plan on year"
+msgstr "Год"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_budget_plan_kam__supervisor_id
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_budget_plan_supervisor__supervisor_id
+msgid "KAMs supervisor"
+msgstr "Руководитель ПО"
+
+#. module: project_budget_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.crm_lead_view_form_inherit_nkk
+msgid "Key Account Manager"
+msgstr "КАМ"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_project_supervisor____last_update
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_project_supervisor_access____last_update
 #: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_technological_direction____last_update
 msgid "Last Modified on"
 msgstr "Дата последней модификации"
 
 #. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_project_supervisor__write_uid
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_project_supervisor_access__write_uid
 #: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_technological_direction__write_uid
 msgid "Last Updated by"
 msgstr "Автор последнего изменения"
 
 #. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_project_supervisor__write_date
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_project_supervisor_access__write_date
 #: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_technological_direction__write_date
 msgid "Last Updated on"
 msgstr "Дата последнего обновления"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__margin_from_children_to_parent
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__margin_from_children_to_parent_related
+msgid "Margin from Children to Parent"
+msgstr "Переключить направление"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__additional_margin
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.additional_margin_child_tree_form_inherit_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.additional_margin_view_form_inherit_nkk
+msgid "Margin from Related Projects"
+msgstr "Маржа связанных проектов"
 
 #. module: project_budget_nkk
 #: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_technological_direction__name
@@ -91,14 +194,103 @@ msgid "Name"
 msgstr "Наименование"
 
 #. module: project_budget_nkk
+#. odoo-python
+#: code:addons/project_budget_nkk/wizard/project_budget_project_print_report.py:0
+#, python-format
+msgid "PDS weekly plan fact SA"
+msgstr "ПДС план-прогноз СА"
+
+#. module: project_budget_nkk
+#. odoo-python
+#: code:addons/project_budget_nkk/models/project_budget_project.py:0
+#, python-format
+msgid "Please enter financial data to project {0}"
+msgstr ""
+"Пожалуйста добавьте Финансовые показатели в проект {0}, его вероятность "
+"больше 10%"
+
+#. module: project_budget_nkk
+#. odoo-python
+#: code:addons/project_budget_nkk/models/project_budget_project.py:0
+#, python-format
+msgid "Please enter financial data to step {0}"
+msgstr ""
+"Пожалуйста добавьте Финансовые показатели в этап {0}, его вероятность больше"
+" 10%"
+
+#. module: project_budget_nkk
+#. odoo-python
+#: code:addons/project_budget_nkk/models/project_budget_project.py:0
+#, python-format
+msgid "Please enter forecast for cash or acceptance to project {0}"
+msgstr ""
+"Пожалуйста добавьте Прогноз актирования и ПДС в проект {0}, его вероятность "
+"больше 30%"
+
+#. module: project_budget_nkk
+#. odoo-python
+#: code:addons/project_budget_nkk/models/project_budget_project.py:0
+#, python-format
+msgid "Please enter forecast for cash or acceptance to project {0} step {1}"
+msgstr ""
+"Пожалуйста добавьте Прогноз актирования и ПДС в этап {1} проекта {0}, его "
+"вероятность больше 30%"
+
+#. module: project_budget_nkk
 #: model:project_budget.forecast.probability,name:project_budget_nkk.project_budget_forecast_probability_potential
 msgid "Potential"
 msgstr "Потенциал"
 
 #. module: project_budget_nkk
+#: model:res.groups,name:project_budget_nkk.project_budget_group_print_report_sa
+msgid "Print Report SA"
+msgstr "Печать отчетности в формате СА"
+
+#. module: project_budget_nkk
+#: model:res.groups,name:project_budget_nkk.project_budget_group_director
+msgid "Director"
+msgstr "Директор"
+
+#. module: project_budget_nkk
 #: model:ir.model,name:project_budget_nkk.model_project_budget_projects
 msgid "Project"
 msgstr "Проекты"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__project_supervisor_id
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.crm_lead_view_search_inherit_nkk
+msgid "Project Curator"
+msgstr "Куратор проекта"
+
+#. module: project_budget_nkk
+#: model:ir.ui.menu,name:project_budget_nkk.crm_menu_project_supervisors
+msgid "Project Curators"
+msgstr "Кураторы проектов"
+
+#. module: project_budget_nkk
+#: model:ir.ui.menu,name:project_budget_nkk.crm_menu_project_curators_access
+msgid "Project Curators Access"
+msgstr "Доступ пользователей по кураторам проектов"
+
+#. module: project_budget_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.crm_lead_view_form_inherit_nkk
+msgid "Project Manager"
+msgstr "Руководитель проекта"
+
+#. module: project_budget_nkk
+#: model:ir.model,name:project_budget_nkk.model_project_budget_project_member
+msgid "Project Member"
+msgstr "Участник проекта"
+
+#. module: project_budget_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.crm_lead_view_form_inherit_nkk
+msgid "Project Type"
+msgstr "Тип проекта"
+
+#. module: project_budget_nkk
+#: model:ir.model,name:project_budget_nkk.model_project_budget_projects_report_wizard
+msgid "Projects report Wizard"
+msgstr "Отчеты по сделкам"
 
 #. module: project_budget_nkk
 #: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_technological_direction__recurring_payments
@@ -111,6 +303,13 @@ msgid "Reserve"
 msgstr "Резерв"
 
 #. module: project_budget_nkk
+#. odoo-python
+#: code:addons/project_budget_nkk/models/project_budget_project.py:0
+#, python-format
+msgid "Roles '%s' are required for the project!"
+msgstr "Роли '%s' обязательны для проекта!"
+
+#. module: project_budget_nkk
 #: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_technological_direction__sequence
 msgid "Sequence"
 msgstr "Последовательность"
@@ -121,9 +320,20 @@ msgid "Step project number required"
 msgstr "Обязательность номера этапа проекта"
 
 #. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_res_users__supervisor_rule
+msgid "Supervisor Rule"
+msgstr "Для настроки правила кураторов"
+
+#. module: project_budget_nkk
+#: model:ir.model,name:project_budget_nkk.model_project_budget_budget_plan_supervisor
+msgid "Supervisors's budget plan on year"
+msgstr "План бюджетных показателей компании/проектного офиса"
+
+#. module: project_budget_nkk
 #: model:ir.model,name:project_budget_nkk.model_project_budget_technological_direction
 #: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__technological_direction_id
 #: model_terms:ir.ui.view,arch_db:project_budget_nkk.crm_lead_technological_direction_view_tree
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.crm_lead_view_search_inherit_nkk
 msgid "Technological Direction"
 msgstr "Технологическое направление"
 
@@ -134,20 +344,38 @@ msgid "Technological Directions"
 msgstr "Технологические направления"
 
 #. module: project_budget_nkk
-#: model:ir.model,name:project_budget_nkk.model_project_budget_additional_margin
-#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__additional_margin
-#: model_terms:ir.ui.view,arch_db:project_budget_nkk.additional_margin_view_form_inherit_nkk
-#: model_terms:ir.ui.view,arch_db:project_budget_nkk.additional_margin_child_tree_form_inherit_nkk
-msgid "Margin from Related Projects"
-msgstr "Маржа связанных проектов"
-
-#. module: project_budget_nkk
-#: model:ir.model,name:project_budget_nkk.model_project_budget_total_margin
 #: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__total_margin
-#: model_terms:ir.ui.view,arch_db:project_budget_nkk.additional_margin_view_form_inherit_nkk
 #: model_terms:ir.ui.view,arch_db:project_budget_nkk.additional_margin_child_tree_form_inherit_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.additional_margin_view_form_inherit_nkk
 msgid "Total Margin"
 msgstr "Маржа итого"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects_report_wizard__type_report
+msgid "Type Report"
+msgstr "Тип отчета"
+
+#. module: project_budget_nkk
+#. odoo-python
+#: code:addons/project_budget_nkk/models/project_budget_project.py:0
+#, python-format
+msgid "User should have admin rights"
+msgstr ""
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__child_project_ids
+msgid "child projects"
+msgstr "Дочерние проекты"
+
+#. module: project_budget_nkk
+#: model_terms:ir.actions.act_window,help:project_budget_nkk.show_project_supervisor
+msgid "each project budget have project_supervisor"
+msgstr "Каждый бюджет имеет куратора проекта"
+
+#. module: project_budget_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.crm_lead_view_form_inherit_nkk
+msgid "enter project code from AXAPTA"
+msgstr "Введите код проекта из AXAPTA"
 
 #. module: project_budget_nkk
 #: model_terms:ir.ui.view,arch_db:project_budget_nkk.additional_margin_view_form_inherit_nkk
@@ -160,31 +388,85 @@ msgid "from parent to children"
 msgstr "Маржа: от материнского проекта к дочерним"
 
 #. module: project_budget_nkk
-#: model:ir.model,name:project_budget_nkk.model_project_budget_margin_from_children_to_parent
-#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__margin_from_children_to_parent
 #: model_terms:ir.ui.view,arch_db:project_budget_nkk.additional_margin_view_form_inherit_nkk
 msgid "margin from children to parent"
 msgstr "Переключить направление"
 
 #. module: project_budget_nkk
-#: model_terms:ir.ui.view,arch_db:project_budget_nkk.additional_margin_view_form_inherit_nkk
-msgid "Child Projects"
-msgstr "Дочерние проекты"
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__margin_rate_for_parent
+msgid "margin rate for parent project"
+msgstr "% от маржи в материнскую сделку"
 
-#. module: project_budget
-#. odoo-python
-#: code:addons/project_budget_nkk/models/project_budget_project.py:0
-#, python-format
-msgid "Please enter forecast for cash and acceptance to project {0}"
-msgstr ""
-"Пожалуйста добавьте Прогноз актирования и ПДС в проект {0}, его "
-"вероятность больше 30%"
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__parent_project_id
+msgid "parent project id"
+msgstr "id материнского проекта"
 
-#. module: project_budget
-#. odoo-python
-#: code:addons/project_budget_nkk/models/project_budget_project.py:0
-#, python-format
-msgid "Please enter forecast for cash and acceptance to project {0} step {1}"
-msgstr ""
-"Пожалуйста добавьте Прогноз актирования и ПДС в этап {1} проекта {0}, его "
-"вероятность больше 30%"
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__is_child_project
+msgid "project is child"
+msgstr "Дочерний проект"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__is_parent_project
+msgid "project is parent"
+msgstr "Материнский проект"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_project_supervisor_access__descr
+msgid "project supervisor access description"
+msgstr "Описание"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_project_supervisor_access__project_supervisor_id
+msgid "project supervisor id"
+msgstr "Куратор проекта (все его проекты будут доступны пользователю)"
+
+#. module: project_budget_nkk
+#: model:ir.actions.act_window,name:project_budget_nkk.show_project_supervisor
+#: model:ir.model,name:project_budget_nkk.model_project_budget_project_supervisor
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.show_project_supervisor_form
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.show_project_supervisor_tree
+msgid "project_supervisor"
+msgstr "Куратор проекта"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_project_supervisor__code
+msgid "project_supervisor code"
+msgstr "Код"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_project_supervisor__descr
+msgid "project_supervisor description"
+msgstr "Описание"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_project_supervisor__name
+msgid "project_supervisor name"
+msgstr "ФИО"
+
+#. module: project_budget_nkk
+#: model:ir.actions.act_window,name:project_budget_nkk.show_comercial_budget_spec_supervisor_access
+#: model:ir.model,name:project_budget_nkk.model_project_budget_project_supervisor_access
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_project_supervisor__project_supervisor_access_ids
+#: model:ir.model.fields,field_description:project_budget_nkk.field_res_users__project_supervisor_access_ids
+msgid "project_supervisor_access"
+msgstr "Доступ пользователей по кураторам проектов"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__total_margin_of_child_projects
+msgid "total margin of child projects"
+msgstr "Сумма маржи дочерних проектов"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_budget_plan_kam__supervisor_user_id
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_budget_plan_supervisor__supervisor_user_id
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_project_supervisor__user_id
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_project_supervisor_access__user_id
+msgid "user id"
+msgstr "Пользователь"
+
+#. module: project_budget_nkk
+#: model:ir.model,name:project_budget_nkk.model_res_users
+msgid "users budgets access"
+msgstr "Пользователь"

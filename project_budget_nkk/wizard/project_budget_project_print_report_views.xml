@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="project_budget_projects_report_print_view_form_inherit_nkk" model="ir.ui.view">
+        <field name="name">project.budget.project.print.report.inherit.nkk</field>
+        <field name="model">project_budget.projects.report.wizard</field>
+        <field name="inherit_id" ref="project_budget.project_budget_projects_report_print_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='report_with_projects']" position="after">
+                <field name="systematica_forecast" groups="project_budget_nkk.project_budget_group_print_report_sa"
+                       attrs="{'invisible': [('type_report', 'not in', ('forecast_v2', 'forecast_v3'))]}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
