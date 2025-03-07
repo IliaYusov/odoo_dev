@@ -1220,6 +1220,11 @@ msgid "Forecast_v2"
 msgstr "Прогноз_v2"
 
 #. module: project_budget
+#: model:ir.model.fields.selection,name:project_budget.selection__project_budget_projects_report_wizard__type_report__contracting_revenue_cash
+msgid "Contracting Revenue Cash"
+msgstr "Свод фин. индикаторов"
+
+#. module: project_budget
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_planned_acceptance_flow__forecast__from_project
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_planned_cash_flow__forecast__from_project
 msgid "From project/step"

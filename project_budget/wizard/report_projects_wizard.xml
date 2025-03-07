@@ -32,7 +32,8 @@
                         <group>
                             <field name="past_commercial_budget_id"
                                    attrs="{'invisible': [('type_report', 'not in', ('week_to_week',))]}"/>
-                            <field name="commercial_budget_id"/>
+                            <field name="commercial_budget_id"
+                                   attrs="{'invisible': [('type_report', 'in', ('contracting_revenue_cash',))]}"/>
                             <field name="etalon_budget_id"
                                    attrs="{'invisible': [('type_report', 'not in', ('pds_weekly_plan_fact_sa',))]}"/>
                             <field name="responsibility_center_ids" widget="many2many_tags"
@@ -53,7 +54,7 @@
                             <field string="from date" name="date_start" attrs="{'invisible': [('type_report', 'not in', ('pds_acceptance_by_date'))]}"/>
                         </group>
                         <group>
-                            <field string="year to" name="year_end" attrs="{'invisible': [('type_report', 'in', ('week_to_week', 'raw_data','overdue','management_committee','pds_acceptance_by_date', 'pds_weekly', 'pds_weekly_plan_fact', 'pds_weekly_plan_fact_sa', 'forecast_v2', 'forecast_v3', 'plan_fact'))]}"/>
+                            <field string="year to" name="year_end" attrs="{'invisible': [('type_report', 'in', ('week_to_week', 'raw_data','overdue','management_committee','pds_acceptance_by_date', 'pds_weekly', 'pds_weekly_plan_fact', 'pds_weekly_plan_fact_sa', 'forecast_v2', 'forecast_v3', 'plan_fact', 'contracting_revenue_cash'))]}"/>
                             <field string="to date" name="date_end" attrs="{'invisible': [('type_report', 'not in', ('pds_acceptance_by_date'))]}"/>
                         </group>
                         <group></group>
@@ -205,5 +206,13 @@
             name="project_budget.report_week_to_week_excel"
             menu="False"
             file="project_budget.report_week_to_week_excel"
+    />
+    <report id="action_projects_list_report_xlsx_contracting_revenue_cash"
+            string="Contracting Revenue Cash"
+            model="project_budget.projects.report.wizard"
+            report_type="xlsx"
+            name="project_budget.report_contracting_revenue_cash_excel"
+            menu="False"
+            file="project_budget.report_contracting_revenue_cash_excel"
     />
 </odoo>

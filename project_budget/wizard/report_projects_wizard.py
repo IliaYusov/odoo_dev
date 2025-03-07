@@ -10,6 +10,22 @@ class report_projects_wizard(models.TransientModel):
     _name = 'project_budget.projects.report.wizard'
     _description = 'Projects report Wizard'
 
+    def _get_available_type_report(self):
+        type_report = [
+            ('kb', _('KB')),
+            ('kb_fin', _('KB fin')),
+            ('forecast_v2', _('Forecast_v2')),
+            ('plan_fact', _('Plan-Fact')),
+            ('raw_data', _('Raw Data')),
+            ('management_committee', _('Management Committee')),
+            ('pds_acceptance_by_date', _('PDS, Acceptance')),
+            ('pds_weekly_plan_fact', _('PDS weekly plan fact')),
+            ('week_to_week', _('Week to Week')),
+        ]
+        if self.env.user.has_group('base.group_no_one'):
+            type_report.append(('forecast_v3', _('Forecast_v3')))
+        return type_report
+
     def _get_last_fixed_budget(self):
         last_fixed_budget = self.env['project_budget.commercial_budget'].search(
             [('budget_state', '=', 'fixed')], order='date_actual desc', limit=1
@@ -20,24 +36,7 @@ class report_projects_wizard(models.TransientModel):
 
     year = fields.Integer(string='Year of the report', required=True,default=date.today().year)
     year_end = fields.Integer(string='end Year of the report', required=True, default=date.today().year)
-    type_report = fields.Selection([
-        ('kb', 'KB'),
-        ('kb_fin', 'KB fin'),
-        # ('forecast', 'Forecast'),
-        ('forecast_v2', 'Forecast_v2'),
-        ('forecast_v3', 'Forecast_v3'),
-        ('plan_fact', 'Plan-Fact'),
-        # ('svod', 'Svod'),
-        ('raw_data', 'Raw Data'),
-        # ('overdue', 'Overdue'),
-        ('management_committee', 'Management Committee'),
-        ('pds_acceptance_by_date', 'PDS, Acceptance'),
-        # ('pds_weekly', 'PDS weekly'),
-        ('pds_weekly_plan_fact', 'PDS weekly plan fact'),
-        ('pds_weekly_plan_fact_sa', 'PDS weekly plan fact SA'),
-        ('week_to_week', 'Week to Week'),
-    ],
-        required=True, default='kb')
+    type_report = fields.Selection(selection=_get_available_type_report, default='kb', required=True)
     commercial_budget_id = fields.Many2one(
         'project_budget.commercial_budget', string='commercial_budget-',required=True,
         default=lambda self: self.env['project_budget.commercial_budget'].search([('budget_state', '=', 'work')], limit=1)
@@ -137,3 +136,6 @@ class report_projects_wizard(models.TransientModel):
 
         if self.type_report == 'week_to_week':
             return self.env.ref('project_budget.action_projects_list_report_xlsx_week_to_week').report_action(self, data=datas)
+
+        if self.type_report == 'contracting_revenue_cash':
+            return self.env.ref('project_budget.action_projects_list_report_xlsx_contracting_revenue_cash').report_action(self, data=datas)
