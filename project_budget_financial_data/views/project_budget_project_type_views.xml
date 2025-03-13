@@ -1,0 +1,35 @@
+<odoo>
+    <data>
+        <record id="crm_lead_view_form_project_type_inherit_nkk" model="ir.ui.view">
+            <field name="name">crm.lead.form.inherit.nkk</field>
+            <field name="model">project_budget.project_type</field>
+            <field name="inherit_id" ref="project_budget_nkk.show_project_type_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group[@name='description']" position="after">
+                    <h4>
+                        <group string="Visible fields in project" >
+                        </group>
+                    </h4>
+                    <group>
+                        <group>
+                            <field name="is_revenue_from_the_sale_of_works" widget="boolean_toggle"/>
+                            <field name="is_revenue_from_the_sale_of_goods" widget="boolean_toggle"/>
+                            <field name="is_cost_of_goods" widget="boolean_toggle"/>
+                            <field name="is_own_works_fot" widget="boolean_toggle"/>
+                            <field name="is_third_party_works" widget="boolean_toggle"/>
+                            <field name="is_awards_on_results_project" widget="boolean_toggle"/>
+                        </group>
+                        <group>
+                            <field name="is_transportation_expenses" widget="boolean_toggle"/>
+                            <field name="is_travel_expenses" widget="boolean_toggle"/>
+                            <field name="is_representation_expenses" widget="boolean_toggle"/>
+                            <field name="is_warranty_service_costs" widget="boolean_toggle"/>
+                            <field name="is_rko_other" widget="boolean_toggle"/>
+                            <field name="is_other_expenses" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

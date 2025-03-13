@@ -19,6 +19,53 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='comments']" position="after">
                 <field name="technological_direction_id" optional="hide"/>
+                <field name="project_type_id" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="crm_lead_child_view_tree_inherit_nkk" model="ir.ui.view">
+        <field name="name">crm.lead.child.tree.inherit.nkk</field>
+        <field name="model">project_budget.projects</field>
+        <field name="inherit_id" ref="project_budget.project_budget_project_child_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='comments']" position="after">
+                <field name="project_type_id" optional="hide" readonly="1" options="{'no_open': True}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="crm_lead_step_view_form_inherit_nkk" model="ir.ui.view">
+        <field name="name">crm.lead.step.form.inherit.nkk</field>
+        <field name="model">project_budget.projects</field>
+        <field name="inherit_id" ref="project_budget.project_budget_step_project_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='step_project_number']" position="after">
+                <group>
+                    <field name="project_type_id" force_save="1" options="{'no_open': True,}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="crm_lead_view_kanban_inherit_nkk" model="ir.ui.view">
+        <field name="name">crm.lead.kanban.inherit.nkk</field>
+        <field name="model">project_budget.projects</field>
+        <field name="inherit_id" ref="project_budget.project_budget_project_view_kanban"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='project_manager_id']" position="after">
+                <field name="project_type_id"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="crm_lead_view_pivot_inherit_nkk" model="ir.ui.view">
+        <field name="name">crm.lead.pivot.inherit.nkk</field>
+        <field name="model">project_budget.projects</field>
+        <field name="inherit_id" ref="project_budget.project_budget_projects_pivot"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='signer_id']" position="after">
+                <field name="project_type_id"/>
             </xpath>
         </field>
     </record>
@@ -30,6 +77,13 @@
         <field name="arch" type="xml">
             <xpath expr="//page[@name='general']//group[@name='internal_info']" position="attributes">
                 <attribute name="attrs">{'invisible': [('company_id', '=', 3)]}</attribute>
+            </xpath>
+            <xpath expr="//page[@name='general']//group[@name='internal_info']//group[@name='project_manager']//field[@name='project_manager_id']" position="after">
+                <field name="project_type_id" placeholder="Project Type"
+                   options="{'no_open': True}"
+                   attrs="{'readonly': [('can_edit', '=', False)],
+                   'required': [('project_have_steps', '=', False)],
+                   'invisible': [('project_have_steps', '=', True)]}"/>
             </xpath>
             <xpath expr="//page[@name='general']//group[@name='internal_info']" position="after">
                 <group name="internal_info" col="3" attrs="{'invisible': [('company_id', '!=', 3)]}">
@@ -82,6 +136,9 @@
                         'readonly': [('can_edit', '=', False)]
                     }
                 </attribute>
+            </xpath>
+            <xpath expr="//page[@name='steps']//tree[@name='steps']//field[@name='project_id']" position="after">
+                <field name="project_type_id" optional="hide"/>
             </xpath>
         </field>
     </record>

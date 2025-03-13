@@ -4,7 +4,7 @@
     'category': 'Sales/Sales',
     'description': """
     """,
-    'depends': ['sale_mngmnt_crm', 'sale_mngmnt_margin'],
+    'depends': ['sale_mngmnt_crm', 'sale_mngmnt_margin', 'project_budget_financial_data'],
     'assets': {
         'web.assets_backend': [
             'sale_mngmnt_crm_nkk/static/src/scss/project_budget.scss',

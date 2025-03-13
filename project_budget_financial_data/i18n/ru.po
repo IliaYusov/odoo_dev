@@ -1,0 +1,303 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* project_budget_financial_data
+
+#. module: project_budget_financial_data
+#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_step_form_inherit_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_form_inherit_nkk
+msgid "spec"
+msgstr "Расшифровка"
+
+#. module: project_budget_financial_data
+#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_form_inherit_nkk
+msgid "Financial indicators"
+msgstr "Финансовые показатели"
+
+#. module: project_budget_financial_data
+#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_step_form_inherit_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_form_inherit_nkk
+msgid "Costs"
+msgstr "Затраты"
+
+#. module: project_budget_financial_data
+#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_step_form_inherit_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_form_inherit_nkk
+msgid "Costs FOT"
+msgstr "Затраты на ФОТ"
+
+#. module: project_budget_financial_data
+#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.show_amount_spec
+msgid "Edit summ specification:"
+msgstr "Просмотр/редактирование расшифровки суммы"
+
+#. module: project_budget_financial_data
+#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_step_form_inherit_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_form_inherit_nkk
+msgid "Add spec revenue_from_the_sale_of_works"
+msgstr "Добавить расшифровку суммы выручка от реализации работ/услуг"
+
+#. module: project_budget_financial_data
+#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_step_form_inherit_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_form_inherit_nkk
+msgid "View/edit spec revenue_from_the_sale_of_works"
+msgstr "Просмотр/редактирование выруки от реализации работ/услуг"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_project_type__is_revenue_from_the_sale_of_works
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__is_revenue_from_the_sale_of_works
+msgid "is_revenue_from_the_sale_of_works(services)"
+msgstr "Выручка от реализации работ(услуг)"
+
+#. module: project_budget_financial_data
+#. odoo-python
+#: code:addons/project_budget/models/project_budget_project.py:0
+#: model:ir.model.fields.selection,name:project_budget_financial_data.selection__project_budget_amount_spec__type__revenue_from_the_sale_of_works
+#, python-format
+msgid "revenue_from_the_sale_of_works"
+msgstr "Выручка от реализации работ(Услуг)"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__revenue_from_the_sale_of_works
+msgid "revenue_from_the_sale_of_works(services)"
+msgstr " Выручка от реализации работ(услуг)"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__revenue_from_the_sale_of_works_amount_spec_exist
+msgid "revenue_from_the_sale_of_works_amount_spec_exist"
+msgstr "Есть расшифровка суммы выручки от реализации работ (услуг)"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__amount_spec_ids
+msgid "amount spec revenue from the sale of works"
+msgstr "Расшифровка суммы выручки от реализации работ(услуг)"
+
+#. module: project_budget_financial_data
+#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_step_form_inherit_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_form_inherit_nkk
+msgid "Add spec revenue_from_the_sale_of_goods"
+msgstr "Добавить расшифровку суммы выручка от реализации товара"
+
+#. module: project_budget_financial_data
+#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_step_form_inherit_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_form_inherit_nkk
+msgid "View/edit spec revenue_from_the_sale_of_goods"
+msgstr "Просмотр/редактирование выруки от реализации товаров"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_project_type__is_revenue_from_the_sale_of_goods
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__is_revenue_from_the_sale_of_goods
+msgid "is_revenue_from the sale of goods"
+msgstr "Выручка от реализации товара"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__revenue_from_the_sale_of_goods
+msgid "revenue_from the sale of goods"
+msgstr " Выручка от реализации товара"
+
+#. module: project_budget_financial_data
+#. odoo-python
+#: code:addons/project_budget_financial_data/models/project_budget_project.py:0
+#: model:ir.model.fields.selection,name:project_budget_financial_data.selection__project_budget_amount_spec__type__revenue_from_the_sale_of_goods
+#, python-format
+msgid "revenue_from_the_sale_of_goods"
+msgstr "Выручка от реализации товара"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__revenue_from_the_sale_of_goods_amount_spec_exist
+msgid "revenue_from_the_sale_of_goods_amount_spec_exist"
+msgstr "Есть расшифровка суммы выручки от реализации товара"
+
+#. module: project_budget_financial_data
+#. odoo-python
+#: code:addons/project_budget_financial_data/models/project_budget_project.py:0
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__cost_of_goods
+#: model:ir.model.fields.selection,name:project_budget_financial_data.selection__project_budget_amount_spec__type__cost_of_goods
+#, python-format
+msgid "cost_of_goods"
+msgstr "Себестоимость товаров"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__cost_of_goods_amount_spec_exist
+msgid "cost_of_goods_amount_spec_exist"
+msgstr "Есть расшифровка себестоимости товаров "
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_project_type__is_cost_of_goods
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__is_cost_of_goods
+msgid "is_cost_of_goods"
+msgstr "Себестоимость товаров"
+
+#. module: project_budget_financial_data
+#. odoo-python
+#: code:addons/project_budget_financial_data/models/project_budget_project.py:0
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__travel_expenses
+#: model:ir.model.fields.selection,name:project_budget_financial_data.selection__project_budget_amount_spec__type__travel_expenses
+#, python-format
+msgid "travel_expenses"
+msgstr "Командировочные расходы"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__travel_expenses_amount_spec_exist
+msgid "travel_expenses_amount_spec_exist"
+msgstr "Есть расшифровка суммы транспортных расходов"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_project_type__is_travel_expenses
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__is_travel_expenses
+msgid "is_travel_expenses"
+msgstr "Командировочные расходы"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_project_type__is_third_party_works
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__is_third_party_works
+msgid "is_third_party_works(subcontracting)"
+msgstr "Работы сторонние (субподряд)"
+
+#. module: project_budget_financial_data
+#. odoo-python
+#: code:addons/project_budget_financial_data/models/project_budget_project.py:0
+#: model:ir.model.fields.selection,name:project_budget_financial_data.selection__project_budget_amount_spec__type__third_party_works
+#, python-format
+msgid "third_party_works"
+msgstr "Работы сторонние (субподряд)"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__third_party_works
+msgid "third_party_works(subcontracting)"
+msgstr "Работы сторонние (субподряд)"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__third_party_works_amount_spec_exist
+msgid "third_party_works_amount_spec_exist"
+msgstr "Есть расшифровка суммы работ сторонних (субподряд)"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_project_type__is_representation_expenses
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__is_representation_expenses
+msgid "is_representation_expenses"
+msgstr "Представительские расходы"
+
+#. module: project_budget_financial_data
+#. odoo-python
+#: code:addons/project_budget_financial_data/models/project_budget_project.py:0
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__representation_expenses
+#: model:ir.model.fields.selection,name:project_budget_financial_data.selection__project_budget_amount_spec__type__representation_expenses
+#, python-format
+msgid "representation_expenses"
+msgstr "Представительские расходы"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__representation_expenses_amount_spec_exist
+msgid "representation_expenses_amount_spec_exist"
+msgstr "Есть расшифровка суммы представительские расходы"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_project_type__is_transportation_expenses
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__is_transportation_expenses
+msgid "is_transportation_expenses"
+msgstr "Транспортные расходы"
+
+#. module: project_budget_financial_data
+#. odoo-python
+#: code:addons/project_budget_financial_data/models/project_budget_project.py:0
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__transportation_expenses
+#: model:ir.model.fields.selection,name:project_budget_financial_data.selection__project_budget_amount_spec__type__transportation_expenses
+#, python-format
+msgid "transportation_expenses"
+msgstr "Транспортные расходы"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__transportation_expenses_amount_spec_exist
+msgid "transportation_expenses_amount_spec_exist"
+msgstr "Есть расшифровка суммы транспортных расходов"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_project_type__is_rko_other
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__is_rko_other
+msgid "is_rko_other"
+msgstr "РКО прочие"
+
+#. module: project_budget_financial_data
+#. odoo-python
+#: code:addons/project_budget_financial_data/models/project_budget_project.py:0
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__rko_other
+#: model:ir.model.fields.selection,name:project_budget_financial_data.selection__project_budget_amount_spec__type__rko_other
+#, python-format
+msgid "rko_other"
+msgstr "РКО прочие"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__rko_other_amount_spec_exist
+msgid "rko_other_amount_spec_exist"
+msgstr "Есть расшифровка РКО прочие"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_project_type__is_warranty_service_costs
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__is_warranty_service_costs
+msgid "is_Warranty service costs"
+msgstr "Расходы на гарант. обслуж."
+
+#. module: project_budget_financial_data
+#. odoo-python
+#: code:addons/project_budget_financial_data/models/project_budget_project.py:0
+#: model:ir.model.fields.selection,name:project_budget_financial_data.selection__project_budget_amount_spec__type__warranty_service_costs
+#, python-format
+msgid "warranty_service_costs"
+msgstr "Расходы на гарантийное обслуживание"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__warranty_service_costs_amount_spec_exist
+msgid "warranty_service_costs_amount_spec_exist"
+msgstr "Есть расшифровка суммы расходов на гарантийное обслуживание"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__warranty_service_costs
+msgid "Warranty service costs"
+msgstr " Расходы на гарант. обслуж."
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_project_type__is_other_expenses
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__is_other_expenses
+msgid "is_other_expenses"
+msgstr "Прочие расходы"
+
+#. module: project_budget_financial_data
+#. odoo-python
+#: code:addons/project_budget_financial_data/models/project_budget_project.py:0
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__other_expenses
+#: model:ir.model.fields.selection,name:project_budget_financial_data.selection__project_budget_amount_spec__type__other_expenses
+#, python-format
+msgid "other_expenses"
+msgstr "Прочие расходы"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__other_expenses_amount_spec_exist
+msgid "other_expenses_amount_spec_exist"
+msgstr "Есть расшифровка суммы прочие расходы"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_project_type__is_own_works_fot
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__is_own_works_fot
+msgid "is_own_works_fot"
+msgstr "Работы собственные (ФОТ)"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__own_works_fot
+msgid "own_works_fot"
+msgstr "Работы собственные (ФОТ)"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__awards_on_results_project
+msgid "Awards based on the results of the project"
+msgstr "Премии по итогам проекта"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_project_type__is_awards_on_results_project
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__is_awards_on_results_project
+msgid "is_Awards based on the results of the project"
+msgstr "Премии по итогам проекта"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__taxes_fot_premiums
+msgid "taxes_FOT and premiums"
+msgstr "Налоги на ФОТ и премии"

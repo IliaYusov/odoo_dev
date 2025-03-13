@@ -17,7 +17,6 @@ from . import distribution_cash
 from . import budget_plan_supervisor
 from . import budget_plan_kam
 from . import tenders
-from . import project_amount_specifications
 from . import project_currency_rates
 from . import res_config_settings
 from . import res_partner

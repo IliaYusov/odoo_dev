@@ -15,6 +15,7 @@ class Project(models.Model):
     technological_direction_id = fields.Many2one('project_budget.technological_direction',
                                                  string='Technological Direction', compute='_compute_parent_data',
                                                  copy=True, readonly=False, store=True, tracking=True)
+    project_type_id = fields.Many2one('project_budget.project_type', string='Project Type', copy=True, tracking=True)
     is_parent_project = fields.Boolean(string="project is parent", default=False, copy=True, tracking=True)
     is_child_project = fields.Boolean(string="project is child", compute='_check_project_is_child')
     margin_rate_for_parent = fields.Float(string="margin rate for parent project", default=0, copy=True, tracking=True)

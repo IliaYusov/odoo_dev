@@ -4,32 +4,36 @@ from odoo.tools import pytz
 from datetime import timedelta
 import datetime
 
-class project_budget_amount_spec(models.Model):
+
+class ProjectBudgetAmountSpec(models.Model):
+    _name = 'project_budget.amount_spec'
+    _description = "projects amount specification"
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
     def _get_default_amount_spec_type(self):
         context = self.env.context
         print('_get_default_amount_spec_type context = ', context)
         value = ''
-        if context.get("revenue_from_the_sale_of_works") == True:
+        if context.get("revenue_from_the_sale_of_works"):
             value = 'revenue_from_the_sale_of_works'
-        if context.get("revenue_from_the_sale_of_goods") == True:
+        if context.get("revenue_from_the_sale_of_goods"):
             value = 'revenue_from_the_sale_of_goods'
 
-        if context.get("cost_of_goods") == True:
+        if context.get("cost_of_goods"):
             value = 'cost_of_goods'
-        if context.get("travel_expenses") == True:
+        if context.get("travel_expenses"):
             value = 'travel_expenses'
-        if context.get("third_party_works") == True:
+        if context.get("third_party_works"):
             value = 'third_party_works'
-        if context.get("representation_expenses") == True:
+        if context.get("representation_expenses"):
             value = 'representation_expenses'
-        if context.get("rko_other") == True:
+        if context.get("rko_other"):
             value = 'rko_other'
-        if context.get("warranty_service_costs") == True:
+        if context.get("warranty_service_costs"):
             value = 'warranty_service_costs'
-        if context.get("other_expenses") == True:
+        if context.get("other_expenses"):
             value = 'other_expenses'
-        if context.get("transportation_expenses") == True:
+        if context.get("transportation_expenses"):
             value = 'transportation_expenses'
 
         print('_get_default_amount_spec_type value = ', value)
@@ -50,9 +54,6 @@ class project_budget_amount_spec(models.Model):
         domain = [('id', 'in', currency_list)]
         return domain
 
-    _name = 'project_budget.amount_spec'
-    _description = "projects amount specification"
-    _inherit = ['mail.thread', 'mail.activity.mixin']
     projects_id = fields.Many2one('project_budget.projects', string='projects_id', index=True, ondelete='cascade')
     type = fields.Selection([('revenue_from_the_sale_of_works', 'revenue_from_the_sale_of_works'), ('revenue_from_the_sale_of_goods', 'revenue_from_the_sale_of_goods'),
                              ('cost_of_goods', 'cost_of_goods'),('travel_expenses', 'travel_expenses'),('third_party_works', 'third_party_works'),
@@ -60,8 +61,6 @@ class project_budget_amount_spec(models.Model):
                              ('rko_other', 'rko_other'),('warranty_service_costs', 'warranty_service_costs'),('other_expenses', 'other_expenses'),
                             ], required=True, index=True, default= _get_default_amount_spec_type,  copy=True,)
     currency_id = fields.Many2one('res.currency', string='Account Currency',  domain = _get_domain_currency)
-    # project_currency_id = fields.Many2one('project_budget.project_currency_rates', string='Projects currency',  required = True, copy = True,
-    #                               tracking=True, domain=False)
+
     name = fields.Char(string='name',tracking=True, required = True)
     summa = fields.Monetary(string='position sum',tracking=True)
-

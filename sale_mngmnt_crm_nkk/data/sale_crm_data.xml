@@ -12,7 +12,7 @@
                    eval="[(6, 0, [
                         ref('project_budget.field_project_budget_projects__stage_id'),
                         ref('project_budget.field_project_budget_projects__total_amount_of_revenue_with_vat'),
-                        ref('project_budget.field_project_budget_projects__cost_of_goods'),
+                        ref('project_budget_financial_data.field_project_budget_projects__cost_of_goods'),
                         ref('sale_mngmnt_crm_nkk.field_project_budget_projects__order_amount_total'),
                         ref('sale_mngmnt_crm_nkk.field_project_budget_projects__order_amount_purchase_total')
                    ])]"/>

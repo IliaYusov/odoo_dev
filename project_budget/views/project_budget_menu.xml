@@ -30,8 +30,6 @@
               action="show_industry"/>
     <menuitem id="project_budget_catalogs_vat_attribute" parent="project_budget_catalogs" name="vat_attribute"
               action="show_vat_attribute"/>
-    <menuitem id="project_budget_catalogs_project_type" parent="project_budget_catalogs" name="project_type"
-              action="show_project_type"/>
     <menuitem id="project_budget_catalogs_tender_current_status" parent="project_budget_catalogs" name="tender status"
               action="show_project_tender_current_status"/>
     <menuitem id="project_budget_catalogs_tender_comments_type" parent="project_budget_catalogs"

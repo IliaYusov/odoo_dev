@@ -24,7 +24,6 @@
         'views/tender_search.xml',
         'views/project_budget_catalogs.xml',
         'views/project_budget_comercial_budget_access.xml',
-        'views/project_amount_specifications.xml',
         'views/project_budget_project_office_views.xml',
         'views/project_budget_project_role_views.xml',
         'views/project_budget_project_member_views.xml',

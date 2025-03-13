@@ -2,6 +2,9 @@
     <menuitem id="crm_menu_technological_directions" parent="project_budget.menu_project_budget_configuration"
               name="Technological Directions" sequence="1000" action="crm_lead_technological_direction_action"/>
 
+    <menuitem id="crm_menu_project_types" parent="project_budget.project_budget_catalogs" name="Project Types"
+              action="show_project_type"/>
+
     <menuitem id="crm_menu_project_supervisors" parent="project_budget.project_budget_catalogs"
               name="Project Curators" sequence="0" action="show_project_supervisor"/>
 

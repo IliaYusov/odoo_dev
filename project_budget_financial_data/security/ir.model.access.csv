@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+access_project_budget_amount_spec_user,project.budget.amount.spec.user,model_project_budget_amount_spec,project_budget.project_budget_users,1,0,0,0
+access_project_budget_amount_spec_user_readonly,project.budget.amount.spec.user.readonly,model_project_budget_amount_spec,project_budget.project_budget_users_readonly,1,0,0,0
+access_project_budget_amount_spec_manager,project.budget.amount.spec.manager,model_project_budget_amount_spec,project_budget.project_budget_admin,1,1,1,1

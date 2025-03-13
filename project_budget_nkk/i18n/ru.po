@@ -470,3 +470,17 @@ msgstr "Пользователь"
 #: model:ir.model,name:project_budget_nkk.model_res_users
 msgid "users budgets access"
 msgstr "Пользователь"
+
+#. module: project_budget_nkk
+#: model:ir.actions.act_window,name:project_budget_nkk.show_project_type
+#: model:ir.model,name:project_budget_nkk.model_project_budget_project_type
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__project_type_id
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.show_project_type_form
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.show_project_type_tree
+msgid "project_type"
+msgstr "Тип проекта"
+
+#. module: project_budget_nkk
+#: model:ir.ui.menu,name:project_budget_nkk.crm_menu_project_types
+msgid "Project Types"
+msgstr "Типы проектов"
