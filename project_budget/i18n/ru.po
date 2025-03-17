@@ -532,21 +532,9 @@ msgid "Catalogs"
 msgstr "Каталоги"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__child_count
-msgid "Child Count"
-msgstr ""
-
-#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_office__child_ids
 msgid "Child Project Offices"
 msgstr "Подчиненные проектные офисы"
-
-#. module: project_budget
-#: model:ir.actions.act_window,name:project_budget.action_project_budget_project_child_projects
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__child_ids
-#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
-msgid "Child Projects"
-msgstr "Дочерние проекты"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_project_office__code
@@ -3041,13 +3029,6 @@ msgid "Vgo"
 msgstr "ВГО"
 
 #. module: project_budget
-#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_child_view_tree
-#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_step_project_view_form
-#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
-msgid "View project"
-msgstr "Просмотр проекта"
-
-#. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_project_type_form
 msgid "Visible fields in project"
 msgstr "Видимость полей в проекте (если есть этапы, то все поля видимые)"
@@ -3243,12 +3224,6 @@ msgstr "ПДС 6+6"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__cash_id
 msgid "cash_id"
 msgstr ""
-
-#. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__child_project_ids
-#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
-msgid "child projects"
-msgstr "Дочерние проекты"
 
 #. module: project_budget
 #: model:ir.actions.act_window,name:project_budget.show_comercial_budgets
@@ -3965,11 +3940,6 @@ msgstr "Маржа"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_supervisor__sum_margin_income_year_6_6
 msgid "margin plan year 6+6"
 msgstr "Маржа 6+6"
-
-#. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__margin_rate_for_parent
-msgid "margin rate for parent project"
-msgstr "% от маржи в материнскую сделку"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_kam__sum_margin3_income_year_fact
@@ -4942,11 +4912,6 @@ msgstr "Текст комментария"
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_projects_report_print_form
 msgid "to date"
 msgstr "конец периода отчета (вкл)"
-
-#. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__total_margin_of_child_projects
-msgid "total margin of child projects"
-msgstr "Сумма маржи дочерних проектов"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__total_amount_of_revenue

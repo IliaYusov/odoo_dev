@@ -484,3 +484,32 @@ msgstr "Тип проекта"
 #: model:ir.ui.menu,name:project_budget_nkk.crm_menu_project_types
 msgid "Project Types"
 msgstr "Типы проектов"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__child_count
+msgid "Child Count"
+msgstr "Дочерние"
+
+#. module: project_budget_nkk
+#: model:ir.actions.act_window,name:project_budget_nkk.action_project_budget_project_child_projects
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__child_project_ids
+#: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
+msgid "Child Projects"
+msgstr "Дочерние проекты"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__total_margin_of_child_projects
+msgid "total margin of child projects"
+msgstr "Сумма маржи дочерних проектов"
+
+#. module: project_budget_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.project_budget_project_child_view_tree
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.project_budget_step_project_view_form
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.show_comercial_budget_spec_form
+msgid "View project"
+msgstr "Просмотр проекта"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__margin_rate_for_parent
+msgid "margin rate for parent project"
+msgstr "% от маржи в материнскую сделку"
