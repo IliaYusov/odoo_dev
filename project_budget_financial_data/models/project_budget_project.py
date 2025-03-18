@@ -111,6 +111,11 @@ class Project(models.Model):
             if row.other_expenses_amount_spec_exist:
                 row.other_expenses = self._get_sums_from_amount_spec_type(row, 'other_expenses')
 
+    total_amount_of_revenue = fields.Monetary(string='total_amount_of_revenue', compute='_compute_spec_totals',
+                                              inverse='_inverse_spec_totals', store=True, tracking=True)
+    cost_price = fields.Monetary(string='cost_price', compute='_compute_spec_totals', inverse='_inverse_spec_totals',
+                                 store=True, tracking=True)
+
     revenue_from_the_sale_of_works = fields.Monetary(string='revenue_from_the_sale_of_works(services)',tracking=True, )
     revenue_from_the_sale_of_works_amount_spec_exist = fields.Boolean(string='revenue_from_the_sale_of_works_amount_spec_exist', compute="_exists_amount_spec")
     revenue_from_the_sale_of_goods_amount_spec_exist = fields.Boolean(string='revenue_from_the_sale_of_goods_amount_spec_exist', compute="_exists_amount_spec")
@@ -159,6 +164,8 @@ class Project(models.Model):
 
     is_percent_fot_manual = fields.Boolean(compute='_get_signer_settings_fot', readonly=True)
     percent_fot = fields.Float(compute='_get_signer_settings_fot', readonly=True)
+
+    use_financial_data = fields.Boolean(related='company_id.use_financial_data', readonly=True)
 
     # ------------------------------------------------------
     # ACTIONS
@@ -319,11 +326,6 @@ class Project(models.Model):
 
             project.cost_price = project.cost_price + project.taxes_fot_premiums
 
-            project.margin_income = project.total_amount_of_revenue - project.cost_price
-
-            project.total_amount_of_revenue_with_vat = (project.revenue_from_the_sale_of_works + project.revenue_from_the_sale_of_goods) * (
-                                                                       1 + project.vat_attribute_id.percent / 100)
-
         elif project.project_have_steps and project.step_status == 'project':
             # self._compute_sums_from_amount_spec()
             print('elif project.project_have_steps == True: row.amount_spec_ids =', project.amount_spec_ids)
@@ -337,8 +339,6 @@ class Project(models.Model):
 
             project.total_amount_of_revenue = 0
             project.cost_price = 0
-            project.margin_income = 0
-            project.total_amount_of_revenue_with_vat = 0
             project.taxes_fot_premiums = 0
             project.profitability = 0
             project.revenue_from_the_sale_of_works = 0
@@ -357,8 +357,6 @@ class Project(models.Model):
                 if step.stage_id.code != '0':
                     project.total_amount_of_revenue += step.total_amount_of_revenue
                     project.cost_price += step.cost_price
-                    project.margin_income += step.margin_income
-                    project.total_amount_of_revenue_with_vat += step.total_amount_of_revenue_with_vat
                     project.taxes_fot_premiums += step.taxes_fot_premiums
                     project.revenue_from_the_sale_of_works += step.revenue_from_the_sale_of_works
                     project.revenue_from_the_sale_of_goods += step.revenue_from_the_sale_of_goods
@@ -373,19 +371,18 @@ class Project(models.Model):
                     project.rko_other += step.rko_other
                     project.other_expenses += step.other_expenses
 
-        if project.total_amount_of_revenue == 0:
-            project.profitability = 0
-        else:
-            project.profitability = project.margin_income / project.total_amount_of_revenue * 100
-
     @api.depends('taxes_fot_premiums', "revenue_from_the_sale_of_works", 'revenue_from_the_sale_of_goods',
                  'cost_of_goods', 'own_works_fot', 'third_party_works', "awards_on_results_project",
                  'transportation_expenses', 'travel_expenses', 'representation_expenses', "warranty_service_costs",
-                 'rko_other', 'other_expenses', 'vat_attribute_id', 'signer_id','project_have_steps', 'amount_spec_ids',
+                 'rko_other', 'other_expenses', 'signer_id','project_have_steps', 'amount_spec_ids',
                  "step_project_child_ids",)
     def _compute_spec_totals(self):
-        for budget_spec in self.sorted(lambda p: p.step_status == 'project'):  # сначала этапы, потом проекты
-            self._calculate_all_sums(budget_spec)
+        for project in self.sorted(lambda p: p.step_status == 'project'):  # сначала этапы, потом проекты
+            if project.company_id.use_financial_data:
+                self._calculate_all_sums(project)
+
+    def _inverse_spec_totals(self):
+        pass
 
     # @api.onchange('project_office_id','project_status','currency_id','project_curator_id','key_account_manager_id',
     #               'industry_id','essence_project','end_presale_project_month','end_sale_project_month','vat_attribute_id','total_amount_of_revenue',

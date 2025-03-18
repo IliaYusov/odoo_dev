@@ -7,6 +7,7 @@
     """,
     'data': [
         'security/ir.model.access.csv',
+        'views/res_company_views.xml',
         'views/project_budget_amount_specifications.xml',
         'views/project_budget_project_type_views.xml',
         'views/project_budget_project_views.xml',

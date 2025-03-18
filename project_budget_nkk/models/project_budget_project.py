@@ -27,6 +27,7 @@ class Project(models.Model):
         comodel_name='project_budget.projects',
         inverse_name='parent_project_id',
         string="child projects", auto_join=True)
+    child_count = fields.Integer(compute='_compute_child_count', string='Child Count')
     margin_from_children_to_parent = fields.Boolean(string="Margin from Children to Parent", default=True, copy=True)
     margin_from_children_to_parent_related = fields.Boolean(related="parent_project_id.margin_from_children_to_parent")
     additional_margin = fields.Monetary(string="Margin from Related Projects", compute='_compute_additional_margin',
@@ -65,6 +66,11 @@ class Project(models.Model):
         for rec in self.filtered(lambda pr: pr.step_status == 'step'):
             rec.technological_direction_id = rec.step_project_parent_id.technological_direction_id
             rec.project_supervisor_id = rec.step_project_parent_id.project_supervisor_id
+
+    @api.depends('child_project_ids')
+    def _compute_child_count(self):
+        for project in self:
+            project.child_count = len(project.child_project_ids)
 
     @api.depends('project_member_ids.role_id')
     def _compute_project_curator_id(self):

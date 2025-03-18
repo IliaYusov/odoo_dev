@@ -42,9 +42,9 @@ class Project(models.Model):
         return "[('user_id.groups_id', 'in', %s), '|', ('company_id', '=', False), ('company_id', '=', company_id)]" \
             % self.env.ref('project_budget.project_budget_group_project_manager').id
 
-    def _get_project_curator_id_domain(self):
-        return "[('user_id.groups_id', 'in', %s), '|', ('company_id', '=', False), ('company_id', '=', company_id)]" \
-            % self.env.ref('project_budget.project_budget_group_project_curator').id
+    # def _get_project_curator_id_domain(self):
+    #     return "[('user_id.groups_id', 'in', %s), '|', ('company_id', '=', False), ('company_id', '=', company_id)]" \
+    #         % self.env.ref('project_budget.project_budget_group_project_curator').id
 
     # def _get_supervisor_list(self):  # TODO убрать после миграции на кураторов
     #     domain = []
@@ -101,9 +101,9 @@ class Project(models.Model):
     budget_state = fields.Selection(related='commercial_budget_id.budget_state', index=True, readonly=True, store=True)
     # project_supervisor_id = fields.Many2one('project_budget.project_supervisor', string='project_supervisor',
     #                                         required=True, copy=True, domain=_get_supervisor_list, tracking=True, check_company=True)
-    project_supervisor_id = fields.Many2one('project_budget.project_supervisor', string='Project Supervisor',
-                                            copy=True, domain="[('company_id', 'in', (False, company_id))]",
-                                            store=True, tracking=True)  # TODO убрать после миграции на кураторов
+    # project_supervisor_id = fields.Many2one('project_budget.project_supervisor', string='Project Supervisor',
+    #                                         copy=True, domain="[('company_id', 'in', (False, company_id))]",
+    #                                         store=True, tracking=True)  # TODO убрать после миграции на кураторов
     project_curator_id = fields.Many2one('hr.employee', string='Project Curator',
                                              compute='_compute_project_curator_id',
                                              inverse='_inverse_project_curator_id', copy=True, required=True,
@@ -119,8 +119,8 @@ class Project(models.Model):
                                          inverse='_inverse_project_manager_id', copy=True,
                                          domain=_get_project_manager_id_domain, required=False, store=True,
                                          tracking=True)
-    project_curator_id = fields.Many2one('hr.employee', string='Project Curator', copy=True,
-                                         domain=_get_project_curator_id_domain, required=True, tracking=True)
+    # project_curator_id = fields.Many2one('hr.employee', string='Project Curator', copy=True,
+    #                                      domain=_get_project_curator_id_domain, required=True, tracking=True)
     responsibility_center_id = fields.Many2one('account.analytic.account', string='Responsibility Center', copy=True,
                                                depends=['key_account_manager_id'], required=True, tracking=True)
     responsibility_center_id_domain = fields.Binary(compute='_compute_responsibility_center_id_domain')
@@ -140,12 +140,13 @@ class Project(models.Model):
     end_sale_project_month = fields.Date(string='The period of shipment or provision of services to the Client(MONTH)', required=True,default=fields.Date.context_today, tracking=True)
     vat_attribute_id = fields.Many2one('project_budget.vat_attribute', string='vat_attribute', copy=True,tracking=True , domain ="[('is_prohibit_selection','=', False)]")
 
-    total_amount_of_revenue = fields.Monetary(string='total_amount_of_revenue', compute='_compute_spec_totals', store=True, tracking=True)
-    total_amount_of_revenue_with_vat = fields.Monetary(string='total_amount_of_revenue_with_vat', compute='_compute_spec_totals',
+    total_amount_of_revenue = fields.Monetary(string='total_amount_of_revenue', store=True, tracking=True)
+    total_amount_of_revenue_with_vat = fields.Monetary(string='total_amount_of_revenue_with_vat', compute='_compute_totals',
                                               store=True, tracking=True)
-    cost_price = fields.Monetary(string='cost_price', compute='_compute_spec_totals', store=True, tracking=True)
-    margin_income = fields.Monetary(string='Margin income', compute='_compute_spec_totals', store=True)
-    profitability = fields.Float(string='Profitability(share of Sale margin in revenue)', compute='_compute_spec_totals', store=True, tracking=True)
+    cost_price = fields.Monetary(string='cost_price', store=True, tracking=True)
+    margin_income = fields.Monetary(string='Margin income', compute='_compute_totals', store=True)
+    profitability = fields.Float(string='Profitability(share of Sale margin in revenue)', compute='_compute_totals',
+                                 store=True, tracking=True)
 
     signer_id = fields.Many2one('res.partner', string='Signer', copy=True,
                                 default=lambda self: self.env.company.partner_id, domain=_get_signer_id_domain,
@@ -245,7 +246,6 @@ class Project(models.Model):
     parent_id = fields.Many2one('project_budget.projects', string='Parent Project', copy=False, index=True,
                                 ondelete='cascade', tracking=True)
     child_ids = fields.One2many('project_budget.projects', 'parent_id', string='Child Projects', copy=False)
-    child_count = fields.Integer(compute='_compute_child_count', string='Child Count')
 
     company_partner_id = fields.Many2one('res.company.partner', string='Company Partner', copy=True, check_company=True,
                                          domain="[('company_id', '=', company_id)]", ondelete='restrict')
@@ -297,6 +297,31 @@ class Project(models.Model):
                 (rec.approve_state == 'need_approve_manager' and rec.budget_state != 'fixed') or (
                     self.env.user.has_group(
                         'project_budget.project_budget_group_project_fixed_editor') and rec.budget_state == 'fixed'))
+
+    def _calculate_totals(self, project):
+        if not project.project_have_steps:
+            project.margin_income = project.total_amount_of_revenue - project.cost_price
+            project.total_amount_of_revenue_with_vat = project.total_amount_of_revenue * (1 + project.vat_attribute_id.percent / 100)
+        elif project.project_have_steps and project.step_status == 'project':
+            project.total_amount_of_revenue = 0
+            project.cost_price = 0
+            project.margin_income = 0
+            project.total_amount_of_revenue_with_vat = 0
+            for step in project.step_project_child_ids:
+                if step.stage_id.code != '0':
+                    project.total_amount_of_revenue += step.total_amount_of_revenue
+                    project.cost_price += step.cost_price
+                    project.margin_income += step.margin_income
+                    project.total_amount_of_revenue_with_vat += step.total_amount_of_revenue_with_vat
+        if project.total_amount_of_revenue == 0:
+            project.profitability = 0
+        else:
+            project.profitability = project.margin_income / project.total_amount_of_revenue * 100
+
+    @api.depends('total_amount_of_revenue', "cost_price", 'vat_attribute_id')
+    def _compute_totals(self):
+        for project in self.sorted(lambda p: p.step_status == 'project'):  # сначала этапы, потом проекты
+            self._calculate_totals(project)
 
     @api.depends('key_account_manager_id')
     def _compute_responsibility_center_id_domain(self):
@@ -485,11 +510,6 @@ class Project(models.Model):
                 fieldquarter.end_sale_project_quarter = 'Q4 ' + str(year)
             else:
                 fieldquarter.end_sale_project_quarter = 'NA'
-
-    @api.depends('child_ids')
-    def _compute_child_count(self):
-        for project in self:
-            project.child_count = len(project.child_ids)
 
     @api.depends('project_member_ids.role_id')
     def _compute_key_account_manager_id(self):

@@ -1,5 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <record id="project_budget_project_child_view_tree" model="ir.ui.view">
+        <field name="name">project.budget.project.child.tree</field>
+        <field name="model">project_budget.projects</field>
+        <field name="priority">1000</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom" default_order="project_id desc"
+                  decoration-muted="project_status == 'cancel'"
+                  decoration-primary="project_status == 'done'"
+                  decoration-danger="approve_state == 'need_approve_manager' and project_status != 'cancel'"
+                  decoration-warning="approve_state == 'need_approve_supervisor' and project_status != 'cancel'"
+                  decoration-success="approve_state == 'approved' and project_status != 'cancel'">
+                <button name="action_open_project" type="object" title="View project" string="View project"
+                        class="btn btn-link float-end"/>
+                <field name="can_edit" invisible="1"/>
+                <field name="was_changes" invisible="1"/>
+                <field name="currency_id" invisible="1"/>
+                <field name="margin_rate_for_parent" widget="percentage"
+                       attrs="{'readonly': [('can_edit', '=', False)]}"/>
+                <field name="company_id" invisible="True"/>
+                <field name="company_id" groups="base.group_multi_company"
+                       options="{'no_create': True}" readonly="1"/>
+                <field name="project_id" readonly="1"/>
+                <field name="approve_state" readonly="1" optional="show" widget="badge"
+                       decoration-danger="approve_state=='need_approve_manager'"
+                       decoration-warning="approve_state=='need_approve_supervisor'"
+                       decoration-success="approve_state=='approved'"
+                       decoration-muted="project_status=='cancel'"
+                />
+                <field name="project_status" readonly="1" optional="show" widget="badge"
+                       decoration-muted="project_status == 'cancel'"
+                       decoration-primary="project_status == 'done'"
+                       decoration-warning="project_status == 'prepare'"
+                       decoration-success="project_status == 'production'"
+                />
+                <field name="date_actual" optional="hide" readonly="1"/>
+                <field name="step_project_number" optional="show" readonly="1"/>
+                <field name="project_have_steps" optional="show" readonly="1"/>
+                <field name="budget_state" optional="hide" readonly="1"/>
+                <field name="project_office_id" optional="show" options="{'no_open': True}" readonly="1"/>
+                <field name="project_curator_id" optional="show" widget="many2one_avatar" readonly="1"
+                       options="{'no_open': True}"/>
+                <field name="key_account_manager_id" optional="show" widget="many2one_avatar_employee" readonly="1"
+                       options="{'no_open': True}"/>
+                <field name="project_manager_id" optional="show" widget="many2one_avatar_employee" readonly="1"
+                       options="{'no_open': True}"/>
+                <field name="industry_id" optional="hide" readonly="1" options="{'no_open': True}"/>
+                <field name="partner_id" widget="many2one_avatar" optional="show" readonly="1"
+                       options="{'no_open': True}"/>
+                <field name="essence_project" optional="show" readonly="1"/>
+                <field name="end_presale_project_month" optional="hide" readonly="1"/>
+                <field name="end_sale_project_month" optional="hide" readonly="1"/>
+                <field name="total_amount_of_revenue" optional="show" readonly="1"/>
+                <field name="cost_price" optional="show" readonly="1"/>
+                <field name="margin_income" optional="show" readonly="1"/>
+                <field name="additional_margin" string="Margin from Related Projects" readonly="1"/>
+                <field name="total_margin" string="Total Margin" readonly="1"/>
+                <field name="profitability" optional="hide" readonly="1"/>
+                <field name="stage_id" string="Probability" context="{'code_only': True}" optional="show" readonly="1"/>
+                <field name="vat_attribute_id" optional="hide" readonly="1"/>
+                <field name="signer_id" options="{'no_open': True,}" optional="hide"
+                       readonly="1"/>
+                <field name="comments" optional="hide" readonly="1"/>
+                <field name="project_type_id" optional="hide" readonly="1" options="{'no_open': True}"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_project_budget_project_child_projects" model="ir.actions.act_window">
+        <field name="name">Child Projects</field>
+        <field name="res_model">project_budget.projects</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">
+            [
+                ('parent_project_id', '=', active_id),
+            ]
+        </field>
+    </record>
+
     <record id="crm_lead_view_search_inherit_nkk" model="ir.ui.view">
         <field name="name">crm.lead.search.inherit.nkk</field>
         <field name="model">project_budget.projects</field>
@@ -20,17 +98,6 @@
             <xpath expr="//field[@name='comments']" position="after">
                 <field name="technological_direction_id" optional="hide"/>
                 <field name="project_type_id" optional="hide"/>
-            </xpath>
-        </field>
-    </record>
-
-    <record id="crm_lead_child_view_tree_inherit_nkk" model="ir.ui.view">
-        <field name="name">crm.lead.child.tree.inherit.nkk</field>
-        <field name="model">project_budget.projects</field>
-        <field name="inherit_id" ref="project_budget.project_budget_project_child_view_tree"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='comments']" position="after">
-                <field name="project_type_id" optional="hide" readonly="1" options="{'no_open': True}"/>
             </xpath>
         </field>
     </record>
@@ -75,6 +142,20 @@
         <field name="model">project_budget.projects</field>
         <field name="inherit_id" ref="project_budget.show_comercial_budget_spec_form"/>
         <field name="arch" type="xml">
+<!--            <xpath expr="//button[@name='action_open_tenders']" position="after">-->
+<!--                <button name="%(action_project_budget_project_child_projects)d" type="action"-->
+<!--                        class="oe_stat_button" icon="fa-bars" groups="base.group_multi_company"-->
+<!--                        attrs="{'invisible': ['|', ('id', '=', False), ('child_count', '=', 0)]}"-->
+<!--                        context="-->
+<!--                        {-->
+<!--                            'default_parent_project_id': active_id,-->
+<!--                            'default_stage_id': stage_id,-->
+<!--                            'default_partner_id': partner_id,-->
+<!--                            'default_signer_id': signer_id-->
+<!--                        }">-->
+<!--                    <field name="child_count" string="Child Projects" widget="statinfo"/>-->
+<!--                </button>-->
+<!--            </xpath>-->
             <xpath expr="//page[@name='general']//group[@name='internal_info']" position="attributes">
                 <attribute name="attrs">{'invisible': [('company_id', '=', 3)]}</attribute>
             </xpath>
@@ -86,34 +167,6 @@
                    'invisible': [('project_have_steps', '=', True)]}"/>
             </xpath>
             <xpath expr="//page[@name='general']//group[@name='internal_info']" position="after">
-                <group name="internal_info" col="3" attrs="{'invisible': [('company_id', '!=', 3)]}">
-                    <group>
-                        <field class="text-break" name="step_project_number"
-                               placeholder="enter project code from AXAPTA"
-                               attrs="{'readonly': [('can_edit', '=', False)]}"/>
-                        <field name="responsibility_center_id" class="text-break"
-                               domain="responsibility_center_id_domain"
-                               options="{'no_create_edit': True, 'no_open': True}"
-                               attrs="{'readonly': [('can_edit', '=', False)]}"/>
-                    </group>
-                    <group>
-                        <field name="isRukovoditel_required_in_project" invisible="True"/>
-                        <field name="key_account_manager_id" widget="many2one_avatar_employee"
-                               placeholder="Key Account Manager"
-                               options="{'no_create_edit': True, 'no_open': True, 'relation': 'hr.employee.public'}"
-                               attrs="{'readonly': [('can_edit', '=', False)]}"/>
-                        <field name="project_manager_id" widget="many2one_avatar_employee"
-                               placeholder="Project Manager"
-                               options="{'no_create_edit': True, 'no_open': True, 'relation': 'hr.employee.public'}"
-                               attrs="{'readonly': [('can_edit', '=', False)], 'required': [('isRukovoditel_required_in_project', '=', True)]}"/>
-                        <field name="project_type_id" placeholder="Project Type"
-                               options="{'no_open': True}"
-                               attrs="{
-                                   'readonly': [('can_edit', '=', False)],
-                                   'required': [('project_have_steps', '=', False)],
-                                   'invisible': [('project_have_steps', '=', True)]
-                               }"/>
-                    </group>
                     <group>
                         <field name="project_supervisor_id" widget="many2one_avatar"
                                options="{'no_open': True}"
@@ -127,7 +180,6 @@
                                    'readonly': [('can_edit', '=', False)]
                                }"/>
                     </group>
-                </group>
             </xpath>
             <xpath expr="//page[@name='general']//group//group//field[@name='company_partner_id']" position="attributes">
                 <attribute name="attrs">
@@ -200,21 +252,7 @@
                     </group>
                     <field name="child_project_ids" mode="tree" widget="many2many"
                            context="{
-                                'form_view_ref': 'project_budget.project_budget_step_project_view_form',
-                                'default_step_status': 'step',
-                                'default_company_id': company_id,
-                                'default_currency_id': currency_id,
-                                'default_commercial_budget_id': commercial_budget_id,
-                                'default_key_account_manager_id': key_account_manager_id,
-                                'default_project_manager_id': project_manager_id,
-                                'default_industry_id': industry_id,
-                                'default_signer_id': signer_id,
-                                'default_partner_id': partner_id,
-                                'default_responsibility_center_id': responsibility_center_id,
-                                'default_is_correction_project': is_correction_project,
-                                'default_is_not_for_mc_report': is_not_for_mc_report,
-                                'default_active': active,
-                                'default_project_supervisor_id': project_supervisor_id,
+                                'tree_view_ref': 'project_budget_nkk.project_budget_project_child_view_tree',
                                 'default_is_child_project': True,
                                 'default_parent_project_id': id,
                                 'default_margin_from_children_to_parent': margin_from_children_to_parent
@@ -223,7 +261,7 @@
                            attrs="{'readonly': [('can_edit', '=', False)]}"
                            domain="[('is_parent_project', '=', False), ('parent_project_id', '=', False), ('budget_state', '!=', 'fixed'), ('step_status', '=', 'project')]"/>
                     <field name="child_project_ids" mode="tree" widget="many2many" readonly="1"
-                           context="{'tree_view_ref': 'project_budget.project_budget_project_child_view_tree'}"
+                           context="{'tree_view_ref': 'project_budget_nkk.project_budget_project_child_view_tree'}"
                            groups="!project_budget.project_budget_admin"
                            domain="[('is_parent_project', '=', False), ('parent_project_id', '=', False), ('budget_state', '!=', 'fixed'), ('step_status', '=', 'project')]"/>
                 </page>
@@ -231,6 +269,7 @@
             <xpath expr="//sheet[@name='project']//group//group[@name='project_have_steps']" position="replace">
                 <group>
                     <field name="margin_from_children_to_parent_related" invisible="True"/>
+                    <field name="child_count" invisible="1"/>
                     <field name="project_have_steps" widget="boolean_toggle"
                            attrs="{
                            'readonly': [('can_edit', '=', False)],
@@ -271,22 +310,6 @@
             <xpath expr="//field[@name='project_have_steps']" position="after">
                 <field name="is_parent_project" optional="hide"/>
                 <field name="is_child_project" optional="hide"/>
-            </xpath>
-        </field>
-    </record>
-
-    <record id="additional_margin_child_tree_form_inherit_nkk" model="ir.ui.view">
-        <field name="name">additional.margin.child.tree.inherit.nkk</field>
-        <field name="model">project_budget.projects</field>
-        <field name="inherit_id" ref="project_budget.project_budget_project_child_view_tree"/>
-        <field name="arch" type="xml">
-            <xpath expr="//tree//field[@name='margin_income']" position="after">
-                <field name="additional_margin" string="Margin from Related Projects" readonly="1"/>
-                <field name="total_margin" string="Total Margin" readonly="1"/>
-            </xpath>
-            <xpath expr="//tree//field[@name='currency_id']" position="after">
-                <field name="margin_rate_for_parent" widget="percentage"
-                       attrs="{'readonly': [('can_edit', '=', False)]}"/>
             </xpath>
         </field>
     </record>

@@ -301,3 +301,19 @@ msgstr "Премии по итогам проекта"
 #: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__taxes_fot_premiums
 msgid "taxes_FOT and premiums"
 msgstr "Налоги на ФОТ и премии"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__total_amount_of_revenue
+msgid "total_amount_of_revenue"
+msgstr "Сумма выручки"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__cost_price
+msgid "cost_price"
+msgstr "Себестоимость проекта"
+
+#. module: project_budget_financial_data
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_res_company__use_financial_data
+#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.view_company_form
+msgid "Use financial data"
+msgstr "Использовать финансовые показатели"

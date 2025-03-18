@@ -38,18 +38,6 @@
         </field>
     </record>
 
-    <record id="action_project_budget_project_child_projects" model="ir.actions.act_window">
-        <field name="name">Child Projects</field>
-        <field name="res_model">project_budget.projects</field>
-        <field name="view_mode">tree,form</field>
-        <field name="domain">
-            [
-                ('id', 'child_of', active_id),
-                ('id', '!=', active_id)
-            ]
-        </field>
-    </record>
-
     <record id="project_budget_project_view_tree" model="ir.ui.view">
         <field name="name">project.budget.project.tree</field>
         <field name="model">project_budget.projects</field>
@@ -114,68 +102,6 @@
                 <field name="vat_attribute_id" optional="hide"/>
                 <field name="signer_id" optional="hide"/>
                 <field name="comments" optional="hide"/>
-            </tree>
-        </field>
-    </record>
-
-    <record id="project_budget_project_child_view_tree" model="ir.ui.view">
-        <field name="name">project.budget.project.child.tree</field>
-        <field name="model">project_budget.projects</field>
-        <field name="priority">1000</field>
-        <field name="arch" type="xml">
-            <tree editable="bottom" default_order="project_id desc"
-                  decoration-muted="project_status == 'cancel'"
-                  decoration-primary="project_status == 'done'"
-                  decoration-danger="approve_state == 'need_approve_manager' and project_status != 'cancel'"
-                  decoration-warning="approve_state == 'need_approve_supervisor' and project_status != 'cancel'"
-                  decoration-success="approve_state == 'approved' and project_status != 'cancel'">
-                <button name="action_open_project" type="object" title="View project" string="View project"
-                        class="btn btn-link float-end"/>
-                <field name="can_edit" invisible="1"/>
-                <field name="was_changes" invisible="1"/>
-                <field name="currency_id" invisible="1"/>
-                <field name="company_id" invisible="True"/>
-                <field name="company_id" groups="base.group_multi_company"
-                       options="{'no_create': True}" readonly="1"/>
-                <field name="project_id" readonly="1"/>
-                <field name="approve_state" readonly="1" optional="show" widget="badge"
-                       decoration-danger="approve_state=='need_approve_manager'"
-                       decoration-warning="approve_state=='need_approve_supervisor'"
-                       decoration-success="approve_state=='approved'"
-                       decoration-muted="project_status=='cancel'"
-                />
-                <field name="project_status" readonly="1" optional="show" widget="badge"
-                       decoration-muted="project_status == 'cancel'"
-                       decoration-primary="project_status == 'done'"
-                       decoration-warning="project_status == 'prepare'"
-                       decoration-success="project_status == 'production'"
-                />
-                <field name="date_actual" optional="hide" readonly="1"/>
-                <field name="step_project_number" optional="show" readonly="1"/>
-                <field name="project_have_steps" optional="show" readonly="1"/>
-                <field name="budget_state" optional="hide" readonly="1"/>
-                <field name="project_office_id" optional="show" options="{'no_open': True}" readonly="1"/>
-                <field name="project_curator_id" optional="show" widget="many2one_avatar" readonly="1"
-                       options="{'no_open': True}"/>
-                <field name="key_account_manager_id" optional="show" widget="many2one_avatar_employee" readonly="1"
-                       options="{'no_open': True}"/>
-                <field name="project_manager_id" optional="show" widget="many2one_avatar_employee" readonly="1"
-                       options="{'no_open': True}"/>
-                <field name="industry_id" optional="hide" readonly="1" options="{'no_open': True}"/>
-                <field name="partner_id" widget="many2one_avatar" optional="show" readonly="1"
-                       options="{'no_open': True}"/>
-                <field name="essence_project" optional="show" readonly="1"/>
-                <field name="end_presale_project_month" optional="hide" readonly="1"/>
-                <field name="end_sale_project_month" optional="hide" readonly="1"/>
-                <field name="total_amount_of_revenue" optional="show" readonly="1"/>
-                <field name="cost_price" optional="show" readonly="1"/>
-                <field name="margin_income" optional="show" readonly="1"/>
-                <field name="profitability" optional="hide" readonly="1"/>
-                <field name="stage_id" string="Probability" context="{'code_only': True}" optional="show" readonly="1"/>
-                <field name="vat_attribute_id" optional="hide" readonly="1"/>
-                <field name="signer_id" options="{'no_open': True,}" optional="hide"
-                       readonly="1"/>
-                <field name="comments" optional="hide" readonly="1"/>
             </tree>
         </field>
     </record>
@@ -325,21 +251,8 @@
                                     groups="project_budget.project_budget_users,project_budget.project_budget_admin,project_budget.project_budget_tenders_user,project_budget.project_budget_tenders_admin">
                                 <field string="Tenders" name="tenders_count" widget="statinfo"/>
                             </button>
-                            <button name="%(action_project_budget_project_child_projects)d" type="action"
-                                    class="oe_stat_button" icon="fa-bars" groups="base.group_multi_company"
-                                    attrs="{'invisible': ['|', ('id', '=', False), ('child_count', '=', 0)]}"
-                                    context="
-                                    {
-                                        'default_parent_id': active_id,
-                                        'default_stage_id': stage_id,
-                                        'default_partner_id': partner_id,
-                                        'default_signer_id': signer_id
-                                    }">
-                                <field name="child_count" string="Child Projects" widget="statinfo"/>
-                            </button>
                         </div>
                         <field name="id" invisible="True"/>
-                        <field name="child_count" invisible="1"/>
                         <field name="company_id" invisible="1"/>
                         <field name="was_changes" invisible="1"/>
                         <field name="project_office_id_domain" invisible="1"/>
