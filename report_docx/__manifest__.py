@@ -6,7 +6,7 @@
     "category": "Reporting",
     "version": "16.0.0.0",
     "license": "AGPL-3",
-    "external_dependencies": {"python": ["docx"]},
+    "external_dependencies": {"python": ["docx", "docxtpl"]},
     "depends": ["base", "web"],
     "installable": True,
     "assets": {
@@ -14,4 +14,7 @@
             "report_docx/static/src/js/report/action_manager.js"
         ],
     },
+    "data": [
+        'views/ir_report.xml'
+    ],
 }

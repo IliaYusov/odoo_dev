@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="ir_actions_view_form_inherit_docxtpl" model="ir.ui.view">
+        <field name="name">ir.actions.view.form.inherit.docxtpl</field>
+        <field name="model">ir.actions.report</field>
+        <field name="inherit_id" ref="base.act_report_xml_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='report_type']" position="after">
+                 <field name="template_attachment_id" string="Template File" attrs="{'invisible': [('report_type', '!=', 'docx')]}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

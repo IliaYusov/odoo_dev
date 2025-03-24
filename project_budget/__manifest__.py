@@ -50,6 +50,7 @@
         'wizard/open_file_wizard.xml',
         'report/project_budget_report_external_data_views.xml',
         'views/project_budget_menu.xml',
+        'report/project_budget_test_report.xml',
     ],
     'demo': [
     ],

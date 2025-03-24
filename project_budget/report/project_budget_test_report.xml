@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_test_report" model="ir.actions.report">
+        <field name="name">Test report (docx)</field>
+        <field name="model">project_budget.projects</field>
+        <field name="report_type">docx</field>
+        <field name="report_name">project_budget.test_report</field>
+        <field name="report_file">project_budget.test_report</field>
+        <field name="print_report_name">'Test "%s"' % object.project_id</field>
+        <field name="binding_model_id" ref="model_project_budget_projects"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>
