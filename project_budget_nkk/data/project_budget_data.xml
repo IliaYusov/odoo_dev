@@ -71,5 +71,201 @@ for record in records:
         raise UserError('Пожалуйста укажите номер договора для %s %s' % ('проекта' if record.step_status == 'project' else 'этапа', record.project_id))
         ]]></field>
         </record>
+
+        <record id="project_budget_project_contract_date_is_later_than_current" model="base.automation">
+            <field name="name">Contract date is later than current date</field>
+            <field name="state">code</field>
+            <field name="model_id" ref="project_budget.model_project_budget_projects"/>
+            <field name="trigger">on_create_or_write</field>
+            <field name="trigger_field_ids"
+                   eval="[(6, 0, [ref('project_budget.field_project_budget_projects__stage_id'), ref('project_budget.field_project_budget_projects__end_presale_project_month')])]"/>
+            <field name="filter_pre_domain">
+                [
+                    ['company_id', '=', 'Ландата'],
+                ]
+            </field>
+            <field name="filter_domain">
+                [
+                    ['budget_state', '=', 'work'],
+                    ['is_correction_project', '=', False]
+                ]
+            </field>
+            <field name="code">
+                <![CDATA[
+for record in records:
+    if (record.stage_id.project_state == 'won' and record.end_presale_project_month > datetime.date.today()):
+        raise UserError('Дата контрактования %s %s позже текущей' % ('проекта' if record.step_status == 'project' else 'этапа', record.project_id))
+        ]]></field>
+        </record>
+
+        <record id="project_budget_project_contract_date_is_later_than_facts_stage" model="base.automation">
+            <field name="name">Contract date is later than fact dates</field>
+            <field name="state">code</field>
+            <field name="model_id" ref="project_budget.model_project_budget_projects"/>
+            <field name="trigger">on_create_or_write</field>
+            <field name="trigger_field_ids"
+                   eval="[(6, 0, [
+                   ref('project_budget.field_project_budget_projects__stage_id'),
+                   ])]"/>
+            <field name="filter_pre_domain">
+                [
+                    ['company_id', '=', 'Ландата'],
+                ]
+            </field>
+            <field name="filter_domain">
+                [
+                    ['budget_state', '=', 'work'],
+                    ['is_correction_project', '=', False]
+                ]
+            </field>
+            <field name="code">
+                <![CDATA[
+for record in records:
+    if record.step_status == 'project':
+        cash_ids = record.fact_cash_flow_ids
+        acceptance_ids = record.fact_acceptance_flow_ids
+    else:
+        cash_ids = record.fact_step_cash_flow_ids
+        acceptance_ids = record.fact_step_acceptance_flow_ids
+    for fact in cash_ids:
+        if (record.stage_id.project_state == 'won' and record.end_presale_project_month > fact.date_cash):
+            raise UserError('Дата контрактования %s %s позже даты факта ПДС' % ('проекта' if record.step_status == 'project' else 'этапа', record.project_id))
+    for fact in acceptance_ids:
+        if (record.stage_id.project_state == 'won' and record.end_presale_project_month > fact.date_cash):
+            raise UserError('Дата контрактования %s %s позже даты факта Актирования' % ('проекта' if record.step_status == 'project' else 'этапа', record.project_id))
+        ]]></field>
+        </record>
+
+        <record id="project_budget_project_contract_date_is_later_than_facts_cash" model="base.automation">
+            <field name="name">Contract date is later than cash fact dates</field>
+            <field name="state">code</field>
+            <field name="model_id" ref="project_budget.model_project_budget_fact_cash_flow"/>
+            <field name="trigger">on_create_or_write</field>
+            <field name="trigger_field_ids"
+                   eval="[(6, 0, [
+                   ref('project_budget.field_project_budget_fact_cash_flow__date_cash'),
+                   ])]"/>
+            <field name="filter_pre_domain">
+                [
+                    ['projects_id.company_id', '=', 'Ландата'],
+                ]
+            </field>
+            <field name="filter_domain">
+                [
+                    ['projects_id.budget_state', '=', 'work'],
+                    ['projects_id.is_correction_project', '=', False]
+                ]
+            </field>
+            <field name="code">
+                <![CDATA[
+for record in records:
+    for fact in record.projects_id.fact_cash_flow_ids:
+        if (record.projects_id.stage_id.project_state == 'won' and record.projects_id.end_presale_project_month > fact.date_cash):
+            raise UserError('Дата факта ПДС раньше даты контрактования проекта %s' % (record.projects_id.project_id))
+    if record.projects_id.project_have_steps:
+        for fact in record.step_project_child_id.fact_step_cash_flow_ids:
+            if (record.step_project_child_id.stage_id.project_state == 'won' and record.step_project_child_id.end_presale_project_month > fact.date_cash):
+                raise UserError('Дата факта ПДС раньше даты контрактования этапа %s' % (record.step_project_child_id.project_id))
+        ]]></field>
+        </record>
+
+        <record id="project_budget_project_contract_date_is_later_than_facts_acceptance" model="base.automation">
+            <field name="name">Contract date is later than acceptance fact dates</field>
+            <field name="state">code</field>
+            <field name="model_id" ref="project_budget.model_project_budget_fact_acceptance_flow"/>
+            <field name="trigger">on_create_or_write</field>
+            <field name="trigger_field_ids"
+                   eval="[(6, 0, [
+                   ref('project_budget.field_project_budget_fact_acceptance_flow__date_cash'),
+                   ])]"/>
+            <field name="filter_pre_domain">
+                [
+                    ['projects_id.company_id', '=', 'Ландата'],
+                ]
+            </field>
+            <field name="filter_domain">
+                [
+                    ['projects_id.budget_state', '=', 'work'],
+                    ['projects_id.is_correction_project', '=', False]
+                ]
+            </field>
+            <field name="code">
+                <![CDATA[
+for record in records:
+    for fact in record.projects_id.fact_acceptance_flow_ids:
+        if (record.projects_id.stage_id.project_state == 'won' and record.projects_id.end_presale_project_month > fact.date_cash):
+            raise UserError('Дата факта Актирования раньше даты контрактования проекта %s' % (record.projects_id.project_id))
+    if record.projects_id.project_have_steps:
+        for fact in record.step_project_child_id.fact_step_acceptance_flow_ids:
+            if (record.step_project_child_id.stage_id.project_state == 'won' and record.step_project_child_id.end_presale_project_month > fact.date_cash):
+                raise UserError('Дата факта Актирования раньше даты контрактования этапа %s' % (record.step_project_child_id.project_id))
+                ]]></field>
+        </record>
+
+        <record id="project_budget_project_sale_date_is_later_than_acceptance_facts_stage" model="base.automation">
+            <field name="name">Sale date is later than acceptance fact dates</field>
+            <field name="state">code</field>
+            <field name="model_id" ref="project_budget.model_project_budget_projects"/>
+            <field name="trigger">on_create_or_write</field>
+            <field name="trigger_field_ids"
+                   eval="[(6, 0, [
+                   ref('project_budget.field_project_budget_projects__stage_id'),
+                   ])]"/>
+            <field name="filter_pre_domain">
+                [
+                    ['company_id', '=', 'Ландата'],
+                ]
+            </field>
+            <field name="filter_domain">
+                [
+                    ['budget_state', '=', 'work'],
+                    ['is_correction_project', '=', False]
+                ]
+            </field>
+            <field name="code">
+                <![CDATA[
+for record in records:
+    if record.step_status == 'project':
+        acceptance_ids = record.fact_acceptance_flow_ids
+    else:
+        acceptance_ids = record.fact_step_acceptance_flow_ids
+    for fact in acceptance_ids:
+        if (record.stage_id.project_status == 'done' and record.end_sale_project_month > fact.date_cash):
+            raise UserError('Дата последней отгрузки %s %s позже даты факта Актирования' % ('проекта' if record.step_status == 'project' else 'этапа', record.project_id))
+        ]]></field>
+        </record>
+
+        <record id="project_budget_project_sale_date_is_later_than_acceptance_facts_acceptance" model="base.automation">
+            <field name="name">Contract date is later than acceptance fact dates</field>
+            <field name="state">code</field>
+            <field name="model_id" ref="project_budget.model_project_budget_fact_acceptance_flow"/>
+            <field name="trigger">on_create_or_write</field>
+            <field name="trigger_field_ids"
+                   eval="[(6, 0, [
+                   ref('project_budget.field_project_budget_fact_acceptance_flow__date_cash'),
+                   ])]"/>
+            <field name="filter_pre_domain">
+                [
+                    ['projects_id.company_id', '=', 'Ландата'],
+                ]
+            </field>
+            <field name="filter_domain">
+                [
+                    ['projects_id.budget_state', '=', 'work'],
+                    ['projects_id.is_correction_project', '=', False]
+                ]
+            </field>
+            <field name="code">
+                <![CDATA[
+for record in records:
+    for fact in record.projects_id.fact_acceptance_flow_ids:
+        if (record.projects_id.stage_id.project_status == 'done' and record.projects_id.end_sale_project_month > fact.date_cash):
+            raise UserError('Дата факта Актирования раньше даты последней отгрузки проекта %s' % (record.projects_id.project_id))
+    if record.projects_id.project_have_steps:
+        for fact in record.step_project_child_id.fact_step_acceptance_flow_ids:
+            if (record.step_project_child_id.stage_id.project_status == 'done' and record.step_project_child_id.end_sale_project_month > fact.date_cash):
+                raise UserError('Дата факта Актирования раньше даты последней отгрузки этапа %s' % (record.step_project_child_id.project_id))
+                ]]></field>
+        </record>
     </data>
 </odoo>
