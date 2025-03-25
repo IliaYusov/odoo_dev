@@ -26,33 +26,33 @@
             </field>
         </record>
 
-        <record id="show_amount_spec_tree" model="ir.ui.view">
-            <field name="name">project_budget.amount_spec.tree</field>
-            <field name="model">project_budget.amount_spec</field>
-            <field name="arch" type="xml">
-                <tree editable="bottom">
-                    <field name="name"/>
-                    <field name="currency_id" options="{'no_open': True,}"/>
-                    <field name="summa" />
-                </tree>
-            </field>
-        </record>
+<!--        <record id="show_amount_spec_tree" model="ir.ui.view">-->
+<!--            <field name="name">project_budget.amount_spec.tree</field>-->
+<!--            <field name="model">project_budget.amount_spec</field>-->
+<!--            <field name="arch" type="xml">-->
+<!--                <tree editable="bottom">-->
+<!--                    <field name="name"/>-->
+<!--                    <field name="currency_id" options="{'no_open': True,}"/>-->
+<!--                    <field name="summa" />-->
+<!--                </tree>-->
+<!--            </field>-->
+<!--        </record>-->
 
-       <record id="show_amount_spec_form" model="ir.ui.view">
-            <field name="name">project_budget.amount_spec.form</field>
-            <field name="model">project_budget.amount_spec</field>
-            <field name="arch" type="xml">
-                <form>
-                    <sheet string="project amount spec">
-                        <group>
-                            <field name="name"/>
-                            <field name="currency_id" options="{'no_open': True,}"/>
-                            <field name="summa" />
-                        </group>
-                    </sheet>
-                </form>
-            </field>
-        </record>
+<!--       <record id="show_amount_spec_form" model="ir.ui.view">-->
+<!--            <field name="name">project_budget.amount_spec.form</field>-->
+<!--            <field name="model">project_budget.amount_spec</field>-->
+<!--            <field name="arch" type="xml">-->
+<!--                <form>-->
+<!--                    <sheet string="project amount spec">-->
+<!--                        <group>-->
+<!--                            <field name="name"/>-->
+<!--                            <field name="currency_id" options="{'no_open': True,}"/>-->
+<!--                            <field name="summa" />-->
+<!--                        </group>-->
+<!--                    </sheet>-->
+<!--                </form>-->
+<!--            </field>-->
+<!--        </record>-->
 
 
         <record id="show_amount_spec_empty" model="ir.actions.act_window">

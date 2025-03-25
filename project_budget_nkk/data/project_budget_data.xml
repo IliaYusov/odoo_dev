@@ -81,7 +81,7 @@ for record in records:
                    eval="[(6, 0, [ref('project_budget.field_project_budget_projects__stage_id'), ref('project_budget.field_project_budget_projects__end_presale_project_month')])]"/>
             <field name="filter_pre_domain">
                 [
-                    ['company_id', '=', 'Ландата'],
+                    ['company_id', '=', 10],
                 ]
             </field>
             <field name="filter_domain">
@@ -109,7 +109,7 @@ for record in records:
                    ])]"/>
             <field name="filter_pre_domain">
                 [
-                    ['company_id', '=', 'Ландата'],
+                    ['company_id', '=', 10],
                 ]
             </field>
             <field name="filter_domain">
@@ -147,7 +147,7 @@ for record in records:
                    ])]"/>
             <field name="filter_pre_domain">
                 [
-                    ['projects_id.company_id', '=', 'Ландата'],
+                    ['projects_id.company_id', '=', 10],
                 ]
             </field>
             <field name="filter_domain">
@@ -180,7 +180,7 @@ for record in records:
                    ])]"/>
             <field name="filter_pre_domain">
                 [
-                    ['projects_id.company_id', '=', 'Ландата'],
+                    ['projects_id.company_id', '=', 10],
                 ]
             </field>
             <field name="filter_domain">
@@ -213,7 +213,7 @@ for record in records:
                    ])]"/>
             <field name="filter_pre_domain">
                 [
-                    ['company_id', '=', 'Ландата'],
+                    ['company_id', '=', 10],
                 ]
             </field>
             <field name="filter_domain">
@@ -246,7 +246,7 @@ for record in records:
                    ])]"/>
             <field name="filter_pre_domain">
                 [
-                    ['projects_id.company_id', '=', 'Ландата'],
+                    ['projects_id.company_id', '=', 10],
                 ]
             </field>
             <field name="filter_domain">

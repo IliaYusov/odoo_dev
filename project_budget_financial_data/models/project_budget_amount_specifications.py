@@ -47,9 +47,7 @@ class ProjectBudgetAmountSpec(models.Model):
         if context.get("active_model") == "project_budget.projects":
             projects_id = context.get("active_id")
         cur_project = self.env['project_budget.projects'].search([('id', '=', projects_id)])
-        print('cur_project = ', cur_project)
         for each in cur_project.project_currency_rates_ids:
-            print('each =',each)
             currency_list.append(each.currency_id.id)
         domain = [('id', 'in', currency_list)]
         return domain
