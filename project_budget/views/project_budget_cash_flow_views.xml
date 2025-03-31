@@ -87,7 +87,7 @@
                         </group>
                     </group>
                     <!-- #20230403 Вавилова Ирина сказла убрать...                                       <field name="doc_cash" placeholder="type docs description"/>-->
-                    <group>
+                    <group name="amount" >
                         <group invisible="True">
                             <field name="sum_cash_without_vat" placeholder="enter planned cash flow sum "/>
                             <field name="distribution_sum_without_vat"

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="project_budget_fact_cash_flow_view_form_inherit_nkk" model="ir.ui.view">
+        <field name="name">project.budget.fact.cash.flow.form.inherit.nkk</field>
+        <field name="model">project_budget.fact_cash_flow</field>
+        <field name="inherit_id" ref="project_budget.project_budget_fact_cash_flow_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='amount']" position="after">
+                <group>
+                    <field name="planned_cash_flow_id"
+                    options="{'no_create': True, 'no_create_edit':True}"
+                    attrs="{
+                        'invisible': [('company_id', '!=', 10)],
+                        'readonly': [('can_edit', '=', False)]
+                    }"/>
+                    <field name="company_id" invisible="1"/>
+                </group>
+            </xpath>
+            <xpath expr="//field[@name='distribution_cash_ids']" position="attributes">
+                <attribute name="attrs">{'invisible': [('company_id', '=', 10)]}
+                </attribute>
+                <attribute name="groups">!project_budget.project_budget_admin
+                </attribute>
+            </xpath>
+            <xpath expr="//field[@name='distribution_cash_ids']" position="after">
+                <field name="distribution_cash_ids" widget="section_and_note_one2many" mode="tree"
+                       attrs="{'readonly': [('can_edit', '=', False)]}" groups="project_budget.project_budget_admin">
+                    <tree editable="bottom">
+                        <field name="factoring"/>
+                        <field name="planned_cash_flow_id" placeholder="select planned cash flow" force_save="1"/>
+                        <field name="fact_cash_flow_id" placeholder="select planned cash flow" invisible="True"/>
+                        <field name="sum_cash_without_vat_plan" optional="hide"/>
+                        <field name="sum_cash_plan"/>
+                        <field name="sum_cash_without_vat" placeholder="enter distribution fact on plan sum"
+                               optional="hide"/>
+                        <field name="sum_cash" placeholder="enter distribution fact on plan sum" force_save="1"/>
+                        <field name="distribution_sum_without_vat" optional="hide"/>
+                        <field name="distribution_sum_with_vat"
+                               decoration-success="sum_cash_plan == distribution_sum_with_vat"/>
+                        <field name="distribution_sum_without_vat_ostatok"
+                               decoration-danger="distribution_sum_without_vat_ostatok &lt; 0"
+                               decoration-warning="distribution_sum_without_vat_ostatok != 0"
+                               optional="hide"/>
+                        <field name="distribution_sum_with_vat_ostatok"
+                               decoration-danger="distribution_sum_with_vat_ostatok &lt; 0"
+                               decoration-warning="distribution_sum_with_vat_ostatok != 0"/>
+                    </tree>
+                </field>
+            </xpath>
+        </field>
+    </record>
+</odoo>

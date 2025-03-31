@@ -513,3 +513,27 @@ msgstr "Просмотр проекта"
 #: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__margin_rate_for_parent
 msgid "margin rate for parent project"
 msgstr "% от маржи в материнскую сделку"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_fact_acceptance_flow__planned_acceptance_flow_id
+msgid "planned_acceptance_flow"
+msgstr "Прогноз актирования"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_fact_cash_flow__planned_cash_flow_id
+msgid "planned_cash_flow"
+msgstr "Прогноз ПДС"
+
+#. module: project_budget_nkk
+#. odoo-python
+#: code:addons/project_budget_nkk/models/project_budget_acceptance_flow.py:0
+#, python-format
+msgid "Acceptance forecast {0} is assigned to several facts"
+msgstr "Прогноз актирования {0} указан в нескольких фактах"
+
+#. module: project_budget_nkk
+#. odoo-python
+#: code:addons/project_budget_nkk/models/project_budget_cash_flow.py:0
+#, python-format
+msgid "Cash forecast {0} is assigned to several facts"
+msgstr "Прогноз ПДС {0} указан в нескольких фактах"
