@@ -31,10 +31,6 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
         'Декабрь',
     ]
 
-    def get_currency_rate_by_project(self, project):
-        project_currency_rates = self.env['project_budget.project_currency_rates']
-        return project_currency_rates._get_currency_rate_for_project_in_company_currency(project)
-
     def centers_with_parents(self, ids, max_level):
         if not ids:
             return max_level
@@ -597,7 +593,6 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
 
                     project_step_id = ''
 
-                    currency_rate = self.get_currency_rate_by_project(current_project)
                     if current_project.step_status == 'project':
                         project_step_id = (current_project.step_project_number or '') + ' | ' + (
                                     current_project.project_id or '')

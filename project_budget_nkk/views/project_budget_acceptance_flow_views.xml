@@ -5,10 +5,17 @@
         <field name="model">project_budget.fact_acceptance_flow</field>
         <field name="inherit_id" ref="project_budget.project_budget_fact_acceptance_flow_view_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//group[@name='amount']" position="inside">
+                <group>
+                    <field name="margin" placeholder="enter margin sum"
+                           attrs="{'readonly': [('margin_manual_input', '=', False)]}"/>
+                    <field name="margin_manual_input" placeholder="manual input of margin"/>
+                </group>
+            </xpath>
             <xpath expr="//group[@name='amount']" position="after">
                 <group>
                     <field name="planned_acceptance_flow_id"
-                    options="{'no_create': True, 'no_create_edit':True}"
+                    options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
                     attrs="{
                         'invisible': [('company_id', '!=', 10)],
                         'readonly': [('can_edit', '=', False)]

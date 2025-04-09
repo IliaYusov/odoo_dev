@@ -51,9 +51,9 @@
                 <field name="essence_project" optional="show" readonly="1"/>
                 <field name="end_presale_project_month" optional="hide" readonly="1"/>
                 <field name="end_sale_project_month" optional="hide" readonly="1"/>
-                <field name="total_amount_of_revenue" optional="show" readonly="1"/>
+                <field name="amount_untaxed" optional="show" readonly="1"/>
                 <field name="cost_price" optional="show" readonly="1"/>
-                <field name="margin_income" optional="show" readonly="1"/>
+                <field name="margin" optional="show" readonly="1"/>
                 <field name="additional_margin" string="Margin from Related Projects" readonly="1"/>
                 <field name="total_margin" string="Total Margin" readonly="1"/>
                 <field name="profitability" optional="hide" readonly="1"/>
@@ -98,6 +98,7 @@
             <xpath expr="//field[@name='comments']" position="after">
                 <field name="technological_direction_id" optional="hide"/>
                 <field name="project_type_id" optional="hide"/>
+                <field name="profitability" optional="hide"/>
             </xpath>
         </field>
     </record>
@@ -112,6 +113,43 @@
                     <field name="project_type_id" force_save="1" options="{'no_open': True,}"/>
                 </group>
             </xpath>
+            <xpath expr="//group[@name='amount_total']" position="after">
+                <field name="project_have_steps" invisible="1"/>
+                <group>
+                    <field name="cost_price"
+                           class="h5"
+                           decoration-bf="1"
+                           decoration-success="cost_price &gt; 0"
+                    />
+                </group>
+                <group>
+                    <field name="margin"
+                           decoration-bf="1"
+                           decoration-success="margin &gt; 0"
+                           decoration-danger="margin &lt; 0"
+                           class="h5"
+                    />
+                </group>
+            </xpath>
+            <xpath expr="//group[@name='amount_total_in_company_currency']" position="after">
+                <group>
+                    <field name="cost_price_in_company_currency" class="h5"
+                           decoration-success="cost_price_in_company_currency &gt; 0"/>
+                </group>
+                <group>
+                    <field name="margin_in_company_currency" class="h5"
+                           decoration-success="margin_in_company_currency &gt; 0"
+                           decoration-danger="margin_in_company_currency &lt; 0"/>
+                </group>
+            </xpath>
+            <xpath expr="//group[@name='stage_id']" position="before">
+                <group>
+                    <field name="profitability"
+                        decoration-success="profitability &gt; 0"
+                        decoration-danger="profitability &lt; 0"
+                    />
+                </group>
+            </xpath>
         </field>
     </record>
 
@@ -120,8 +158,90 @@
         <field name="model">project_budget.projects</field>
         <field name="inherit_id" ref="project_budget.project_budget_project_view_kanban"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='project_manager_id']" position="after">
-                <field name="project_type_id"/>
+            <xpath expr="//div[hasclass('oe_kanban_content')]" position="replace">
+                <div class="oe_kanban_content">
+                    <div class="o_kanban_record_top">
+                        <div class="o_kanban_record_title">
+                            <div class="o_text_overflow">
+                                <field name="project_id" widget="badge"
+                                       decoration-danger="approve_state == 'need_approve_manager'"
+                                       decoration-warning="approve_state == 'need_approve_supervisor'"
+                                       decoration-success="approve_state == 'approved'"
+                                       decoration-muted="project_status == 'cancel'"/>
+                            </div>
+                            <div t-if="record.company_id.raw_value != 10" class="o_row">
+                                <div t-if="record.end_presale_project_month.raw_value">
+                                    <span class="fa fa-clock-o me-2" title="Dates"/>
+                                    <field name="end_presale_project_month"/>
+                                    <i class="fa fa-long-arrow-right mx-2 oe_read_only" aria-label="Arrow icon"
+                                       title="Arrow"/>
+                                    <field name="end_sale_project_month"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="o_kanban_record_body">
+                        <div t-if="record.essence_project.value" t-att-title="record.essence_project.value"
+                             name="name_kanban" class="text-truncate text-muted">
+                            <field name="essence_project"/>
+                        </div>
+                        <div t-if="record.company_id.raw_value == 10">
+                            <div t-if="record.end_presale_project_month.raw_value"
+                                 class="d-flex justify-content-between font-weight-bold">
+                                <span>Opportunity Date:</span>
+                                <field name="end_presale_project_month"/>
+                            </div>
+                            <div t-if="record.step_project_number.value"
+                                 class="d-flex justify-content-between font-weight-bold">
+                                <span>DAX Number:</span>
+                                <field name="step_project_number"/>
+                            </div>
+                            <div t-if="record.amount_total.raw_value"
+                                 class="d-flex justify-content-between font-weight-bold">
+                                <span>Amount With Tax:</span>
+                                <field name="amount_total" widget="monetary"/>
+                            </div>
+                            <div t-if="record.company_partner_id.raw_value" t-att-title="record.company_partner_id.value"
+                                 class="d-flex justify-content-between font-weight-bold text-truncate">
+                                <span>Company Partner:</span>
+                                <field name="company_partner_id"/>
+                            </div>
+                        </div>
+                        <div t-else="">
+                            <div t-if="record.project_have_steps.value">
+                                <span>Have steps:</span>
+                                <field name="project_have_steps"/>
+                            </div>
+                            <div t-if="record.amount_untaxed.raw_value"
+                                 class="d-flex justify-content-between font-weight-bold">
+                                <span>Revenue:</span>
+                                <field name="amount_untaxed" widget="monetary"/>
+                            </div>
+                            <div t-if="record.margin.raw_value"
+                                 class="d-flex justify-content-between font-weight-bold">
+                                <span>Margin:</span>
+                                <field name="margin" widget="monetary"/>
+                            </div>
+                            <div t-if="record.profitability.raw_value"
+                                 class="d-flex justify-content-between font-weight-bold">
+                                <span>Profitability:</span>
+                                <div><field name="profitability" widget="float"/>%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="o_kanban_record_bottom" t-if="!selection_mode">
+                        <div class="d-flex text-truncate oe_kanban_bottom_left">
+                            <field name="partner_id" widget="many2one_avatar"/>
+                        </div>
+                        <div class="oe_kanban_bottom_right">
+                            <t t-if="record.key_account_manager_id.raw_value">
+                                <field name="key_account_manager_id" widget="many2one_avatar_employee"
+                                       options="{'relation': 'hr.employee.public'}"/>
+                            </t>
+                        </div>
+                    </div>
+                </div>
             </xpath>
         </field>
     </record>
@@ -133,6 +253,11 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='signer_id']" position="after">
                 <field name="project_type_id"/>
+            </xpath>
+            <xpath expr="//field[@name='amount_untaxed']" position="after">
+                <field name="cost_price" type="measure"/>
+                <field name="margin" type="measure"/>
+                <field name="profitability" type="measure"/>
             </xpath>
         </field>
     </record>
@@ -192,6 +317,61 @@
             <xpath expr="//page[@name='steps']//tree[@name='steps']//field[@name='project_id']" position="after">
                 <field name="project_type_id" optional="hide"/>
             </xpath>
+            <xpath expr="//page[@name='steps']//tree[@name='steps']//field[@name='amount_total']" position="after">
+                <field name="margin" optional="show" />
+                <field name="profitability" optional="show" />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="currency_view_form_inherit_nkk" model="ir.ui.view">
+        <field name="name">currency.form.inherit.nkk</field>
+        <field name="model">project_budget.projects</field>
+        <field name="inherit_id" ref="project_budget.show_comercial_budget_spec_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='currency_id']" position="before">
+                <h5>
+                    <group>
+                        <field name="profitability"
+                               decoration-success="profitability &gt; 0"
+                               decoration-danger="profitability &lt; 0"/>
+                    </group>
+                </h5>
+            </xpath>
+            <xpath expr="//group[@name='amount_total']" position="after">
+                <field name="is_parent_project" invisible="1"/>
+                <field name="margin_from_children_to_parent" invisible="1"/>
+                <field name="is_child_project" invisible="1"/>
+                <group>
+                    <field name="cost_price" class="h5"
+                           decoration-success="cost_price &gt; 0"/>
+                    <field name="total_margin_of_child_projects"
+                       attrs="{'invisible': ['|',('is_parent_project', '!=', True),('margin_from_children_to_parent', '!=', True)]}"/>
+                </group>
+                <group>
+                    <field name="margin" class="h5"
+                           decoration-success="margin &gt; 0"
+                           decoration-danger="margin &lt; 0"/>
+                    <field name="parent_project_id" invisible='1'/>
+                    <field name="additional_margin" string="Margin from Related Projects"
+                           attrs="{'readonly': True, 'invisible': [('is_parent_project', '=', False),('is_child_project', '=', False)]}"
+                           class="h5" decoration-success="additional_margin &gt; 0" decoration-danger="additional_margin &lt; 0"/>
+                    <field name="total_margin" string="Total Margin"
+                           attrs="{'readonly': True, 'invisible': [('is_parent_project', '=', False),('is_child_project', '=', False)]}"
+                           class="h5" decoration-success="total_margin &gt; 0" decoration-danger="total_margin &lt; 0"/>
+                </group>
+            </xpath>
+            <xpath expr="//group[@name='amount_total_in_company_currency']" position="after">
+                <group>
+                    <field name="cost_price_in_company_currency" class="h5"
+                           decoration-success="cost_price_in_company_currency &gt; 0"/>
+                </group>
+                <group>
+                    <field name="margin_in_company_currency" class="h5"
+                           decoration-success="margin_in_company_currency &gt; 0"
+                           decoration-danger="margin_in_company_currency &lt; 0"/>
+                </group>
+            </xpath>
         </field>
     </record>
 
@@ -200,19 +380,6 @@
         <field name="model">project_budget.projects</field>
         <field name="inherit_id" ref="project_budget.show_comercial_budget_spec_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//sheet[@name='project']//group//group//field[@name='margin_income']" position="after">
-                <field name="parent_project_id" invisible='1'/>
-                <field name="additional_margin" string="Margin from Related Projects"
-                       attrs="{'readonly': True, 'invisible': [('is_parent_project', '=', False),('is_child_project', '=', False)]}"
-                       class="h5" decoration-success="additional_margin &gt; 0" decoration-danger="additional_margin &lt; 0"/>
-                <field name="total_margin" string="Total Margin"
-                       attrs="{'readonly': True, 'invisible': [('is_parent_project', '=', False),('is_child_project', '=', False)]}"
-                       class="h5" decoration-success="total_margin &gt; 0" decoration-danger="total_margin &lt; 0"/>
-            </xpath>
-            <xpath expr="//sheet[@name='project']//group//group//field[@name='cost_price']" position="after">
-                <field name="total_margin_of_child_projects"
-                       attrs="{'invisible': ['|',('is_parent_project', '!=', True),('margin_from_children_to_parent', '!=', True)]}"/>
-            </xpath>
             <xpath expr="//sheet[@name='project']//group[@name='project_have_steps']" position="before">
                 <group>
                     <field name="is_parent_project" widget="boolean_toggle"
@@ -310,6 +477,10 @@
             <xpath expr="//field[@name='project_have_steps']" position="after">
                 <field name="is_parent_project" optional="hide"/>
                 <field name="is_child_project" optional="hide"/>
+            </xpath>
+            <xpath expr="//field[@name='amount_untaxed']" position="after">
+                <field name="cost_price" optional="show"/>
+                <field name="margin" optional="show"/>
             </xpath>
         </field>
     </record>

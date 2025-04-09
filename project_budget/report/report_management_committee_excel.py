@@ -23,10 +23,6 @@ class report_management_committee_excel(models.AbstractModel):
     strYEAR = '2023'
     YEARint = int(strYEAR)
 
-    def get_currency_rate_by_project(self, project):
-        project_currency_rates = self.env['project_budget.project_currency_rates']
-        return project_currency_rates._get_currency_rate_for_project_in_company_currency(project)
-
     def isProjectinYear(self, project):
         global strYEAR
         global YEARint
@@ -398,62 +394,58 @@ class report_management_committee_excel(models.AbstractModel):
             months = self.get_months_from_quarter(element)
 
             if project.end_presale_project_month.month in months and YEARint == project.end_presale_project_month.year:
-                currency_rate = self.get_currency_rate_by_project(project)
                 if project.stage_id.code in ('100','100(done)'):
-                    sheet.write_number(row, column + 1, project.total_amount_of_revenue_with_vat * currency_rate, row_format_number_color_fact)
-                    sum100tmp += project.total_amount_of_revenue_with_vat * currency_rate
+                    sheet.write_number(row, column + 1, project.amount_total_in_company_currency, row_format_number_color_fact)
+                    sum100tmp += project.amount_total_in_company_currency
                 if project.stage_id.code == '75':
-                    sheet.write_number(row, column + 2, project.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
-                    sum75tmp += project.total_amount_of_revenue_with_vat * currency_rate
+                    sheet.write_number(row, column + 2, project.amount_total_in_company_currency, row_format_number)
+                    sum75tmp += project.amount_total_in_company_currency
                 if project.stage_id.code == '50':
-                    sheet.write_number(row, column + 3, project.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
-                    sum50tmp += project.total_amount_of_revenue_with_vat * currency_rate
+                    sheet.write_number(row, column + 3, project.amount_total_in_company_currency, row_format_number)
+                    sum50tmp += project.amount_total_in_company_currency
 
         elif 'Q3' in element or 'Q4' in element :
 
             months = self.get_months_from_quarter(element)
 
             if project.end_presale_project_month.month in months and YEARint == project.end_presale_project_month.year:
-                currency_rate = self.get_currency_rate_by_project(project)
                 if project.stage_id.code in ('100','100(done)'):
-                    sheet.write_number(row, column + 2, project.total_amount_of_revenue_with_vat * currency_rate, row_format_number_color_fact)
-                    sum100tmp += project.total_amount_of_revenue_with_vat * currency_rate
+                    sheet.write_number(row, column + 2, project.amount_total_in_company_currency, row_format_number_color_fact)
+                    sum100tmp += project.amount_total_in_company_currency
                 if project.stage_id.code == '75':
-                    sheet.write_number(row, column + 3, project.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
-                    sum75tmp += project.total_amount_of_revenue_with_vat * currency_rate
+                    sheet.write_number(row, column + 3, project.amount_total_in_company_currency, row_format_number)
+                    sum75tmp += project.amount_total_in_company_currency
                 if project.stage_id.code == '50':
-                    sheet.write_number(row, column + 4, project.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
-                    sum50tmp += project.total_amount_of_revenue_with_vat * currency_rate
+                    sheet.write_number(row, column + 4, project.amount_total_in_company_currency, row_format_number)
+                    sum50tmp += project.amount_total_in_company_currency
 
         elif element == 'NEXT':
-
-            currency_rate = self.get_currency_rate_by_project(project)
 
             if project.end_presale_project_month.year == YEARint + 1:
                 if project.stage_id.code in ('75', '100'):
                     sheet.write_number(row, column + 0,
-                                       project.total_amount_of_revenue_with_vat * currency_rate,
+                                       project.amount_total_in_company_currency,
                                        row_format_number)
-                    sum_next_75_tmp = project.total_amount_of_revenue_with_vat * currency_rate
+                    sum_next_75_tmp = project.amount_total_in_company_currency
                 if project.stage_id.code == '50':
                     sheet.write_number(row, column + 1,
-                                       project.total_amount_of_revenue_with_vat * params['50'] * currency_rate,
+                                       project.amount_total_in_company_currency * params['50'],
                                        row_format_number)
-                    sum_next_50_tmp = project.total_amount_of_revenue_with_vat * params['50'] * currency_rate
+                    sum_next_50_tmp = project.amount_total_in_company_currency * params['50']
                 if project.stage_id.code == '30':
                     sheet.write_number(row, column + 2,
-                                       project.total_amount_of_revenue_with_vat * params['30'] * currency_rate,
+                                       project.amount_total_in_company_currency * params['30'],
                                        row_format_number)
-                    sum_next_30_tmp = project.total_amount_of_revenue_with_vat * params['30'] * currency_rate
+                    sum_next_30_tmp = project.amount_total_in_company_currency * params['30']
             elif project.end_presale_project_month.year == YEARint + 2:
                 if project.stage_id.code in ('75', '100'):
-                    sum_after_next_tmp = project.total_amount_of_revenue_with_vat * currency_rate
+                    sum_after_next_tmp = project.amount_total_in_company_currency
                 if project.stage_id.code == '50':
-                    sum_after_next_tmp = project.total_amount_of_revenue_with_vat * params[
-                        '50'] * currency_rate
+                    sum_after_next_tmp = project.amount_total_in_company_currency * params[
+                        '50']
                 if project.stage_id.code == '30':
-                    sum_after_next_tmp = project.total_amount_of_revenue_with_vat * params[
-                        '30'] * currency_rate
+                    sum_after_next_tmp = project.amount_total_in_company_currency * params[
+                        '30']
                 sheet.write_number(row, column + 3,
                                    sum_after_next_tmp,
                                    row_format_number)
@@ -484,43 +476,39 @@ class report_management_committee_excel(models.AbstractModel):
             if project.stage_id.code not in ('0', '10'):
 
                 if project.end_presale_project_month.month in months and YEARint == project.end_presale_project_month.year:
-                    currency_rate = self.get_currency_rate_by_project(project)
                     if project.stage_id.code in ('100', '100(done)'):
-                        sum100tmp = project.total_amount_of_revenue_with_vat * currency_rate
+                        sum100tmp = project.amount_total_in_company_currency
                     if project.stage_id.code == '75':
-                        sum75tmp = project.total_amount_of_revenue_with_vat * currency_rate
+                        sum75tmp = project.amount_total_in_company_currency
                     if project.stage_id.code == '50':
-                        sum50tmp = project.total_amount_of_revenue_with_vat * currency_rate
+                        sum50tmp = project.amount_total_in_company_currency
 
         elif 'NEXT' in element:
             if project.stage_id.code not in ('0', '10'):
 
                 if project.end_presale_project_month.year == YEARint + 1 and project.end_presale_project_month.month in self.get_months_from_quarter('Q1'):
-                    currency_rate = self.get_currency_rate_by_project(project)
                     if project.stage_id.code in ('75', '100'):
-                        sum_next_75_q1_tmp = project.total_amount_of_revenue_with_vat * currency_rate
+                        sum_next_75_q1_tmp = project.amount_total_in_company_currency
                     if project.stage_id.code == '50':
-                        sum_next_50_q1_tmp = project.total_amount_of_revenue_with_vat * params['50'] * currency_rate
+                        sum_next_50_q1_tmp = project.amount_total_in_company_currency * params['50']
                     if project.stage_id.code == '30':
-                        sum_next_30_q1_tmp = project.total_amount_of_revenue_with_vat * params['30'] * currency_rate
+                        sum_next_30_q1_tmp = project.amount_total_in_company_currency * params['30']
                 if project.end_presale_project_month.year == YEARint + 1:
-                    currency_rate = self.get_currency_rate_by_project(project)
                     if project.stage_id.code in ('75', '100'):
-                        sum_next_75_tmp = project.total_amount_of_revenue_with_vat * currency_rate
+                        sum_next_75_tmp = project.amount_total_in_company_currency
                     if project.stage_id.code == '50':
-                        sum_next_50_tmp = project.total_amount_of_revenue_with_vat * params['50'] * currency_rate
+                        sum_next_50_tmp = project.amount_total_in_company_currency * params['50']
                     if project.stage_id.code == '30':
-                        sum_next_30_tmp = project.total_amount_of_revenue_with_vat * params['30'] * currency_rate
+                        sum_next_30_tmp = project.amount_total_in_company_currency * params['30']
                 elif project.end_presale_project_month.year == YEARint + 2:
-                    currency_rate = self.get_currency_rate_by_project(project)
                     if project.stage_id.code in ('75', '100'):
-                        sum_after_next_tmp = project.total_amount_of_revenue_with_vat * currency_rate
+                        sum_after_next_tmp = project.amount_total_in_company_currency
                     if project.stage_id.code == '50':
-                        sum_after_next_tmp = project.total_amount_of_revenue_with_vat * params[
-                            '50'] * currency_rate
+                        sum_after_next_tmp = project.amount_total_in_company_currency * params[
+                            '50']
                     if project.stage_id.code == '30':
-                        sum_after_next_tmp = project.total_amount_of_revenue_with_vat * params[
-                            '30'] * currency_rate
+                        sum_after_next_tmp = project.amount_total_in_company_currency * params[
+                            '30']
 
         return (sum75tmpetalon, sum50tmpetalon,
                 sum100tmp, sum75tmp, sum50tmp,
@@ -1295,11 +1283,11 @@ class report_management_committee_excel(models.AbstractModel):
 
             if all(value == 0 for value in sum_q1.values()) and project.end_sale_project_month.year == YEARint + 1 and project.end_sale_project_month.month in self.get_months_from_quarter('Q1'):  # если актирование 0, а месяц в нужном году, берем выручку
                 if project.stage_id.code == '30':
-                    sum_q1['potential'] = project.total_amount_of_revenue
+                    sum_q1['potential'] = project.amount_untaxed_in_company_currency
             #
             if all(value == 0 for value in sum.values()) and project.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
                 if project.stage_id.code == '30':
-                    sum['potential'] = project.total_amount_of_revenue
+                    sum['potential'] = project.amount_untaxed_in_company_currency
 
             # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
             sum_q1 = self.get_act_forecast_from_distributions(sum_q1, project, YEARint + 1,  self.get_months_from_quarter('Q1'))
@@ -1369,7 +1357,7 @@ class report_management_committee_excel(models.AbstractModel):
 
             if all(value == 0 for value in sum.values()) and project.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
                 if project.stage_id.code == '30':
-                    sum['potential'] = project.total_amount_of_revenue
+                    sum['potential'] = project.amount_untaxed_in_company_currency
 
             # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
             sum = self.get_act_forecast_from_distributions(sum, project, YEARint + 2, False)
@@ -1539,11 +1527,11 @@ class report_management_committee_excel(models.AbstractModel):
                 if (all(value == 0 for value in sum_q1.values()) and project.end_sale_project_month.year == YEARint + 1
                         and project.end_sale_project_month.month in self.get_months_from_quarter('Q1')):  # если актирование 0, а месяц в нужном году, берем выручку
                     if project.stage_id.code == '30':
-                        sum_q1['potential'] = project.total_amount_of_revenue
+                        sum_q1['potential'] = project.amount_untaxed_in_company_currency
                 #
                 if all(value == 0 for value in sum.values()) and project.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
                     if project.stage_id.code == '30':
-                        sum['potential'] = project.total_amount_of_revenue
+                        sum['potential'] = project.amount_untaxed_in_company_currency
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                 sum_q1 = self.get_act_forecast_from_distributions(sum, project, YEARint + 1, self.get_months_from_quarter('Q1'))
@@ -1615,7 +1603,7 @@ class report_management_committee_excel(models.AbstractModel):
 
                 if all(value == 0 for value in sum.values()) and project.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
                     if project.stage_id.code == '30':
-                        sum['potential'] = project.total_amount_of_revenue
+                        sum['potential'] = project.amount_untaxed_in_company_currency
 
                 # посмотрим на распределение, по идее все с него надо брать, но пока оставляем 2 ветки: если нет распределения идем по старому: в рамках одного месяца сравниваем суммы факта и плаан
                 sum = self.get_act_forecast_from_distributions(sum, project, YEARint + 2, False)
@@ -3591,11 +3579,11 @@ class report_management_committee_excel(models.AbstractModel):
                                         spec.stage_id.code), cur_row_format)
                                     column += 1
                                     sheet.write_number(row, column,
-                                                       spec.total_amount_of_revenue_with_vat * self.get_currency_rate_by_project(spec),
+                                                       spec.amount_total_in_company_currency,
                                                        cur_row_format_number)
                                     column += 1
                                     sheet.write_number(row, column,
-                                                       spec.margin_income * self.get_currency_rate_by_project(spec),
+                                                       spec.margin_in_company_currency,
                                                        cur_row_format_number)
                                     column += 1
                                     sheet.write_string(row, column, f'{spec.profitability:.2f}' + '%', cur_row_format)

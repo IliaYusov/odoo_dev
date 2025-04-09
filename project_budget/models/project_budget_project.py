@@ -2,6 +2,7 @@ from odoo import api, Command, fields, models, _
 from odoo.exceptions import ValidationError
 from .project_budget_project_stage import PROJECT_STATUS
 from collections import defaultdict
+from functools import lru_cache
 import datetime
 
 
@@ -140,13 +141,24 @@ class Project(models.Model):
     end_sale_project_month = fields.Date(string='The period of shipment or provision of services to the Client(MONTH)', required=True,default=fields.Date.context_today, tracking=True)
     vat_attribute_id = fields.Many2one('project_budget.vat_attribute', string='vat_attribute', copy=True,tracking=True , domain ="[('is_prohibit_selection','=', False)]")
 
-    total_amount_of_revenue = fields.Monetary(string='total_amount_of_revenue', store=True, tracking=True)
-    total_amount_of_revenue_with_vat = fields.Monetary(string='total_amount_of_revenue_with_vat', compute='_compute_totals',
-                                              store=True, tracking=True)
-    cost_price = fields.Monetary(string='cost_price', store=True, tracking=True)
-    margin_income = fields.Monetary(string='Margin income', compute='_compute_totals', store=True)
-    profitability = fields.Float(string='Profitability(share of Sale margin in revenue)', compute='_compute_totals',
-                                 store=True, tracking=True)
+    # total_amount_of_revenue = fields.Monetary(string='total_amount_of_revenue', store=True, tracking=True)
+    # total_amount_of_revenue_with_vat = fields.Monetary(string='total_amount_of_revenue_with_vat', compute='_compute_totals',
+    #                                           store=True, tracking=True)
+    # cost_price = fields.Monetary(string='cost_price', store=True, tracking=True)
+    # margin_income = fields.Monetary(string='Margin income', compute='_compute_totals', store=True)
+    # profitability = fields.Float(string='Profitability(share of Sale margin in revenue)', compute='_compute_totals',
+    #                              store=True, tracking=True)
+
+    amount_total = fields.Monetary(string='Amount total', compute='_compute_totals', store=True, tracking=True)
+    amount_total_in_company_currency = fields.Monetary(
+        string='Amount total in company currency', currency_field='company_currency_id',
+        compute='_compute_amounts_in_company_currency', store=True, tracking=True,
+    )
+    amount_untaxed = fields.Monetary(string='Amount untaxed', store=True, tracking=True, copy=True)
+    amount_untaxed_in_company_currency = fields.Monetary(
+        string='Amount untaxed in company currency',  compute='_compute_amounts_in_company_currency',
+        currency_field='company_currency_id', store=True, tracking=True
+    )
 
     signer_id = fields.Many2one('res.partner', string='Signer', copy=True,
                                 default=lambda self: self.env.company.partner_id, domain=_get_signer_id_domain,
@@ -237,6 +249,10 @@ class Project(models.Model):
         inverse_name='projects_id',
         string="project currency rates", auto_join=True, copy=True, )
 
+    currency_rate = fields.Float(string='Currency Rate', compute='_compute_currency_rate', precompute=True, store=True, copy=True)
+    is_currency_company = fields.Boolean(compute='_compute_is_currency_company', default=True)
+    company_currency_id = fields.Many2one(related='company_id.currency_id', readonly=True)
+
     name_to_show = fields.Char(string='name_to_show', compute='_get_name_to_show')
 
     attachment_count = fields.Integer(compute='_compute_attachment_count', string='Attachments')
@@ -291,6 +307,21 @@ class Project(models.Model):
     # COMPUTE METHODS
     # ------------------------------------------------------
 
+    @api.depends('end_presale_project_month', 'currency_id', 'company_currency_id')
+    def _compute_currency_rate(self):
+        for rec in self:
+            rec.currency_rate = self.env['res.currency']._get_conversion_rate(
+                from_currency=rec.currency_id,
+                to_currency=rec.company_currency_id,
+                company=rec.company_id,
+                date=rec.end_presale_project_month
+            )
+
+    @api.depends('currency_id', 'company_currency_id')
+    def _compute_is_currency_company(self):
+        for rec in self:
+            rec.is_currency_company = rec.currency_id == rec.company_currency_id
+
     def _compute_can_edit(self):
         for rec in self:
             rec.can_edit = rec.active and (
@@ -298,27 +329,39 @@ class Project(models.Model):
                     self.env.user.has_group(
                         'project_budget.project_budget_group_project_fixed_editor') and rec.budget_state == 'fixed'))
 
-    def _calculate_totals(self, project):
+    def _calculate_amounts_in_company_currency(self, project):
         if not project.project_have_steps:
-            project.margin_income = project.total_amount_of_revenue - project.cost_price
-            project.total_amount_of_revenue_with_vat = project.total_amount_of_revenue * (1 + project.vat_attribute_id.percent / 100)
+            if project.currency_id == project.company_currency_id:
+                project.amount_total_in_company_currency = project.amount_total
+                project.amount_untaxed_in_company_currency = project.amount_untaxed
+            else:
+                project.amount_total_in_company_currency = project.amount_total * project.currency_rate
+                project.amount_untaxed_in_company_currency = project.amount_untaxed * project.currency_rate
         elif project.project_have_steps and project.step_status == 'project':
-            project.total_amount_of_revenue = 0
-            project.cost_price = 0
-            project.margin_income = 0
-            project.total_amount_of_revenue_with_vat = 0
+            project.amount_total_in_company_currency = 0
+            project.amount_untaxed_in_company_currency = 0
             for step in project.step_project_child_ids:
                 if step.stage_id.code != '0':
-                    project.total_amount_of_revenue += step.total_amount_of_revenue
-                    project.cost_price += step.cost_price
-                    project.margin_income += step.margin_income
-                    project.total_amount_of_revenue_with_vat += step.total_amount_of_revenue_with_vat
-        if project.total_amount_of_revenue == 0:
-            project.profitability = 0
-        else:
-            project.profitability = project.margin_income / project.total_amount_of_revenue * 100
+                    project.amount_total_in_company_currency += step.amount_total_in_company_currency
+                    project.amount_untaxed_in_company_currency += step.amount_untaxed_in_company_currency
 
-    @api.depends('total_amount_of_revenue', "cost_price", 'vat_attribute_id')
+    @api.depends('amount_total', 'currency_rate')
+    def _compute_amounts_in_company_currency(self):
+        for project in self.sorted(lambda p: p.step_status == 'project'):  # сначала этапы, потом проекты
+            self._calculate_amounts_in_company_currency(project)
+
+    def _calculate_totals(self, project):
+        if not project.project_have_steps:
+            project.amount_total = project.amount_untaxed * (1 + project.vat_attribute_id.percent / 100)
+        elif project.project_have_steps and project.step_status == 'project':
+            project.amount_untaxed = 0
+            project.amount_total = 0
+            for step in project.step_project_child_ids:
+                if step.stage_id.code != '0':
+                    project.amount_untaxed += step.amount_untaxed
+                    project.amount_total += step.amount_total
+
+    @api.depends('amount_untaxed', 'vat_attribute_id')
     def _compute_totals(self):
         for project in self.sorted(lambda p: p.step_status == 'project'):  # сначала этапы, потом проекты
             self._calculate_totals(project)
@@ -448,6 +491,7 @@ class Project(models.Model):
                 for row_flow in row.fact_step_acceptance_flow_ids:
                     row.fact_acceptance_flow_sum += row_flow.sum_cash
                     row.fact_acceptance_flow_sum_without_vat += row_flow.sum_cash_without_vat
+
     @api.depends('company_id', 'currency_id', 'commercial_budget_id', 'key_account_manager_id', 'project_curator_id',
                  'project_manager_id', 'industry_id', 'signer_id',
                  'partner_id', 'project_office_id', 'is_correction_project', 'is_not_for_mc_report',
@@ -1412,3 +1456,43 @@ class Project(models.Model):
             raisetext = _("This project is in fixed budget. Copy deny")
             raise (ValidationError(raisetext))
         self.sudo().copy()
+
+    def auto_update_for_amounts_in_company_currency(self):
+        @lru_cache(maxsize=100)
+        def get_currency_rate(company_id, company_currency_id, currency_id):
+            return self.env['res.currency']._get_conversion_rate(
+                from_currency=currency_id,
+                to_currency=company_currency_id,
+                company=company_id,
+                date=datetime.date.today()
+            )
+
+        projects = self.env['project_budget.projects'].search([
+            ('active', '=', True),
+            ('end_presale_project_month', '>=', datetime.date.today()),
+            ('budget_state', '=', 'work'),
+        ]).filtered(lambda p: p.currency_id != p.company_currency_id)
+
+        for project in projects:
+            currency_rate = get_currency_rate(project.company_id, project.company_currency_id, project.currency_id)
+            project.with_context(form_fix_budget=True).currency_rate = currency_rate
+
+        acceptances = self.env['project_budget.planned_acceptance_flow'].search([
+            ('projects_id.active', '=', True),
+            ('date_actual', '>=', datetime.date.today()),
+            ('budget_state', '=', 'work'),
+        ]).filtered(lambda a: a.currency_id != a.company_currency_id)
+
+        for acceptance in acceptances:
+            currency_rate = get_currency_rate(acceptance.company_id, acceptance.company_currency_id, acceptance.currency_id)
+            acceptance.with_context(form_fix_budget=True).currency_rate = currency_rate
+
+        cashes = self.env['project_budget.planned_cash_flow'].search([
+            ('projects_id.active', '=', True),
+            ('date_actual', '>=', datetime.date.today()),
+            ('budget_state', '=', 'work'),
+        ]).filtered(lambda a: a.currency_id != a.company_currency_id)
+
+        for cash in cashes:
+            currency_rate = get_currency_rate(cash.company_id, cash.company_currency_id, cash.currency_id)
+            cash.with_context(form_fix_budget=True).currency_rate = currency_rate

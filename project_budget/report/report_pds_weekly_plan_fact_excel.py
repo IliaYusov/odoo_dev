@@ -31,10 +31,6 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
         'Декабрь',
     ]
 
-    def get_currency_rate_by_project(self, project):
-        project_currency_rates = self.env['project_budget.project_currency_rates']
-        return project_currency_rates._get_currency_rate_for_project_in_company_currency(project)
-
     def centers_with_parents(self, ids, max_level):
         if not ids:
             return max_level
@@ -561,7 +557,6 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
 
                 project_step_id = ''
 
-                currency_rate = self.get_currency_rate_by_project(current_project)
                 if current_project.step_status == 'project':
                     project_step_id = (current_project.step_project_number or '') + ' | ' + (
                                 current_project.project_id or '')
@@ -576,8 +571,8 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                     'essence_project': current_project.essence_project,
                     'project_id': project_step_id,
                     'probability': self.get_estimated_probability_name_forecast(current_project.stage_id.code),
-                    'total_amount_of_revenue_with_vat': current_project.total_amount_of_revenue_with_vat * currency_rate,
-                    'margin_income': current_project.margin_income * currency_rate,
+                    'amount_total': current_project.amount_total_in_company_currency,
+                    'margin': current_project.margin_in_company_currency,
                     'profitability': current_project.profitability,
                     'dogovor_number': current_project.dogovor_number or '',
                     'vat_attribute_id': current_project.vat_attribute_id.name,
@@ -803,10 +798,10 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                             column += 1
                             sheet.write_string(row, column, content['info']['probability'], cur_row_format)
                             column += 1
-                            sheet.write_number(row, column, content['info']['total_amount_of_revenue_with_vat'],
+                            sheet.write_number(row, column, content['info']['amount_total'],
                                                cur_row_format_number)
                             column += 1
-                            sheet.write_number(row, column, content['info']['margin_income'], cur_row_format_number)
+                            sheet.write_number(row, column, content['info']['margin'], cur_row_format_number)
                             column += 1
                             sheet.write_number(row, column, content['info']['profitability'], cur_row_format_number)
                             column += 1

@@ -16,6 +16,20 @@ class Project(models.Model):
                                                  string='Technological Direction', compute='_compute_parent_data',
                                                  copy=True, readonly=False, store=True, tracking=True)
     project_type_id = fields.Many2one('project_budget.project_type', string='Project Type', copy=True, tracking=True)
+
+    cost_price = fields.Monetary(string='Cost price', store=True, tracking=True, copy=True)
+    cost_price_in_company_currency = fields.Monetary(
+        string='Cost price in company currency', compute='_compute_amounts_in_company_currency',
+        currency_field='company_currency_id', store=True, tracking=True
+    )
+    margin = fields.Monetary(string='Margin income', compute='_compute_totals', store=True)
+    margin_in_company_currency = fields.Monetary(
+        string='Margin income in company currency', compute='_compute_amounts_in_company_currency',
+        currency_field='company_currency_id', store=True
+    )
+    profitability = fields.Float(string='Profitability(share of Sale margin in revenue)', compute='_compute_totals',
+                                 store=True, tracking=True)
+
     is_parent_project = fields.Boolean(string="project is parent", default=False, copy=True, tracking=True)
     is_child_project = fields.Boolean(string="project is child", compute='_check_project_is_child')
     margin_rate_for_parent = fields.Float(string="margin rate for parent project", default=0, copy=True, tracking=True)
@@ -61,6 +75,49 @@ class Project(models.Model):
     # COMPUTE METHODS
     # ------------------------------------------------------
 
+    def _calculate_amounts_in_company_currency(self, project):
+        super(Project, self)._calculate_amounts_in_company_currency(project)
+        if not project.project_have_steps:
+            if project.currency_id == project.company_currency_id:
+                project.cost_price_in_company_currency = project.cost_price
+                project.margin_in_company_currency = project.margin
+            else:
+                project.cost_price_in_company_currency = project.cost_price * project.currency_rate
+                project.margin_in_company_currency = project.margin * project.currency_rate
+        elif project.project_have_steps and project.step_status == 'project':
+            project.cost_price_in_company_currency = 0
+            project.margin_in_company_currency = 0
+            for step in project.step_project_child_ids:
+                if step.stage_id.code != '0':
+                    project.cost_price_in_company_currency += step.cost_price_in_company_currency
+                    project.margin_in_company_currency += step.margin_in_company_currency
+
+    @api.depends("amount_total", 'margin', 'currency_rate')
+    def _compute_amounts_in_company_currency(self):
+        for project in self.sorted(lambda p: p.step_status == 'project'):  # сначала этапы, потом проекты
+            self._calculate_amounts_in_company_currency(project)
+
+    def _calculate_totals(self, project):
+        super(Project, self)._calculate_totals(project)
+        if not project.project_have_steps:
+            project.margin = project.amount_untaxed - project.cost_price
+        elif project.project_have_steps and project.step_status == 'project':
+            project.cost_price = 0
+            project.margin = 0
+            for step in project.step_project_child_ids:
+                if step.stage_id.code != '0':
+                    project.cost_price += step.cost_price
+                    project.margin += step.margin
+        if project.amount_untaxed == 0:
+            project.profitability = 0
+        else:
+            project.profitability = project.margin / project.amount_untaxed * 100
+
+    @api.depends('amount_untaxed', "cost_price", 'vat_attribute_id')
+    def _compute_totals(self):
+        for project in self.sorted(lambda p: p.step_status == 'project'):  # сначала этапы, потом проекты
+            self._calculate_totals(project)
+
     @api.depends('step_project_parent_id.technological_direction_id', 'step_project_parent_id.project_supervisor_id')
     def _compute_parent_data(self):
         for rec in self.filtered(lambda pr: pr.step_status == 'step'):
@@ -102,7 +159,7 @@ class Project(models.Model):
                     ])[:1].id or 0
                 })]
 
-    @api.depends('total_amount_of_revenue', 'margin_rate_for_parent', 'cost_price', 'margin_from_children_to_parent',
+    @api.depends('amount_untaxed', 'margin_rate_for_parent', 'cost_price', 'margin_from_children_to_parent',
                  'child_project_ids')
     def _compute_additional_margin(self):
         for rec in self:
@@ -110,44 +167,44 @@ class Project(models.Model):
                 if rec.margin_from_children_to_parent:
                     add_margin = 0
                     for child in rec.child_project_ids:
-                        add_margin += child.margin_income * child.margin_rate_for_parent
-                        child.additional_margin = -child.margin_income * child.margin_rate_for_parent
+                        add_margin += child.margin * child.margin_rate_for_parent
+                        child.additional_margin = -child.margin * child.margin_rate_for_parent
                     rec.additional_margin = add_margin
                 else:
                     total_percent = 0
                     for child in rec.child_project_ids:
                         total_percent += child.margin_rate_for_parent
-                        child.additional_margin = rec.margin_income * child.margin_rate_for_parent
-                    rec.additional_margin = -(rec.margin_income * total_percent)
+                        child.additional_margin = rec.margin * child.margin_rate_for_parent
+                    rec.additional_margin = -(rec.margin * total_percent)
             elif rec.is_child_project:
                 if rec.parent_project_id.margin_from_children_to_parent:
-                    rec.additional_margin = -(rec.margin_income * rec.margin_rate_for_parent)
+                    rec.additional_margin = -(rec.margin * rec.margin_rate_for_parent)
                     add_margin = 0
                     for child in rec.parent_project_id.child_project_ids:
-                        add_margin += child.margin_income * child.margin_rate_for_parent
+                        add_margin += child.margin * child.margin_rate_for_parent
                     rec.parent_project_id.additional_margin = add_margin
                 else:
-                    rec.additional_margin = rec.parent_project_id.margin_income * rec.margin_rate_for_parent
+                    rec.additional_margin = rec.parent_project_id.margin * rec.margin_rate_for_parent
                     total_percent = 0
                     for child in rec.parent_project_id.child_project_ids:
                         total_percent += child.margin_rate_for_parent
-                    rec.parent_project_id.additional_margin = -(rec.parent_project_id.margin_income * total_percent)
+                    rec.parent_project_id.additional_margin = -(rec.parent_project_id.margin * total_percent)
             else:
                 rec.additional_margin = 0
 
-    @api.depends('child_project_ids.total_amount_of_revenue', 'child_project_ids.cost_price', 'child_project_ids')
+    @api.depends('child_project_ids.amount_untaxed', 'child_project_ids.cost_price', 'child_project_ids')
     def _compute_total_margin_of_child_projects(self):
         for rec in self:
             if rec.is_parent_project:
                 rec.total_margin_of_child_projects = sum(
-                    child_id.total_amount_of_revenue - child_id.cost_price for child_id in rec.child_project_ids)
+                    child_id.amount_untaxed - child_id.cost_price for child_id in rec.child_project_ids)
             else:
                 rec.total_margin_of_child_projects = 0
 
-    @api.depends('margin_income', 'additional_margin')
+    @api.depends('margin', 'additional_margin')
     def _compute_total_margin(self):
         for rec in self:
-            rec.total_margin = rec.margin_income + rec.additional_margin
+            rec.total_margin = rec.margin + rec.additional_margin
 
     def _check_project_is_child(self):
         for rec in self:
@@ -159,7 +216,7 @@ class Project(models.Model):
     # CONSTRAINS
     # ------------------------------------------------------
 
-    @api.constrains('stage_id', 'total_amount_of_revenue', 'cost_price', 'planned_acceptance_flow_ids',
+    @api.constrains('stage_id', 'amount_untaxed', 'cost_price', 'planned_acceptance_flow_ids',
                     'planned_cash_flow_ids', 'planned_step_acceptance_flow_ids', 'planned_step_cash_flow_ids')
     def _check_financial_data_is_present(self):
         for project in self.filtered(lambda pr: pr.budget_state == 'work'):
@@ -167,7 +224,7 @@ class Project(models.Model):
             if project.env.context.get('form_fix_budget'):
                 continue
             if (project.stage_id.code in ('30', '50', '75', '100')
-                    and project.total_amount_of_revenue == 0
+                    and project.amount_untaxed == 0
                     and project.cost_price == 0
                     and not project.project_have_steps
                     and not (project.is_parent_project and project.margin_from_children_to_parent)

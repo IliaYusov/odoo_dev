@@ -70,10 +70,10 @@ FROM
         p.partner_id,
         p.essence_project AS name,
         p.end_presale_project_month AS date,
-        p.total_amount_of_revenue_with_vat AS amount,
+        p.amount_total_in_company_currency AS amount,
         p.currency_id AS currency_id,
         CASE
-            WHEN p.total_amount_of_revenue != 0 THEN (p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue
+            WHEN p.amount_untaxed_in_company_currency != 0 THEN (p.amount_untaxed_in_company_currency - p.cost_price_in_company_currency) / p.amount_untaxed_in_company_currency
             ELSE 0
         END AS profitability,
         0 AS distribution,
@@ -88,7 +88,7 @@ FROM
     LEFT JOIN project_budget_project_stage_forecast_probability psfp ON psfp.stage_id = p.stage_id
     AND psfp.sale_figure_id = sf.res_id
     WHERE step_status = 'project' AND p.project_have_steps = false AND p.active = true
-    AND p.total_amount_of_revenue_with_vat != 0
+    AND p.amount_total_in_company_currency != 0
     UNION
     SELECT
         ps.company_id,
@@ -101,10 +101,10 @@ FROM
         ps.partner_id,
         ps.essence_project AS name,
         ps.end_presale_project_month AS date,
-        ps.total_amount_of_revenue_with_vat AS amount,
+        ps.amount_total_in_company_currency AS amount,
         ps.currency_id AS currency_id,
         CASE
-            WHEN ps.total_amount_of_revenue != 0 THEN (ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue
+            WHEN ps.amount_untaxed_in_company_currency != 0 THEN (ps.amount_untaxed_in_company_currency - ps.cost_price_in_company_currency) / ps.amount_untaxed_in_company_currency
             ELSE 0
         END AS profitability,
         0 AS distribution,
@@ -119,7 +119,7 @@ FROM
     INNER JOIN ir_model_data sf on sf.name = 'sale_figure_contracting'
     LEFT JOIN project_budget_project_stage_forecast_probability psfp ON psfp.stage_id = ps.stage_id
     AND psfp.sale_figure_id = sf.res_id
-    WHERE ps.step_status = 'step' AND ps.total_amount_of_revenue_with_vat != 0 AND ps.active = true
+    WHERE ps.step_status = 'step' AND ps.amount_total_in_company_currency != 0 AND ps.active = true
     UNION
     SELECT
         p.company_id,
@@ -135,7 +135,7 @@ FROM
         fc.sum_cash AS amount,
         p.currency_id AS currency_id,
         CASE
-            WHEN p.total_amount_of_revenue != 0 THEN (p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue
+            WHEN p.amount_untaxed_in_company_currency != 0 THEN (p.amount_untaxed_in_company_currency - p.cost_price_in_company_currency) / p.amount_untaxed_in_company_currency
             ELSE 0
         END AS profitability,
         ROUND(COALESCE(dc.sum_distr_cash, 0), c.decimal_places) AS distribution,        
@@ -170,7 +170,7 @@ FROM
         fc.sum_cash AS amount,
         ps.currency_id AS currency_id,
         CASE
-            WHEN ps.total_amount_of_revenue != 0 THEN (ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue
+            WHEN ps.amount_untaxed_in_company_currency != 0 THEN (ps.amount_untaxed_in_company_currency - ps.cost_price_in_company_currency) / ps.amount_untaxed_in_company_currency
             ELSE 0
         END AS profitability,
         ROUND(COALESCE(dc.sum_distr_cash, 0), c.decimal_places) AS distribution,
@@ -206,7 +206,7 @@ FROM
         ROUND(pc.sum_cash, c.decimal_places) AS amount,
         p.currency_id AS currency_id,
         CASE
-            WHEN p.total_amount_of_revenue != 0 THEN (p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue
+            WHEN p.amount_untaxed_in_company_currency != 0 THEN (p.amount_untaxed_in_company_currency - p.cost_price_in_company_currency) / p.amount_untaxed_in_company_currency
             ELSE 0
         END AS profitability,
         ROUND(dc.sum_distr_cash, c.decimal_places) AS distribution,
@@ -249,7 +249,7 @@ FROM
         ROUND(pc.sum_cash, c.decimal_places) AS amount,        
         ps.currency_id AS currency_id,
         CASE
-            WHEN ps.total_amount_of_revenue != 0 THEN (ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue
+            WHEN ps.amount_untaxed_in_company_currency != 0 THEN (ps.amount_untaxed_in_company_currency - ps.cost_price_in_company_currency) / ps.amount_untaxed_in_company_currency
             ELSE 0
         END AS profitability,
         ROUND(dc.sum_distr_cash, c.decimal_places) AS distribution,        
@@ -293,7 +293,7 @@ FROM
         ROUND(fa.sum_cash_without_vat, c.decimal_places) AS amount,
         p.currency_id AS currency_id,
         CASE
-            WHEN p.total_amount_of_revenue != 0 THEN (p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue
+            WHEN p.amount_untaxed_in_company_currency != 0 THEN (p.amount_untaxed_in_company_currency - p.cost_price_in_company_currency) / p.amount_untaxed_in_company_currency
             ELSE 0
         END AS profitability,
         ROUND(COALESCE(da.sum_distr_cash, 0), c.decimal_places) AS distribution,
@@ -328,7 +328,7 @@ FROM
         ROUND(fa.sum_cash_without_vat, c.decimal_places) AS amount,
         ps.currency_id AS currency_id,
         CASE
-            WHEN ps.total_amount_of_revenue != 0 THEN (ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue
+            WHEN ps.amount_untaxed_in_company_currency != 0 THEN (ps.amount_untaxed_in_company_currency - ps.cost_price_in_company_currency) / ps.amount_untaxed_in_company_currency
             ELSE 0
         END AS profitability,
         ROUND(COALESCE(da.sum_distr_cash, 0), c.decimal_places) AS distribution,
@@ -364,7 +364,7 @@ FROM
         ROUND(pa.sum_cash_without_vat, c.decimal_places) AS amount,        
         p.currency_id AS currency_id,
         CASE
-            WHEN p.total_amount_of_revenue != 0 THEN (p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue
+            WHEN p.amount_untaxed_in_company_currency != 0 THEN (p.amount_untaxed_in_company_currency - p.cost_price_in_company_currency) / p.amount_untaxed_in_company_currency
             ELSE 0
         END AS profitability,
         ROUND(COALESCE(da.sum_distr_cash, 0), c.decimal_places) AS distribution,
@@ -407,7 +407,7 @@ FROM
         ROUND(pa.sum_cash_without_vat, c.decimal_places) AS amount,                
         ps.currency_id AS currency_id,
         CASE
-            WHEN ps.total_amount_of_revenue != 0 THEN (ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue
+            WHEN ps.amount_untaxed_in_company_currency != 0 THEN (ps.amount_untaxed_in_company_currency - ps.cost_price_in_company_currency) / ps.amount_untaxed_in_company_currency
             ELSE 0
         END AS profitability,
         ROUND(COALESCE(da.sum_distr_cash, 0), c.decimal_places) AS distribution,        
@@ -450,12 +450,12 @@ FROM
         fa.date_cash AS date,
         CASE
             WHEN fa.margin_manual_input = true THEN fa.margin
-            WHEN p.total_amount_of_revenue != 0 THEN ROUND((fa.sum_cash_without_vat * (p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue), c.decimal_places)
+            WHEN p.amount_untaxed_in_company_currency != 0 THEN ROUND((fa.sum_cash_without_vat * (p.amount_untaxed_in_company_currency - p.cost_price_in_company_currency) / p.amount_untaxed_in_company_currency), c.decimal_places)
             ELSE 0
         END AS amount,
         p.currency_id AS currency_id,
         CASE
-            WHEN p.total_amount_of_revenue != 0 THEN (p.total_amount_of_revenue - p.cost_price) / p.total_amount_of_revenue
+            WHEN p.amount_untaxed_in_company_currency != 0 THEN (p.amount_untaxed_in_company_currency - p.cost_price_in_company_currency) / p.amount_untaxed_in_company_currency
             ELSE 0
         END AS profitability,
         0 AS distribution,
@@ -483,12 +483,12 @@ FROM
         fa.date_cash AS date,
         CASE
             WHEN fa.margin_manual_input = true THEN fa.margin
-            WHEN ps.total_amount_of_revenue != 0 THEN ROUND((fa.sum_cash_without_vat * (ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue), c.decimal_places) 
+            WHEN ps.amount_untaxed_in_company_currency != 0 THEN ROUND((fa.sum_cash_without_vat * (ps.amount_untaxed_in_company_currency - ps.cost_price_in_company_currency) / ps.amount_untaxed_in_company_currency), c.decimal_places) 
             ELSE 0
         END AS amount,
         ps.currency_id AS currency_id,
         CASE
-            WHEN ps.total_amount_of_revenue != 0 THEN (ps.total_amount_of_revenue - ps.cost_price) / ps.total_amount_of_revenue
+            WHEN ps.amount_untaxed_in_company_currency != 0 THEN (ps.amount_untaxed_in_company_currency - ps.cost_price_in_company_currency) / ps.amount_untaxed_in_company_currency
             ELSE 0
         END AS profitability,
         0 AS distribution,

@@ -72,11 +72,11 @@
                     <field name="project_have_steps" invisible="True"/>
                     <field name="can_edit" invisible="True"/>
                     <field name="projects_id" invisible="False"/>
-                    <group>
-                        <group>
+                    <group col="6">
+                        <group colspan="2">
                             <field name="date_cash" placeholder="enter planned cash flow date"/>
                         </group>
-                        <group>
+                        <group colspan="4">
                             <field name="step_project_child_id" options="{'no_open': True,}"
                                    placeholder="select project steps"
                                    domain="[('id', 'in', parent.step_project_child_ids), ('stage_id.project_state', '!=', 'cancel')]"
@@ -103,11 +103,6 @@
                                    decoration-success="sum_cash == distribution_sum_with_vat"
                                    decoration-danger="sum_cash != distribution_sum_with_vat"
                             />
-                        </group>
-                        <group>
-                            <field name="margin" placeholder="enter margin sum"
-                                   attrs="{'readonly': [('margin_manual_input', '=', False)]}"/>
-                            <field name="margin_manual_input" placeholder="manual input of margin"/>
                         </group>
                     </group>
                     <field name="distribution_acceptance_ids" mode="tree" widget="section_and_note_one2many"

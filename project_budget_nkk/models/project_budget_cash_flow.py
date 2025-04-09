@@ -45,18 +45,32 @@ class FactCashFlow(models.Model):
 
     def write(self, vals):
         if not self.env.context.get('form_fix_budget'):
-            if 'planned_cash_flow_id' in vals:
-                if vals['planned_cash_flow_id']:
-                    self.env['project_budget.distribution_cash'].sudo().create({
-                        'fact_cash_flow_id': self.id,
-                        'planned_cash_flow_id': vals['planned_cash_flow_id'],
-                        'sum_cash_without_vat': self.sum_cash_without_vat,
-                        'sum_cash': self.sum_cash,
-                    })
+            if vals.get('planned_cash_flow_id'):
+                distribution = self.env['project_budget.distribution_cash'].search([
+                    ('planned_cash_flow_id', '=', vals['planned_cash_flow_id'])
+                ], limit=1)
+
+                if distribution:
+                    distribution.sum_cash = vals.get('sum_cash', 0)
                 else:
                     self.env['project_budget.distribution_cash'].sudo().search([
                         ('fact_cash_flow_id', '=', self.id)
                     ]).unlink()
+                    self.env['project_budget.distribution_cash'].sudo().create({
+                        'fact_cash_flow_id': self.id,
+                        'planned_cash_flow_id': vals['planned_cash_flow_id'],
+                        'sum_cash': vals.get('sum_cash', self.sum_cash)
+                    })
+            elif 'sum_cash' in vals and self.planned_cash_flow_id:
+                distribution = self.env['project_budget.distribution_cash'].sudo().search([
+                    ('fact_cash_flow_id', '=', self.id)
+                ], limit=1)
+                if distribution:
+                    distribution.sum_cash = vals['sum_cash']
+            elif 'planned_cash_flow_id' in vals and not vals['planned_cash_flow_id']:
+                self.env['project_budget.distribution_cash'].sudo().search([
+                    ('fact_cash_flow_id', '=', self.id)
+                ]).unlink()
         fact = super().write(vals)
         return fact
 

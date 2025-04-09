@@ -183,8 +183,8 @@ msgstr "Переключить направление"
 
 #. module: project_budget_nkk
 #: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__additional_margin
-#: model_terms:ir.ui.view,arch_db:project_budget_nkk.additional_margin_child_tree_form_inherit_nkk
-#: model_terms:ir.ui.view,arch_db:project_budget_nkk.additional_margin_view_form_inherit_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.currency_view_form_inherit_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.project_budget_project_child_view_tree
 msgid "Margin from Related Projects"
 msgstr "Маржа связанных проектов"
 
@@ -345,8 +345,8 @@ msgstr "Технологические направления"
 
 #. module: project_budget_nkk
 #: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__total_margin
-#: model_terms:ir.ui.view,arch_db:project_budget_nkk.additional_margin_child_tree_form_inherit_nkk
-#: model_terms:ir.ui.view,arch_db:project_budget_nkk.additional_margin_view_form_inherit_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.currency_view_form_inherit_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.project_budget_project_child_view_tree
 msgid "Total Margin"
 msgstr "Маржа итого"
 
@@ -537,3 +537,38 @@ msgstr "Прогноз актирования {0} указан в несколь
 #, python-format
 msgid "Cash forecast {0} is assigned to several facts"
 msgstr "Прогноз ПДС {0} указан в нескольких фактах"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__margin
+msgid "Margin income"
+msgstr "Маржа"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__margin_in_company_currency
+msgid "Margin income in company currency"
+msgstr "Маржа в НДЕ"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__cost_price
+msgid "Cost price"
+msgstr "Себестоимость проекта"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__cost_price_in_company_currency
+msgid "Cost price in company currency"
+msgstr "Себестоимость проекта в НДЕ"
+
+#. module: project_budget_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.crm_lead_view_kanban_inherit_nkk
+msgid "<span>Margin:</span>"
+msgstr "<span>Маржа:</span>"
+
+#. module: project_budget_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_nkk.crm_lead_view_kanban_inherit_nkk
+msgid "<span>Profitability:</span>"
+msgstr "<span>Рентабельность:</span>"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__profitability
+msgid "Profitability(share of Sale margin in revenue)"
+msgstr "Рентабельность"

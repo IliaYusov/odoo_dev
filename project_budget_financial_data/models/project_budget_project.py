@@ -111,7 +111,9 @@ class Project(models.Model):
             if row.other_expenses_amount_spec_exist:
                 row.other_expenses = self._get_sums_from_amount_spec_type(row, 'other_expenses')
 
-    total_amount_of_revenue = fields.Monetary(string='total_amount_of_revenue', compute='_compute_spec_totals',
+    # total_amount_of_revenue = fields.Monetary(string='total_amount_of_revenue', compute='_compute_spec_totals',
+    #                                           inverse='_inverse_spec_totals', store=True, tracking=True)
+    amount_untaxed = fields.Monetary(string='Amount untaxed', compute='_compute_spec_totals',
                                               inverse='_inverse_spec_totals', store=True, tracking=True)
     cost_price = fields.Monetary(string='cost_price', compute='_compute_spec_totals', inverse='_inverse_spec_totals',
                                  store=True, tracking=True)
@@ -316,7 +318,7 @@ class Project(models.Model):
         if not project.project_have_steps:
             self._compute_sums_from_amount_spec()
 
-            project.total_amount_of_revenue = project.revenue_from_the_sale_of_works + project.revenue_from_the_sale_of_goods
+            project.amount_untaxed = project.revenue_from_the_sale_of_works + project.revenue_from_the_sale_of_goods
 
             project.cost_price = project.cost_of_goods + project.own_works_fot + project.third_party_works + project.awards_on_results_project
             project.cost_price = project.cost_price + project.transportation_expenses + project.travel_expenses + project.representation_expenses
@@ -337,7 +339,7 @@ class Project(models.Model):
                     amount_spec.unlink()
                 # self.env["project_budget.amount_spec"].sudo().search([("id", "in", project.amount_spec_ids)]).unlink()
 
-            project.total_amount_of_revenue = 0
+            project.amount_untaxed = 0
             project.cost_price = 0
             project.taxes_fot_premiums = 0
             project.profitability = 0
@@ -355,7 +357,7 @@ class Project(models.Model):
             project.other_expenses = 0
             for step in project.step_project_child_ids:
                 if step.stage_id.code != '0':
-                    project.total_amount_of_revenue += step.total_amount_of_revenue
+                    project.amount_untaxed += step.amount_untaxed
                     project.cost_price += step.cost_price
                     project.taxes_fot_premiums += step.taxes_fot_premiums
                     project.revenue_from_the_sale_of_works += step.revenue_from_the_sale_of_works

@@ -454,10 +454,6 @@ class report_budget_forecast_excel(models.AbstractModel):
             sheet.merge_range(row-1, colbeg, row-1, column - 1, y[0], head_format_month)
         return column
 
-    def get_currency_rate_by_project(self,project):
-        project_currency_rates = self.env['project_budget.project_currency_rates']
-        return project_currency_rates._get_currency_rate_for_project_in_company_currency(project)
-
     def print_month_revenue_project(self, sheet, row, column, month, project, year, row_format_number,row_format_number_color_fact, next):
         global koeff_reserve
         global koeff_potential
@@ -471,27 +467,26 @@ class report_budget_forecast_excel(models.AbstractModel):
 
         if month:
             if month == project.end_presale_project_month.month and project.end_presale_project_month.year == year:
-                currency_rate = self.get_currency_rate_by_project(project)
                 if not next:
                     if project.stage_id.code in ('100','100(done)'):
-                        sheet.write_number(row, column + 0, project.total_amount_of_revenue_with_vat * currency_rate, row_format_number_color_fact)
-                        sum100tmp += project.total_amount_of_revenue_with_vat * currency_rate
+                        sheet.write_number(row, column + 0, project.amount_total_in_company_currency, row_format_number_color_fact)
+                        sum100tmp += project.amount_total_in_company_currency
                     if project.stage_id.code == '75':
-                        sheet.write_number(row, column + 1, project.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
-                        sum75tmp += project.total_amount_of_revenue_with_vat * currency_rate
+                        sheet.write_number(row, column + 1, project.amount_total_in_company_currency, row_format_number)
+                        sum75tmp += project.amount_total_in_company_currency
                     if project.stage_id.code == '50':
-                        sheet.write_number(row, column + 2, project.total_amount_of_revenue_with_vat * koeff_reserve * currency_rate, row_format_number)
-                        sum50tmp += project.total_amount_of_revenue_with_vat * koeff_reserve*currency_rate
+                        sheet.write_number(row, column + 2, project.amount_total_in_company_currency * koeff_reserve, row_format_number)
+                        sum50tmp += project.amount_total_in_company_currency * koeff_reserve
                     if project.stage_id.code == '30':
-                        sheet.write_number(row, column + 3, project.total_amount_of_revenue_with_vat * koeff_potential * currency_rate, row_format_number)
-                        sum30tmp += project.total_amount_of_revenue_with_vat * koeff_potential * currency_rate
+                        sheet.write_number(row, column + 3, project.amount_total_in_company_currency * koeff_potential, row_format_number)
+                        sum30tmp += project.amount_total_in_company_currency * koeff_potential
                 else:
                     if project.stage_id.code == '75':
-                        sheet.write_number(row, column + 0, project.total_amount_of_revenue_with_vat * currency_rate, row_format_number)
+                        sheet.write_number(row, column + 0, project.amount_total_in_company_currency, row_format_number)
                     if project.stage_id.code == '50':
-                        sheet.write_number(row, column + 1, project.total_amount_of_revenue_with_vat * koeff_reserve * currency_rate, row_format_number)
+                        sheet.write_number(row, column + 1, project.amount_total_in_company_currency * koeff_reserve, row_format_number)
                     if project.stage_id.code == '30':
-                        sheet.write_number(row, column + 2, project.total_amount_of_revenue_with_vat * koeff_potential * currency_rate, row_format_number)
+                        sheet.write_number(row, column + 2, project.amount_total_in_company_currency * koeff_potential, row_format_number)
         return sum75tmpetalon, sum50tmpetalon, sum100tmp, sum75tmp, sum50tmp, sum30tmp
 
     def print_year_pds_project(self, sheet, row, column, project, year, row_format_number, row_format_number_color_fact, next):
@@ -1450,7 +1445,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                 if acceptance.distribution_sum_without_vat_ostatok > 0:
                     year_acceptance_30 += acceptance.distribution_sum_without_vat_ostatok
         elif project.stage_id.code == '30' and project.end_sale_project_month.year == year:
-            year_acceptance_30 = project.total_amount_of_revenue
+            year_acceptance_30 = project.amount_untaxed_in_company_currency
 
         sheet.write_number(row, column + 3, year_acceptance_30, format)
 
@@ -1846,8 +1841,6 @@ class report_budget_forecast_excel(models.AbstractModel):
                                 and self.isProjectinYear(spec) == True
                                 and spec.vgo == '-'
                             ):
-                                cur_project_rate = self.get_currency_rate_by_project(spec)
-
                                 if begRowProjectsByManager == 0:
                                     begRowProjectsByManager = row
 
@@ -1893,7 +1886,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                 column += 1
                                 sheet.write_string(row, column, (spec.step_project_number or ''), cur_row_format)
                                 column += 1
-                                sheet.write_number(row, column, spec.total_amount_of_revenue_with_vat*cur_project_rate, cur_row_format_number)
+                                sheet.write_number(row, column, spec.amount_total_in_company_currency, cur_row_format_number)
                                 column += 1
                                 if spec.stage_id.code == '100':
                                     sheet.write_datetime(row, column, spec.end_presale_project_month, cur_row_format_date)

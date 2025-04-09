@@ -9,6 +9,8 @@ class FactAcceptanceFlow(models.Model):
                                                  store=True, string='planned_acceptance_flow',
                                                  domain='[("projects_id", "=", projects_id), ("distribution_acceptance_ids", "=", False)]')
     company_id = fields.Many2one(related='projects_id.company_id', readonly=True, store=True)
+    margin = fields.Monetary(string='Margin', compute='_compute_margin', inverse='_inverse_margin', store=True, copy=True)
+    margin_manual_input = fields.Boolean(string='Manual input of margin', default=False, copy=True)
 
     # ------------------------------------------------------
     # ACTIONS
@@ -24,6 +26,23 @@ class FactAcceptanceFlow(models.Model):
             'distribution_acceptance_ids': None,
             'planned_acceptance_flow_id': False,
         })
+
+    # ------------------------------------------------------
+    # COMPUTE METHODS
+    # ------------------------------------------------------
+
+    @api.depends("sum_cash_without_vat", "step_project_child_id.profitability", "projects_id.profitability", "margin_manual_input")
+    @api.onchange("sum_cash_without_vat", "margin_manual_input")
+    def _compute_margin(self):
+        for row in self:
+            if not row.margin_manual_input:
+                if row.project_have_steps:
+                    row.margin = row.sum_cash_without_vat * row.step_project_child_id.profitability / 100
+                else:
+                    row.margin = row.sum_cash_without_vat * row.projects_id.profitability / 100
+
+    def _inverse_margin(self):
+        pass
 
     # ------------------------------------------------------
     # CONSTRAINS
@@ -45,18 +64,32 @@ class FactAcceptanceFlow(models.Model):
 
     def write(self, vals):
         if not self.env.context.get('form_fix_budget'):
-            if 'planned_acceptance_flow_id' in vals:
-                if vals['planned_acceptance_flow_id']:
-                    self.env['project_budget.distribution_acceptance'].sudo().create({
-                        'fact_acceptance_flow_id': self.id,
-                        'planned_acceptance_flow_id': vals['planned_acceptance_flow_id'],
-                        'sum_cash_without_vat': self.sum_cash_without_vat,
-                        'sum_cash': self.sum_cash,
-                    })
+            if vals.get('planned_acceptance_flow_id'):
+                distribution = self.env['project_budget.distribution_acceptance'].search([
+                    ('planned_acceptance_flow_id', '=', vals['planned_acceptance_flow_id'])
+                ], limit=1)
+
+                if distribution:
+                    distribution.sum_cash_without_vat = vals.get('sum_cash_without_vat', 0)
                 else:
-                    self.env['project_budget.distribution_acceptance'].sudo().search([
+                    self.env['project_budget.distribution_acceptance'].search([
                         ('fact_acceptance_flow_id', '=', self.id)
                     ]).unlink()
+                    self.env['project_budget.distribution_acceptance'].create({
+                        'fact_acceptance_flow_id': self.id,
+                        'planned_acceptance_flow_id': vals['planned_acceptance_flow_id'],
+                        'sum_cash_without_vat': vals.get('sum_cash_without_vat', self.sum_cash_without_vat)
+                    })
+            elif 'sum_cash_without_vat' in vals and self.planned_acceptance_flow_id:
+                distribution = self.env['project_budget.distribution_acceptance'].search([
+                    ('fact_acceptance_flow_id', '=', self.id)
+                ], limit=1)
+                if distribution:
+                    distribution.sum_cash_without_vat = vals['sum_cash_without_vat']
+            elif 'planned_acceptance_flow_id' in vals and not vals['planned_acceptance_flow_id']:
+                self.env['project_budget.distribution_acceptance'].search([
+                    ('fact_acceptance_flow_id', '=', self.id)
+                ]).unlink()
         fact = super().write(vals)
         return fact
 

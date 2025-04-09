@@ -1854,7 +1854,7 @@ class ReportBudgetForecastExcel(models.AbstractModel):
                             column += 1
                             sheet.write_string(row, column, (project.step_project_number or ''), format)
                             column += 1
-                            sheet.write_number(row, column, project.total_amount_of_revenue_with_vat ,format)
+                            sheet.write_number(row, column, project.amount_total_in_company_currency ,format)
                             column += 1
                             if project.stage_id.code == '100':
                                 sheet.write_datetime(row, column, project.end_presale_project_month, format_date)

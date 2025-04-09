@@ -138,10 +138,6 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
                         sum_cash[pds.forecast] = sum_cash.get(pds.forecast, 0) + pds.sum_cash
         return sum_cash
 
-    def get_currency_rate_by_project(self, project):
-        project_currency_rates = self.env['project_budget.project_currency_rates']
-        return project_currency_rates._get_currency_rate_for_project_in_company_currency(project)
-
     def get_quarter_revenue_project(self, project, year, quarter):
 
         sum100tmp = 0
@@ -153,15 +149,14 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
 
         if months:
             if project.end_presale_project_month.month in months and project.end_presale_project_month.year == year:
-                currency_rate = self.get_currency_rate_by_project(project)
                 if project.stage_id.code in ('100', '100(done)'):
-                    sum100tmp += project.total_amount_of_revenue_with_vat * currency_rate
+                    sum100tmp += project.amount_total_in_company_currency
                 if project.stage_id.code == '75':
-                    sum75tmp += project.total_amount_of_revenue_with_vat * currency_rate
+                    sum75tmp += project.amount_total_in_company_currency
                 if project.stage_id.code == '50':
-                    sum50tmp += project.total_amount_of_revenue_with_vat * self.KOEFF_RESERVE * currency_rate
+                    sum50tmp += project.amount_total_in_company_currency * self.KOEFF_RESERVE
                 if project.stage_id.code == '30':
-                    sum30tmp += project.total_amount_of_revenue_with_vat * self.KOEFF_POTENTIAL * currency_rate
+                    sum30tmp += project.amount_total_in_company_currency * self.KOEFF_POTENTIAL
 
         return sum100tmp, sum75tmp, sum50tmp, sum30tmp
 

@@ -303,9 +303,9 @@ class report_projects_rawdata_excel(models.AbstractModel):
                 column += 1
                 sheet.write_string(row, column, (spec.vat_attribute_id.name or ""), row_format)
                 column += 1
-                sheet.write_number(row, column, spec.total_amount_of_revenue, row_format_number)
+                sheet.write_number(row, column, spec.amount_untaxed_in_company_currency, row_format_number)
                 column += 1
-                sheet.write_number(row, column, spec.total_amount_of_revenue_with_vat, row_format_number )
+                sheet.write_number(row, column, spec.amount_total_in_company_currency, row_format_number )
                 column += 1
                 sheet.write_number(row, column, spec.planned_acceptance_flow_sum_without_vat, row_format_number )
                 column += 1
@@ -315,7 +315,7 @@ class report_projects_rawdata_excel(models.AbstractModel):
                 column += 1
                 sheet.write_number(row, column, spec.revenue_from_the_sale_of_goods, row_format_number)
                 column += 1
-                sheet.write_number(row, column, spec.cost_price, row_format_number )
+                sheet.write_number(row, column, spec.cost_price_in_company_currency, row_format_number )
                 column += 1
                 sheet.write_number(row, column, spec.cost_of_goods, row_format_number )
                 column += 1
@@ -339,7 +339,7 @@ class report_projects_rawdata_excel(models.AbstractModel):
                 column += 1
                 sheet.write_number(row, column, spec.other_expenses, row_format_number )
                 column += 1
-                sheet.write_number(row, column, spec.margin_income, row_format_number )
+                sheet.write_number(row, column, spec.margin_in_company_currency, row_format_number )
                 column += 1
                 sheet.write_number(row, column, spec.profitability, row_format_number )
                 column += 1

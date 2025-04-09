@@ -151,7 +151,7 @@ class ReportContractingRevenueCashExcel(models.AbstractModel):
         col += 1
         sheet.write(row, col, self.get_quater_from_month(prj.end_presale_project_month.month) + ' ' + str(prj.end_presale_project_month.year), row_format)
         col += 1
-        sheet.write(row, col, prj.total_amount_of_revenue_with_vat, row_format_number)
+        sheet.write(row, col, prj.amount_total_in_company_currency, row_format_number)
         col += 1
         sheet.write(row, col, prj.comments or '', row_format)
 

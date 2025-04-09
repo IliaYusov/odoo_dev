@@ -4,24 +4,24 @@
 
 #. module: project_budget_financial_data
 #: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_step_form_inherit_nkk
-#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_form_inherit_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.project_budget_project_view_form_inherit_financial_data
 msgid "spec"
 msgstr "Расшифровка"
 
 #. module: project_budget_financial_data
-#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_form_inherit_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.project_budget_project_view_form_inherit_financial_data
 msgid "Financial indicators"
 msgstr "Финансовые показатели"
 
 #. module: project_budget_financial_data
 #: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_step_form_inherit_nkk
-#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_form_inherit_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.project_budget_project_view_form_inherit_financial_data
 msgid "Costs"
 msgstr "Затраты"
 
 #. module: project_budget_financial_data
 #: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_step_form_inherit_nkk
-#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_form_inherit_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.project_budget_project_view_form_inherit_financial_data
 msgid "Costs FOT"
 msgstr "Затраты на ФОТ"
 
@@ -32,13 +32,13 @@ msgstr "Просмотр/редактирование расшифровки с�
 
 #. module: project_budget_financial_data
 #: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_step_form_inherit_nkk
-#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_form_inherit_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.project_budget_project_view_form_inherit_financial_data
 msgid "Add spec revenue_from_the_sale_of_works"
 msgstr "Добавить расшифровку суммы выручка от реализации работ/услуг"
 
 #. module: project_budget_financial_data
 #: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_step_form_inherit_nkk
-#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_form_inherit_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.project_budget_project_view_form_inherit_financial_data
 msgid "View/edit spec revenue_from_the_sale_of_works"
 msgstr "Просмотр/редактирование выруки от реализации работ/услуг"
 
@@ -73,13 +73,13 @@ msgstr "Расшифровка суммы выручки от реализаци
 
 #. module: project_budget_financial_data
 #: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_step_form_inherit_nkk
-#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_form_inherit_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.project_budget_project_view_form_inherit_financial_data
 msgid "Add spec revenue_from_the_sale_of_goods"
 msgstr "Добавить расшифровку суммы выручка от реализации товара"
 
 #. module: project_budget_financial_data
 #: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_step_form_inherit_nkk
-#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.financial_data_view_form_inherit_nkk
+#: model_terms:ir.ui.view,arch_db:project_budget_financial_data.project_budget_project_view_form_inherit_financial_data
 msgid "View/edit spec revenue_from_the_sale_of_goods"
 msgstr "Просмотр/редактирование выруки от реализации товаров"
 
@@ -303,8 +303,8 @@ msgid "taxes_FOT and premiums"
 msgstr "Налоги на ФОТ и премии"
 
 #. module: project_budget_financial_data
-#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__total_amount_of_revenue
-msgid "total_amount_of_revenue"
+#: model:ir.model.fields,field_description:project_budget_financial_data.field_project_budget_projects__amount_untaxed
+msgid "Amount untaxed"
 msgstr "Сумма выручки"
 
 #. module: project_budget_financial_data

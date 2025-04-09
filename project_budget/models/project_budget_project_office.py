@@ -56,7 +56,7 @@ class ProjectOffice(models.Model):
     @api.depends('project_ids')
     def _compute_revenue(self):
         for rec in self:
-            rec.revenue = round(sum([pr.total_amount_of_revenue for pr in rec.project_ids]), 2) or 0
+            rec.revenue = round(sum([pr.amount_untaxed for pr in rec.project_ids]), 2) or 0
 
     @api.depends('project_ids')
     def _compute_cost(self):
@@ -66,4 +66,4 @@ class ProjectOffice(models.Model):
     @api.depends('project_ids')
     def _compute_margin(self):
         for rec in self:
-            rec.margin = round(sum([pr.margin_income for pr in rec.project_ids]), 2) or 0
+            rec.margin = round(sum([pr.margin for pr in rec.project_ids]), 2) or 0

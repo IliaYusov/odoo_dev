@@ -93,10 +93,7 @@
                 <field name="end_sale_project_month" optional="show"/>
                 <field name="end_presale_project_quarter" optional="hide"/>
                 <field name="end_sale_project_quarter" optional="hide"/>
-                <field name="total_amount_of_revenue" optional="show"/>
-                <field name="cost_price" optional="show"/>
-                <field name="margin_income" optional="show"/>
-                <field name="profitability" optional="hide"/>
+                <field name="amount_untaxed" optional="show"/>
                 <field name="stage_id" string="Probability" context="{'code_only': True}" optional="show"
                        options="{'always_reload': True}"/>
                 <field name="vat_attribute_id" optional="hide"/>
@@ -129,6 +126,8 @@
                     <field name="project_office_id" invisible="1"/>
                     <field name="is_correction_project" invisible="1"/>
                     <field name="is_not_for_mc_report" invisible="1"/>
+                    <field name="company_currency_id" invisible="1"/>
+                    <field name="is_currency_company" invisible="1"/>
                     <field name="can_edit" invisible='1'/>
                     <field name="active" invisible="1"/>
                     <group>
@@ -173,51 +172,39 @@
                         </tree>
                     </field>
 
-                    <group col ="3">
+                    <group name="amount" col ="4">
                         <group>
-                            <field name="total_amount_of_revenue"
+                            <field name="amount_untaxed"
                                    decoration-bf="1"
-                                   decoration-success="total_amount_of_revenue &gt; 0"
+                                   decoration-success="amount_untaxed &gt; 0"
                                    class="h5"
                             />
                         </group>
-                        <group>
-                            <field name="total_amount_of_revenue_with_vat"
+                        <group name="amount_total">
+                            <field name="amount_total"
                                    decoration-bf="1"
-                                   decoration-success="total_amount_of_revenue_with_vat &gt; 0"
+                                   decoration-success="amount_total &gt; 0"
                                    class="h5"
-                            />
-                        </group>
-                        <group>
-                            <field name="cost_price"
-                                   class="h5"
-                                   decoration-bf="1"
-                                   decoration-success="cost_price &gt; 0"
                             />
                         </group>
                     </group>
-
+                    <group col="4" attrs="{'invisible': [('is_currency_company', '=', True)]}">
+                            <group>
+                                <field name="amount_untaxed_in_company_currency" class="h5"
+                                       decoration-success="amount_untaxed_in_company_currency &gt; 0"/>
+                            </group>
+                            <group name="amount_total_in_company_currency">
+                                <field name="amount_total_in_company_currency" class="h5"
+                                       decoration-success="amount_total_in_company_currency &gt; 0"/>
+                            </group>
+                    </group>
                     <group name='margin' col="4">
-                        <group>
-                            <field name="margin_income"
-                                   decoration-bf="1"
-                                   decoration-success="margin_income &gt; 0"
-                                   decoration-danger="margin_income &lt; 0"
-                                   class="h5"
-                            />
-                        </group>
-                        <group>
-                            <field name="profitability"
-                                decoration-success="margin_income &gt; 0"
-                                decoration-danger="margin_income &lt; 0"
-                            />
-                        </group>
-                        <group>
+                        <group name="stage_id">
                             <field name="stage_id" string="Probability" context="{'code_only': True}"
                                    options="{'always_reload': True, 'no_open': True}"/>
                         </group>
                         <group>
-                            <field name="currency_id" options="{'no_open': True,}" />
+                            <field name="currency_id" readonly="1" options="{'no_open': True,}" />
                         </group>
                     </group>
                 </sheet>
@@ -263,6 +250,8 @@
                         <field name="active" invisible="1"/>
                         <field name="is_correction_project" invisible="1"/>
                         <field name="is_not_for_mc_report" invisible="1"/>
+                        <field name="company_currency_id" invisible="1"/>
+                        <field name="is_currency_company" invisible="1"/>
                         <widget name="web_ribbon" title="Archived" bg_color="bg-danger"
                                 attrs="{'invisible': [('active', '=', True)]}"/>
                         <group col="6">
@@ -300,37 +289,29 @@
                                 <field name="end_sale_project_month" attrs="{'readonly': [('can_edit', '=', False)]}"/>
                             </group>
                         </group>
-
                         <group col="4">
                             <group>
-                                <field name="total_amount_of_revenue" class="h5"
-                                       decoration-success="total_amount_of_revenue &gt; 0"/>
+                                <field name="amount_untaxed" class="h5"
+                                       decoration-success="amount_untaxed &gt; 0"/>
                             </group>
-                            <group>
-                                <field name="total_amount_of_revenue_with_vat" class="h5"
-                                       decoration-success="total_amount_of_revenue_with_vat &gt; 0"/>
+                            <group name="amount_total">
+                                <field name="amount_total" class="h5"
+                                       decoration-success="amount_total &gt; 0"/>
                             </group>
+                        </group>
+                        <group col="4" attrs="{'invisible': [('is_currency_company', '=', True)]}">
                             <group>
-                                <field name="cost_price" class="h5"
-                                       decoration-success="cost_price &gt; 0"/>
+                                <field name="amount_untaxed_in_company_currency" class="h5"
+                                       decoration-success="amount_untaxed_in_company_currency &gt; 0"/>
                             </group>
-                            <group>
-                                <field name="margin_income" class="h5"
-                                       decoration-success="margin_income &gt; 0"
-                                       decoration-danger="margin_income &lt; 0"/>
+                            <group name="amount_total_in_company_currency">
+                                <field name="amount_total_in_company_currency" class="h5"
+                                       decoration-success="amount_total_in_company_currency &gt; 0"/>
                             </group>
                         </group>
                         <group col="4">
-                            <h5>
-                                <group>
-                                    <field name="profitability"
-                                           decoration-success="margin_income &gt; 0"
-                                           decoration-danger="margin_income &lt; 0"/>
-                                </group>
-                            </h5>
-                            <group>
-<!--                                <field name="currency_id" options="{'no_open': True}" attrs="{'readonly': ['|',('budget_state', '=', 'fixed'),('approve_state','!=','need_approve_manager')]}"/>-->
-                                <field name="currency_id" attrs="{'readonly': True}" options="{'no_open': True}"/>
+                            <group name="currency_id">
+                                <field name="currency_id" attrs="{'readonly': [('can_edit', '=', False)]}" options="{'no_open': True}"/>
                             </group>
                             <group>
                                 <field name="dogovor_number" attrs="{'readonly': [('can_edit', '=', False)]}"/>
@@ -420,6 +401,8 @@
                                    'form_view_ref': 'project_budget.project_budget_step_project_view_form',
                                    'default_step_status': 'step',
                                    'default_company_id': company_id,
+                                   'default_company_currency_id': company_currency_id,
+                                   'default_is_currency_company': is_currency_company,
                                    'default_currency_id': currency_id,
                                    'default_commercial_budget_id': commercial_budget_id,
                                    'default_key_account_manager_id': key_account_manager_id,
@@ -446,10 +429,8 @@
                                         <field name="end_presale_project_month" optional="show" />
                                         <field name="end_sale_project_month" optional="show" />
                                         <field name="vat_attribute_id" optional="show"/>
-                                        <field name="total_amount_of_revenue" optional="show" />
-                                        <field name="total_amount_of_revenue_with_vat" optional="show" />
-                                        <field name="margin_income" optional="show" />
-                                        <field name="profitability" optional="show" />
+                                        <field name="amount_untaxed" optional="show" />
+                                        <field name="amount_total" optional="show" />
                                         <field name="budget_state" optional="hide" />
                                         <field name="approve_state" optional="hide" />
                                     </tree>
@@ -463,13 +444,13 @@
                                         </group>
                                         <group colspan="2">
                                             <field name="planned_acceptance_flow_sum_without_vat"
-                                                   decoration-success="((total_amount_of_revenue - planned_acceptance_flow_sum_without_vat) * (total_amount_of_revenue - planned_acceptance_flow_sum_without_vat)) &lt; 0.1"
-                                                   decoration-danger="((total_amount_of_revenue - planned_acceptance_flow_sum_without_vat) * (total_amount_of_revenue - planned_acceptance_flow_sum_without_vat)) &gt;= 0.1"/>
+                                                   decoration-success="((amount_untaxed - planned_acceptance_flow_sum_without_vat) * (amount_untaxed - planned_acceptance_flow_sum_without_vat)) &lt; 0.1"
+                                                   decoration-danger="((amount_untaxed - planned_acceptance_flow_sum_without_vat) * (amount_untaxed - planned_acceptance_flow_sum_without_vat)) &gt;= 0.1"/>
                                         </group>
                                         <group colspan="2">
                                             <field name="planned_acceptance_flow_sum"
-                                                   decoration-success="((total_amount_of_revenue_with_vat - planned_acceptance_flow_sum) * (total_amount_of_revenue_with_vat - planned_acceptance_flow_sum)) &lt; 0.1"
-                                                   decoration-danger="((total_amount_of_revenue_with_vat - planned_acceptance_flow_sum) * (total_amount_of_revenue_with_vat - planned_acceptance_flow_sum)) &gt;= 0.1"/>
+                                                   decoration-success="((amount_total - planned_acceptance_flow_sum) * (amount_total - planned_acceptance_flow_sum)) &lt; 0.1"
+                                                   decoration-danger="((amount_total - planned_acceptance_flow_sum) * (amount_total - planned_acceptance_flow_sum)) &gt;= 0.1"/>
                                         </group>
                                     </group>
                                 </h4>
@@ -480,8 +461,8 @@
                                         <group string="planned_cash_flow"/>
                                         <group>
                                             <field name="planned_cash_flow_sum"
-                                                   decoration-success="((total_amount_of_revenue_with_vat - planned_cash_flow_sum) * (total_amount_of_revenue_with_vat - planned_cash_flow_sum)) &lt; 0.1"
-                                                   decoration-danger="((total_amount_of_revenue_with_vat - planned_cash_flow_sum) * (total_amount_of_revenue_with_vat - planned_cash_flow_sum)) &gt;= 0.1"/>
+                                                   decoration-success="((amount_total - planned_cash_flow_sum) * (amount_total - planned_cash_flow_sum)) &lt; 0.1"
+                                                   decoration-danger="((amount_total - planned_cash_flow_sum) * (amount_total - planned_cash_flow_sum)) &gt;= 0.1"/>
                                         </group>
                                     </group>
                                 </h4>
@@ -496,13 +477,13 @@
                                         </group>
                                         <group colspan="2">
                                             <field name="fact_acceptance_flow_sum_without_vat"
-                                                   decoration-success="((total_amount_of_revenue - fact_acceptance_flow_sum_without_vat) * (total_amount_of_revenue - fact_acceptance_flow_sum_without_vat)) &lt; 0.1"
-                                                   decoration-danger="((total_amount_of_revenue - fact_acceptance_flow_sum_without_vat) * (total_amount_of_revenue - fact_acceptance_flow_sum_without_vat)) &gt;= 0.1"/>
+                                                   decoration-success="((amount_untaxed - fact_acceptance_flow_sum_without_vat) * (amount_untaxed - fact_acceptance_flow_sum_without_vat)) &lt; 0.1"
+                                                   decoration-danger="((amount_untaxed - fact_acceptance_flow_sum_without_vat) * (amount_untaxed - fact_acceptance_flow_sum_without_vat)) &gt;= 0.1"/>
                                         </group>
                                         <group colspan="2">
                                             <field name="fact_acceptance_flow_sum"
-                                                   decoration-success="((total_amount_of_revenue_with_vat - fact_acceptance_flow_sum) * (total_amount_of_revenue_with_vat - fact_acceptance_flow_sum)) &lt; 0.1"
-                                                   decoration-danger="((total_amount_of_revenue_with_vat - fact_acceptance_flow_sum) * (total_amount_of_revenue_with_vat - fact_acceptance_flow_sum)) &gt;= 0.1"/>
+                                                   decoration-success="((amount_total - fact_acceptance_flow_sum) * (amount_total - fact_acceptance_flow_sum)) &lt; 0.1"
+                                                   decoration-danger="((amount_total - fact_acceptance_flow_sum) * (amount_total - fact_acceptance_flow_sum)) &gt;= 0.1"/>
                                         </group>
                                     </group>
                                 </h4>
@@ -513,8 +494,8 @@
                                         <group string="fact_cash_flow"/>
                                         <group>
                                             <field name="fact_cash_flow_sum"
-                                                   decoration-success="((total_amount_of_revenue_with_vat - fact_cash_flow_sum) * (total_amount_of_revenue_with_vat - fact_cash_flow_sum)) &lt; 0.1"
-                                                   decoration-danger="((total_amount_of_revenue_with_vat - fact_cash_flow_sum) * (total_amount_of_revenue_with_vat - fact_cash_flow_sum)) &gt;= 0.1"/>
+                                                   decoration-success="((amount_total - fact_cash_flow_sum) * (amount_total - fact_cash_flow_sum)) &lt; 0.1"
+                                                   decoration-danger="((amount_total - fact_cash_flow_sum) * (amount_total - fact_cash_flow_sum)) &gt;= 0.1"/>
                                         </group>
                                     </group>
                                 </h4>
@@ -620,8 +601,7 @@
                 <field name="currency_id"/>
                 <field name="project_status"/>
                 <field name="essence_project"/>
-                <field name="margin_income"/>
-                <field name="total_amount_of_revenue"/>
+                <field name="amount_untaxed"/>
                 <field name="partner_id"/>
                 <field name="end_presale_project_month"/>
                 <field name="end_sale_project_month"/>
@@ -638,10 +618,10 @@
                 <field name="signer_id"/>
                 <field name="approve_state"/>
                 <field name="project_have_steps"/>
-                <field name="profitability"/>
+                <field name="company_id"/>
 <!--            Поведение виджета переопределено, нужно написать свой-->
                 <progressbar field="activity_state" colors='{"planned": "success"}'
-                             sum_field="total_amount_of_revenue"/>
+                             sum_field="amount_untaxed_in_company_currency"/>
                 <templates>
                     <t t-name="kanban-box">
                         <div t-attf-class="#{kanban_color(record.color.raw_value)} oe_kanban_card oe_kanban_global_click">
@@ -693,20 +673,10 @@
                                         <span>Have steps:</span>
                                         <field name="project_have_steps"/>
                                     </div>
-                                    <div t-if="record.total_amount_of_revenue.raw_value"
+                                    <div name="amount_untaxed" t-if="record.amount_untaxed.raw_value"
                                          class="d-flex justify-content-between font-weight-bold">
                                         <span>Revenue:</span>
-                                        <field name="total_amount_of_revenue" widget="monetary"/>
-                                    </div>
-                                    <div t-if="record.margin_income.raw_value"
-                                         class="d-flex justify-content-between font-weight-bold">
-                                        <span>Margin:</span>
-                                        <field name="margin_income" widget="monetary"/>
-                                    </div>
-                                    <div t-if="record.profitability.raw_value"
-                                         class="d-flex justify-content-between font-weight-bold">
-                                        <div>Profitability:</div>
-                                        <div><field name="profitability" widget="float"/>%</div>
+                                        <field name="amount_untaxed" widget="monetary"/>
                                     </div>
                                 </div>
                                 <div class="o_kanban_record_bottom" t-if="!selection_mode">
@@ -761,10 +731,7 @@
                 <field name="essence_project"/>
                 <field name="end_presale_project_quarter"/>
                 <field name="end_sale_project_quarter"/>
-                <field name="total_amount_of_revenue" type="measure"/>
-                <field name="cost_price" type="measure"/>
-                <field name="margin_income" type="measure"/>
-                <field name="profitability" type="measure"/>
+                <field name="amount_untaxed" type="measure"/>
                 <field name="stage_id"/>
                 <field name="vat_attribute_id"/>
                 <field name="signer_id"/>

@@ -168,12 +168,6 @@ msgstr "<span>Этапность:</span>"
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_office_view_kanban
 #: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_view_kanban
-msgid "<span>Margin:</span>"
-msgstr "<span>Маржа:</span>"
-
-#. module: project_budget
-#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_office_view_kanban
-#: model_terms:ir.ui.view,arch_db:project_budget.project_budget_project_view_kanban
 msgid "<span>Revenue:</span>"
 msgstr "<span>Выручка:</span>"
 
@@ -1638,11 +1632,6 @@ msgid "Margin"
 msgstr "Маржа 1"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__margin_income
-msgid "Margin income"
-msgstr "Маржа"
-
-#. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__project_member_ids
 msgid "Members"
 msgstr "Участники"
@@ -2164,11 +2153,6 @@ msgstr "Вероятность"
 #, python-format
 msgid "Production"
 msgstr "ПБ"
-
-#. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__profitability
-msgid "Profitability(share of Sale margin in revenue)"
-msgstr "Рентабельность"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_link_project_wizard__project_id
@@ -3320,11 +3304,6 @@ msgstr "Контрактование"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_supervisor__sum_contracting_year_6_6
 msgid "contracting plan year 6+6"
 msgstr "Контрактование 6+6"
-
-#. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__cost_price
-msgid "cost_price"
-msgstr "Себестоимость проекта"
 
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_projects_tenders_sums_form
@@ -4914,14 +4893,24 @@ msgid "to date"
 msgstr "конец периода отчета (вкл)"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__total_amount_of_revenue
-msgid "total_amount_of_revenue"
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__amount_untaxed
+msgid "Amount untaxed"
 msgstr "Сумма выручки"
 
 #. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__total_amount_of_revenue_with_vat
-msgid "total_amount_of_revenue_with_vat"
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__amount_total
+msgid "Amount total"
 msgstr "Сумма контрактования"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__amount_untaxed_in_company_currency
+msgid "Amount untaxed in company currency"
+msgstr "Сумма выручки в НДЕ"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__amount_total_in_company_currency
+msgid "Amount total in company currency"
+msgstr "Сумма контрактования в НДЕ"
 
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
