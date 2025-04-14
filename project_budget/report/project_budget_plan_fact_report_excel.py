@@ -670,7 +670,7 @@ class ReportBudgetPlanFactExcel(models.AbstractModel):
                             data.setdefault(company.name, {}).setdefault(parent_center.name, {}).setdefault(center_section, {}).setdefault(year, {}).setdefault('Q4', {}).setdefault('plan_6_6', 0)
                             data[company.name][parent_center.name][center_section][year]['Q4']['plan_6_6'] += section_plan.q4_plan_6_6
                             parent_center = parent_center.parent_id
-                    for manager in self.env['hr.employee'].search(
+                    for manager in self.env['hr.employee'].with_context(active_test=False).search(
                             [('name', 'in', tuple(data[company.name].keys())), ('company_id.name', '=', company.name)]):
                         section_plan = self.env['project_budget.budget_plan_kam_spec'].search([
                             ('budget_plan_kam_id.year', '=', year),
