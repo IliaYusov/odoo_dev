@@ -9,7 +9,7 @@
                 <field name="use_financial_data" invisible="1"/>
             </xpath>
             <xpath expr="//field[@name='cost_price']" position="attributes">
-                <attribute name="attrs">{'readonly': ['|', ('project_have_steps', '=', True), ('use_financial_data', '=', True)]}</attribute>
+                <attribute name="attrs">{'readonly': ['|', '|', ('project_have_steps', '=', True), ('use_financial_data', '=', True), ('can_edit', '=', False)]}</attribute>
             </xpath>
         </field>
     </record>
@@ -23,7 +23,7 @@
                 <field name="use_financial_data" invisible="1"/>
             </xpath>
             <xpath expr="//field[@name='cost_price']" position="attributes">
-                <attribute name="attrs">{'readonly': ['|', ('project_have_steps', '=', True), ('use_financial_data', '=', True)]}</attribute>
+                <attribute name="attrs">{'readonly': ['|', '|', ('project_have_steps', '=', True), ('use_financial_data', '=', True), ('can_edit', '=', False)]}</attribute>
             </xpath>
         </field>
     </record>
@@ -34,7 +34,7 @@
         <field name="inherit_id" ref="project_budget.show_comercial_budget_spec_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='amount_untaxed']" position="attributes">
-                <attribute name="attrs">{'readonly': ['|', ('project_have_steps', '=', True), ('use_financial_data', '=', True)]}</attribute>
+                <attribute name="attrs">{'readonly': ['|', '|', ('project_have_steps', '=', True), ('use_financial_data', '=', True), ('can_edit', '=', False)]}</attribute>
             </xpath>
             <xpath expr="//field[@name='currency_id']" position="attributes">
                 <attribute name="attrs">{'readonly': ['|', ('use_financial_data', '=', True), ('can_edit', '=', False)]}</attribute>
@@ -292,7 +292,7 @@
         <field name="inherit_id" ref="project_budget.project_budget_step_project_view_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='amount_untaxed']" position="attributes">
-                <attribute name="attrs">{'readonly': ['|', ('project_have_steps', '=', True), ('use_financial_data', '=', True)]}</attribute>
+                <attribute name="attrs">{'readonly': ['|', '|', ('project_have_steps', '=', True), ('use_financial_data', '=', True), ('can_edit', '=', False)]}</attribute>
             </xpath>
             <xpath expr="//group[@name='margin']" position="after">
                 <field name="is_revenue_from_the_sale_of_works"  invisible="1"/>
