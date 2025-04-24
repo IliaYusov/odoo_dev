@@ -113,12 +113,10 @@ class Project(models.Model):
 
     # total_amount_of_revenue = fields.Monetary(string='total_amount_of_revenue', compute='_compute_spec_totals',
     #                                           inverse='_inverse_spec_totals', store=True, tracking=True)
-    amount_untaxed = fields.Monetary(string='Amount untaxed', compute='_compute_spec_totals',
-                                              inverse='_inverse_spec_totals', store=True, tracking=True)
-    cost_price = fields.Monetary(string='cost_price', compute='_compute_spec_totals', inverse='_inverse_spec_totals',
-                                 store=True, tracking=True)
-
+    amount_untaxed = fields.Monetary(string='Amount untaxed', compute='_compute_spec_totals', readonly=False)
+    cost_price = fields.Monetary(string='cost_price', compute='_compute_spec_totals', readonly=False)
     revenue_from_the_sale_of_works = fields.Monetary(string='revenue_from_the_sale_of_works(services)',tracking=True, )
+
     revenue_from_the_sale_of_works_amount_spec_exist = fields.Boolean(string='revenue_from_the_sale_of_works_amount_spec_exist', compute="_exists_amount_spec")
     revenue_from_the_sale_of_goods_amount_spec_exist = fields.Boolean(string='revenue_from_the_sale_of_goods_amount_spec_exist', compute="_exists_amount_spec")
     cost_of_goods_amount_spec_exist = fields.Boolean(string='cost_of_goods_amount_spec_exist', compute="_exists_amount_spec")
@@ -318,60 +316,94 @@ class Project(models.Model):
         if not project.project_have_steps:
             self._compute_sums_from_amount_spec()
 
-            project.amount_untaxed = project.revenue_from_the_sale_of_works + project.revenue_from_the_sale_of_goods
-
-            project.cost_price = project.cost_of_goods + project.own_works_fot + project.third_party_works + project.awards_on_results_project
-            project.cost_price = project.cost_price + project.transportation_expenses + project.travel_expenses + project.representation_expenses
-            project.cost_price = project.cost_price + project.warranty_service_costs + project.rko_other + project.other_expenses
+            taxes_fot_premiums = project.taxes_fot_premiums
             if not project.is_percent_fot_manual:
-                project.taxes_fot_premiums = (project.awards_on_results_project + project.own_works_fot) * project.percent_fot / 100
+                taxes_fot_premiums = (project.awards_on_results_project + project.own_works_fot) * project.percent_fot / 100
 
-            project.cost_price = project.cost_price + project.taxes_fot_premiums
-
+            amount_untaxed = project.revenue_from_the_sale_of_works + project.revenue_from_the_sale_of_goods
+            cost_price = (
+                    project.cost_of_goods + project.own_works_fot + project.third_party_works
+                    + project.awards_on_results_project + project.transportation_expenses + project.travel_expenses
+                    + project.representation_expenses + project.warranty_service_costs + project.rko_other
+                    + project.other_expenses + taxes_fot_premiums
+            )
+            project.taxes_fot_premiums = taxes_fot_premiums
+            project.amount_untaxed = amount_untaxed
+            project.cost_price = cost_price
         elif project.project_have_steps and project.step_status == 'project':
             # self._compute_sums_from_amount_spec()
-            print('elif project.project_have_steps == True: row.amount_spec_ids =', project.amount_spec_ids)
 
             for amount_spec in project.amount_spec_ids:
                 cur_idstr = str(amount_spec.id)
                 if cur_idstr.isdigit():
-                    print('elif project.project_have_steps == True: amount_spec =', amount_spec)
                     amount_spec.unlink()
                 # self.env["project_budget.amount_spec"].sudo().search([("id", "in", project.amount_spec_ids)]).unlink()
 
-            project.amount_untaxed = 0
-            project.cost_price = 0
-            project.taxes_fot_premiums = 0
-            project.profitability = 0
-            project.revenue_from_the_sale_of_works = 0
-            project.revenue_from_the_sale_of_goods = 0
-            project.cost_of_goods = 0
-            project.own_works_fot = 0
-            project.third_party_works = 0
-            project.awards_on_results_project = 0
-            project.transportation_expenses = 0
-            project.travel_expenses = 0
-            project.representation_expenses = 0
-            project.warranty_service_costs = 0
-            project.rko_other = 0
-            project.other_expenses = 0
+            amount_untaxed = 0
+            cost_price = 0
+            taxes_fot_premiums = 0
+            revenue_from_the_sale_of_works = 0
+            revenue_from_the_sale_of_goods = 0
+            cost_of_goods = 0
+            own_works_fot = 0
+            third_party_works = 0
+            awards_on_results_project = 0
+            transportation_expenses = 0
+            travel_expenses = 0
+            representation_expenses = 0
+            warranty_service_costs = 0
+            rko_other = 0
+            other_expenses = 0
             for step in project.step_project_child_ids:
                 if step.stage_id.code != '0':
-                    project.amount_untaxed += step.amount_untaxed
-                    project.cost_price += step.cost_price
-                    project.taxes_fot_premiums += step.taxes_fot_premiums
-                    project.revenue_from_the_sale_of_works += step.revenue_from_the_sale_of_works
-                    project.revenue_from_the_sale_of_goods += step.revenue_from_the_sale_of_goods
-                    project.cost_of_goods += step.cost_of_goods
-                    project.own_works_fot += step.own_works_fot
-                    project.third_party_works += step.third_party_works
-                    project.awards_on_results_project += step.awards_on_results_project
-                    project.transportation_expenses += step.transportation_expenses
-                    project.travel_expenses += step.travel_expenses
-                    project.representation_expenses += step.representation_expenses
-                    project.warranty_service_costs += step.warranty_service_costs
-                    project.rko_other += step.rko_other
-                    project.other_expenses += step.other_expenses
+                    amount_untaxed += step.amount_untaxed
+                    cost_price += step.cost_price
+                    taxes_fot_premiums += step.taxes_fot_premiums
+                    revenue_from_the_sale_of_works += step.revenue_from_the_sale_of_works
+                    revenue_from_the_sale_of_goods += step.revenue_from_the_sale_of_goods
+                    cost_of_goods += step.cost_of_goods
+                    own_works_fot += step.own_works_fot
+                    third_party_works += step.third_party_works
+                    awards_on_results_project += step.awards_on_results_project
+                    transportation_expenses += step.transportation_expenses
+                    travel_expenses += step.travel_expenses
+                    representation_expenses += step.representation_expenses
+                    warranty_service_costs += step.warranty_service_costs
+                    rko_other += step.rko_other
+                    other_expenses += step.other_expenses
+            # project.amount_untaxed = amount_untaxed
+            # project.cost_price = cost_price
+            # project.taxes_fot_premiums = taxes_fot_premiums
+            # project.revenue_from_the_sale_of_works = revenue_from_the_sale_of_works
+            # project.revenue_from_the_sale_of_goods = revenue_from_the_sale_of_goods
+            # project.cost_of_goods = cost_of_goods
+            # project.own_works_fot = own_works_fot
+            # project.third_party_works = third_party_works
+            # project.awards_on_results_project = awards_on_results_project
+            # project.transportation_expenses = transportation_expenses
+            # project.travel_expenses = travel_expenses
+            # project.representation_expenses = representation_expenses
+            # project.warranty_service_costs = warranty_service_costs
+            # project.rko_other = rko_other
+            # project.other_expenses = other_expenses
+
+            project.with_context(form_fix_budget=True).write({
+                'amount_untaxed': amount_untaxed,
+                'cost_price': cost_price,
+                'taxes_fot_premiums': taxes_fot_premiums,
+                'revenue_from_the_sale_of_works': revenue_from_the_sale_of_works,
+                'revenue_from_the_sale_of_goods': revenue_from_the_sale_of_goods,
+                'cost_of_goods': cost_of_goods,
+                'own_works_fot': own_works_fot,
+                'third_party_works': third_party_works,
+                'awards_on_results_project': awards_on_results_project,
+                'transportation_expenses': transportation_expenses,
+                'travel_expenses': travel_expenses,
+                'representation_expenses': representation_expenses,
+                'warranty_service_costs': warranty_service_costs,
+                'rko_other': rko_other,
+                'other_expenses': other_expenses,
+            })
 
     @api.depends('taxes_fot_premiums', "revenue_from_the_sale_of_works", 'revenue_from_the_sale_of_goods',
                  'cost_of_goods', 'own_works_fot', 'third_party_works', "awards_on_results_project",
@@ -382,9 +414,6 @@ class Project(models.Model):
         for project in self.sorted(lambda p: p.step_status == 'project'):  # сначала этапы, потом проекты
             if project.company_id.use_financial_data:
                 self._calculate_all_sums(project)
-
-    def _inverse_spec_totals(self):
-        pass
 
     # @api.onchange('project_office_id','project_status','currency_id','project_curator_id','key_account_manager_id',
     #               'industry_id','essence_project','end_presale_project_month','end_sale_project_month','vat_attribute_id','total_amount_of_revenue',

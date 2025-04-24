@@ -57,11 +57,11 @@ FROM
         p.essence_project AS name,	
         CASE
             WHEN end_presale_project_month < CURRENT_DATE THEN 'Дата контрактования'
-            WHEN end_sale_project_month < CURRENT_DATE THEN 'Дата последней отгрузки'
+            WHEN end_sale_project_month < CURRENT_DATE AND p.company_id <> 10 THEN 'Дата последней отгрузки'
         END AS overdue,
         CASE
             WHEN end_presale_project_month >= CURRENT_DATE AND end_presale_project_month < CURRENT_DATE + INTERVAL '7' DAY THEN 'Дата контрактования'
-            WHEN end_sale_project_month >= CURRENT_DATE AND end_sale_project_month < CURRENT_DATE + INTERVAL '7' DAY THEN 'Дата последней отгрузки'
+            WHEN end_sale_project_month >= CURRENT_DATE AND end_sale_project_month < CURRENT_DATE + INTERVAL '7' DAY AND p.company_id <> 10 THEN 'Дата последней отгрузки'
         END AS overdue_in_7_days
     FROM project_budget_projects p
     INNER JOIN project_budget_project_stage st ON st.id = p.stage_id AND COALESCE(st.fold, false) = false
@@ -84,15 +84,14 @@ FROM
         p.essence_project AS name,	
         CASE
             WHEN ps.end_presale_project_month < CURRENT_DATE THEN 'Дата контрактования'
-            WHEN ps.end_sale_project_month < CURRENT_DATE THEN 'Дата последней отгрузки'
+            WHEN ps.end_sale_project_month < CURRENT_DATE AND p.company_id <> 10 THEN 'Дата последней отгрузки'
         END AS overdue,
         CASE
             WHEN ps.end_presale_project_month >= CURRENT_DATE AND ps.end_presale_project_month < CURRENT_DATE + INTERVAL '7' DAY THEN 'Дата контрактования'
-            WHEN ps.end_sale_project_month >= CURRENT_DATE AND ps.end_sale_project_month < CURRENT_DATE + INTERVAL '7' DAY THEN 'Дата последней отгрузки'
+            WHEN ps.end_sale_project_month >= CURRENT_DATE AND ps.end_sale_project_month < CURRENT_DATE + INTERVAL '7' DAY AND p.company_id <> 10 THEN 'Дата последней отгрузки'
         END AS overdue_in_7_days
     FROM project_budget_projects ps
     INNER JOIN project_budget_projects p ON p.id = ps.step_project_parent_id AND p.budget_state = 'work' AND p.active = true
-    AND p.end_presale_project_month > CURRENT_DATE AND p.end_sale_project_month > CURRENT_DATE
     AND p.project_have_steps = true
     INNER JOIN project_budget_project_stage st ON st.id = ps.stage_id AND COALESCE(st.fold, false) = false
     AND st.code <> '100'

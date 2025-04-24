@@ -878,42 +878,31 @@ msgstr "ЗАПРЕЩЕНО!. Проект {0} имеет просроченну�
 #. odoo-python
 #: code:addons/project_budget/models/project_budget_project.py:0
 #, python-format
-msgid "DENIED. Project {0} have overdue end sale project month {1}"
-msgstr "ЗАПРЕЩЕНО!. Проект {0} имеет просроченную дату последней отгрузки {1}"
+msgid "DENIED. Step {0} have overdue end presale project month {1}"
+msgstr "ЗАПРЕЩЕНО! Этап {0} имеет просроченную дату контрактования: {1}"
 
 #. module: project_budget
 #. odoo-python
 #: code:addons/project_budget/models/project_budget_project.py:0
 #, python-format
 msgid ""
-"DENIED. Project {0} have overdue planned acceptance flow  without fact {1}"
+"DENIED. Project {0} have overdue planned {2} flow without fact {1}"
 msgstr ""
-"ЗАПРЕЩЕНО!. Проект {0} имеет просроченную плановую дату актирования {1}"
+"ЗАПРЕЩЕНО! Прогноз {2} проекта {0} имеет просроченную плановую дату: {1}"
 
 #. module: project_budget
 #. odoo-python
 #: code:addons/project_budget/models/project_budget_project.py:0
 #, python-format
-msgid "DENIED. Project {0} have overdue planned cash flow  without fact {1}"
-msgstr "ЗАПРЕЩЕНО!. Проект {0} имеет просроченную плановую дату ПДС {1}"
+msgid "acceptance"
+msgstr "актирования"
 
 #. module: project_budget
 #. odoo-python
 #: code:addons/project_budget/models/project_budget_project.py:0
 #, python-format
-msgid ""
-"DENIED. Project {0} step {1} have overdue end presale project month {2}"
-msgstr ""
-"ЗАПРЕЩЕНО!. Проект {0} этап {1} имеет просроченную дату контрактования {2}"
-
-#. module: project_budget
-#. odoo-python
-#: code:addons/project_budget/models/project_budget_project.py:0
-#, python-format
-msgid "DENIED. Project {0} step {1} have overdue end sale project month {2}"
-msgstr ""
-"ЗАПРЕЩЕНО!. Проект {0} этап {1} имеет просроченную дату последней отгрузки "
-"{2}"
+msgid "cash"
+msgstr "ПДС"
 
 #. module: project_budget
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_report_external_data__data
@@ -1054,11 +1043,6 @@ msgstr "Сотрудник"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__end_presale_project_quarter
 msgid "End date of the Presale project(quarter)"
 msgstr "Квартал контрактования"
-
-#. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__end_sale_project_quarter
-msgid "End date of the Sale project(quarter)"
-msgstr "Квартал последней отгрузки"
 
 #. module: project_budget
 #: model_terms:ir.ui.view,arch_db:project_budget.show_comercial_budget_spec_form
@@ -2933,11 +2917,6 @@ msgstr "Тендеры"
 #, python-format
 msgid "Tenders with that term not found!"
 msgstr "По указанным условиям тендеры не найдены"
-
-#. module: project_budget
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__end_sale_project_month
-msgid "The period of shipment or provision of services to the Client(MONTH)"
-msgstr "Последняя отгрузка"
 
 #. module: project_budget
 #. odoo-python

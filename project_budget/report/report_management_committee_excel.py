@@ -1281,11 +1281,11 @@ class report_management_committee_excel(models.AbstractModel):
                     else:
                         margin_sum['commitment'] = margin_plan['commitment'] - mrg_fact_wo_distribution
 
-            if all(value == 0 for value in sum_q1.values()) and project.end_sale_project_month.year == YEARint + 1 and project.end_sale_project_month.month in self.get_months_from_quarter('Q1'):  # если актирование 0, а месяц в нужном году, берем выручку
+            if all(value == 0 for value in sum_q1.values()) and project.company_id.id != 10 and project.end_sale_project_month.year == YEARint + 1 and project.end_sale_project_month.month in self.get_months_from_quarter('Q1'):  # если актирование 0, а месяц в нужном году, берем выручку
                 if project.stage_id.code == '30':
                     sum_q1['potential'] = project.amount_untaxed_in_company_currency
             #
-            if all(value == 0 for value in sum.values()) and project.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
+            if all(value == 0 for value in sum.values()) and project.company_id.id != 10 and project.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
                 if project.stage_id.code == '30':
                     sum['potential'] = project.amount_untaxed_in_company_currency
 
@@ -1355,7 +1355,7 @@ class report_management_committee_excel(models.AbstractModel):
                     else:
                         margin_sum['commitment'] = margin_plan['commitment'] - mgr_fact_wo_distributions
 
-            if all(value == 0 for value in sum.values()) and project.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
+            if all(value == 0 for value in sum.values()) and project.company_id.id != 10 and project.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
                 if project.stage_id.code == '30':
                     sum['potential'] = project.amount_untaxed_in_company_currency
 
@@ -1524,12 +1524,12 @@ class report_management_committee_excel(models.AbstractModel):
                         else:
                             margin_sum['commitment'] = margin_plan['commitment'] - mrg_fact_wo_distributions
 
-                if (all(value == 0 for value in sum_q1.values()) and project.end_sale_project_month.year == YEARint + 1
+                if (all(value == 0 for value in sum_q1.values()) and project.company_id.id != 10 and project.end_sale_project_month.year == YEARint + 1
                         and project.end_sale_project_month.month in self.get_months_from_quarter('Q1')):  # если актирование 0, а месяц в нужном году, берем выручку
                     if project.stage_id.code == '30':
                         sum_q1['potential'] = project.amount_untaxed_in_company_currency
                 #
-                if all(value == 0 for value in sum.values()) and project.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
+                if all(value == 0 for value in sum.values()) and project.company_id.id != 10 and project.end_sale_project_month.year == YEARint + 1:  # если актирование 0, а месяц в нужном году, берем выручку
                     if project.stage_id.code == '30':
                         sum['potential'] = project.amount_untaxed_in_company_currency
 
@@ -1601,7 +1601,7 @@ class report_management_committee_excel(models.AbstractModel):
                         else:
                             margin_sum['commitment'] = margin_plan['commitment'] - mrg_fact_wo_distributions
 
-                if all(value == 0 for value in sum.values()) and project.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
+                if all(value == 0 for value in sum.values()) and project.company_id.id != 10 and project.end_sale_project_month.year == YEARint + 2:  # если актирование 0, а месяц в нужном году, берем выручку
                     if project.stage_id.code == '30':
                         sum['potential'] = project.amount_untaxed_in_company_currency
 

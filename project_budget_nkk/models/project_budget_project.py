@@ -1,4 +1,5 @@
 import re
+import datetime
 
 from odoo import api, Command, fields, models, _
 from odoo.exceptions import ValidationError
@@ -16,6 +17,9 @@ class Project(models.Model):
                                                  string='Technological Direction', compute='_compute_parent_data',
                                                  copy=True, readonly=False, store=True, tracking=True)
     project_type_id = fields.Many2one('project_budget.project_type', string='Project Type', copy=True, tracking=True)
+
+    end_sale_project_quarter = fields.Char(string='End date of the Sale project(quarter)', compute='_compute_quarter', store=True, tracking=True)
+    end_sale_project_month = fields.Date(string='The period of shipment or provision of services to the Client(MONTH)', default=fields.Date.context_today, tracking=True)
 
     cost_price = fields.Monetary(string='Cost price', store=True, tracking=True, copy=True)
     cost_price_in_company_currency = fields.Monetary(
@@ -71,9 +75,115 @@ class Project(models.Model):
             if diff:
                 raise ValidationError(_("Roles '%s' are required for the project!") % ', '.join([r.name for r in diff]))
 
+    @api.constrains('stage_id', 'amount_untaxed', 'cost_price', 'planned_acceptance_flow_ids',
+                    'planned_cash_flow_ids', 'planned_step_acceptance_flow_ids', 'planned_step_cash_flow_ids')
+    def _check_financial_data_is_present(self):
+        for project in self.filtered(lambda pr: pr.budget_state == 'work'):
+            # print(project.env.context.get('form_fix_budget'))
+            if project.env.context.get('form_fix_budget'):
+                continue
+            if (project.stage_id.code in ('30', '50', '75', '100')
+                    and project.amount_untaxed == 0
+                    and project.cost_price == 0
+                    and not project.project_have_steps
+                    and not (project.is_parent_project and project.margin_from_children_to_parent)
+                    and not (project.is_child_project and not project.margin_from_children_to_parent)
+                    and project.budget_state == 'work'
+                    and not project.is_correction_project):
+                if project.step_status == 'project':
+                    raisetext = _("Please enter financial data to project {0}")
+                elif project.step_status == 'step':
+                    raisetext = _("Please enter financial data to step {0}")
+                raisetext = raisetext.format(project.project_id)
+                raise ValidationError(raisetext)
+
+            if project.project_have_steps:
+                for step in project.step_project_child_ids:
+                    if (step.stage_id.code in ('50', '75', '100')
+                            and not (step.planned_step_acceptance_flow_ids and step.planned_step_cash_flow_ids)
+                            and not (project.is_parent_project and project.margin_from_children_to_parent)
+                            and not (project.is_child_project and not project.margin_from_children_to_parent)
+                            and step.budget_state == 'work'
+                            and not step.is_correction_project):
+                        raisetext = _("Please enter forecast for cash or acceptance to project {0} step {1}")
+                        raisetext = raisetext.format(step.step_project_parent_id.project_id, step.project_id)
+                        raise ValidationError(raisetext)
+            else:
+                if (project.stage_id.code in ('50', '75', '100')
+                        and not (project.planned_acceptance_flow_ids and project.planned_cash_flow_ids)
+                        and not (project.is_parent_project and project.margin_from_children_to_parent)
+                        and not (project.is_child_project and not project.margin_from_children_to_parent)
+                        and project.budget_state == 'work'
+                        and not project.is_correction_project
+                        and project.step_status == 'project'):
+                    raisetext = _("Please enter forecast for cash or acceptance to project {0}")
+                    raisetext = raisetext.format(project.project_id)
+                    raise ValidationError(raisetext)
+
+    @api.constrains('end_presale_project_month', 'end_sale_project_month')
+    def _check_opportunity_date_end_greater(self):
+        for project in self.filtered(lambda pr: pr.budget_state == 'work'):
+            if project.company_id.id != 10 and project.end_sale_project_month < project.end_presale_project_month:  # не Ландата
+                raisetext = _("The opportunity's start date must be before its end date.")
+                raise ValidationError(raisetext)
+
+    # ------------------------------------------------------
+    # ONCHANGE METHODS
+    # ------------------------------------------------------
+
+    def check_project_overdue(self, project, vals_dict):
+        if project.company_id.id != 11:  # не ТОПС
+            isok, raisetext = super(Project, self).check_project_overdue(project, vals_dict)
+            if not isok:
+                return False, raisetext
+        return True, ""
+
+    def check_project_overdue_dates(self, project, vals_dict, stage_code):
+        isok, raisetext = super(Project, self).check_project_overdue_dates(project, vals_dict, stage_code)
+        if not isok:
+            return False, raisetext
+
+        if project.company_id.id != 10:  # не Ландата
+            end_sale_project_month = project.end_sale_project_month
+
+            if vals_dict:
+                if 'end_sale_project_month' in vals_dict:
+                    end_sale_project_month = datetime.datetime.strptime(vals_dict['end_sale_project_month'],
+                                                                        "%Y-%m-%d").date()
+
+            if stage_code != '100': # Алина сказала, что даже если на исполнение то не проверять даты контрактования
+                if end_sale_project_month < fields.datetime.now().date():
+                    if project.step_status == 'project':
+                        raisetext = _("DENIED. Project {0} have overdue end sale project month {1}")
+                    else:
+                        raisetext = _("DENIED. Step {0} have overdue end sale project month {1}")
+                    raisetext = raisetext.format(project.project_id, str(end_sale_project_month))
+                    return False, raisetext
+        return True, ""
+
     # ------------------------------------------------------
     # COMPUTE METHODS
     # ------------------------------------------------------
+
+    @api.depends('end_presale_project_month','end_sale_project_month')
+    def _compute_quarter(self):
+        super(Project, self)._compute_quarter()
+        for project in self:
+            if not project.end_presale_project_month:
+                continue
+            tmp_date = project.end_sale_project_month
+            month = tmp_date.month
+            year = tmp_date.year
+            if 0 <= int(month) <= 3:
+                project.end_sale_project_quarter = 'Q1 ' + str(year)
+            elif 4 <= int(month) <= 6:
+                project.end_sale_project_quarter = 'Q2 ' + str(year)
+            elif 7 <= int(month) <= 9:
+                project.end_sale_project_quarter = 'Q3 ' + str(year)
+            elif 10 <= int(month) <= 12:
+                project.end_sale_project_quarter = 'Q4 ' + str(year)
+            else:
+                project.end_sale_project_quarter = 'NA'
 
     def _calculate_amounts_in_company_currency(self, project):
         super(Project, self)._calculate_amounts_in_company_currency(project)
@@ -85,12 +195,14 @@ class Project(models.Model):
                 project.cost_price_in_company_currency = project.cost_price * project.currency_rate
                 project.margin_in_company_currency = project.margin * project.currency_rate
         elif project.project_have_steps and project.step_status == 'project':
-            project.cost_price_in_company_currency = 0
-            project.margin_in_company_currency = 0
+            cost_price_in_company_currency = 0
+            margin_in_company_currency = 0
             for step in project.step_project_child_ids:
                 if step.stage_id.code != '0':
-                    project.cost_price_in_company_currency += step.cost_price_in_company_currency
-                    project.margin_in_company_currency += step.margin_in_company_currency
+                    cost_price_in_company_currency += step.cost_price_in_company_currency
+                    margin_in_company_currency += step.margin_in_company_currency
+            project.cost_price_in_company_currency = cost_price_in_company_currency
+            project.margin_in_company_currency = margin_in_company_currency
 
     @api.depends("amount_total", 'margin', 'currency_rate')
     def _compute_amounts_in_company_currency(self):
@@ -101,17 +213,18 @@ class Project(models.Model):
         super(Project, self)._calculate_totals(project)
         if not project.project_have_steps:
             project.margin = project.amount_untaxed - project.cost_price
+            project.profitability = (project.margin / project.amount_untaxed * 100) if project.amount_untaxed else 0
         elif project.project_have_steps and project.step_status == 'project':
-            project.cost_price = 0
-            project.margin = 0
+            cost_price = 0
+            margin = 0
             for step in project.step_project_child_ids:
                 if step.stage_id.code != '0':
-                    project.cost_price += step.cost_price
-                    project.margin += step.margin
-        if project.amount_untaxed == 0:
-            project.profitability = 0
-        else:
-            project.profitability = project.margin / project.amount_untaxed * 100
+                    cost_price += step.cost_price
+                    margin += step.margin
+            profitability = (margin / project.amount_untaxed * 100) if project.amount_untaxed else 0
+            project.cost_price = cost_price
+            project.margin = margin
+            project.profitability = profitability
 
     @api.depends('amount_untaxed', "cost_price", 'vat_attribute_id')
     def _compute_totals(self):
@@ -211,55 +324,6 @@ class Project(models.Model):
             rec.is_child_project = False
             if rec.parent_project_id:
                 rec.is_child_project = True
-
-    # ------------------------------------------------------
-    # CONSTRAINS
-    # ------------------------------------------------------
-
-    @api.constrains('stage_id', 'amount_untaxed', 'cost_price', 'planned_acceptance_flow_ids',
-                    'planned_cash_flow_ids', 'planned_step_acceptance_flow_ids', 'planned_step_cash_flow_ids')
-    def _check_financial_data_is_present(self):
-        for project in self.filtered(lambda pr: pr.budget_state == 'work'):
-            # print(project.env.context.get('form_fix_budget'))
-            if project.env.context.get('form_fix_budget'):
-                continue
-            if (project.stage_id.code in ('30', '50', '75', '100')
-                    and project.amount_untaxed == 0
-                    and project.cost_price == 0
-                    and not project.project_have_steps
-                    and not (project.is_parent_project and project.margin_from_children_to_parent)
-                    and not (project.is_child_project and not project.margin_from_children_to_parent)
-                    and project.budget_state == 'work'
-                    and not project.is_correction_project):
-                if project.step_status == 'project':
-                    raisetext = _("Please enter financial data to project {0}")
-                elif project.step_status == 'step':
-                    raisetext = _("Please enter financial data to step {0}")
-                raisetext = raisetext.format(project.project_id)
-                raise ValidationError(raisetext)
-
-            if project.project_have_steps:
-                for step in project.step_project_child_ids:
-                    if (step.stage_id.code in ('50', '75', '100')
-                            and not (step.planned_step_acceptance_flow_ids and step.planned_step_cash_flow_ids)
-                            and not (project.is_parent_project and project.margin_from_children_to_parent)
-                            and not (project.is_child_project and not project.margin_from_children_to_parent)
-                            and step.budget_state == 'work'
-                            and not step.is_correction_project):
-                        raisetext = _("Please enter forecast for cash or acceptance to project {0} step {1}")
-                        raisetext = raisetext.format(step.step_project_parent_id.project_id, step.project_id)
-                        raise ValidationError(raisetext)
-            else:
-                if (project.stage_id.code in ('50', '75', '100')
-                        and not (project.planned_acceptance_flow_ids and project.planned_cash_flow_ids)
-                        and not (project.is_parent_project and project.margin_from_children_to_parent)
-                        and not (project.is_child_project and not project.margin_from_children_to_parent)
-                        and project.budget_state == 'work'
-                        and not project.is_correction_project
-                        and project.step_status == 'project'):
-                    raisetext = _("Please enter forecast for cash or acceptance to project {0}")
-                    raisetext = raisetext.format(project.project_id)
-                    raise ValidationError(raisetext)
 
     # ------------------------------------------------------
     # CORE METHODS OVERRIDES

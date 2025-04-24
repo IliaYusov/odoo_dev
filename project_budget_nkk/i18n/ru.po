@@ -572,3 +572,34 @@ msgstr "<span>Рентабельность:</span>"
 #: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__profitability
 msgid "Profitability(share of Sale margin in revenue)"
 msgstr "Рентабельность"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__end_sale_project_month
+msgid "The period of shipment or provision of services to the Client(MONTH)"
+msgstr "Последняя отгрузка"
+
+#. module: project_budget_nkk
+#: model:ir.model.fields,field_description:project_budget_nkk.field_project_budget_projects__end_sale_project_quarter
+msgid "End date of the Sale project(quarter)"
+msgstr "Квартал последней отгрузки"
+
+#. module: project_budget_nkk
+#. odoo-python
+#: code:addons/project_budget_nkk/models/project_budget_project.py:0
+#, python-format
+msgid "DENIED. Project {0} have overdue end sale project month {1}"
+msgstr "ЗАПРЕЩЕНО!. Проект {0} имеет просроченную дату последней отгрузки {1}"
+
+#. module: project_budget_nkk
+#. odoo-python
+#: code:addons/project_budget_nkk/models/project_budget_project.py:0
+#, python-format
+msgid "DENIED. Step {0} have overdue end sale project month {1}"
+msgstr "ЗАПРЕЩЕНО! Этап {0} имеет просроченную дату последней отгрузки: {1}"
+
+#. module: project_budget_nkk
+#. odoo-python
+#: code:addons/project_budget_nkk/models/project_budget_project.py:0
+#, python-format
+msgid "The opportunity's start date must be before its end date."
+msgstr "Дата начала сделки должна быть раньше даты ее окончания."

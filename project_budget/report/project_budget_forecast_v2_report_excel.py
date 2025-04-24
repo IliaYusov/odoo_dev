@@ -1444,7 +1444,7 @@ class report_budget_forecast_excel(models.AbstractModel):
             for acceptance in potential_acceptances:
                 if acceptance.distribution_sum_without_vat_ostatok > 0:
                     year_acceptance_30 += acceptance.distribution_sum_without_vat_ostatok
-        elif project.stage_id.code == '30' and project.end_sale_project_month.year == year:
+        elif project.stage_id.code == '30' and project.end_sale_project_month.year == year and project.company_id.id != 10:
             year_acceptance_30 = project.amount_untaxed_in_company_currency
 
         sheet.write_number(row, column + 3, year_acceptance_30, format)

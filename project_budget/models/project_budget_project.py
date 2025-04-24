@@ -137,8 +137,8 @@ class Project(models.Model):
     essence_project = fields.Text(string='essence_project', default = "",tracking=True)
     end_presale_project_quarter = fields.Char(string='End date of the Presale project(quarter)', compute='_compute_quarter', store=True, tracking=True)
     end_presale_project_month = fields.Date(string='Date of transition to the Production Budget(MONTH)', required=True, default=fields.Date.context_today, tracking=True)
-    end_sale_project_quarter = fields.Char(string='End date of the Sale project(quarter)', compute='_compute_quarter', store=True, tracking=True)
-    end_sale_project_month = fields.Date(string='The period of shipment or provision of services to the Client(MONTH)', required=True,default=fields.Date.context_today, tracking=True)
+    # end_sale_project_quarter = fields.Char(string='End date of the Sale project(quarter)', compute='_compute_quarter', store=True, tracking=True)
+    # end_sale_project_month = fields.Date(string='The period of shipment or provision of services to the Client(MONTH)', required=True,default=fields.Date.context_today, tracking=True)
     vat_attribute_id = fields.Many2one('project_budget.vat_attribute', string='vat_attribute', copy=True,tracking=True , domain ="[('is_prohibit_selection','=', False)]")
 
     # total_amount_of_revenue = fields.Monetary(string='total_amount_of_revenue', store=True, tracking=True)
@@ -276,6 +276,11 @@ class Project(models.Model):
     is_correction_project = fields.Boolean(string="project for corrections", default=False)
     is_not_for_mc_report = fields.Boolean(string="project is not for MC report", default=False)
 
+    # _sql_constraints = [
+    #     ('opportunity_date_end_greater', 'check(end_sale_project_month >= end_presale_project_month)',
+    #      "The opportunity's start date must be before its end date.")
+    # ]
+
     # ------------------------------------------------------
     # CONSTRAINS
     # ------------------------------------------------------
@@ -338,12 +343,14 @@ class Project(models.Model):
                 project.amount_total_in_company_currency = project.amount_total * project.currency_rate
                 project.amount_untaxed_in_company_currency = project.amount_untaxed * project.currency_rate
         elif project.project_have_steps and project.step_status == 'project':
-            project.amount_total_in_company_currency = 0
-            project.amount_untaxed_in_company_currency = 0
+            amount_total_in_company_currency = 0
+            amount_untaxed_in_company_currency = 0
             for step in project.step_project_child_ids:
                 if step.stage_id.code != '0':
-                    project.amount_total_in_company_currency += step.amount_total_in_company_currency
-                    project.amount_untaxed_in_company_currency += step.amount_untaxed_in_company_currency
+                    amount_total_in_company_currency += step.amount_total_in_company_currency
+                    amount_untaxed_in_company_currency += step.amount_untaxed_in_company_currency
+            project.amount_total_in_company_currency = amount_total_in_company_currency
+            project.amount_untaxed_in_company_currency = amount_untaxed_in_company_currency
 
     @api.depends('amount_total', 'currency_rate')
     def _compute_amounts_in_company_currency(self):
@@ -354,12 +361,14 @@ class Project(models.Model):
         if not project.project_have_steps:
             project.amount_total = project.amount_untaxed * (1 + project.vat_attribute_id.percent / 100)
         elif project.project_have_steps and project.step_status == 'project':
-            project.amount_untaxed = 0
-            project.amount_total = 0
+            amount_untaxed = 0
+            amount_total = 0
             for step in project.step_project_child_ids:
                 if step.stage_id.code != '0':
-                    project.amount_untaxed += step.amount_untaxed
-                    project.amount_total += step.amount_total
+                    amount_untaxed += step.amount_untaxed
+                    amount_total += step.amount_total
+            project.amount_untaxed = amount_untaxed
+            project.amount_total = amount_total
 
     @api.depends('amount_untaxed', 'vat_attribute_id')
     def _compute_totals(self):
@@ -523,37 +532,24 @@ class Project(models.Model):
                     step_project_child_id.is_correction_project = row.is_correction_project
                     step_project_child_id.is_not_for_mc_report = row.is_not_for_mc_report
 
-    @api.depends('end_presale_project_month','end_sale_project_month')
+    @api.depends('end_presale_project_month',)
     def _compute_quarter(self):
-        for fieldquarter in self:
-            if fieldquarter.end_presale_project_month == False:
+        for project in self:
+            if not project.end_presale_project_month:
                 continue
-            tmp_date = fieldquarter.end_presale_project_month
+            tmp_date = project.end_presale_project_month
             month = tmp_date.month
             year = tmp_date.year
             if 0 <= int(month) <= 3:
-                fieldquarter.end_presale_project_quarter = 'Q1 ' + str(year)
+                project.end_presale_project_quarter = 'Q1 ' + str(year)
             elif 4 <= int(month) <= 6:
-                fieldquarter.end_presale_project_quarter = 'Q2 ' + str(year)
+                project.end_presale_project_quarter = 'Q2 ' + str(year)
             elif 7 <= int(month) <= 9:
-                fieldquarter.end_presale_project_quarter = 'Q3 ' + str(year)
+                project.end_presale_project_quarter = 'Q3 ' + str(year)
             elif 10 <= int(month) <= 12:
-                fieldquarter.end_presale_project_quarter = 'Q4 ' + str(year)
+                project.end_presale_project_quarter = 'Q4 ' + str(year)
             else:
-                fieldquarter.end_presale_project_quarter = 'NA'
-            tmp_date = fieldquarter.end_sale_project_month
-            month = tmp_date.month
-            year = tmp_date.year
-            if 0 <= int(month) <= 3:
-                fieldquarter.end_sale_project_quarter = 'Q1 ' + str(year)
-            elif 4 <= int(month) <= 6:
-                fieldquarter.end_sale_project_quarter = 'Q2 ' + str(year)
-            elif 7 <= int(month) <= 9:
-                fieldquarter.end_sale_project_quarter = 'Q3 ' + str(year)
-            elif 10 <= int(month) <= 12:
-                fieldquarter.end_sale_project_quarter = 'Q4 ' + str(year)
-            else:
-                fieldquarter.end_sale_project_quarter = 'NA'
+                project.end_presale_project_quarter = 'NA'
 
     @api.depends('project_member_ids.role_id')
     def _compute_key_account_manager_id(self):
@@ -760,238 +756,154 @@ class Project(models.Model):
         if project_office:
             self.project_office_id = project_office.id
 
-    def check_overdue_date(self, vals_list):
-        for project in self:
+    def check_project_overdue_dates(self, project, vals_dict, stage_code):
+        end_presale_project_month = project.end_presale_project_month
 
-            end_presale_project_month = project.end_presale_project_month
-            end_sale_project_month = project.end_sale_project_month
-            # print('vals_list = ',vals_list)
-
-            stage_id_name = project.stage_id.code
-
-            if vals_list:
-                if 'end_presale_project_month' in vals_list:
-                    end_presale_project_month = datetime.datetime.strptime(vals_list['end_presale_project_month'], "%Y-%m-%d").date()
-                if 'end_sale_project_month' in vals_list:
-                    end_sale_project_month = datetime.datetime.strptime(vals_list['end_sale_project_month'], "%Y-%m-%d").date()
-                if 'stage_id' in vals_list:
-                    stage_id = int(vals_list['stage_id'])
-                    stage_id_obj = self.env['project_budget.project.stage'].search([('id', '=', stage_id)], limit=1)
-                    stage_id_name = stage_id_obj.code
-
-            if stage_id_name not in ('0', '100', '100(done)'):
-                if end_presale_project_month < fields.datetime.now().date() :
+        if vals_dict:
+            if 'end_presale_project_month' in vals_dict:
+                end_presale_project_month = datetime.datetime.strptime(vals_dict['end_presale_project_month'],
+                                                                       "%Y-%m-%d").date()
+        if stage_code != '100': # Алина сказала, что даже если на исполнение то не проверять даты контрактования
+            if end_presale_project_month < fields.datetime.now().date():
+                if project.step_status == 'project':
                     raisetext = _("DENIED. Project {0} have overdue end presale project month {1}")
-                    raisetext=raisetext.format(project.project_id,str(end_presale_project_month))
-                    return False, raisetext, {'end_presale_project_month':str(end_presale_project_month)}
-            if stage_id_name not in ('0', '100', '100(done)'): # Алина сказала, что даже если на исполнение то не проверять даты контрактования
-                if end_sale_project_month < fields.datetime.now().date() :
-                    raisetext = _("DENIED. Project {0} have overdue end sale project month {1}")
-                    raisetext = raisetext.format(project.project_id, str(end_sale_project_month))
-                    return False, raisetext, {'end_sale_project_month': str(end_sale_project_month)}
+                else:
+                    raisetext = _("DENIED. Step {0} have overdue end presale project month {1}")
+                raisetext = raisetext.format(project.project_id, str(end_presale_project_month))
+                return False, raisetext
+        return True, ""
 
-            vals_list_steps = False
+    def check_project_overdue_plans(self, project, plans, facts, plan_type, steps_ids_to_skip, vals_dict):
+        changed_plans = {}
 
-            dict_formula = {}
+        plan_ids = 'planned_' + plan_type + '_flow_ids'
+        plan_id = 'planned_' + plan_type + '_flow_id'
+        fact_ids = 'fact_' + plan_type + '_flow_ids'
+        dist_ids = 'distribution_' +  plan_type + '_ids'
 
-            if project.project_have_steps:
-                for step in project.step_project_child_ids:
-                    stage_id_name = step.stage_id.code
-                    end_presale_project_month = step.end_presale_project_month
-                    end_sale_project_month = step.end_sale_project_month
+        distribution_ids = set(plans[dist_ids].filtered(lambda d: d.sum_cash > 0).ids)
+        plans_with_new_distribution_ids = set()
 
-                    if vals_list:
-                        if 'step_project_child_ids' in vals_list:
-                            vals_list_steps = vals_list['step_project_child_ids']
-                            if vals_list_steps:
+        if vals_dict:
+            if plan_ids in vals_dict:
+                changed_plans = {plan_value[1]: {'action': plan_value[0], 'vals': plan_value[2]} for plan_value in vals_dict.get(plan_ids, [])}
 
-                                for vals_list_step in vals_list_steps:
-                                    print('vals_list_steps =', vals_list_step)
-                                    if step.id == vals_list_step[1]:
+            if fact_ids in vals_dict:  # проверяем Факт Акты в буфере
+                changed_facts = {fact_value[1]: {'action': fact_value[0], 'vals': fact_value[2]} for fact_value in vals_dict.get(fact_ids, [])}
 
-                                        vals_one_step = vals_list_step[2]
-                                        print('vals_one_step = ', vals_one_step)
-                                        if vals_one_step:
-                                            if 'stage_id' in vals_one_step:
-                                                stage_id = int(vals_one_step['stage_id'])
-                                                stage_id_obj = self.env[
-                                                    'project_budget.project.stage'].search(
-                                                    [('id', '=', stage_id)], limit=1)
-                                                stage_id_name = stage_id_obj.code
+                for fact_id, fact_change in changed_facts.items():
+                    if fact_change['action'] == 0:  # создание Факт Акта
+                        if dist_ids in fact_change['vals']:
+                            changed_dists = {dist_value[1]: {'action': dist_value[0], 'vals': dist_value[2]} for dist_value in fact_change['vals'].get(dist_ids, [])}
+                            for dist_id, dist_change in changed_dists.items():
+                                if dist_change['action'] == 0:  # создание распределения
+                                    if dist_change['vals']['sum_cash'] > 0:
+                                        plans_with_new_distribution_ids.add(dist_change['vals'][plan_id])
 
+                    elif fact_change['action'] == 1:  # изменение Факт Акта
+                        if dist_ids in fact_change['vals']:
+                            changed_dists = {dist_value[1]: {'action': dist_value[0], 'vals': dist_value[2]} for dist_value in fact_change['vals'].get(dist_ids, [])}
+                            for dist_id, dist_change in changed_dists.items():
+                                if dist_change['action'] == 0:  # создание распределения
+                                    if dist_change['vals']['sum_cash'] > 0:
+                                        plans_with_new_distribution_ids.add(dist_change['vals'][plan_id])
 
-                                            if 'end_presale_project_month' in vals_one_step:
-                                                end_presale_project_month = datetime.datetime.strptime(
-                                                    vals_one_step['end_presale_project_month'], "%Y-%m-%d").date()
-                                            if 'end_sale_project_month' in vals_one_step:
-                                                end_sale_project_month = datetime.datetime.strptime(
-                                                    vals_one_step['end_sale_project_month'], "%Y-%m-%d").date()
+                                elif dist_change['action'] == 1:  # изменение распределения
+                                    if plan_id in dist_change['vals']:  # если поменялся Прогноз для распределения
+                                        if ('sum_cash' not in dist_change['vals'] or
+                                                dist_change['vals']['sum_cash'] != 0):
+                                            plans_with_new_distribution_ids.add(dist_change['vals'][plan_id])
+                                        distribution_ids.discard(dist_id)
+                                    elif 'sum_cash' in dist_change['vals']:  # если поменялась сумма распределения
+                                        if dist_change['vals']['sum_cash'] == 0:
+                                            distribution_ids.discard(dist_id)
+                                        else:
+                                            distribution_ids.add(dist_id)
+                                elif dist_change['action'] == 2:  # удаление распределения
+                                    distribution_ids.discard(dist_id)
 
-                    step_id_str = str(step.id)
-                    dict_formula[step_id_str] = stage_id_name
+                    elif fact_change['action'] == 2:  # удаление Факт Акта
+                        deleted_fact = facts.search([('id', '=', fact_id)])
+                        distribution_ids -= set(deleted_fact[dist_ids].ids)
 
-                    if stage_id_name not in ('0', '100', '100(done)'):
-                        print('step.id = ', step.id)
-                        if end_presale_project_month < fields.datetime.now().date():
-                            raisetext = _("DENIED. Project {0} step {1} have overdue end presale project month {2}")
-                            raisetext = raisetext.format(project.project_id, step.project_id, str(end_presale_project_month))
-                            return False, raisetext, {'step_id': step.project_id, 'end_presale_project_month': str(end_presale_project_month)}
+        for plan in plans.filtered(lambda p: p.step_project_child_id.id not in steps_ids_to_skip and not (
+                p.id in plans_with_new_distribution_ids or set(p[dist_ids].ids) & distribution_ids
+        )):
+            date_to_check = plan.date_cash
+            plan_changes = changed_plans.get(plan.id)
+            if plan_changes:
+                if plan_changes['action'] == 2:  # план удален
+                    continue
+                else:
+                    if plan_changes['vals']:
+                        new_date = plan_changes['vals'].get('date_cash')
+                        if new_date:
+                            date_to_check = datetime.datetime.strptime(new_date, "%Y-%m-%d").date()
 
-                    if stage_id_name not in ('0', '100', '100(done)'):
-                        if end_sale_project_month < fields.datetime.now().date():
-                            raisetext = _("DENIED. Project {0} step {1} have overdue end sale project month {2}")
-                            raisetext = raisetext.format(project.project_id, step.project_id, str(end_sale_project_month))
-                            return False, raisetext, {'step_id': step.project_id, 'end_sale_project_month': str(end_sale_project_month)}
+            if date_to_check < fields.datetime.now().date():
+                raisetext = _("DENIED. Project {0} have overdue planned {2} flow without fact {1}")
+                raisetext = raisetext.format(project.project_id, str(date_to_check), _(plan_type))
+                return False, raisetext
+        return True, ""
 
-            if stage_id_name in ('0', '100(done)'):
-               if project.project_have_steps == False:
-                   return True, "", {}
+    @lru_cache(maxsize=10)
+    def get_stage_code_by_id(self, id):
+        return self.env['project_budget.project.stage'].search([('id', '=', id)], limit=1).code
 
-            vals_list_planaccepts = False
-            buffer_new_distr_plan_accept_ids = set()
-            buffer_del_distr_accept_ids = set()
-            buffer_new_distr_accept_ids = set()
+    def check_project_overdue(self, project, vals_dict):
+        stage_code = project.stage_id.code
+        if vals_dict:
+            if 'stage_id' in vals_dict:
+                stage_code = self.get_stage_code_by_id(vals_dict['stage_id'])
+            if stage_code in ('0', '100(done)'):
+                    return True, ""
 
-            if vals_list:
-                if 'planned_acceptance_flow_ids' in vals_list:
-                    vals_list_planaccepts = vals_list['planned_acceptance_flow_ids']
+        isok, raisetext = self.check_project_overdue_dates(project, vals_dict, stage_code)
+        if not isok:
+            return False, raisetext
 
-                if 'fact_acceptance_flow_ids' in vals_list:  # проверяем Факт Акты в буфере
-                    for fact_acceptance_flow_id in vals_list['fact_acceptance_flow_ids']:
-                        if fact_acceptance_flow_id[0] == 0:  # создание Факт Акта
-                            if 'distribution_acceptance_ids' in fact_acceptance_flow_id[2]:
-                                for distribution_acceptance_id in fact_acceptance_flow_id[2]['distribution_acceptance_ids']:
-                                    if distribution_acceptance_id[0] == 0:  # создание распределения
-                                        if distribution_acceptance_id[2]['sum_cash'] > 0:
-                                            buffer_new_distr_plan_accept_ids.add(distribution_acceptance_id[2]['planned_acceptance_flow_id'])
-                        elif fact_acceptance_flow_id[0] == 1:  # изменение Факт Акта
-                            if 'distribution_acceptance_ids' in fact_acceptance_flow_id[2]:
-                                for distribution_acceptance_id in fact_acceptance_flow_id[2]['distribution_acceptance_ids']:
-                                    if distribution_acceptance_id[0] == 0:  # создание распределения
-                                        if distribution_acceptance_id[2]['sum_cash'] > 0:
-                                            buffer_new_distr_plan_accept_ids.add(distribution_acceptance_id[2]['planned_acceptance_flow_id'])
-                                    elif distribution_acceptance_id[0] == 1:  # изменение распределения
-                                        if 'planned_acceptance_flow_id' in distribution_acceptance_id[2]:  # если поменялся Прогноз для распределения
-                                            if ('sum_cash' not in distribution_acceptance_id[2] or distribution_acceptance_id[2]['sum_cash'] != 0):
-                                                buffer_new_distr_plan_accept_ids.add(distribution_acceptance_id[2]['planned_acceptance_flow_id'])
-                                            buffer_del_distr_accept_ids.add(distribution_acceptance_id[1])
-                                        elif 'sum_cash' in distribution_acceptance_id[2]: # если поменялась сумма распределения
-                                            if distribution_acceptance_id[2]['sum_cash'] == 0:
-                                                buffer_del_distr_accept_ids.add(distribution_acceptance_id[1])
-                                            else:
-                                                buffer_new_distr_accept_ids.add(distribution_acceptance_id[1])
-                                    elif distribution_acceptance_id[0] == 2:  # удаление распределения
-                                        buffer_del_distr_accept_ids.add(distribution_acceptance_id[1])
-                        elif fact_acceptance_flow_id[0] == 2:  # удаление Факт Акта
-                            for fact_acceptance in project.fact_acceptance_flow_ids:
-                                if fact_acceptance.id == fact_acceptance_flow_id[1]:
-                                    buffer_del_distr_accept_ids.update(fact_acceptance.distribution_acceptance_ids.ids)
+        steps_ids_to_skip = []
+        if project.project_have_steps:
 
-                # print('buffer_new_distr_plan_accept_ids-', buffer_new_distr_plan_accept_ids, 'buffer_del_distr_accept_ids-', buffer_del_distr_accept_ids, 'buffer_new_distr_accept_ids', buffer_new_distr_accept_ids)
+            changed_steps = {}
+            if vals_dict:
+                changed_steps = {step_value[1]: step_value[2] for step_value in vals_dict.get('step_project_child_ids', [])}
 
-            for plan_accept in project.planned_acceptance_flow_ids:
-                date_cash = plan_accept.date_cash
-                step_id_str = str(plan_accept.step_project_child_id.id)
-                # print('step_id_str = ',step_id_str)
-                if step_id_str in dict_formula :
-                    if dict_formula[step_id_str] in ('0', '100(done)'):
+            for step in project.step_project_child_ids:
+                step_vals_dict = changed_steps.get(step.id)
+
+                step_stage_code = step.stage_id.code
+                if step_vals_dict:
+                    if 'stage_id' in step_vals_dict:
+                        step_stage_code = self.get_stage_code_by_id(step_vals_dict['stage_id'])
+                    if step_stage_code in ('0', '100(done)'):
+                        steps_ids_to_skip.append(step.id)
                         continue
 
-                if vals_list_planaccepts:
-                    for vals_list_planaccept in vals_list_planaccepts:
-                        # print('vals_list_planaccept =', vals_list_planaccept)
-                        if plan_accept.id == vals_list_planaccept[1]:
-                            vals_one_accept = vals_list_planaccept[2]
-                            # print('vals_one_accept = ', vals_one_accept)
-                            if vals_one_accept == False: # по идее это удаление, потому просто добавим день к дате, чтобы условие ниже прошло
-                                date_cash = fields.datetime.now().date() + datetime.timedelta(days=1)
-                            else:
-                                if 'date_cash' in vals_one_accept:
-                                    date_cash = datetime.datetime.strptime(
-                                        vals_one_accept['date_cash'], "%Y-%m-%d").date()
+                isok, raisetext = self.check_project_overdue_dates(step, step_vals_dict, step_stage_code)
+                if not isok:
+                    return False, raisetext
 
-                if date_cash < fields.datetime.now().date():
-                    # print('plan_accept.distribution_acceptance_ids =', plan_accept.distribution_acceptance_ids, 'plan_accept.id =', plan_accept.id)
-                    if (any(distribution.id not in buffer_del_distr_accept_ids for distribution in plan_accept.distribution_acceptance_ids if (distribution.sum_cash_without_vat > 0 or distribution.id in buffer_new_distr_accept_ids))
-                            or plan_accept.id in buffer_new_distr_plan_accept_ids):
-                        ok = True
-                    else:
-                        raisetext = _("DENIED. Project {0} have overdue planned acceptance flow  without fact {1}")
-                        raisetext = raisetext.format(project.project_id, str(date_cash))
-                        return False, raisetext, {'planned_acceptance_flow': str(date_cash)}
+        isok, raisetext = self.check_project_overdue_plans(
+            project, project.planned_acceptance_flow_ids, project.fact_acceptance_flow_ids,
+            'acceptance', steps_ids_to_skip, vals_dict
+        )
+        if not isok:
+            return False, raisetext
 
-            vals_list_plancashs = False
-            buffer_new_distr_plan_cash_ids = set()
-            buffer_del_distr_cash_ids = set()
-            buffer_new_distr_cash_ids = set()
+        isok, raisetext = self.check_project_overdue_plans(
+            project, project.planned_cash_flow_ids, project.fact_cash_flow_ids,
+            'cash', steps_ids_to_skip, vals_dict
+        )
+        if not isok:
+            return False, raisetext
 
-            if vals_list:
-                if 'planned_cash_flow_ids' in vals_list:
-                    vals_list_plancashs = vals_list['planned_cash_flow_ids']
+        return True, ""
 
-                if 'fact_cash_flow_ids' in vals_list:  # проверяем Факт ПДС в буфере
-                    for fact_cash_flow_id in vals_list['fact_cash_flow_ids']:
-                        if fact_cash_flow_id[0] == 0:  # создание Факт ПДС
-                            if 'distribution_cash_ids' in fact_cash_flow_id[2]:
-                                for distribution_cash_flow_id in fact_cash_flow_id[2]['distribution_cash_ids']:
-                                    if distribution_cash_flow_id[0] == 0:  # создание распределения
-                                        if distribution_cash_flow_id[2]['sum_cash'] > 0:
-                                            buffer_new_distr_plan_cash_ids.add(distribution_cash_flow_id[2]['planned_cash_flow_id'])
-                        elif fact_cash_flow_id[0] == 1:  # изменение Факт ПДС
-                            if 'distribution_cash_ids' in fact_cash_flow_id[2]:
-                                for distribution_cash_flow_id in fact_cash_flow_id[2]['distribution_cash_ids']:
-                                    if distribution_cash_flow_id[0] == 0:  # создание распределения
-                                        if distribution_cash_flow_id[2]['sum_cash'] > 0:
-                                            buffer_new_distr_plan_cash_ids.add(distribution_cash_flow_id[2]['planned_cash_flow_id'])
-                                    elif distribution_cash_flow_id[0] == 1:  # изменение распределения
-                                        if 'planned_cash_flow_id' in distribution_cash_flow_id[2]:  # если поменялся Прогноз для распределения
-                                            if ('sum_cash' not in distribution_cash_flow_id[2] or distribution_cash_flow_id[2]['sum_cash'] != 0):
-                                                buffer_new_distr_plan_cash_ids.add(distribution_cash_flow_id[2]['planned_cash_flow_id'])
-                                            buffer_del_distr_cash_ids.add(distribution_cash_flow_id[1])
-                                        elif 'sum_cash' in distribution_cash_flow_id[2]: # если поменялась сумма распределения
-                                            if distribution_cash_flow_id[2]['sum_cash'] == 0:
-                                                buffer_del_distr_cash_ids.add(distribution_cash_flow_id[1])
-                                            else:
-                                                buffer_new_distr_cash_ids.add(distribution_cash_flow_id[1])
-                                    elif distribution_cash_flow_id[0] == 2:  # удаление распределения
-                                        buffer_del_distr_cash_ids.add(distribution_cash_flow_id[1])
-                        elif fact_cash_flow_id[0] == 2:  # удаление Факт ПДС
-                            for fact_cash in project.fact_cash_flow_ids:
-                                if fact_cash.id == fact_cash_flow_id[1]:
-                                    buffer_del_distr_cash_ids.update(fact_cash.distribution_cash_ids.ids)
-
-            for plan_cash in project.planned_cash_flow_ids:
-                date_cash = plan_cash.date_cash
-
-                step_id_str = str(plan_cash.step_project_child_id.id)
-                if step_id_str in dict_formula :
-                    if dict_formula[step_id_str] in ('0', '100(done)'):
-                        continue
-
-                if vals_list_plancashs:
-                    for vals_list_plancash in vals_list_plancashs:
-                        # print('vals_list_planaccept =', vals_list_plancash)
-                        if plan_cash.id == vals_list_plancash[1]:
-                            vals_one_cash = vals_list_plancash[2]
-                            # print('vals_one_cash = ', vals_one_cash)
-                            if vals_one_cash == False: # по идее это удаление, потому просто добавим день к дате, чтобы условие ниже прошло
-                                date_cash = fields.datetime.now().date() +  datetime.timedelta(days=1)
-                            else:
-                                if 'date_cash' in vals_one_cash:
-                                    date_cash = datetime.datetime.strptime(
-                                        vals_one_cash['date_cash'], "%Y-%m-%d").date()
-                if date_cash < fields.datetime.now().date():
-                    if (any(distribution.id not in buffer_del_distr_cash_ids for distribution in
-                            plan_cash.distribution_cash_ids if
-                            (distribution.sum_cash_without_vat > 0 or distribution.id in buffer_new_distr_cash_ids))
-                            or plan_cash.id in buffer_new_distr_plan_cash_ids):
-                        ok = True
-                    else:
-                        raisetext = _("DENIED. Project {0} have overdue planned cash flow  without fact {1}" )
-                        raisetext = raisetext.format(project.project_id, str(date_cash))
-                        return False, raisetext, {'planned_cash_flow': str(date_cash)}
-
-        return True, "", {}
+    def check_overdue_date(self, vals_dict):
+        for project in self.filtered(lambda p: p.budget_state == 'work' and p.step_status == 'project'):
+            return self.check_project_overdue(project, vals_dict)
+        return True, ""
 
     def print_budget(self):
         for rows in self:
@@ -1008,7 +920,7 @@ class Project(models.Model):
             #         raisetext = _("DENIED. planned_cash_flow_sum <> total_amount_of_revenue_with_vat")
             #         raise ValidationError(raisetext)
 
-            isok, raisetext, emptydict =self.check_overdue_date(False)
+            isok, raisetext =self.check_overdue_date(False)
             if isok == False:
                 raise ValidationError(raisetext)
 
@@ -1056,7 +968,7 @@ class Project(models.Model):
     #     for rows in self:
     #         if rows.approve_state=="need_approve_supervisor" and rows.budget_state == 'work' and rows.project_status !='cancel':
     #
-    #             isok, raisetext,emptydict = self.check_overdue_date(False)
+    #             isok, raisetext = self.check_overdue_date(False)
     #             if isok == False:
     #                 raise ValidationError(raisetext)
     #
@@ -1084,8 +996,8 @@ class Project(models.Model):
         for rows in self:
             if rows.approve_state=="need_approve_supervisor" and rows.budget_state == 'work' and rows.project_status !='cancel':
 
-                isok, raisetext,emptydict = self.check_overdue_date(False)
-                if isok == False:
+                isok, raisetext = self.check_overdue_date(False)
+                if not isok:
                     raise ValidationError(raisetext)
 
                 user_id = False
@@ -1301,21 +1213,16 @@ class Project(models.Model):
                     vals['project_id'] = self.env['ir.sequence'].sudo().next_by_code('project_budget.project_steps')
         return super().create(vals_list)
 
-    def write(self, vals):
-        self._check_required_fields(vals)
+    def write(self, vals_list):
+        self._check_required_fields(vals_list)
         for row in self:
-            if row.env.context.get('form_fix_budget') or row.env.context.get('cancel_approve'):
+            if not(row.env.context.get('form_fix_budget') or row.env.context.get('cancel_approve')):
             # TODO не проверять проекты при добавлении их в качестве дочерних
-                # or self.env.context.get('form_view_projects'): ##из коммерческих бюджетов фиксация идет или  дублируем сделку из формы
-                f = 1
-                # print('form_fix_budget or cancel_approve')
-            else:
                 if row.approve_state == 'need_approve_manager':
-                    isok, raisetext,emptydict = row.check_overdue_date(vals)
+                    isok, raisetext = row.check_overdue_date(vals_list)
                     if isok == False:
                         raise ValidationError(raisetext)
-
-        res = super().write(vals)
+        res = super().write(vals_list)
         return res
 
     @api.returns('self', lambda value: value.id)
@@ -1459,12 +1366,12 @@ class Project(models.Model):
 
     def auto_update_for_amounts_in_company_currency(self):
         @lru_cache(maxsize=100)
-        def get_currency_rate(company_id, company_currency_id, currency_id):
+        def get_currency_rate(company_id, company_currency_id, currency_id, date):
             return self.env['res.currency']._get_conversion_rate(
                 from_currency=currency_id,
                 to_currency=company_currency_id,
                 company=company_id,
-                date=datetime.date.today()
+                date=date
             )
 
         projects = self.env['project_budget.projects'].search([
@@ -1474,7 +1381,7 @@ class Project(models.Model):
         ]).filtered(lambda p: p.currency_id != p.company_currency_id)
 
         for project in projects:
-            currency_rate = get_currency_rate(project.company_id, project.company_currency_id, project.currency_id)
+            currency_rate = get_currency_rate(project.company_id, project.company_currency_id, project.currency_id, datetime.date.today())
             project.with_context(form_fix_budget=True).currency_rate = currency_rate
 
         acceptances = self.env['project_budget.planned_acceptance_flow'].search([
@@ -1484,7 +1391,7 @@ class Project(models.Model):
         ]).filtered(lambda a: a.currency_id != a.company_currency_id)
 
         for acceptance in acceptances:
-            currency_rate = get_currency_rate(acceptance.company_id, acceptance.company_currency_id, acceptance.currency_id)
+            currency_rate = get_currency_rate(acceptance.company_id, acceptance.company_currency_id, acceptance.currency_id, datetime.date.today())
             acceptance.with_context(form_fix_budget=True).currency_rate = currency_rate
 
         cashes = self.env['project_budget.planned_cash_flow'].search([
@@ -1494,5 +1401,5 @@ class Project(models.Model):
         ]).filtered(lambda a: a.currency_id != a.company_currency_id)
 
         for cash in cashes:
-            currency_rate = get_currency_rate(cash.company_id, cash.company_currency_id, cash.currency_id)
+            currency_rate = get_currency_rate(cash.company_id, cash.company_currency_id, cash.currency_id, datetime.date.today())
             cash.with_context(form_fix_budget=True).currency_rate = currency_rate

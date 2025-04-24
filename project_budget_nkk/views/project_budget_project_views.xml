@@ -150,6 +150,13 @@
                     />
                 </group>
             </xpath>
+            <xpath expr="//field[@name='end_presale_project_month']" position="after">
+                <field name="end_sale_project_month" attrs="{
+                     'readonly': [('can_edit', '=', False)],
+                     'required': [('company_id', '!=', 10)],
+                     'invisible': [('company_id', '=', 10)]
+                }"/>
+            </xpath>
         </field>
     </record>
 
@@ -158,6 +165,9 @@
         <field name="model">project_budget.projects</field>
         <field name="inherit_id" ref="project_budget.project_budget_project_view_kanban"/>
         <field name="arch" type="xml">
+            <xpath expr="//field[@name='end_presale_project_month']" position="after">
+                <field name="end_sale_project_month"/>
+            </xpath>
             <xpath expr="//div[hasclass('oe_kanban_content')]" position="replace">
                 <div class="oe_kanban_content">
                     <div class="o_kanban_record_top">
@@ -259,6 +269,9 @@
                 <field name="margin" type="measure"/>
                 <field name="profitability" type="measure"/>
             </xpath>
+            <xpath expr="//field[@name='end_presale_project_quarter']" position="after">
+                <field name="end_sale_project_quarter"/>
+            </xpath>
         </field>
     </record>
 
@@ -320,6 +333,9 @@
             <xpath expr="//page[@name='steps']//tree[@name='steps']//field[@name='amount_total']" position="after">
                 <field name="margin" optional="show" />
                 <field name="profitability" optional="show" />
+            </xpath>
+            <xpath expr="//page[@name='steps']//tree[@name='steps']//field[@name='end_presale_project_month']" position="after">
+                <field name="end_sale_project_month" optional="show" />
             </xpath>
         </field>
     </record>
@@ -466,6 +482,13 @@
                             ]
                         }"/>
             </xpath>
+            <xpath expr="//field[@name='end_presale_project_month']" position="after">
+                <field name="end_sale_project_month" attrs="{
+                    'readonly': [('can_edit', '=', False)],
+                    'required': [('company_id', '!=', 10)],
+                    'invisible': [('company_id', '=', 10)],
+                    }"/>
+            </xpath>
         </field>
     </record>
 
@@ -481,6 +504,12 @@
             <xpath expr="//field[@name='amount_untaxed']" position="after">
                 <field name="cost_price" optional="show"/>
                 <field name="margin" optional="show"/>
+            </xpath>
+            <xpath expr="//field[@name='end_presale_project_month']" position="after">
+                <field name="end_sale_project_month" attrs="{'invisible': [('company_id', '=', 10)]}" optional="show"/>
+            </xpath>
+            <xpath expr="//field[@name='end_presale_project_quarter']" position="after">
+                <field name="end_sale_project_quarter" attrs="{'invisible': [('company_id', '=', 10)]}" optional="hide"/>
             </xpath>
         </field>
     </record>
