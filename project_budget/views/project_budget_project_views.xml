@@ -158,17 +158,6 @@
                             <field name="end_presale_project_month"  attrs="{'readonly': [('can_edit', '=', False)]}" />
                         </group>
                     </group>
-                    <field name="planned_step_acceptance_flow_ids" invisible="1">
-                        <tree>
-                            <field name="forecast"/>
-                        </tree>
-                    </field>
-                    <field name="planned_step_cash_flow_ids" invisible="1">
-                        <tree>
-                            <field name="forecast"/>
-                        </tree>
-                    </field>
-
                     <group name="amount" col ="4">
                         <group>
                             <field name="amount_untaxed"

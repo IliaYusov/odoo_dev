@@ -335,7 +335,10 @@
                 <field name="profitability" optional="show" />
             </xpath>
             <xpath expr="//page[@name='steps']//tree[@name='steps']//field[@name='end_presale_project_month']" position="after">
-                <field name="end_sale_project_month" optional="show" />
+                <field name="company_id" invisible="1"/>
+                <field name="end_sale_project_month" optional="show" attrs="{
+                    'invisible': [('company_id', '=', 10)],
+                    }"/>
             </xpath>
         </field>
     </record>
