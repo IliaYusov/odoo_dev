@@ -1562,7 +1562,10 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
             formula = '=' + '+'.join("'ПДС " + actual_date.strftime("%d.%m") + "'!" + i for i in total_fact_link) if total_fact_link else ''
             sheet.write_formula(row, col + 1, formula, fact_format_number)
         elif period_type == 'month':
-            formula = '=' + '+'.join("'ПДС " + actual_date.strftime("%d.%m") + "'!" + i[1] for i in link['total']['week_fact']) if link.get('total', {}).get('week_fact') else ''
+            if current_week[0].month == current_week[1].month:
+                formula = '=' + '+'.join("'ПДС " + actual_date.strftime("%d.%m") + "'!" + i[1] for i in link['total']['week_fact']) if link.get('total', {}).get('week_fact') else ''
+            else:
+                formula = '=' + '+'.join("'ПДС " + actual_date.strftime("%d.%m") + "'!" + i[1] for i in link['total']['week_fact'] if i[0][0].month == current_week[1].month) if link.get('total', {}).get('week_fact') else ''
             sheet.write_formula(row, col + 1, formula, fact_format_number)
         elif period_type == 'quarter':
             formula = '=' + '+'.join("'ПДС " + actual_date.strftime("%d.%m") + "'!" + i[1] for i in link['total']['week_fact'] + link['total']['month_fact'][3:]) if link.get('total', {}).get('week_fact') or link.get('total', {}).get('month_fact') else ''
@@ -1575,7 +1578,10 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
                                       total_commitment_link) if total_commitment_link else ''
             sheet.write_formula(row, col + 2, formula, commitment_format_number)
         elif period_type == 'month':
-            formula = '=' + "'ПДС " + actual_date.strftime("%d.%m") + "'!" + link['total']['sum_month_commitment'][0][1] + '-' f'{xl_col_to_name(col + 1)}{row + 1}' if (link.get('total', {}).get('sum_month_commitment')) else ''
+            if current_week[0].month == current_week[1].month:
+                formula = '=' + "'ПДС " + actual_date.strftime("%d.%m") + "'!" + link['total']['sum_month_commitment'][0][1] + '-' f'{xl_col_to_name(col + 1)}{row + 1}' if (link.get('total', {}).get('sum_month_commitment')) else ''
+            else:
+                formula = '=' + "'ПДС " + actual_date.strftime("%d.%m") + "'!" + link['total']['sum_month_commitment'][1][1] + '-' f'{xl_col_to_name(col + 1)}{row + 1}' if (link.get('total', {}).get('sum_month_commitment')) else ''
             sheet.write_formula(row, col + 2, formula, commitment_format_number)
         elif period_type == 'quarter':
             formula = '=' + "'ПДС " + actual_date.strftime("%d.%m") + "'!" + link['total']['sum_quarter_commitment'][1][1] + '-' f'{xl_col_to_name(col + 1)}{row + 1}' if (link.get('total', {}).get('sum_quarter_commitment')) else ''
@@ -1599,7 +1605,10 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
             formula = '=(' + '+'.join("'ПДС " + actual_date.strftime("%d.%m") + "'!" + i for i in vgo_fact_link) + ')' if vgo_fact_link else ''
             sheet.write_formula(row, col + 1, formula, fact_format_number)
         elif period_type == 'month':
-            formula = '=' + '+'.join("'ПДС " + actual_date.strftime("%d.%m") + "'!" + i[1] for i in link['VGO']['week_fact']) if (link.get('VGO', {}).get('week_fact')) else ''
+            if current_week[0].month == current_week[1].month:
+                formula = '=' + '+'.join("'ПДС " + actual_date.strftime("%d.%m") + "'!" + i[1] for i in link['VGO']['week_fact']) if link.get('VGO', {}).get('week_fact') else ''
+            else:
+                formula = '=' + '+'.join("'ПДС " + actual_date.strftime("%d.%m") + "'!" + i[1] for i in link['VGO']['week_fact'] if i[0][0].month == current_week[1].month) if link.get('VGO', {}).get('week_fact') else ''
             sheet.write_formula(row, col + 1, formula, fact_format_number)
         elif period_type == 'quarter':
             formula = '=' + '+'.join("'ПДС " + actual_date.strftime("%d.%m") + "'!" + i[1] for i in link['VGO']['week_fact'] + link['VGO']['month_fact'][3:]) if link.get('VGO', {}).get('week_fact') or link.get('VGO', {}).get('month_fact') else ''
@@ -1611,7 +1620,10 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
             formula = '=(' + '+'.join("'ПДС " + actual_date.strftime("%d.%m") + "'!" + i for i in vgo_commitment_link) + ')' if vgo_commitment_link else ''
             sheet.write_formula(row, col + 2, formula, commitment_format_number)
         elif period_type == 'month':
-            formula = '=' + "'ПДС " + actual_date.strftime("%d.%m") + "'!" + link['VGO']['sum_month_commitment'][0][1] + '-' f'{xl_col_to_name(col + 1)}{row + 1}' if (link.get('VGO', {}).get('sum_month_commitment')) else ''
+            if current_week[0].month == current_week[1].month:
+                formula = '=' + "'ПДС " + actual_date.strftime("%d.%m") + "'!" + link['VGO']['sum_month_commitment'][0][1] + '-' f'{xl_col_to_name(col + 1)}{row + 1}' if (link.get('VGO', {}).get('sum_month_commitment')) else ''
+            else:
+                formula = '=' + "'ПДС " + actual_date.strftime("%d.%m") + "'!" + link['VGO']['sum_month_commitment'][1][1] + '-' f'{xl_col_to_name(col + 1)}{row + 1}' if (link.get('VGO', {}).get('sum_month_commitment')) else ''
             sheet.write_formula(row, col + 2, formula, commitment_format_number)
         elif period_type == 'quarter':
             formula = '=' + "'ПДС " + actual_date.strftime("%d.%m") + "'!" + link['VGO']['sum_quarter_commitment'][1][
@@ -1637,7 +1649,10 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
                 "'ПДС " + actual_date.strftime("%d.%m") + "'!" + i for i in ole_fact_link) + ')' if ole_fact_link else ''
             sheet.write_formula(row, col + 1, formula, fact_format_number)
         elif period_type == 'month':
-            formula = '=' + '+'.join("'ПДС " + actual_date.strftime("%d.%m") + "'!" + i[1] for i in link['OLE']['week_fact']) if (link.get('OLE', {}).get('week_fact')) else ''
+            if current_week[0].month == current_week[1].month:
+                formula = '=' + '+'.join("'ПДС " + actual_date.strftime("%d.%m") + "'!" + i[1] for i in link['OLE']['week_fact']) if link.get('OLE', {}).get('week_fact') else ''
+            else:
+                formula = '=' + '+'.join("'ПДС " + actual_date.strftime("%d.%m") + "'!" + i[1] for i in link['OLE']['week_fact'] if i[0][0].month == current_week[1].month) if link.get('OLE', {}).get('week_fact') else ''
             sheet.write_formula(row, col + 1, formula, fact_format_number)
         elif period_type == 'quarter':
             formula = '=' + '+'.join("'ПДС " + actual_date.strftime("%d.%m") + "'!" + i[1] for i in link['OLE']['week_fact'] + link['OLE']['month_fact'][3:]) if link.get('OLE', {}).get('week_fact') or link.get('OLE', {}).get('month_fact') else ''
@@ -1650,7 +1665,10 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
                                       ole_commitment_link) + ')' if ole_commitment_link else ''
             sheet.write_formula(row, col + 2, formula, commitment_format_number)
         elif period_type == 'month':
-            formula = '=' + "'ПДС " + actual_date.strftime("%d.%m") + "'!" + link['OLE']['sum_month_commitment'][0][1] + '-' f'{xl_col_to_name(col + 1)}{row + 1}' if (link.get('OLE', {}).get('sum_month_commitment')) else ''
+            if current_week[0].month == current_week[1].month:
+                formula = '=' + "'ПДС " + actual_date.strftime("%d.%m") + "'!" + link['OLE']['sum_month_commitment'][0][1] + '-' f'{xl_col_to_name(col + 1)}{row + 1}' if (link.get('OLE', {}).get('sum_month_commitment')) else ''
+            else:
+                formula = '=' + "'ПДС " + actual_date.strftime("%d.%m") + "'!" + link['OLE']['sum_month_commitment'][1][1] + '-' f'{xl_col_to_name(col + 1)}{row + 1}' if (link.get('OLE', {}).get('sum_month_commitment')) else ''
             sheet.write_formula(row, col + 2, formula, commitment_format_number)
         elif period_type == 'quarter':
             formula = '=' + "'ПДС " + actual_date.strftime("%d.%m") + "'!" + link['OLE']['sum_quarter_commitment'][1][
@@ -2650,7 +2668,7 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
         etalon_budget = self.env['project_budget.commercial_budget'].search([('id', '=', etalon_budget_id)])
         actual_budget_date = budget.date_actual or datetime.now()
-        actual_budget_date = datetime(year=2025, month=2, day=28)  # ОТЛАДОЧНАЯ
+        # actual_budget_date = datetime(year=2025, month=2, day=28)  # ОТЛАДОЧНАЯ
         link = self.print_worksheet(workbook, budget, 'ПДС ' + actual_budget_date.strftime('%d.%m'), company,
                                     responsibility_center_ids, max_level, dict_formula, start_column,
                                     actual_budget_date, group_company_ids)
