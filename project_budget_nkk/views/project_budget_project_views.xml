@@ -340,6 +340,20 @@
                     'invisible': [('company_id', '=', 10)],
                     }"/>
             </xpath>
+            <xpath expr="//page[@name='forecasts']//field[@name='planned_cash_flow_ids']" position="after">
+                <h4>
+                    <group>
+                        <group string="Planned Cost Flow"/>
+                        <group>
+                            <field name="planned_amount_total_cost_flow"
+                                   decoration-success="((cost_price_in_company_currency - planned_amount_total_cost_flow) * (cost_price_in_company_currency - planned_amount_total_cost_flow)) &lt; 0.1"
+                                   decoration-danger="((cost_price_in_company_currency - planned_amount_total_cost_flow) * (cost_price_in_company_currency - planned_amount_total_cost_flow)) &gt;= 0.1"/>
+                        </group>
+                    </group>
+                </h4>
+                <field name="planned_cost_flow_ids" mode="tree"
+                       attrs="{'readonly': [('can_edit', '=', False)]}"/>
+            </xpath>
         </field>
     </record>
 

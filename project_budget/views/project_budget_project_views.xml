@@ -421,7 +421,7 @@
                                     </tree>
                                 </field>
                             </page>
-                            <page string="Forecast"
+                            <page name='forecasts' string="Forecast"
                                   groups="project_budget.project_budget_users,project_budget.project_budget_admin">
                                 <h4>
                                     <group col="6">

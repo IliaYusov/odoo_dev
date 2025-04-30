@@ -54,6 +54,14 @@ class Project(models.Model):
                                                      compute='_compute_total_margin_of_child_projects')
     total_margin = fields.Monetary(string="Total Margin", compute='_compute_total_margin')
 
+    planned_cost_flow_ids = fields.One2many('project_budget.planned_cost_flow', 'projects_id',
+                                            string='Planned Cost Flow', copy=False)
+    planned_step_cost_flow_ids = fields.One2many('project_budget.planned_cost_flow', 'step_project_child_id',
+                                                 string='Planned Cost Flow')
+    planned_amount_total_cost_flow = fields.Monetary(string='Planned Amount With Tax Of Cost Flow',
+                                                     compute='_compute_planned_amount_cost_flow',
+                                                     currency_field='company_currency_id', tracking=True)
+
     # ------------------------------------------------------
     # CONSTRAINS
     # ------------------------------------------------------
@@ -318,6 +326,16 @@ class Project(models.Model):
     def _compute_total_margin(self):
         for rec in self:
             rec.total_margin = rec.margin + rec.additional_margin
+
+    @api.depends('planned_cost_flow_ids.amount_in_company_currency')
+    def _compute_planned_amount_cost_flow(self):
+        for rec in self:
+            rec.planned_amount_total_cost_flow = 0
+            if rec.step_status == 'project':
+                rec.planned_amount_total_cost_flow = sum(rec.planned_cost_flow_ids.mapped('amount_in_company_currency'))
+            elif rec.step_status == 'step':
+                rec.planned_amount_total_cost_flow = sum(
+                    rec.planned_step_cost_flow_ids.mapped('amount_in_company_currency'))
 
     def _check_project_is_child(self):
         for rec in self:

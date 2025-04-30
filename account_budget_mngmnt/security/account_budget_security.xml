@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="account_budget_item_rule_company" model="ir.rule">
+        <field name="name">Budget item multi-company</field>
+        <field name="model_id" ref="model_account_budget_item"/>
+        <field name="domain_force">
+            [
+                ('company_id', 'in', company_ids)
+            ]
+        </field>
+    </record>
+
+    <record id="crossovered_budget_rule_company" model="ir.rule">
+        <field name="name">Budget multi-company</field>
+        <field name="model_id" ref="model_crossovered_budget"/>
+        <field name="domain_force">
+            [
+                ('company_id', 'in', company_ids)
+            ]
+        </field>
+    </record>
+
+    <record id="crossovered_budget_line_rule_company" model="ir.rule">
+        <field name="name">Budget lines multi-company</field>
+        <field name="model_id" ref="model_crossovered_budget_line"/>
+        <field name="domain_force">
+            [
+                ('company_id', 'in', company_ids)
+            ]
+        </field>
+    </record>
+</odoo>

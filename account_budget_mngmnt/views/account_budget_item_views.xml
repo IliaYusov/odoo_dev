@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="account_budget_item_view_search" model="ir.ui.view">
+        <field name="name">account.budget.item.search</field>
+        <field name="model">account.budget.item</field>
+        <field name="arch" type="xml">
+            <search string="Budget Item">
+                <field name="name" filter_domain="['|', ('name', 'ilike', self), ('code', 'ilike', self)]"
+                       string="Budget Item"/>
+                <field name="direction" filter_domain="[('dicrection', 'ilike', self)]"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="account_budget_item_view_tree" model="ir.ui.view">
+        <field name="name">account.budget.item.tree</field>
+        <field name="model">account.budget.item</field>
+        <field name="arch" type="xml">
+            <tree string="Budget Item">
+                <field name="sequence" widget="handle"/>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="direction"/>
+                <field name="company_id" options="{'no_create': True}" groups="base.group_multi_company"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="account_budget_item_view_form" model="ir.ui.view">
+        <field name="name">account.budget.item.form</field>
+        <field name="model">account.budget.item</field>
+        <field name="arch" type="xml">
+            <form string="Budget Item">
+                <field name="company_id" invisible="1"/>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                        </group>
+                        <group>
+                            <field name="code"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="direction"/>
+                        </group>
+                        <group>
+                            <field name="parent_id" options="{'no_create_edit': True}"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="company_id" groups="base.group_multi_company" options="{'no_create_edit': True}"/>
+                    </group>
+                    <notebook>
+                        <page string="Accounts" name="accounts">
+                            <field name="account_ids">
+                                <tree>
+                                    <field name="code"/>
+                                    <field name="name"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="account_budget_item_action" model="ir.actions.act_window">
+        <field name="name">Budget Items</field>
+        <field name="res_model">account.budget.item</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

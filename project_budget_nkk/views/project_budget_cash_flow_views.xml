@@ -1,5 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
+    <record id="project_budget_planned_cash_flow_view_tree_inherit_nkk" model="ir.ui.view">
+        <field name="name">project.budget.planned.cash.flow.tree.inherit.nkk</field>
+        <field name="model">project_budget.planned_cash_flow</field>
+        <field name="inherit_id" ref="project_budget.project_budget_planned_cash_flow_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='date_cash']" position="before">
+                <field name="budget_item_id" options="{'no_create_edit': True, 'no_open': True}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="project_budget_planned_cost_flow_view_form_inherit_nkk" model="ir.ui.view">
+        <field name="name">project.budget.planned.cost.flow.form.inherit.nkk</field>
+        <field name="model">project_budget.planned_cash_flow</field>
+        <field name="inherit_id" ref="project_budget.project_budget_planned_cash_flow_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='step_project_child_id']" position="after">
+                <field name="budget_item_id" options="{'no_create_edit': True, 'no_open': True}"/>
+            </xpath>
+        </field>
+    </record>
+
     <record id="project_budget_fact_cash_flow_view_form_inherit_nkk" model="ir.ui.view">
         <field name="name">project.budget.fact.cash.flow.form.inherit.nkk</field>
         <field name="model">project_budget.fact_cash_flow</field>

@@ -11,4 +11,10 @@
     <menuitem id="crm_menu_project_curators_access" parent="project_budget.project_budget_access"
               name="Project Curators Access" action="show_comercial_budget_spec_supervisor_access"
               groups="project_budget.project_budget_admin"/>
+    <menuitem id="crm_menu_configuration_budget_management" parent="project_budget.menu_project_budget_configuration"
+              name="Budget Management" sequence="55">
+        <menuitem id="crm_menu_configuration_budget_management_budget_items" name="Budget Items" sequence="1"
+                  action="account_budget_mngmnt.account_budget_item_action"
+                  groups="account_budget_mngmnt.account_budget_group_manager"/>
+    </menuitem>
 </odoo>

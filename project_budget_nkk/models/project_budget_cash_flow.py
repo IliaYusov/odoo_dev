@@ -1,6 +1,12 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
 
+class PlannedCashFlow(models.Model):
+    _inherit = 'project_budget.planned_cash_flow'
+
+    # NOTE: временное поле, удалить во время перехода на целевую архитектуру модуля бюджетирования
+    budget_item_id = fields.Many2one('account.budget.item', string='Budget Item', copy=True,
+                                     domain="[('direction', '=', 'income'), ('child_ids', '=', False)]")
 
 class FactCashFlow(models.Model):
     _inherit = 'project_budget.fact_cash_flow'

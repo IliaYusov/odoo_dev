@@ -1,4 +1,5 @@
 from . import commercial_budget
+from . import project_budget_flow_mixin
 from . import fact_acceptance_flow
 from . import fact_cash_flow
 from . import planned_acceptance_flow

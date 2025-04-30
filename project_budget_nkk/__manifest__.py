@@ -2,7 +2,7 @@
     'name': 'Project Budget NKK',
     'version': '1.2.3',
     'category': 'Project',
-    'depends': ['project_budget', 'base_automation',],
+    'depends': ['project_budget', 'base_automation', 'account_budget_mngmnt'],
     'description': """
     """,
     'data': [
@@ -14,6 +14,7 @@
         'views/project_budget_project_type_views.xml',
         'views/project_budget_acceptance_flow_views.xml',
         'views/project_budget_cash_flow_views.xml',
+        'views/project_budget_cost_flow_views.xml',
         'views/project_budget_plan_kam_supervisor_views.xml',
         'views/project_budget_technological_direction_views.xml',
         'views/project_budget_project_member_views.xml',
