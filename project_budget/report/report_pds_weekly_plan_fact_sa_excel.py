@@ -2614,9 +2614,23 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
             'week'
         )
         col = 7
+        previous_month_budget_without_shift = self.env['project_budget.commercial_budget'].search([
+            ('date_actual', '<', current_month_start),
+        ], limit=1, order='date_actual desc')  # без сдвига на неделю вперед
+        previous_month_budget_financial_indicators = self.env['project.budget.financial.indicator'].search([
+            ('company_id', '=', company.id),
+            ('responsibility_center_id.id', 'not in', centers_to_exclude.ids),
+            ('commercial_budget_id', '=', previous_month_budget_without_shift.id),
+            ('type', '=', 'cash_flow'),
+            ('date', '>=', current_month_start),
+            ('date', '<=', current_month_end),
+            '|', ('forecast_probability_id', '=', False),
+            ('forecast_probability_id.id', '=',
+             self.env.ref('project_budget_nkk.project_budget_forecast_probability_commitment').id),
+        ])
         _ = self.print_changes(
             workbook, sheet, row, col, company, actual_date, budget, previous_month_budget,
-            (current_month_start, current_month_end), centers_to_exclude, month_financial_indicators,
+            (current_month_start, current_month_end), centers_to_exclude, previous_month_budget_financial_indicators,
             future_financial_indicators, ('Месяц', self.month_rus_name[actual_date.month - 1] + ' ' + str(actual_date.year)),
             'month'
         )
@@ -2663,7 +2677,7 @@ class ReportPdsWeeklyPlanFactExcelSA(models.AbstractModel):
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
         etalon_budget = self.env['project_budget.commercial_budget'].search([('id', '=', etalon_budget_id)])
         actual_budget_date = budget.date_actual or datetime.now()
-        actual_budget_date = datetime(year=2025, month=4, day=16)  # ОТЛАДОЧНАЯ
+        # actual_budget_date = datetime(year=2025, month=4, day=16)  # ОТЛАДОЧНАЯ
         link = self.print_worksheet(workbook, budget, 'ПДС ' + actual_budget_date.strftime('%d.%m'), company,
                                     responsibility_center_ids, max_level, dict_formula, start_column,
                                     actual_budget_date, group_company_ids)
