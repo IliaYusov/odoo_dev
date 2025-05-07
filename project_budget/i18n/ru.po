@@ -1147,6 +1147,13 @@ msgid "Forecast_v2"
 msgstr "Прогноз_v2"
 
 #. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/wizard/report_projects_wizard.py:0
+#, python-format
+msgid "BDDS report"
+msgstr "Отчет БДДС"
+
+#. module: project_budget
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_projects_report_wizard__type_report__contracting_revenue_cash
 msgid "Contracting Revenue Cash"
 msgstr "Свод фин. индикаторов"
@@ -5041,3 +5048,10 @@ msgstr "Год план"
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_budget_plan_supervisor_spec__year_plan_6_6
 msgid "year_plan 6+6"
 msgstr "Год план 6+6"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/wizard/report_projects_wizard.py:0
+#, python-format
+msgid "End date should be later then start date"
+msgstr "Дата конца периода должна быть позже даты начала периода"

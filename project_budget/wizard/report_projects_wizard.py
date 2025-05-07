@@ -1,7 +1,6 @@
-from odoo import models, fields, _
-from odoo.exceptions import UserError
+from odoo import models, fields, api, _
+from odoo.exceptions import UserError, ValidationError
 from io import BytesIO
-from datetime import date, timedelta
 from datetime import date, timedelta, datetime
 import pytz
 
@@ -20,7 +19,9 @@ class report_projects_wizard(models.TransientModel):
             ('management_committee', _('Management Committee')),
             ('pds_acceptance_by_date', _('PDS, Acceptance')),
             ('pds_weekly_plan_fact', _('PDS weekly plan fact')),
+            ('pds_weekly_plan_fact_sa', _('PDS weekly plan fact SA')),
             ('week_to_week', _('Week to Week')),
+            ('bdds', _('BDDS report')),
         ]
         if self.env.user.has_group('base.group_no_one'):
             type_report.append(('forecast_v3', _('Forecast_v3')))
@@ -51,9 +52,8 @@ class report_projects_wizard(models.TransientModel):
     use_koeff_reserve = fields.Boolean(string='use koefficient for reserve', default = False)
     koeff_reserve = fields.Float(string='koefficient for reserve', default=0.6)
     koeff_potential = fields.Float(string='koefficient for potential', default=0.1)
-    delta = timedelta(days=7)
     date_start = fields.Date(string='start of report', default=date.today(), required=True)
-    date_end = fields.Date(string='end of report', default=date.today() + delta, required=True)
+    date_end = fields.Date(string='end of report', compute='_compute_default_end_date', required=True, readonly=False)
     pds_accept = fields.Selection([('pds', 'PDS'), ('accept', 'Acceptance')], string='PDS Accept', default='pds', required=True)
     report_with_projects = fields.Boolean(string='detailed report', default=True)
     responsibility_center_ids = fields.Many2many('account.analytic.account', relation='report_responsibility_center_rel',
@@ -61,6 +61,21 @@ class report_projects_wizard(models.TransientModel):
     print_managers = fields.Boolean(string='print managers', default=False)
     systematica_forecast = fields.Boolean(string='systematica forecast', default=False)
     three_quarters_report = fields.Boolean(string='report for three quarters', default=True)
+
+    @api.constrains('date_start', 'date_end')
+    def _check_dates(self):
+        for report in self:
+            if report.date_end < report.date_start:
+                raise_text = _("End date should be later then start date")
+                raise ValidationError(raise_text)
+
+    @api.onchange('type_report')
+    def _compute_default_end_date(self):
+        for report in self:
+            if report.type_report == 'bdds':
+                report.date_end = date.today() + timedelta(days=335)
+            else:
+                report.date_end = date.today() + timedelta(days=7)
 
     def action_print_report(self):
         self.ensure_one()
@@ -139,3 +154,6 @@ class report_projects_wizard(models.TransientModel):
 
         if self.type_report == 'contracting_revenue_cash':
             return self.env.ref('project_budget.action_projects_list_report_xlsx_contracting_revenue_cash').report_action(self, data=datas)
+
+        if self.type_report == 'bdds':
+            return self.env.ref('project_budget.action_projects_list_report_xlsx_bdds').report_action(self, data=datas)
