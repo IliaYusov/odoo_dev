@@ -24,6 +24,8 @@ class planned_cash_flow(models.Model):
                                 , index=True, readonly=True)
     name_to_show = fields.Char(string='name_to_show', compute='_get_name_to_show')
     projects_id = fields.Many2one('project_budget.projects', string='projects_id',index=True,ondelete='cascade')
+    company_id = fields.Many2one(related='projects_id.company_id', readonly=True)
+    company_currency_id = fields.Many2one(related='company_id.currency_id', readonly=True)
     etalon_budget = fields.Boolean(related='projects_id.etalon_budget', readonly=True)
     date_actual = fields.Datetime(related='projects_id.date_actual', readonly=True)
 
@@ -32,7 +34,10 @@ class planned_cash_flow(models.Model):
                                             ondelete='cascade')
 
     date_cash = fields.Date(string="date_cash" , required=True, copy=True)
-    currency_id = fields.Many2one('res.currency', string='Account Currency', compute='_compute_reference')
+    currency_id = fields.Many2one('res.currency', string='Currency', copy=True,
+                                  default=lambda self: self.env.company.currency_id)
+    currency_id_domain = fields.Binary(compute='_compute_currency_id_domain')
+    is_currency_company = fields.Boolean(compute='_compute_is_currency_company', default=True)
     sum_cash_without_vat = fields.Monetary(string="sum_cash_without_vat", required=True, copy=True, compute='_compute_sum')
     sum_cash = fields.Monetary(string="sum_cash", required=True, copy=True)
     doc_cash = fields.Char(string="doc_cash",  copy=True) #20230403 Вавилова Ирина сказла убрать из формы...
@@ -60,6 +65,7 @@ class planned_cash_flow(models.Model):
            "\n 4. Potential – the amounts do not fall into the forecast until the end of the period, but can be entered by the seller to record information on the project (in this case, the absence of such will not be an error)."
     )
 
+    acceptance_id = fields.Many2one(comodel_name='project_budget.planned_acceptance_flow', string="Acceptance forecast")
 
     @api.depends('date_cash', 'step_project_child_id', 'cash_id', 'sum_cash')
     def _get_name_to_show(self):
@@ -69,10 +75,17 @@ class planned_cash_flow(models.Model):
                 prj.name_to_show += _(' | step ') + (prj.step_project_child_id.project_id or '') + _(' | code ') + (prj.step_project_child_id.step_project_number or '') + _(' | essence_project ') + (prj.step_project_child_id.essence_project or '')
 
 
-    @ api.depends('projects_id.currency_id')
-    def _compute_reference(self):
-        for row in self:
-            row.currency_id = row.projects_id.currency_id
+    @api.depends('projects_id')
+    def _compute_currency_id_domain(self):
+        for rec in self:
+            rec.currency_id_domain = [
+                ('id', 'in', [rec.projects_id.currency_id.id] + [self.env.company.currency_id.id])
+            ]
+
+    @api.depends('currency_id', 'company_currency_id')
+    def _compute_is_currency_company(self):
+        for rec in self:
+            rec.is_currency_company = rec.currency_id == rec.company_currency_id
 
     @api.depends("sum_cash", "step_project_child_id.vat_attribute_id", "projects_id.vat_attribute_id")
     def _compute_sum(self):
