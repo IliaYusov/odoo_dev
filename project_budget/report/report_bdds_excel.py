@@ -231,7 +231,7 @@ class ReportBDDSExcel(models.AbstractModel):
                     'partner_id': project.partner_id.name,
                     'essence_project': project.essence_project,
                     'project_id': project_step_id,
-                    'probability': self.get_estimated_probability_name_forecast(project.stage_id.code),
+                    'probability': project.stage_id.code + '%',
                     'amount_total': project.amount_total_in_company_currency,
                     'margin': project.margin_in_company_currency,
                     'profitability': project.profitability,
@@ -242,16 +242,6 @@ class ReportBDDSExcel(models.AbstractModel):
                 data[project.company_id.name][project.responsibility_center_id.name][
                     project.project_id] = project_data
         return data
-
-    def get_estimated_probability_name_forecast(self, name):
-        result = name
-        if name == '0': result = 'Отменен'
-        if name == '30': result = 'Идентификация проекта'
-        if name == '50': result = 'Подготовка ТКП'
-        if name == '75': result = 'Подписание договора'
-        if name == '100': result = 'Исполнение'
-        if name == '100(done)': result = 'Исполнен/закрыт'
-        return result
 
     def print_head(self, workbook, sheet, row, column, periods_dict):
         head_format = workbook.add_format({
@@ -268,6 +258,8 @@ class ReportBDDSExcel(models.AbstractModel):
         sheet.set_row(row, 18)
         sheet.write(row, column, "Статьи бюджета движения денежных средств", head_format)
         column += 1
+        sheet.write(row, column, "Вероятность", head_format)
+        column += 1
         for period, options in periods_dict.items():
             for col in options['cols']:
                 string = col['print_head']
@@ -278,6 +270,12 @@ class ReportBDDSExcel(models.AbstractModel):
 
     def print_project_values(self, workbook, sheet, row, column, data, periods_dict, level):
         project_format = workbook.add_format({
+            'border': 1,
+            'font_size': 11,
+            'num_format': '#,##0',
+            'valign': 'left',
+        })
+        project_format_indent = workbook.add_format({
             'border': 1,
             'font_size': 11,
             'num_format': '#,##0',
@@ -306,45 +304,57 @@ class ReportBDDSExcel(models.AbstractModel):
             'font_size': 9,
             'num_format': '#,##0',
             'valign': 'left',
+        })
+        supplier_format_indent = workbook.add_format({
+            'border': 1,
+            'font_size': 9,
+            'num_format': '#,##0',
+            'valign': 'left',
             'indent': 6,
         })
 
         project_row = row + 1
         sheet.set_row(project_row, False, False, {'hidden': 1, 'level': level + 1})
         sheet.write(project_row, 0, 'Поступления', project_total_format_indent)
+        sheet.write(project_row, 1, data['info']['probability'], project_total_format)
         income_total_row = project_row
         income_rows = []
         project_row += 1
         for income in data['income'].values():
             sheet.set_row(project_row, False, False, {'hidden': 1, 'level': level + 2})
-            sheet.write(project_row, 0, income['name'], project_format)
+            sheet.write(project_row, 0, income['name'], project_format_indent)
+            sheet.write(project_row, 1, data['info']['probability'], project_format)
             self.print_row_values(sheet, project_row, column, income, periods_dict, 'project_format')
             income_rows.append(project_row)
             project_row += 1
-        self.print_vertical_sum_formula(sheet, income_total_row, income_rows, periods_dict, 1, 'project_total_format')
+        self.print_vertical_sum_formula(sheet, income_total_row, income_rows, periods_dict, 2, 'project_total_format')
 
         sheet.set_row(project_row, False, False, {'hidden': 1, 'level': level + 1})
         sheet.write(project_row, 0, 'Платежи (расходы)', project_total_format_indent)
+        sheet.write(project_row, 1, data['info']['probability'], project_total_format)
         expense_total_row = project_row
         expense_rows = []
         project_row += 1
         for expense in data['expense'].values():
             sheet.set_row(project_row, False, False, {'hidden': 1, 'level': level + 2})
-            sheet.write(project_row, 0, expense['name'], project_format)
+            sheet.write(project_row, 0, expense['name'], project_format_indent)
+            sheet.write(project_row, 1, data['info']['probability'], project_format)
             self.print_row_values(sheet, project_row, column, expense, periods_dict, 'project_format')
             expense_rows.append(project_row)
             project_row += 1
             if expense.get('suppliers'):
                 for supplier in expense['suppliers'].values():
                     sheet.set_row(project_row, False, False, {'hidden': 1, 'level': level + 3})
-                    sheet.write(project_row, 0, supplier['name'], supplier_format)
+                    sheet.write(project_row, 0, supplier['name'], supplier_format_indent)
+                    sheet.write(project_row, 1, data['info']['probability'], project_format)
                     self.print_row_values(sheet, project_row, column, supplier, periods_dict, 'supplier_format')
                     project_row += 1
-        self.print_vertical_sum_formula(sheet, expense_total_row, expense_rows, periods_dict, 1, 'project_total_format')
+        self.print_vertical_sum_formula(sheet, expense_total_row, expense_rows, periods_dict, 2, 'project_total_format')
 
         sheet.set_row(project_row, False, False, {'hidden': 1, 'level': level})
         sheet.write(project_row, 0, 'Итого чистые денежные средства, полученные от операционной деятельности', project_total_format)
-        self.print_vertical_sum_formula(sheet, project_row, (income_total_row, expense_total_row), periods_dict, 1, 'project_total_format')
+        sheet.write(project_row, 1, data['info']['probability'], project_total_format)
+        self.print_vertical_sum_formula(sheet, project_row, (income_total_row, expense_total_row), periods_dict, 2, 'project_total_format')
         return project_row
 
     def print_row_values(self, sheet, row, column, data, periods_dict, format_name):
@@ -401,7 +411,7 @@ class ReportBDDSExcel(models.AbstractModel):
             if company.id not in dict_formula['company_ids']:
                 row += 1
                 dict_formula['company_ids'][company.id] = row
-                sheet.write(row, 0, company.name, company_format)
+                sheet.merge_range(row, 0, row, 1, company.name, company_format)
             center_lines = list()
 
             for center in responsibility_centers.filtered(lambda r: r.company_id == company):
@@ -410,7 +420,7 @@ class ReportBDDSExcel(models.AbstractModel):
                         row += 1
                         dict_formula['center_ids'][center.id] = row
                         sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
-                        sheet.write(row, 0, center.name, center_format)
+                        sheet.merge_range(row, 0, row, 1, center.name, center_format)
                     project_lines = list()
                     center_lines.append(row)
                     if center.name in data[company.name]:
@@ -423,11 +433,16 @@ class ReportBDDSExcel(models.AbstractModel):
                                 row, column,
                                 content['info']['partner_id'] + '/'
                                 + content['info']['project_id'] + '/'
-                                + content['info']['key_account_manager_id'] + '/'
-                                + content['info']['probability'],
+                                + content['info']['key_account_manager_id'],
                                 project_format
                             )
-                            for _ in range(1, len(periods_dict) + 1):
+                            column += 1
+                            sheet.write_string(
+                                row, column,
+                                content['info']['probability'],
+                                project_format
+                            )
+                            for _ in range(2, len(periods_dict) + 2):
                                 sheet.write_string(row, _, '', project_format)
                             column += 1
                             row = self.print_project_values(workbook, sheet, row, column, content, periods_dict, max_level + 1)
@@ -448,11 +463,11 @@ class ReportBDDSExcel(models.AbstractModel):
                                 project_lines.append(dict_formula['center_ids'][child_center.id])
 
                     self.print_vertical_sum_formula(sheet, dict_formula['center_ids'][center.id], project_lines,
-                                                    periods_dict, 1, 'center_format')
+                                                    periods_dict, 2, 'center_format')
 
                 if level == 1:
                     self.print_vertical_sum_formula(sheet, dict_formula['company_ids'][company.id], center_lines,
-                                                    periods_dict, 1, 'company_format')
+                                                    periods_dict, 2, 'company_format')
 
         return row, dict_formula
 
@@ -491,10 +506,10 @@ class ReportBDDSExcel(models.AbstractModel):
 
         row = 0
         column = 0
-        sheet.freeze_panes(3, 1)
+        sheet.freeze_panes(3, 2)
 
         periods_dict, period_limits = self.calculate_periods_dict(workbook, report_period)
-        sheet.merge_range(0, 0, row + 1, len(periods_dict), "Отчет о движении денежных средств", head_format)
+        sheet.merge_range(0, 0, row + 1, len(periods_dict) + 1, "Отчет о движении денежных средств", head_format)
         sheet.set_column(column, column, 55)
         row += 2
 
@@ -558,9 +573,9 @@ class ReportBDDSExcel(models.AbstractModel):
         ]).ids) == set(responsibility_center_ids):
             row += 1
 
-            sheet.write(row, 0, 'Остаток денежных средств на конец периода', total_format)
+            sheet.merge_range(row, 0, row, 1, 'Остаток денежных средств на конец периода', total_format)
 
-            self.print_vertical_sum_formula(sheet, row, dict_formula['company_ids'].values(), periods_dict, 1,
+            self.print_vertical_sum_formula(sheet, row, dict_formula['company_ids'].values(), periods_dict, 2,
                                             'total_format')
 
     def generate_xlsx_report(self, workbook, data, budgets):
