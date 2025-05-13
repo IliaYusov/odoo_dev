@@ -5,6 +5,7 @@ from odoo.tools import date_utils
 from datetime import date, datetime, timedelta
 from xlsxwriter.utility import xl_col_to_name
 from collections import OrderedDict
+from copy import deepcopy
 
 isdebug = False
 logger = logging.getLogger("*___forecast_report___*")
@@ -181,7 +182,7 @@ class ReportBDDSExcel(models.AbstractModel):
             else:
                 continue
             if budget_items.get(project.company_id.id):
-                project_data = budget_items[project.company_id.id]
+                project_data = deepcopy(budget_items[project.company_id.id])
             else:
                 project_data = {
                     'income': {0: {'name': 'Поступления', 'periods': {key: 0 for key in periods_dict.keys()}, 'suppliers': {}}},
@@ -235,7 +236,7 @@ class ReportBDDSExcel(models.AbstractModel):
                     'margin': project.margin_in_company_currency,
                     'profitability': project.profitability,
                     'dogovor_number': project.dogovor_number or '',
-                    'vat_attribute_id': project.vat_attribute_id.name,
+                    'tax_id': project.tax_id.name,
                 }
 
                 data[project.company_id.name][project.responsibility_center_id.name][
@@ -416,7 +417,7 @@ class ReportBDDSExcel(models.AbstractModel):
                         for project, content in data[company.name][center.name].items():
                             # печатаем строки проектов
                             row += 1
-                            sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level})
+                            sheet.set_row(row, False, False, {'hidden': 1, 'level': max_level + 1})
                             column = 0
                             sheet.write_string(
                                 row, column,
@@ -429,7 +430,7 @@ class ReportBDDSExcel(models.AbstractModel):
                             for _ in range(1, len(periods_dict) + 1):
                                 sheet.write_string(row, _, '', project_format)
                             column += 1
-                            row = self.print_project_values(workbook, sheet, row, column, content, periods_dict, max_level)
+                            row = self.print_project_values(workbook, sheet, row, column, content, periods_dict, max_level + 1)
                             project_lines.append(row)
 
                     child_centers = self.env['account.analytic.account'].search([
