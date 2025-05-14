@@ -385,7 +385,7 @@ class report_budget_excel(models.AbstractModel):
                             column += 1
                             sheet.write(row, column, spec.end_sale_project_month if spec.company_id.id != 10 else '', row_format_date_month)
                             column += 1
-                            sheet.write_string(row, column, spec.vat_attribute_id.name or "", row_format)
+                            sheet.write_string(row, column, spec.tax_id.name or "", row_format)
                             column += 1
                             sheet.write_number(row, column, spec.revenue_from_the_sale_of_works * currency_rate,row_format_number)
                             column += 1

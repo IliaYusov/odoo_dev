@@ -4444,11 +4444,6 @@ msgid "project_type name"
 msgstr "Наименование"
 
 #. module: project_budget
-#: model:ir.model,name:project_budget.model_project_budget_vat_attribute
-msgid "project_vat attribute"
-msgstr "Признак НДС"
-
-#. module: project_budget
 #: model:ir.model,name:project_budget.model_project_budget_amount_spec
 msgid "projects amount specification"
 msgstr "Расшифровка сумм проекта"
@@ -4972,7 +4967,7 @@ msgstr "НДС"
 
 #. module: project_budget
 #: model:ir.actions.act_window,name:project_budget.show_vat_attribute
-#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__vat_attribute_id
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_projects__tax_id
 #: model:ir.model.fields,field_description:project_budget.field_project_budget_tenders__vat_attribute_id
 #: model:ir.ui.menu,name:project_budget.project_budget_catalogs_vat_attribute
 #: model_terms:ir.ui.view,arch_db:project_budget.show_vat_attribute_form

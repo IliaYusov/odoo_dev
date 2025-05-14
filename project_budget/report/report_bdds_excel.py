@@ -236,7 +236,7 @@ class ReportBDDSExcel(models.AbstractModel):
                     'margin': project.margin_in_company_currency,
                     'profitability': project.profitability,
                     'dogovor_number': project.dogovor_number or '',
-                    'tax_id': project.tax_id.name,
+                    'tax_id': project.tax_id.name,  # TODO
                 }
 
                 data[project.company_id.name][project.responsibility_center_id.name][

@@ -575,7 +575,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                     'margin': current_project.margin_in_company_currency,
                     'profitability': current_project.profitability,
                     'dogovor_number': current_project.dogovor_number or '',
-                    'vat_attribute_id': current_project.vat_attribute_id.name,
+                    'tax_id': current_project.tax_id.name,
                 }
 
                 data[current_project.company_id.name][current_project.responsibility_center_id.name][
@@ -807,7 +807,7 @@ class ReportPdsWeeklyPlanFactExcel(models.AbstractModel):
                             column += 1
                             sheet.write_string(row, column, content['info']['dogovor_number'], cur_row_format)
                             column += 1
-                            sheet.write_string(row, column, content['info']['vat_attribute_id'], cur_row_format)
+                            sheet.write_string(row, column, content['info']['tax_id'], cur_row_format)
                             column += 1
                             sheet.write_string(row, column, '', cur_row_format)
                             column += 1

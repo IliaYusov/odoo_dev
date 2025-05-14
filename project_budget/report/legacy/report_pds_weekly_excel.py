@@ -1018,7 +1018,7 @@ class report_pds_weekly_excel(models.AbstractModel):
                             column += 1
                             sheet.write_string(row, column, spec.dogovor_number or '', cur_row_format)
                             column += 1
-                            sheet.write_string(row, column, spec.vat_attribute_id.name, cur_row_format)
+                            sheet.write_string(row, column, spec.tax_id.name, cur_row_format)
                             column += 1
                             sheet.write_string(row, column, '', cur_row_format)
                             column += 1

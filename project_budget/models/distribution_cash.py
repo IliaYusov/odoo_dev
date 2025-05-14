@@ -59,7 +59,7 @@ class distribution_cash(models.Model):
     def _compute_sum(self):
         for row in self:
             if row.fact_cash_flow_id.step_project_child_id:
-                row.sum_cash_without_vat = row.sum_cash/(1+row.fact_cash_flow_id.step_project_child_id.vat_attribute_id.percent / 100)
+                row.sum_cash_without_vat = row.sum_cash/(1+row.fact_cash_flow_id.step_project_child_id.tax_id.amount / 100)
             else:
-                row.sum_cash_without_vat = row.sum_cash / (1 + row.fact_cash_flow_id.projects_id.vat_attribute_id.percent / 100)
+                row.sum_cash_without_vat = row.sum_cash / (1 + row.fact_cash_flow_id.projects_id.tax_id.amount / 100)
         # row.planned_cash_flow_id.compute_distribution_sum()

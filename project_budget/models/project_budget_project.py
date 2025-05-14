@@ -35,6 +35,9 @@ class Project(models.Model):
         return employee.id if employee.user_id.has_group(
             'project_budget.project_budget_group_key_account_manager') else False
 
+    def _get_default_tax_id(self):
+        return self.env.company.account_sale_tax_id
+
     def _get_key_account_manager_id_domain(self):
         return "[('user_id.groups_id', 'in', %s), '|', ('company_id', '=', False), ('company_id', '=', company_id)]" \
             % self.env.ref('project_budget.project_budget_group_key_account_manager').id
@@ -140,6 +143,10 @@ class Project(models.Model):
     # end_sale_project_quarter = fields.Char(string='End date of the Sale project(quarter)', compute='_compute_quarter', store=True, tracking=True)
     # end_sale_project_month = fields.Date(string='The period of shipment or provision of services to the Client(MONTH)', required=True,default=fields.Date.context_today, tracking=True)
     vat_attribute_id = fields.Many2one('project_budget.vat_attribute', string='vat_attribute', copy=True,tracking=True , domain ="[('is_prohibit_selection','=', False)]")
+    tax_id = fields.Many2one(
+        'account.tax', string='vat_attribute', domain="[('company_id', '=', company_id), ('type_tax_use', '=', 'sale')]",
+        default=_get_default_tax_id, copy=True, tracking=True
+    )
 
     # total_amount_of_revenue = fields.Monetary(string='total_amount_of_revenue', store=True, tracking=True)
     # total_amount_of_revenue_with_vat = fields.Monetary(string='total_amount_of_revenue_with_vat', compute='_compute_totals',
@@ -359,7 +366,7 @@ class Project(models.Model):
 
     def _calculate_totals(self, project):
         if not project.project_have_steps:
-            project.amount_total = project.amount_untaxed * (1 + project.vat_attribute_id.percent / 100)
+            project.amount_total = project.amount_untaxed * (1 + project.tax_id.amount / 100)
         elif project.project_have_steps and project.step_status == 'project':
             amount_untaxed = 0
             amount_total = 0
@@ -370,7 +377,7 @@ class Project(models.Model):
             project.amount_untaxed = amount_untaxed
             project.amount_total = amount_total
 
-    @api.depends('amount_untaxed', 'vat_attribute_id')
+    @api.depends('amount_untaxed', 'tax_id')
     def _compute_totals(self):
         for project in self.sorted(lambda p: p.step_status == 'project'):  # сначала этапы, потом проекты
             self._calculate_totals(project)
@@ -755,6 +762,11 @@ class Project(models.Model):
         project_office = self._get_employee_project_office(self.key_account_manager_id)
         if project_office:
             self.project_office_id = project_office.id
+
+    @api.onchange('project_have_steps')
+    def _onchange_project_have_steps(self):
+        if self.project_have_steps:
+            self.tax_id = False
 
     def check_project_overdue_dates(self, project, vals_dict, stage_code):
         end_presale_project_month = project.end_presale_project_month

@@ -234,7 +234,7 @@ class Project(models.Model):
             project.margin = margin
             project.profitability = profitability
 
-    @api.depends('amount_untaxed', "cost_price", 'vat_attribute_id')
+    @api.depends('amount_untaxed', "cost_price", 'tax_id')
     def _compute_totals(self):
         for project in self.sorted(lambda p: p.step_status == 'project'):  # сначала этапы, потом проекты
             self._calculate_totals(project)

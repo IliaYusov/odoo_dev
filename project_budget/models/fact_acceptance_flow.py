@@ -40,13 +40,13 @@ class fact_acceptance_flow(models.Model):
         for row in self:
             row.currency_id = row.projects_id.currency_id
 
-    @api.depends("sum_cash_without_vat", "step_project_child_id.vat_attribute_id", "projects_id.vat_attribute_id")
+    @api.depends("sum_cash_without_vat", "step_project_child_id.tax_id", "projects_id.tax_id")
     def _compute_sum(self):
         for row in self:
             if row.step_project_child_id:
-                row.sum_cash = row.sum_cash_without_vat * (1+row.step_project_child_id.vat_attribute_id.percent / 100)
+                row.sum_cash = row.sum_cash_without_vat * (1+row.step_project_child_id.tax_id.amount / 100)
             else:
-                row.sum_cash = row.sum_cash_without_vat * (1 + row.projects_id.vat_attribute_id.percent / 100)
+                row.sum_cash = row.sum_cash_without_vat * (1 + row.projects_id.tax_id.amount / 100)
 
     @api.onchange("distribution_acceptance_ids")
     def _compute_distribution_sum(self):

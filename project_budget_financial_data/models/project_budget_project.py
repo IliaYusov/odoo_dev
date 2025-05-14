@@ -416,7 +416,7 @@ class Project(models.Model):
                 self._calculate_all_sums(project)
 
     # @api.onchange('project_office_id','project_status','currency_id','project_curator_id','key_account_manager_id',
-    #               'industry_id','essence_project','end_presale_project_month','end_sale_project_month','vat_attribute_id','total_amount_of_revenue',
+    #               'industry_id','essence_project','end_presale_project_month','end_sale_project_month','tax_id','total_amount_of_revenue',
     #               'total_amount_of_revenue_with_vat','revenue_from_the_sale_of_works','revenue_from_the_sale_of_goods','cost_price','cost_of_goods','own_works_fot',
     #               'third_party_works','awards_on_results_project','transportation_expenses','travel_expenses','representation_expenses','taxes_fot_premiums','warranty_service_costs',
     #               'rko_other','other_expenses','margin_income','profitability','stage_id','signer_id','project_type_id','comments',

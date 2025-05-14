@@ -2,7 +2,7 @@
     'name': 'Project_budget',
     'version': '16.0.1.1.2',
     'category': 'Project',
-    'depends': ['base', 'hr', 'analytic'],
+    'depends': ['base', 'hr', 'analytic', 'account'],
     'external_dependencies': {'python': ['openpyxl']},
     'description': """
     """,

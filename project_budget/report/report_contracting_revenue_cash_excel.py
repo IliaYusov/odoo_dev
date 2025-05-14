@@ -284,11 +284,11 @@ class ReportContractingRevenueCashExcel(models.AbstractModel):
         frst_fcf = prj.fact_cash_flow_ids.sorted('date_cash')[:1]
         res = ''
         if frst_faf and frst_fcf:
-            if frst_fcf.date_cash <= frst_faf.date_cash and frst_fcf.sum_cash >= frst_faf.sum_cash * (1 + prj.vat_attribute_id.percent / 100):
+            if frst_fcf.date_cash <= frst_faf.date_cash and frst_fcf.sum_cash >= frst_faf.sum_cash * (1 + prj.tax_id.amount / 100):
                 res = 'Предоплата 100%'
-            elif frst_fcf.date_cash <= frst_faf.date_cash and frst_fcf.sum_cash < frst_faf.sum_cash * (1 + prj.vat_attribute_id.percent / 100):
+            elif frst_fcf.date_cash <= frst_faf.date_cash and frst_fcf.sum_cash < frst_faf.sum_cash * (1 + prj.tax_id.amount / 100):
                 res = 'Частичная предоплата'
-            elif frst_fcf.date_cash > frst_faf.date_cash and frst_fcf.sum_cash >= frst_faf.sum_cash * (1 + prj.vat_attribute_id.percent / 100):
+            elif frst_fcf.date_cash > frst_faf.date_cash and frst_fcf.sum_cash >= frst_faf.sum_cash * (1 + prj.tax_id.amount / 100):
                 res = 'Постоплата 100%'
 
         sheet.write(row, col, res, row_format)

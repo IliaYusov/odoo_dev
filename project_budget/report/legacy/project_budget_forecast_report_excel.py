@@ -1650,7 +1650,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                             column += 1
                                             sheet.write_string(row, column, step.dogovor_number or '', cur_row_format)
                                             column += 1
-                                            sheet.write_string(row, column, step.vat_attribute_id.name or '', cur_row_format)
+                                            sheet.write_string(row, column, step.tax_id.name or '', cur_row_format)
                                             column += 1
                                             sheet.write_string(row, column, '', head_format_1)
                                             self.print_row_Values(workbook, sheet, row, column,  spec, step)
@@ -1695,7 +1695,7 @@ class report_budget_forecast_excel(models.AbstractModel):
                                     column += 1
                                     sheet.write_string(row, column, spec.dogovor_number or '', cur_row_format)
                                     column += 1
-                                    sheet.write_string(row, column, spec.vat_attribute_id.name or '', cur_row_format)
+                                    sheet.write_string(row, column, spec.tax_id.name or '', cur_row_format)
                                     column += 1
                                     sheet.write_string(row, column, '', head_format_1)
                                     self.print_row_Values(workbook, sheet, row, column,  spec, False)

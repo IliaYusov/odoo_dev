@@ -94,7 +94,7 @@
                 <field name="amount_untaxed" optional="show"/>
                 <field name="stage_id" string="Probability" context="{'code_only': True}" optional="show"
                        options="{'always_reload': True}"/>
-                <field name="vat_attribute_id" optional="hide"/>
+                <field name="tax_id" optional="hide"/>
                 <field name="signer_id" optional="hide"/>
                 <field name="comments" optional="hide"/>
             </tree>
@@ -136,7 +136,7 @@
                             <field name="step_project_number" placeholder="type step code e.g. 0001" attrs="{'readonly': [('can_edit', '=', False)]}"/> <!--обязательно при вероятности 100 и 100(done) -->
                         </group>
                         <group>
-                            <field name="vat_attribute_id" placeholder="select vat attribute"
+                            <field name="tax_id" placeholder="select vat attribute"
                                    attrs="{'readonly': [('can_edit', '=', False)]}"/>
                         </group>
                         <group>
@@ -303,7 +303,7 @@
                                 <field name="dogovor_number" attrs="{'readonly': [('can_edit', '=', False)]}"/>
                             </group>
                             <group>
-                                <field name="vat_attribute_id" placeholder="select vat attribute"
+                                <field name="tax_id" placeholder="select vat attribute"
                                        options="{'no_open': True}"
                                        attrs="
                                        {
@@ -413,7 +413,7 @@
                                         <field name="stage_id" string="Probability" context="{'code_only': True}" optional="show" options="{'always_reload': True}"/>
                                         <field name="essence_project" optional="show" placeholder="type step name e.g. products recieve"/>
                                         <field name="end_presale_project_month" optional="show" />
-                                        <field name="vat_attribute_id" optional="show"/>
+                                        <field name="tax_id" optional="show"/>
                                         <field name="amount_untaxed" optional="show" />
                                         <field name="amount_total" optional="show" />
                                         <field name="budget_state" optional="hide" />
@@ -590,7 +590,7 @@
                 <field name="partner_id"/>
                 <field name="end_presale_project_month"/>
                 <field name="dogovor_number"/>
-                <field name="vat_attribute_id"/>
+                <field name="tax_id"/>
                 <field name="step_project_number"/>
                 <field name="key_account_manager_id"/>
                 <field name="project_curator_id"/>
@@ -713,7 +713,7 @@
                 <field name="end_presale_project_quarter"/>
                 <field name="amount_untaxed" type="measure"/>
                 <field name="stage_id"/>
-                <field name="vat_attribute_id"/>
+                <field name="tax_id"/>
                 <field name="signer_id"/>
                 <field name="comments"/>
             </pivot>

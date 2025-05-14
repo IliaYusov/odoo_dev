@@ -3590,7 +3590,7 @@ class report_management_committee_excel(models.AbstractModel):
                                     column += 1
                                     sheet.write_string(row, column, spec.dogovor_number or '', cur_row_format)
                                     column += 1
-                                    sheet.write_string(row, column, spec.vat_attribute_id.name or '', cur_row_format)
+                                    sheet.write_string(row, column, spec.tax_id.name or '', cur_row_format)
                                     column += 1
                                     sheet.write_string(row, column, '', cur_row_format)
                                     self.print_row_values(workbook, sheet, row, column, strYEAR, spec, responsibility_center, params)

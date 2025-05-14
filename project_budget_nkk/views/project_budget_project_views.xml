@@ -58,7 +58,7 @@
                 <field name="total_margin" string="Total Margin" readonly="1"/>
                 <field name="profitability" optional="hide" readonly="1"/>
                 <field name="stage_id" string="Probability" context="{'code_only': True}" optional="show" readonly="1"/>
-                <field name="vat_attribute_id" optional="hide" readonly="1"/>
+                <field name="tax_id" optional="hide" readonly="1"/>
                 <field name="signer_id" options="{'no_open': True,}" optional="hide"
                        readonly="1"/>
                 <field name="comments" optional="hide" readonly="1"/>
@@ -482,8 +482,8 @@
                            options="{'autosave': False}"/>
                 </group>
             </xpath>
-            <xpath expr="//sheet[@name='project']//group//group//field[@name='vat_attribute_id']" position="replace">
-                 <field name="vat_attribute_id"
+            <xpath expr="//sheet[@name='project']//group//group//field[@name='tax_id']" position="replace">
+                 <field name="tax_id"
                         options="{'no_open': True}"
                         attrs="{
                             'readonly': [('can_edit', '=', False)],
