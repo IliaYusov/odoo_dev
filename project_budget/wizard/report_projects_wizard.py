@@ -53,7 +53,7 @@ class report_projects_wizard(models.TransientModel):
     koeff_reserve = fields.Float(string='koefficient for reserve', default=0.6)
     koeff_potential = fields.Float(string='koefficient for potential', default=0.1)
     date_start = fields.Date(string='start of report', default=date.today(), required=True)
-    date_end = fields.Date(string='end of report', compute='_compute_default_end_date', required=True, readonly=False)
+    date_end = fields.Date(string='end of report', default=date.today() + timedelta(days=7), required=True, readonly=False)
     pds_accept = fields.Selection([('pds', 'PDS'), ('accept', 'Acceptance')], string='PDS Accept', default='pds', required=True)
     report_with_projects = fields.Boolean(string='detailed report', default=True)
     responsibility_center_ids = fields.Many2many('account.analytic.account', relation='report_responsibility_center_rel',
@@ -70,7 +70,7 @@ class report_projects_wizard(models.TransientModel):
                 raise ValidationError(raise_text)
 
     @api.onchange('type_report')
-    def _compute_default_end_date(self):
+    def _onchange_default_end_date(self):
         for report in self:
             if report.type_report == 'bdds':
                 report.date_end = date.today() + timedelta(days=335)

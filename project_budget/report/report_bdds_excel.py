@@ -361,9 +361,13 @@ class ReportBDDSExcel(models.AbstractModel):
         for period in periods_dict:
             for col in periods_dict[period]['cols']:
                 if 'sum_year' in period:
+                    if column - 3 > 12:
+                        start_col = column - 12
+                    else:
+                        start_col = 2
                     formula = 'sum({1}{0}:{2}{0})'.format(
                         row + 1,
-                        xl_col_to_name(1),
+                        xl_col_to_name(start_col),
                         xl_col_to_name(column - 1),
                     )
                     sheet.write_formula(row, column, formula, col[format_name])
