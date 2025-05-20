@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_crm_lead_create_license,crm.lead.create.license,model_crm_lead_create_license,license_mngmnt.license_group_user,1,1,1,0

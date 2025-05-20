@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="crm_lead_action_create_license" model="ir.actions.server">
+        <field name="name">Create License</field>
+        <field name="model_id" ref="project_budget.model_project_budget_projects"/>
+        <field name="binding_model_id" ref="project_budget.model_project_budget_projects"/>
+        <field name="binding_view_types">tree,form</field>
+        <field name="groups_id" eval="[(4,ref('license_mngmnt.license_group_user'))]"/>
+        <field name="state">code</field>
+        <field name="code">action = records.action_create_license()</field>
+    </record>
+</odoo>

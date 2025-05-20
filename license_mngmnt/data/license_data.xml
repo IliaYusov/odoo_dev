@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="license_type_server" model="license.type">
+            <field name="name">Server License</field>
+        </record>
+
+        <record id="license_type_user" model="license.type">
+            <field name="name">User License</field>
+        </record>
+    </data>
+</odoo>

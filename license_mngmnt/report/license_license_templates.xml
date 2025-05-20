@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="A4_license_certificate" model="report.paperformat">
+        <field name="name">A4 for License Certificate</field>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">10.00</field>
+        <field name="margin_bottom">10.00</field>
+        <field name="margin_left">20.0</field>
+        <field name="margin_right">20.0</field>
+        <field name="header_line" eval="False" />
+        <field name="header_spacing">35</field>
+        <field name="dpi">96</field>
+    </record>
+
+    <template id="report_license_certificate_document">
+        <t t-if="not o" t-set="o" t-value="doc"/>
+        <t t-if="not company">
+            <!-- Multicompany -->
+            <t t-if="company_id">
+                <t t-set="company" t-value="company_id"/>
+            </t>
+            <t t-elif="o and 'company_id' in o and o.company_id.sudo()">
+                <t t-set="company" t-value="o.company_id.sudo()"/>
+            </t>
+            <t t-else="else">
+                <t t-set="company" t-value="res_company"/>
+            </t>
+        </t>
+
+        <div class="lh-lg article">
+            <div class="lh-base text-secondary">
+                <div class="row">
+                    <div class="col-4 text-center">
+                        <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" class="mt-4" style="max-width:260px;max-height:89px;" alt="Logo"/>
+                    </div>
+                    <div class="col-7 text-left mb4">
+                        <ul class="list-unstyled">
+<!--                            <li><t t-esc="company.partner_id.full_name"/></li>-->
+                            <li><t t-esc="company.name"/></li>
+                            <li>ИНН: <t t-esc="company.vat"/></li>
+                            <li>Юридический адрес: <t t-esc="', '.join(item for item in (company.zip, company.city, company.street, company.street2) if item)"/></li>
+                            <li>Тел: <t t-esc="company.phone"/></li>
+                            <li><t t-esc="company.email"/></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="height: 50px;"/>
+            <div class="h4 text-center fw-bold text-dark">
+                <span>ЛИЦЕНЗИЯ</span>
+            </div>
+            <div class="row" style="height: 70px;"/>
+            <div class="text-dark">
+                <p>
+                    <div>
+                        На право использования:
+                    </div>
+                    <div>
+                        <span t-field="o.product_id.name"/> заказчиком <span t-field="o.customer_id.name"/>
+                    </div>
+                </p>
+                <p>
+                    <div class="row">
+                        <div class="col-4 align-middle">Лицензия: </div>
+                        <div class="col-6 align-middle" t-field="o.license_key"/>
+                    </div>
+                </p>
+                <p>
+                    <div class="row">
+                        <div class="col-4 align-middle">Срок действия:  </div>
+                        <t t-if="o.is_unlimited or not o.date_end">
+                            <div class="col-4 align-middle">
+                                <span> бессрочно </span>
+                            </div>
+                        </t>
+                        <t t-else="else">
+                            <div class="col-4 align-middle">
+                                <span t-field="o.date_start"/> - <span t-field="o.date_end"/>
+                            </div>
+                        </t>
+                    </div>
+                </p>
+                <p>
+                    <div class="row">
+                        <div class="col-4 align-middle">Количество пользователей: </div>
+                        <t t-if="o.number_users_is_unlimited or not o.number_users">
+                            <div class="col-4 align-middle">
+                                <span> неограниченно </span>
+                            </div>
+                        </t>
+                        <t t-else="else">
+                            <div class="col-4 align-middle" t-field="o.number_users"/>
+                        </t>
+                    </div>
+                </p>
+            </div>
+
+            <div class="row" style="height: 600px;"/>
+            <div class="lh-base">
+                <div class="row">
+                    <div class="col-9 align-middle">Дата начала:</div>
+                    <div class="col-1 text-nowrap align-middle">Генеральный директор</div>
+                </div>
+                <div class="row">
+                    <div class="col-9 align-middle fw-bold h6" t-field="o.date_start"/>
+                    <div class="col-3 align-middle" t-field="company.name"/>
+                </div>
+                <div class="row" style="height: 5px;"/>
+                <div class="row">
+                    <div class="col-9 align-middle">Дата окончания:</div>
+                    <div class="col-3 align-middle"/>
+                </div>
+                <div class="row">
+                    <t t-if="o.is_unlimited or not o.date_end">
+                        <div class="col-9 align-middle fw-bold">
+                            <span>Без ограничения срока</span>
+                        </div>
+                    </t>
+                    <t t-else="else">
+                        <div class="col-9 align-middle fw-bold h6" t-field="o.date_end"/>
+                    </t>
+                    <div class="col-3 align-middle fw-bold">____________________</div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="report_license_certificate">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="license_mngmnt.report_license_certificate_document" t-lang="doc.customer_id.lang"/>
+            </t>
+        </t>
+    </template>
+</odoo>

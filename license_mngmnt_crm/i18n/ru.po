@@ -1,0 +1,181 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* license_mngmnt_crm
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-05-06 10:00+0000\n"
+"PO-Revision-Date: 2025-05-06 10:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: license_mngmnt_crm
+#: model_terms:ir.ui.view,arch_db:license_mngmnt_crm.crm_lead_create_license_view_form
+msgid ""
+"<i class=\"fa fa-long-arrow-right mx-2 oe_edit_only\" aria-label=\"Arrow "
+"icon\" title=\"Arrow\" attrs=\"{'invisible': [('is_unlimited', '=', "
+"True)]}\"/>"
+msgstr ""
+
+#. module: license_mngmnt_crm
+#: model_terms:ir.ui.view,arch_db:license_mngmnt_crm.crm_lead_create_license_view_form
+msgid ""
+"<span>\n"
+"                                    Number Users Unlimited\n"
+"                                </span>"
+msgstr ""
+"<span>\n"
+"                                    Неограничено\n"
+"                                </span>"
+
+#. module: license_mngmnt_crm
+#: model_terms:ir.ui.view,arch_db:license_mngmnt_crm.crm_lead_create_license_view_form
+msgid ""
+"<span>\n"
+"                                    Unlimited\n"
+"                                </span>"
+msgstr ""
+"<span>\n"
+"                                    Бессрочная\n"
+"                                </span>"
+
+#. module: license_mngmnt_crm
+#: model_terms:ir.ui.view,arch_db:license_mngmnt_crm.crm_lead_create_license_view_form
+msgid "Cancel"
+msgstr "Отменить"
+
+#. module: license_mngmnt_crm
+#: model:ir.model.fields,field_description:license_mngmnt_crm.field_license_license__company_partner_id
+msgid "Company Partner"
+msgstr "Партнер"
+
+#. module: license_mngmnt_crm
+#. odoo-python
+#: code:addons/license_mngmnt_crm/models/license_license.py:0
+#, python-format
+msgid "Company partner set in the license must match set in the opportunity."
+msgstr "Партнер указанный в лицензии должен совпадать с указанным в сделке."
+
+#. module: license_mngmnt_crm
+#: model_terms:ir.ui.view,arch_db:license_mngmnt_crm.crm_lead_create_license_view_form
+msgid "Create"
+msgstr "Создать"
+
+#. module: license_mngmnt_crm
+#. odoo-python
+#: code:addons/license_mngmnt_crm/models/crm_lead.py:0
+#: model:ir.actions.server,name:license_mngmnt_crm.crm_lead_action_create_license
+#, python-format
+msgid "Create License"
+msgstr "Создать лицензию"
+
+#. module: license_mngmnt_crm
+#: model:ir.model,name:license_mngmnt_crm.model_crm_lead_create_license
+msgid "Create License From Lead"
+msgstr ""
+
+#. module: license_mngmnt_crm
+#: model:ir.model.fields,field_description:license_mngmnt_crm.field_crm_lead_create_license__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: license_mngmnt_crm
+#: model:ir.model.fields,field_description:license_mngmnt_crm.field_crm_lead_create_license__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: license_mngmnt_crm
+#: model:ir.model.fields,field_description:license_mngmnt_crm.field_crm_lead_create_license__date_end
+msgid "Date End"
+msgstr "Действует по"
+
+#. module: license_mngmnt_crm
+#: model:ir.model.fields,field_description:license_mngmnt_crm.field_crm_lead_create_license__date_start
+msgid "Date Start"
+msgstr "Действует с"
+
+#. module: license_mngmnt_crm
+#: model:ir.model.fields,field_description:license_mngmnt_crm.field_crm_lead_create_license__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: license_mngmnt_crm
+#: model:ir.model.fields,field_description:license_mngmnt_crm.field_crm_lead_create_license__id
+msgid "ID"
+msgstr ""
+
+#. module: license_mngmnt_crm
+#: model:ir.model.fields,field_description:license_mngmnt_crm.field_crm_lead_create_license____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: license_mngmnt_crm
+#: model:ir.model.fields,field_description:license_mngmnt_crm.field_crm_lead_create_license__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: license_mngmnt_crm
+#: model:ir.model.fields,field_description:license_mngmnt_crm.field_crm_lead_create_license__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: license_mngmnt_crm
+#: model:ir.model,name:license_mngmnt_crm.model_license_license
+msgid "License"
+msgstr "Лицензия"
+
+#. module: license_mngmnt_crm
+#. odoo-python
+#: code:addons/license_mngmnt_crm/wizard/crm_lead_create_license.py:0
+#, python-format
+msgid "License %s was created"
+msgstr "Лицензия %s была создана"
+
+#. module: license_mngmnt_crm
+#. odoo-python
+#: code:addons/license_mngmnt_crm/wizard/crm_lead_create_license.py:0
+#, python-format
+msgid "Licenses"
+msgstr "Лицензии"
+
+#. module: license_mngmnt_crm
+#: model:ir.model.fields,field_description:license_mngmnt_crm.field_crm_lead_create_license__number_users
+msgid "Number Users"
+msgstr "Количество пользователей"
+
+#. module: license_mngmnt_crm
+#: model:ir.model.fields,field_description:license_mngmnt_crm.field_license_license__opportunity_id
+msgid "Opportunity"
+msgstr "Сделка"
+
+#. module: license_mngmnt_crm
+#: model_terms:ir.ui.view,arch_db:license_mngmnt_crm.crm_lead_create_license_view_form
+msgid "Period"
+msgstr "Период"
+
+#. module: license_mngmnt_crm
+#: model:ir.model.fields,field_description:license_mngmnt_crm.field_crm_lead_create_license__product_id
+msgid "Product"
+msgstr "Продукт"
+
+#. module: license_mngmnt_crm
+#: model:ir.model,name:license_mngmnt_crm.model_project_budget_projects
+msgid "Project"
+msgstr "Проекты"
+
+#. module: license_mngmnt_crm
+#: model:ir.model.fields,field_description:license_mngmnt_crm.field_crm_lead_create_license__is_unlimited
+#: model:ir.model.fields,field_description:license_mngmnt_crm.field_crm_lead_create_license__number_users_is_unlimited
+msgid "Unlimited"
+msgstr "Бессрочная"
+
+#. module: license_mngmnt_crm
+#: model:ir.model.fields,field_description:license_mngmnt_crm.field_crm_lead_create_license__version
+msgid "Version"
+msgstr "Версия"

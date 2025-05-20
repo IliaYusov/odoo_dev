@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="license_license_view_tree_inherit_workflow" model="ir.ui.view">
+        <field name="name">license.license.tree.inherit.workflow</field>
+        <field name="model">license.license</field>
+        <field name="inherit_id" ref="license_mngmnt.license_license_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state']" position="attributes">
+                <attribute name="decoration-info">state == 'to_be_agreed'</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="license_license_view_form_inherit_workflow" model="ir.ui.view">
+        <field name="name">license.license.form.inherit.workflow</field>
+        <field name="model">license.license</field>
+        <field name="inherit_id" ref="license_mngmnt.license_license_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form/sheet" position="inside">
+                <field name="workflow_id" invisible="1"/>
+                <field name="workflow_process_id" invisible="1"/>
+                <field name="workflow_process_state" invisible="1"/>
+            </xpath>
+            <xpath expr="//button[@name='deactivate_license']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

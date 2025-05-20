@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="license_license_action_license_certificate_report" model="ir.actions.report">
+        <field name="name">License Certificate</field>
+        <field name="model">license.license</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">license_mngmnt.report_license_certificate</field>
+        <field name="report_file">license_mngmnt.report_license_certificate</field>
+        <field name="print_report_name">'License Certificate %s' % object.customer_id.name</field>
+        <field name="binding_model_id" ref="model_license_license"/>
+        <field name="paperformat_id" ref="license_mngmnt.A4_license_certificate" />
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

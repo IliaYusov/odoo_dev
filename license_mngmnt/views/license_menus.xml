@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <menuitem id="license_menu" name="License Management" sequence="280" groups="license_group_user">
+        <menuitem id="license_menu_licenses" name="Licenses" sequence="1" action="license_license_action"/>
+
+        <menuitem id="license_menu_products" name="Products" sequence="30">
+            <menuitem id="license_menu_products_product_templates" name="Products" sequence="1"
+                      action="action_license_product_templates"/>
+        </menuitem>
+
+        <menuitem id="license_menu_configuration" name="Configuration" sequence="100"
+              groups="license_group_manager">
+            <menuitem id="license_menu_configuration_settings" name="Settings" sequence="1"
+                      action="res_config_settings_action_license"/>
+            <menuitem id="license_menu_configuration_os" name="Operating Systems" sequence="10"
+                action="license_os_action"/>
+        </menuitem>
+    </menuitem>
+</odoo>

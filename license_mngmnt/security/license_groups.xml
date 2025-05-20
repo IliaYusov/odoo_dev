@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="module_category_services_license" model="ir.module.category">
+        <field name="name">License Management</field>
+        <field name="description">Helps you manage your software licenses.</field>
+        <field name="sequence">280</field>
+    </record>
+
+    <record id="license_group_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="category_id" ref="module_category_services_license"/>
+    </record>
+
+    <record id="license_group_manager" model="res.groups">
+        <field name="name">Administrator</field>
+        <field name="category_id" ref="module_category_services_license"/>
+        <field name="implied_ids" eval="[(4, ref('license_group_user'))]"/>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+</odoo>

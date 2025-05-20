@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="license_license_mail_template_license_generated" model="mail.template">
+        <field name="name">License: Was Generated</field>
+        <field name="model_id" ref="license_mngmnt.model_license_license"/>
+        <field name="subject">License by you request for {{ object.customer_id.name }} was generated</field>
+        <field name="description">Template to automate email when license was generated</field>
+        <field name="email_to">{{ object.create_uid.email }}</field>
+        <field name="lang">{{ object.create_uid.lang }}</field>
+        <field name="auto_delete" eval="True"/>
+        <field name="body_html" type="html">
+            <div style="margin: 0px; padding: 0px; font-size: 13px;">
+                <br/>
+                Dear <t t-out="object.create_uid.name or ''">author</t>,
+                <br/>
+                <br/>
+                License <a t-attf-href="{{ object.url }}" t-out="object.display_name or ''"/> by your request
+                was successfully generated.
+                <ul style="padding:0 0 0 24px;margin:0px 0 12px 0;box-sizing:border-box;">
+                    <li>
+                        License Key: "<t t-esc="object.license_key or ''">License Key</t>"
+                    </li>
+                    <li>
+                        Validity:
+                        <t t-if="object.is_unlimited">Unlimited</t>
+                        <t t-else="">
+                            <t t-esc="object.date_end.strftime('%d.%m.%Y')">01.01.2026</t>
+                        </t>
+                    </li>
+                    <li>
+                        Number Users:
+                        <t t-if="object.number_users_is_unlimited">Number Users Is Unlimited</t>
+                        <t t-else="">
+                            <t t-esc="object.number_users">01.01.2025</t>
+                        </t>
+                    </li>
+                </ul>
+                <p style="margin:0px 0 12px 0;box-sizing:border-box;"/>
+            </div>
+        </field>
+    </record>
+</odoo>

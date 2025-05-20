@@ -1,6 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_license_license_user,license.license.user,model_license_license,group_license_user,1,0,0,0
-access_license_license_manager,license.license.manager,model_license_license,group_license_manager,1,1,1,1
-
-access_license_os_user,license.os.user,model_license_os,group_license_user,1,0,0,0
-access_license_os_manager,license.os.manager,model_license_os,group_license_manager,1,1,1,1

@@ -1,0 +1,173 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* license_mngmnt_workflow
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-05-07 17:16+0000\n"
+"PO-Revision-Date: 2025-05-07 17:16+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: license_mngmnt_workflow
+#: model:mail.template,body_html:license_mngmnt_workflow.license_license_mail_template_license_generated
+msgid ""
+"<div style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"                <br>\n"
+"                Dear <t t-out=\"object.create_uid.name or ''\">author</t>,\n"
+"                <br>\n"
+"                <br>\n"
+"                License <a t-attf-href=\"{{ object.url }}\" t-out=\"object.display_name or ''\"></a> by your request\n"
+"                was successfully generated.\n"
+"                <ul style=\"padding:0 0 0 24px;margin:0px 0 12px 0;box-sizing:border-box;\">\n"
+"                    <li>\n"
+"                        License Key: \"<t t-esc=\"object.license_key or ''\">License Key</t>\"\n"
+"                    </li>\n"
+"                    <li>\n"
+"                        Validity:\n"
+"                        <t t-if=\"object.is_unlimited\">Unlimited</t>\n"
+"                        <t t-else=\"\">\n"
+"                            <t t-esc=\"object.date_end.strftime('%d.%m.%Y')\">01.01.2026</t>\n"
+"                        </t>\n"
+"                    </li>\n"
+"                    <li>\n"
+"                        Number Users:\n"
+"                        <t t-if=\"object.number_users_is_unlimited\">Number Users Is Unlimited</t>\n"
+"                        <t t-else=\"\">\n"
+"                            <t t-esc=\"object.number_users\">01.01.2025</t>\n"
+"                        </t>\n"
+"                    </li>\n"
+"                </ul>\n"
+"                <p style=\"margin:0px 0 12px 0;box-sizing:border-box;\"></p>\n"
+"            </div>\n"
+"        "
+msgstr ""
+"<div style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"                <br>\n"
+"                Уважаемый(-ая) <t t-out=\"object.create_uid.name or ''\">Автор</t>,\n"
+"                <br>\n"
+"                <br>\n"
+"                Лицензия <a t-attf-href=\"{{ object.url }}\" t-out=\"object.display_name or ''\"></a> по вашему запросу\n"
+"                была успешно сгенерирована.\n"
+"                <ul style=\"padding:0 0 0 24px;margin:0px 0 12px 0;box-sizing:border-box;\">\n"
+"                    <li>\n"
+"                        Лицензия: \"<t t-esc=\"object.license_key or ''\">Лицензия</t>\"\n"
+"                    </li>\n"
+"                    <li>\n"
+"                        Срок действия:\n"
+"                        <t t-if=\"object.is_unlimited\">Бессрочно</t>\n"
+"                        <t t-else=\"\">\n"
+"                            <t t-esc=\"object.date_end.strftime('%d.%m.%Y')\">01.01.2026</t>\n"
+"                        </t>\n"
+"                    </li>\n"
+"                    <li>\n"
+"                        Количество пользователей:\n"
+"                        <t t-if=\"object.number_users_is_unlimited\">Неограничено</t>\n"
+"                        <t t-else=\"\">\n"
+"                            <t t-esc=\"object.number_users\">01.01.2025</t>\n"
+"                        </t>\n"
+"                    </li>\n"
+"                </ul>\n"
+"                <p style=\"margin:0px 0 12px 0;box-sizing:border-box;\"></p>\n"
+"            </div>\n"
+"        "
+
+#. module: license_mngmnt_workflow
+#: model_terms:ir.ui.view,arch_db:license_mngmnt_workflow.res_config_settings_view_form_inherit_license_workflow
+msgid ""
+"<span class=\"o_form_label\">License Workflow</span>\n"
+"                        <span class=\"fa fa-lg fa-building-o\" title=\"Values set here are company-specific.\" role=\"img\" aria-label=\"Values set here are company-specific.\" groups=\"base.group_multi_company\"/>"
+msgstr ""
+
+#. module: license_mngmnt_workflow
+#: model:ir.model.fields.selection,name:license_mngmnt_workflow.selection__license_license__state__active
+msgid "Active"
+msgstr "Активна"
+
+#. module: license_mngmnt_workflow
+#: model:ir.model,name:license_mngmnt_workflow.model_res_company
+msgid "Companies"
+msgstr "Компании"
+
+#. module: license_mngmnt_workflow
+#: model:ir.model,name:license_mngmnt_workflow.model_res_config_settings
+msgid "Config Settings"
+msgstr "Настройки"
+
+#. module: license_mngmnt_workflow
+#: model:ir.model.fields.selection,name:license_mngmnt_workflow.selection__license_license__state__expired
+msgid "Expired"
+msgstr "Истекла"
+
+#. module: license_mngmnt_workflow
+#: model:ir.model.fields,field_description:license_mngmnt_workflow.field_license_license__activity_history_ids
+msgid "History"
+msgstr ""
+
+#. module: license_mngmnt_workflow
+#: model:ir.model,name:license_mngmnt_workflow.model_license_license
+msgid "License"
+msgstr "Лицензия"
+
+#. module: license_mngmnt_workflow
+#: model_terms:ir.ui.view,arch_db:license_mngmnt_workflow.res_config_settings_view_form_inherit_license_workflow
+msgid "License Agreement"
+msgstr ""
+
+#. module: license_mngmnt_workflow
+#: model:ir.model.fields,field_description:license_mngmnt_workflow.field_license_license__workflow_id
+#: model:ir.model.fields,field_description:license_mngmnt_workflow.field_res_company__license_workflow_id
+#: model:ir.model.fields,field_description:license_mngmnt_workflow.field_res_config_settings__license_workflow_id
+msgid "License Workflow"
+msgstr ""
+
+#. module: license_mngmnt_workflow
+#: model:mail.template,subject:license_mngmnt_workflow.license_license_mail_template_license_generated
+msgid "License by you request for {{ object.customer_id.name }} was generated"
+msgstr "Лицензия по вашему запросу для {{ object.customer_id.name }} была сгенерирована"
+
+#. module: license_mngmnt_workflow
+#: model:mail.template,name:license_mngmnt_workflow.license_license_mail_template_license_generated
+msgid "License: Was Generated"
+msgstr "Лицензии: Сгенерирована"
+
+#. module: license_mngmnt_workflow
+#: model:ir.model.fields.selection,name:license_mngmnt_workflow.selection__license_license__state__new
+msgid "New"
+msgstr "Новая"
+
+#. module: license_mngmnt_workflow
+#: model:ir.model.fields,field_description:license_mngmnt_workflow.field_license_license__workflow_process_id
+msgid "Process"
+msgstr ""
+
+#. module: license_mngmnt_workflow
+#: model_terms:ir.ui.view,arch_db:license_mngmnt_workflow.res_config_settings_view_form_inherit_license_workflow
+msgid "Route for agreement a license generation request."
+msgstr ""
+
+#. module: license_mngmnt_workflow
+#: model:ir.model.fields,field_description:license_mngmnt_workflow.field_license_license__state
+msgid "State"
+msgstr "Статус"
+
+#. module: license_mngmnt_workflow
+#: model:mail.template,description:license_mngmnt_workflow.license_license_mail_template_license_generated
+msgid "Template to automate email when license was generated"
+msgstr "Шаблон сообщения-уведомления при генерации лицензии"
+
+#. module: license_mngmnt_workflow
+#: model:ir.model.fields.selection,name:license_mngmnt_workflow.selection__license_license__state__to_be_agreed
+msgid "To Be Agreed"
+msgstr "На согласовании"
+
+#. module: license_mngmnt_workflow
+#: model:ir.model.fields,field_description:license_mngmnt_workflow.field_license_license__workflow_process_state
+msgid "Workflow State"
+msgstr "Статус согласования"
