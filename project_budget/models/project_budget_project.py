@@ -888,9 +888,9 @@ class Project(models.Model):
                 if step_vals_dict:
                     if 'stage_id' in step_vals_dict:
                         step_stage_code = self.get_stage_code_by_id(step_vals_dict['stage_id'])
-                    if step_stage_code in ('0', '100(done)'):
-                        steps_ids_to_skip.append(step.id)
-                        continue
+                if step_stage_code in ('0', '100(done)'):
+                    steps_ids_to_skip.append(step.id)
+                    continue
 
                 isok, raisetext = self.check_project_overdue_dates(step, step_vals_dict, step_stage_code)
                 if not isok:
