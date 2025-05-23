@@ -14,5 +14,6 @@ from . import project_budget_project_overdue_report
 from . import project_budget_report_external_data
 from . import report_week_to_week_excel
 from . import report_contracting_revenue_cash_excel
+from . import report_contracting_revenue_cash_v2_excel
 from . import report_bdds_excel
 from . import test_report

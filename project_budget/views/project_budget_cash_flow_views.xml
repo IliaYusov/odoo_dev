@@ -54,8 +54,9 @@
                                    }"/>
                         </group>
                         <group>
-                            <field name="acceptance_id"
+                            <field name="acceptance_ids"
                                    domain="[('projects_id', '=', projects_id)]"
+                                   widget="many2many_tags"
                                    attrs="
                                    {
                                         'invisible': [('company_id', '!=', 10)],

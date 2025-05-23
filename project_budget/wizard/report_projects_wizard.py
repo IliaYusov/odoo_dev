@@ -155,5 +155,8 @@ class report_projects_wizard(models.TransientModel):
         if self.type_report == 'contracting_revenue_cash':
             return self.env.ref('project_budget.action_projects_list_report_xlsx_contracting_revenue_cash').report_action(self, data=datas)
 
+        if self.type_report == 'contracting_revenue_cash_v2':
+            return self.env.ref('project_budget.action_projects_list_report_xlsx_contracting_revenue_cash_v2').report_action(self, data=datas)
+
         if self.type_report == 'bdds':
             return self.env.ref('project_budget.action_projects_list_report_xlsx_bdds').report_action(self, data=datas)

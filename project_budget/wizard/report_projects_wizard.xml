@@ -33,7 +33,7 @@
                             <field name="past_commercial_budget_id"
                                    attrs="{'invisible': [('type_report', 'not in', ('week_to_week',))]}"/>
                             <field name="commercial_budget_id"
-                                   attrs="{'invisible': [('type_report', 'in', ('contracting_revenue_cash',))]}"/>
+                                   attrs="{'invisible': [('type_report', 'in', ('contracting_revenue_cash', 'contracting_revenue_cash_v2'))]}"/>
                             <field name="etalon_budget_id"
                                    attrs="{'invisible': [('type_report', 'not in', ('pds_weekly_plan_fact_sa',))]}"/>
                             <field name="responsibility_center_ids" widget="many2many_tags"
@@ -50,12 +50,12 @@
                     </group>
                     <group col = "4" string="report period" attrs="{'invisible': [('type_report', 'in', ('raw_data','overdue','pds_acceptance_by_date', 'pds_weekly_plan_fact', 'pds_weekly_plan_fact_sa'))]}">
                         <group>
-                            <field string="year from" name="year" attrs="{'invisible': [('type_report', 'in', ('raw_data','overdue','pds_acceptance_by_date', 'pds_weekly_plan_fact', 'pds_weekly_plan_fact_sa', 'bdds'))]}"/>
-                            <field string="from date" name="date_start" attrs="{'invisible': [('type_report', 'not in', ('pds_acceptance_by_date', 'bdds'))]}"/>
+                            <field string="year from" name="year" attrs="{'invisible': [('type_report', 'in', ('raw_data','overdue','pds_acceptance_by_date', 'pds_weekly_plan_fact', 'pds_weekly_plan_fact_sa', 'bdds', 'contracting_revenue_cash', 'contracting_revenue_cash_v2'))]}"/>
+                            <field string="from date" name="date_start" attrs="{'invisible': [('type_report', 'not in', ('pds_acceptance_by_date', 'bdds', 'contracting_revenue_cash', 'contracting_revenue_cash_v2'))]}"/>
                         </group>
                         <group>
-                            <field string="year to" name="year_end" attrs="{'invisible': [('type_report', 'in', ('week_to_week', 'raw_data','overdue','management_committee','pds_acceptance_by_date', 'pds_weekly', 'pds_weekly_plan_fact', 'pds_weekly_plan_fact_sa', 'forecast_v2', 'forecast_v3', 'plan_fact', 'contracting_revenue_cash', 'bdds'))]}"/>
-                            <field string="to date" name="date_end" attrs="{'invisible': [('type_report', 'not in', ('pds_acceptance_by_date', 'bdds'))]}"/>
+                            <field string="year to" name="year_end" attrs="{'invisible': [('type_report', 'in', ('week_to_week', 'raw_data','overdue','management_committee','pds_acceptance_by_date', 'pds_weekly', 'pds_weekly_plan_fact', 'pds_weekly_plan_fact_sa', 'forecast_v2', 'forecast_v3', 'plan_fact', 'contracting_revenue_cash', 'contracting_revenue_cash_v2', 'bdds'))]}"/>
+                            <field string="to date" name="date_end" attrs="{'invisible': [('type_report', 'not in', ('pds_acceptance_by_date', 'bdds', 'contracting_revenue_cash', 'contracting_revenue_cash_v2'))]}"/>
                         </group>
                         <group></group>
                         <group></group>
@@ -214,6 +214,14 @@
             name="project_budget.report_contracting_revenue_cash_excel"
             menu="False"
             file="project_budget.report_contracting_revenue_cash_excel"
+    />
+    <report id="action_projects_list_report_xlsx_contracting_revenue_cash_v2"
+            string="Contracting Revenue Cash"
+            model="project_budget.projects.report.wizard"
+            report_type="xlsx"
+            name="project_budget.report_contracting_revenue_cash_v2_excel"
+            menu="False"
+            file="project_budget.report_contracting_revenue_cash_v2_excel"
     />
     <report id="action_projects_list_report_xlsx_bdds"
             string="bdds Report"

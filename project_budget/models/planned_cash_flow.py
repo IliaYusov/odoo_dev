@@ -65,7 +65,7 @@ class planned_cash_flow(models.Model):
            "\n 4. Potential – the amounts do not fall into the forecast until the end of the period, but can be entered by the seller to record information on the project (in this case, the absence of such will not be an error)."
     )
 
-    acceptance_id = fields.Many2one(comodel_name='project_budget.planned_acceptance_flow', string="Acceptance forecast")
+    acceptance_ids = fields.Many2many('project_budget.planned_acceptance_flow', relation='project_budget_cash_acceptance_rel', string="Acceptance forecasts")
 
     @api.depends('date_cash', 'step_project_child_id', 'cash_id', 'sum_cash')
     def _get_name_to_show(self):

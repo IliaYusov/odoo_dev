@@ -603,3 +603,17 @@ msgstr "ЗАПРЕЩЕНО! Этап {0} имеет просроченную д�
 #, python-format
 msgid "The opportunity's start date must be before its end date."
 msgstr "Дата начала сделки должна быть раньше даты ее окончания."
+
+#. module: project_budget_nkk
+#. odoo-python
+#: code:addons/project_budget_nkk/wizard/project_budget_project_print_report.py:0
+#, python-format
+msgid "Contracting Revenue Cash"
+msgstr "Свод фин. индикаторов"
+
+#. module: project_budget_nkk
+#. odoo-python
+#: code:addons/project_budget_nkk/wizard/project_budget_project_print_report.py:0
+#, python-format
+msgid "Contracting Revenue Cash V2"
+msgstr "Свод фин. индикаторов V2"
