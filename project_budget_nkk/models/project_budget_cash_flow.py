@@ -16,6 +16,15 @@ class FactCashFlow(models.Model):
                                            domain='[("projects_id", "=", projects_id), ("distribution_cash_ids", "=", False)]',)
     company_id = fields.Many2one(related='projects_id.company_id', readonly=True, store=True)
 
+    acceptance_ids = fields.Many2many(
+        'project_budget.fact_acceptance_flow',
+        relation='project_budget_fact_cash_acceptance_rel',
+        string="Acceptance facts",
+        compute='_compute_default_acceptance_ids',
+        store=True,
+        readonly=False,
+    )
+
     # ------------------------------------------------------
     # ACTIONS
     # ------------------------------------------------------
@@ -30,6 +39,15 @@ class FactCashFlow(models.Model):
             'distribution_cash_ids': None,
             'planned_cash_flow_id': False,
         })
+
+    # ------------------------------------------------------
+    # COMPUTE METHODS
+    # ------------------------------------------------------
+
+    @api.onchange("planned_cash_flow_id")
+    def _compute_default_acceptance_ids(self):
+        for row in self:
+            row.acceptance_ids = row.planned_cash_flow_id.acceptance_ids.distribution_acceptance_ids.fact_acceptance_flow_id
 
     # ------------------------------------------------------
     # CONSTRAINS

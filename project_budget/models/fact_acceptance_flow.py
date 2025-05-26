@@ -5,6 +5,7 @@ from datetime import date
 
 
 class fact_acceptance_flow(models.Model):
+    _rec_name = 'name_to_show'
 
     _name = 'project_budget.fact_acceptance_flow'
     _description = "fact acceptance flow"
@@ -12,6 +13,7 @@ class fact_acceptance_flow(models.Model):
     projects_id = fields.Many2one('project_budget.projects', string='projects_id', index=True, ondelete='cascade',
                                   auto_join=True, readonly=True)
     can_edit = fields.Boolean(related='projects_id.can_edit', readonly=True)
+    name_to_show = fields.Char(string='name_to_show', compute='_get_name_to_show')
     project_have_steps = fields.Boolean(related='projects_id.project_have_steps', string='project have steps',
                                         readonly=True)
     step_project_child_id = fields.Many2one('project_budget.projects', string="step-project child id", index=True,
@@ -39,6 +41,13 @@ class fact_acceptance_flow(models.Model):
     def _compute_reference(self):
         for row in self:
             row.currency_id = row.projects_id.currency_id
+
+    @api.depends('date_cash', 'step_project_child_id', 'sum_cash_without_vat')
+    def _get_name_to_show(self):
+        for prj in self:
+            prj.name_to_show = prj.date_cash.strftime("%d/%m/%Y") + _(' | acceptance ') + _(' | sum cash without vat ') + f'{prj.sum_cash_without_vat:_.2f}'
+            if prj.project_have_steps:
+                prj.name_to_show += _(' | step ') + (prj.step_project_child_id.project_id or '') + _(' | code ') + (prj.step_project_child_id.step_project_number or '') + _(' | essence_project ') + (prj.step_project_child_id.essence_project or '')
 
     @api.depends("sum_cash_without_vat", "step_project_child_id.tax_id", "projects_id.tax_id")
     def _compute_sum(self):

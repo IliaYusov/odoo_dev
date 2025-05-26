@@ -10,6 +10,7 @@ class fact_cash_flow(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     projects_id = fields.Many2one('project_budget.projects', string='projects_id', index=True, ondelete='cascade',
                                   auto_join=True, readonly=True)
+    company_id = fields.Many2one(related='projects_id.company_id', readonly=True)
     can_edit = fields.Boolean(related='projects_id.can_edit', readonly=True)
     project_have_steps = fields.Boolean(related='projects_id.project_have_steps', string='project have steps',
                                         readonly=True)
@@ -32,6 +33,13 @@ class fact_cash_flow(models.Model):
     distribution_sum_without_vat = fields.Monetary(string="distribution sum without vat", compute='_compute_distribution_sum')
     distribution_sum_without_vat_ostatok = fields.Monetary(string="distribution_sum_without_vat_ostatok", compute='_compute_distribution_sum')
     distribution_sum_with_vat_ostatok = fields.Monetary(string="distribution_sum_with_vat_ostatok", compute='_compute_distribution_sum')
+
+    acceptance_ids = fields.Many2many(
+        'project_budget.fact_acceptance_flow',
+        relation='project_budget_fact_cash_acceptance_rel',
+        string="Acceptance facts",
+        store=True
+    )
 
     @ api.depends('projects_id.currency_id')
     def _compute_reference(self):

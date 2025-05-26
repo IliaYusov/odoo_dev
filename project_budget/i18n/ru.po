@@ -5050,3 +5050,13 @@ msgstr "Год план 6+6"
 #, python-format
 msgid "End date should be later then start date"
 msgstr "Дата конца периода должна быть позже даты начала периода"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_fact_cash_flow__acceptance_ids
+msgid "Acceptance facts"
+msgstr "Факты актирований"
+
+#. module: project_budget
+#: model:ir.model.fields,field_description:project_budget.field_project_budget_planned_cash_flow__acceptance_ids
+msgid "Acceptance forecasts"
+msgstr "Прогнозы актирований"

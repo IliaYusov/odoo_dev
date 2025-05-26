@@ -44,6 +44,10 @@
                 <attribute name="groups">!project_budget.project_budget_admin
                 </attribute>
             </xpath>
+            <xpath expr="//field[@name='acceptance_ids']" position="attributes">
+                <attribute name="attrs">{'invisible': [('company_id', '!=', 10)]}
+                </attribute>
+            </xpath>
             <xpath expr="//field[@name='distribution_cash_ids']" position="after">
                 <field name="distribution_cash_ids" widget="section_and_note_one2many" mode="tree"
                        attrs="{'readonly': [('can_edit', '=', False)]}" groups="project_budget.project_budget_admin">

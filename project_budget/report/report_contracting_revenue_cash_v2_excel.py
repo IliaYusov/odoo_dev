@@ -58,7 +58,8 @@ class ReportContractingRevenueCashV2Excel(models.AbstractModel):
                     csh_fact_date = max(csh_fact_date, fact.date_cash)
                 else:
                     csh_fact_date = fact.date_cash
-        csh_fact_amount = min(csh_fact_amount, csh_plan_amount) if csh_plan_amount >=0 else max(csh_fact_amount, csh_plan_amount) # на случай нескольких актов закрытых одним ПДС
+        if csh_plans:
+            csh_fact_amount = min(csh_fact_amount, csh_plan_amount) if csh_plan_amount >=0 else max(csh_fact_amount, csh_plan_amount) # на случай нескольких актов закрытых одним ПДС
 
         sheet.write(row, col, prj.project_id, row_format)
         col += 1
@@ -171,7 +172,8 @@ class ReportContractingRevenueCashV2Excel(models.AbstractModel):
             for rvn_fact in prj.fact_acceptance_flow_ids:
                 if not rvn_fact.distribution_acceptance_ids and date_start <= rvn_fact.date_cash <= date_end:
                     row_prj += 1
-                    self.print_prj(workbook, sheets['projects'], prj, False, rvn_fact, False, False, row_prj, 0,)
+                    csh_facts = prj.fact_cash_flow_ids.filtered(lambda c: rvn_fact in c.acceptance_ids and date_start <= c.date_cash <= date_end)
+                    self.print_prj(workbook, sheets['projects'], prj, False, rvn_fact, False, csh_facts, row_prj, 0,)
 
             for csh_plan in prj.planned_cash_flow_ids:
                 if not csh_plan.acceptance_ids and date_start <= csh_plan.date_cash <= date_end:
@@ -180,7 +182,7 @@ class ReportContractingRevenueCashV2Excel(models.AbstractModel):
                     self.print_prj(workbook, sheets['projects'], prj, False, False, csh_plan, cash_facts, row_prj, 0,)
 
             for csh_fact in prj.fact_cash_flow_ids:
-                if not csh_fact.distribution_cash_ids and date_start <= csh_fact.date_cash <= date_end:
+                if not csh_fact.distribution_cash_ids and not csh_fact.acceptance_ids and date_start <= csh_fact.date_cash <= date_end:
                     row_prj += 1
                     self.print_prj(workbook, sheets['projects'], prj, False, False, False, csh_fact, row_prj, 0,)
 

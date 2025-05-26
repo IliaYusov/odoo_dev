@@ -156,6 +156,12 @@
                             />
                         </group>
                     </group>
+                    <group>
+                            <field name="acceptance_ids"
+                                   domain="[('projects_id', '=', projects_id)]"
+                                   widget="many2many_tags"
+                            />
+                    </group>
                     <field name="distribution_cash_ids" widget="section_and_note_one2many" mode="tree"
                            attrs="{'readonly': [('can_edit', '=', False)]}">
                         <tree editable="bottom">
