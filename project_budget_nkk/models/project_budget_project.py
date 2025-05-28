@@ -169,6 +169,89 @@ class Project(models.Model):
                     return False, raisetext
         return True, ""
 
+    def check_project_overdue_plans(self, project, plans, facts, plan_type, steps_ids_to_skip, vals_dict):
+        changed_plans = {}
+
+        plan_ids = 'planned_' + plan_type + '_flow_ids'
+        plan_id = 'planned_' + plan_type + '_flow_id'
+        fact_ids = 'fact_' + plan_type + '_flow_ids'
+        dist_ids = 'distribution_' +  plan_type + '_ids'
+
+        distribution_ids = set(plans[dist_ids].filtered(lambda d: d.sum_cash > 0).ids)
+        plans_with_new_distribution_ids = set()
+
+        if vals_dict:
+            if plan_ids in vals_dict:
+                changed_plans = {plan_value[1]: {'action': plan_value[0], 'vals': plan_value[2]} for plan_value in vals_dict.get(plan_ids, [])}
+
+            if fact_ids in vals_dict:  # проверяем Факт Акты в буфере
+                changed_facts = {fact_value[1]: {'action': fact_value[0], 'vals': fact_value[2]} for fact_value in vals_dict.get(fact_ids, [])}
+
+                for fact_id, fact_change in changed_facts.items():
+                    if fact_change['action'] == 0:  # создание Факт Акта
+                        if dist_ids in fact_change['vals']:
+                            changed_dists = {dist_value[1]: {'action': dist_value[0], 'vals': dist_value[2]} for dist_value in fact_change['vals'].get(dist_ids, [])}
+                            for dist_id, dist_change in changed_dists.items():
+                                if dist_change['action'] == 0:  # создание распределения
+                                    if dist_change['vals']['sum_cash'] > 0:
+                                        plans_with_new_distribution_ids.add(dist_change['vals'][plan_id])
+                        elif plan_id in fact_change['vals'] and fact_change['vals'][plan_id]:  # создание плана (для Ландаты)
+                            plans_with_new_distribution_ids.add(fact_change['vals'][plan_id])
+
+                    elif fact_change['action'] == 1:  # изменение Факт Акта
+                        if dist_ids in fact_change['vals']:
+                            changed_dists = {dist_value[1]: {'action': dist_value[0], 'vals': dist_value[2]} for dist_value in fact_change['vals'].get(dist_ids, [])}
+                            for dist_id, dist_change in changed_dists.items():
+                                if dist_change['action'] == 0:  # создание распределения
+                                    if dist_change['vals']['sum_cash'] > 0:
+                                        plans_with_new_distribution_ids.add(dist_change['vals'][plan_id])
+
+                                elif dist_change['action'] == 1:  # изменение распределения
+                                    if plan_id in dist_change['vals']:  # если поменялся Прогноз для распределения
+                                        if ('sum_cash' not in dist_change['vals'] or
+                                                dist_change['vals']['sum_cash'] != 0):
+                                            plans_with_new_distribution_ids.add(dist_change['vals'][plan_id])
+                                        distribution_ids.discard(dist_id)
+                                    elif 'sum_cash' in dist_change['vals']:  # если поменялась сумма распределения
+                                        if dist_change['vals']['sum_cash'] == 0:
+                                            distribution_ids.discard(dist_id)
+                                        else:
+                                            distribution_ids.add(dist_id)
+                                elif dist_change['action'] == 2:  # удаление распределения
+                                    distribution_ids.discard(dist_id)
+                        elif plan_id in fact_change['vals']:
+                            if fact_change['vals'][plan_id]:  # изменение факта с изменением плана (для Ландаты)
+                                deleted_fact = facts.search([('id', '=', fact_id)])
+                                distribution_ids -= set(deleted_fact[dist_ids].ids)
+                                plans_with_new_distribution_ids.add(fact_change['vals'][plan_id])
+                            else:  # изменение факта с удалением плана (для Ландаты)
+                                deleted_fact = facts.search([('id', '=', fact_id)])
+                                distribution_ids -= set(deleted_fact[dist_ids].ids)
+
+                    elif fact_change['action'] == 2:  # удаление Факт Акта
+                        deleted_fact = facts.search([('id', '=', fact_id)])
+                        distribution_ids -= set(deleted_fact[dist_ids].ids)
+
+        for plan in plans.filtered(lambda p: p.step_project_child_id.id not in steps_ids_to_skip and not (
+                p.id in plans_with_new_distribution_ids or set(p[dist_ids].ids) & distribution_ids
+        )):
+            date_to_check = plan.date_cash
+            plan_changes = changed_plans.get(plan.id)
+            if plan_changes:
+                if plan_changes['action'] == 2:  # план удален
+                    continue
+                else:
+                    if plan_changes['vals']:
+                        new_date = plan_changes['vals'].get('date_cash')
+                        if new_date:
+                            date_to_check = datetime.datetime.strptime(new_date, "%Y-%m-%d").date()
+
+            if date_to_check < fields.datetime.now().date():
+                raisetext = _("DENIED. Project {0} have overdue planned {2} flow without fact {1}")
+                raisetext = raisetext.format(project.project_id, str(date_to_check), _(plan_type))
+                return False, raisetext
+        return True, ""
+
     # ------------------------------------------------------
     # COMPUTE METHODS
     # ------------------------------------------------------
