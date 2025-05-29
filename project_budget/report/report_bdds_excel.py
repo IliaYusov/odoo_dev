@@ -268,7 +268,7 @@ class ReportBDDSExcel(models.AbstractModel):
                 column += 1
         return column
 
-    def print_project_values(self, workbook, sheet, row, column, data, periods_dict, level):
+    def print_project_values(self, workbook, sheet, row, column, data, periods_dict, dict_formula, level):
         project_format = workbook.add_format({
             'border': 1,
             'font_size': 11,
@@ -314,6 +314,7 @@ class ReportBDDSExcel(models.AbstractModel):
         })
 
         project_row = row + 1
+        dict_formula['income_lines'].append(project_row)
         sheet.set_row(project_row, False, False, {'hidden': 1, 'level': level + 1})
         sheet.write(project_row, 0, 'Поступления', project_total_format_indent)
         sheet.write(project_row, 1, data['info']['probability'], project_total_format)
@@ -329,6 +330,7 @@ class ReportBDDSExcel(models.AbstractModel):
             project_row += 1
         self.print_vertical_sum_formula(sheet, income_total_row, income_rows, periods_dict, 2, 'project_total_format')
 
+        dict_formula['expense_lines'].append(project_row)
         sheet.set_row(project_row, False, False, {'hidden': 1, 'level': level + 1})
         sheet.write(project_row, 0, 'Платежи (расходы)', project_total_format_indent)
         sheet.write(project_row, 1, data['info']['probability'], project_total_format)
@@ -355,7 +357,7 @@ class ReportBDDSExcel(models.AbstractModel):
         sheet.write(project_row, 0, 'Итого чистые денежные средства, полученные от операционной деятельности', project_total_format)
         sheet.write(project_row, 1, data['info']['probability'], project_total_format)
         self.print_vertical_sum_formula(sheet, project_row, (income_total_row, expense_total_row), periods_dict, 2, 'project_total_format')
-        return project_row
+        return project_row, dict_formula
 
     def print_row_values(self, sheet, row, column, data, periods_dict, format_name):
         for period in periods_dict:
@@ -449,7 +451,7 @@ class ReportBDDSExcel(models.AbstractModel):
                             for _ in range(2, len(periods_dict) + 2):
                                 sheet.write_string(row, _, '', project_format)
                             column += 1
-                            row = self.print_project_values(workbook, sheet, row, column, content, periods_dict, max_level + 1)
+                            row, dict_formula = self.print_project_values(workbook, sheet, row, column, content, periods_dict, dict_formula, max_level + 1)
                             project_lines.append(row)
 
                     child_centers = self.env['account.analytic.account'].search([
@@ -577,14 +579,25 @@ class ReportBDDSExcel(models.AbstractModel):
         ]).ids) == set(responsibility_center_ids):
             row += 1
 
-            sheet.merge_range(row, 0, row, 1, 'Остаток денежных средств на конец периода', total_format)
+            sheet.merge_range(row, 0, row, 1, 'ИТОГО ПОСТУПЛЕНИЙ', total_format)
+            self.print_vertical_sum_formula(sheet, row, dict_formula['income_lines'], periods_dict, 2,
+                                            'total_format')
+            row += 1
 
+            sheet.merge_range(row, 0, row, 1, 'ИТОГО РАСХОД', total_format)
+            self.print_vertical_sum_formula(sheet, row, dict_formula['expense_lines'], periods_dict, 2,
+                                            'total_format')
+            row += 1
+
+            sheet.merge_range(row, 0, row, 1, 'Остаток денежных средств на конец периода', total_format)
             self.print_vertical_sum_formula(sheet, row, dict_formula['company_ids'].values(), periods_dict, 2,
                                             'total_format')
 
     def generate_xlsx_report(self, workbook, data, budgets):
 
-        dict_formula = {'company_ids': {}, 'center_ids': {}, 'center_ids_not_empty': {}}
+        dict_formula = {
+            'company_ids': {}, 'center_ids': {}, 'center_ids_not_empty': {}, 'income_lines': [], 'expense_lines': []
+        }
 
         responsibility_center_ids = data['responsibility_center_ids']
 
