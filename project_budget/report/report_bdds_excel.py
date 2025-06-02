@@ -346,7 +346,7 @@ class ReportBDDSExcel(models.AbstractModel):
                 column += 1
         return column
 
-    def print_project_values(self, workbook, sheet, row, column, data, periods_dict, dict_formula, level):
+    def print_project_values(self, workbook, sheet, row, column, data, center, periods_dict, dict_formula, level):
         project_format = workbook.add_format({
             'border': 1,
             'font_size': 11,
@@ -392,7 +392,11 @@ class ReportBDDSExcel(models.AbstractModel):
         })
 
         project_row = row + 1
-        dict_formula['income_lines'].append(project_row)
+        dict_formula['center_projects'][center.id]['income'].append(project_row)
+        parent_center = center.parent_id
+        while parent_center:
+            dict_formula['center_projects'][parent_center.id]['income'].append(project_row)
+            parent_center = parent_center.parent_id
         sheet.set_row(project_row, False, False, {'hidden': 1, 'level': level + 1})
         sheet.write(project_row, 0, 'Поступления', project_total_format_indent)
         sheet.write(project_row, 1, data['info']['probability'], project_total_format)
@@ -408,7 +412,11 @@ class ReportBDDSExcel(models.AbstractModel):
             project_row += 1
         self.print_vertical_sum_formula(sheet, income_total_row, income_rows, periods_dict, 2, 'project_total_format')
 
-        dict_formula['expense_lines'].append(project_row)
+        dict_formula['center_projects'][center.id]['expense'].append(project_row)
+        parent_center = center.parent_id
+        while parent_center:
+            dict_formula['center_projects'][parent_center.id]['expense'].append(project_row)
+            parent_center = parent_center.parent_id
         sheet.set_row(project_row, False, False, {'hidden': 1, 'level': level + 1})
         sheet.write(project_row, 0, 'Платежи (расходы)', project_total_format_indent)
         sheet.write(project_row, 1, data['info']['probability'], project_total_format)
@@ -489,20 +497,35 @@ class ReportBDDSExcel(models.AbstractModel):
 
         for company in companies:
             if company.id not in dict_formula['company_ids']:
+                dict_formula['company_ids'][company.id] = {'income': 0, 'expense': 0, 'total': 0}
                 row += 1
-                dict_formula['company_ids'][company.id] = row
-                sheet.merge_range(row, 0, row, 1, company.name, company_format)
-            center_lines = list()
+                dict_formula['company_ids'][company.id]['income'] = row
+                sheet.merge_range(row, 0, row, 1, company.name + ' Поступления', company_format)
+                row += 1
+                dict_formula['company_ids'][company.id]['expense'] = row
+                sheet.merge_range(row, 0, row, 1, company.name + ' Расходы', company_format)
+                row += 1
+                dict_formula['company_ids'][company.id]['total'] = row
+                sheet.merge_range(row, 0, row, 1, company.name + ' Остаток', company_format)
+            center_lines = {'income': list(), 'expense': list(), 'total': list()}
 
             for center in responsibility_centers.filtered(lambda r: r.company_id == company):
                 if center.id in actual_center_ids:
+                    center_lines['income'].append(row + 1)
+                    center_lines['expense'].append(row + 2)
+                    center_lines['total'].append(row + 3)
                     if center.id not in dict_formula['center_ids']:
                         row += 1
                         dict_formula['center_ids'][center.id] = row
                         sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
-                        sheet.merge_range(row, 0, row, 1, center.name, center_format)
-                    dict_formula['center_projects'][center.id] = list()
-                    center_lines.append(row)
+                        sheet.merge_range(row, 0, row, 1, center.name + ' Поступления', center_format)
+                        row += 1
+                        sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
+                        sheet.merge_range(row, 0, row, 1, center.name + ' Расходы', center_format)
+                        row += 1
+                        sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
+                        sheet.merge_range(row, 0, row, 1, center.name + ' Остаток', center_format)
+                    dict_formula['center_projects'][center.id] = {'income': list(), 'expense': list(), 'total': list()}
                     if center.name in data[company.name]:
                         for project, content in data[company.name][center.name].items():
                             # печатаем строки проектов
@@ -525,11 +548,11 @@ class ReportBDDSExcel(models.AbstractModel):
                             for _ in range(2, len(periods_dict) + 2):
                                 sheet.write_string(row, _, '', project_format)
                             column += 1
-                            row, dict_formula = self.print_project_values(workbook, sheet, row, column, content, periods_dict, dict_formula, max_level + 1)
-                            dict_formula['center_projects'][center.id].append(row)
+                            row, dict_formula = self.print_project_values(workbook, sheet, row, column, content, center, periods_dict, dict_formula, max_level + 1)
+                            dict_formula['center_projects'][center.id]['total'].append(row)
                             parent_center = center.parent_id
                             while parent_center:
-                                dict_formula['center_projects'][parent_center.id].append(row)
+                                dict_formula['center_projects'][parent_center.id]['total'].append(row)
                                 parent_center = parent_center.parent_id
 
                     child_centers = self.env['account.analytic.account'].search([
@@ -544,14 +567,25 @@ class ReportBDDSExcel(models.AbstractModel):
                                                             level + 1, max_level, dict_formula)
 
                     self.print_vertical_subtotal_formula(
-                        sheet, dict_formula['center_ids'][center.id], dict_formula['center_projects'][center.id],
+                        sheet, dict_formula['center_ids'][center.id], dict_formula['center_projects'][center.id]['income'],
+                        periods_dict, 2,'center_format'
+                    )
+                    self.print_vertical_subtotal_formula(
+                        sheet, dict_formula['center_ids'][center.id] + 1, dict_formula['center_projects'][center.id]['expense'],
+                        periods_dict, 2,'center_format'
+                    )
+                    self.print_vertical_subtotal_formula(
+                        sheet, dict_formula['center_ids'][center.id] + 2, dict_formula['center_projects'][center.id]['total'],
                         periods_dict, 2,'center_format'
                     )
 
                 if level == 1:
-                    self.print_vertical_sum_formula(sheet, dict_formula['company_ids'][company.id], center_lines,
+                    self.print_vertical_sum_formula(sheet, dict_formula['company_ids'][company.id]['income'], center_lines['income'],
                                                     periods_dict, 2, 'company_format')
-
+                    self.print_vertical_sum_formula(sheet, dict_formula['company_ids'][company.id]['expense'], center_lines['expense'],
+                                                    periods_dict, 2, 'company_format')
+                    self.print_vertical_sum_formula(sheet, dict_formula['company_ids'][company.id]['total'], center_lines['total'],
+                                                    periods_dict, 2, 'company_format')
         return row, dict_formula
 
     def print_vertical_sum_formula(self, sheet, row, sum_lines, periods_dict, start_col, format_name):
@@ -669,24 +703,23 @@ class ReportBDDSExcel(models.AbstractModel):
             row += 1
 
             sheet.merge_range(row, 0, row, 1, 'ИТОГО ПОСТУПЛЕНИЙ', total_format)
-            self.print_vertical_subtotal_formula(sheet, row, dict_formula['income_lines'], periods_dict, 2,
+            self.print_vertical_subtotal_formula(sheet, row, [r['income'] for r in dict_formula['company_ids'].values()], periods_dict, 2,
                                             'total_format')
             row += 1
 
             sheet.merge_range(row, 0, row, 1, 'ИТОГО РАСХОД', total_format)
-            self.print_vertical_subtotal_formula(sheet, row, dict_formula['expense_lines'], periods_dict, 2,
+            self.print_vertical_subtotal_formula(sheet, row, [r['expense'] for r in dict_formula['company_ids'].values()], periods_dict, 2,
                                             'total_format')
             row += 1
 
             sheet.merge_range(row, 0, row, 1, 'Остаток денежных средств на конец периода', total_format)
-            self.print_vertical_sum_formula(sheet, row, (row - 1, row - 2), periods_dict, 2,
+            self.print_vertical_subtotal_formula(sheet, row, [r['total'] for r in dict_formula['company_ids'].values()], periods_dict, 2,
                                             'total_format')
 
     def generate_xlsx_report(self, workbook, data, budgets):
 
         dict_formula = {
-            'company_ids': {}, 'center_ids': {}, 'center_ids_not_empty': {}, 'center_projects': {},
-            'income_lines': [], 'expense_lines': [],
+            'company_ids': {}, 'center_ids': {}, 'center_ids_not_empty': {}, 'center_projects': {}, 'center_lines': {},
         }
 
         responsibility_center_ids = data['responsibility_center_ids']
