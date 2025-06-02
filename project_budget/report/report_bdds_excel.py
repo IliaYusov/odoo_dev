@@ -43,7 +43,17 @@ class ReportBDDSExcel(models.AbstractModel):
         return self.centers_with_parents(new_ids, max_level)
 
     def calculate_periods_dict(self, workbook, report_period):
-        head_format = workbook.add_format({
+        head_format_week = workbook.add_format({
+            'border': 1,
+            'bold': True,
+            'font_size': 12,
+            'align': 'center',
+            'valign': 'bottom',
+            'num_format': '#,##0',
+            'fg_color': '#3E6894',
+            'color': '#ffffff',
+        })
+        head_format_month = workbook.add_format({
             'border': 1,
             'bold': True,
             'font_size': 14,
@@ -105,59 +115,127 @@ class ReportBDDSExcel(models.AbstractModel):
 
         periods_dict = OrderedDict()
 
-        month_start = date_utils.start_of(report_period[0], 'month')
-        month_end = date_utils.end_of(month_start, 'month')
-        last_month_start = date_utils.start_of(report_period[1], 'month')
-        last_month_end = date_utils.end_of(last_month_start, 'month')
-        period_limits = [month_start, last_month_end]
+        week_start = date_utils.start_of(report_period[0], 'week')
+        week_end = date_utils.end_of(week_start, 'week')
+        last_week_start = date_utils.start_of(report_period[1], 'week')
+        last_week_end = date_utils.end_of(last_week_start, 'week')
+        period_limits = [week_start, last_week_end]
         col = 0
+        week_cols = []
         month_cols = []
 
-        col_format = (17, None)
+        week_col_format = (17, None, {'hidden': 1, 'level': 1})
+        month_col_format = (17, None)
+        year_col_format = (17, None)
 
-        while month_start <= last_month_start:
-            periods_dict[(month_start, month_end)] = {
-                'type': 'month',
-                'cols': [
-                    {
-                        'print': 'incomes',
-                        'print_head': self.month_rus_name[month_start.month - 1] + ' ' + str(month_start.year),
-                        'project_format': project_format,
-                        'project_total_format': project_total_format,
-                        'head_format': head_format,
-                        'center_format': center_format,
-                        'company_format': company_format,
-                        'total_format': total_format,
-                        'supplier_format': supplier_format,
-                        'col_format': col_format,
-                    },
-                ]
-            }
-            col += 1
-            month_cols.append(col)
-            if month_start.month == 12:
-                periods_dict['sum_year_' + str(month_start.year)] = {
-                    'type': 'sum_year',
-                    'date': month_end,
+        while week_start <= last_week_start:
+            if week_start.month != date_utils.add(week_start, weeks=1).month:
+                periods_dict[(week_start, date_utils.end_of(week_start, 'month'))] = {
+                    'type': 'week',
                     'cols': [
                         {
                             'print': 'incomes',
-                            'print_head': str(month_start.year) + ' год',
+                            'print_head': self.month_rus_name[week_start.month - 1] + ' ' + week_start.strftime('%d') + '-' + date_utils.end_of(week_start, 'month').strftime('%d'),
                             'project_format': project_format,
                             'project_total_format': project_total_format,
-                            'head_format': head_format,
+                            'head_format': head_format_week,
                             'center_format': center_format,
                             'company_format': company_format,
                             'total_format': total_format,
                             'supplier_format': supplier_format,
-                            'col_format': col_format,
-                            'formula': month_cols.copy(),
+                            'col_format': week_col_format,
+                        },
+                    ]
+                }
+                week_cols.append(col)
+                col += 1
+                periods_dict['sum_month_' + str(week_start.month) + str(week_start.year)] = {
+                    'type': 'sum_month',
+                    'date': week_end,
+                    'cols': [
+                        {
+                            'print': 'incomes',
+                            'print_head': self.month_rus_name[week_start.month - 1].upper(),
+                            'project_format': project_format,
+                            'project_total_format': project_total_format,
+                            'head_format': head_format_month,
+                            'center_format': center_format,
+                            'company_format': company_format,
+                            'total_format': total_format,
+                            'supplier_format': supplier_format,
+                            'col_format': month_col_format,
+                            'formula': week_cols.copy(),
                         },
                     ],
                 }
-                month_cols = []
-            month_start = date_utils.add(month_start, months=1)
-            month_end = date_utils.end_of(month_start, 'month')
+                month_cols.append(col)
+                week_cols = []
+                col += 1
+                if week_start.month == 12:
+                    periods_dict['sum_year_' + str(week_start.year)] = {
+                        'type': 'sum_year',
+                        'date': week_end,
+                        'cols': [
+                            {
+                                'print': 'incomes',
+                                'print_head': str(week_start.year) + ' ГОД',
+                                'project_format': project_format,
+                                'project_total_format': project_total_format,
+                                'head_format': head_format_month,
+                                'center_format': center_format,
+                                'company_format': company_format,
+                                'total_format': total_format,
+                                'supplier_format': supplier_format,
+                                'col_format': year_col_format,
+                                'formula': month_cols.copy(),
+                            },
+                        ],
+                    }
+                    month_cols = []
+                    col += 1
+                if week_end.month == date_utils.add(week_start, weeks=1).month:
+                    periods_dict[(date_utils.start_of(week_end, 'month'), week_end)] = {
+                        'type': 'week',
+                        'cols': [
+                            {
+                                'print': 'incomes',
+                                'print_head': self.month_rus_name[week_end.month - 1] + ' ' + date_utils.start_of(week_end, 'month').strftime('%d') + '-' + week_end.strftime('%d'),
+                                'project_format': project_format,
+                                'project_total_format': project_total_format,
+                                'head_format': head_format_week,
+                                'center_format': center_format,
+                                'company_format': company_format,
+                                'total_format': total_format,
+                                'supplier_format': supplier_format,
+                                'col_format': week_col_format,
+                            },
+                        ]
+                    }
+                    week_cols.append(col)
+                    col += 1
+            else:
+                periods_dict[(week_start, week_end)] = {
+                    'type': 'week',
+                    'cols': [
+                        {
+                            'print': 'incomes',
+                            'print_head': self.month_rus_name[week_start.month - 1] + ' ' + week_start.strftime('%d') + '-' + week_end.strftime('%d'),
+                            'project_format': project_format,
+                            'project_total_format': project_total_format,
+                            'head_format': head_format_week,
+                            'center_format': center_format,
+                            'company_format': company_format,
+                            'total_format': total_format,
+                            'supplier_format': supplier_format,
+                            'col_format': week_col_format,
+                        },
+                    ]
+                }
+                week_cols.append(col)
+                col += 1
+
+            week_start = date_utils.add(week_start, weeks=1)
+            week_end = date_utils.end_of(week_start, 'week')
         return periods_dict, period_limits
 
     def get_budget_items(self, company_ids, periods_dict):
@@ -362,22 +440,18 @@ class ReportBDDSExcel(models.AbstractModel):
     def print_row_values(self, sheet, row, column, data, periods_dict, format_name):
         for period in periods_dict:
             for col in periods_dict[period]['cols']:
-                if 'sum_year' in period:
-                    if column - 3 > 12:
-                        start_col = column - 12
-                    else:
-                        start_col = 2
-                    formula = 'sum({1}{0}:{2}{0})'.format(
-                        row + 1,
-                        xl_col_to_name(start_col),
-                        xl_col_to_name(column - 1),
-                    )
+                if 'sum_' in period:
+                    formula = self.get_formula_from_col_list(row, 2, col['formula'])
                     sheet.write_formula(row, column, formula, col[format_name])
                     column += 1
                 else:
                     sheet.write_number(row, column, data['periods'][period], col[format_name])
                     column += 1
         return row
+
+    def get_formula_from_col_list(self, row, col_shift, cols):
+        formula = '=sum(' + ','.join(xl_col_to_name(c + col_shift) + str(row + 1) for c in cols) + ')'
+        return formula
 
     def print_row(self, sheet, workbook, companies, responsibility_centers, actual_center_ids, row, data, periods_dict,
                   level, max_level, dict_formula):
@@ -427,7 +501,7 @@ class ReportBDDSExcel(models.AbstractModel):
                         dict_formula['center_ids'][center.id] = row
                         sheet.set_row(row, False, False, {'hidden': 1, 'level': level})
                         sheet.merge_range(row, 0, row, 1, center.name, center_format)
-                    project_lines = list()
+                    dict_formula['center_projects'][center.id] = list()
                     center_lines.append(row)
                     if center.name in data[company.name]:
                         for project, content in data[company.name][center.name].items():
@@ -452,7 +526,11 @@ class ReportBDDSExcel(models.AbstractModel):
                                 sheet.write_string(row, _, '', project_format)
                             column += 1
                             row, dict_formula = self.print_project_values(workbook, sheet, row, column, content, periods_dict, dict_formula, max_level + 1)
-                            project_lines.append(row)
+                            dict_formula['center_projects'][center.id].append(row)
+                            parent_center = center.parent_id
+                            while parent_center:
+                                dict_formula['center_projects'][parent_center.id].append(row)
+                                parent_center = parent_center.parent_id
 
                     child_centers = self.env['account.analytic.account'].search([
                         ('parent_id', '=', center.id),
@@ -464,12 +542,11 @@ class ReportBDDSExcel(models.AbstractModel):
                         row, dict_formula = self.print_row(sheet, workbook, company, child_centers,
                                                             actual_center_ids, row, data, periods_dict,
                                                             level + 1, max_level, dict_formula)
-                        for child_center in child_centers:
-                            if child_center.id in actual_center_ids:
-                                project_lines.append(dict_formula['center_ids'][child_center.id])
 
-                    self.print_vertical_sum_formula(sheet, dict_formula['center_ids'][center.id], project_lines,
-                                                    periods_dict, 2, 'center_format')
+                    self.print_vertical_subtotal_formula(
+                        sheet, dict_formula['center_ids'][center.id], dict_formula['center_projects'][center.id],
+                        periods_dict, 2,'center_format'
+                    )
 
                 if level == 1:
                     self.print_vertical_sum_formula(sheet, dict_formula['company_ids'][company.id], center_lines,
@@ -481,6 +558,18 @@ class ReportBDDSExcel(models.AbstractModel):
         formula = '=sum('
         for n in range(len(sum_lines)):
             formula += '{0}{' + str(n + 1) + '},'
+        formula += ')'
+        col_counter = start_col
+        for period, options in periods_dict.items():
+            for col in options['cols']:
+                result_formula = formula.format(xl_col_to_name(col_counter), *[line + 1 for line in sum_lines])
+                sheet.write_formula(row, col_counter, result_formula, col[format_name])
+                col_counter += 1
+
+    def print_vertical_subtotal_formula(self, sheet, row, sum_lines, periods_dict, start_col, format_name):
+        formula = '=SUBTOTAL(9'
+        for n in range(len(sum_lines)):
+            formula += ',{0}{' + str(n + 1) + '}'
         formula += ')'
         col_counter = start_col
         for period, options in periods_dict.items():
@@ -580,23 +669,24 @@ class ReportBDDSExcel(models.AbstractModel):
             row += 1
 
             sheet.merge_range(row, 0, row, 1, 'ИТОГО ПОСТУПЛЕНИЙ', total_format)
-            self.print_vertical_sum_formula(sheet, row, dict_formula['income_lines'], periods_dict, 2,
+            self.print_vertical_subtotal_formula(sheet, row, dict_formula['income_lines'], periods_dict, 2,
                                             'total_format')
             row += 1
 
             sheet.merge_range(row, 0, row, 1, 'ИТОГО РАСХОД', total_format)
-            self.print_vertical_sum_formula(sheet, row, dict_formula['expense_lines'], periods_dict, 2,
+            self.print_vertical_subtotal_formula(sheet, row, dict_formula['expense_lines'], periods_dict, 2,
                                             'total_format')
             row += 1
 
             sheet.merge_range(row, 0, row, 1, 'Остаток денежных средств на конец периода', total_format)
-            self.print_vertical_sum_formula(sheet, row, dict_formula['company_ids'].values(), periods_dict, 2,
+            self.print_vertical_sum_formula(sheet, row, (row - 1, row - 2), periods_dict, 2,
                                             'total_format')
 
     def generate_xlsx_report(self, workbook, data, budgets):
 
         dict_formula = {
-            'company_ids': {}, 'center_ids': {}, 'center_ids_not_empty': {}, 'income_lines': [], 'expense_lines': []
+            'company_ids': {}, 'center_ids': {}, 'center_ids_not_empty': {}, 'center_projects': {},
+            'income_lines': [], 'expense_lines': [],
         }
 
         responsibility_center_ids = data['responsibility_center_ids']
