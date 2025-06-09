@@ -18,13 +18,15 @@ class AccountBudgetItem(models.Model):
     direction = fields.Selection(POST_DIRECTIONS, string='Direction', index=True, required=True)
     account_ids = fields.Many2many('account.account', relation='account_budget_rel', column1='budget_id',
                                    column2='account_id', string='Accounts',
-                                   domain="[('deprecated', '=', False), ('company_id', 'in', (False, company_id))]")
+                                   domain="[('deprecated', '=', False), '|', ('company_id', '=', False), ('company_id', 'in', company_ids)]")
     hierarchy_level = fields.Integer(string='Level', compute='_compute_hierarchy_level', precompute=True,
                                      readonly=False, recursive=True, required=True, store=True)
     parent_id = fields.Many2one('account.budget.item', string='Parent Budget Item', index=True,
-                                domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]")
+                                domain="[('company_ids', 'in', company_ids)]")
     child_ids = fields.One2many('account.budget.item', 'parent_id', string='Child Items')
-    company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company, required=True)
+    company_ids = fields.Many2many('res.company', relation='account_budget_item_company_rel', column1='budget_item_id',
+                                   column2='company_id', string='Companies', default=lambda self: self.env.company,
+                                   required=True)
 
     # ------------------------------------------------------
     # CONSTRAINS
@@ -34,7 +36,7 @@ class AccountBudgetItem(models.Model):
     # def _check_account_ids(self):
     #     for rec in self:
     #         if not rec.account_ids:
-    #             raise ValidationError(_('The budget must have at least one account.'))
+    #             raise ValidationError(_('The budget item must have at least one account.'))
 
     # ------------------------------------------------------
     # COMPUTE METHODS

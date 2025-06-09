@@ -7,12 +7,13 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='date_cash']" position="before">
                 <field name="budget_item_id" options="{'no_create_edit': True, 'no_open': True}"/>
+                <field name="account_type_id" options="{'no_create_edit': True, 'no_open': True}"/>
             </xpath>
         </field>
     </record>
 
-    <record id="project_budget_planned_cost_flow_view_form_inherit_nkk" model="ir.ui.view">
-        <field name="name">project.budget.planned.cost.flow.form.inherit.nkk</field>
+    <record id="project_budget_planned_cash_flow_view_form_inherit_nkk" model="ir.ui.view">
+        <field name="name">project.budget.planned.cash.flow.form.inherit.nkk</field>
         <field name="model">project_budget.planned_cash_flow</field>
         <field name="inherit_id" ref="project_budget.project_budget_planned_cash_flow_view_form"/>
         <field name="arch" type="xml">
@@ -29,8 +30,7 @@
         <field name="arch" type="xml">
             <xpath expr="//group[@name='amount']" position="after">
                 <group>
-                    <field name="planned_cash_flow_id"
-                    options="{'no_create': True, 'no_create_edit':True}"
+                    <field name="planned_cash_flow_id" options="{'no_create': True, 'no_create_edit': True}"
                     attrs="{
                         'invisible': [('company_id', '!=', 10)],
                         'readonly': [('can_edit', '=', False)]
@@ -39,10 +39,8 @@
                 </group>
             </xpath>
             <xpath expr="//field[@name='distribution_cash_ids']" position="attributes">
-                <attribute name="attrs">{'invisible': [('company_id', '=', 10)]}
-                </attribute>
-                <attribute name="groups">!project_budget.project_budget_admin
-                </attribute>
+                <attribute name="attrs">{'invisible': [('company_id', '=', 10)]}</attribute>
+                <attribute name="groups">!base.group_no_one</attribute>
             </xpath>
             <xpath expr="//field[@name='acceptance_ids']" position="attributes">
                 <attribute name="attrs">{'invisible': [('company_id', '!=', 10)]}
@@ -50,7 +48,7 @@
             </xpath>
             <xpath expr="//field[@name='distribution_cash_ids']" position="after">
                 <field name="distribution_cash_ids" widget="section_and_note_one2many" mode="tree"
-                       attrs="{'readonly': [('can_edit', '=', False)]}" groups="project_budget.project_budget_admin">
+                       attrs="{'readonly': [('can_edit', '=', False)]}" groups="base.group_no_one">
                     <tree editable="bottom">
                         <field name="factoring"/>
                         <field name="planned_cash_flow_id" placeholder="select planned cash flow" force_save="1"/>

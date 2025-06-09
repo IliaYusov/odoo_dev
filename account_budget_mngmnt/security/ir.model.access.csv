@@ -1,12 +1,12 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_account_budget_item_user_readonly,account.budget.item.user.readonly,model_account_budget_item,account_budget_group_user_readonly,1,0,0,0
-access_account_budget_item_manager,account.budget.item.manager,model_account_budget_item,account_budget_group_manager,1,1,1,1
+access_account_budget_item_readonly,account.budget.item.readonly,model_account_budget_item,account.group_account_readonly,1,0,0,0
+access_account_budget_item_manager,account.budget.item.manager,model_account_budget_item,account.group_account_manager,1,1,1,1
 
-access_crossovered_budget_user_readonly,crossovered.budget.user.readonly,model_crossovered_budget,account_budget_group_user_readonly,1,0,0,0
-access_crossovered_budget_user,crossovered.budget.user,model_crossovered_budget,account_budget_group_user,1,1,1,1
+access_res_partner_bank_type_readonly,res.partner.bank.type.readonly,model_res_partner_bank_type,account.group_account_readonly,1,0,0,0
+access_res_partner_bank_type_manager,res.partner.bank.type.manager,model_res_partner_bank_type,account.group_account_manager,1,1,1,1
 
-access_crossovered_budget_line_user_readonly,crossovered.budget.line.user.readonly,model_crossovered_budget_line,account_budget_group_user_readonly,1,0,0,0
-access_crossovered_budget_line_user,crossovered.budget.line.user,model_crossovered_budget_line,account_budget_group_user,1,1,1,1
+access_crossovered_budget_readonly,crossovered.budget.readonly,model_crossovered_budget,account.group_account_readonly,1,0,0,0
 
-access_crossovered_budget_line_amount_user_readonly,crossovered.budget.line.amount.user.readonly,model_crossovered_budget_line_amount,account_budget_group_user_readonly,1,0,0,0
-access_crossovered_budget_line_amount_user,crossovered.budget.line.amount.user,model_crossovered_budget_line_amount,account_budget_group_user,1,1,1,1
+access_crossovered_budget_line_readonly,crossovered.budget.line.readonly,model_crossovered_budget_line,account.group_account_readonly,1,0,0,0
+
+access_crossovered_budget_line_amount_readonly,crossovered.budget.line.amount.readonly,model_crossovered_budget_line_amount,account.group_account_readonly,1,0,0,0

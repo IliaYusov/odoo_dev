@@ -34,87 +34,83 @@
             <form string="Budget">
                 <header>
                     <button string="Confirm" name="action_budget_confirm" type="object"
-                            class="oe_highlight"/>
-                    <button string="Approve" name="action_budget_validate" type="object"
-                            class="oe_highlight"/>
+                            class="oe_highlight" attrs="{'invisible': [('state', '!=', 'draft')]}"/>
                     <button string="Done" name="action_budget_done" type="object"
-                            class="oe_highlight"/>
+                            class="oe_highlight" attrs="{'invisible': [('state', '!=', 'confirm')]}"/>
                     <button string="Reset to Draft" name="action_budget_draft"
-                            type="object"/>
+                            type="object" attrs="{'invisible': [('state', '=', 'done')]}"/>
                     <button string="Cancel Budget" name="action_budget_cancel"
-                            type="object"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,confirm,validate,done"/>
+                            type="object" attrs="{'invisible': [('state', '=', 'cancel')]}"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirm,done"/>
                 </header>
-                <field name="company_id" invisible="1"/>
-                <field name="currency_id" invisible="1"/>
                 <sheet string="Budget">
+                    <field name="company_id" invisible="1"/>
+                    <field name="currency_id" invisible="1"/>
+                    <field name="can_edit" invisible="1"/>
                     <div class="oe_title">
                         <label for="name"/>
                         <h1>
-                            <field name="name" placeholder="e.g. Budget 2024"/>
+                            <field name="name" placeholder="e.g. Budget 2025"
+                                   attrs="{'readonly':[('can_edit', '=', False)]}"/>
                         </h1>
                     </div>
                     <group>
                         <group>
                             <field name="currency_id" options="{'no_create_edit': True, 'no_open': True}"
                                    attrs="{'readonly': True}"/>
-                            <field name="user_id"/>
+                            <field name="user_id" attrs="{'readonly':[('can_edit', '=', False)]}"/>
                         </group>
                         <group>
-                            <field name="analytic_account_id"/>
+                            <field name="analytic_account_id" attrs="{'readonly':[('can_edit', '=', False)]}"/>
                             <label for="date_from" string="Period"/>
                             <div>
-                                <div name="date_edit_only" class="o_row oe_edit_only">
-                                    <field name="date_from" class='oe_inline'/>
+                                <div name="dates" class="o_row">
+                                    <field name="date_from" class='oe_inline'
+                                           attrs="{'readonly':[('can_edit', '=', False)]}"/>
                                     <i class="fa fa-long-arrow-right mx-2" aria-label="Arrow icon" title="Arrow"/>
-                                    <field name="date_to" class='oe_inline'/>
-                                </div>
-                                <div name="date_read_only" class="o_row oe_read_only">
-                                    <span>From
-                                        <field name="date_from" class='oe_inline'/>
-                                    </span>
-                                    <span>To
-                                        <field name="date_to" class='oe_inline'/>
-                                    </span>
+                                    <field name="date_to" class='oe_inline'
+                                           attrs="{'readonly':[('can_edit', '=', False)]}"/>
                                 </div>
                             </div>
-                            <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                            <field name="company_id" options="{'no_create': True}"
+                                   attrs="{'readonly':[('can_edit', '=', False)]}" groups="base.group_multi_company"/>
                         </group>
                     </group>
                     <notebook>
                         <page string="Budget Lines" name="budget_lines">
-                            <field name="line_ids" mode="tree"
-                                   context="{'default_analytic_account_id': analytic_account_id, 'default_date_from': date_from, 'default_date_to': date_to}">
-<!--                                   widget="section_and_note_one2many">-->
-                                <tree string="Budget Lines">
+                            <field name="line_ids" mode="tree" attrs="{'readonly':[('can_edit', '=', False)]}"
+                                   context="{
+                                       'default_analytic_account_id': analytic_account_id,
+                                       'default_date_from': date_from,
+                                       'default_date_to': date_to
+                                   }">
+                                <tree string="Budget Lines"
+                                      decoration-success="general_budget_direction == 'income'"
+                                      decoration-error="general_budget_direction == 'expense'">
                                     <field name="budget_currency_id" invisible="1"/>
-                                    <field name="general_budget_id"
-                                           domain="['|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"/>
-                                    <field name="analytic_account_id"
-                                           domain="['|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"
-                                           groups="analytic.group_analytic_accounting"/>
+                                    <field name="general_budget_direction" invisible="1"/>
+                                    <field name="general_budget_id"/>
+                                    <field name="analytic_account_id" groups="analytic.group_analytic_accounting"/>
                                     <field name="date_from" invisible="1"/>
                                     <field name="date_to" invisible="1"/>
-                                    <field name="currency_id"/>
-                                    <field name="planned_amount" widget="monetary" groups="base.group_multi_currency"
-                                           optional="hide"/>
                                     <field name="planned_amount_in_budget_currency" widget="monetary"/>
+                                    <field name="practical_amount" widget="monetary"/>
                                 </tree>
                             </field>
                             <group>
                                 <group class="oe_subtotal_footer oe_right" name="income_and_expenses">
                                     <span class="o_td_label float-start" style="color: #008000;"
-                                          attrs="{'invisible': [('amount_total_income', '=', 0)]}">
-                                        Total Income:
+                                          attrs="{'invisible': [('planned_amount_total_income', '=', 0)]}">
+                                        Total Planned Income:
                                     </span>
-                                    <field name="amount_total_income" widget="monetary" nolabel="1"
-                                           attrs="{'invisible': [('amount_total_income', '=', 0)]}"/>
+                                    <field name="planned_amount_total_income" widget="monetary" nolabel="1"
+                                           attrs="{'invisible': [('planned_amount_total_income', '=', 0)]}"/>
                                     <span class="o_td_label float-start" style="color: #FF0000;"
-                                          attrs="{'invisible': [('amount_total_expense', '=', 0)]}">
-                                        Total Expenses:
+                                          attrs="{'invisible': [('planned_amount_total_expense', '=', 0)]}">
+                                        Total Planned Expenses:
                                     </span>
-                                    <field name="amount_total_expense" widget="monetary" nolabel="1"
-                                           attrs="{'invisible': [('amount_total_expense', '=', 0)]}"/>
+                                    <field name="planned_amount_total_expense" widget="monetary" nolabel="1"
+                                           attrs="{'invisible': [('planned_amount_total_expense', '=', 0)]}"/>
                                 </group>
                             </group>
                         </page>

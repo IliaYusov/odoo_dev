@@ -123,6 +123,7 @@
                     <field name="can_edit" invisible="True"/>
                     <field name="project_have_steps" invisible="True"/>
                     <field name="projects_id" invisible="False"/>
+                    <field name="currency_id" invisible="True"/>
                     <group>
                         <group>
                             <field name="date_cash" placeholder="enter planned cash flow date"/>

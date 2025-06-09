@@ -13,6 +13,7 @@
                 <field name="forecast" invisible="1"/>
                 <field name="flow_id"/>
                 <field name="budget_item_id"/>
+                <field name="account_type_id"/>
                 <field name="supplier_id"/>
                 <field name="date"/>
                 <field name="step_project_child_id" options="{'no_open': True}"
@@ -57,38 +58,44 @@
                                    }"/>
                         </group>
                     </group>
-                    <group>
+                    <group col="3">
                         <group>
                             <field name="supplier_id"/>
                         </group>
                         <group>
-                            <field name="budget_item_id"/>
+                            <field name="budget_item_id" attrs="{'required': True}"/>
+                        </group>
+                        <group>
+                            <field name="account_type_id" attrs="{'required': True}"/>
                         </group>
                     </group>
-                    <group>
+                    <group col="3">
+                        <group>
+                            <field name="amount_untaxed" widget="monetary"/>
+                        </group>
+                        <group>
+                            <field name="currency_id" domain="currency_id_domain"
+                                   groups="base.group_multi_currency"/>
+                        </group>
+                        <group>
+                            <field name="tax_id" options="{'no_create_edit': True, 'no_open': True}"/>
+                        </group>
+                    </group>
+                    <group col="3">
                         <group>
                             <field name="amount" string="Amount With Tax" widget="monetary"/>
+                        </group>
+                        <group>
+                            <field name="amount_tax" widget="monetary"/>
+                        </group>
+                        <group>
                             <field name="amount_in_company_currency" string="Amount With Tax In Company Currency"
                                    groups="base.group_multi_currency" widget="monetary"
                                    attrs="{'invisible': [('is_currency_company', '=', True)]}"/>
-                        </group>
-                        <group>
-                            <group>
-                                <field name="currency_id" domain="currency_id_domain"
-                                       groups="base.group_multi_currency"/>
-                            </group>
                         </group>
                     </group>
                 </sheet>
             </form>
         </field>
-    </record>
-    <record id="project_budget_planned_cost_flow_sequence" model="ir.sequence">
-        <field name="name">Cost ID</field>
-        <field name="code">project_budget_nkk.planned_cost_flow</field>
-        <field name="prefix">%(year)s%(month)s-</field>
-        <field name="padding">6</field>
-        <field name="number_next">1</field>
-        <field name="number_increment">1</field>
     </record>
 </odoo>

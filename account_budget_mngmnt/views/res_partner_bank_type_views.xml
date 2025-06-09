@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_partner_bank_type_view_tree" model="ir.ui.view">
+        <field name="name">res.partner.bank.type.tree</field>
+        <field name="model">res.partner.bank.type</field>
+        <field name="arch" type="xml">
+            <tree string="Account Types">
+                <field name="sequence" widget="handle"/>
+                <field name="code"/>
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="res_partner_bank_type_view_form" model="ir.ui.view">
+        <field name="name">res.partner.bank.type.form</field>
+        <field name="model">res.partner.bank.type</field>
+        <field name="arch" type="xml">
+            <form string="Account Type">
+                <sheet>
+                    <div>
+                        <h1 style="font-size: 1.9rem;">
+                            <div class="row">
+                                <div class="col col-md-auto">
+                                    <label for="code" string="Code"/>
+                                    <div>
+                                        <field name="code" placeholder="e.g. 0200" class="oe_inline"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col col-md-8">
+                                    <label for="name" string="Account Type Name"/>
+                                    <div>
+                                        <field name="name" placeholder="e.g. Current Account"
+                                               style="width:80% !important;"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </h1>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="res_partner_bank_type_action" model="ir.actions.act_window">
+        <field name="name">Account Types</field>
+        <field name="res_model">res.partner.bank.type</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

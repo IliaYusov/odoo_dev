@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <menuitem id="menu_budget_post_form" parent="project_budget.menu_project_budget_configuration" name="Budgetary Positions"
-              sequence="4" action="account_budget_post_action"/>
-
-    <menuitem id="menu_act_crossovered_budget_view" parent="project_budget.menu_project_budget_configuration" name="Budgets"
-              sequence="60" action="act_crossovered_budget_view" groups="account_budget_group_manager"/>
-
-    <menuitem id="menu_act_crossovered_budget_lines_view" parent="project_budget.menu_project_budget_configuration"
-              sequence="20" action="act_crossovered_budget_lines_view" groups="account_budget_group_user_readonly"/>
+    <menuitem id="account_management_menu_budget_items" parent="account.account_management_menu" sequence="4"
+              action="account_budget_item_action" groups="account.group_account_manager"/>
 </odoo>

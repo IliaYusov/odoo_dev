@@ -7,8 +7,7 @@
             <search string="Budget Item">
                 <field name="name" filter_domain="['|', ('name', 'ilike', self), ('code', 'ilike', self)]"
                        string="Budget Item"/>
-                <field name="direction" filter_domain="[('dicrection', 'ilike', self)]"/>
-                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="direction" filter_domain="[('direction', 'ilike', self)]"/>
             </search>
         </field>
     </record>
@@ -22,7 +21,8 @@
                 <field name="code"/>
                 <field name="name"/>
                 <field name="direction"/>
-                <field name="company_id" options="{'no_create': True}" groups="base.group_multi_company"/>
+                <field name="company_ids" widget="many2many_tags" options="{'no_create': True}"
+                       groups="base.group_multi_company"/>
             </tree>
         </field>
     </record>
@@ -32,7 +32,7 @@
         <field name="model">account.budget.item</field>
         <field name="arch" type="xml">
             <form string="Budget Item">
-                <field name="company_id" invisible="1"/>
+                <field name="company_ids" invisible="1"/>
                 <sheet>
                     <group>
                         <group>
@@ -51,7 +51,8 @@
                         </group>
                     </group>
                     <group>
-                        <field name="company_id" groups="base.group_multi_company" options="{'no_create_edit': True}"/>
+                        <field name="company_ids" widget="many2many_tags" options="{'no_create_edit': True}"
+                               groups="base.group_multi_company"/>
                     </group>
                     <notebook>
                         <page string="Accounts" name="accounts">
