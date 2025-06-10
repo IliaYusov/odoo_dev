@@ -241,7 +241,7 @@ class ReportBDDSExcel(models.AbstractModel):
     def get_budget_items(self, company_ids, periods_dict):
         res = {}
         for company_id in company_ids.ids:
-            budget_items = self.env['account.budget.item'].search([('company_id', '=', company_id)], order='sequence')
+            budget_items = self.env['account.budget.item'].search([('child_ids', '=', False), ('company_ids', 'in', company_id)], order='sequence')
             for budget_item in budget_items:
                 res.setdefault(company_id, {}).setdefault(budget_item['direction'], OrderedDict()).setdefault(budget_item['id'], {'name': budget_item['name'], 'periods': {key: 0 for key in periods_dict.keys()}, 'suppliers': {}})
         return res
