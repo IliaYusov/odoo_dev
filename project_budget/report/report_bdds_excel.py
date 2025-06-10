@@ -246,7 +246,7 @@ class ReportBDDSExcel(models.AbstractModel):
                 res.setdefault(company_id, {}).setdefault(budget_item['direction'], OrderedDict()).setdefault(budget_item['id'], {'name': budget_item['name'], 'periods': {key: 0 for key in periods_dict.keys()}, 'suppliers': {}})
         return res
 
-    def get_data_from_projects(self, projects, periods_dict):
+    def get_data_from_projects(self, projects, periods_dict, account_type):
         data = {}
         budget_items = self.get_budget_items(projects.company_id, periods_dict)
         for project in projects:
@@ -270,11 +270,11 @@ class ReportBDDSExcel(models.AbstractModel):
                 if 'sum' not in period:
                     if budget_items.get(project.company_id.id):
                         for pds_plan in pds_plan_list:
-                            if period[0] <= pds_plan.date_cash <= period[1]: # TODO
+                            if period[0] <= pds_plan.date_cash <= period[1] and (not account_type or pds_plan.account_type_id == account_type): # TODO
                                 pds_is_present = True
                                 project_data['income'][pds_plan['budget_item_id'].id]['periods'][period] += pds_plan.sum_cash  # TODO
                         for cost_plan in cost_plan_list:
-                            if period[0] <= cost_plan.date <= period[1]:
+                            if period[0] <= cost_plan.date <= period[1] and (not account_type or cost_plan.account_type_id == account_type):
                                 pds_is_present = True
                                 project_data['expense'][cost_plan['budget_item_id'].id]['periods'][period] -= cost_plan.amount_in_company_currency
                                 if cost_plan.supplier_id:
@@ -282,11 +282,11 @@ class ReportBDDSExcel(models.AbstractModel):
                                     project_data['expense'][cost_plan['budget_item_id'].id]['suppliers'][cost_plan.supplier_id.id]['periods'][period] -= cost_plan.amount_in_company_currency
                     else:
                         for pds_plan in pds_plan_list:
-                            if period[0] <= pds_plan.date_cash <= period[1]:  # TODO
+                            if period[0] <= pds_plan.date_cash <= period[1] and (not account_type or pds_plan.account_type_id == account_type):  # TODO
                                 pds_is_present = True
                                 project_data['income'][0]['periods'][period] += pds_plan.sum_cash  # TODO
                         for cost_plan in cost_plan_list:
-                            if period[0] <= cost_plan.date <= period[1]:
+                            if period[0] <= cost_plan.date <= period[1] and (not account_type or cost_plan.account_type_id == account_type):
                                 pds_is_present = True
                                 project_data['expense'][0]['periods'][period] -= cost_plan.amount_in_company_currency
                                 if cost_plan.supplier_id:
@@ -608,11 +608,14 @@ class ReportBDDSExcel(models.AbstractModel):
         col_counter = start_col
         for period, options in periods_dict.items():
             for col in options['cols']:
-                result_formula = formula.format(xl_col_to_name(col_counter), *[line + 1 for line in sum_lines])
+                if sum_lines:
+                    result_formula = formula.format(xl_col_to_name(col_counter), *[line + 1 for line in sum_lines])
+                else:
+                    result_formula = '0'
                 sheet.write_formula(row, col_counter, result_formula, col[format_name])
                 col_counter += 1
 
-    def print_worksheet(self, workbook, budget, sheet_name, responsibility_center_ids, max_level, dict_formula, report_period):
+    def print_worksheet(self, workbook, budget, sheet_name, responsibility_center_ids, max_level, dict_formula, report_period, account_type):
         sheet = workbook.add_worksheet(sheet_name)
         sheet.set_zoom(85)
 
@@ -651,13 +654,13 @@ class ReportBDDSExcel(models.AbstractModel):
             '&', ('step_status', '=', 'project'),
             ('project_have_steps', '=', False),
             '|', '|', '|',
-            ('id', 'in', [plan.projects_id.id for plan in self.env['project_budget.planned_cash_flow'].search([]) if period_limits[0] <=  plan.date_cash <= period_limits[1]]),
-            ('id', 'in', [plan.step_project_child_id.id for plan in self.env['project_budget.planned_cash_flow'].search([]) if period_limits[0] <=  plan.date_cash <= period_limits[1]]),
-            ('id', 'in', [plan.projects_id.id for plan in self.env['project_budget.planned_cost_flow'].search([]) if period_limits[0] <=  plan.date <= period_limits[1]]),
-            ('id', 'in', [plan.step_project_child_id.id for plan in self.env['project_budget.planned_cost_flow'].search([]) if period_limits[0] <=  plan.date <= period_limits[1]]),
+            ('id', 'in', [plan.projects_id.id for plan in self.env['project_budget.planned_cash_flow'].search([]) if period_limits[0] <=  plan.date_cash <= period_limits[1] and (not account_type or plan.account_type_id == account_type)]),
+            ('id', 'in', [plan.step_project_child_id.id for plan in self.env['project_budget.planned_cash_flow'].search([]) if period_limits[0] <=  plan.date_cash <= period_limits[1] and (not account_type or plan.account_type_id == account_type)]),
+            ('id', 'in', [plan.projects_id.id for plan in self.env['project_budget.planned_cost_flow'].search([]) if period_limits[0] <=  plan.date <= period_limits[1] and (not account_type or plan.account_type_id == account_type)]),
+            ('id', 'in', [plan.step_project_child_id.id for plan in self.env['project_budget.planned_cost_flow'].search([]) if period_limits[0] <=  plan.date <= period_limits[1] and (not account_type or plan.account_type_id == account_type)]),
         ], order='project_id')  # TODO
 
-        data = self.get_data_from_projects(projects, periods_dict)
+        data = self.get_data_from_projects(projects, periods_dict, account_type)
 
         actual_center_ids_set = set()
         for company in data:
@@ -745,4 +748,19 @@ class ReportBDDSExcel(models.AbstractModel):
 
         commercial_budget_id = data['commercial_budget_id']
         budget = self.env['project_budget.commercial_budget'].search([('id', '=', commercial_budget_id)])
-        self.print_worksheet(workbook, budget, 'БДДС', responsibility_center_ids, max_level, dict_formula, report_period)
+
+        self.print_worksheet(
+            workbook, budget, 'БДДС', responsibility_center_ids, max_level, dict_formula,
+            report_period, False
+        )
+
+        account_types = self.env['res.partner.bank.type'].search([])
+        for account_type in account_types:
+            dict_formula = {
+                'company_ids': {}, 'center_ids': {}, 'center_ids_not_empty': {}, 'center_projects': {},
+                'center_lines': {},
+            }
+            self.print_worksheet(
+                workbook, budget, 'БДДС ' + account_type.name, responsibility_center_ids, max_level, dict_formula,
+                report_period, account_type
+            )
