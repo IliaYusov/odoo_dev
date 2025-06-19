@@ -7,32 +7,47 @@
         <field name="groups" eval="[(4, ref('project_budget_nkk.project_budget_group_director'))]"/>
     </record>
 
-    <record id="project_budget.ir_rule_project_budget_access_supervisor_manager" model="ir.rule">
-        <field name="name">Access to project budget specification by supervisor anf manager access</field>
-        <field name="model_id" ref="project_budget.model_project_budget_projects"/>
+    <record id="project_budget_project_key_account_manager_rule" model="ir.rule">
+        <field name="name">Access to projects to key account manager</field>
+        <field name="model_id" ref="model_project_budget_projects"/>
         <field name="domain_force">
             [
-                '|', '|', '|', '|', '|', '|', '|', '|', '|', '|', '|',
-                ('responsibility_center_id.head_id', '=', user.id),
-                ('project_member_ids.employee_id.user_id', '=', user.id),
-                ('project_member_ids.employee_id.user_id', 'in', user.with_context(kam_function=True).employee_id.replaceable_employee_ids.user_id.ids),
-                ('project_member_ids.employee_id.user_id', 'in', user.with_context(project_manager_function=True).employee_id.replaceable_employee_ids.user_id.ids),
-                ('step_project_parent_id.project_member_ids.employee_id.user_id', '=', user.id),
-                ('step_project_parent_id.project_member_ids.employee_id.user_id', 'in', user.with_context(kam_function=True).employee_id.replaceable_employee_ids.user_id.ids),
-                ('step_project_parent_id.project_member_ids.employee_id.user_id', 'in', user.with_context(project_manager_function=True).employee_id.replaceable_employee_ids.user_id.ids),
-                ('parent_project_id.project_member_ids.employee_id.user_id', '=', user.id),
-                ('parent_project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(kam_function=True).employee_id.replaceable_employee_ids.user_id.ids),
-                ('parent_project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(project_manager_function=True).employee_id.replaceable_employee_ids.user_id.ids),
-                ('project_supervisor_id.id','in', user.supervisor_rule.ids),
-                ('parent_project_id.project_supervisor_id.id','in', user.supervisor_rule.ids)
+                '|', '|', '|',
+                ('key_account_manager_id.user_id', '=', user.id),
+                ('key_account_manager_id.user_id', 'in', user.employee_id.replaceable_employee_ids.user_id.ids),
+                ('step_project_parent_id.key_account_manager_id.user_id', '=', user.id),
+                ('step_project_parent_id.key_account_manager_id.user_id', 'in', user.employee_id.replaceable_employee_ids.user_id.ids),
             ]
         </field>
-        <field name="groups" eval="[(4, ref('project_budget.project_budget_users'))]"/>
-        <field name="perm_read" eval="True"/>
-        <field name="perm_write" eval="True"/>
-        <field name="perm_create" eval="True"/>
-        <field name="perm_unlink" eval="True"/>
+        <field name="groups" eval="[(4, ref('project_budget.project_budget_group_key_account_manager'))]"/>
     </record>
+
+<!--    <record id="project_budget.ir_rule_project_budget_access_supervisor_manager" model="ir.rule">-->
+<!--        <field name="name">Access to project budget specification by supervisor anf manager access</field>-->
+<!--        <field name="model_id" ref="project_budget.model_project_budget_projects"/>-->
+<!--        <field name="domain_force">-->
+<!--            [-->
+<!--                '|', '|', '|', '|', '|', '|', '|', '|', '|', '|', '|',-->
+<!--                ('responsibility_center_id.head_id', '=', user.id),-->
+<!--                ('project_member_ids.employee_id.user_id', '=', user.id),-->
+<!--                ('project_member_ids.employee_id.user_id', 'in', user.with_context(kam_function=True).employee_id.replaceable_employee_ids.user_id.ids),-->
+<!--                ('project_member_ids.employee_id.user_id', 'in', user.with_context(project_manager_function=True).employee_id.replaceable_employee_ids.user_id.ids),-->
+<!--                ('step_project_parent_id.project_member_ids.employee_id.user_id', '=', user.id),-->
+<!--                ('step_project_parent_id.project_member_ids.employee_id.user_id', 'in', user.with_context(kam_function=True).employee_id.replaceable_employee_ids.user_id.ids),-->
+<!--                ('step_project_parent_id.project_member_ids.employee_id.user_id', 'in', user.with_context(project_manager_function=True).employee_id.replaceable_employee_ids.user_id.ids),-->
+<!--                ('parent_project_id.project_member_ids.employee_id.user_id', '=', user.id),-->
+<!--                ('parent_project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(kam_function=True).employee_id.replaceable_employee_ids.user_id.ids),-->
+<!--                ('parent_project_id.project_member_ids.employee_id.user_id', 'in', user.with_context(project_manager_function=True).employee_id.replaceable_employee_ids.user_id.ids),-->
+<!--                ('project_supervisor_id.id','in', user.supervisor_rule.ids),-->
+<!--                ('parent_project_id.project_supervisor_id.id','in', user.supervisor_rule.ids)-->
+<!--            ]-->
+<!--        </field>-->
+<!--        <field name="groups" eval="[(4, ref('project_budget.project_budget_users'))]"/>-->
+<!--        <field name="perm_read" eval="True"/>-->
+<!--        <field name="perm_write" eval="True"/>-->
+<!--        <field name="perm_create" eval="True"/>-->
+<!--        <field name="perm_unlink" eval="True"/>-->
+<!--    </record>-->
 
     <record id="project_budget.project_budget_project_overdue_report_user_rule" model="ir.rule">
         <field name="name">Project budget user: see my overdue projects</field>

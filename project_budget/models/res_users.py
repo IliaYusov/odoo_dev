@@ -4,6 +4,10 @@ from odoo import models, fields, api
 class ResUsers(models.Model):
     _inherit = 'res.users'
 
+    delegated_group_ids = fields.Many2many(
+        comodel_name='res.groups',
+        relation='groups_users_rel', column1='user_id', column2='group_id', string=None
+        )
     project_supervisor_access_ids = fields.One2many(
         comodel_name='project_budget.project_supervisor_access',
         inverse_name='user_id',

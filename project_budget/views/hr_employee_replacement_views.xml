@@ -5,9 +5,11 @@
         <field name="inherit_id" ref="hr_replacement.hr_employee_replacement_view_form"/>
         <field name="arch" type="xml">
             <xpath expr="//notebook/page[@name='page_functions']" position="inside">
-                <group string="Project Management" invisible="not context.get('project_management_functions', False)">
+                <group string="Groups">
                     <field name="allowed_groups" invisible="1"/>
-                    <field name="replaceable_groups_ids" options="{'no_create': True}" widget="many2many_checkboxes" domain="[('id', 'in', allowed_groups)]"/>
+                    <group>
+                        <field name="replaceable_groups_ids" options="{'no_create': True}" widget="many2many_checkboxes" domain="[('id', 'in', allowed_groups)]"/>
+                    </group>
                     <group>
                         <field name="kam_function"/>
                     </group>
