@@ -56,6 +56,9 @@
             <menuitem id="menu_project_budget_overdue_projects" name="Overdue Projects" sequence="2"
                       action="action_project_budget_overdue_projects"
                       groups="project_budget_users,project_budget_admin"/>
+            <menuitem id="menu_project_budget_incorrect_forecast" name="Incorrect Forecasts" sequence="3"
+                      action="action_project_budget_incorrect_forecasts"
+                      groups="project_budget_users,project_budget_admin"/>
         </menuitem>
     </menuitem>
 
