@@ -119,14 +119,14 @@ class ReportContractingRevenueCashExcel(models.AbstractModel):
         sheet.write(row, col, prj.responsibility_center_id.name, row_format)
         col += 1
 
-        if prj.order_ids:
+        if self.env.user.has_group('sale_mngmnt.sale_group_user') or self.env.user.has_group('sale_mngmnt.sale_group_manager') and prj.order_ids:
             pn = ', '.join(cat.root_category_id.name if cat.root_category_id else cat.name for cat in prj.order_ids.line_ids.product_category_id)
             sheet.write(row, col, pn, row_format)
         else:
             sheet.write(row, col, '', row_format)
         col += 1
 
-        if prj.order_ids:
+        if self.env.user.has_group('sale_mngmnt.sale_group_user') or self.env.user.has_group('sale_mngmnt.sale_group_manager') and prj.order_ids:
             rpn = ', '.join(cat.root_category_id.head_id.name if cat.root_category_id else cat.head_id.name for cat in prj.order_ids.line_ids.product_category_id if (cat.root_category_id.head_id if cat.root_category_id else cat.head_id))
             sheet.write(row, col, rpn, row_format)
         else:
@@ -180,14 +180,14 @@ class ReportContractingRevenueCashExcel(models.AbstractModel):
         sheet.write(row, col, prj.responsibility_center_id.name, row_format)
         col += 1
 
-        if prj.order_ids:
+        if self.env.user.has_group('sale_mngmnt.sale_group_user') or self.env.user.has_group('sale_mngmnt.sale_group_manager') and prj.order_ids:
             pn = ', '.join(cat.root_category_id.name if cat.root_category_id else cat.name for cat in prj.order_ids.line_ids.product_category_id)
             sheet.write(row, col, pn, row_format)
         else:
             sheet.write(row, col, '', row_format)
         col += 1
 
-        if prj.order_ids:
+        if self.env.user.has_group('sale_mngmnt.sale_group_user') or self.env.user.has_group('sale_mngmnt.sale_group_manager') and prj.order_ids:
             rpn = ', '.join(cat.root_category_id.head_id.name if cat.root_category_id else cat.head_id.name for cat in prj.order_ids.line_ids.product_category_id if (cat.root_category_id.head_id if cat.root_category_id else cat.head_id))
             sheet.write(row, col, rpn, row_format)
         else:
@@ -243,14 +243,14 @@ class ReportContractingRevenueCashExcel(models.AbstractModel):
         sheet.write(row, col, prj.responsibility_center_id.name, row_format)
         col += 1
 
-        if prj.order_ids:
+        if self.env.user.has_group('sale_mngmnt.sale_group_user') or self.env.user.has_group('sale_mngmnt.sale_group_manager') and prj.order_ids:
             pn = ', '.join(cat.root_category_id.name if cat.root_category_id else cat.name for cat in prj.order_ids.line_ids.product_category_id)
             sheet.write(row, col, pn, row_format)
         else:
             sheet.write(row, col, '', row_format)
         col += 1
 
-        if prj.order_ids:
+        if self.env.user.has_group('sale_mngmnt.sale_group_user') or self.env.user.has_group('sale_mngmnt.sale_group_manager') and prj.order_ids:
             rpn = ', '.join(cat.root_category_id.head_id.name if cat.root_category_id else cat.head_id.name for cat in prj.order_ids.line_ids.product_category_id if (cat.root_category_id.head_id if cat.root_category_id else cat.head_id))
             sheet.write(row, col, rpn, row_format)
         else:
