@@ -54,7 +54,7 @@
                             <field string="from date" name="date_start" attrs="{'invisible': [('type_report', 'not in', ('pds_acceptance_by_date', 'bdds', 'contracting_revenue_cash', 'contracting_revenue_cash_v2'))]}"/>
                         </group>
                         <group>
-                            <field string="year to" name="year_end" attrs="{'invisible': [('type_report', 'in', ('week_to_week', 'raw_data','bdds_raw_data','overdue','management_committee','pds_acceptance_by_date', 'pds_weekly', 'pds_weekly_plan_fact', 'pds_weekly_plan_fact_sa', 'forecast_v2', 'forecast_v3', 'plan_fact', 'contracting_revenue_cash', 'contracting_revenue_cash_v2', 'bdds'))]}"/>
+                            <field string="year to" name="year_end" attrs="{'invisible': [('type_report', 'in', ('week_to_week', 'raw_data','bdds_raw_data','overdue','management_committee','pds_acceptance_by_date', 'pds_weekly', 'pds_weekly_plan_fact', 'pds_weekly_plan_fact_sa', 'forecast_v2', 'forecast_v3', 'plan_fact', 'contracting_revenue_cash', 'contracting_revenue_cash_v2', 'bdds', 'fulfilment'))]}"/>
                             <field string="to date" name="date_end" attrs="{'invisible': [('type_report', 'not in', ('pds_acceptance_by_date', 'bdds', 'contracting_revenue_cash', 'contracting_revenue_cash_v2'))]}"/>
                         </group>
                         <group></group>
@@ -238,5 +238,13 @@
             name="project_budget.report_bdds_raw_data_excel"
             menu="False"
             file="project_budget.report_bdds_raw_data_excel"
+    />
+    <report id="action_projects_list_report_xlsx_fulfilment"
+            string="Projects Fulfilment"
+            model="project_budget.projects.report.wizard"
+            report_type="xlsx"
+            name="project_budget.report_fulfilment_excel"
+            menu="False"
+            file="project_budget.report_fulfilment_excel"
     />
 </odoo>

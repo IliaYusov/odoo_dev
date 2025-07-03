@@ -23,6 +23,7 @@ class report_projects_wizard(models.TransientModel):
             ('week_to_week', _('Week to Week')),
             ('bdds', _('BDDS report')),
             ('bdds_raw_data', _('BDDS Raw Data')),
+            ('fulfilment', _('Projects Fulfilment')),
         ]
         if self.env.user.has_group('base.group_no_one'):
             type_report.append(('forecast_v3', _('Forecast_v3')))
@@ -164,3 +165,6 @@ class report_projects_wizard(models.TransientModel):
 
         if self.type_report == 'bdds_raw_data':
             return self.env.ref('project_budget.action_projects_list_report_xlsx_bdds_raw_data').report_action(self, data=datas)
+
+        if self.type_report == 'fulfilment':
+            return self.env.ref('project_budget.action_projects_list_report_xlsx_fulfilment').report_action(self, data=datas)

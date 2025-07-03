@@ -1163,6 +1163,13 @@ msgid "BDDS report"
 msgstr "Отчет БДДС"
 
 #. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/wizard/report_projects_wizard.py:0
+#, python-format
+msgid "Projects Fulfilment"
+msgstr "Проекты на исполнении"
+
+#. module: project_budget
 #: model:ir.model.fields.selection,name:project_budget.selection__project_budget_projects_report_wizard__type_report__contracting_revenue_cash
 msgid "Contracting Revenue Cash"
 msgstr "Свод фин. индикаторов"

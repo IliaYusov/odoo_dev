@@ -18,4 +18,5 @@ from . import report_contracting_revenue_cash_excel
 from . import report_contracting_revenue_cash_v2_excel
 from . import report_bdds_excel
 from . import report_bdds_raw_data_excel
+from . import report_fulfilment_excel
 from . import test_report
