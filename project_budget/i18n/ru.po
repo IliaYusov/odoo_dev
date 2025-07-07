@@ -2384,6 +2384,20 @@ msgstr "Валюта проекта"
 #. odoo-python
 #: code:addons/project_budget/models/project_budget_project.py:0
 #, python-format
+msgid "DENIED. planned_acceptance_sum <> amount_untaxed"
+msgstr "Сумма прогноза актирования не совпадает с суммой выручки"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/project_budget_project.py:0
+#, python-format
+msgid "DENIED. planned_cash_sum <> amount_total"
+msgstr "Сумма прогноза ПДС не совпадает с суммой контрактования"
+
+#. module: project_budget
+#. odoo-python
+#: code:addons/project_budget/models/project_budget_project.py:0
+#, python-format
 msgid ""
 "Project\\step is '100' acceptance {0} should be 'commitment' or "
 "'from_project'"

@@ -923,14 +923,15 @@ class Project(models.Model):
 
     def set_approve_manager(self):
         for rows in self:
-            # if rows.estimated_probability_id.name in ('50','75','100'):
-            #     if rows.total_amount_of_revenue_with_vat != rows.planned_acceptance_flow_sum:
-            #         raisetext = _("DENIED. planned_acceptance_flow_sum <> total_amount_of_revenue_with_vat")
-            #         raise ValidationError(raisetext)
-            #
-            #     if rows.total_amount_of_revenue_with_vat != rows.planned_cash_flow_sum:
-            #         raisetext = _("DENIED. planned_cash_flow_sum <> total_amount_of_revenue_with_vat")
-            #         raise ValidationError(raisetext)
+
+            if rows.stage_id.code in ('50', '75', '100') and rows.step_status == 'project':  # проверка совпадения прогнозов и фин. показателей
+                if abs(rows.amount_untaxed - rows.planned_acceptance_flow_sum_without_vat) > 100:
+                    raisetext = _("DENIED. planned_acceptance_sum <> amount_untaxed")
+                    raise ValidationError(raisetext)
+
+                if abs(rows.amount_total - rows.planned_cash_flow_sum) > 100:
+                    raisetext = _("DENIED. planned_cash_sum <> amount_total")
+                    raise ValidationError(raisetext)
 
             isok, raisetext =self.check_overdue_date(False)
             if isok == False:
